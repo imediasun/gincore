@@ -1,0 +1,72 @@
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <a class="brand" id="logo_gincore" href="{-txt-prefix}"><img src="{-txt-prefix}img/logo.png" alt="logo"/></a>
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <!--<li{-txt-home_active}><a href="{-txt-prefix}">{-txt-main}</a></li>-->
+                        {-html-mainmenu}
+                    </ul>
+                    <div class="nav navbar-text pull-right" style="text-align: center">
+                        <div class="dropdown pull-right" style="color:#fff">
+                            <div class="pull-left" style="margin: -5px 10px 0 0;">
+                                {-txt-lang_switch}
+                            </div>
+                            <a data-o_id="2" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="btn-callback active">
+                                <i class="fa fa-phone"></i>
+                                <span class="new-count-statuses"></span>
+                            </a>
+							<a data-o_id="3" onclick="alert_box(this, false, 'show_contact_phones', undefined, undefined, 'messages.php')" class="btn-callback active" href="javascript:void(0);" >
+								<i class="fa fa-phone-square"></i>
+							</a>
+							
+                            {-html-timer}
+
+                            <a data-o_id="0" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="btn-messages active">
+                                <i class="fa fa-envelope"></i>
+                                <span class="new-count-mess"></span>
+                            </a>
+
+                            <span class="dropdown-toggle cursor-pointer" data-toggle="dropdown">
+                                <span class="icon-user icon-white"></span>
+                                {-txt-current_admin}
+                            </span>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                <li><a href="{-txt-prefix}logout" class="">{-txt-exit}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </div>
+        {-html-infoblock}
+    </div>
+    {-html-call_btn}
+
+    <!--<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel"><span id="count-mess" class="label label-blue">{-txt-count_mess}</span> Сообщений(я)</h3>
+        </div>
+        <div class="modal-body">
+            {-html-messages}
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" onclick="remove_message('all', this)">Удалить все</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Закрыть</button>
+        </div>
+    </div>-->
+
+    {-html-module_content}
+
+    {-js-module}
+    
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>{-txt-page_title}</title>
+    <link rel="icon" type="image/png" href="{-txt-prefix}images/favicon.gif">
+    {-html-metadescription}
+    {-html-metakeywords}
+    {-html-meta}
+
+    <meta name = "format-detection" content = "telephone=no" />
+
+    <link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/main.css?2">
+    <link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/resize.css">
+    <link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/jquery.jscrollpane2.css">
+
+    <script type="text/javascript">
+        var prefix = '{-txt-prefix}';
+    </script>
+    <script type="text/javascript" src="{-txt-prefix}extra/jquery.js"></script>
+    <script type="text/javascript" src="{-txt-prefix}extra/jquery.pjax.js"></script>
+    <script type="text/javascript" src="{-txt-prefix}extra/jquery.masonry.min.js"></script>
+    <script type="text/javascript" src="{-txt-prefix}extra/jquery.jscrollpane2.min.js"></script>
+    <script type="text/javascript" src="{-txt-prefix}extra/jquery.mousewheel.min.js"></script>
+    <script type="text/javascript" src="{-txt-prefix}extra/jquery.animate-enhanced.js"></script>
+
+    <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+    <!--[if lt IE 10]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+        <script type="text/javascript" src="{-txt-prefix}extra/jquery.reject.min.js"></script>
+    <![endif]-->
+
+    <!-- {-extra-js} -->
+    <script type="text/javascript">
+        var txt_title = '{-txt-page_title}',
+            page = '{-js-page}',
+            gallery_with_comments = false,
+            auth = {-txt-auth},
+            user = {-txt-user},
+            ipad = {-txt-ipad};
+
+        {-js-source_gmap}
+    </script>
+    {-js-files_gmap}
+
+    <script type="text/javascript" src="{-txt-prefix}extra/main.js?2"></script>
+
+</head>

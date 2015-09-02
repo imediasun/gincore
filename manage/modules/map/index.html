@@ -1,0 +1,50 @@
+    <img src="{-txt-prefix}modules/map/img/loading.gif" id="map_loading">
+<div id="middle">
+    <div class="row-fluid">
+        <div class="span3 map_tree">
+            <div>
+                <input placeholder="поиск по дереву" type="text" id="tree_search" name="tree_search">
+            </div>
+            <div id="jqxWidget">
+                    
+                <div>
+                    <ul id="search_results"></ul>
+                </div>
+                <div id="jqxTree">
+                    <div id="saving">{-txt-saving}...</div>
+                    <div id="ExpandAll" class="menu_vis">Раскрыть все</div>
+                    <div id="CollapseAll" class="menu_vis">Закрыть все</div>
+                    {-html-mmenu}
+                </div>
+                <div id="jqxMenu">
+                    <label class="checkbox">{-txt-map_published_short} 
+                        <input id="page_state" type="checkbox" checked="checked">
+                    </label>
+                    <button style="margin-bottom: 7px" id="add_item" class="btn btn-info">{-txt-map_add_subpage}</button>	
+                    <button id="copy_item" class="btn btn-info">Копіювати</button>	
+                </div>
+            </div>
+        </div>
+        <div class="span9">
+            {-html-mcontent}
+        </div>
+    </div>
+    <!--</div>-->
+    
+                    
+    <div id="float" class="float" style="display: none">
+        <button type="button" class="float_close btn-small btn">{-txt-close}</button>
+        <div class="float_content">
+            {-txt-loading}
+        </div>
+    </div>
+</div>
+
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}css/jquery-ui-1.9.0.custom.min.css">
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}css/iphone-style-checkboxes.css">
+
+<script type="text/javascript" src="{-txt-prefix}tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript" src="{-txt-prefix}tiny_mce/plugins/tinybrowser/tb_tinymce.js.php"></script>
+<script type="text/javascript" src="{-txt-prefix}js/jquery-ui-1.9.0.custom.min.js"></script>
+<script type="text/javascript" src="{-txt-prefix}js/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="{-txt-prefix}js/iphone-style-checkboxes.js"></script>

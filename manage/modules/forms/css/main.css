@@ -1,0 +1,9 @@
+.tab-pane{
+    padding: 20px;
+    border: 1px solid #DDD;
+    border-top: none;
+}
+
+.nav-tabs {
+    margin-bottom: 0;
+}

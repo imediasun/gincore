@@ -1,0 +1,18 @@
+
+.popover {
+    min-width: 236px;
+    width: auto;
+}
+.close-popover{
+    float: right;
+}
+.close-popover:hover {
+    cursor: pointer;
+}
+.popover-content textarea {
+    margin: 5px 0;
+    padding: 1px;
+}
+.popover {
+    margin-top: 15px;
+}

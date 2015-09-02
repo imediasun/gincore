@@ -1,0 +1,180 @@
+.top_city_select{
+    position: relative;
+    display: inline-block;
+    color: #fff;
+    padding-top: 6px;
+    margin-left: -7px;
+    font-size: 14px;
+}
+.city_select{
+    font-size: inherit;
+    display: inline-block !important;
+    position: relative;
+}
+.city_select .current_city{
+    font-size: inherit;
+}
+.city_select .current_city>span{
+    display: inline-block;
+    padding: 0;
+    border-bottom: 0;
+}
+.city_select .current_city>span.city_name{
+    border-bottom: 1px dashed;
+}
+.city_select .current_city>span.triangle{
+    margin-left: 3px;
+    font-size: 14px;
+}
+.city_select:hover .cities_dropdown{
+    display: block;
+}
+.cities_dropdown{
+    padding-top: 5px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: none;
+    color: #666;
+    z-index: 1000;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+.cities_dropdown_inner{
+    background: #fff;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    -moz-box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    display: block;
+    position: relative;
+}
+.cities_dropdown_inner .arrow{
+    position: absolute;
+    bottom: 100%;
+    left: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #fff;
+}
+.cities_dropdown_inner ul{
+    list-style-type: none;
+    margin: 0 ;
+    padding: 0 ;
+}
+.cities_dropdown_inner li{
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 6px 10px;
+    text-align: left;
+    display: block;
+    cursor: pointer;
+}
+.cities_dropdown_inner li.active{
+    cursor: default;
+    background-color: #f0f0f0 !important;
+}
+.cities_dropdown_inner li:hover{
+    background-color: #f6f6f6;
+}
+.first_city_select{
+    position: absolute;
+    top: 100%;
+    padding-top: 12px;
+    left: 0;
+    z-index: 100;
+    width: auto;
+}
+.first_city_select_inner{
+    position: relative;
+}
+.first_city_select_content{
+    overflow: hidden;
+    white-space: nowrap;
+    border: 2px solid #FFC300;
+    border-radius: 2px;
+    color: #3a3a3a;
+    padding: 10px 15px;
+    background-color: #fff;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    -moz-box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+}
+.first_city_select_content .black_btn{
+    width: auto;
+    font-size: 14px;
+    padding: 5px 15px;
+    cursor: pointer;
+}
+.dotted_btn{
+    background: none;
+    border: 0;
+    outline: 0;
+    border-bottom: 1px dotted;
+    cursor: pointer;
+}
+.first_city_select_content .dotted_btn{
+    font-size: 13px;
+    margin-top: 5px;
+}
+.first_city_select_title{
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.first_city_select_arrow1{
+    position: absolute;
+    bottom: 100%;
+    margin-bottom: -2px;
+    left: 9px;
+    width: 0; 
+    height: 0; 
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-bottom: 11px solid #FFC300;
+}
+.first_city_select_arrow2{
+    position: absolute;
+    bottom: 100%;
+    left: 12px;
+    margin-bottom: -2px;
+    width: 0; 
+    height: 0; 
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #fff;
+}
+.row-fcs{
+    display: table;
+}
+.first_city_select_change_left{
+    display: table-cell;
+    vertical-align: top;
+}
+.first_city_select_change_right{
+    display: table-cell;
+}
+.first_city_select_change_right ul{
+    display: block;
+    padding: 0;
+    list-style-type: none;
+    margin: 1px 0 0 10px;
+}
+.first_city_select_change_right ul label{
+    position: relative;
+    font-size: 14px;
+    padding-left: 20px;
+}
+.first_city_select_change_right ul li{
+    margin-bottom: 1px;
+}
+.first_city_select_change_right ul label input{
+    left: 0;
+    top: 1px;
+    position: absolute;
+}
+.hidden{
+    display: none !important;
+}
+.top_city_select_name{
+    display: inline-block;
+    position: relative;
+}

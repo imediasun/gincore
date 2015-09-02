@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>{-txt-page_title}</title>
+
+    <!--<link rel="icon" type="image/png" href="{-txt-prefix}images/favicon.png">-->
+    <link rel="icon" type="image/x-icon" href="{-txt-prefix}favicon.ico" />
+    {-html-metadescription}
+    {-html-metakeywords}
+    {-html-meta}
+    {-html-cannonical_page}
+
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/bootstrap/css/bootstrap.min.css" />
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/main_h.css?24" />
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/city_select.css" />
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}colors/{-txt-style_color}.css" />
+<!--<link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/resize_h.css" />-->
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}consult/css/main.css?15" />
+{-html-css_extra}
+
+<script type="text/javascript" src="{-txt-prefix}extra/jquery.js?1"></script>
+<script type="text/javascript" src="{-txt-prefix}extra/bootstrap/js/bootstrap.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="{-txt-prefix}extra/html5.js"></script>
+      <script src="{-txt-prefix}extra/css3-mediaqueries.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+        <script type="text/javascript" src="{-txt-prefix}extra/jquery.reject.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+      var txt_title = '{-txt-page_title_js}',
+          url_lang = '{-txt-url_lang}',
+          city = '{-txt-city}',
+          prefix = '{-txt-prefix}',
+          theme = '{-txt-theme}',
+          page = '{-js-page}',
+          auth = '{-txt-auth}',
+          user = '{-txt-user}',
+          ipad = '{-txt-ipad}';
+          L = {-txt-js_translates};
+      {-js-source_gmap}
+      {-js-global_source_gmap}
+      {-js-service_map}
+    </script>
+    {-js-files_gmap}
+
+<!--<script type="text/javascript" src="{-txt-prefix}extra/jquery.pjax_min.js"></script>-->
+    
+  </head>

@@ -1,0 +1,59 @@
+<link type="text/css" rel="stylesheet" href="{-txt-prefix}extra/jquery.raty.css" />
+<script type="text/javascript" src="{-txt-prefix}extra/jquery.raty.js"></script>
+
+<div class="container-fluid max-width service_page">
+    {-html-breadcrumbs}
+    <div class="services_slider_backstage">
+        <div class="inner_fullwidth">
+            {-txt-content_images}
+        </div>
+    </div>
+    <div class="service_page_title"><h1>{-txt-title}</h1></div>
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-md-pull-left">
+            <div class="sidebar no_mb clearfix">
+                {-html-devices_listblock}
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-8 col-md-pull-right">
+            <div class="ajax_content clearfix">
+                {-txt-consult}
+              <div class="content">
+                <article>
+                    {-txt-video}
+                    {-txt-content}
+                    {-txt-service_form}
+                    {-txt-banner}
+                    {-html-service_map}
+                    {-txt-snippets}
+                    {-txt-videoblog}
+                </article>
+              </div>
+            </div> 
+        </div>
+        <div class="col-lg-3 col-md-4 col-md-pull-left">
+            <div class="sidebar no_mt clearfix">
+                {-html-service_listblock}
+                {-html-service_block}
+                {-html-video_block}
+                {-html-video_blog_block}
+                {-html-fb_director_block}
+                <div class="side_banners">
+                    {-html-flayers}
+                </div>
+                {-html-buyold_block}
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $( document ).ready(function() {
+        $('.star-rating').raty({
+            readOnly: true,
+            score: function() {
+                return $(this).attr('data-score');
+            },
+            starType: 'i'
+        });
+    });
+</script>

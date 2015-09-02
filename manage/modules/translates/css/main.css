@@ -1,0 +1,36 @@
+fieldset div{
+    border: 1px solid #ebebeb; 
+    border-top: 0; 
+    padding: 15px;
+}
+
+fieldset legend{
+    margin-bottom: 0 !important;
+}
+
+.main:hover > div{
+    border-color: #bebebe;
+    background-color: #f6f6f6;
+}
+
+.main:hover > legend{
+    border-color: #bebebe;
+}
+
+.main fieldset:hover > div{
+    border-color: #bebebe;
+}
+
+.main fieldset:hover > legend{
+    border-color: #bebebe;
+}
+
+.save-btn{
+    position: fixed;
+    top: 63px;
+    right: 20px;
+}
+
+a.active{
+    font-weight: bold;
+}

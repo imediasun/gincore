@@ -1,0 +1,164 @@
+/*.all-cashboxes {
+    list-style: none;
+}
+
+.all-cashboxes > li {
+    float: left;
+    text-align: center;
+    margin: 10px;
+}*/
+
+.btns-cashbox {
+    width: 150px;
+}
+
+.all-cashboxes > li > h4 {
+    color: #666666;
+}
+
+.btn-cashboxes {
+    width: 100%;
+    margin: 3px 0px;
+}
+/*
+.select-cashbox, .datepicker, .select-contractor-category, .select_contractors {
+    width: 170px;
+}
+
+span.conversion-course {
+    margin-left: 5px;
+    color: #888888;
+    font-size: 0.8em;
+}
+
+input.conversion-course {
+    width: 70px;
+}
+
+.amount {
+    float: left;
+    width: 70px;
+}
+
+.cashbox_currencies {
+    width: 70px;
+}*/
+
+#transaction_form table {
+    border-collapse: separate;
+    border-spacing: 10px 4px;
+    width: 100%;
+}
+
+#transaction_form ul.nav.nav-pills {
+    margin-bottom: 0px;
+}
+
+#transaction_comment {
+    width: 278px;
+}
+
+.conversion-course {
+    display: none;
+}
+
+.block-width {
+    display: inline-block;
+}
+
+.date-filter {
+    float: right;
+    margin-right: 320px;
+}
+
+.go-to-settings {
+    margin-bottom: 15px;
+}
+/*
+.remove_currency:hover, .remove_category_contractor_link:hover {
+    cursor: pointer;
+}
+
+.amount.to-amount {
+    display: none;
+}*/
+
+.get_months {
+    color: #0088CC;
+}
+/*
+div.out-transaction > p.pull-right {
+    margin-right: 20px;
+}
+
+.out-transaction {
+    min-height: 200px;
+}*/
+/*
+#transaction_div_1 table > thead > tr > td, #transaction_div_2 table > thead > tr > td,
+#transaction_div_3 table > thead > tr > td, #pay-client-order table > thead > tr > td {
+    color: #888888;
+}
+
+.conversion-course-db-from, .conversion-course-db-to {
+    cursor: pointer;
+}
+
+div.transaction_div i.icon-plus:hover {
+    cursor: pointer;
+}*/
+
+#reports-cost_of > table {
+    max-width: 600px;
+}
+
+.cashboxes-table td {
+    padding-right: 20px;
+}
+
+.report-cashflow-inc td:first-child, .report-cashflow-exp td:first-child {
+    padding-left: 25px;
+}
+
+.table-reports {
+    font-size: 12px;
+}
+
+.table-reports td {
+    padding: 2px;
+}
+
+.table-reports tbody td.is_hover {
+    background-color: #FFECBB;
+}
+
+.three-column {
+    -moz-column-count: 3;
+    -webkit-column-count: 3;
+    column-count: 3;
+}
+
+.first-multi-column {
+    display: inline-block;
+    width: 100%;
+}
+
+#transaction_form_body.transaction_type-1 .hide-not-tt-1 {
+    display: none;
+}
+
+#transaction_form_body.transaction_type-2 .hide-not-tt-2 {
+    display: none;
+}
+
+#transaction_form_body.transaction_type-3 .hide-not-tt-3 {
+    display: none;
+}
+
+#transaction_form_body.transaction_type-3.hide-conversion-3 .hide-conversion {
+    width: 74px;
+}
+
+#transaction_form_body.transaction_type-3.hide-conversion-3 .hide-conversion > span {
+    display: none;
+}

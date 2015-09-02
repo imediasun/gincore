@@ -1,0 +1,28 @@
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_URI} \.(jpg|jpeg|gif|png|ico)$ [NC]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule .*$ images/blank.gif [L]
+
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule (.*) index.php [L]
+</IfModule>
+
+# set cache to 2 days - 172800
+#<ifModule mod_headers.c>
+#<FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|css|js)$">
+#    Header set Cache-Control "max-age=172800"
+#</FilesMatch>
+#</ifModule>
+
+#AddType audio/ogg .oga .ogg
+#AddType video/ogg .ogv
+#AddType application/ogg .ogg
+#AddType video/webm .webm
+#AddType video/mp4 .mp4
+#AddType video/mp4 .m4v

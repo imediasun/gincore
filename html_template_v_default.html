@@ -1,0 +1,105 @@
+<body>
+  <section id="navigation">
+    <div id="navigation_inner">
+      <header>
+        <a href="{-txt-prefix}">
+          <img src="{-txt-prefix}images/logo.png" alt="{-txt-logo_title}">
+        </a>
+      </header>
+      <div id="root_menu">
+        <nav>
+          <div id="toolbar"></div>
+          <menu>
+            {-html-root_menu}
+          </menu>
+        </nav>
+      </div>
+      <footer>
+        <div>
+          <div class="tel">{-txt-content_tel}</div>
+        </div>
+        <div>
+          <div id="question">Задать вопрос</div>
+        </div>
+      </footer>
+      <div class="copyright">
+        <a href="http://usability-production.com/" target="_blank">&copy; UP</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="content">
+    <div id="content_inner">
+      {-html-inner}
+    </div>
+  </section>
+
+  <div id="add_question">
+    <div id="close_question"></div>
+    <div class="qformcenter">
+      <div class="qform qform1">
+        <div class="qform_inner">
+          <div class="qimage">
+            <img src="{-txt-prefix}{-txt-theme}/mail_icon.jpg" alt="mail" width="155" height="155">
+          </div>
+          <div class="qtext">
+            <h1>Обратная связь</h1>
+            <p>
+              У Вас есть вопрос? Комментарии  
+              по качеству нашего сервиса? 
+              Вы хотели бы сотрудничать с нами? 
+              Вас интересует подробная 
+              информация о нас? Заполните эту форму и направьте ее нам!
+            </p>
+          </div>
+          <div class="qform" data-type="1">
+            <textarea name="message" placeholder="Сообщение:" title="Сообщение"></textarea>
+            <input name="email" type="text" placeholder="Ваш E-mail:" title="E-mail">
+            <input type="button" id="send_question" value="Отправить">
+            <div class="qform_message"></div>
+          </div>
+        </div>
+      </div>
+      <div class="qform qform2">
+        <div class="qform_inner">
+          <div class="qimage">
+            <img src="{-txt-prefix}{-txt-theme}/tel_icon.jpg" alt="Телефон" width="155" height="155">
+          </div>
+          <div class="qtext">
+            <h1>Обратный звонок</h1>
+            <p>
+              Теперь Вам не нужно звонить нам. Если у Вас возник вопрос, просто сообщите Ваше имя, номер телефона, предпочтительное время звонка, 
+              и консультат свяжеться с Вами 
+              в ближайшее время
+            </p>
+          </div>
+          <div class="qform" data-type="2">
+            <input name="name" type="text" placeholder="Имя:" title="Имя">
+            <input name="tel" type="text" placeholder="Телефон:" title="Телефон">
+            <input name="time" type="text" placeholder="Время звонка:" title="Время звонка">
+            <input type="button" id="send_question" value="Отправить">
+            <div class="qform_message"></div>
+            <div class="qform_message_big">
+              <div>
+                <div class="close_small"></div>
+                <p>Спасибо, запрос отправлен.<p>
+                <p>Мы стараемся сделать все для улучшение нашего сервиса,
+                  после получения консультации, пожалуйста, отправьте нам отзыв о качестве консультации,
+                  это можно сделать через форму "Обратной связи"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <canvas id="loading" width="110" height="110">Загрузка...</canvas>
+
+
+  <!-- GA script -->
+
+  <!-- Yandex.Metrika counter -->
+</body>
+</html>

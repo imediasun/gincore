@@ -1,0 +1,47 @@
+.searchselect {
+    background-color: #EEEEEE;
+    border: 1px none;
+    border-radius: 4px 0 0 4px;
+    height: 22px;
+    margin-right: -2px;
+    padding: 0 6px;
+    position: relative;
+    width: 120px;
+    border: 1px solid #D3D3D3;
+    border-right: none;
+}
+
+.ui-button .ui-button-text {
+    min-height: 8px;
+}
+
+.small_ids {
+    font-size: 0.8em;
+    color: #aaa;
+}
+
+.ul-list {
+    list-style: none;
+    margin-left: 60px;
+}
+
+.selected-filters a {
+    font-weight: bold;
+}
+
+#remove-search-info:hover {
+    cursor: pointer;
+}
+
+#collapse_product_suppliers_orders.in {
+    padding: 0 13px 60px 0;
+}
+
+.edit_active > label.checkbox {
+    margin-bottom: 0;
+    min-width: 50px;
+}
+
+#export_goods_form > .control-group {
+    margin-bottom: 5px;
+}

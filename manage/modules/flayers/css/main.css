@@ -1,0 +1,30 @@
+#sortable { 
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0; 
+    /*width: 420px;*/
+    width: 308px;
+}
+
+#sortable li {
+    cursor: move;
+    margin: 2px;
+    background-color: #fff;
+    border: 1px solid #bebebe;
+    padding: 1px; 
+    float: left; 
+    /*width: 200px;*/ 
+    width: 150px;
+    /*height: 125px;*/ 
+    text-align: center; 
+}
+
+#sortable li.double { 
+    /*width: 408px;*/
+    width: 308px;
+}
+
+#sortable li.main { 
+    /*width: 408px;*/
+    width: 225px;
+}

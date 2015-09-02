@@ -1,0 +1,62 @@
+.ui-button .ui-button-text {
+    min-height: 7px;
+}
+.searchselect {
+    background-color: #EEEEEE;
+    border-color: #D3D3D3 -moz-use-text-color #D3D3D3 #D3D3D3;
+    border-image: none;
+    border-radius: 4px 0 0 4px;
+    border-style: solid none solid solid;
+    border-width: 1px medium 1px 1px;
+    margin-right: -2px;
+    padding: 1px;
+    position: relative;
+    width: 105px;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    height: 18px;
+    padding: 1px;
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    height: 26px !important;
+}
+.users-combobox .ui-combobox input{
+    width: 208px;
+}
+.sett-dd-btns {
+    height: auto;
+    min-width: 115px;
+    padding: 3px 5px;
+    text-align: center;
+    width: auto;
+}
+.sett-dd-btns input {
+    width: 100%;
+}
+.sett-dd-btns li {
+    list-style: none;
+    margin-bottom: 5px;
+}
+.small-font {
+    font-size: 0.8em;
+}
+
+.add-order {
+    background: -moz-linear-gradient(center bottom , #609121 3%, #93CE1C 82%) repeat scroll 0 0 #609121;
+    border: medium none;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.698);
+    color: #FFFFFF;
+    display: block;
+    font-size: 14px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    display: inline-block;
+    margin: 10px;
+}
+.add-order:hover {
+    background: #5AA011;
+}
+.add-order:active {
+    border: 3px solid rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
+}

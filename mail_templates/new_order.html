@@ -1,0 +1,103 @@
+
+
+<table cellpadding='0' cellspacing='0' border='0' align='center' style='width: 100%; text-align: center; font-size: 15px;'>
+    <tr>
+        <td style='text-align: left; margin-top: 0;'>
+            <table cellpadding='0' cellspacing='0' border='0' align='center' style='width: 100%; text-align: left; margin-bottom: 10px;'>
+                <tr>
+                    <td style='padding-text-align: left; margin-top: 0; font-size: 18px; padding: 10px 0 2px;'>
+                        Здравствуйте, {-mail_msg-fio}
+                    </td>
+                </tr>
+                <tr>
+                    <td style='text-align: left; margin-top: 0; padding: 10px 0;'>
+                        Спасибо Вам за то что остаетесь с нами. Ваш заказ принят в обработку, в течении ближайшего времени с Вами свяжется менеджер.
+                        Отследить статус заказа, а также историю покупок всегда можно в личном кабинете.
+                        <a href="{-mail_msg-body_link_1}" target ="_blank">{-mail_msg-body_link_1_title}</a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style='text-align: left; padding-top: 10px;'>
+            <table cellpadding='0' cellspacing='0' border='0' valign='top' style='border: 1px solid #ECECEC; width: 100%; text-align: left; margin: 0; font-size: 16px;'>
+                <tr style="border-bottom: 1px solid #B5B5B5; background-color: #F6F4F9;">
+                    <td style='color: #8A8A8A; padding: 10px 20px; border-bottom: 1px solid #D4D4D4;'>Сроки доставки:</td>
+                    <td style='color: #8A8A8A; padding: 10px 20px; border-bottom: 1px solid #D4D4D4;'>{-mail_msg-delivery_title}</td>
+                </tr>
+                <tr>
+                    <td valign='top' style='padding: 10px 20px 20px;'>{-mail_msg-d_msg}</td>
+                    <td valign='top' style='padding: 10px 20px 20px;'>{-mail_msg-delivery_content}</td>
+                </tr>
+            </table>
+            <table cellpadding='0' cellspacing='0' border='0' align='center' style='width: 100%; text-align: left; margin-bottom: 0; line-height: 14px; color: #858485; font-size: 11px;'>
+                <tr>
+                    <td style="color: inherit; font-size: inherit; padding: 5px 0;">
+                        *указаны ориентировочные сроки доставки. Фактические сроки могут незначительно отличаться, так как доставка является услугой не связанной с заказом и предоставляется сторонними курьерскими службами.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color: inherit; font-size: inherit; padding-bottom: 5px;">
+                        *в соответствии с законодательством Украины Вы имеете право вернуть товар в течении 14 дней с момента оплаты. Для возврата товара необходимо предоставить гарантийный талон и товарный чек.
+                        Товар должен иметь товарный вид, полную комплектацию, неповрежденные ярлыки, пломбы и упаковку.
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table width="100%" cellpadding='0' cellspacing='0' border='0' align='center'>
+                <tr>
+                    <td colspan ="4" align="left" style="padding:20px 0 10px; font-size: 18px; border-bottom: 1px solid #cccccc;">
+                        Вы заказали
+                    </td>
+                </tr>
+                {-mail_msg-goods}
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p style='height: 1px; border-bottom: 1px solid #CCCCCC; margin: 20px 0;'> </p>
+        </td>
+    </tr>
+    <tr>
+        <td  style='border-bottom: 1px solid #CCCCCC;'>
+            <table cellpadding='0' cellspacing='0' border='0' align='right' style='margin: 20px 45px 45px; line-height: 16px; font-size: 13px;'>
+                <tr>
+                    <td valign='top'></td>
+                    <td width='180' valign='top' style='text-align: left'>Стоимость товара:</td>
+                    <td width='100' valign='top' style='text-align: right; color: #858485; margin-left: 30px;'>{-mail_msg-g_sum}</td>
+                </tr>
+                <tr>
+                    <td valign='top'></td>
+                    <td valign='top' style='text-align: left'>Стоимость доставки:</td>
+                    <td valign='top' style='text-align: right; color: #858485; margin-left: 30px;'>{-mail_msg-d_sum}</td>
+                </tr>
+                <tr>
+                    <td valign='top'></td>
+                    <td valign='top' style='text-align: left'>Комиссия банка:</td>
+                    <td valign='top' style='text-align: right; color: #858485; margin-left: 30px;'>{-mail_msg-p_sum}</td>
+                </tr>
+                <tr>
+                    <td valign='top'></td>
+                    <td valign='top' style='text-align: left; padding-top: 5px;'>Итого:</td>
+                    <td valign='top' style='text-align: right; font-weight: bold; padding-top: 5px;'>{-mail_msg-sum}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style='text-align: left; border-bottom: 1px solid #CCCCCC; padding: 20px 0 30px; font-size: 13px;'>
+           Не забудьте про подарки.
+                 <a href="{-mail_msg-body_link_2}" target ="_blank" title="подарки">{-mail_msg-body_link_2_title}</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style='padding: 15px 0;'>{-mail_msg-coupons}</div>
+        </td>
+    </tr>
+</table>

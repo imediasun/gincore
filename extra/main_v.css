@@ -1,0 +1,445 @@
+/* ----------------------------------------------------
+
+                    CSS reset  
+
+-----------------------------------------------------*/
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+*{
+    -webkit-appearance: none;
+    font-family: Verdana;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    outline: none !important;
+}
+
+html{
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+}
+
+body{
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    background-color: #fff;
+}
+
+ul{
+    margin-left: 25px;
+}
+
+a img, map, img{
+    border: 0;
+}
+
+a{
+    color: #000;
+}
+
+a:hover{
+    color: #271760;
+}
+
+p{
+    margin: 15px 0;
+}
+
+h1{
+    font-size: 140%;
+}
+
+h2{
+    font-size: 130%;
+}
+
+h3{
+    font-size: 120%;
+}
+
+h4{
+    font-size: 110%;
+}
+
+/* ----------------------------------------------------
+
+                    Section navigation 
+            (logo, main menu, contacts, buttons/links)    
+
+-----------------------------------------------------*/
+
+#navigation{
+    background: url(../images/bg_menu.jpg);
+    background-repeat: repeat;
+    width: 20%;
+    left: 0;
+    z-index: 20;
+    top: 0;
+    height: 100%;
+    position: absolute;
+    -webkit-transition: box-shadow 0.1s linear;
+    -moz-transition: box-shadow 0.1s linear;
+    -o-transition: box-shadow 0.1s linear;
+    transition: box-shadow 0.1s linear;
+}
+
+#navigation_inner{
+    border-right: 2px solid #999;
+    height: 100%;
+    overflow: hidden;
+}
+
+#navigation header{
+    width: 80%;
+    margin: 50px auto 0 auto;
+}
+
+#navigation header img{
+    width: 100%;
+}
+
+#root_menu{
+    text-align: right;
+    position: absolute;
+    top: 40%;
+    width: 100%;
+}
+
+#root_menu > nav{
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#root_menu ul{
+    margin: 0 50px 0 0;
+}
+
+.active_menu{
+    color: #271760;
+}
+
+#root_menu li a{
+    font-size: 17px;
+    text-decoration: none;
+}
+
+#root_menu li{
+    text-transform: uppercase;
+    margin: 15px 0;
+    list-style-type: none;
+}
+
+#toolbar{
+    background-color: #999999;
+    height: 2px;
+    width: 40px;
+    position: absolute;
+    right: 0;
+}
+
+#navigation footer{
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    width: 100%;
+}
+    
+#navigation footer div{
+    text-align: center;
+}
+
+#navigation footer > div > div{
+    display: inline-block;
+}
+
+.copyright{
+    width: 100%;
+    position: absolute;
+    bottom: 17px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.copyright a{
+    font-size: 12px;
+    text-decoration: none;
+}
+
+
+.tel{
+    letter-spacing: -1px;
+    color: #271760;
+    font-size: 19px;
+}
+
+#question{
+    border-radius: 3px;
+    margin-top: 8px;
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #7661ca;
+    background: -webkit-linear-gradient(top, #998be5, #7661ca);
+    background: -moz-linear-gradient(top, #998be5, #7661ca);
+    background: -o-linear-gradient(top, #998be5, #7661ca);
+    background: -ms-linear-gradient(top, #998be5, #7661ca);
+    background: linear-gradient(top, #998be5, #7661ca);
+    background: -webkit-gradient(linear, left top, left bottom, 
+                color-stop(0%,#998be5), color-stop(100%,#7661ca));
+    color: #fff;
+    font-size: 15px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.active_qform{
+    background: -webkit-linear-gradient(top, #7661ca, #998be5) !important;
+    background: -moz-linear-gradient(top, #7661ca, #998be5) !important;
+    background: -o-linear-gradient(top, #7661ca, #998be5) !important;
+    background: -ms-linear-gradient(top, #7661ca, #998be5) !important;
+    background: linear-gradient(top, #7661ca, #998be5) !important;
+    background: -webkit-gradient(linear, left top, left bottom, 
+                color-stop(0%,#7661ca), color-stop(100%,#998be5)) !important;
+}
+
+
+/* ----------------------------------------------------
+
+                    Section content
+                    (inner template)    
+
+-----------------------------------------------------*/
+
+
+
+
+#content{
+    left: 20%;
+    width: 80%;
+    z-index: 5 !important;
+    background: #fff;
+    z-index: 20;
+    top: 0;
+    height: 100%;
+    position: absolute;
+    -webkit-transition: box-shadow 0.1s linear;
+    -moz-transition: box-shadow 0.1s linear;
+    -o-transition: box-shadow 0.1s linear;
+    transition: box-shadow 0.1s linear;
+}
+
+#content_inner{
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+
+
+/* ----------------------------------------------------
+
+                    Feedback popup
+
+-----------------------------------------------------*/
+
+input[type="text"], input[type="password"], select, textarea {
+    border: 1px solid #BEBEBE;
+    border-radius: 3px;
+    box-shadow: inset 0 0 4px #BEBEBE;
+    padding: 5px;
+    background: #f4f4f4;
+}
+
+input[type="button"],#save_photo{
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+    background: #232323;
+    padding: 5px 10px;
+    color: #fff;
+    border-radius: 4px;
+}
+
+input[type="button"]:hover{
+    background: #484848;
+}
+
+#add_question{
+    width: 60%;
+    height: 100%;
+    background-color: #fff;
+    border-right: 2px solid #999;
+    margin-left: 2px;
+    top: 0;
+    left: -100%;
+    z-index: 10;
+    position: absolute;
+}
+
+.qformcenter{
+    overflow: hidden;
+    width: 560px;
+    padding: 0 10px;
+    margin: 0 auto;
+}
+
+.qform1{
+    margin-right: 30px;
+}
+
+.qform2{
+    margin-left: 30px;
+}
+
+.qform{
+    position: relative;
+    float: left;
+    height: 100%;
+    width: 250px;
+}
+
+.qimage{
+    text-align: center;
+}
+
+.qtext{
+    height: 150px;
+}
+
+.qtext h1{
+    margin: 10px 0 20px 0;
+    color: #D12821;
+    font-weight: normal;
+}
+
+.qform > *{
+    font-size: 12px;
+    margin: 5px 0;
+    width: 94%;
+}
+
+.qform > textarea{
+    height: 50px;
+}
+
+.enabled_qform{
+    background: -webkit-linear-gradient(top, #998be5, #7661ca) !important;
+    background: -moz-linear-gradient(top, #998be5, #7661ca) !important;
+    background: -o-linear-gradient(top, #998be5, #7661ca) !important;
+    background: -ms-linear-gradient(top, #998be5, #7661ca) !important;
+    background: linear-gradient(top, #998be5, #7661ca) !important;
+    background: -webkit-gradient(linear, left top, left bottom, 
+                color-stop(0%,#998be5), color-stop(100%,#7661ca)) !important;
+    cursor: pointer !important;
+    color: #fff !important; 
+}
+
+.qform_message{
+    height: 15px;
+    width: 100%;
+    text-align: center;
+}
+
+.qform > input[type="button"]{
+    padding: 8px 0;
+    width: 60%;
+    display: block;
+    margin: 10px auto;
+    background: #dedede;
+    border: 1px solid #c5c5c5;
+    color: #7e7e7e;
+    cursor: default;
+}
+
+#close_question{
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e3e3e3;
+    border-radius: 5px;
+    width: 50px;
+    height: 50px;
+    background-image: url(../images/close_2.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+#close_question:hover{
+    background-color: #cacaca;
+}
+
+.qform_message_big{
+    display: none;
+    width: 100%;
+    height: 90%;
+    border-radius: 5px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1;
+    background: #e9e9e9;
+}
+
+.qform_message_big > div{
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.qform_message_big p{
+    margin: 10px;
+}
+.qform_message_big p,
+.qform_message_big p *{
+    font-size: 12px;
+}
+
+.close_small{
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    background: #d5d5d5; 
+    padding: 5px;
+    position: absolute;
+    right: 5px;
+    border-radius: 5px;
+    top: 5px;
+    background-image: url(../images/close_icon.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.close_small:hover{
+    background-color: #cdcdcd;
+}
+
+
+/* -
+    Loading notation
+
+- */
+
+#loading{
+    width: 110px;
+    height: 110px;
+    position: fixed;
+    top: 50%;
+    margin-left: -55px;
+    margin-top: -55px;
+    left: 50%;
+    z-index: -1;
+}
+
+
+
+

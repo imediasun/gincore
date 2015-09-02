@@ -1,0 +1,103 @@
+
+#warehouses_content {
+    min-height: 200px;
+    margin-top: 40px;
+}
+
+.show_warehouse {
+    float: left;
+    height: 160px;
+}
+
+.show_warehouse div, .show_warehouse h5 {
+    text-align: center;
+    margin: 5px 10px;
+}
+
+.show_warehouse h5 {
+    border-bottom: 1px solid #DDDDDD;
+    margin-bottom: 15px;
+}
+
+.vertical-line {
+    border-right: 1px solid #DDDDDD;
+    height: 100px;
+}
+
+.searchselect {
+    background-color: #EEEEEE;
+    border-color: #D3D3D3 -moz-use-text-color #D3D3D3 #D3D3D3;
+    border-image: none;
+    border-radius: 4px 0 0 4px;
+    border-style: solid none solid solid;
+    border-width: 1px medium 1px 1px;
+    margin-right: -2px;
+    padding: 1px;
+    position: relative;
+    width: 105px;
+}
+
+.searchselect {
+    background-color: #EEEEEE;
+    border-color: #D3D3D3 -moz-use-text-color #D3D3D3 #D3D3D3;
+    border-image: none;
+    border-radius: 4px 0 0 4px;
+    border-style: solid none solid solid;
+    border-width: 1px medium 1px 1px;
+    margin-right: -2px;
+    padding: 1px;
+    position: relative;
+    width: 105px;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    height: 26px !important;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    height: 18px;
+    padding: 1px;
+}
+
+#debit-supplier-order {
+    max-height: 220px;
+    overflow-y: scroll;
+}
+
+#create_inventories {
+    margin: 20px;
+}
+
+.inventory-row {
+    cursor: pointer;
+}
+
+.scan-serial-error {
+    font-size: 14px;
+}
+
+.open-product-inv {
+    cursor: pointer;
+}
+
+.product-inventory {
+    padding: 0px !important;
+}
+
+.close-inv {
+    bottom: 20px;
+    position: absolute;
+}
+
+.table tbody td.assumption {
+    color: #949494;
+}
+
+#debit-so-form .control-label {
+    margin-top: 8px;
+    width: 230px;
+}
+
+#debit-so-form .controls {
+    margin-left: 250px;
+}

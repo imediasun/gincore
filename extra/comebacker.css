@@ -1,0 +1,224 @@
+@-webkit-keyframes swing{
+    20%{
+        -webkit-transform:rotate(15deg);
+        transform:rotate(15deg)
+    }
+    40%{
+        -webkit-transform:rotate(-10deg);
+        transform:rotate(-10deg)
+    }
+    60%{
+        -webkit-transform:rotate(5deg);
+        transform:rotate(5deg)
+    }
+    80%{
+        -webkit-transform:rotate(-5deg);
+        transform:rotate(-5deg)
+    }
+    100%{
+        -webkit-transform:rotate(0deg);
+        transform:rotate(0deg)
+    }
+}
+@keyframes swing{
+    20%{
+        -webkit-transform:rotate(15deg);
+        -ms-transform:rotate(15deg);
+        transform:rotate(15deg)
+    }
+    40%{
+        -webkit-transform:rotate(-10deg);
+        -ms-transform:rotate(-10deg);
+        transform:rotate(-10deg)
+    }
+    60%{
+        -webkit-transform:rotate(5deg);
+        -ms-transform:rotate(5deg);
+        transform:rotate(5deg)
+    }
+    80%{
+        -webkit-transform:rotate(-5deg);
+        -ms-transform:rotate(-5deg);
+        transform:rotate(-5deg)
+    }
+    100%{
+        -webkit-transform:rotate(0deg);
+        -ms-transform:rotate(0deg);
+        transform:rotate(0deg)
+    }
+}
+.comebacker_in{
+    display: block !important;
+    -webkit-animation-duration:1s;
+    animation-duration:1s;
+    -webkit-transform-origin:top center;
+    -ms-transform-origin:top center;
+    transform-origin:top center;
+    -webkit-animation-name:swing;
+    animation-name:swing
+}
+.comebacker_modal{
+    background-color: #E5E7E8;
+    /*border-radius: 5px;*/
+    width: 650px;
+    background-image: url(../images/new_comebacker/123.png); 
+    background-repeat: no-repeat;
+    display: none;
+    left: 50%;
+    top: 50%;
+    position: fixed;
+    z-index: 999999;
+}
+.comebacker_modal .modal-header{
+    padding: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #c5c5c5;
+}
+.comebacker_modal .modal-header .close{
+    opacity: .6;
+    padding: 0;
+    font-size: 22px;
+    margin-top: -1px;
+    cursor: pointer;
+    float: right;
+    background: none;
+    height: 24px;
+    width: 24px;
+    border: 0;
+}
+.comebacker_modal .modal-header .close:hover{
+    opacity: 1;
+}
+.comebacker_modal .modal-content{
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+.comebacker_modal .modal-dialog{
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+.comebacker_modal .comebacker_desc{
+    /*margin-bottom: 20px;*/
+}
+.comebacker_modal .comebacker_desc .clearfix{
+    display: block !important;
+    padding-bottom: 0 !important;
+}
+.comebacker_modal .comebacker_desc .clearfix :before,
+.comebacker_modal .comebacker_desc .clearfix :after{
+    display: none;
+}
+.comebacker_modal .modal-body{
+    padding: 0;
+}
+.comebacker_modal .modal-body p{
+    margin: 5px 0;
+    line-height: normal;
+}
+.comebacker_modal .required_form_field{
+    display: inline;
+}
+.comebacker_modal .modal-body .form-group{
+    text-align: center;
+    float: left;
+    margin: 0;
+    width: 70%;
+}
+.comebacker_modal .modal-body .form-group span{
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+.comebacker_modal .modal-body .required_form_field{
+    padding-right: 5px !important;
+}
+.comebacker_modal .modal-footer{
+    margin-top: 30px;
+    padding: 15px;
+    border-top: 1px solid #c5c5c5;
+}
+.comebacker_modal .modal-footer .order_send_loader{
+    display: inline-block;
+    background: url(../images/loading_cmb.gif) no-repeat center center;
+    width: 15px;
+    height: 15px;
+}
+.comebacker_modal .modal-footer input{
+    margin-right: 10px;
+}
+.comebacker_alpha{
+    display: none;
+    position: absolute;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999998;
+    background-color: rgba(0,0,0,.8);
+}
+
+@media (max-width: 768px) {
+    .comebacker_modal{
+        width: 96%;
+        left: 2%;
+        right: 2%;
+        margin-left: 0 !important;
+    }
+}
+
+.comebacker_form .data_form_message{
+    padding-top: 0;
+    display: none;
+    float: left;
+    font-size: 12px;
+}
+
+.comebacker_form form{
+    overflow: hidden;
+}
+
+.comebacker_form .form-group{
+    margin-bottom: 0;
+}
+
+.comebacker_form .form-group input,
+.comebacker_form .form-group textarea{
+    /*box-sizing: border-box;*/
+    width: 100%;
+    padding: 7px;
+    height: 38px;
+    text-align: left;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 130%;
+}
+
+.comebacker_form_submit{
+    width: 30%;
+    height: 20px;
+    float: left;
+    text-align: center;
+}
+
+.comebacker_form_submit .btn{
+    background: #49B73C;
+    color: #fff;
+    text-align: center;
+    border-radius: 0;
+    font-size: 17px;
+    width: 100%;
+}
+
+.comebacker_form_submit .btn:hover{
+    background: #44A239;
+    box-shadow: none;
+}
+.comebacker_final_msg{
+    background-color: #fff;
+    display: none;
+}

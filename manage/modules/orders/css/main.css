@@ -1,0 +1,438 @@
+#show_tradein_orders, #show_tradein_orders table select {
+    font-size: 0.8em;
+}
+
+#show_tradein_order table td {
+    padding: 3px 5px;
+    line-height: 10px;
+}
+
+.ui-button .ui-button-text {
+    min-height: 7px;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+    height: 35px;
+}
+
+#create_supplier_order .controls {
+    width: 440px;
+}
+
+.searchselect {
+    background-color: #EEEEEE;
+    border-color: #D3D3D3 -moz-use-text-color #D3D3D3 #D3D3D3;
+    border-image: none;
+    border-radius: 4px 0 0 4px;
+    border-style: solid none solid solid;
+    border-width: 1px medium 1px 1px;
+    margin-right: -2px;
+    padding: 1px;
+    position: relative;
+    width: 105px;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    height: 26px !important;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    height: 18px;
+    padding: 1px;
+}
+
+.cart_footer {
+    margin: 15px 0;
+}
+
+.remove-product {
+    margin-left: 20px;
+}
+
+.input {
+    width: 250px;
+}
+
+.remove-product:hover {
+    cursor: pointer;
+}
+
+.remove-item {
+    cursor: pointer;
+    color: red;
+    float: right;
+    margin-right: 10px;
+}
+
+.remove-item:hover {
+    font-weight: bold;
+}
+
+.help-select {
+    width: 50px;
+}
+
+.help-input {
+    border: none !important;
+    background-color: #fff !important;
+    width: 100px !important;
+    cursor: inherit !important;
+    box-shadow: none !important;
+}
+
+.help-input:hover {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+#goods-column li {
+    margin: 15px 0;
+}
+
+#users-border {
+    border-right: 1px solid #E5E5E5;
+}
+
+#adds-elements {
+    float: left;
+}
+
+.client-bind {
+    margin: 0 0 10px 5px;
+}
+
+/*.edit-order {
+    background: none repeat scroll 0 0 #494949;
+    border: 1px solid #494949;
+    border-radius: 4px;
+    color: #DDDDDD;
+    display: inline-block;
+    font-size: 1em;
+    font-weight: bold;
+    height: 12px;
+    line-height: 8px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 3px;
+    padding: 0 2px;
+    vertical-align: top;
+    width: 7px;
+}
+
+.edit-order:hover {
+    background: none repeat scroll 0 0 #DDDDDD;
+    color: #494949;
+    text-decoration: none;
+}
+
+[id^="suppliers-orders-unload-"] {
+    margin: 0 0 10px 30px;
+}*/
+
+.left-menu {
+    background-color: #F9F9F9;
+    width: 100%;
+    margin: 10px 5px;
+    padding: 10px 5px;
+    list-style: none;
+}
+
+.left-menu li.on a {
+    text-decoration: none;
+    color: #989898;
+    display: block;
+}
+
+.left-menu li.on:hover, .left-menu li.on a:hover {
+    cursor: pointer;
+    color: #5BB75B;
+    text-decoration: none;
+}
+
+#orders-status-select:hover, #orders-managers-select:hover, #jrange:hover, #jrange1:hover {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.left-menu > li.on.active, .left-menu > li.on.active > a, .left-menu > li.on.active > select, .left-menu > li.on.active > div > input {
+    border-radius: 4px 4px 4px 4px;
+    color: #FFFFFF;
+    background-color: #5BB75B;
+    cursor: default;
+}
+
+.left-menu li {
+    padding: 3px 6px;
+}
+
+.left-menu li.off {
+    margin-top: 7px;
+    text-decoration: underline;
+}
+
+#show_orders table tr > td {
+    padding: 2px;
+
+    background: rgba(243, 243, 243, .85);
+    font-size: 0.8em;
+}
+
+#show_orders .table th, .table td {
+    line-height: 14px;
+}
+
+#show_orders table > thead > tr > td {
+    color: #989898;
+    font-weight: bold;
+}
+
+form {
+    margin: 0;
+}
+
+.orders-goods div {
+    height: 10px;
+    overflow: hidden;
+}
+
+.orders-select {
+    background: none no-repeat scroll 0 0 transparent;
+    border: medium none;
+    display: block;
+    height: 20px;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    width: 90%;
+}
+
+#jrange .hasDatepicker, #jrange1 .hasDatepicker {
+    position: absolute;
+}
+
+#jrange input, #jrange1 input {
+    background: none repeat scroll 0 0 transparent;
+    margin: 0;
+    border: medium none;
+    box-shadow: none;
+    width: 90%;
+    padding-left: 3px;
+    cursor: pointer;
+}
+
+#jrange div, #jrange1 div {
+    font-size: 9pt;
+}
+
+.date-range-selected > .ui-state-active,
+.date-range-selected > .ui-state-default {
+    background: none;
+    background-color: lightsteelblue;
+}
+
+.tab-content {
+    overflow: visible;
+}
+
+#left-menu-suppliers-order {
+    display: none;
+}
+
+#accounting h2 {
+    text-align: center;
+}
+
+#accounting h2 span {
+    font-size: 24px;
+    padding: 3px 10px;
+}
+
+#accounting p {
+    display: block;
+    height: 15px;
+    overflow: hidden;
+    margin: 0px;
+}
+
+#accounting table td {
+    padding: 4px 7px;
+    vertical-align: top;
+}
+
+.accountant-payd {
+    border: 2px solid #97DAAB;
+    color: #97DAAB;
+    font-size: 0.8em;
+    padding: 0 3px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.top {
+    vertical-align: super;
+}
+
+.floatleft {
+    white-space: nowrap;
+}
+
+.order-number {
+    text-align: center;
+    font-size: 1.4em;
+}
+
+.order-number > a {
+    color: #EB141B;
+}
+
+form.small-product-filter > input.btn {
+    margin-top: 10px;
+}
+
+form.small-product-filter > select.searchselect {
+    margin-bottom: 0;
+    width: 20px;
+}
+
+form.small-product-filter > span.ui-combobox > input.ui-combobox-input {
+    width: 60%;
+}
+
+form.small-product-filter > span.ui-combobox > a.ui-button {
+    display: inline-block;
+    width: 20px;
+}
+
+.ui-combobox input {
+    width: 205px;
+}
+
+.users-combobox .ui-combobox input {
+    width: 308px;
+}
+
+#checkout-form {
+    float: left;
+}
+
+#order-form .well > h5 {
+    margin-top: 0px;
+}
+
+#order-form .well .ui-combobox > input {
+    width: 70%;
+}
+
+#right-sc td {
+    padding-left: 15px;
+}
+
+.top-space {
+    padding-top: 20px;
+}
+
+.add_supplier_form {
+    cursor: pointer;
+    font-size: 40px;
+}
+
+td.td-sc-discount {
+    max-width: 110px;
+}
+
+td.td-sc-count {
+    max-width: 110px;
+}
+
+.order_table_name, .order_table_war {
+    max-width: 300px;
+}
+
+.comment_user {
+    border-top: 1px solid #E7E7E7;
+    display: block;
+    margin-left: 40%;
+    text-align: right;
+    width: 50%;
+}
+
+.black {
+    color: #FFFFFF;
+    background-color: #000000;
+}
+
+.order-fotos {
+    max-height: 260px;
+    overflow: auto;
+}
+
+.order-foto {
+    position: relative;
+}
+
+.order-foto > i {
+    background-color: #fff;
+    border-radius: 0 0 4px;
+    padding: 0 2px 1px 1px;
+    position: absolute;
+}
+
+.order-foto > img {
+    cursor: zoom-in;
+    cursor: -webkit-zoom-in;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.order-fotos:not(.can-remove) .icon-remove {
+    display: none;
+}
+
+.run-men {
+    background: url("../../../img/people.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    content: "";
+    display: inline-block;
+    height: 19px;
+    vertical-align: bottom;
+    width: 19px;
+}
+.run-men-3 {
+    background-position: -57px center;
+}
+
+.order-manager {
+    float: left;
+    width: 70px;
+    border: 1px solid #DDDDDD;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+.red-blink {
+    -webkit-animation: red-blink 3s linear infinite;
+    animation: red-blink 3s linear infinite;
+}
+
+@-webkit-keyframes red-blink {
+    0% {
+        background-color: #ff0000;
+    }
+    50% {
+        background-color: rgba(34, 34, 34, 0);
+    }
+    100% {
+        background-color: #ff0000;
+    }
+}
+
+@keyframes red-blink {
+    0% {
+        background-color: #ff0000;
+    }
+    50% {
+        background-color: rgba(34, 34, 34, 0);
+    }
+    100% {
+        background-color: #ff0000;
+    }
+}
