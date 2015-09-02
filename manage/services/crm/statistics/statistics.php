@@ -47,18 +47,21 @@ class statistics extends \service{
         return '
             <form class="form-inline" method="get" action="'.$this->all_configs['prefix'].'clients">
                 <input type="hidden" name="tab" value="statistics">
-                Оператор:
-                '.get_service('crm/requests')->get_operators().'
-                &nbsp;&nbsp;
-                Период: 
-                <input type="text" placeholder="Дата" name="date" class="daterangepicker input-xlarge" value="' . (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '') . '" />
-                &nbsp;&nbsp;
-                Устройство: 
-                '.typeahead($this->all_configs['db'], 'categories-goods', false, isset($_GET['categories-goods'])?(int)$_GET['categories-goods']:0, '', 'input-xlarge', '', '', false, false, '').'
-                &nbsp;&nbsp;
-                <input type="submit" class="btn btn-primary" value="Применить">
+                <div class="form-group">
+                    Оператор:
+                    '.get_service('crm/requests')->get_operators().'
+                </div>
+                <div class="form-group">
+                    Период: 
+                    <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '') . '" />
+                </div>
+                <div class="form-group">
+                    Устройство: 
+                    '.typeahead($this->all_configs['db'], 'categories-goods', false, isset($_GET['categories-goods'])?(int)$_GET['categories-goods']:0, '', 'input-xlarge', '', '', false, false, '').'
+                </div>
+                <input type="submit" class="btn btn-primary btn-sm" value="Применить">
             </form>
-            <hr>
+            <br>
             Всего заявок: '.$all_requests_qty.' <br><br>
             <table class="table table-bordered table-striped table-hover" style="max-width:600px">
                 <thead>

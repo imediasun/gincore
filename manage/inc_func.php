@@ -502,7 +502,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
     }
     if ($show_categories == true) {
-        $out = '<select class="' . $class_select . ' select-typeahead-' . $iterator . '"><option value="0">Все разделы</option>';
+        $out = '<select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
         $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         foreach ( $categories as $category ) {
@@ -511,9 +511,9 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         $out .= '</select>';
     }
     $out .= '<input type="hidden" value="' . $object_id . '" name="' . $table . ($multi ? '[' . $m . ']' : '') . '" class="typeahead-value-' . $table . $iterator . '">';
-    $out .= '<input'.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" name="' . $table . '-value' . ($multi ? '[' . $m . ']' : '') . '" type="text" value="' . $object_name . '" data-input="' . $table . $iterator . '" ';
+    $out .= '<input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" name="' . $table . '-value' . ($multi ? '[' . $m . ']' : '') . '" type="text" value="' . $object_name . '" data-input="' . $table . $iterator . '" ';
     $out .= ' data-function="' . $function . '" data-select="' . $iterator . '" data-table="' . $table . '" ';
-    $out .= ($anyway == true ? 'data-anyway="1"' : '') . ' class="global-typeahead ' . $class . '" placeholder="Введите">';
+    $out .= ($anyway == true ? 'data-anyway="1"' : '') . ' class="form-control global-typeahead ' . $class . '" placeholder="Введите">';
 
     return $out;
 }
@@ -566,20 +566,20 @@ function page_block($count_page, $hash = '', $a_url = null)
             }
         }
         if ( (isset($_GET['p']) && $_GET['p']==1) || !isset($_GET['p']) ) {
-            $page = '<ul><li class="disabled"><a href="?p=1' . $url .'">« Предыдущая</a></li>' . $page .
-                '<li><a href="?p=2' . $url . '">Следующая »</a></li></ul>';
+            $page = '<li class="disabled"><a href="?p=1' . $url .'">« Предыдущая</a></li>' . $page .
+                '<li><a href="?p=2' . $url . '">Следующая »</a></li>';
         } else {
             if ( $count_page == $_GET['p'] ) {
-                $page = '<ul><li><a href="?p=' . ($_GET['p']-1) . $url . '">« Предыдущая</a></li>' . $page .
-                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">Следующая »</a></li></ul>';
+                $page = '<li><a href="?p=' . ($_GET['p']-1) . $url . '">« Предыдущая</a></li>' . $page .
+                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">Следующая »</a></li>';
             } else {
-                $page = '<ul><li><a href="?p='.($_GET['p']-1).'">« Предыдущая</a></li>' . $page .
-                    '<li><a href="?p=' . ($_GET['p']+1) . $url . '">Следующая »</a></li></ul>';
+                $page = '<li><a href="?p='.($_GET['p']-1).'">« Предыдущая</a></li>' . $page .
+                    '<li><a href="?p=' . ($_GET['p']+1) . $url . '">Следующая »</a></li>';
             }
         }
     }
 
-    return '<div class="count_on_page">' . select_count_on_page() . '</div><div class="pagination">' . $page . '</div>';
+    return '<div class="count_on_page">' . select_count_on_page() . '</div><ul style="margin:1px" class="pagination">' . $page . '</ul>';
 }
 
 function check_page($count, $cur = 1, $need = 1)
@@ -633,7 +633,7 @@ function select_count_on_page($count = null)
 
     $count = $count === null ? count_on_page() : $count;
 
-    $out = '<select class="input-mini" onchange="set_cookie(this, \'' . $all_configs['configs']['count-on-page'] . '\', this.value, 1)">';
+    $out = '<select class="form-control" onchange="set_cookie(this, \'' . $all_configs['configs']['count-on-page'] . '\', this.value, 1)">';
     foreach ($all_configs['configs']['manage-count-on-page'] as $k=>$v) {
         $s = ($count == $k ? 'selected' : '');
         $out .= '<option ' . $s . ' value="' . $k . '">' . htmlspecialchars($v) . '</option>';

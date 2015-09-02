@@ -347,7 +347,7 @@ class clients
         if ( isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0)
             $out .= '<a class="btn add-order" href="' . $this->all_configs['prefix'] . 'orders?client_id=' . $this->all_configs['arrequest'][2] . '#create_order">Создать заказ</a>';
         elseif (!isset($this->all_configs['arrequest'][1]) || $this->all_configs['arrequest'][1] != 'create' )
-            $out .= '<br><a class="btn" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>';
+            $out .= '<br><a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>';
 
         return $out;
     }
@@ -420,10 +420,14 @@ class clients
             }
         }
         return '
-            <form class="form-horizontal" method="post" style="margin-bottom:0;float:left"><div class="input-append">
-                <input type="text" value="' . (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') . '" name="text">
-                <input class="btn" type="submit" value="Поиск" name="search"></div>
-                <a class="btn" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>
+            <a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>
+            <form class="form-horizontal" method="post" style="margin-bottom:0;float:left;max-width:300px">
+                <div class="input-group">
+                    <input class="form-control" type="text" value="' . (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') . '" name="text">
+                    <div class="input-group-btn">
+                        <input class="btn btn-default" type="submit" value="Поиск" name="search">
+                    </div>
+                </div>
             </form>
                 <br><br>
             <div class="tabbable">
@@ -459,7 +463,7 @@ class clients
 //        $out .= '<input value="' . (isset($_GET['client_2']) ? $_GET['client_2'] : '') . '" name="client_2" /></div></div>';
         $out .= '' . typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_2']) ? $_GET['client_2'] : 0, 2, 'input-medium', 'input-small', '', true, false, '2') . '</div></div>';
         $out .= '<div class="control-group"><label class="control-label"></label><div class="controls">';
-        $out .= '<input type="button" value="Склеить" onclick="group_clients(this)" class="btn" /></div></div>';
+        $out .= '<input type="button" value="Склеить" onclick="group_clients(this)" class="btn btn-default" /></div></div>';
         $out .= '</form>';
 
         return $out;
@@ -540,11 +544,11 @@ class clients
     {
         $out  = '<form class="form-horizontal" method="post"><fieldset><legend>Добавление клиента</legend>';
         $out .= '<div class="control-group"><label class="control-label">Электронная почта: </label>
-            <div class="controls"><input value="'.(isset($_POST['email'])?htmlspecialchars($_POST['email']):'').'" name="email" class="span5" /></div></div>';
+            <div class="controls"><input value="'.(isset($_POST['email'])?htmlspecialchars($_POST['email']):'').'" name="email" class="form-control" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Телефон: </label>
-            <div class="controls"><input value="'.(isset($_POST['phone']) ? htmlspecialchars($_POST['phone']):'').'" name="phone" class="span5" /></div></div>';
+            <div class="controls"><input value="'.(isset($_POST['phone']) ? htmlspecialchars($_POST['phone']):'').'" name="phone" class="form-control" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Ф.И.О.: </label>
-            <div class="controls"><input value="'.(isset($_POST['fio'])?htmlspecialchars($_POST['fio']):'').'" name="fio" class="span5" /></div></div>';
+            <div class="controls"><input value="'.(isset($_POST['fio'])?htmlspecialchars($_POST['fio']):'').'" name="fio" class="form-control" /></div></div>';
         $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
         if ($contractors) {
             $out .= '<div class="control-group"><label class="control-label">Контрагент: </label><div class="controls">';
@@ -574,10 +578,10 @@ class clients
             $phones_html = '';
             if ($phones && $phones > 0) {
                 foreach ($phones as $phone) {
-                    $phones_html .= '<div class="controls"><input class="clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="' . htmlspecialchars($phone) . '" /></div>';
+                    $phones_html .= '<div class="controls"><input class="form-control clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="' . htmlspecialchars($phone) . '" /></div>';
                 }
             } else {
-                $phones_html .= '<div class="controls"><input class="clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="" /></div>';
+                $phones_html .= '<div class="controls"><input class="form-control clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="" /></div>';
             }
 
             return $phones_html;
@@ -590,7 +594,9 @@ class clients
     {
         if ( !isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] < 1 )
 //            return '<p  class="text-error">Нет такого клиента</p>';
-            return $this->create_new_client();
+            return 
+                '<a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">Список клиентов</a><br><br>'.
+                $this->create_new_client();
 
         // достаем инфу о клиенте
         $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i', array($this->all_configs['arrequest'][2]))->row();
@@ -599,8 +605,8 @@ class clients
             return '<p  class="text-error">Нет такого клиента</p>';
 
         $out = '
-            <a class="btn" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">Список клиентов</a>
-            <a class="btn" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>
+            <a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">Список клиентов</a>
+            <a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>
             <br><br>
         ';
         
@@ -652,7 +658,7 @@ class clients
                             <div class="row-fluid">
                                 <div class="span4">
                                     Заказчик: <br>
-                                    <input type="text" value="' . htmlspecialchars($client['fio']) . '" name="fio" /><br>
+                                    <input class="form-control" type="text" value="' . htmlspecialchars($client['fio']) . '" name="fio" /><br>
                                 </div>
                                 <div class="span4">
                                     Телефоны:  <br>
@@ -661,7 +667,7 @@ class clients
                                 </div>
                                 <div class="span4">
                                     Эл. адрес: <br>
-                                    <input type="text" value="' . htmlspecialchars($client['email']) . '" name="email" />
+                                    <input class="form-control" type="text" value="' . htmlspecialchars($client['email']) . '" name="email" />
                                 </div>
                             </div>
                             <div class="row-fluid">
@@ -670,7 +676,7 @@ class clients
                                     <span class="text-success '.(!$code_exists || !$code? 'hidden' : '').' code_exists">(найден)</span>
                                     <span class="text-error '.($code_exists || !$code? 'hidden' : '').' code_not_exists">(не найден)</span>
                                     <br>
-                                    <input style="background-color:'.($code ? (!$code_exists ? '#F0BBC5' : '#D8FCD7') : '').'" class="call_code_mask" type="text" name="code" value="'.$code.'"><br>
+                                    <input style="margin-right:100px;max-width:85%;background-color:'.($code ? (!$code_exists ? '#F0BBC5' : '#D8FCD7') : '').'" class="form-control call_code_mask" type="text" name="code" value="'.$code.'"><br>
                                     <div style="position: absolute;top: 25px;right: -5px;">
                                         или
                                     </div>
@@ -694,21 +700,21 @@ class clients
         
         // ----- основные настройки
         $out .= '<div id="main" class="tab-pane'.(!$new_call_id ? ' active' : '').'">';
-            $out .= '<form class="form-horizontal" method="post"><div class="control-group"><label class="control-label">Электронная почта: </label>
-                <div class="controls"><input value="' . htmlspecialchars($client['email']) . '" name="email" class="span5" /></div></div>';
+            $out .= '<form method="post"><div class="form-group"><label class="control-label">Электронная почта: </label>
+                <div class="controls"><input value="' . htmlspecialchars($client['email']) . '" name="email" class="form-control " /></div></div>';
 
 
-            $out .= '<div class="control-group"><label class="control-label">Телефон: </label>';
+            $out .= '<div class="form-group"><label class="control-label">Телефон: </label>';
             $out .= $this->phones($client['id']) . ' <i class="cloneAndClear icon-plus"></i></div>';
             //    <input value="' . htmlspecialchars($client['phone']) . '" name="phone" class="span5" />';*/
-            $out .= '<div class="control-group"><label class="control-label">Дата регистрации: </label>
+            $out .= '<div class="form-group"><label class="control-label">Дата регистрации: </label>
                 <div class="controls"><span title="' . do_nice_date($client['date_add'], false) . '">' . do_nice_date($client['date_add']) . '</span></div></div>';
-            $out .= '<div class="control-group"><label class="control-label">Ф.И.О.: </label>
-                <div class="controls"><input value="' . htmlspecialchars($client['fio']) . '" name="fio" class="span5" /></div></div>';
+            $out .= '<div class="form-group"><label class="control-label">Ф.И.О.: </label>
+                <div class="controls"><input value="' . htmlspecialchars($client['fio']) . '" name="fio" class="form-control" /></div></div>';
             $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
             if ($contractors) {
-                $out .= '<div class="control-group"><label class="control-label">Контрагент: </label><div class="controls">';
-                $out .= '<select name="contractor_id" class="multiselect"><option value="">Не выбран</option>';
+                $out .= '<div class="form-group"><label class="control-label">Контрагент: </label><div class="controls">';
+                $out .= '<select name="contractor_id" class="multiselect form-control "><option value="">Не выбран</option>';
                 foreach ($contractors as $contractor) {
                     if ($contractor['id'] == $client['contractor_id'])
                         $out .= '<option selected value="' . $contractor['id'] . '">' . htmlspecialchars($contractor['title']) . '</option>';
@@ -717,17 +723,17 @@ class clients
                 }
                 $out .= '</select></div></div>';
                 if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                    $out .= '<div class="control-group"><label class="control-label">Пароль: </label><div class="controls">'
+                    $out .= '<div class="form-group"><label class="control-label">Пароль: </label>'
                     . '<i class="icon-warning-sign editable-click" data-type="text" '
                     . 'data-pk="'.$this->all_configs['arrequest'][2].'" '
                     . 'data-type="password" '
                     . 'data-url="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/ajax?act=change-client-password" '
-                    . 'data-title="Введите новый пароль" data-display="false"></i></div></div>';
+                    . 'data-title="Введите новый пароль" data-display="false"></i></div>';
                 }
             }
 
         $out .= '
-            <div class="control-group">
+            <div class="form-group">
                     <div class="controls">
                     <input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-client">
                     </div>

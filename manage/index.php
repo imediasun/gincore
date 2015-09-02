@@ -197,9 +197,13 @@ if($modulename){
         }*/
     }
     if(!empty($additionally))
-        $mainmenu .= '<li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Еще<b class="caret"></b></a><ul class="dropdown-menu">' .
-            $additionally . '</ul></li>';
+        $mainmenu .= '
+            <li>
+                <a href="#"><span class="nav-label">Еще</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level collapse">
+                    '.$additionally.'
+                </ul>
+            </li>';
 }
 ################################################################################
 

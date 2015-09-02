@@ -170,7 +170,7 @@ class requests extends \service{
                       <span class="add-on">
                         <span class="pull-left cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-comment\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="История изменений"></span>
                       </span>
-                        <textarea'.(!$request['active'] ? ' disabled' : '').' name="comment['.$id.']" style="width: 140px" rows="2">'.htmlspecialchars($request['comment']).'</textarea>
+                        <textarea'.(!$request['active'] ? ' disabled' : '').' name="comment['.$id.']" style="width: 140px" class="form-control" rows="2">'.htmlspecialchars($request['comment']).'</textarea>
                     </div>
                 </td>
                 <td>'.($request['order_id'] ? 
@@ -190,7 +190,7 @@ class requests extends \service{
         foreach($this->statuses as $s_id => $s){
             $statuses_opts .= '<option'.((is_numeric($active) && (int)$active === $s_id) || (is_array($active) && in_array($s_id, $active)) ? ' selected' : '').' value="'.$s_id.'">'.$s['name'].'</option>';
         }
-        return '<select'.($disabled ? ' disabled' : '').($multiselect ? ' class="multiselect input-small" multiple="multiple"' : '').
+        return '<select'.($disabled ? ' disabled' : '').($multiselect ? ' class="multiselect input-small form-control" multiple="multiple"' : ' class="form-control"').
                             ' style="width: 130px" name="status_id'.($multi || $multiselect ? '['.$multi.']' : '').'">'.
                     $statuses_opts.
                '</select>';
@@ -253,7 +253,7 @@ class requests extends \service{
     // юзается так же в crm/statistics
     public function get_operators(){
         $operators = '
-            <select class="multiselect input-small" multiple="multiple" name="operators[]">
+            <select class="multiselect form-control" multiple="multiple" name="operators[]">
         ';
         $managers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
@@ -282,19 +282,30 @@ class requests extends \service{
             </style>
             <form class="filter_block" method="get" action="'.$this->all_configs['prefix'].'clients">
                 <input type="hidden" name="tab" value="requests">
-                Оператор: <br>
-                '.$operators.'<br>
-                Статус: <br>
-                '.$this->get_statuses_list(!empty($_GET['status_id'])?$_GET['status_id']:null, '', true).'<br>
-                Дата: <br>
-                <input type="text" placeholder="Дата" name="date" class="daterangepicker input-xlarge" value="' . $date . '" /><br>
-                Клиент: <br>
-                '.typeahead($this->all_configs['db'], 'clients', false, (!empty($_GET['clients'])?$_GET['clients']:0), 2, 'input-xlarge', 'input-medium', '', false, false, '').'<br>
-                №&nbsp;Заявки: <br>
-                <input type="text" name="request_id" class="input-xlarge" placeholder="№ Заявки" value="'.(!empty($_GET['request_id'])?(int)$_GET['request_id']:'').'"><br>
-                Устройство: <br>
-                '.typeahead($this->all_configs['db'], 'categories-goods', false, isset($_GET['categories-goods'])?(int)$_GET['categories-goods']:0, '', 'input-xlarge', '', '', false, false, '').'
-                <br>
+                <div class="form-group">
+                    <label>Оператор:</label><br>
+                    '.$operators.'
+                </div>
+                <div class="form-group">
+                    <label>Статус:</label><br>
+                    '.$this->get_statuses_list(!empty($_GET['status_id'])?$_GET['status_id']:null, '', true).'
+                </div>
+                <div class="form-group">
+                    <label>Дата:</label>
+                    <input type="text" placeholder="Дата" name="date" class="form-control daterangepicker" value="' . $date . '" />
+                </div>
+                <div class="form-group">
+                    <label>Клиент:</label>
+                    '.typeahead($this->all_configs['db'], 'clients', false, (!empty($_GET['clients'])?$_GET['clients']:0), 2, 'input-xlarge', 'input-medium', '', false, false, '').'
+                </div>
+                <div class="form-group">
+                    <label>№&nbsp;Заявки:</label>
+                    <input type="text" name="request_id" class="form-control" placeholder="№ Заявки" value="'.(!empty($_GET['request_id'])?(int)$_GET['request_id']:'').'">
+                </div>
+                <div class="form-group">
+                    <label>Устройство:</label>
+                    '.typeahead($this->all_configs['db'], 'categories-goods', false, isset($_GET['categories-goods'])?(int)$_GET['categories-goods']:0, '', 'input-xlarge', '', '', false, false, '').'
+                </div>
                 <input type="submit" class="btn btn-primary" value="Фильтровать">
             </form>
         ';
@@ -406,23 +417,27 @@ class requests extends \service{
 
     private function request_to_order_form(){
         return '
-            <div id="add_order_to_request" class="modal hide fade">
-                <form method="post" class="ajax_form" action="'.$this->all_configs['prefix'].'services/ajax.php">
-                    <input type="hidden" name="service" value="crm/requests">
-                    <input type="hidden" name="action" value="requests_to_order">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">×</button>
-                        <h3>Привязать заявку к заказу</h3>
+            <div id="add_order_to_request" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" class="ajax_form" action="'.$this->all_configs['prefix'].'services/ajax.php">
+                            <input type="hidden" name="service" value="crm/requests">
+                            <input type="hidden" name="action" value="requests_to_order">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Привязать заявку к заказу</h4>
+                            </div>
+                            <div class="modal-body">
+                                Введите номер заказа: <br>
+                                <input type="hidden" name="request_id" id="order_to_request_id" value="">
+                                <input type="text" name="order_id" class="form-control">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Привязать</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="modal-body">
-                        Введите номер заказа: <br>
-                        <input type="hidden" name="request_id" id="order_to_request_id" value="">
-                        <input type="text" name="order_id">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Привязать</button>
-                    </div>
-                </form>
+                </div>
             </div>
             '.$this->assets().'
         ';
@@ -450,7 +465,7 @@ class requests extends \service{
                         '.$this->get_statuses_list($request_data ? $request_data['status'] : null).'
                     </div>
                     <div class="span4">
-                        <textarea name="comment" rows="2" cols="35">'.($request_data ? htmlspecialchars($request_data['comment']) : '').'</textarea>
+                        <textarea class="form-control" name="comment" rows="2" cols="35">'.($request_data ? htmlspecialchars($request_data['comment']) : '').'</textarea>
                     </div>
                     '.($request_data['id'] && !$request_data['order_id'] ? '
                             <a href="'.$this->all_configs['prefix'].'orders?on_request='.$request_data['id'].'#create_order" class="create_order_on_request btn btn-success btn-small">Создать заказ</a>

@@ -496,8 +496,12 @@ table.table-medium tr > td {
     text-align: left;
 }
 
-.modal {
+/*.modal {
     max-width: 700px;
+}*/
+
+.nav-tabs{
+    margin-bottom: 20px;
 }
 
 ul.dropdown-menu {
@@ -555,8 +559,6 @@ td, td > * {
     float: left;
 }
 .count_on_page > select {
-    height: 40px;
-    padding: 10px 8px;
 }
 
 .save_all_fixed {

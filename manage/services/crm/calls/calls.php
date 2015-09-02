@@ -17,22 +17,26 @@ class calls extends \service{
     public function create_call_form(){
         $form = '
             <button data-target="#create_call" data-toggle="modal" type="button" class="create_call_btn btn btn-success" style="padding: 5px 10px"><i class="fa fa-phone"></i></button>
-            <div id="create_call" class="modal hide fade">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3>Создать новый звонок</h3>
+            <div id="create_call" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Создать новый звонок</h4>
+                        </div>
+                        <form autocomplete="off" method="post" action="'.$this->all_configs['prefix'].'services/ajax.php" class="ajax_form">
+                            <input type="hidden" name="service" value="crm/calls">
+                            <input type="hidden" name="action" value="new_call">
+                            <div class="modal-body">
+                                Номер телефона: <br>
+                                '.typeahead($this->all_configs['db'], 'clients', false, 0, 1001, 'input-xlarge', 'input-medium', '', false, false, '', true).'
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <form autocomplete="off" method="post" action="'.$this->all_configs['prefix'].'services/ajax.php" class="ajax_form">
-                    <input type="hidden" name="service" value="crm/calls">
-                    <input type="hidden" name="action" value="new_call">
-                    <div class="modal-body">
-                        Номер телефона: <br>
-                        '.typeahead($this->all_configs['db'], 'clients', false, 0, 1001, 'input-xlarge', 'input-medium', '', false, false, '', true).'
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                    </div>
-                </form>
             </div>
         ';
         return $this->view($form);
@@ -51,7 +55,7 @@ class calls extends \service{
                         '.$this->get_referers_list($call['referer_id'], $call['id']).'</td>
                     <td>
                         <span class="pull-left cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-call-change-code\'}, null, \'services/ajax.php\')" data-o_id="'.$call['id'].'" title="История изменений"></span>
-                        <input type="text" class="call_code_mask" name="code['.$call['id'].']" value="'.htmlspecialchars($call['code']).'"></td>
+                        <input type="text" class="form-control call_code_mask" name="code['.$call['id'].']" value="'.htmlspecialchars($call['code']).'"></td>
                     <td>'.do_nice_date($call['date'], true).'</td>
                 </tr>
             ';
@@ -155,7 +159,7 @@ class calls extends \service{
         foreach($referers as $id => $name){
             $statuses_opts .= '<option'.($active == $id ? ' selected' : '').' value="'.$id.'">'.$name.'</option>';
         }
-        return '<select'.($disabled ? ' disabled' : '').' name="referer_id'.($multi ? '['.$multi.']' : '').'">'.$statuses_opts.'</select>';
+        return '<select'.($disabled ? ' disabled' : '').' name="referer_id'.($multi ? '['.$multi.']' : '').'" class="form-control">'.$statuses_opts.'</select>';
     }
     
     // выпадающий список звонков клиента
