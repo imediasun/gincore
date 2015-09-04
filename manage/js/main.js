@@ -3,6 +3,7 @@ var multiselect = {
     buttonContainer: '<span class="dropdown dropdown-absolute" />',
     nonSelectedText: 'Выбрать',
     enableFiltering: true,
+    inheritClass: true,
     includeSelectAllOption: true,
     enableCaseInsensitiveFiltering: true,
     //dropRight: true,
@@ -199,11 +200,13 @@ $(document).ready(function () {
         });
     });
     $('input.daterangepicker_single').live('focusin', '.daterangepicker_single', function(e) {
+        var $this = $(this),
+            format = $this.data('format') ? $this.data('format') : 'DD.MM.YYYY';
         $(this).daterangepicker({
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'DD.MM.YYYY'
+                format: format
             }
         });
     });

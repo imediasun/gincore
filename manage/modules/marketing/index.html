@@ -11,8 +11,17 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="monitoring">
                 <form action="{-txt-prefix}marketing/add_site" method="post" class="form-inline">
-                    Сайт конкурента: <input type="text" name="site"> <button type="submit" class="btn btn-primary">Добавить</button>
+                    <div class="form-group">
+                        <label>Сайт конкурента:</label>
+                        <div class="input-group">
+                            <input type="text" name="site" class="form-control"> 
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-primary">Добавить</button>
+                            </span>
+                        </div>
+                    </div>
                 </form>
+                <br>
                 <table class="table table-hover">
                     {-html-mcontent}
                 </table>

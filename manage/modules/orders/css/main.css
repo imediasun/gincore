@@ -413,6 +413,14 @@ td.td-sc-count {
     animation: red-blink 3s linear infinite;
 }
 
+.jquery-tree-collapseall, .jquery-tree-expandall{
+    white-space: nowrap;
+    font-size: 11px;
+}
+.jquery-tree-collapseall{
+    margin-right: 5px !important;
+}
+
 @-webkit-keyframes red-blink {
     0% {
         background-color: #ff0000;

@@ -10,12 +10,6 @@
     display: inline-block;
 }
 
-.modal{
-    width: 1000px;
-    max-width: 1000px;
-    margin-left: -500px;
-}
-
 .diff_data{
     color: #b1b1b1;
 }

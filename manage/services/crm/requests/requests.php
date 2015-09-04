@@ -562,10 +562,12 @@ class requests extends \service{
                      <table class="table table-bordered table-condensed table-hover" style="max-width: 1100px">
                          <thead><tr>
                             <td>
-                                <label class="radio">
-                                    <input'.(!$active_request ? ' checked' : '').' type="radio" name="crm_request" value="0">
-                                    без заявки
-                                </label>
+                                <div class="radio">
+                                    <label>
+                                        <input'.(!$active_request ? ' checked' : '').' type="radio" name="crm_request" value="0">
+                                        без заявки
+                                    </label>
+                                </div>
                             </td>
                             <!--<td>Звонок</td>-->
                             <td>Клиент</td>
@@ -585,16 +587,18 @@ class requests extends \service{
                 $list .= 
                     '<tr>
                         <td>
-                            <label class="radio">
-                                <input type="radio"'.($active_request == $req['id'] ? ' checked' : '').' name="crm_request"  
-                                    data-client_fio="'.$client['fio'].'"
-                                    data-client_id="'.$req['client_id'].'" 
-                                    data-product_id="'.$req['product_id'].'" 
-                                    data-referer_id="'.$req['referer_id'].'" 
-                                    data-code="'.$req['code'].'" 
-                                    value="'.$req['id'].'">
-                                №'.$req['id'].' от '.do_nice_date($req['date'], true, true, 0, true).'        
-                            </label>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio"'.($active_request == $req['id'] ? ' checked' : '').' name="crm_request"  
+                                        data-client_fio="'.$client['fio'].'"
+                                        data-client_id="'.$req['client_id'].'" 
+                                        data-product_id="'.$req['product_id'].'" 
+                                        data-referer_id="'.$req['referer_id'].'" 
+                                        data-code="'.$req['code'].'" 
+                                        value="'.$req['id'].'">
+                                    №'.$req['id'].' от '.do_nice_date($req['date'], true, true, 0, true).'        
+                                </label>
+                            </div>
                         </td>
                         <!--<td>
                             '.do_nice_date($req['call_date'], true, true, 0, true).'<br>

@@ -86,18 +86,20 @@ class logistics
         }
         $out = '
             <form>
-                <input type="text" placeholder="Дата" name="date" class="daterangepicker input-medium" value="'.(isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '').'" />
-                <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="input-medium" placeholder="№ заказа">
-                <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="input-medium" placeholder="№ изделия">
+                <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="'.(isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '').'" />
+                <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
+                <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="form-control" placeholder="№ изделия">
                 <label>Откуда: <br>
-                <select class="multiselect input-small" name="whfrom[]" multiple="multiple">'.$warehouses_select.'</select></label>
+                <select class="multiselect form-control" name="whfrom[]" multiple="multiple">'.$warehouses_select.'</select></label>
                 <label>Куда: <br>
-                <select class="multiselect input-small" name="whto[]" multiple="multiple">'.$warehouses_select_to.'</select></label>
-                <label class="checkbox">
-                    <input'.(isset($_GET['serials_in_orders']) ? ' checked' : '').' value="1" type="checkbox" name="serials_in_orders"> 
-                        разгрупировать
-                </label>
-                <br><input type="button" onclick="send_get_form(this)" value="Фильтровать" class="btn btn-info" />
+                <select class="multiselect form-control" name="whto[]" multiple="multiple">'.$warehouses_select_to.'</select></label>
+                <div class="checkbox">
+                    <label>
+                        <input'.(isset($_GET['serials_in_orders']) ? ' checked' : '').' value="1" type="checkbox" name="serials_in_orders"> 
+                            разгрупировать
+                    </label>
+                </div>
+                <input type="button" onclick="send_get_form(this)" value="Фильтровать" class="btn btn-primary" />
             </form>
         ';
         return $out;
@@ -300,14 +302,14 @@ class logistics
             $out .= '<table class="table chains table-compact"><tbody>';
             foreach($chains as $chain){
                 $out .= '
-                    <tr'.(!$chain['avail'] ? ' class="error"' : '').'>
+                    <tr'.(!$chain['avail'] ? ' class="danger"' : '').'>
                         <td>'.$warehouses[$chain['from_wh_id']]['title'].' ('.$warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'].')'.'</td>
                         <td class="chain-body-arrow"></td>
                         <td>'.$warehouses[$chain['logistic_wh_id']]['title'].($chain['logistic_wh_location_id'] ? ' ('.$warehouses[$chain['logistic_wh_id']]['locations'][$chain['logistic_wh_location_id']]['name'].')' : '').'</td>
                         <td class="chain-body-arrow"></td>
                         <td>'.$warehouses[$chain['to_wh_id']]['title'].' ('.$warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'].')'.'</td>
                         <td class="chain-body-arrow"></td>
-                        <td>'.($chain['avail'] ? '<i class="icon-remove cursor-pointer" title="Удалить цепочку" onclick="remove_chain(this, '.$chain['id'].')"></i>' : '').'</td>
+                        <td>'.($chain['avail'] ? '<i class="glyphicon glyphicon-remove cursor-pointer" title="Удалить цепочку" onclick="remove_chain(this, '.$chain['id'].')"></i>' : '').'</td>
                     </tr>
                     <tr><td colspan="7"></td></tr>
                 ';
@@ -322,62 +324,56 @@ class logistics
             }
             
             $out .= 
-                '<div class="accordion" id="accordion-logistics">
-                    <div class="accordion-group">
-                        <div class="accordion-heading">
+                '<div class="panel-group" id="accordion-logistics">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
                             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-logistics" href="#collapseLogistics-0">Добавить логистическую цепочку</a>
                         </div>
-                        <div id="collapseLogistics-0" class="accordion-body collapse">
-                            <div class="accordion-inner">
-                                <form class="form-horizontal">
-                                    <div class="row-fluid">
-                                        <div class="span4">
+                        <div id="collapseLogistics-0" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <form class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-sm-4">
                                             <p>Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка</p>
-                                            <div class="control-group">
-                                                <label class="control-label">Склад:</label>
-                                                <div class="controls">
-                                                    <select data-multi="0" onchange="change_warehouse(this)" class="input-medium select-warehouses-item-move" name="wh_id_destination[0]">
-                                                        '.$warehouses_select.'
-                                                    </select>
-                                                </div>
+                                            <div class="form-group">
+                                                <label>Склад:</label>
+                                                <select data-multi="0" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[0]">
+                                                    '.$warehouses_select.'
+                                                </select>
                                             </div>
-                                            <div class="control-group">
-                                                <label class="control-label">Локация:</label>
-                                                <div class="controls">
-                                                    <select class="multiselect input-medium select-location0" name="location[0]"></select>
-                                                </div>
+                                            <div class="form-group">
+                                                <label>Локация:</label>
+                                                <select class="multiselect form-control select-location0" name="location[0]"></select>
                                             </div>
                                         </div>
-                                        <div class="span4">
+                                        <div class="col-sm-4">
                                             <p>Укажите склад логистики</p>
-                                            <div class="control-group">
-                                                <label class="control-label">Склад:</label>
-                                                <div class="controls">
-                                                    <select data-multi="1" onchange="change_warehouse(this)" class="input-medium select-warehouses-item-move" name="wh_id_destination[1]">
-                                                        '.$warehouses_select.'
-                                                    </select>
-                                                </div>
+                                            <div class="form-group">
+                                                <label>Склад:</label>
+                                                <select data-multi="1" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[1]">
+                                                    '.$warehouses_select.'
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="span4">
+                                        <div class="col-sm-4">
                                             <p>Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка</p>
-                                            <div class="control-group">
-                                                <label class="control-label">Склад:</label>
-                                                <div class="controls">
-                                                    <select data-multi="2" onchange="change_warehouse(this)" class="input-medium select-warehouses-item-move" name="wh_id_destination[2]">
-                                                        '.$warehouses_select.'
-                                                    </select>
-                                                </div>
+                                            <div class="form-group">
+                                                <label>Склад:</label>
+                                                <select data-multi="2" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[2]">
+                                                    '.$warehouses_select.'
+                                                </select>
                                             </div>
-                                            <div class="control-group">
+                                            <div class="form-group">
                                                 <label class="control-label">Локация:</label>
-                                                <div class="controls">
-                                                    <select class="multiselect input-medium select-location2" name="location[2]"></select>
-                                                </div>
+                                                <select class="multiselect form-control select-location2" name="location[2]"></select>
                                             </div>
                                         </div>
                                     </div>
-                                    <input class="btn btn-primary" type="button" value="Сохранить" onclick="create_chain(this)" />
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <input class="btn btn-primary" type="button" value="Сохранить" onclick="create_chain(this)" />
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>

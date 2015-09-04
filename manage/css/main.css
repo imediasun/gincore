@@ -235,32 +235,17 @@ table.show-suppliers-orders tr > td {
 
 /* suppliers end */
 
-/* bootstrap multiselect begin */
-.multiselect-container input.multiselect-search {
-    width: 50%;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    margin: 0;
+.multiselect-item.filter .input-group{
+    margin: 10px 0 0 0;
 }
-
-.multiselect-container .input-group {
-    margin: 5px;
-}
-
-.input-group-addon {
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: normal;
-    line-height: 1;
-    text-align: center;
-    background-color: #eee;
-    border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    width: 1%;
+.multiselect-container li{
+    margin: 0 10px;
+    padding: 0 5px;
     white-space: nowrap;
-    vertical-align: middle;
 }
-/* bootstrap multiselect end */
+.multiselect-container li a{
+    outline: none;
+}
 
 /* begin chains */
 td.td-moves {
@@ -727,4 +712,29 @@ input.row-input {
         width: 1000px;
         margin-left: -500px
     }
+}
+
+.form-control.daterangepicker{
+    top: auto;
+    left: auto;
+    margin-top: 0;
+}
+
+.nav.nav-pills{
+    margin-bottom: 20px;
+}
+
+.input-auto-width{
+    width: auto;
+}
+
+.inline-block{
+    display: inline-block;
+}
+
+.form-group-row{
+    
+}
+.form-group-row > div{
+    padding: 0;
 }

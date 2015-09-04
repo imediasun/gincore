@@ -502,18 +502,21 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
     }
     if ($show_categories == true) {
-        $out = '<select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
+        $out = '<div class="form-group-row"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
         $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         foreach ( $categories as $category ) {
             $out .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
         }
-        $out .= '</select>';
+        $out .= '</select></div><div class="col-sm-7">';
     }
     $out .= '<input type="hidden" value="' . $object_id . '" name="' . $table . ($multi ? '[' . $m . ']' : '') . '" class="typeahead-value-' . $table . $iterator . '">';
     $out .= '<input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" name="' . $table . '-value' . ($multi ? '[' . $m . ']' : '') . '" type="text" value="' . $object_name . '" data-input="' . $table . $iterator . '" ';
     $out .= ' data-function="' . $function . '" data-select="' . $iterator . '" data-table="' . $table . '" ';
     $out .= ($anyway == true ? 'data-anyway="1"' : '') . ' class="form-control global-typeahead ' . $class . '" placeholder="Введите">';
+    if($show_categories){
+        $out .= "</div></div>";
+    }
 
     return $out;
 }
@@ -764,7 +767,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
             if ($type == 2) {//class="sortable2 connectedSortable nav nav-list" draggable="true"
                 $tree .= '<li class=" ' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'active' : '');
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
-                $tree .= '<div class="dd-handle"><i class="icon-move"></i></div>';
+                $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
                 $tree .= '<a href="' . $all_configs['prefix'] . 'categories/create/' . $tmp['id'] . '">';
                 $tree .= htmlspecialchars($tmp['title']) . '</a>';
             }
@@ -899,13 +902,13 @@ function display_client_order($order)
         '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
         : '')
     . show_marked($order['order_id'], 'co', $order['m_id'])
-    . '<i class="icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="Переместить заказ"></i></td>'
+    . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="Переместить заказ"></i></td>'
     . '<td>№' . $order['order_id'] .  timerout($order['order_id']) . '</td>'
     . '<td><span title="' . do_nice_date($order['date'], false) . '">' . do_nice_date($order['date']) . '</span></td>'
     . '<td>' . get_user_name($order, 'a_') . '</td>'
     . '<td>' . (($order['manager'] == 0 && $all_configs['oRole']->hasPrivilege('edit-clients-orders')) ?
         '<form method="post" action="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . '">'
-        . '<input name="accept-manager" type="submit" class="btn btn-mini" value="Взять заказ" /><input type="hidden" name="id" value="' . $order['order_id'] . '" />'
+        . '<input name="accept-manager" type="submit" class="btn btn-default btn-xs" value="Взять заказ" /><input type="hidden" name="id" value="' . $order['order_id'] . '" />'
         . '</form>'
         : get_user_name($order, 'h_')) . '</td>'
     . '<td>' . $status . $ordered . '</td>'

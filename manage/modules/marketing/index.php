@@ -149,31 +149,47 @@ class marketing{
                         </a>
                         <form action="'.$this->prefix.'marketing/add_link_to_site" method="post" class="mb0 form-inline">
                             <input type="hidden" name="site" value="'.$site['id'].'">
-                            Добавить ссылку: <input type="text" name="link"> <button type="submit" class="btn">Добавить</button>
+                            <div class="form-group">
+                                <label>Добавить ссылку:</label>
+                                <div class="input-group">
+                                    <input type="text" name="link" class="form-control"> 
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-default">Добавить</button>
+                                    </span>
+                                </div>
+                            </div>
                         </form>
                     </td>
                     <td>
                         <form onsubmit="return confirm(\'Удалить конкурента '.$site['site'].' и все данные?\')" action="'.$this->prefix.'marketing/del_site" method="post" class="mb0 form-inline">
                             <input type="hidden" name="site" value="'.$site['id'].'">
-                            <button type="submit" class="btn btn-mini">Удалить сайт и все данные</button>
+                            <button type="submit" class="btn btn-sm btn-default">Удалить сайт и все данные</button>
                         </form>
                     </td>
                 </tr>
             ';
             $modals .= '
-                <div id="history'.$site['id'].'" data-site="'.$site['id'].'" class="modal hide fade" role="dialog">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3>Изменения на сайте '.$site['site'].'</h3>
-                  </div>
-                  <div class="modal-body" id="site_events_'.$site['id'].'"></div>
+                <div id="history'.$site['id'].'" data-site="'.$site['id'].'" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4>Изменения на сайте '.$site['site'].'</h4>
+                            </div>
+                            <div class="modal-body" id="site_events_'.$site['id'].'"></div>
+                        </div>
+                    </div>
                 </div>
-                <div id="links'.$site['id'].'" data-site="'.$site['id'].'" class="modal hide fade" role="dialog">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3>Ссылки на сайте '.$site['site'].'</h3>
-                  </div>
-                  <div class="modal-body" id="site_links_'.$site['id'].'"></div>
+                <div id="links'.$site['id'].'" data-site="'.$site['id'].'" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4>Ссылки на сайте '.$site['site'].'</h4>
+                            </div>
+                            <div class="modal-body" id="site_links_'.$site['id'].'"></div>
+                        </div>
+                    </div>
                 </div>
             ';
         }
@@ -223,16 +239,16 @@ class marketing{
                     // новые ссылки
                     if($new_links){
                         $content .= '
-                            <div class="accordion" id="accordionlinks'.$site.'">
-                                <div class="accordion-group">
-                                    <div class="accordion-heading">
+                            <div class="panel-group" id="accordionlinks'.$site.'">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
                                       <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordionlinks'.$site.'" href="#collapselinks'.$site.'">
                                         Новые ссылки ('.count($new_links).')
                                       </a>
                                     </div>
                                 
-                                <div id="collapselinks'.$site.'" class="accordion-body collapse">
-                                  <div class="accordion-inner">
+                                <div id="collapselinks'.$site.'" class="panel-collapse collapse">
+                                  <div class="panel-body">
                         ';
                         foreach($new_links as $link){
                             $content .= htmlspecialchars($link['link']).' ('.$link['date'].') <br>';

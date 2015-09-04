@@ -3569,3 +3569,8 @@ ul.mailbox-list li:hover a {
         margin-left: 10px
     }
 }
+
+.row.row-nm{
+    margin-left: 0;
+    margin-right: 0;
+}

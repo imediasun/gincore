@@ -55,7 +55,7 @@
 }
 
 .dd-handle.dd-showing > i {
-    display: block;
+    display: inline-block;
 }
 
 .dd-handle.dd-moving {
@@ -65,9 +65,11 @@
 }
 
 .dd-handle {
+    position: relative;
+    z-index: 2;
     float: left;
     /*position: absolute;*/
-    margin: 4px 0 0;
+    margin: 11px 5px 0 0;
     cursor: move;
 }
 
@@ -103,8 +105,10 @@
     float: left;
     width: 15px;
     height: 12px;
-    margin: 6px -15px;
+    margin: 14px 0 0 0;
     padding: 0;
+    z-index: 2;
+    position: relative;
     text-indent: 100%;
     white-space: nowrap;
     overflow: hidden;

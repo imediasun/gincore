@@ -765,7 +765,7 @@ class accountings
 
                 }
 
-                $currencies_html .= "<label class='checkbox'><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' {$checked} type='checkbox' /> {$currency['name']}</label>";
+                $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' {$checked} type='checkbox' /> {$currency['name']}</label></div>";
 
             }
             $avail = '';
@@ -784,11 +784,11 @@ class accountings
 
             foreach ($cashboxes_currencies as $currency) {
                 if (array_key_exists($currency['id'], $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$currency['id']]['currency-name'] == $this->all_configs['configs']['default-currency'])
-                    $currencies_html .= "<label class='checkbox'><input class='checkbox-cashbox-currency' checked value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label>";
+                    $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' checked value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label></div>";
                 else
-                    $currencies_html .= "<label class='checkbox'><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label>";
+                    $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label></div>";
             }
-            $btn = "<input type='submit' class='btn' name='cashbox-add' value='Создать' />";
+            $btn = "<input type='submit' class='btn btn-primary' name='cashbox-add' value='Создать' />";
             $title = '';
             $avail = 'checked';
             $avail_in_balance = '';
@@ -804,24 +804,28 @@ class accountings
         }
 
         return "
-            <div class='accordion-group'>
-                <div class='accordion-heading'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
                     <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_cashboxes' href='#collapse_cashbox_{$i}'>{$accordion_title}</a>
                 </div>
-                <div id='collapse_cashbox_{$i}' class='accordion-body collapse {$in}'>
-                    <div class='accordion-inner'>
-                        <form method='POST' class='form-horizontal'>
-                            <div class='control-group'><label class='control-label'>Название: </label>
-                                <div class='controls'><input placeholder='введите название кассы' class='span5' name='title' value='{$title}' /></div></div>
-                            <div class='control-group'><label class='control-label'>Используемые валюты: </label><div class='controls'>{$currencies_html}</div></div>
-                            <div class='control-group'><label class='control-label'></label>
+                <div id='collapse_cashbox_{$i}' class='panel-collapse collapse {$in}'>
+                    <div class='panel-body'>
+                        <form method='POST' style='max-width:300px'>
+                            <div class='form-group'><label>Название: </label>
+                                <input placeholder='введите название кассы' class='form-control' name='title' value='{$title}' />
+                            </div>
+                            <div class='form-group'>
+                                <label>Используемые валюты: </label>
+                                {$currencies_html}
+                            </div>
+                            <div class='form-group'>
                                 <div class='controls'>
-                                    <label class='checkbox'><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label>
-                                    <label class='checkbox'><input type='checkbox' {$avail_in_balance} class='btn' name='avail_in_balance' value='1' /> Учитывать в балансе</label>
-                                    <label class='checkbox'><input type='checkbox' {$avail_in_orders} class='btn' name='avail_in_orders' value='1' /> Участвуют в заказах</label>
+                                    <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label></div>
+                                    <div class='checkbox'><label><input type='checkbox' {$avail_in_balance} class='btn' name='avail_in_balance' value='1' /> Учитывать в балансе</label></div>
+                                    <div class='checkbox'><label><input type='checkbox' {$avail_in_orders} class='btn' name='avail_in_orders' value='1' /> Участвуют в заказах</label></div>
                                 </div>
                             </div>
-                            <div class='control-group'><label class='control-label'></label><div class='controls'>{$btn}</div></div>
+                            <div class='form-group'>{$btn}</div>
                         </form>
                     </div>
                 </div>
@@ -840,18 +844,18 @@ class accountings
         if ($contractor) {
             $name = htmlspecialchars($contractor['name']);
             $comment = htmlspecialchars($contractor['comment']);
-            $out .= '<div class="accordion-group"><div class="accordion-heading">';// data-toggle="collapse"
+            $out .= '<div class="panel panel-default"><div class="panel-heading">';// data-toggle="collapse"
             $out .= '<a class="accordion-toggle" data-parent="#accordion_contractors" href="?ct=';
             $out .= $opened == $contractor['id'] ? '' : $contractor['id'];
             $out .= '#settings-contractors">' . $name . '</a></div>';
-            $out .= '<div id="collapse_contractor_' . $contractor['id'] . '" class="accordion-body collapse ';
+            $out .= '<div id="collapse_contractor_' . $contractor['id'] . '" class="panel-collapse collapse ';
             $out .= $contractor && $opened == $contractor['id'] ? 'in' : '';
-            $out .= '"><div class="accordion-inner">';
+            $out .= '"><div class="panel-body">';
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
-            $out .= '<form method="POST" class="form_contractor form-horizontal"><div class="control-group">';
-            $out .= '<label class="control-label">Укажите статьи расходов для контрагента <small>(за что мы платим контрагенту)</small>: </label>';
-            $out .= '<div class="controls" id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
+            $out .= '<form method="POST" class="form_contractor "><div class="form-group">';
+            $out .= '<label>Укажите статьи расходов для контрагента <small>(за что мы платим контрагенту)</small>: </label>';
+            $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
             $out .= '<select class="multiselect input-small" multiple="multiple" name="contractor_categories_id[]">';
             $categories = $this->get_contractors_categories(1);
             if ($contractor) {
@@ -859,9 +863,9 @@ class accountings
             } else {
                 $out .= build_array_tree($categories);
             }
-            $out .= '</select></div></div><div class="control-group">';
-            $out .= '<label class="control-label">Укажите статьи приходов для контрагента <small>(за что контрагент нам платит)</small>: </label>';
-            $out .= '<div class="controls" id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
+            $out .= '</select></div></div><div class="form-group">';
+            $out .= '<label>Укажите статьи приходов для контрагента <small>(за что контрагент нам платит)</small>: </label>';
+            $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
             $out .= '<select class="multiselect input-small" multiple="multiple" name="contractor_categories_id[]">';
             $categories = $this->get_contractors_categories(2);
             if ($contractor) {
@@ -870,12 +874,12 @@ class accountings
                 $out .= build_array_tree($categories);
             }
             $out .= '</select></div></div>';
-            $out .= '<div class="control-group"><label class="control-label">ФИО: </label><div class="controls">';
-            $out .= '<input placeholder="введите ФИО контрагента" class="input-contractor" name="title" value="' . $name . '" /></div>';
-            $out .= '</div><div class="control-group"><label class="control-label">Комментарий: </label><div class="controls">';
-            $out .= '<textarea name="comment" placeholder="введите комментарий к контрагенту">' . $comment . '</textarea>';
-            $out .= '</div></div><div class="control-group"><label class="control-label">Тип контрагента: </label>';
-            $out .= '<div class="controls"><select name="type"><option value=""></option>';
+            $out .= '<div class="form-group"><label>ФИО: </label>';
+            $out .= '<input placeholder="введите ФИО контрагента" class="input-contractor form-control" name="title" value="' . $name . '" />';
+            $out .= '</div><div class="form-group"><label>Комментарий: </label>';
+            $out .= '<textarea class="form-control" name="comment" placeholder="введите комментарий к контрагенту">' . $comment . '</textarea>';
+            $out .= '</div><div class="form-group"><label class="control-label">Тип контрагента: </label>';
+            $out .= '<select class="form-control" name="type"><option value=""></option>';
             foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
                 if ($contractor && $c_id == $contractor['type']) {
                     $out .= '<option selected="selected" value="' . $c_id . '">' . $c_name . '</option>';
@@ -883,16 +887,16 @@ class accountings
                     $out .= '<option value="' . $c_id . '">' . $c_name . '</option>';
                 }
             }
-            $out .= '</select></div></div><div class="control-group">';
-            $out .= '<label class="control-label"></label><div class="controls">';
+            $out .= '</select></div><div class="form-group">';
+            $out .= '';
             if ($contractor) {
                 if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
                     $out .= "<input type='hidden' name='contractor-id' value='{$contractor['id']}' />
-                        <input type='button' class='btn' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='Редактировать' />
+                        <input type='button' class='btn btn-primary' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='Редактировать' />
                         <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='Удалить' />";
                 }
             }
-            $out .= '</div></div></form>';
+            $out .= '</div></form>';
         }
         if ($contractor) {
             $out .= '</div></div></div>';
@@ -935,8 +939,7 @@ class accountings
             $avail = '';
             if ($contractor_category['avail'] == 1)
                 $avail = 'checked';
-            $id_html = '<div class="control-group"><label class="control-label">ID:</label>';
-            $id_html .= '<div class="controls"><label class="checkbox">' . $contractor_category['id'] . '</label></div></div>';
+            $id_html = '<div class="form-group"><label>ID: ' . $contractor_category['id'] . '</label></div>';
             $comment = htmlspecialchars($contractor_category['comment']);
             $id_html .= "<input type='hidden' name='contractor_category-edit' value='1' />";
             $id_html .= "<input type='hidden' name='contractor_category-id' value='{$contractor_category['id']}' />";
@@ -960,16 +963,16 @@ class accountings
 
                 {$id_html}
 
-                <div class='control-group'><label class='control-label'>Статья: </label>
-                    <div class='controls'><input placeholder='введите название статьи' name='title' value='{$name}' /></div></div>
-                <div class='control-group'><label class='control-label'>Родительская статья: </label>
-                    <div class='controls'>{$category_html}</div></div>
-                <div class='control-group'><label class='control-label'>Код 1с: </label>
-                    <div class='controls'><input placeholder='введите код 1с статьи' name='code_1c' value='{$code_1c}' /></div></div>
-                <div class='control-group'><label class='control-label'>Комментарий: </label><div class='controls'>
-                    <textarea name='comment' placeholder='введите комментарий к статье'>{$comment}</textarea></div></div>
-                <div class='control-group'><label class='control-label'></label>
-                    <div class='controls'><label class='checkbox'><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label></div></div>
+                <div class='form-group'><label>Статья: </label>
+                    <input class='form-control' placeholder='введите название статьи' name='title' value='{$name}' /></div></div>
+                <div class='form-group'><label>Родительская статья: </label>
+                    {$category_html}</div></div>
+                <div class='form-group'><label>Код 1с: </label>
+                    <input class='form-control' placeholder='введите код 1с статьи' name='code_1c' value='{$code_1c}' /></div></div>
+                <div class='form-group'><label>Комментарий: </label><div class='controls'>
+                    <textarea class='form-control' name='comment' placeholder='введите комментарий к статье'>{$comment}</textarea></div></div>
+                <div class='form-group'>
+                    <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label></div></div>
 
             </form>";
 
@@ -1353,10 +1356,10 @@ class accountings
             $data['content'] .= '<table><thead><tr><td></td><td></td><td>Сумма</td><td>Валюта</td>';
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span>Курс</span></td><td class="hide-not-tt-1 hide-not-tt-2"></td></tr></thead><tbody>';
             //* С кассы 1 3
-            $data['content'] .= '<tr class="hide-not-tt-2"><td>* С кассы</td>';
-            $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="input-medium cashbox-1">' . $select_cashbox . '</select></td>';
-            $data['content'] .= '<td><input ' . $daf . ' class="input-mini" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
-            $data['content'] .= '<td><select class="input-mini cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
+            $data['content'] .= '<tr class="hide-not-tt-2"><td>*&nbsp;С&nbsp;кассы</td>';
+            $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control cashbox-1">' . $select_cashbox . '</select></td>';
+            $data['content'] .= '<td><input ' . $daf . ' class="form-control" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
+            $data['content'] .= '<td><select class="form-control cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
             $onchange = '
                 $(\'#amount-2\').val(($(\'#amount-1\').val()*$(\'#conversion-course-1\').val()).toFixed(2));
                 if ($(\'#amount-2\').val() > 0)
@@ -1367,7 +1370,7 @@ class accountings
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>Прямой</small><br /><small id="conversion-course-db-1">1.0000</small></span></td></tr>';
             //* В кассу 2 3
             $data['content'] .= '<tr class="hide-not-tt-1"><td>* В кассу</td>';
-            $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="input-medium cashbox-2">' . $select_cashbox . '</select></td>';
+            $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="form-control cashbox-2">' . $select_cashbox . '</select></td>';
             $onchange = '
                 if ($(\'#amount-1\').val() > 0 && $(\'#amount-2\').val() > 0) {
                     $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
@@ -1376,8 +1379,8 @@ class accountings
                     $(\'#conversion-course-1\').val(0.0000);
                     $(\'#conversion-course-2\').val(0.0000);
                 }';
-            $data['content'] .= '<td class="hide-conversion"><span><input class="input-mini" onchange="' . $onchange . '" id="amount-2" type="text" name="amount_to" value="' . $amount_to . '" onkeydown="return isNumberKey(event, this)" /></span></td>';
-            $data['content'] .= '<td><select class="input-mini cashbox_currencies-2" onchange="get_course(0)" name="cashbox_currencies_to">' . $cashbox_currencies . '</select></td>';
+            $data['content'] .= '<td class="hide-conversion"><span><input class="form-control" onchange="' . $onchange . '" id="amount-2" type="text" name="amount_to" value="' . $amount_to . '" onkeydown="return isNumberKey(event, this)" /></span></td>';
+            $data['content'] .= '<td><select class="form-control cashbox_currencies-2" onchange="get_course(0)" name="cashbox_currencies_to">' . $cashbox_currencies . '</select></td>';
             $onchange = '
                 if ($(\'#conversion-course-2\').val() > 0)
                     $(\'#amount-2\').val(($(\'#amount-1\').val()/$(\'#conversion-course-2\').val()).toFixed(2));
@@ -1387,12 +1390,12 @@ class accountings
                     $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
                 else
                     $(\'#conversion-course-1\').val(0.0000);';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-2" onchange="' . $onchange . '" class="input-mini" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_to"/></span></td>';
+            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-2" onchange="' . $onchange . '" class="form-control" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_to"/></span></td>';
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>Обратный</small><br /><small id="conversion-course-db-2">1.0000</small></span></td></tr>';
             if ($co_id == 0) {
                 //* Статья 1
                 $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* Статья</td>';
-                $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-medium" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
+                $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect form-control" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
                 $data['content'] .= $select_contractors_categories_to . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
                 $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="icon-plus"></i></a></td></tr>';
@@ -1403,8 +1406,8 @@ class accountings
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
                 $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="icon-plus"></i></a></td></tr>';
                 //* Контрагент 1 2
-                $data['content'] .= '<tr class="hide-not-tt-3"><td>* Контрагент</td>';
-                $data['content'] .= '<td><select ' . $dc . ' class="input-medium select_contractors" name="contractors_id">' . $select_contractors . '</select>';
+                $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;Контрагент</td>';
+                $data['content'] .= '<td><select ' . $dc . ' class="form-control select_contractors" name="contractors_id">' . $select_contractors . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
                 $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="icon-plus"></i></a></td></tr>';
             }
@@ -1414,20 +1417,20 @@ class accountings
                 $content = '(Ставим птичку в случае, если данная выплата производится за услуги или расходные материалы. ';
                 $content .= 'Не ставим птичку - если оплата производится за приобретаемые оборотные активы)';
                 $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3 hide-not-tt-so-1"><td colspan="2">';
-                $data['content'] .= '<label class="checkbox popover-info" data-original-title="" data-content="' . $content . '">';
+                $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
                 $js = '
                     if (this.checked) {
                         if (!confirm(\'Не зачислять контрагенту на баланс?\')) {
                             this.checked=false;
                         }
                     }';
-                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>Без внесения на баланс</label></td></tr>';
+                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>Без внесения на баланс</label></div></td></tr>';
                 // Без списания c баланса 2
                 $content = '(Птичку ставим - когда поступление денежных средств не связано с приобретением или возвратом оборотных активов)';
                 $js = 'if (this.checked) { if (!confirm(\'Не списывать у контрагента с баланса?\')) { this.checked=false; } }';
                 $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td colspan="2">';
-                $data['content'] .= '<label class="checkbox popover-info" data-original-title="" data-content="' . $content . '">';
-                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>Без списания с баланса</label></td></tr>';
+                $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
+                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>Без списания с баланса</label></div></td></tr>';
             }
             // Списать с баланса контрагента (заказ клиента)
             if ($co_id > 0 && ($tt == 1 || $tt == 2) && $client_contractor > 0) {//TODO have contractor
@@ -1447,12 +1450,12 @@ class accountings
             // только обычные транзакции или выдача за заказ клиента
             if ($act == 'begin-transaction-1-co' || $act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
                 // Примечание 1 2 3
-                $data['content'] .= '<tr><td colspan="2"><textarea name="comment" placeholder="примечание"></textarea></td>';
+                $data['content'] .= '<tr><td colspan="2"><textarea class="form-control" name="comment" placeholder="примечание"></textarea></td>';
                 // только обычные транзакции
                 if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
                     //$data['content'] .= '<td colspan="4" class="center"><input type="text" name="date_transaction" class="input-small date-pickmeup" data-pmu-format="d.m.Y" value="' . $today .'" /></td>';
-                    $data['content'] .= '<td colspan="4" class="center"><div class="datetimepicker input-append">
-                        <input class="input-small" data-format="yyyy-dd-MM" type="text" name="date_transaction" value="' . $today . '" />
+                    $data['content'] .= '<td colspan="4" class="center"><div class="datetimepicker">
+                        <input class="form-control" data-format="yyyy-dd-MM" type="text" name="date_transaction" value="' . $today . '" />
                         <span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
                         </div></div>';
                 }
@@ -1592,19 +1595,19 @@ class accountings
                         unset($new_courses[$cashbox_currency['currency']]);
 
                     $courses_html .= "<tr>
-                        <td><input type='text' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
-                        <td><input type='text' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
+                        <td><input type='text' class='form-control' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
+                        <td><input type='text' class='form-control' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
                     if (array_key_exists($cashbox_currency['id'], $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$cashbox_currency['id']]['currency-name'] == $this->all_configs['configs']['default-currency']) {
                         $courses_html .= "<td></td><td></td>";
                     } else {
                         $price = show_price($cashbox_currency['course']);
                         $courses_html .= "
-                            <td>1 {$cashbox_currency['short_name']} = <input type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' /></td>
-                            <td><i class='icon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
+                            <td>1 {$cashbox_currency['short_name']} = <input class='form-control' type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' /></td>
+                            <td><i class='glyphicon glyphicon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
                     }
                     $courses_html .= '</tr>';
                 }
-                $courses_html .= "<tr><td colspan='4'><input type='submit' class='btn' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr>";
+                $courses_html .= "<tr><td colspan='4'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr>";
 
                 // добавить валюту
                 $add_course_html = '<option value="">Не выбрана валюта...</option>';
@@ -1819,7 +1822,7 @@ class accountings
 
         if ($y == null) {
             $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
-            $out .= '<select class="input-small" onchange="window.location.href=\'' . $url . '?\' + this.value + \'#transactions\'">';
+            $out .= '<select class="form-control" onchange="window.location.href=\'' . $url . '?\' + this.value + \'#transactions\'">';
         }
 
         //$out .= '<option class="get_months" value="">' . ($year-1) . '</option>';
@@ -1841,42 +1844,63 @@ class accountings
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : date('01.m.Y', time())) . ' - ' .
             (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : date('t.m.Y', time()));
 
-        $out = '<form method="post" class="form-horizontal">';
-        $out .= '<div class="control-group"><label class="control-label">Транзакции за:</label>';
-        $out .= '<div class="controls">' . $this->month_select();
-        $out .= '<input type="text" name="date" value="' . $date . '" class="daterangepicker" />';
-        $out .= ' <a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?df=' . date('01.01.Y', time()) . '&dt=' . date('31.12.Y', time()) . (($contractors == true) ? '#transactions-contractors' : '#transactions-cashboxes') . '">Весь ' . date('Y', time()) . ' год</a></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Кассы:</label>';
-        $out .= '<div class="controls"><select class="input-small" name="include_cashboxes"><option value="1">Показать</option><option ' . ((isset($_GET['cbe']) && $_GET['cbe'] == -1) ? 'selected' : '') . ' value="-1">Исключить</option></select>';
-        $out .= '<select class="multiselect input-small" name="cashboxes[]" multiple="multiple">';
-        $out .= build_array_tree($this->cashboxes, ((isset($_GET['cb'])) ? explode(',', $_GET['cb']) : array()));
-        $out .= '</select></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Статьи:</label>';
-        $out .= '<div class="controls"><select class="input-small" name="include_categories"><option value="1">Показать</option><option ' . ((isset($_GET['cge']) && $_GET['cge'] == -1) ? 'selected' : '') . ' value="-1">Исключить</option></select>';
-        $out .= '<select class="multiselect input-small" name="categories[]" multiple="multiple">';
+        $out = '<form method="post">';
+        $out .= '<div class="form-group">
+                    <label>Транзакции за:</label>
+                    <div class="row container-fluid">
+                        <div class="col-sm-3">
+                            '.$this->month_select().'
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="date" value="' . $date . '" class="form-control daterangepicker" />
+                        </div>
+                        <div class="col-sm-3">
+                            <a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?df=' . date('01.01.Y', time()) . '&dt=' . date('31.12.Y', time()) . (($contractors == true) ? '#transactions-contractors' : '#transactions-cashboxes') . '">Весь ' . date('Y', time()) . ' год</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Кассы:</label>
+                    <div class="row container-fluid">
+                        <div class="col-sm-3">
+                            <select class="form-control" name="include_cashboxes"><option value="1">Показать</option><option ' . ((isset($_GET['cbe']) && $_GET['cbe'] == -1) ? 'selected' : '') . ' value="-1">Исключить</option></select>
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="multiselect input-small" name="cashboxes[]" multiple="multiple">
+                            '.build_array_tree($this->cashboxes, ((isset($_GET['cb'])) ? explode(',', $_GET['cb']) : array())).'
+                            </select>
+                        </div>
+                    </div>
+                </div>
+        
+        <div class="form-group"><label>Статьи:</label>';
+        $out .= '<div class="row container-fluid"><div class="col-sm-3"><select class="form-control" name="include_categories"><option value="1">Показать</option><option ' . ((isset($_GET['cge']) && $_GET['cge'] == -1) ? 'selected' : '') . ' value="-1">Исключить</option></select>';
+        $out .= '</div><div class="col-sm-3"><select class="multiselect form-control" name="categories[]" multiple="multiple">';
         $categories = $this->get_contractors_categories();
         $out .= build_array_tree($categories, ((isset($_GET['cg'])) ? explode(',', $_GET['cg']) : array()));
-        $out .= '</select></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Контрагенты:</label>';
-        $out .= '<div class="controls"><select class="input-small" name="include_contractors"><option value="1">Показать</option><option ' . ((isset($_GET['cte']) && $_GET['cte'] == -1) ? 'selected' : '') . ' value="-1">Исключить</option></select>';
-        $out .= '<select class="multiselect input-small" name="contractors[]" multiple="multiple">';
+        $out .= '</select></div></div></div>';
+        
+        $out .= '<div class="form-group"><label>Контрагенты:</label>';
+        $out .= '<div class="row container-fluid"><div class="col-sm-3"><select class="form-control" name="include_contractors"><option value="1">Показать</option><option ' . ((isset($_GET['cte']) && $_GET['cte'] == -1) ? 'selected' : '') . ' value="-1">Исключить</option></select>';
+        $out .= '</div><div class="col-sm-3"><select class="multiselect form-control" name="contractors[]" multiple="multiple">';
         $out .= build_array_tree($this->contractors, ((isset($_GET['ct'])) ? explode(',', $_GET['ct']) : array()));
-        $out .= '</select></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">По:</label>';
+        $out .= '</select></div></div></div>';
+        
+        $out .= '<div class="form-group"><label class="control-label">По:</label>';
         $value = (isset($_GET['o_id']) && $_GET['o_id'] > 0) ? $_GET['o_id'] : ((isset($_GET['s_id']) && $_GET['s_id'] > 0) ? $_GET['s_id'] : ((isset($_GET['t_id']) && $_GET['t_id'] > 0) ? $_GET['t_id'] : ''));
-        $out .= '<div class="controls"><input class="input-small" value="' . $value . '" onkeydown="return isNumberKey(event, this)" type="text" name="by_id" placeholder="Введите ид" />';
-        $out .= '<select class="input-small" name="by"><option value="0"></option>';
+        $out .= '<div class="row container-fluid"><div class="col-sm-3"><input class="form-control" value="' . $value . '" onkeydown="return isNumberKey(event, this)" type="text" name="by_id" placeholder="Введите ид" />';
+        $out .= '</div><div class="col-sm-3"><select class="form-control" name="by"><option value="0"></option>';
         $out .= '<option ' . ((isset($_GET['o_id']) && $_GET['o_id'] > 0) ? 'selected' : '') . ' value="o_id">Заказу клиента</option>';
         $out .= '<option ' . ((isset($_GET['s_id']) && $_GET['s_id'] > 0) ? 'selected' : '') . ' value="s_id">Заказу поставщика</option>';
         $out .= '<option ' . ((isset($_GET['t_id']) && $_GET['t_id'] > 0) ? 'selected' : '') . ' value="t_id">Транзакции касс</option>';
-        $out .= '</select></div></div>';
-        $out .= '<div class="control-group"><div class="controls"><label class="checkbox">';
+        $out .= '</select></div></div></div>';
+        $out .= '<div class="form-group"><div class="checkbox"><label class="">';
         if (isset($_GET['grp']) && $_GET['grp'] == 1)
             $out .= '<input type="checkbox" name="group" value="1" />';
         else
             $out .= '<input type="checkbox" checked name="group" value="1" />';
         $out .= 'Группировать</label></div></div>';
-        $out .= '<div class="control-group"><div class="controls"><input class="btn" type="submit" name="filter-transactions" value="Применить" /></div></div>';
+        $out .= '<div class="form-group"><div class="controls"><input class="btn btn-primary" type="submit" name="filter-transactions" value="Применить" /></div></div>';
 
         if ($contractors == true)
             $out .= '<input type="hidden" name="hash" value="#transactions-contractors" />';
@@ -1910,7 +1934,9 @@ class accountings
             //if ($this->all_configs['oRole']->hasPrivilege('site-administration'))
             //    $out .= '<div class="go-to-settings"><a href="#settings-cashboxes" onclick="init_hash(\'#settings-cashboxes\')">Создать/редактировать кассу</a></div>';
 
-            $out = "<form class='date-filter input-append' method='get'><input type='text' name='d' class='daterangepicker_single' value='{$day_html}' /><input class='btn' type='submit' value='Применить' />";
+            $out = "<form class='date-filter form-inline' method='get'>"
+                  ."<div class='input-group'><input type='text' name='d' class='form-control daterangepicker_single' value='{$day_html}' />"
+                  ."<span class='input-group-btn'><input class='btn' type='submit' value='Применить' /></span></div>";
             // сумма по кассам если дата не сегодня
             //if ($today != $day) {
             $amounts_by_day = $this->all_configs['db']->query('SELECT a.amount, a.cashboxes_currency_id, c.course
@@ -2123,9 +2149,16 @@ class accountings
                     }
                 }
             }
-            $out = '<div class="accordion" id="transaction_filters"><div class="accordion-group">
-                <div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#transaction_filters" href="#transaction_filters_collapse">Фильтры</a></div>
-                <div id="transaction_filters_collapse" class="accordion-body collapse ' . $in . '"><div class="accordion-inner">';
+            $out = ' 
+                <div class="panel-group" id="transaction_filters">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingOne">
+                          <h4 class="panel-title">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#transaction_filters" href="#transaction_filters_collapse">Фильтры</a>
+                          </h4>
+                        </div>
+                        <div id="transaction_filters_collapse" class="panel-collapse collapse ' . $in . '">
+                            <div class="panel-body">';
             $out .= $this->transaction_filters(true);
             $out .= '</div></div></div></div>';
             $out .= $contractor_html;
@@ -2282,11 +2315,11 @@ class accountings
             }
 
             $out .= $this->accountings_year_filter($year, '#reports-cash_flow', $years);
-            $out .= '<table class="table table-bordered table-reports"><thead><tr><td></td>';
+            $out .= '<div class="table-responsive"><table class="table table-bordered table-reports table-condensed"><thead><tr><td></td>';
             $out_inc = '<tr class="well"><td><a href="" onclick="toggle_report_cashflow(this, event, \'inc\')" class="none-decoration">';
-            $out_inc .= '<i class="icon-chevron-down"></i></a> Доходы</td>';
+            $out_inc .= '<i class="glyphicon glyphicon-chevron-down"></i></a> Доходы</td>';
             $out_exp = '<tr class="well"><td><a href="" onclick="toggle_report_cashflow(this, event, \'exp\')" class="none-decoration">';
-            $out_exp .= '<i class="icon-chevron-down"></i></a> Расходы</td>';
+            $out_exp .= '<i class="glyphicon glyphicon-chevron-down"></i></a> Расходы</td>';
             $out_total = '<tr class="well"><td>Итого</td>';
             $out_cumulative_total = '<tr><td>Нарастающий итог</td>';
 
@@ -2344,7 +2377,7 @@ class accountings
 
             $out .= $out_total . '<td>' . show_price($total_total, 2, ' ', ',', 100, $crs) . '</td></tr>';
             $out .= $out_cumulative_total . '<td></td></tr>';
-            $out .= '</tbody></table>';
+            $out .= '</tbody></table></div>';
         }
 
         return array(
@@ -2433,7 +2466,7 @@ class accountings
             }
 
             $out .= $this->accountings_year_filter($year, '#reports-annual_balance', $years);
-            $out .= '<table class="table table-bordered table-reports"><thead><tr><td>Счет</td>';
+            $out .= '<div class="table-responsive"><table class="table table-bordered table-reports table-condensed"><thead><tr><td>Счет</td>';
 
             $out_cb = '';
             if ($cashboxes) {
@@ -2466,7 +2499,7 @@ class accountings
             $out .= '</tr></thead><tbody>' . $out_cb;
             //$out .= '<tr><td>Наличные</td>' . $out_total_tr . '</tr>';
             $out .= '<tr class="well"><td>Итого</td>' . $out_total . '</tr>';
-            $out .= '</tbody></table>';
+            $out .= '</tbody></table></div>';
         }
 
         return array(
@@ -2484,11 +2517,11 @@ class accountings
         if (array_key_exists(($year - 1), $years) || $y < $year) {
             $out .= '<a href="' . $url . ($year - 1) . $hash . '" class="none-decoration"> ';
         }
-        $out .= ' <i class="icon-chevron-left"></i> </a> ' . $year;
+        $out .= ' <i class="glyphicon glyphicon-chevron-left"></i> </a> ' . $year;
         if (array_key_exists(($year + 1), $years) || $y > $year) {
             $out .= ' <a href="' . $url . ($year + 1) . $hash . '" class="none-decoration"> ';
         }
-        $out .= ' <i class="icon-chevron-right"></i> </a></div>';
+        $out .= ' <i class="glyphicon glyphicon-chevron-right"></i> </a></div>';
 
         return $out;
     }
@@ -2773,47 +2806,47 @@ class accountings
             //$operators = $this->get_operators();
 
             // фильтры
-            $out = '<form method="post" class="form-horizontal">';
-            $out .= '<div class="control-group"><label class="control-label">Период:</label><div class="controls">';
-            $out .= '<input type="text" name="date" value="' . $date . '" class="input-big daterangepicker" /></div></div>';
+            $out = '<form method="post" style="max-width: 300px">';
+            $out .= '<div class="form-group"><label class="">Период:</label>';
+            $out .= '<input type="text" name="date" value="' . $date . '" class="form-control daterangepicker" /></div>';
             if (!$this->all_configs['oRole']->hasPrivilege('partner') || $this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 // менеджеры
                 $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders');
-                $out .= '<div class="control-group"><label class="control-label">Менеджер:</label><div class="controls">';
+                $out .= '<div class="form-group"><label>Менеджер:</label>';
                 //if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
-                    $out .= '<select class="multiselect input-small report-filter" name="managers[]" multiple="multiple">';
+                    $out .= ' <select class="multiselect form-control report-filter" name="managers[]" multiple="multiple">';
                 //} else {
                 //    $out .= '<select disabled class="multiselect input-small report-filter" name="managers[]" multiple="multiple">';
                 //    $_GET['mg'] = $_SESSION['id'];
                 //}
                 $out .= build_array_tree($managers, ((isset($_GET['mg'])) ? explode(',', $_GET['mg']) : array()));
-                $out .= '</select></div></div>';
+                $out .= '</select></div>';
             }
             // приемщикы
             $accepters = $this->all_configs['oRole']->get_users_by_permissions('create-clients-orders');
-            $out .= '<div class="control-group"><label class="control-label">Приемщик:</label><div class="controls">';
+            $out .= '<div class="form-group"><label>Приемщик:</label>';
             //if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
                 $disabled = $this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') ? 'disabled' : '';
-                $out .= '<select ' . $disabled . ' class="multiselect input-small report-filter" name="accepters[]" multiple="multiple">';
+                $out .= '<select ' . $disabled . ' class="multiselect form-control report-filter" name="accepters[]" multiple="multiple">';
             //} else {
             //    $out .= '<select disabled class="multiselect input-small report-filter" name="managers[]" multiple="multiple">';
             //    $_GET['mg'] = $_SESSION['id'];
             //}
             $selected = $this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') ? $user_id : ((isset($_GET['acp'])) ? explode(',', $_GET['acp']) : array());
             $out .= build_array_tree($accepters, $selected);
-            $out .= '</select></div></div>';
+            $out .= '</select></div>';
             // инженеры
             if (!$this->all_configs['oRole']->hasPrivilege('partner') || $this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 $engineers = $this->all_configs['oRole']->get_users_by_permissions('engineer');
-                $out .= '<div class="control-group"><label class="control-label">Инженер:</label><div class="controls">';
+                $out .= '<div class="form-group"><label>Инженер:</label>';
                 //if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
-                    $out .= '<select class="multiselect input-small report-filter" name="engineers[]" multiple="multiple">';
+                    $out .= '<select class="multiselect form-control report-filter" name="engineers[]" multiple="multiple">';
                 //} else {
                 //    $out .= '<select disabled class="multiselect input-small report-filter" name="managers[]" multiple="multiple">';
                 //    $_GET['mg'] = $_SESSION['id'];
                 //}
                 $out .= build_array_tree($engineers, ((isset($_GET['eng'])) ? explode(',', $_GET['eng']) : array()));
-                $out .= '</select></div></div>';
+                $out .= '</select></div>';
             }
             //$out .= '<div class="control-group"><label class="control-label">Оператор:</label><div class="controls">';
             //$out .= '<select class="multiselect input-small report-filter" name="operators[]" multiple="multiple">';
@@ -2823,23 +2856,23 @@ class accountings
             //$out .= '<select class="multiselect input-small report-filter" name="g_categories[]" multiple="multiple">';// onchange="change_report_filter(this)"
             //$out .= build_array_tree($categories, ((isset($_GET['g_cg'])) ? explode(',', $_GET['g_cg']) : array()));
             //$out .= '</select></div></div>';
-            $out .= '<div class="control-group"><label class="control-label">Товар:</label><div class="controls">';
+            $out .= '<div class="form-group"><label>Товар:</label>';
             $out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 4);
             //$out .= '<input class="input-big report-filter" type="text" placeholder="Введите ид" name="by_gid" value="';// onchange="change_report_filter(this)"
             //$out .= isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? intval($_GET['by_gid']) : '';
             //$out .= '" onkeydown="return isNumberKey(event, this)">';
-            $out .= '</div></div><div class="control-group"><label class="control-label">Категория:</label><div class="controls">';
+            $out .= '</div><div class="form-group"><label >Категория:</label>';
             $out .= typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5);
-            $out .= '</div></div><div class="control-group"><div class="controls">';
-            $out .= '<label class="checkbox"><input type="checkbox" value="1" name="novaposhta" ';
+            $out .= '</div><div class="form-group">';
+            $out .= '<div class="checkbox"><label><input type="checkbox" value="1" name="novaposhta" ';
             $out .= (isset($_GET['np']) && $_GET['np'] == 1) ? 'checked' : '';
-            $out .= ' >принято через Новую Почту</label>';
-            $out .= '<label class="checkbox"><input type="checkbox" value="1" name="warranties" ';
+            $out .= ' >принято через Новую Почту</label></div>';
+            $out .= '<div class="checkbox"><label><input type="checkbox" value="1" name="warranties" ';
             $out .= (isset($_GET['wrn']) && $_GET['wrn'] == 1) ? 'checked' : '';
-            $out .= '>гарантийные</label>';
-            $out .= '<label class="checkbox"><input type="checkbox" value="1" name="nowarranties" ';
+            $out .= '>гарантийные</label></div>';
+            $out .= '<div class="checkbox"><label><input type="checkbox" value="1" name="nowarranties" ';
             $out .= (isset($_GET['nowrn']) && $_GET['nowrn'] == 1) ? 'checked' : '';
-            $out .= '>не гарантийные</label>';
+            $out .= '>не гарантийные</label></div>';
             //$out .= '</div></div><div class="control-group"><div class="controls">';
             //$out .= '<label class="checkbox"><input type="checkbox" value="1" name="commission" ';
             //$out .= (isset($_GET['cms']) && $_GET['cms'] == 1) ? '' : 'checked';
@@ -2847,10 +2880,10 @@ class accountings
             //$out .= '<label class="checkbox"><input type="checkbox" value="1" name="delivery" ';
             //$out .= (isset($_GET['dlv']) && $_GET['dlv'] == 1) ? '' : 'checked';
             //$out .= '>Учитывать доставку</label>';
-            $out .= '<label class="checkbox"><input type="checkbox" value="1" name="return" ';
+            $out .= '<div class="checkbox"><label><input type="checkbox" value="1" name="return" ';
             $out .= (isset($_GET['rtrn']) && $_GET['rtrn'] == 1) ? 'checked' : '';
-            $out .= '>Не учитывать возвраты поставщику и списание товаров</label></div></div>';
-            $out .= '<div class="control-group"><div class="controls"><input class="btn" type="submit" name="filters" value="Применить" /></div></div>';
+            $out .= '>Не учитывать возвраты поставщику и списание товаров</label></div></div></div>';
+            $out .= '<div class="form-group"><input class="btn btn-primary" type="submit" name="filters" value="Применить" /></div>';
             $out .= '</form>';
 
             // прибыль и оборот
@@ -2932,7 +2965,7 @@ class accountings
             }
 
             $href = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/export?act=reports-turnover&' . get_to_string();
-            $out .= '<div class="well"><a class="btn pull-right" href="' . $href . '" target="_blank">Выгрузить</a>';
+            $out .= '<div class="well"><a class="btn btn-default pull-right" href="' . $href . '" target="_blank">Выгрузить</a>';
             $out .= '<p>Оборот: <strong>' . show_price($turnover, 2, ' ');
             $out .= (array_key_exists($cco, $currencies) ? ' ' . $currencies[$cco]['shortName'] : '') . '</strong></p>';
             if (!$this->all_configs['oRole']->hasPrivilege('partner') || $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -2961,11 +2994,15 @@ class accountings
             $cco = $this->all_configs['suppliers_orders']->currency_clients_orders;
 
             // фильтры
-            $out = '<form method="post" class="form-horizontal">';
-            $out .= '<div class="control-group"><label class="control-label">Период:</label><div class="controls">';
-            $out .= '<input type="text" name="date" value="' . $date . '" class="input-big daterangepicker" /></div></div>';
-            $out .= '<div class="control-group"><div class="controls"><input class="btn" type="submit" name="filters" value="Применить" /></div></div>';
-            $out .= '</form>';
+            $out = '<form method="post" style="max-width: 300px">';
+            $out .= '<label>Период:</label>
+                     <div class="input-group">
+                        <input type="text" name="date" value="' . $date . '" class="form-control daterangepicker" />
+                        <span class="input-group-btn">
+                            <input class="btn" type="submit" name="filters" value="Применить" />
+                        </span>
+                     </div>';
+            $out .= '</form><br>';
 
             // чистая прибыль
 
@@ -3320,19 +3357,19 @@ class accountings
             //$operators = $this->get_operators();
             //$out .= build_array_tree($operators, ((isset($_GET['op'])) ? explode(',', $_GET['op']) : array()));
             //$out .= '</select>';
-            $out .= '<label>Дата:</label>';
-            $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
-            $out .= '<label>№ заказа:</label><input name="client-order_id" value="';
+            $out .= '<div class="form-group"><label>Дата:</label>';
+            $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
+            $out .= '<div class="form-group"><label>№ заказа:</label><input name="client-order_id" value="';
             $out .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? $_GET['co_id'] : '';
-            $out .= '" type="text" class="input-medium" placeholder="№ заказа">';
-            $out .= '<label>Категория:</label>';
+            $out .= '" type="text" class="form-control" placeholder="№ заказа"></div>';
+            $out .= '<div class="form-group"><label>Категория:</label>';
             $out .= typeahead($this->all_configs['db'], 'categories', false, isset($_GET['g_cg']) && $_GET['g_cg'] > 0 ? $_GET['g_cg'] : 0);
-            $out .= '<label>ФИО:</label><input name="client-order" value="';
+            $out .= '</div><div class="form-group"><label>ФИО:</label><input name="client-order" value="';
             $out .= isset($_GET['co']) && !empty($_GET['co']) ? trim(htmlspecialchars($_GET['co'])) : '';
-            $out .= '" type="text" class="input-medium" placeholder="ФИО">';
-            $out .= '<label>Товар:</label>';
+            $out .= '" type="text" class="form-control" placeholder="ФИО">';
+            $out .= '</div><div class="form-group"><label>Товар:</label>';
             $out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
-            $out .= '<input type="submit" name="filters" class="btn" value="Фильтровать">';
+            $out .= '</div><div class="form-group"><input type="submit" name="filters" class="btn btn-primary" value="Фильтровать"></div></div>';
             $out .= '</form></div><div class="span10">';
 
             $chains = array();
@@ -3532,7 +3569,7 @@ class accountings
                     $contractors_html .= '<td>' . show_price($contractor['amount'])
                         . ' '
                         //. $this->all_configs['suppliers_orders']->currencies[$this->all_configs['configs']['erp-contractor-balance-currency']]['shortName']
-                        . '</td><td><input class="btn" type="button" value="Проверить" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" /></td></tr>';
+                        . '</td><td><input class="btn btn-default btn-xs" type="button" value="Проверить" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" /></td></tr>';
                     //}
                 }
                 $contractors_html .= '</tbody></table>';
@@ -3608,7 +3645,7 @@ class accountings
             // валюты
             $cashboxes_currencies = $this->cashboxes_courses();
 
-            $out .= "<div class='accordion' id='accordion_cashboxes'>" . $this->form_cashbox($cashboxes_currencies);
+            $out .= "<div class='panel-group' id='accordion_cashboxes'>" . $this->form_cashbox($cashboxes_currencies);
 
             // список форм для редактирования касс
             if (count($this->cashboxes) > 0) {
@@ -3647,8 +3684,8 @@ class accountings
                     unset($new_courses[$cashbox_currency['currency']]);
 
                 $out .= "<tr>
-                        <td><input type='text' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
-                        <td><input type='text' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
+                        <td><input class='form-control' type='text' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
+                        <td><input class='form-control' type='text' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
                 if (array_key_exists($cashbox_currency['currency'], $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$cashbox_currency['currency']]['currency-name'] == $this->all_configs['configs']['default-currency']) {
                     $out .=
                         "<td></td><td></td>";
@@ -3656,15 +3693,15 @@ class accountings
 
                     $price = show_price($cashbox_currency['course']);
                     $out .= "
-                        <td>1 {$cashbox_currency['short_name']} = <input type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' /></td>
-                        <td><i class='icon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
+                        <td>1 {$cashbox_currency['short_name']} = <input class='form-control input-auto-width inline-block' type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' /></td>
+                        <td><i class='glyphicon glyphicon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
                 }
                 $out .= '</tr>';
             }
-            $out .= "<tr><td colspan='4'><input type='submit' class='btn' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr></tbody></table>";
+            $out .= "<tr><td colspan='4'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr></tbody></table>";
             $out .= '</form>';
             // добавить валюту
-            $out .= '<form class="form-inline"><label>Добавить валюту </label> <select onchange="add_currency(this)" id="add_new_course"><option value="">Не выбрана валюта...</option>';
+            $out .= '<form class="form-inline"><label>Добавить валюту </label> <select class="form-control" onchange="add_currency(this)" id="add_new_course"><option value="">Не выбрана валюта...</option>';
             foreach ($new_courses as $new_course_id => $new_course) {
                 $out .= "<option value='{$new_course_id}'>{$new_course['name']} [{$new_course['shortName']}]</option>";
             }
@@ -3683,7 +3720,7 @@ class accountings
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // создать статью расход
-            $out = '<button class="btn" onclick="alert_box(this, false, \'create-cat-expense\')" type="button">Создать статью расход</button>';
+            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-expense\')" type="button">Создать статью расход</button>';
 
             // списсок статей
             $categories = $this->get_contractors_categories(1);
@@ -3702,7 +3739,7 @@ class accountings
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // создать статью приход
-            $out = '<button class="btn" onclick="alert_box(this, false, \'create-cat-income\')" type="button">Создать статью приход</button>';
+            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-income\')" type="button">Создать статью приход</button>';
 
             // списсок статей
             $categories = $this->get_contractors_categories(2);
@@ -3721,9 +3758,9 @@ class accountings
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // форма для создания контрагента расход
-            $out = '<div class="accordion" id="accordion_contractors">';
-            $out .= '<button type="button" onclick="alert_box(this, false, \'create-contractor-form\')" class="btn">Создать контрагента</button>';
-            $out .= '<legend>Редактирование статей контрагента</legend>';
+            $out = '<div class="panel-group" id="accordion_contractors">';
+            $out .= '<button type="button" onclick="alert_box(this, false, \'create-contractor-form\')" class="btn btn-primary">Создать контрагента</button>';
+            $out .= '<br><br><legend>Редактирование статей контрагента</legend>';
             // список форм для редактирования категории расход
             if (count($this->contractors) > 0) {
                 $i = 1;

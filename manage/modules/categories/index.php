@@ -253,20 +253,20 @@ class categories
             return '<p  class="text-error">У Вас нет прав для создания новой категории</p>';
 
         // строим форму добавления категории
-        $category_html = '<form method="post" class="form-horizontal"><fieldset><legend>Добавление новой категории</legend>';
+        $category_html = '<form method="post"><fieldset><legend>Добавление новой категории</legend>';
         if ( isset($_GET['error']) && $_GET['error'] == 'url')
             $category_html .= '<p class="text-error">Категория с таким названием уже существует</p>';
-        $category_html .= '<div class="control-group"><label class="control-label">Название:</label>
-            <div class="controls"><input autocomplete="off" placeholder="введите название" class="span5 global-typeahead" data-anyway="1" data-table="categories" name="title" value="" /></div></div>';
-        $category_html .= '<div class="control-group"><div class="controls"><label class="checkbox">
+        $category_html .= '<div class="form-group"><label>Название:</label>
+            <input autocomplete="off" placeholder="введите название" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="" /></div>';
+        $category_html .= '<div class="form-group"><div class="checkbox"><label>
             <input name="avail" type="checkbox">Активность</label></div></div>';
-        $category_html .= '<div class="control-group"><label class="control-label">Родитель:</label>
-            <div class="controls">' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large') . '</div></div>';
-        $category_html .= '<div class="control-group"><label class="control-label">Описание:</label>
-            <div class="controls"><textarea placeholder="краткое описание" name="content" class="span5" rows="3"></textarea></div></div>';
+        $category_html .= '<div class="form-group"><label>Родитель:</label>
+            ' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large') . '</div>';
+        $category_html .= '<div class="form-group"><label>Описание:</label>
+            <textarea placeholder="краткое описание" name="content" class="form-control" rows="3"></textarea></div>';
 
-        $category_html .= '<div class="control-group"><div class="controls">
-                <input class="btn btn-primary" type="submit" value="создать" name="create-category" /></div></div>';
+        $category_html .= '<div class="form-group">
+                <input class="btn btn-primary" type="submit" value="создать" name="create-category" /></div>';
 
         $category_html .= '</fieldset></form>';
 
@@ -283,7 +283,7 @@ class categories
                 </p>';//<a href="" class="btn btn-danger">Удалить</a>
         }
         if ( count($categories) > 0 ) {
-            $categories_html .= '<p><input id="tree_search" type="text" name="tree_search" placeholder="поиск по дереву"></p>';
+            $categories_html .= '<p><input class="form-control" id="tree_search" type="text" name="tree_search" placeholder="поиск по дереву"></p>';
             $categories_html .= '<div class="well four-column" id="search_results" style="display: none;"><ul></ul></div>';
             $categories = $this->get_categories();
             $categories_html .= '<div class="four-column dd" id="categories-tree">' . build_array_tree($categories, array(), 2) . '</div>';
@@ -456,15 +456,15 @@ class categories
             if ( !empty($cur_category['thumbs']) )
                 $thumbs = '<img src="' . $this->all_configs['siteprefix'] . $this->cat_img . $cur_category['thumbs'] . '" />';
 
-            $category_html .= '<form method="post" class="form-horizontal" enctype="multipart/form-data"><fieldset>
+            $category_html .= '<form method="post" enctype="multipart/form-data"><fieldset>
                 <legend>' . $thumbs . ' Редактирование категории ID: ' . $cur_category['id'] . '. ' . $cur_category['title'] . '</legend>';
             if ( isset($_GET['error']) && $_GET['error'] == 'url')
                 $category_html .= '<p  class="text-error">Категория с таким названием уже существует</p>';
-            $category_html .= '<div class="control-group"><label class="control-label">Название:</label>
-                <div class="controls"><input class="span5" name="title" value="' . $cur_category['title'] . '" /></div></div>';
+            $category_html .= '<div class="form-group"><label>Название:</label>
+                <input class="form-control" name="title" value="' . $cur_category['title'] . '" /></div>';
             $category_html .= '<input type="hidden" class="span5" name="id" value="' . $cur_category['id'] . '" />';
-            $category_html .= '<div class="control-group"><label class="control-label">url:</label>
-                <div class="controls"><input class="span5" name="url" value="' . $cur_category['url'] . '" /></div></div>';
+            $category_html .= '<div class="form-group"><label class="control-label">url:</label>
+                <input class="form-control" name="url" value="' . $cur_category['url'] . '" /></div>';
             /*if ( $cur_category['parent_id'] == 0 ) {
                 $category_html .= '<div class="control-group"><label class="control-label">Выберите превью:</label>
                     <div class="controls"><input class="span5" name="thumbs" type="file" /></div>
@@ -482,28 +482,27 @@ class categories
             $checked = '';
             if($cur_category['avail'] == 1)
                 $checked = 'checked';
-            $category_html .= '<div class="control-group"><div class="controls">
-                <label class="checkbox"><input name="avail" '.$checked.' type="checkbox">Активность</label></div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Родитель:</label>
-                <div class="controls">' . typeahead($this->all_configs['db'], 'categories', false, $cur_category['parent_id'], 2, 'input-large') . '</div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Описание: </label>
-                <div class="controls"><textarea name="content" class="span5" rows="3">' . htmlspecialchars($cur_category['content']) . '</textarea></div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Приоритет: </label>
-                    <div class="controls"><input class="span5" type="text" value="' . $cur_category['prio'] . '" name="prio"  /></div></div>';
+            $category_html .= '<div class="form-group"><div class="checkbox">
+                <label><input name="avail" '.$checked.' type="checkbox">Активность</label></div></div>';
+            $category_html .= '<div class="form-group"><label class="control-label">Родитель:</label>
+                <div class="controls">' . typeahead($this->all_configs['db'], 'categories', false, $cur_category['parent_id'], 2, 'input-large') . '</div>';
+            $category_html .= '<div class="form-group"><label>Описание: </label>
+                <div class="controls"><textarea name="content" class="form-control" rows="3">' . htmlspecialchars($cur_category['content']) . '</textarea></div>';
+            $category_html .= '<div class="form-group"><label>Приоритет: </label>
+                    <input class="form-control" type="text" value="' . $cur_category['prio'] . '" name="prio"  /></div>';
+            $category_html .= '<div class="form-group"><label>Склады поставщиков США/Китай: </label>
+                <textarea name="warehouses_suppliers" class="form-control" rows="3">' . $cur_category['warehouses_suppliers'] . '</textarea></div>';
+            $category_html .= '<div class="form-group"><label>Важная информация: </label>
+                <textarea name="information" class="form-control" rows="3">' . $cur_category['information'] . '</textarea></div>';
 
-            $category_html .= '<div class="control-group"><label class="control-label">Склады поставщиков США/Китай: </label>
-                <div class="controls"><textarea name="warehouses_suppliers" class="span5" rows="3">' . $cur_category['warehouses_suppliers'] . '</textarea></div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Важная информация: </label>
-                <div class="controls"><textarea name="information" class="span5" rows="3">' . $cur_category['information'] . '</textarea></div></div>';
-
-            $category_html .= '<div class="control-group"><label class="control-label">Рейтинг: </label>
-                        <div class="controls"><input type=text" onkeydown="return isNumberKey(event, this)" placeholder="рейтинг" value="' . $cur_category['rating'] . '" name="rating" /></div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Количество голосов: </label>
-                        <div class="controls"><input onkeydown="return isNumberKey(event)" type=text" placeholder="голоса" value="' . $cur_category['votes'] . '" name="votes" /></div></div>';
+            $category_html .= '<div class="form-group"><label>Рейтинг: </label>
+                        <input class="form-control" type=text" onkeydown="return isNumberKey(event, this)" placeholder="рейтинг" value="' . $cur_category['rating'] . '" name="rating" /></div>';
+            $category_html .= '<div class="form-group"><label>Количество голосов: </label>
+                        <input class="form-control" onkeydown="return isNumberKey(event)" type=text" placeholder="голоса" value="' . $cur_category['votes'] . '" name="votes" /></div>';
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
-                $category_html .= '<div class="control-group"><div class="controls">
-                    <input class="btn btn-primary save_all_fixed" type="submit" value="Сохранить" name="edit-category" /></div></div>';
+                $category_html .= '<div class="form-group"><div class="controls">
+                    <input class="btn btn-primary " type="submit" value="Сохранить" name="edit-category" /></div></div>';
             } else {
                 $category_html .= '<script>$(":input:not(:disabled)").prop("disabled",true)</script>';
             }
@@ -592,7 +591,7 @@ class categories
             //$category_html .= '<h4>Товары</h4>';
 
             if ( $this->all_configs['oRole']->hasPrivilege('create-goods') ) {
-                $category_html .= '<a class="btn" href="' . $this->all_configs['prefix'] . 'products/create?cat_id=';
+                $category_html .= '<a class="btn btn-primary" href="' . $this->all_configs['prefix'] . 'products/create?cat_id=';
                 $category_html .= $this->cat_id . '">Добавить товар</a><br /><br />';
             }
 
@@ -654,21 +653,20 @@ class categories
         if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
             $cur_category = $this->get_cur_category();
             $category_html .= '<form method="post"><input type="hidden" value="'.$this->cat_id.'" name="category_id" />';
-            $category_html .= '<div class="control-group"><label class="control-label">Заголовок страницы: </label>
-                        <div class="controls"><input class="span5" data-symbol_counter="70" type="text" value="' . $cur_category['page_title'] . '" name="page_title"  /></div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Описание страницы: </label>
-                        <div class="controls"><input class="span5 seo_description" data-symbol_counter="150" type="text" value="' . $cur_category['page_description'] . '" name="page_description"  /></div></div>';
-            $category_html .= '<div class="control-group"><label class="control-label">Ключевые слова: </label>
-                        <div class="controls"><input class="span5 seo_keywords" data-symbol_counter="150" type="text" value="' . $cur_category['page_keywords'] . '" name="page_keywords"  /></div></div>';
+            $category_html .= '<div class="form-group"><label>Заголовок страницы: </label>
+                        <input class="form-control" data-symbol_counter="70" type="text" value="' . $cur_category['page_title'] . '" name="page_title"  /></div>';
+            $category_html .= '<div class="form-group"><label>Описание страницы: </label>
+                        <input class="form-control seo_description" data-symbol_counter="150" type="text" value="' . $cur_category['page_description'] . '" name="page_description"  /></div>';
+            $category_html .= '<div class="form-group"><label>Ключевые слова: </label>
+                        <input class="form-control seo_keywords" data-symbol_counter="150" type="text" value="' . $cur_category['page_keywords'] . '" name="page_keywords"  /></div>';
             /*$category_html .= '<div class="control-group"><label class="control-label">Описание страницы: </label>
                 <div class="controls"><textarea name="page_content" class="span5" rows="3">' . $cur_category['page_content'] . '</textarea></div></div>';*/
-            $category_html .= '<div style="margin: 0 0 5px 5px;">
-                <div style="float: left; margin: 4px 10px 0 0">Редактор:</div>
+            $category_html .= '<div class="form-group">
+                <label style="float: left; margin: 4px 10px 0 0">Редактор:</label>
                 <input type="checkbox" id="toggle_mce"'.((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '').'>
-                </div>
-                <textarea id="page_content" name="page_content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">' . $cur_category['page_content'] . '</textarea>';
-            $category_html .= '<div class="control-group"><div class="controls">
-                <input class="btn btn-primary save_all_fixed" type="submit" value="Сохранить" name="edit-seo" /></div></div>';
+                <textarea id="page_content" name="page_content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">' . $cur_category['page_content'] . '</textarea></div>';
+            $category_html .= '<div class="form-group">
+                <input class="btn btn-primary" type="submit" value="Сохранить" name="edit-seo" /></div>';
             $category_html .= '</form></div>';
         }
 

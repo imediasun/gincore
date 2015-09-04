@@ -306,8 +306,8 @@ class orders
     }
 
     function show_filter_manager(){
-        $out = '<label>Менеджер: ';
-        $out .= '<select class="multiselect input-small" name="managers[]" multiple="multiple">';
+        $out = '<div><div class="input-group"><p class="form-control-static">Менеджер:</p> ';
+        $out .= '<span class="input-group-btn"><select class="multiselect btn-sm" name="managers[]" multiple="multiple">';
         // менеджеры
         $managers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
@@ -319,7 +319,7 @@ class orders
             $out .= '<option ' . ($mg_get && in_array($manager['id'], $mg_get) ? 'selected' : '');
             $out .= ' value="' . $manager['id'] . '">' . htmlspecialchars($manager['name']) . '</option>';
         }
-        $out .= '</select></label>';
+        $out .= '</select></span></div></div>';
         return $out;
     }
     
@@ -344,15 +344,15 @@ class orders
             $out .= 'class="btn btn-success hash_link btn-mini">Создать заказ</a><br /><br />';
         }
 
-        $out .= '<div class="btn-group btn-group-vertical">';
-        $out .= '<a class="btn btn-small ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
+        $out .= '<div class="btn-group-vertical">';
+        $out .= '<a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
         $out .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
-        $out .= '<a class="btn btn-small ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="';
+        $out .= '<a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="';
         $out .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked">Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span></a>';
-        $out .= '<a class="btn btn-small ' . (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') . ' text-left" href="';
+        $out .= '<a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') . ' text-left" href="';
         $out .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=co#show_orders">Отмеченные: ';
         $out .= '<span class="icons-marked star-marked-active"> </span> <span id="count-marked-co">' . $count_marked . '</span></a>';
-        $out .= '</div><br /><br />';
+        $out .= '</div><br><br>';
 
         $out .= '<form method="post">';
 
@@ -392,14 +392,13 @@ class orders
                 $out .= '<li><label class="checkbox"><i style="color:' . $wh['color'] . ';" class="' . $wh['icon'] . '"></i>&nbsp;';
                 $out .= '<input ' . (in_array($wh_id, $sw) ? 'checked' : '') . ' name="warehouse[]" value="' . $wh_id . '" type="checkbox" />' . $wh['title'] . '</label></li>';
             }
-            $out .= '</ul><br />';
+            $out .= '</ul>';
         }
-
-        $out .= '<label class="checkbox"><input type="checkbox" name="np" ' . (isset($_GET['np']) ? 'checked' : '') . ' /> Принято через нп</label>';
-        $out .= '<label class="checkbox"><input type="checkbox" name="rf" ' . (isset($_GET['rf']) ? 'checked' : '') . ' /> Выдан подменный фонд</label>';
-        $out .= '<label>Инженер: ';
-        $out .= '<select class="multiselect input-small" name="engineers[]" multiple="multiple">';
+        $out .= '<div class="checkbox"><label><input type="checkbox" name="np" ' . (isset($_GET['np']) ? 'checked' : '') . ' /> Принято через нп</label></div>';
+        $out .= '<div class="checkbox"><label><input type="checkbox" name="rf" ' . (isset($_GET['rf']) ? 'checked' : '') . ' /> Выдан подменный фонд</label></div>';
         // инженеры
+        $out .= '<div><div class="input-group"><p class="form-control-static">Инженер:</p> ';
+        $out .= '<span class="input-group-btn"><select class="multiselect btn-sm" name="engineers[]" multiple="multiple">';
         $engineers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
             WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
@@ -408,12 +407,13 @@ class orders
             $out .= '<option ' . ((isset($_GET['eng']) && in_array($engineer['id'], explode(',', $_GET['eng']))) ? 'selected' : '');
             $out .= ' value="' . $engineer['id'] . '">' . htmlspecialchars($engineer['name']) . '</option>';
         }
-        $out .= '</select></label>';
+        $out .= '</select></span></div></div>';
+        // манагеры
         $out .= $this->show_filter_manager();
-        $out .= '<label>Приемщик: ';
-        $out .= '<select ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
-                ? 'disabled' : '') . ' class="multiselect input-small" name="accepter[]" multiple="multiple">';
         // приемщики
+        $out .= '<div><div class="input-group"><p class="form-control-static">Приемщик:</p> ';
+        $out .= '<span class="input-group-btn"><select ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
+                ? 'disabled' : '') . ' class="multiselect btn-sm" name="accepter[]" multiple="multiple">';
         $accepters = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
             WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
@@ -422,33 +422,35 @@ class orders
             $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'], explode(',', $_GET['acp'])))) ? 'selected' : '';
             $out .= '<option ' . $selected . ' value="' . $accepter['id'] . '">' . htmlspecialchars($accepter['name']) . '</option>';
         }
-        $out .= '</select></label>';
-        $out .= '<label>Статус: ';
-        $out .= '<select class="multiselect input-small" name="status[]" multiple="multiple">';
+        $out .= '</select></span></div></div>';
+        // статусы
+        $out .= '<div><div class="input-group"><p class="form-control-static">Статус:</p> ';
+        $out .= '<span class="input-group-btn"><select class="multiselect btn-sm" name="status[]" multiple="multiple">';
         foreach ($this->all_configs['configs']['order-status'] as $os_id=>$os_v) {
             $out .= '<option ' . ((isset($_GET['st']) && in_array($os_id, explode(',', $_GET['st']))) ? 'selected' : '');
             $out .= ' value="' . $os_id . '">' . htmlspecialchars($os_v['name']) . '</option>';
         }
-        $out .= '</select></label>';
+        $out .= '</select></span></div></div>';
         //$out .= '<label>Дата:</label>';
-        $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
+        $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
         //$out .= '<label>Категория:</label>';
         //$out .= typeahead($this->all_configs['db'], 'categories', false, isset($_GET['g_cg']) && $_GET['g_cg'] > 0 ? $_GET['g_cg'] : 0);
         //$out .= '<label>№заказа/телефон/ФИО:</label>';
         $out .= '<input name="client" value="';
         $out .= isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '';
-        $out .= '" type="text" class="input-medium" placeholder="телефон/ФИО клиента">';
+        $out .= '" type="text" class="form-control" placeholder="телефон/ФИО клиента">';
         $out .= '<input name="order_id" value="';
         $out .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '';
-        $out .= '" type="text" class="input-medium" placeholder="№ заказа">';
+        $out .= '" type="text" class="form-control" placeholder="№ заказа">';
         //$out .= '<label>Товар:</label>';
         //$out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 5, 'input-small', 'input-mini');
         //$out .= '<label>Устройство:</label>';
+        
         $out .= typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini');
         $out .= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini');
         //$out .= '<label>Серийный номер:</label>';
-        $out .= '<input type="text" name="serial" class="input-medium" value="' . (isset($_GET['serial']) ? $_GET['serial'] : '') . '" placeholder="Серийный номер">';
-        $out .= '<input type="submit" name="filter-orders" class="btn" value="Фильтровать">';
+        $out .= '<div class="form-group"><input type="text" name="serial" class="form-control" value="' . (isset($_GET['serial']) ? $_GET['serial'] : '') . '" placeholder="Серийный номер">';
+        $out .= '</div><input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">';
         $out .= '</form>';
 
         return $out;
@@ -728,7 +730,6 @@ class orders
         $orders_html = '';
         if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
             //вывод списска клиентов для создания нового заказа
-            $orders_html = '<form method="post" class="form-horizontal" id="order-form">';
 
             // на основе заявки
             $order_data = null;
@@ -740,103 +741,152 @@ class orders
             //$orders_html .= '<div class="control-group"><label class="control-label">Номер заказа: </label>';
 //            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
 
-            $orders_html .= '<div class="control-group"><label class="control-label">Выберите клиента: </label><div class="controls"> ';
-            $orders_html .= '
-                <input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
-            ';
-            $orders_html .= typeahead($this->all_configs['db'], 'clients', false, ($order_data ? $order_data['client_id'] : 0), 2, 'input-xlarge', 'input-medium', 'get_requests,check_fio');
-            $orders_html .= ' <input class="btn" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить"></div></div>';
-            $orders_html .= '<div class="control-group"><label class="control-label">Выберите устройство: </label><div class="controls">';
-            $orders_html .= typeahead($this->all_configs['db'], 'categories-last', true, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', 'input-min', 'display_service_information,get_requests') . ' ';
-
-            $orders_html .= typeahead($this->all_configs['db'], 'serials', false, '', 3, 'input-medium clone_clear_val', '', 'display_serial_product', false, true) . '';
-            $orders_html .= ' <small class="clone_clear_html product-title"></small>';
-            //$orders_html .= ' <input type="text" class="input-xlarge" placeholder="серийник, цвет, тип, ревизия и тд" value="" name="note" />';
-            $orders_html .= ' <a target="_blank" href="' . $this->all_configs['prefix'] . 'categories/create" class="btn">Добавить</a></div></div>';
-            $orders_html .= '
-                <div class="control-group">
-                    <label class="control-label" style="padding-top:0">Заявки: </label>
-                    <div class="controls">
-                        <div id="client_requests">
-                            '.($order_data ? 
-                                get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request']) 
-                                    : '<span class="muted">выберите клиента или устройство чтобы увидеть заявки</span>').'
+            $orders_html = '
+                <form method="post" id="order-form" class="form-horizontal">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <fieldset>
+                                    <legend>Клиент</legend>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Выберите клиента: </label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group">
+                                                <input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
+                                                '.typeahead($this->all_configs['db'], 'clients', false, ($order_data ? $order_data['client_id'] : 0), 2, 'input-xlarge', 'input-medium', 'get_requests,check_fio')
+                                                .'<span class="input-group-btn">
+                                                    <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить">
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    '.get_service('crm/calls')->assets().'
+                                    <div class="form-group">
+                                        <label style="padding-top:0">Код на скидку: </label>
+                                        <input'.($order_data ? ' value="'.$order_data['code'].'" disabled' : '').' type="text" name="code" class="form-control call_code_mask" id="crm_order_code">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Рекламный канал (источник): </label>
+                                        <div id="crm_order_referer">
+                                            '.get_service('crm/calls')->get_referers_list($order_data ? $order_data['referer_id'] : 'null', '', !!$order_data).'
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Устройство</legend>
+                                    <div class="form-group">
+                                        <label class="control-label">Выберите устройство: </label>
+                                        <div class="input-group">
+                                            '.typeahead($this->all_configs['db'], 'categories-last', true, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 'display_service_information,get_requests')
+                                            .'
+                                            <div class="input-group-btn">
+                                                <a target="_blank" href="' . $this->all_configs['prefix'] . 'categories/create" class="btn btn-info">Добавить</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Серийный номер запчасти: </label>
+                                        '.typeahead($this->all_configs['db'], 'serials', false, '', 3, 'input-medium clone_clear_val', '', 'display_serial_product', false, true)
+                                        .'<small class="clone_clear_html product-title"></small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Серийный номер: </label>
+                                        <input type="text" class="form-control" value="" name="serial" />
+                                    </div>
+                                    <input type="hidden" value="" id="serial-id" name="serial-id" />
+                                    <div class="form-group">
+                                        <label>Комплектация:</label><br>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" name="battery" /> Аккумулятор</label>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" name="charger" /> Зарядное устройство/кабель</label>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" name="cover" /> Задняя крышка</label>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" name="box" /> Коробка</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Вид ремонта: </label><br>
+                                        <label class="radio-inline"><input type="radio" checked value="0" name="repair" /> Платный</label>
+                                        <label class="radio-inline"><input type="radio" value="1" name="repair" /> Гарантийный</label>
+                                        <label class="radio-inline"><input type="radio" value="2" name="repair" /> Доработка</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Неисправность со слов клиента: </label>
+                                        <textarea class="form-control" name="defect"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Внешний вид: </label>
+                                        <textarea class="form-control" name="comment"></textarea>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Стоимость</legend>
+                                    <div class="form-group">
+                                        <label>Ориентировочная стоимость: </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" value="" name="approximate_cost" />
+                                            <span class="input-group-addon">грн.</span>
+                                        </div>
+                                    </div>
+                                    <!--<div class="form-group">
+                                        <label>Партнерская программа: </label>
+                                        <select class="form-control" name="partner"><option value="0">Выберите</option>
+                                        </select>
+                                    </div>-->
+                                    <div class="form-group">
+                                        <label>Предоплата: </label>
+                                        <div class="input-group">
+                                            <input type="text" placeholder="Введите сумму" class="form-control" value="" name="sum_paid" />  
+                                            <span class="input-group-addon">грн.</span>
+                                            <input type="text" placeholder="Комментарий к предоплате" class="form-control" value="" name="prepay_comment" /> 
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ориентировочная дата готовности: </label>
+                                        <div class="input-group">
+                                            <input class="daterangepicker_single form-control" data-format="YYYY-MM-DD" type="text" name="date_readiness" value="" />
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Доп. информация</label> <br>
+                                        <div class="form-group-row">
+                                            <div class="col-sm-6">
+                                                <div class="checkbox"><label><input type="checkbox" value="1" name="client_took" /> Устройство у клиента</label></div>
+                                                <div class="checkbox"><label><input type="checkbox" value="1" name="urgent" /> Срочный ремонт</label></div>
+                                                <div class="checkbox"><label><input type="checkbox" value="1" name="np_accept" /> Принято через Новую Почту</label></div>
+                                                <div class="checkbox"><label><input type="checkbox" value="1" name="nonconsent" /> Можно пускать в работу без согласования</label></div>
+                                                <div class="checkbox"><label><input type="checkbox" value="1" name="is_waiting" /> Клиент готов ждать 2-3 недели запчасть</label></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="checkbox"><label>
+                                                    <input onclick="if ($(this).prop(\'checked\')){$(\'.courier_address\').show();}else{$(\'.courier_address\').hide();}" type="checkbox" value="1" name="is_courier" />
+                                                    Курьер забрал устройство у клиента
+                                                    <input type="text" style="display:none;" placeholder="по адресу" class="form-control courier_address" value="" name="courier" />
+                                                </label></div>
+                                                <div class="checkbox"><label>
+                                                    <input onclick="if ($(this).prop(\'checked\')){$(\'.replacement_fund\').show();}else{$(\'.replacement_fund\').hide();}" type="checkbox" value="1" name="is_replacement_fund" />
+                                                    Подменный фонд
+                                                    <input type="text" style="display:none;" placeholder="Модель, серийный номер" class="form-control replacement_fund" value="" name="replacement_fund" />
+                                                </label></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-sm-6">
+                                <fieldset>
+                                    <legend>Заявки</legend>
+                                        <div id="client_requests">
+                                            '.($order_data ? 
+                                                get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request']) 
+                                                    : '<span class="muted">выберите клиента или устройство чтобы увидеть заявки</span>').'
+                                        </div>
+                                    </div><br>
+                                </fieldset>
+                            </div>
                         </div>
                     </div>
-                </div>
-                '.get_service('crm/calls')->assets().'
-                <div class="control-group">
-                    <label class="control-label" style="padding-top:0">Код: </label>
-                    <div class="controls">
-                        <input'.($order_data ? ' value="'.$order_data['code'].'" disabled' : '').' type="text" name="code" class="call_code_mask" id="crm_order_code">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" style="padding-top:0">Канал (источник): </label>
-                    <div class="controls" id="crm_order_referer">
-                        '.get_service('crm/calls')->get_referers_list($order_data ? $order_data['referer_id'] : 'null', '', !!$order_data).'
-                    </div>
-                </div>
+                    <input id="add-client-order" class="btn btn-primary" type="button" onclick="add_new_order(this)" value="Добавить" />
+                </form>
             ';
-            $orders_html .= '<div class="control-group"><label class="control-label">Серийный номер: </label>';
-            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="serial" /></div></div>';
-            $orders_html .= '<input type="hidden" value="" id="serial-id" name="serial-id" />';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Комплектация: </label><div class="controls">';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="battery" /> Аккумулятор</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="charger" /> Зарядное устройство/кабель</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="cover" /> Задняя крышка</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="box" /> Коробка</label></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Вид ремонта: </label><div class="controls">';
-            $orders_html .= '<label class=""><input type="radio" checked value="0" name="repair" /> Платный</label>';
-            $orders_html .= '<label class=""><input type="radio" value="1" name="repair" /> Гарантийный</label>';
-            $orders_html .= '<label class=""><input type="radio" value="2" name="repair" /> Доработка</label>';
-            $orders_html .= '</div></div>';
-
-            $orders_html .= '<div class="control-group"><div class="controls">';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="client_took" /> Устройство у клиента</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="urgent" /> Срочный ремонт</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="np_accept" /> Принято через Новую Почту</label>';
-            //$orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="notify" /> Уведомлять клиента</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="nonconsent" /> Можно пускать в работу без согласования</label>';
-            $orders_html .= '<label class="checkbox"><input type="checkbox" value="1" name="is_waiting" /> Клиент готов ждать 2-3 недели запчасть</label></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Курьер забрал устройство у клиента</label><div class="controls">';
-            $onclick = 'if ($(this).prop(\'checked\')){$(\'.courier_address\').show();}else{$(\'.courier_address\').hide();}';
-            $orders_html .= '<input onclick="' . $onclick . '" type="checkbox" value="1" name="is_courier" /> ';
-            $orders_html .= '<input type="text" style="display:none;" placeholder="по адресу" class="input-xlarge courier_address" value="" name="courier" /></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Подменный фонд: </label><div class="controls">';
-            $onclick = 'if ($(this).prop(\'checked\')){$(\'.replacement_fund\').show();}else{$(\'.replacement_fund\').hide();}';
-            $orders_html .= '<input onclick="' . $onclick . '" type="checkbox" value="1" name="is_replacement_fund" /> ';
-            $orders_html .= '<input type="text" style="display:none;" placeholder="Модель, серийный номер" class="input-xlarge replacement_fund" value="" name="replacement_fund" /></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Партнерская программа: </label><div class="controls">';
-            $orders_html .= '<select class="input-xlarge" name="partner"><option value="0">Выберите</option>';
-            $orders_html .= '</select></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Предоплата: </label><div class="controls">';
-            $orders_html .= '<input type="text" placeholder="Введите сумму" class="input-small" value="" name="sum_paid" /> грн. ';
-            $orders_html .= '<input type="text" placeholder="Комментарий к предоплате" class="input-large" value="" name="prepay_comment" /> </div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Ориентировочная дата готовности: </label>
-                    <div class="controls"><div class="datetimepicker input-append">
-                    <input placeholder="Ориентировочная дата готовности" data-format="yyyy-MM-dd" type="text" name="date_readiness" value="" />
-                    <span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
-                    </div></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Ориентировочная стоимость: </label><div class="controls">';
-            $orders_html .= '<input type="text" placeholder="Ориентовочная стоимость" class="input-xlarge" value="" name="approximate_cost" /> грн.</div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Неисправность: </label><div class="controls">';
-            $orders_html .= '<textarea placeholder="Неисправность со слов клиента" class="input-xlarge" name="defect"></textarea></div></div>';
-
-            $orders_html .= '<div class="control-group"><label class="control-label">Внешний вид: </label><div class="controls">';
-            $orders_html .= '<textarea placeholder="Примечение" class="input-xlarge" name="comment"></textarea></div></div>';
-
-            $orders_html .= '<input id="add-client-order" class="btn btn-primary save_all_fixed" type="button" onclick="add_new_order(this)" value="Добавить" />';
-            $orders_html .= '</form>';
         }
 
         return array(
@@ -1782,7 +1832,7 @@ class orders
             // не продажа
             if ($order['type'] != 3) {
                 if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $manager = '<input type="submit" name="accept-manager" class="btn btn-mini" value="Взять заказ" /><input type="hidden" name="id" value="' . $order['id'] . '" />';
+                    $manager = '<input type="submit" name="accept-manager" class="btn btn-default btn-xs" value="Взять заказ" /><input type="hidden" name="id" value="' . $order['id'] . '" />';
                 } else {
                     $manager = get_user_name($order, 'm_');
                 }
