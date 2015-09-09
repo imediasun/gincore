@@ -349,7 +349,7 @@ if ($act == 'alarm-clock') {
                     <p>
                         <div class="datetimepicker input-append">
                             <input class="input-xlarge" placeholder="Дата напоминания" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_alarm" value="" />
-                            <span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
+                            <span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
                         </div>
                     </p>
                     <p>
@@ -406,7 +406,7 @@ function show_alarms($all_configs, $user_id, $old = false)
                 $html .= '<a href="' . $href . '">' . $alarm['order_id'] . '</a>';
             }
             $html .= '</td><td>' . cut_string($alarm['text']) . '</td>';
-            $html .= '<td><i onclick="remove_alarm(this, ' . $alarm['id'] . ')" class="icon-remove cursor-pointer"></i></td></tr>';
+            $html .= '<td><i onclick="remove_alarm(this, ' . $alarm['id'] . ')" class="glyphicon glyphicon-remove cursor-pointer"></i></td></tr>';
         }
     } else {
         $html .= '<tr><td colspan="5">Напоминаний нет</td></tr>';
@@ -655,23 +655,23 @@ function get_messages($type = null)
 
     $html = 'Сообщений нет';
     if ($messages) {
-        $html = '<br/><div class="accordion" id="accordion-messages">';
+        $html = '<br/><div class="accordion-group" id="accordion-messages">';
         foreach ($messages as $message) {
             $content = $message['auto'] == 1 ? $message['content'] : htmlspecialchars($message['content']);
             $read = $message['is_read'] == 1 ? 'class="accordion-toggle muted"' : 'class="accordion-toggle" onClick="read_mess(this, ' . $message['id'] . ')"';
             $html .=
-                '<div class="accordion-group">
-                    <div class="accordion-heading">
+                '<div class="panel panel-default" style="margin-bottom:5px;">
+                    <div class="panel-heading">
                         <div class="pull-right">
                             <span title="' . do_nice_date($message['date_add'], false) . '">' . do_nice_date($message['date_add']) . '</span>
-                            <i onclick="remove_message(this, ' . $message['id'] . ', ' . $message['type'] . ')" class="icon-remove cursor-pointer"></i>
+                            <i onclick="remove_message(this, ' . $message['id'] . ', ' . $message['type'] . ')" class="glyphicon glyphicon-remove cursor-pointer"></i>
                         </div>
                         <a ' . $read . ' data-toggle="collapse" data-parent="#accordion-messages" href="#collapse-messages-' . $message['id'] . '">' .
                               htmlspecialchars($message['title']) .
                         '</a>
                     </div>
-                    <div id="collapse-messages-' . $message['id'] . '" class="accordion-body collapse">
-                        <div class="accordion-inner">' .
+                    <div id="collapse-messages-' . $message['id'] . '" class="panel-collapse collapse">
+                        <div class="panel-body">' .
                             $content .
                         '</div>
                     </div>

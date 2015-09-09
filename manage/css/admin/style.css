@@ -3574,3 +3574,12 @@ ul.mailbox-list li:hover a {
     margin-left: 0;
     margin-right: 0;
 }
+
+.label-menu-corner .label {
+    font-size: 10px;
+    line-height: 12px;
+    padding: 2px 5px;
+    position: absolute;
+    right: 18px;
+    top: 12px
+}

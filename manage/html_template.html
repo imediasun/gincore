@@ -15,23 +15,25 @@
             {-html-infoblock}
             <div class="navbar-right">
                 <ul class="nav navbar-nav no-borders">
-                    <li class="dropdown">
-                        <div class="pull-left" style="margin: -5px 10px 0 0;">
-                            {-txt-lang_switch}
-                        </div>
-                        <a data-o_id="2" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="btn-callback active">
+                    {-txt-lang_switch}
+                    <li>
+                        <a data-o_id="2" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
                             <i class="fa fa-phone"></i>
-                            <span class="new-count-statuses"></span>
+                            <span class="label label-success new-count-statuses"></span>
                         </a>
-                        <a data-o_id="3" onclick="alert_box(this, false, 'show_contact_phones', undefined, undefined, 'messages.php')" class="btn-callback active" href="javascript:void(0);" >
-                            <i class="fa fa-phone-square"></i>
+                    </li>
+                    <li>
+                        <a data-o_id="3" onclick="alert_box(this, false, 'show_contact_phones', undefined, undefined, 'messages.php')" class="label-menu-corner" href="javascript:void(0);" >
+                            <span class="fa fa-phone-square"></span>
                         </a>
+                    </li>
+                    <li>
                         {-html-timer}
                     </li>
-                    <li class="dropdown">
-                        <a data-o_id="0" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="btn-messages active">
+                    <li>
+                        <a data-o_id="0" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
                             <i class="fa fa-envelope"></i>
-                            <span class="new-count-mess"></span>
+                            <span class="label label-success new-count-mess"></span>
                         </a>
                     </li>
                 </ul>
@@ -43,20 +45,20 @@
     <aside id="menu">
         <div id="navigation">
             <div class="profile-picture">
-                <a href="./HOMER _ WebApp admin theme_files/HOMER _ WebApp admin theme.html">
-                    <img src="./HOMER _ WebApp admin theme_files/profile.jpg" class="img-circle m-b" alt="logo">
-                </a>
+                <!--<a href="">
+                    <img src="profile.jpg" class="img-circle m-b" alt="logo">
+                </a>-->
                 <div class="stats-label text-color">
                     <span class="font-extra-bold font-uppercase">{-txt-current_admin}</span>
                     <div class="dropdown">
                         <a class="dropdown-toggle" href="#" data-toggle="dropdown">
-                            <small class="text-muted">Founder of App <b class="caret"></b></small>
+                            <small class="text-muted">{-txt-position_admin} <b class="caret"></b></small>
                         </a>
                         <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a href="#">Contacts</a></li>
+                            <!--<li><a href="#">Contacts</a></li>
                             <li><a href="#">Profile</a></li>
                             <li><a href="#">Analytics</a></li>
-                            <li class="divider"></li>
+                            <li class="divider"></li>-->
                             <li><a href="{-txt-prefix}logout">{-txt-exit}</a></li>
                         </ul>
                     </div>

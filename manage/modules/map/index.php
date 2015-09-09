@@ -172,13 +172,13 @@ class map{
                 if(strpos($file, 'menu_') === 0){
                     $filemask = str_replace('menu_', '', $file);
                     //if ($filemask!='default'){
-                    $menu_box.='<label class="checkbox"><input type="checkbox" name="module['.$file.']" value="'.$file.'" '.$checked.' /> '.$line.' ('.$file.')</label>';
+                    $menu_box.='<div class="checkbox"><label><input type="checkbox" name="module['.$file.']" value="'.$file.'" '.$checked.' /> '.$line.' ('.$file.')</label></div>';
                     //}
                 }
                 if(strpos($file, 'content_') === 0){
                     $filemask = str_replace('content_', '', $file);
                     //if ($filemask!='default'){
-                    $content_box.='<label class="checkbox"><input type="checkbox" name="module['.$file.']" value="'.$file.'" '.$checked.' /> '.$line.' ('.$file.')</label>';
+                    $content_box.='<div class="checkbox"><label><input type="checkbox" name="module['.$file.']" value="'.$file.'" '.$checked.' /> '.$line.' ('.$file.')</label></div>';
                     //}
                 }
             }
@@ -239,7 +239,7 @@ class map{
     private function gen_templates_list($type, $name, $selected = ''){
         $modules = array();
 
-        $out = '<select name="'.$name.'">';
+        $out = '<select class="form-control" name="'.$name.'">';
         $files = scandir($this->all_configs['sitepath']);
         foreach($files as $file){
             if(strpos($file, 'html_'.$type) !== false){
@@ -259,7 +259,7 @@ class map{
         if(is_dir($this->all_configs['sitepath'].'images/')){
             $files = scandir($this->all_configs['sitepath'].'images/');
         }
-        $sel_gallery = ' <select name="gallery" id="sel_gallery"> 
+        $sel_gallery = ' <select class="form-control" name="gallery" id="sel_gallery"> 
                         <option id="no_gal" value="">'.l('map_not_selected').'</option>
                         ';
         foreach($files as $file){
@@ -317,15 +317,17 @@ class map{
             <fieldset>
                     <legend> '.l('map_images').' </legend>
                     '.$out_choose_picture_error.'
-
-                <label>'.l('map_gallery_folder').':</label> '.$sel_gallery.' 
+                <div class="form-group">
+                    <label>'.l('map_gallery_folder').':</label> 
+                    '.$sel_gallery.' 
+                </div>
                 <span id="gallery_options"'.($pp['gallery'] ? '' : ' style="display:none"').'>
-                    <label class="checkbox"><input type="checkbox" id="resizeFoto" name="resizeFoto"> '.l('map_create_thumbs_page').'</label>
-                    <label class="checkbox"><input type="checkbox" id="resizeFotoNews" name="resizeFotoNews"> '.l('map_create_thumbs_gallery').'</label>
+                    <div class="checkbox"><label><input type="checkbox" id="resizeFoto" name="resizeFoto"> '.l('map_create_thumbs_page').'</label></div>
+                    <div class="checkbox"><label><input type="checkbox" id="resizeFotoNews" name="resizeFotoNews"> '.l('map_create_thumbs_gallery').'</label></div>
 <!--                    <label class="checkbox"><input type="checkbox" id="resize_product" name="resize_product"> '.l('map_resize_product').'</label>
-                    <label class="checkbox"><input type="checkbox" id="resize_gallery" name="resize_gallery"> '.l('map_resize_gallery').'</label><br>
-                  <label class="checkbox"><input type="checkbox" id="add_watermark" name="add_watermark"> '.l('map_add_watermark').'</label><br>
--->                   <div id="file-uploader">
+                    <div class="checkbox"><label><input type="checkbox" id="resize_gallery" name="resize_gallery"> '.l('map_resize_gallery').'</label></div>
+                    <div class="checkbox"><label><input type="checkbox" id="add_watermark" name="add_watermark"> '.l('map_add_watermark').'</label></div>
+-->                 <div id="file-uploader">
                         <noscript>
                             <p>Please enable JavaScript to use file uploader.</p>
                             <!-- or put a simple form for upload here -->
@@ -333,10 +335,12 @@ class map{
                     </div>
                     <fieldset>
                         <legend> '.l('map_image_to_page').' </legend> 
-                        <div class="input-append">
-                            <input id="appendedInputButtons" class="span3 Ppicture"  type="text" size="30" name="picture" value="'.$pp['picture'].'" class="" id="picture">
-                            <input class="btn bt_page_photo_choose" type="button" data-file="picture" value="'.l('select').'" id="bt_page_photo_choose" />
-                            <input class="btn" type="button" value="'.l('clear').'" id="bt_page_photo_clear" /> 
+                        <div class="input-group">
+                            <input id="appendedInputButtons" class="form-control Ppicture"  type="text" size="30" name="picture" value="'.$pp['picture'].'" class="" id="picture">
+                            <span class="input-group-btn">
+                                <input class="btn btn-default bt_page_photo_choose" type="button" data-file="picture" value="'.l('select').'" id="bt_page_photo_choose" />
+                                <input class="btn btn-default" type="button" value="'.l('clear').'" id="bt_page_photo_clear" /> 
+                            </span>
                         </div>
                         '.$out_choose_picture_html_image.'
                     </fieldset>
@@ -524,20 +528,29 @@ class map{
                     <form method="post" action="'.$this->all_configs['prefix'].'map#search">
                         <legend>'.l('map_search_title').'</legend>
                         '.l('map_search_where').':
-                        <label class="checkbox">
-                            <input type="checkbox" '.(isset($_POST['search_fields']['name']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[name]"> '.l('map_search_name').'
-                        </label>
-                        <label class="checkbox">
-                            <input type="checkbox" '.(isset($_POST['search_fields']['fullname']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[fullname]"> '.l('map_search_head').'
-                        </label>
-                        <label class="checkbox">
-                            <input type="checkbox" '.(isset($_POST['search_fields']['content']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[content]"> '.l('map_search_content').'
-                        </label>
-                        <label class="checkbox">
-                            <input type="checkbox"  '.(isset($_POST['search_fields']['url']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[url]"> '.l('map_search_link').'
-                        </label>
-                        <br>
-                        <input value="'.htmlspecialchars($query).'" style="width: 400px;" placeholder="'.l('map_search_placeholder').'" type="text" name="query"><br>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" '.(isset($_POST['search_fields']['name']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[name]"> '.l('map_search_name').'
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" '.(isset($_POST['search_fields']['fullname']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[fullname]"> '.l('map_search_head').'
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" '.(isset($_POST['search_fields']['content']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[content]"> '.l('map_search_content').'
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox"  '.(isset($_POST['search_fields']['url']) || !isset($_POST['query']) ? 'checked="checked"' : '').' name="search_fields[url]"> '.l('map_search_link').'
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <input сlass="form-control" value="'.htmlspecialchars($query).'" style="width: 400px;" placeholder="'.l('map_search_placeholder').'" type="text" name="query">
+                        </div>
                         <input type="submit" class="btn btn-primary" value="'.l('map_search_button').'">
                     </form>
                 </fieldset>
@@ -546,9 +559,8 @@ class map{
 			
 			$prices = '
 			<h3>Экспорт таблиц</h3>
-			<a class="btn" href="'.$this->all_configs['prefix'].'map/export-map-price-small-csv/#prices" >'.l('map_export_price_table_button').'</a>
-			<a class="btn" href="'.$this->all_configs['prefix'].'map/export-map-price-full-csv#prices" >'.l('map_export_price_full_table_button').'</a>
-			<hr>
+			<a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-small-csv/#prices" >'.l('map_export_price_table_button').'</a>
+			<a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-full-csv#prices" >'.l('map_export_price_full_table_button').'</a>
 			<h3>Импорт таблиц</h3>
 			<form action="'.$this->all_configs['prefix'].'map/upload-prices#prices" method=post enctype=multipart/form-data>
 			<input name="import_prices"  id="import_prices"  type="file">
@@ -634,7 +646,7 @@ class map{
                 #создали список.
 
                 $sqls = $this->all_configs['db']->query("SELECT * FROM {section} ORDER BY prio")->assoc();
-                $sel_section = ' <select name="section">';
+                $sel_section = ' <select class="form-control" name="section">';
                 foreach($sqls as $pps){
                     $sel_section.='<option '.($pp['section'] == $pps['id'] ? 'selected="selected"' : '').' value="'.$pps['id'].'">'.$pps['name'].'</option>';
                 }
@@ -680,56 +692,54 @@ class map{
 
 
                             <div class="tab-content">
-                            
-
                                 <!-- контент-->
-                                
                                 <div class="tab-pane active" id="content">
-              
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="state" value="1" '.
-                        ($pp['state'] == 1 ? 'checked="checked"' : '').'> '.l('map_published').'<br><br>
-                                    </label>
-
-                                    '.l('map_page_name').'<br>
-                                    <input type="text" size="50" name="name" value="'.$pp['name'].'" class="" ><br><br>
-
-                                    '.l('map_page_url').'<br>
-                                    <input type="text" size="50" name="url" value="'.$pp['url'].'" class="" ><br><br>
-
-                                    '.l('map_page_fullname').'<br>
-                                    <textarea name="fullname" style="width: 350px" rows="3">'.$pp['fullname'].'</textarea><br><br>
-
-                                    '.l('map_description_name').'<br>
-                                    <input type="text" size="50" name="description_name" value="'.$pp['description_name'].'" class="" ><br><br>
-
-                                    Заголовок для консультанта<br>
-                                    <input style="margin-bottom:0" type="text" size="50" name="chat_caption" value="'.$pp['chat_caption'].'" class="" ><br>
-                                    <small class="text-info" style="display:block;margin-top:-4px">проконсультирую по ремонту ......</small><br><br>
-
-                                    '.l('map_product_category').'<br>
-                                    <input type="text" size="50" name="category_id" value="'.$pp['category_id'].'" class="" ><br><br>
-
-                                    <div style="margin: 0 0 5px 5px;">
-                                        <div style="float: left; margin: 4px 10px 0 0">Редактор:</div>
-                                        <input type="checkbox" id="toggle_mce"'.((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '').'>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="state" value="1" '.
+                                            ($pp['state'] == 1 ? 'checked="checked"' : '').'> '.l('map_published').'
+                                        </label>
                                     </div>
-                                    <textarea id="page_content" name="content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">'.$pp['content'].'</textarea>
-                                    <br><br>
-                                    
-                                    Видео ютуб. Вставлять <i>код</i> видео. Пример: T9z1P8srdQM<br>
-                                    <textarea id="youtube_videos" name="youtube_videos" rows="3" cols="300"  style="width:650px;">'.$pp['youtube_videos'].'</textarea>
-                                    <br><br>
-
-                                    
+                                    <div class="form-group">
+                                        <label>'.l('map_page_name').'</label>
+                                        <input type="text" size="50" name="name" value="'.$pp['name'].'" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
+                                        <label>'.l('map_page_url').'</label>
+                                        <input type="text" size="50" name="url" value="'.$pp['url'].'" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
+                                        <label>'.l('map_page_fullname').'</label>
+                                        <textarea class="form-control" name="fullname" rows="3">'.$pp['fullname'].'</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>'.l('map_description_name').'</label>
+                                        <input type="text" size="50" name="description_name" value="'.$pp['description_name'].'" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Заголовок для консультанта</label>
+                                        <input style="margin-bottom:0" type="text" size="50" name="chat_caption" value="'.$pp['chat_caption'].'" class="form-control" >
+                                        <small class="help-block" style="display:block;margin-top:-4px">проконсультирую по ремонту ......</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>'.l('map_product_category').'</label>
+                                        <input type="text" size="50" name="category_id" value="'.$pp['category_id'].'" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
+                                        <div style="margin: 0 0 5px 5px;">
+                                            <div style="float: left; margin: 4px 10px 0 0">Редактор:</div>
+                                            <input type="checkbox" id="toggle_mce"'.((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '').'>
+                                        </div>
+                                        <textarea id="page_content" name="content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">'.$pp['content'].'</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Видео ютуб. Вставлять <i>код</i> видео. Пример: T9z1P8srdQM</label>
+                                        <textarea class="form-control" id="youtube_videos" name="youtube_videos" rows="3" cols="300"  style="width:650px;">'.$pp['youtube_videos'].'</textarea>
+                                    </div>
                                     '.$this->out_choose_picture($pp).'
-                                    
                                     <br><br>
-                                    
                                     <!--<input type="submit" value="'.l('save').'" class="btn btn-primary">-->
-                                   
                             </div>
-
 
                             <!-- настройки -->
                             
@@ -738,7 +748,7 @@ class map{
 
                 $page_types = $this->all_configs['db']->query("SELECT * FROM {page_types}")->assoc();
 
-                $types = '<select name="page_type"><option value="0">---------</option>';
+                $types = '<select class="form-control" name="page_type"><option value="0">---------</option>';
                 foreach($page_types as $type){
                     $selected = ($pp['page_type'] == $type['id'] ? 'selected="selected"' : '');
                     $types .= '<option '.$selected.' value="'.$type['id'].'">'.$type['name'].'</option>';
@@ -747,39 +757,49 @@ class map{
 
 
                 $out.='      
-                            
-                            '.l('map_page_type').' <br>
-                            '.$types.' <br><br>
-                            <label class="checkbox"><input type="checkbox" name="is_page" value="1" '.
-                        ($pp['is_page'] == 1 ? 'checked="checked"' : '').'> '.l('map_page_is_page').'</label><br>
-
-                            <label class="checkbox"><input type="checkbox" name="buy_old" value="1" '.
+                        <div class="form-group">
+                            <label>'.l('map_page_type').'</label>
+                            '.$types.'
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox"><label><input type="checkbox" name="is_page" value="1" '.
+                            ($pp['is_page'] == 1 ? 'checked="checked"' : '').'> '.l('map_page_is_page').'</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox"><label><input type="checkbox" name="buy_old" value="1" '.
                             ($pp['buy_old'] == 1 ? 'checked="checked"' : '').'> '.l('map_buy_old').'</label>
-
-                            '.l('map_hotline_price').' '.$pp['hotline_price'].' грн.<br><br>
-                                
-                            '.l('map_parse_hotline').'<br>
-                            <input type="text" name="hotline_url"  class="span8" value="'.$pp['hotline_url'].'"><br><br>
-                                                        
-                            '.l('map_page_prio').'<br>
-                            <input type="text" name="prio" value="'.$pp['prio'].'" class=":integer" ><br><br>
-
-                            '.l('map_page_color').'<br>
-                            <input type="text" name="page_color" value="'.$pp['page_color'].'" ><br><br>
-                            
-                            '.l('map_page_parent').'<br>
-                            <select name="parent">
+                            </div>
+                            '.l('map_hotline_price').' '.$pp['hotline_price'].' грн.
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_parse_hotline').'</label>
+                            <input type="text" name="hotline_url" class="form-control" value="'.$pp['hotline_url'].'">
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_prio').'</label>
+                            <input type="text" name="prio" value="'.$pp['prio'].'" class=":integer form-control" >
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_color').'</label>
+                            <input class="form-control" type="text" name="page_color" value="'.$pp['page_color'].'" >
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_parent').'</label>
+                            <select class="form-control" name="parent">
                                 <option value="0">*'.l('map_max_category').'*</option>
                                 '.$parentoption.'
-                            </select><br>
-                            <small class="text-warning">'.l('map_page_parent_warning').'</small><br><br>
+                            </select>
+                            <small class="help-block text-warning">'.l('map_page_parent_warning').'</small>
+                        </div>
+                        <div class="form-group">
+                            '.($pp['parent'] == 0 ? '<label>'.l('map_section').'</label>'.$sel_section.'' : '').'
+                        </div>';
 
-                            '.($pp['parent'] == 0 ? ''.l('map_section').'<br>'.$sel_section.'<br><br>' : '');
-
-                $out_r = l('map_page_redirect').'<br>';
+                $out_r = '<div class="form-group"><label>'.l('map_page_redirect').'</label>';
                 #создаем список для выпадающего меню редиректа
                 $sql0 = $this->all_configs['db']->query("SELECT * FROM {map} WHERE parent = ?i AND section = ?i ORDER BY section, prio", array($pp['id'], $pp['section']), 'assoc:id');
-                $out_r.='<select name="redirect">';
+                $out_r.='<select class="form-control" name="redirect">';
                 $out_r.='<option '.($pp['redirect'] == 0 ? 'selected' : '').' value="0">'.l('map_page_no_redirect').'</option>';
                 if($sql0){
                     $translates0 = get_few_translates(
@@ -791,50 +811,70 @@ class map{
                         $out_r.='<option '.$optsel0.' value="'.$pp0['id'].'">'.$pp0['name'].' ('.$pp0['url'].')</option>';
                     }
                 }
-                $out.=$out_r.'</select><br><br>';
+                $out.=$out_r.'</select></div>';
 
-                $out.=l('map_page_date').'<br><input type="text" name="uxt" value="'.date("Y-m-d H:i:s", strtotime($pp['uxt'])).'" size="10" id="datetimepick" /> <br><br>';
-                $out.='<fieldset>
+                $out .= '<div class="form-group"><label>'.l('map_page_date').'</label>'
+                       .'<input class="form-control" type="text" name="uxt" value="'.date("Y-m-d H:i:s", strtotime($pp['uxt'])).'" size="10" id="datetimepick" /></div> ';
+                $out.='<br><fieldset>
                             <legend> '.l('map_templates').' </legend>
-                            '.l('map_page_template_header').'<br>
-                            '.$this->gen_templates_list('header', 'template_header', $pp['template_header']).'
-                            <br><br>
-                            '.l('map_page_template_body_header').'<br>
-                            '.$this->gen_templates_list('body_header', 'template_body_header', $pp['template_body_header']).'
-                            <br><br>
-                            '.l('map_page_template').'<br>
-                            '.$this->gen_templates_list('template', 'template', $pp['template']).'
-                            <br><br>
-                            '.l('map_page_template_inner').'<br>
-                            '.$this->gen_templates_list('inner', 'template_inner', $pp['template_inner']).'
-                            <br><br>
+                            <div class="form-group">
+                                <label>'.l('map_page_template_header').'</label>
+                                '.$this->gen_templates_list('header', 'template_header', $pp['template_header']).'
+                            </div>
+                            <div class="form-group">
+                                <label>'.l('map_page_template_body_header').'</label>
+                                '.$this->gen_templates_list('body_header', 'template_body_header', $pp['template_body_header']).'
+                            </div>
+                            <div class="form-group">
+                                <label>'.l('map_page_template').'</label>
+                                '.$this->gen_templates_list('template', 'template', $pp['template']).'
+                            </div>
+                            <div class="form-group">
+                                <label>'.l('map_page_template_inner').'</label>
+                                '.$this->gen_templates_list('inner', 'template_inner', $pp['template_inner']).'
+                            </div>
                         </fieldset>
-                        <br><br>';
+                        <br>';
 //                            Футер<br>
 //                            '.$this->gen_templates_list('footer', 'template_footer', $pp['template_footer']).'
 
 
 
                 $out.='
-                            
-                            <fieldset>
-                                <legend> '.l('map_meta').' </legend>
-                            '.l('map_meta_description').'<br><textarea rows="10" cols="80" style="width:580px;height:100px;" name="metadescription">'.$pp['metadescription'].'</textarea><br><br>
-                            '.l('map_meta_keywords').'<br><textarea rows="10" cols="80" style="width:580px;height:100px;" name="metakeywords">'.$pp['metakeywords'].'</textarea><br><br>
-                            &lt;meta name="robots" content="follow,index"&gt;<br><textarea name="meta" rows="10" cols="80" style="width:580px;height:50px;">'.$pp['meta'].'</textarea>
-                            </fieldset>
-                            <br><br>
-                            <label class="checkbox">
-                                <input type="checkbox" name="is_gmap" value="1" '.
-                        ($pp['is_gmap'] == 1 ? 'checked="checked"' : '').'> '.l('map_map_coords').'
-                            </label>
-                            Lat <input type="text" name="lat" value="'.$pp['lat'].'" class=":float" ><br>
-                            Lng <input type="text" name="lng" value="'.$pp['lng'].'" class=":float" >
-
-
-                            <!--<br><br><br>
-                            <input type="submit" value="'.l('save').'" class="btn btn-primary">-->
+                        <fieldset>
+                            <legend> '.l('map_meta').' </legend>
+                            <div class="form-group">
+                                <label>'.l('map_meta_description').'</label>
+                                <textarea rows="10" cols="80" class="form-control" name="metadescription">'.$pp['metadescription'].'</textarea><br><br>
+                            </div>
+                            <div class="form-group">
+                                <label>'.l('map_meta_keywords').'</label>
+                                <textarea rows="10" cols="80" class="form-control" name="metakeywords">'.$pp['metakeywords'].'</textarea><br><br>
+                            </div>
+                            <div class="form-group">
+                                <label>&lt;meta name="robots" content="follow,index"&gt;</label>
+                                <textarea name="meta" rows="10" cols="80" class="form-control">'.$pp['meta'].'</textarea>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="is_gmap" value="1" '.
+                            ($pp['is_gmap'] == 1 ? 'checked="checked"' : '').'> '.l('map_map_coords').'
+                                </label>
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <label>Lat</label>
+                            <input type="text" name="lat" value="'.$pp['lat'].'" class=":float form-control" > 
+                        </div>
+                        <div class="form-group">
+                            <label>Lng</label>
+                            <input type="text" name="lng" value="'.$pp['lng'].'" class=":float form-control" > 
+                        </div>
+                        <!--<br><br><br>
+                            <input type="submit" value="'.l('save').'" class="btn btn-primary">-->
+                    </div>
 <!-- модули -->
                         <div class="tab-pane" id="modules">
                             '.$this->gen_modules_list($pp['id'], $page_modules).'
@@ -846,21 +886,18 @@ class map{
                        </div>
 <!-- Цены -->
                         <div class="tab-pane" id="prices">
-						<h4>Экспорт таблиц</h4>
-			<a class="btn btn-small" href="'.$this->all_configs['prefix'].'map/export-map-price-small-csv/'.$pp['id'].'#prices" >'.l('map_export_price_table_button').'</a>
-			<a class="btn btn-small" href="'.$this->all_configs['prefix'].'map/export-map-price-full-csv/'.$pp['id'].'#prices" >'.l('map_export_price_full_table_button').'</a>
-						<hr>
+                            <h4>Экспорт таблиц</h4>
+                                <a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-small-csv/'.$pp['id'].'#prices" >'.l('map_export_price_table_button').'</a>
+                                <a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-full-csv/'.$pp['id'].'#prices" >'.l('map_export_price_full_table_button').'</a>
                             <h4>Услуги</h4>
-                            '.  Inc_helper_map_price::show_tables_by_type($pp['id'], 1, $this->lang == $this->def_lang).'
+                                '.  Inc_helper_map_price::show_tables_by_type($pp['id'], 1, $this->lang == $this->def_lang).'
                             <h4>Ремонт</h4>
-                            '.  Inc_helper_map_price::show_tables_by_type($pp['id'], 2, $this->lang == $this->def_lang).'
+                                '.  Inc_helper_map_price::show_tables_by_type($pp['id'], 2, $this->lang == $this->def_lang).'
                        </div>
                        
 <!-- сортировка -->
                        <!--<div class="tab-pane" id="order">
                                
-                                
-
                                 <ul class="sortTable">
                                 
                                ';
@@ -1047,13 +1084,13 @@ class map{
         if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'add'){
 
             $sqls = $this->all_configs['db']->query("SELECT * FROM {section} ORDER BY prio")->assoc();
-            $sel_section = ' <select name="section">';
+            $sel_section = ' <select class="form-control" name="section">';
             foreach($sqls as $pps){
                 $sel_section .= '<option '.(isset($pp['section']) && $pp['section'] == $pps['id'] ? 'selected="selected"' : '').' value="'.$pps['id'].'">'.$pps['name'].'</option>';
             }
             $sel_section.='</select>';
             if(isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'copy'){
-                $out = '<h3>Копіювання сторінки</h3><br>';
+                $out = '<h3>Копирование страницы</h3><br>';
                 
                 $copy_page = $this->all_configs['db']->query("SELECT id, url FROM {map} WHERE id = ?i", array($this->all_configs['arrequest'][3]), 'row');
                 $langss = $this->all_configs['db']->query("SELECT name, lang FROM {map_strings} 
@@ -1063,21 +1100,34 @@ class map{
 
                 $out .= '
                     <form action="'.$this->all_configs['prefix'].'map/addnow/copy/'.$this->all_configs['arrequest'][3].'" method="POST">
-                        <label class="checkbox"><input type="checkbox" checked="checked" value="1" name="state"> '.l('map_published').'</label><br>
-                        '.l('map_page_name').'<br>
-                            <input type="text" name="name" value="'.$copy_page['name'].'"  class=":required" id="pagename"><br><br>
-                        '.l('map_page_url').'<br>
-                            <input type="text" name="url" value="'.$copy_page['url'].'"  class="" id="pageurl"><br><br>
-                        '.l('map_section').'<br>
-                        '.$sel_section.'<br><br>
-                        '.l('map_page_parent').'<br>
-                        <select name="parent">
-                            <option value="0">*'.l('map_max_category').'*</option>
-                            '.$this->gen_parentoption().'
-                        </select><br><br>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" checked="checked" value="1" name="state"> '.l('map_published').'
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_name').'</label>
+                            <input type="text" name="name" value="'.$copy_page['name'].'"  class=":required form-control" id="pagename">
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_url').'</label>
+                            <input type="text" name="url" value="'.$copy_page['url'].'"  class="form-control" id="pageurl">
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_section').'</label>
+                            '.$sel_section.'
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_parent').'</label>
+                            <select name="parent" class="form-control">
+                                <option value="0">*'.l('map_max_category').'*</option>
+                                '.$this->gen_parentoption().'
+                            </select>
+                        </div>
                         <input type="submit" class="btn btn-primary" value="'.l('create').'">
-                        </form>
-                    <br><br>
+                    </form>
                 ';
             }else{
                 $out = '<h3>'.l('map_add_page').'</h3><br>';
@@ -1087,25 +1137,34 @@ class map{
                     $ppp = $this->all_configs['db']->query("SELECT * FROM {map} WHERE id = ?i", array($this->all_configs['arrequest'][2]), 'row');
                     $translate = $this->all_configs['db']->query("SELECT name,lang FROM {map_strings} WHERE map_id = ?i", array($ppp['id']), 'assoc:lang');
                     $ppp = translates_for_page($this->lang, $this->def_lang, $translate, $ppp);
-                    $sel_parent = l('map_sel_parent').'<br>';
-                    $sel_parent .= '<input type="checkbox" name="id" value="'.$ppp['id'].'" checked> '.$ppp['name'].'</option>';
-                    $sel_parent .= '<br><br>';
+                    $sel_parent = '<div class="from-group"><label>'.l('map_sel_parent').'</label><div class="checkbox"><label>';
+                    $sel_parent .= '<input type="checkbox" name="id" value="'.$ppp['id'].'" checked> '.$ppp['name'].'</label></div>';
+                    $sel_parent .= '</div>';
                 }
 
                 $out.='<form action="'.$this->all_configs['prefix'].'map/addnow" method="POST">
-                    <label class="checkbox"><input type="checkbox" checked="checked" value="1" name="state"> '.l('map_published').'</label><br>
-                    '.l('map_page_name').'<br>
-                        <input type="text" name="name" value=""  class=":required" id="pagename"><br><br>
-                    '.l('map_page_url').'<br>
-                        <input type="text" name="url" value=""  class="" id="pageurl"><br><br>
-                    '.l('map_section').'<br>
-                    '.$sel_section.'<br><br>
-                    '.$sel_parent.'
-                    <input type="submit" class="btn btn-primary" value="'.l('create').'">
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" checked="checked" value="1" name="state"> '.l('map_published').'
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_name').'</label>
+                            <input type="text" name="name" value=""  class=":required form-control" id="pagename">
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_page_url').'</label>
+                            <input type="text" name="url" value=""  class="form-control" id="pageurl">
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('map_section').'</label>
+                            '.$sel_section.'
+                        </div>
+                        '.$sel_parent.'
+                        <input type="submit" class="btn btn-primary" value="'.l('create').'">
                     </form>
-                    <br><br>
-                   .
-
                     ';
             }
         }

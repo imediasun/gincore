@@ -628,20 +628,20 @@ class Chains
 
         // фильтры
         $out = '<div class="span2"><form method="post"><legend>Фильтры:</legend>';
-        $out .= '<label>Товар:</label>';
+        $out .= '<div class="form-group"><label>Товар:</label>';
         $out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
-        $out .= '<label>Серийный номер:</label><input name="serial" value="';
+        $out .= '</div><div class="form-group"><label>Серийный номер:</label><input name="serial" value="';
         $out .= isset($_GET['serial']) && !empty($_GET['serial']) ? trim(htmlspecialchars($_GET['serial'])) : '';
-        $out .= '" type="text" class="input-medium" placeholder="Серийный номер">';
-        $out .= '<label>ФИО:</label>';
-        $out .= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0);
-        $out .= '<label>№ заказа на ремонт:</label><input name="client-order-number" value="';
+        $out .= '" type="text" class="form-control" placeholder="Серийный номер" class="form-control"></div>';
+        $out .= '<div class="form-group"><label>ФИО:</label>';
+        $out .= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0).'</div>';
+        $out .= '<div class="form-group"><label>№ заказа на ремонт:</label><input name="client-order-number" value="';
         $out .= isset($_GET['con']) && !empty($_GET['con']) ? trim(htmlspecialchars($_GET['con'])) : '';
-        $out .= '" type="text" class="input-medium" placeholder="№ заказа на ремонт">';
-        $out .= '<label class="checkbox"><input name="noitems" ';
-        $out .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> Без изделий</label>';
-        $out .= '<input type="submit" name="filters" class="btn" value="Фильтровать">';
-        $out .= '</form></div><div class="span10">';
+        $out .= '" type="text" class="form-control" placeholder="№ заказа на ремонт"></div>';
+        $out .= '<div class="form-group"><div class="checkbox"><label><input name="noitems" ';
+        $out .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> Без изделий</label></div>';
+        $out .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="Фильтровать"></div></div>';
+        $out .= '</div></form></div><div class="span10">';
 
         if ($operations && count($operations) > 0) {
             $out .= '<table class="table table-compact"><thead><tr><td>Заказ</td><td>Дата</td><td>Наименование</td>';//<td>Склад</td>
@@ -704,20 +704,20 @@ class Chains
                 }
             }
         }
-        $out .= htmlspecialchars($op['title']) . '</a> <i class="icon-move popover-info" data-content="' . $content . '"></i></div>';//<td>' . $w_out . '</td>';
+        $out .= htmlspecialchars($op['title']) . '</a> <i class="glypicon glypicon-move popover-info" data-content="' . $content . '"></i></div>';//<td>' . $w_out . '</td>';
         if ($type == 1 && $op['item_id'] == 0) {
-            $b_out = '<input class="btn btn-mini" type="button" value="Сохранить" onclick="btn_bind_item_serial(this, \'' . $op['id'] . '\')" />';
+            $b_out = '<input class="btn btn-xs" type="button" value="Сохранить" onclick="btn_bind_item_serial(this, \'' . $op['id'] . '\')" />';
         }
         if ($type == 4 && $op['item_id'] > 0) {
-            $b_out = '<input class="btn btn-mini" type="button" value="Сохранить" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
+            $b_out = '<input class="btn btn-xs" type="button" value="Сохранить" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
         }
         if ($type == 1) {
             $out .= '<td>' . ($op['warehouse_type'] == 1 ? 'Киев' : ($op['warehouse_type'] == 2 ? 'Заграница' : '')) . '</td>';
         }
         if ($type == 1) {
-            $out .= '<td><div class="input-append">' . $this->select_bind_item_wh($op, $type, $serials);
-            $out .= '<input class="input-medium" type="text" value="" style="display:none;" id="bind_item_serial_input-' . $op['id'] . '" />';
-            $out .= '<button onclick="toogle_siblings(this)" class="btn" type="button"><i class="fa fa-keyboard-o"></i></button></div></td>';
+            $out .= '<td><div class="input-group" style="max-width:200px">' . $this->select_bind_item_wh($op, $type, $serials);
+            $out .= '<input class="form-control" type="text" value="" style="display:none;" id="bind_item_serial_input-' . $op['id'] . '" />';
+            $out .= '<span class="input-group-btn" onclick="toogle_siblings(this, true)"><button class="btn" type="button"><i class="fa fa-keyboard-o"></i></button></span></div></td>';
         }
         if ($type == 4) {
             $out .= '<td>' . $this->select_bind_item_wh($op, $type, $serials) . '</td>';
@@ -737,7 +737,7 @@ class Chains
         if ($type == 4 || $data['item_id'] > 0) {
             $out = suppliers_order_generate_serial($data, true, true);
         } else {
-            $out = '<select class="input-medium" id="bind_item_serial-' . $data['id'] . '">';
+            $out = '<select class="form-control" id="bind_item_serial-' . $data['id'] . '">';
 
             $selects = '';
             if (isset($serials[$data['goods_id']]['serials']) && count($serials[$data['goods_id']]['serials']) > 0) {
@@ -748,7 +748,7 @@ class Chains
                         continue;
                     }
 
-                    $class = $serial['order_id'] > 0 ? 'text-error' : '';
+                    $class = $serial['order_id'] > 0 ? 'text-danger' : '';
                     $selects .= '<option class="' . $class . '" value="' . $serial['item_id'] . '">';
                     $selects .= suppliers_order_generate_serial($serial) . '</option>';
 
@@ -2848,7 +2848,7 @@ class Chains
                 //$out .= '<input name="item_id" type="text" value="" placeholder="Серийный номер" class="imput-large" /></div></div>';
                 $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '', 'display_serial_product', true) . '';
                 $out .= ' <small class="clone_clear_html product-title"></small></div>';
-                $out .= '<i class="icon-plus cloneAndClear" title="Добавить"></i></div>';
+                $out .= '<i class="glypicon glypicon-plus cloneAndClear" title="Добавить"></i></div>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
                 $out .= '<div class="control-group"><label class="control-label">Номер ремонта:</label><div class="controls">';
@@ -2910,7 +2910,7 @@ class Chains
 
     function order_status($active)
     {
-        $order_html = '<select class="order-status input-medium" name="status">';
+        $order_html = '<select class="order-status form-control" name="status">';
         if (!is_integer($active)) {
             $order_html .= '<option value="-1">Поменять</option>';
         }

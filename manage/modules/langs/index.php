@@ -85,9 +85,9 @@ class langs{
         foreach($langs as $lang){
             $html .= '
                 <tr>
-                    <td><input type="text" name="lang['.$lang['id'].'][name]" value="'.$lang['name'].'"></td>
-                    <td><input type="text" name="lang['.$lang['id'].'][url]" value="'.$lang['url'].'"></td>
-                    <td><input type="text" name="lang['.$lang['id'].'][prio]" value="'.$lang['prio'].'"></td>
+                    <td><input class="form-control" type="text" name="lang['.$lang['id'].'][name]" value="'.$lang['name'].'"></td>
+                    <td><input class="form-control" type="text" name="lang['.$lang['id'].'][url]" value="'.$lang['url'].'"></td>
+                    <td><input class="form-control" type="text" name="lang['.$lang['id'].'][prio]" value="'.$lang['prio'].'"></td>
                     <td align="center"><input type="checkbox" name="lang['.$lang['id'].'][state]" '.($lang['state'] ? 'checked="checked"' : '').'></td>
                     <td align="center"><input type="radio" name="default" value="'.$lang['id'].'" 
                             '.($lang['default'] ? 'checked="checked"' : '').'
@@ -98,9 +98,7 @@ class langs{
         }
         
         $out.='
-            <h3>Управелние языками</h3>
-            <br>
-            
+            <h3>Управелние городами</h3>
             <form action="'.$this->all_configs['prefix'].'langs/save" method="post">
                 <table class="table table-hover table-bordered" cellspacing="0" cellpadding="0">
                     <thead>
@@ -120,15 +118,17 @@ class langs{
             </form>
             
             <br>
+            <h3>Добавить новый:</h3>
             <br>
-            <strong>Добавить новый:</strong>
-            <br>
-            <br>
-            <form action="'.$this->all_configs['prefix'].'langs/add_new" method="post">
-                Язык:<br>
-                <input type="text" name="name"> <br>
-                url:<br>
-                <input type="text" name="url"> <br>
+            <form style="max-width:300px" action="'.$this->all_configs['prefix'].'langs/add_new" method="post">
+                <div class="form-group">
+                    <label>Название города:</label>
+                    <input type="text" name="name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>url:</label>
+                    <input type="text" class="form-control" name="url">
+                </div>
                 <input type="submit" value="Добавить" class="btn btn-primary">
             </form>
         ';

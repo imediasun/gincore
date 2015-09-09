@@ -164,11 +164,15 @@ class seo {
             $out.= "<a href='" . $this->all_configs['prefix'] . "seo/glue/del/all' onclick='return confirm(\"Удалить все записи?\")'>Удалить все</a>";
             $out.='<h3>Добавление ссылок для переадресации</h3>';
             $out.= "<form action = '" .  $this->all_configs['prefix'] . "seo/glue/add' method='POST'>
-                            <div>
-                            <textarea rows='10' style='width:300px' name='linkfrom'></textarea>
-                            <textarea rows='10' style='width:300px' name='linkto'></textarea>
+                            <div class='form-group-row'>
+                                <div class='col-sm-6'>
+                                    <textarea class='form-control' rows='10' name='linkfrom'></textarea>
+                                </div>
+                                <div class='col-sm-6'>
+                                    <textarea class='form-control' rows='10' name='linkto'></textarea>
+                                </div>
                             </div>
-                            <p><input type='submit' value='Добавить' style='width:120px; height:40px;'></p>
+                            <p><input type='submit' value='Добавить' class='btn btn-default'></p>
                             </form>";
         }
         return $out;
@@ -450,7 +454,7 @@ class seo {
             
             $out .= '
                 <form method="post" action="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/map/save">
-                <table class="table table-hover table-bordered">
+                <table class="table table-condensed table-hover table-bordered">
                     <thead>
                         <tr>
                             <th>id</th>
@@ -470,14 +474,14 @@ class seo {
                 $out .= '
                     <tr>
                         <td>' . $page['id'] . '</td>
-                        <td>
-                            <a href="' . $this->all_configs['prefix'] . 'map/' . $page['id'] . '" target="_blank"><i class="icon-pencil"></i></a> ' . $page['name'] . '<br>
+                        <td style="width:150px">
+                            <a href="' . $this->all_configs['prefix'] . 'map/' . $page['id'] . '" target="_blank"><i class="glyphicon glyphicon-pencil"></i></a> ' . $page['name'] . '<br>
                             <!--<a title="' . $this->all_configs['prefix'] . '" href="' . $link . '" target="_blank">ссылка на сайт</a>-->
                         </td>
-                        <td><input type="text" name="page[' . $page['id'] . '][url]" value="' . htmlspecialchars($page['url']) . '"></td>
-                        <td><textarea rows="3" class="input-xlarge" name="page[' . $page['id'] . '][fullname]">' . htmlspecialchars($page['fullname']) . '</textarea></td>
-                        <td><textarea rows="3" class="input-xlarge" name="page[' . $page['id'] . '][metakeywords]">' . htmlspecialchars($page['metakeywords']) . '</textarea></td>
-                        <td><textarea rows="3" class="input-xlarge" name="page[' . $page['id'] . '][metadescription]">' . htmlspecialchars($page['metadescription']) . '</textarea></td>  
+                        <td><input class="form-control" type="text" name="page[' . $page['id'] . '][url]" value="' . htmlspecialchars($page['url']) . '"></td>
+                        <td><textarea class="form-control" rows="3" name="page[' . $page['id'] . '][fullname]">' . htmlspecialchars($page['fullname']) . '</textarea></td>
+                        <td><textarea class="form-control" rows="3" name="page[' . $page['id'] . '][metakeywords]">' . htmlspecialchars($page['metakeywords']) . '</textarea></td>
+                        <td><textarea class="form-control" rows="3" name="page[' . $page['id'] . '][metadescription]">' . htmlspecialchars($page['metadescription']) . '</textarea></td>  
                     </tr>
                 ';
             }

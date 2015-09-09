@@ -2,7 +2,7 @@
 ///// module information
 $modulename[]='subdomains';
 $modulemenu[]='Домены';
-$moduleactive[]=true;
+$moduleactive[]=false;
 ///////////
 class subdomains {
 

@@ -502,7 +502,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
     }
     if ($show_categories == true) {
-        $out = '<div class="form-group-row"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
+        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
         $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         foreach ( $categories as $category ) {
@@ -883,7 +883,7 @@ function display_client_order($order)
 
     $ordered = '';
     if ($order['status'] == $all_configs['configs']['order-status-waits'] && count($order['goods']) > 0) {
-        $ordered = str_repeat(' <i class="fa fa-minus-circle text-error pull-right"></i> ', count($order['goods'])-count($order['finish']));
+        $ordered = str_repeat(' <i class="fa fa-minus-circle text-danger pull-right"></i> ', count($order['goods'])-count($order['finish']));
         if (count($order['finish']) > 0) {
             $ordered .= str_repeat(' <i class="fa fa-plus-circle text-success pull-right"></i> ', count($order['finish']));
         }
@@ -891,7 +891,7 @@ function display_client_order($order)
 
     $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
     $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
-    $accepted .= $order['np_accept'] == 1 ? '<i title="Принято через новую почту" class="fa fa-arrows text-error"></i> ' :
+    $accepted .= $order['np_accept'] == 1 ? '<i title="Принято через новую почту" class="fa fa-arrows text-danger"></i> ' :
         '<i style="color:' . $color . ';" title="Принято в ' . htmlspecialchars($order['aw_wh_title']) . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
 
     $get = '?' . get_to_string($_GET);
@@ -916,13 +916,13 @@ function display_client_order($order)
             
         . ($all_configs['oRole']->hasPrivilege('edit-clients-orders') ?
                 '<td class="' . ($order['discount'] > 0 
-                ? 'text-error' : '') . '">' . ($order['sum'] / 100) . '</td>'
+                ? 'text-danger' : '') . '">' . ($order['sum'] / 100) . '</td>'
                 . '<td>' . ($order['sum_paid'] / 100) . '</td>' 
         : ( ($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? '<td>да</td>' : '<td></td>'))
         
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
     . '<td>' . $order['o_phone'] . '</td>'
-    . '<td' . ($order['urgent'] == 1 ? ' class="text-error">Срочно' : '>Не срочно') . '</td>'
+    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">Срочно' : '>Не срочно') . '</td>'
     . '<td>' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']) . '</td></tr>';
 }
 
@@ -1174,13 +1174,13 @@ function timerout($order_id, $show_timer = false)
         $onclick = 'onclick="alert_box(this, false, \'alarm-clock\', undefined, undefined, \'messages.php\')"';
         $hidden = $show_timer == false ? 'hidden' : '';
 
-        //$html = '<a class="muted btn-messages">';
-        $html .= '<i data-o_id="' . $order_id . '" href="javascript:void(0);" ' . $onclick . ' id="btn-timer-' . $order_id . '" class="fa fa-bell cursor-pointer btn-timer"></i>';
+        $html = '<a href="#" class="label-menu-corner" ' . $onclick . '>';
+        $html .= '<i data-o_id="' . $order_id . '" href="javascript:void(0);"  id="btn-timer-' . $order_id . '" class="fa fa-bell cursor-pointer btn-timer"></i>';
         $html .= ' <span id="alarm-timer-' . $order_id . '" data-o_id="' . $order_id . '" class="' . $hidden . ' alarm-timer"></span>';
         if ($order_id == 0) {
-            $html .= ' <span data-o_id="1" onclick="alert_box(this, false, \'get-messages\', undefined, undefined, \'messages.php\')" class="count-alarm-timer cursor-pointer"></span> ';
+            $html .= '<span data-o_id="1" onclick="alert_box(this, false, \'get-messages\', undefined, undefined, \'messages.php\', event)" class="count-alarm-timer cursor-pointer label label-success"></span>';
         }
-        //$html .= '</a>';
+        $html .= '</a>';
     }
 
     return $html;

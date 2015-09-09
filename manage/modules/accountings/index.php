@@ -1398,18 +1398,18 @@ class accountings
                 $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect form-control" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
                 $data['content'] .= $select_contractors_categories_to . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
-                $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="icon-plus"></i></a></td></tr>';
+                $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
                 //* Статья 2
                 $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* Статья</td>';
                 $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect input-medium" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
                 $data['content'] .= $select_contractors_categories_from . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
-                $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="icon-plus"></i></a></td></tr>';
+                $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
                 //* Контрагент 1 2
                 $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;Контрагент</td>';
                 $data['content'] .= '<td><select ' . $dc . ' class="form-control select_contractors" name="contractors_id">' . $select_contractors . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
-                $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="icon-plus"></i></a></td></tr>';
+                $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             }
             // только обычные транзакции
             if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
@@ -1456,7 +1456,7 @@ class accountings
                     //$data['content'] .= '<td colspan="4" class="center"><input type="text" name="date_transaction" class="input-small date-pickmeup" data-pmu-format="d.m.Y" value="' . $today .'" /></td>';
                     $data['content'] .= '<td colspan="4" class="center"><div class="datetimepicker">
                         <input class="form-control" data-format="yyyy-dd-MM" type="text" name="date_transaction" value="' . $today . '" />
-                        <span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
+                        <span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
                         </div></div>';
                 }
                 $data['content'] .= '</tr>';

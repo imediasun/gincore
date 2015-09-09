@@ -45,9 +45,8 @@ class flayers{
             $this->all_configs['db']->makeQuery("banner_id IN (?q)", array(implode(',', array_keys($flayers_arr))))
         );
         $flayers = '<h3>Баннера</h3><ul>'
-            .'<ul>
-                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'add_new' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/add_new">Добавить баннер</a></li>
-            </ul>';
+            .'<li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'add_new' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/add_new">Добавить баннер</a></li>
+            ';
         
         $flayer_type = '';
         foreach($flayers_arr as $fl){
@@ -134,7 +133,7 @@ class flayers{
             'map_id', 
             $this->all_configs['db']->makeQuery("map_id IN (?q)", array(implode(',', array_keys($categories))))
         );
-        $category_select = '<select name="category"><option value="0">Нет разделов</option>';
+        $category_select = '<select name="category" class="form-control"><option value="0">Нет разделов</option>';
         foreach ( $categories as $category ) {
             $category = translates_for_page($this->lang, $this->def_lang, $translates[$category['id']], $category, true);
             if (isset($flayer['page_id']) && $flayer['page_id'] == $category['id'])
@@ -145,51 +144,53 @@ class flayers{
         $category_select .= '</select>';
         
         $form = '
-            <label class="checkbox">
-                <input type="checkbox" name="active" value="1"'.
-                    (($flayer && $flayer['active']) || !$flayer ? ' checked="checked"' : '').'> отображается
-            </label>
-            
-            <br>
-            
-            Тип <br>
-            <select name="is_double">
-                <option value="0">'.l('flayers_simple').'</option>
-                <option value="1" '.($flayer && $flayer['is_double']==1 ? ' selected="selected"' : '').'>'.l('flayers_double').'</option>
-                <option value="2" '.($flayer && $flayer['is_double']==2 ? ' selected="selected"' : '').'>'.l('flayers_main').'</option>
-                <option value="3" '.($flayer && $flayer['is_double']==3 ? ' selected="selected"' : '').'>'.l('flayers_service').'</option>
-            </select>
-            
-            <div id="categories_box" ' 
-//                . ($flayer && ($flayer['is_double'] == 3) ? '' : 'style="display:none;"') 
-                . '>
-                <br><br>Сервис:<br>
-                ' . $category_select . '
+            <div class="form-group">
+                <div class="checkbox">
+                    <label class="checkbox">
+                        <input type="checkbox" name="active" value="1"'.
+                            (($flayer && $flayer['active']) || !$flayer ? ' checked="checked"' : '').'> отображается
+                    </label>
+                </div>
             </div>
-            
-            <br>
-            <br>
-
-            URL:<br>
-            <input type="text" name="url" value="'.($flayer && $flayer['url'] ? $flayer['url'] : '').'">
-            <br>
-            <label class="checkbox">
-                <input type="checkbox" name="hidden_link" value="1"'.
-                    (($flayer && $flayer['hidden_link']) ? ' checked="checked"' : '').'> эмулировать ссылку 
-            </label>
-            
-            <br>
-            Название:<br>
-            <input type="text" name="name" value="'.($flayer && $flayer['name'] ? $flayer['name'] : '').'">
-            
-            <br><br>
-            
-            Изображение: <br>
-            '.($flayer && $flayer['image'] ? '<img src="'.$this->all_configs['siteprefix'].'flayers/'.$flayer['image'].'"><br><br>' : '').'
-            <strong>'.l('flayers_simple').'</strong> - 350 х (175, 560) px <br>
-            <strong>'.l('flayers_double').'</strong> - рабочее пространство (970х200) общее (1920х240) px <br>
-            <strong>'.l('flayers_main').'</strong> - рабочее пространство (970х400) общее (1920х400) px <br>
-            <input type="file" name="image"><br><br>
+            <div class="form-group">
+                <label>Тип </label>
+                <select name="is_double" class="form-control">
+                    <option value="0">'.l('flayers_simple').'</option>
+                    <option value="1" '.($flayer && $flayer['is_double']==1 ? ' selected="selected"' : '').'>'.l('flayers_double').'</option>
+                    <option value="2" '.($flayer && $flayer['is_double']==2 ? ' selected="selected"' : '').'>'.l('flayers_main').'</option>
+                    <option value="3" '.($flayer && $flayer['is_double']==3 ? ' selected="selected"' : '').'>'.l('flayers_service').'</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div id="categories_box">
+                    <label>Сервис:</label>
+                    ' . $category_select . '
+                </div>
+            </div>
+            <div class="form-group">
+                <label>URL:</label>
+                <input type="text" class="form-control" name="url" value="'.($flayer && $flayer['url'] ? $flayer['url'] : '').'">
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="hidden_link" value="1"'.
+                            (($flayer && $flayer['hidden_link']) ? ' checked="checked"' : '').'> эмулировать ссылку 
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Название:</label>
+                <input type="text" class="form-control" name="name" value="'.($flayer && $flayer['name'] ? $flayer['name'] : '').'">
+            </div>
+            <div class="form-group">
+                <label>Изображение:</label>
+                '.($flayer && $flayer['image'] ? '<img src="'.$this->all_configs['siteprefix'].'flayers/'.$flayer['image'].'"><br>' : '').'
+                <strong>'.l('flayers_simple').'</strong> - 350 х (175, 560) px <br>
+                <strong>'.l('flayers_double').'</strong> - рабочее пространство (970х200) общее (1920х240) px <br>
+                <strong>'.l('flayers_main').'</strong> - рабочее пространство (970х400) общее (1920х400) px <br>
+                <input type="file" name="image">
+            </div>
         ';
         
         return $form;
@@ -276,7 +277,9 @@ class flayers{
                         <h3>Баннер «'.$flayer['name'].'»</h3>
                         <form action="'.$this->all_configs['prefix'].'flayers/'.$this->all_configs['arrequest'][1].'/save" method="post" enctype="multipart/form-data">
                             '.$this->form($flayer).'
-                            <input type="submit" class="btn btn-primary" value="'.l('save').'">
+                            <div class="form-goup">
+                                <input type="submit" class="btn btn-primary" value="'.l('save').'">
+                            </div>
                         </form>
 
                     ';
@@ -332,7 +335,9 @@ class flayers{
                         <form action="'.$this->all_configs['prefix'].'flayers/add_new/save" method="post" enctype="multipart/form-data">
                             <h3>Добавление нового баннера</h3>
                             '.$this->form().'
-                            <input type="submit" class="btn btn-primary" value="'.l('save').'">
+                            <div class="form-goup">
+                                <input type="submit" class="btn btn-primary" value="'.l('save').'">
+                            </div>
                         </form>
                     ';
                 }else{

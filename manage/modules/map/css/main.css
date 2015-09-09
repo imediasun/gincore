@@ -177,7 +177,7 @@ div.fmfoto2:hover .del_rename, div.fmfoto2:hover .make_thumbs, div.fmfoto2:hover
 #jqxTree{
     left: 0;
     position: relative;
-    width: 90% !important;
+    width: 97% !important;
     padding: 1% 5%;
     border-radius: 3px;
     background-color: #e3e3e3;
@@ -307,4 +307,8 @@ label{
 
 .servicepage {
     font-style: italic;
+}
+
+.jqx-tree{
+    line-height: normal;
 }

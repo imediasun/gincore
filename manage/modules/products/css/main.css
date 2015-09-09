@@ -45,3 +45,12 @@
 #export_goods_form > .control-group {
     margin-bottom: 5px;
 }
+.jquery-tree ul{
+    margin-left: 20px;
+}
+.jquery-tree-checked-partial, .jquery-tree-checked, .jquery-tree-unchecked{
+    background-position: 5px 2px !important;
+}
+.jquery-tree-controls{
+    margin: 5px 0;
+}

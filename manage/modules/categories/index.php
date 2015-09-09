@@ -535,47 +535,47 @@ class categories
                 $sort = '&sort='.$_GET['sort'];
                 switch ( $_GET['sort'] ) {
                     case 'id':
-                        $sort_id = '<a href="?sort=rid">ID<i class="icon-chevron-down"></i>';
+                        $sort_id = '<a href="?sort=rid">ID<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'rid':
-                        $sort_id = '<a href="?sort=id">ID<i class="icon-chevron-up"></i>';
+                        $sort_id = '<a href="?sort=id">ID<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.id DESC';
                         break;
                     case 'title':
-                        $sort_title = '<a href="?sort=rtitle">Название продукта<i class="icon-chevron-down"></i>';
+                        $sort_title = '<a href="?sort=rtitle">Название продукта<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.title';
                         break;
                     case 'rtitle':
-                        $sort_title = '<a href="?sort=title">Название продукта<i class="icon-chevron-up"></i>';
+                        $sort_title = '<a href="?sort=title">Название продукта<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.title DESC';
                         break;
                     case 'price':
-                        $sort_price = '<a href="?sort=rprice">Цена<i class="icon-chevron-down"></i>';
+                        $sort_price = '<a href="?sort=rprice">Цена<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.price';
                         break;
                     case 'rprice':
-                        $sort_price = '<a href="?sort=price">Цена<i class="icon-chevron-up"></i>';
+                        $sort_price = '<a href="?sort=price">Цена<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.id DESC';
                         break;
                     case 'date':
-                        $sort_date = '<a href="?sort=rdate">Дата<i class="icon-chevron-down"></i>';
+                        $sort_date = '<a href="?sort=rdate">Дата<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.date_add';
                         break;
                     case 'rdate':
-                        $sort_date = '<a href="?sort=date">Дата<i class="icon-chevron-up"></i>';
+                        $sort_date = '<a href="?sort=date">Дата<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.date_add DESC';
                         break;
                     case 'avail':
-                        $sort_avail = '<a href="?sort=ravail">Вкл<i class="icon-chevron-down"></i>';
+                        $sort_avail = '<a href="?sort=ravail">Вкл<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.avail';
                         break;
                     case 'ravail':
-                        $sort_avail = '<a href="?sort=avail">Вкл<i class="icon-chevron-up"></i>';
+                        $sort_avail = '<a href="?sort=avail">Вкл<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.avail DESC';
                         break;
                 }
             } else {
-                $sort_id = '<a href="?sort=rid">ID<i class="icon-chevron-down"></i>';
+                $sort_id = '<a href="?sort=rid">ID<i class="glyphicon glyphicon-chevron-down"></i>';
             }
 
 
@@ -620,7 +620,7 @@ class categories
                         <td>'.$good['id'].'</td>
                         <td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/">'.htmlspecialchars($good['title']).'<i class="icon-pencil"></i></a>
                             <span style="float:right">
-                                <a href="' . $this->all_configs['siteprefix'] . $good['url'] . '/p/' . $good['id'] . '/"><i class="icon-eye-open"></i></a>
+                                <a href="' . $this->all_configs['siteprefix'] . $good['url'] . '/p/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
                             </span></td>
                         <td>'.$good['avail'].'</td><td>' . show_price($good['price'], 2, ' ').'</td>' .
                         '<td><span title="' . do_nice_date($good['date_add'], false) . '">' . do_nice_date($good['date_add']) . '</span></td>

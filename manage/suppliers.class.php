@@ -354,16 +354,16 @@ class Suppliers
         //$orders_html .= '<label>Статус:</label>';
         //$orders_html .= '<select class="input-medium" name="so_st"><option value="">Выберите</option><option value="">Новый заказ</option>';
         //$orders_html .= '<option value="">Неоприходован</option><option value="">Оприходован и оплачен</option></select>';
-        $orders_html .= '<label>Товар:</label>';
-        $orders_html .= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini');
+        $orders_html .= '<div class="form-group"><label>Товар:</label>';
+        $orders_html .= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini').'</div>';
         if ($show_my == true) {
             $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('edit-map') ? false : true;
-            $orders_html .= '<div class="checkbox"><label>Только мои<input name="my" type="checkbox" ';
+            $orders_html .= '<div class="form-group"><div class="checkbox"><label><input name="my" type="checkbox" ';
             $orders_html .= $my || (isset($_GET['my']) && $_GET['my'] == 1) ? ' checked ' : '';
-            $orders_html .= ($my ? ' disabled ' : '') . ' /></label></div>';
+            $orders_html .= ($my ? ' disabled ' : '') . ' /> Только мои</label></div></div>';
         }
-        $orders_html .= '<div class="checkbox"><label><input name="noavail" type="checkbox" ';
-        $orders_html .= ((isset($_GET['avail']) && $_GET['avail'] == 0) ? ' checked ' : '') . ' />Не активные</label></div>';
+        $orders_html .= '<div class="form-group"><div class="checkbox"><label><input name="noavail" type="checkbox" ';
+        $orders_html .= ((isset($_GET['avail']) && $_GET['avail'] == 0) ? ' checked ' : '') . ' />Не активные</label></div></div>';
 
         $orders_html .= '<input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">';
         $orders_html .= '</form>';
@@ -397,7 +397,7 @@ class Suppliers
 
                 $class = '';
                 if (strtotime($order['date_wait']) < time() && $order['confirm'] != 1)
-                    $class = ' error ';
+                    $class = ' danger ';
 
                 if ($order['confirm'] != 1 && ($order['count_debit'] != $order['count_come'] || $order['sum_paid'] == 0) && $order['wh_id'] > 0 && $order['count_come'] > 0)
                     $class = ' info ';
@@ -429,23 +429,23 @@ class Suppliers
                 $buttons = '<div class="btn-group"><a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="">';
                 $buttons .= '<span class="caret"></span></a><ul class="dropdown-menu pull-right">';
                 // редактировать
-                $buttons .= '<li>' . $this->supplier_order_number($order, '<i class="icon-pencil"></i> Редактировать') . '</li>';
+                $buttons .= '<li>' . $this->supplier_order_number($order, '<i class="glyphicon glyphicon-pencil"></i> Редактировать') . '</li>';
                 // ремонты
                 if ($order['avail'] == 1) {
-                    $buttons .= '<li><a onclick="return alert_box(this, false, \'so-operations\')" data-o_id="' . $order['id'] . '" href=""><i class="icon-random"></i> Ремонты</a></li>';
+                    $buttons .= '<li><a onclick="return alert_box(this, false, \'so-operations\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-random"></i> Ремонты</a></li>';
                 }
                 // отправить кладовщику и бухгалтеру
                 if ($order['confirm'] <> 1 && $order['avail'] == 1 && $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['count_come'] == 0 && $only_debit == false) {
-                    $buttons .= '<li><a onclick="return alert_box(this, false, \'form-accept-so\')" data-o_id="' . $order['id'] . '" href=""><i class="icon-wrench"></i> Принять</a></li>';
+                    $buttons .= '<li><a onclick="return alert_box(this, false, \'form-accept-so\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-wrench"></i> Принять</a></li>';
                 }
                 // оплатить
                 if (/*$order['confirm'] <> 1 &&*/ $order['avail'] == 1 && $this->all_configs['oRole']->hasPrivilege('accounting') && $order['sum_paid'] == 0 && $order['count_come'] > 0 && $only_pay == true) {
-                    $buttons .= '<li><a onclick="return pay_supplier_order(this, 1, \'' . $order['id'] . '\')" data-o_id="" href=""><i class="icon-wrench"></i> Оплатить</a></li>';
+                    $buttons .= '<li><a onclick="return pay_supplier_order(this, 1, \'' . $order['id'] . '\')" data-o_id="" href=""><i class="glyphicon glyphicon-wrench"></i> Оплатить</a></li>';
                 }
                 // приходование
                 if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                     if ($order['confirm'] <> 1 && $order['avail'] == 1 && $order['count_debit'] != $order['count_come'] && $order['wh_id'] > 0 && $only_debit == true) {
-                        $buttons .= '<li><a onclick="return alert_box(this, false, \'form-debit-so\')" data-o_id="' . $order['id'] . '" href=""><i class="icon-wrench"></i> Приходовать</a></li>';
+                        $buttons .= '<li><a onclick="return alert_box(this, false, \'form-debit-so\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-wrench"></i> Приходовать</a></li>';
                     }
                     if (count($order['items']) > 0) {
                         $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . implode(',', array_keys($order['items']));
@@ -453,19 +453,19 @@ class Suppliers
                     }
                 }
                 if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/* $order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                    //$buttons .= '<li><a onclick="return close_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="icon-remove"></i> Закрыть</a></li>';
+                    //$buttons .= '<li><a onclick="return close_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-remove"></i> Закрыть</a></li>';
                     if ($order['unavailable'] == 0) {
-                        $buttons .= '<li><a onclick="return end_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="icon-ban-circle"></i> Запчасть не доступна к заказу</a></li>';
+                        $buttons .= '<li><a onclick="return end_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-ban-circle"></i> Запчасть не доступна к заказу</a></li>';
                     }
                 }
                 // удаление
                 if ($order['confirm'] <> 1 && $order['avail'] == 1 && $order['count_come'] == 0 && ((/*$order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                    $buttons .= '<li><a onclick="return avail_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="icon-off"></i> Отменить</a></li>';
-                    //$buttons .= '<button title="Удалить" onclick="remove_supplier_order(this, \'' . $order['id'] . '\')" class="btn btn-mini" type="button"><i class="icon-remove"></i></button>';// btn-danger
+                    $buttons .= '<li><a onclick="return avail_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-off"></i> Отменить</a></li>';
+                    //$buttons .= '<button title="Удалить" onclick="remove_supplier_order(this, \'' . $order['id'] . '\')" class="btn btn-mini" type="button"><i class="glyphicon glyphicon-remove"></i></button>';// btn-danger
                 }
                 $buttons .= '</ul></div>';
 
-                $edit_comment = '<i class="icon-pencil editable-click pull-right" data-placement="left" data-display="false" data-title="Редактировать комментарий" data-url="messages.php?act=edit-supplier-order-comment" data-pk="' . $order['id'] . '" data-type="textarea" data-value="' . htmlspecialchars($order['comment']) . '"></i>';
+                $edit_comment = '<i class="glyphicon glyphicon-pencil editable-click pull-right" data-placement="left" data-display="false" data-title="Редактировать комментарий" data-url="messages.php?act=edit-supplier-order-comment" data-pk="' . $order['id'] . '" data-type="textarea" data-value="' . htmlspecialchars($order['comment']) . '"></i>';
 
                 $goods_html .= '<tr class=" ' . $class . '" id="supplier-order_id-' . $order['id'] . '">
                     <td>' . show_marked($order['id'], 'so', $order['m_id']) . '</td>
@@ -488,7 +488,7 @@ class Suppliers
             }
             $goods_html .= '</tbody></table>';
         } else {
-            $goods_html .= '<p  class="text-error">Нет заказов</p>';
+            $goods_html .= '<p  class="text-danger">Нет заказов</p>';
         }
 
         $goods_html .= $this->append_js();
@@ -634,7 +634,7 @@ class Suppliers
     {
         $data = array();
         $data['state'] = true;
-        $data['content'] = '<h5 class="text-error">Заказ не найден</h5>';
+        $data['content'] = '<h5 class="text-danger">Заказ не найден</h5>';
 
         if ($order_id > 0) {
             $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
@@ -797,10 +797,10 @@ class Suppliers
             $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
-        $goods_html = '<form data-validate="parsley" id="suppliers-order-form" class="form-horizontal" method="post">';
+        $goods_html = '<form data-validate="parsley" id="suppliers-order-form" method="post"><div style="max-width:400px">';
         $disabled = '';
         $info_html = '';
-        $so_co = '<div class="controls"><input type="text" name="so_co[]" class="input clone_clear_val" /></div><i class="icon-plus cloneAndClear"></i>';
+        $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div></div>';
         if ($suppliers) {
             $order = array(
                 'price'     =>  '',
@@ -837,7 +837,7 @@ class Suppliers
 
                     for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
                         $co = current($cos);
-                        $so_co .= '<div class="controls"><input type="text" name="so_co[]" class="input" value="' . $co . '" /></div>';
+                        $so_co .= '<input type="text" name="so_co[]" class="form-control" value="' . $co . '" />';
                         next($cos);
                     }
                     $order['title']     =  'Редактировать заказ';
@@ -856,32 +856,32 @@ class Suppliers
                     $order['product']   =   $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i', array($order['goods_id']))->el();
 
                     if ($order['count_debit'] > 0) {
-                        $info_html .= '<div class="control-group"><label class="control-label">Создал: </label>'
-                            . '<div class="controls">' . get_user_name($order) . '</div></div>';
+                        $info_html .= '<div class="form-group"><label>Создал:&nbsp;</label>'
+                            . '' . get_user_name($order) . '</div>';
                     }
                     if ($order['count_come'] > 0) {
-                        $info_html .= '<div class="control-group"><label class="control-label">Принято: </label>'
-                            . '<div class="controls">' . $order['count_come'] . ' шт.</div></div>';
+                        $info_html .= '<div class="form-group"><label>Принято:&nbsp;</label>'
+                            . '' . $order['count_come'] . ' шт.</div>';
                     }
                     if ($order['count_debit'] > 0) {
                         $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . $order['items'];
                         $print_btn = '<a target="_blank" title="Печать" href="' . $url . '"><i class="fa fa-print"></i></a>';
 
-                        $info_html .= '<div class="control-group"><label class="control-label">Оприходовано: </label>'
-                            . '<div class="controls">' . $order['count_debit'] . ' шт. ' . $print_btn . '</div></div>';
+                        $info_html .= '<div class="form-group"><label>Оприходовано:&nbsp;</label>'
+                            . '' . $order['count_debit'] . ' шт. ' . $print_btn . '</div>';
                     }
                     if ($order['wh_id'] > 0) {
-                        $info_html .= '<div class="control-group"><label class="control-label">Склад: </label>'
-                            . '<div class="controls"><a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $order['wh_id'] . '#show_items">' . $order['wh_title'] . '</a></div></div>';
-                        $info_html .= '<div class="control-group"><label class="control-label">Локация: </label>'
-                            . '<div class="controls">' . $order['location'] . '</div></div>';
+                        $info_html .= '<div class="form-group"><label>Склад:&nbsp;</label>'
+                            . '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $order['wh_id'] . '#show_items">' . $order['wh_title'] . '</a></div>';
+                        $info_html .= '<div class="form-group"><label>Локация:&nbsp;</label>'
+                            . '' . $order['location'] . '</div>';
                     }
-                    $info_html .= '<h4>Операции</h4>';
+                    $info_html .= '</div><h4>Операции</h4>';
                     $info_html .= $this->get_transactions($this->currencies, false, null, true, array('supplier_order_id' => $order_id), false);
 
                     if ($order['sum_paid'] == 0 /*&& $order['count_come'] > 0*/ && $order['count_debit'] != $order['count_come']/* && $order['wh_id'] > 0*/) {
-                        $goods_html .= '<div class="control-group"><label class="control-label">Склад: </label>'
-                            . '<div class="controls"><select name="warehouse" ' . $disabled . ' onchange="change_warehouse(this)" class="select-warehouses-item-move"><option value=""></option>';
+                        $goods_html .= '<div class="form-group"><label>Склад: </label>'
+                            . '<select name="warehouse" ' . $disabled . ' onchange="change_warehouse(this)" class="select-warehouses-item-move form-control"><option value=""></option>';
                         // список складов
                         //if ($warehouses == null)
                         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} as w WHERE consider_store=1 ORDER BY title', array())->assoc();
@@ -894,10 +894,10 @@ class Suppliers
 
                             }
                         }
-                        $goods_html .= '</select></div></div>';
-                        $goods_html .= '<div class="control-group"><label class="control-label">Локация:</label><div class="controls"><select class="select-location" name="location">';
+                        $goods_html .= '</select></div>';
+                        $goods_html .= '<div class="form-group"><label>Локация:</label><select class="form-control select-location" name="location">';
                         $goods_html .= $this->gen_locations($order['wh_id'], $order['location_id']);
-                        $goods_html .= '</select></div></div>';
+                        $goods_html .= '</select></div>';
                     }
                 } else {
                     $order = array(
@@ -907,7 +907,7 @@ class Suppliers
                         'supplier'  =>  '',
                         'goods_id'  =>  '',
                         'title'     =>  'Создать заказ',
-                        'btn'       =>  '<input type="submit" class="btn" name="new-order" value="Создать заказ поставщику" />',
+                        'btn'       =>  '<input type="submit" class="btn btn-primary" name="new-order" value="Создать заказ поставщику" />',
                         'product'   =>  '',
                         'comment'   =>  '',
                         'unavailable' => 0,
@@ -923,47 +923,44 @@ class Suppliers
             }
 
             if ($all == true) {
-                $goods_html .= '<div class="control-group"><label class="control-label">Поставщик<b class="text-error">*</b>: </label>'
-                    . '<div class="controls"><select data-required="true" name="warehouse-supplier" ' . $disabled . '><option value=""></option>';
+                $goods_html .= '<div class="form-group"><label>Поставщик <b class="text-danger">*</b>: </label>'
+                    . '<select class="form-control" data-required="true" name="warehouse-supplier" ' . $disabled . '><option value=""></option>';
                 foreach ( $suppliers as $supplier ) {
                     if ($order['supplier'] == $supplier['id'])
                         $goods_html .= '<option selected value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
                     else
                         $goods_html .= '<option value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
                 }
-                $goods_html .= '</select></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Дата поставки<b class="text-error">*</b>: </label>
-                    <div class="controls"><div class="datetimepicker input-prepend">
-                    <span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
-                    <input ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="' . htmlspecialchars($order['date_wait']) . '" />
-                    </div></div></div>';
+                $goods_html .= '</select></div>';
+                $goods_html .= '<div class="form-group"><label>Дата поставки <b class="text-danger">*</b>: </label>
+                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="' . htmlspecialchars($order['date_wait']) . '" />
+                                </div>';
             }
-            $goods_html .= '<br />';
             if ($goods) {
                 //$categories_html = $this->gen_categories_selector('5', $disabled);
-                $goods_html .= '<div class="control-group"><label class="control-label">Запчасть<b class="text-error">*</b>: </label>'
-                    . '<div class="controls">' . typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], (15 + $typeahead), 'input-xlarge', 'input-medium') . '</div></div>';
+                $goods_html .= '<div class="form-group"><label>Запчасть <b class="text-danger">*</b>: </label>'
+                    . '' . typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], (15 + $typeahead), 'input-xlarge', 'input-medium') . '</div>';
             }
-            $goods_html .= '<div class="control-group"><label class="control-label">Тип склада<b class="text-error">*</b>: </label>'
-                . '<div class="controls"><label class="checkbox"><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' /> Киев</label>'
-                . '<label class="checkbox"><input type="radio" name="warehouse_type" data-required="true" value="2" ' . ($order['warehouse_type'] == 2 ? 'checked' : '') . ' /> Заграница</label></div></div>';
+            $goods_html .= '<div class="form-group"><label>Тип склада <b class="text-danger">*</b>: </label>'
+                . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' /> Киев</label></div>'
+                . '<div class="radio"><label><input type="radio" name="warehouse_type" data-required="true" value="2" ' . ($order['warehouse_type'] == 2 ? 'checked' : '') . ' /> Заграница</label></div></div>';
 
-            $goods_html .= '<div class="control-group"><label class="control-label">Номер: </label>'
-                . '<div class="controls"><input type="text" ' . $disabled . ' name="warehouse-order-num" class="input" value="' . $order['num'] . '"/></div></div>';
-            $goods_html .= '<div class="control-group"><label class="control-label">Количество<b class="text-error">*</b>: </label>'
-                . '<div class="controls"><input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event)" name="warehouse-order-count" class="input" value="' . htmlspecialchars($order['count']) . '"/></div></div>';
-            $goods_html .= '<div class="control-group"><label class="control-label">Цена за один<b class="text-error">*</b>: </label>'
-                . '<div class="controls"><input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event, this)" name="warehouse-order-price" class="input" value="' . htmlspecialchars($order['price']) . '"/></div></div>';
-            $goods_html .= '<div class="control-group"><label class="control-label">Примечание: </label>'
-                . '<div class="controls"><textarea ' . $disabled . ' name="comment-supplier" class="input">' . htmlspecialchars($order['comment']) . '</textarea></div></div>';
+            $goods_html .= '<div class="form-group"><label>Номер: </label>'
+                . '<input type="text" ' . $disabled . ' name="warehouse-order-num" class="form-control" value="' . $order['num'] . '"/></div>';
+            $goods_html .= '<div class="form-group"><label>Количество <b class="text-danger">*</b>: </label>'
+                . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event)" name="warehouse-order-count" class="form-control" value="' . htmlspecialchars($order['count']) . '"/></div>';
+            $goods_html .= '<div class="form-group"><label>Цена за один <b class="text-danger">*</b>: </label>'
+                . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event, this)" name="warehouse-order-price" class="form-control" value="' . htmlspecialchars($order['price']) . '"/></div>';
+            $goods_html .= '<div class="form-group"><label>Примечание: </label>'
+                . '<textarea ' . $disabled . ' name="comment-supplier" class="form-control">' . htmlspecialchars($order['comment']) . '</textarea></div>';
 
-            $goods_html .= '<div class="control-group"><label class="control-label">№ ремонта: </label>' . $so_co . '</div>';
+            $goods_html .= '<div class="form-group"><label>№ ремонта: </label>' . $so_co . '</div>';
             $goods_html .= '<div id="for-new-supplier-order"></div>';
             if ($all == true) {
-                $goods_html .= '<div class="control-group"><div class="controls">' . $order['btn'] . '</div></div>' . $info_html;
+                $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>' . $info_html;
             }
         } else {
-            $goods_html .= '<p  class="text-error">Нет поставщиков</p>';
+            $goods_html .= '<p  class="text-danger">Нет поставщиков</p>';
         }
 
         $goods_html .= "</form>";
@@ -1569,7 +1566,7 @@ class Suppliers
             }
             $data['content'] .= '</select>';
         } else {
-            $data['content'] .= '<p class="text-error">Нет складов</p>';
+            $data['content'] .= '<p class="text-danger">Нет складов</p>';
         }
         $data['content'] .= '</div></div>';
 
@@ -1581,7 +1578,7 @@ class Suppliers
         $data['content'] .= '<div class="control-group"><label class="control-label">Дата проверки: </label><div class="controls">';
         $data['content'] .= '<div class="datetimepicker input-append">';
         $data['content'] .= '<input placeholder="Дата проверки" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value="" />';
-        $data['content'] .= '<span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>';
+        $data['content'] .= '<span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>';
         $data['content'] .= '</div></div></div>';
 
         $data['content'] .= '<div class="control-group"><div class="controls"><label class="checkbox">';
@@ -1590,7 +1587,7 @@ class Suppliers
         $data['content'] .= '<div id="order_supplier_date_wait" style="display:none;" class="control-group"><label class="control-label">Дата поставки: </label>
                     <div class="controls"><div class="datetimepicker input-append">
                     <input placeholder="дата" data-format="yyyy-MM-dd" type="text" name="date_come" value="" />
-                    <span class="add-on"><i class="icon-calendar" data-time-icon="icon-time" data-date-icon="icon-calendar"></i></span>
+                    <span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
                     </div></div></div>';
 
         $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
@@ -3090,7 +3087,7 @@ class Suppliers
         } else {
             if ($show_balace == true)
                 $out .= $this->balance($query_balance, $contractors, $currencies, null, $by_day);
-            $out .= '<p class="text-error">Нет транзакций по Вашему запросу.</p>';
+            $out .= '<p class="text-danger">Нет транзакций по Вашему запросу.</p>';
         }
 
         return $out;

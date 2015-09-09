@@ -31,7 +31,7 @@ class statistics
         $end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? date("j/n/y", strtotime($_GET['de'])) : date("j/n/y");
 
         $out =
-            '<div id="daterange" class="btn pull-right">
+            '<div id="daterange" class="btn btn-info">
                 <span>' . $start . ' - ' . $end . '</span> <b class="caret"></b>
             </div>';
 

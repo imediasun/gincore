@@ -46,49 +46,53 @@ class forms{
     private function form($form = array()){
 
         $html = '
-            <label class="checkbox">
-                <input type="checkbox" name="active" value="1"'.
-                    (($form && $form['active']) || !$form ? ' checked="checked"' : '').'> активно
-            </label>
-
-            <br>
-
-            Название <br>
-            <input type="text" style="width: 400px" name="name" value="'.($form ? htmlspecialchars($form['name']) : '').'">
-
-            <br>
-            <br>
-
-            <label class="checkbox">
-                <input type="checkbox" name="send_result" value="1"'.
-                (($form && $form['send_result']) || !$form ? ' checked="checked"' : '').'> отправить результат на эл. адрес
-            </label>
-
-            <label class="checkbox">
-                <input type="checkbox" name="send_result_to_user" value="1"'.
-                    (($form && $form['send_result_to_user']) || !$form ? ' checked="checked"' : '').'> отправить результат пользователю на эл. адрес
-            </label>
-            <br>
-
-            Заголовок письма:<br>
-            <input style="width: 400px" type="text" name="user_result_title" value="'.($form ? htmlspecialchars($form['user_result_title']) : '').'">
-
-            <br>
-            <br>
-
-            Текст результата для пользователя:<br>
-            <textarea style="width: 400px" name="user_result_text">'.($form ? htmlspecialchars($form['user_result_text']) : '').'</textarea>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="active" value="1"'.
+                            (($form && $form['active']) || !$form ? ' checked="checked"' : '').'> активно
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" class="form-control" name="name" value="'.($form ? htmlspecialchars($form['name']) : '').'">
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="send_result" value="1"'.
+                        (($form && $form['send_result']) || !$form ? ' checked="checked"' : '').'> отправить результат на эл. адрес
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="send_result_to_user" value="1"'.
+                            (($form && $form['send_result_to_user']) || !$form ? ' checked="checked"' : '').'> отправить результат пользователю на эл. адрес
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Заголовок письма:</label>
+                <input class="form-control" type="text" name="user_result_title" value="'.($form ? htmlspecialchars($form['user_result_title']) : '').'">
+            </div>
+            <div class="form-group">
+                <label>Текст результата для пользователя:</label>
+                <textarea class="form-control" name="user_result_text">'.($form ? htmlspecialchars($form['user_result_text']) : '').'</textarea>
+            </div>
         ';
 
         $content = file_get_contents($this->all_configs['sitepath'] . 'ajax_forms.php');
         preg_match_all("/function {1,}ajax_forms_([a-zA-z0-9]+)/", $content, $matches);// {1,}\(.*\)
         if (count($matches) == 2 && isset($matches[1])) {
-            $html .= '<br><br>Функция:<br><select name="function"><option value="">Выберите</option>';
+            $html .= '<div class="form-group"><label>Функция:</label><select name="function" class="form-control"><option value="">Выберите</option>';
             foreach ($matches[1] as $func) {
                 $checked = ($form && $form['function'] == 'ajax_forms_' . trim($func) ? 'selected' : '');
                 $html .= '<option ' . $checked . ' value="ajax_forms_' . trim($func) . '">' . $func . '</option>';
             }
-            $html .= '</select>';
+            $html .= '</select></div>';
         }
 
         return $html;
@@ -122,45 +126,46 @@ class forms{
     private function field_form($field = array()){
 
         $form = '
-            <label class="checkbox">
-                <input type="checkbox" name="active" value="1"'.
-                    (($field && $field['active']) || !$field ? ' checked="checked"' : '').'> активно
-            </label>
-
-            <label class="checkbox">
-                <input type="checkbox" name="required" value="1"'.
-                    (($field && $field['active']) || !$field ? ' checked="checked"' : '').'> обязательное
-            </label>
-
-            <br>
-
-            Тип поля<br>
-            <select name="type">
-                <option value="text">text</option>
-                <option value="phone">phone</option>
-                <option value="textarea">textarea</option>
-                <option value="checkbox">checkbox</option>
-            </select>
-
-            <br>
-            <br>
-            Тип данных <br>
-            <select name="data_type">
-                <option value="">обычные</option>
-                <option value="email">эл. адрес</option>
-            </select>
-
-            <br>
-            <br>
-
-            Название <br>
-            <input type="text" style="width: 400px" name="name" value="'.($field ? htmlspecialchars($field['name']) : '').'">
-
-            <br>
-            <br>
-
-            Приоритет <br>
-            <input type="text" style="width: 400px" name="prio" value="'.($field ? $field['prio'] : '0').'">
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="active" value="1"'.
+                            (($field && $field['active']) || !$field ? ' checked="checked"' : '').'> активно
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="required" value="1"'.
+                            (($field && $field['active']) || !$field ? ' checked="checked"' : '').'> обязательное
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Тип поля</label>
+                <select name="type" class="form-control">
+                    <option value="text">text</option>
+                    <option value="phone">phone</option>
+                    <option value="textarea">textarea</option>
+                    <option value="checkbox">checkbox</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Тип данных</label>
+                <select name="data_type" class="form-control">
+                    <option value="">обычные</option>
+                    <option value="email">эл. адрес</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Название</label>
+                <input class="form-control" type="text" name="name" value="'.($field ? htmlspecialchars($field['name']) : '').'">
+            </div>
+            <div class="form-group">
+                <label>Приоритет</label>
+                <input type="text" class="form-control" name="prio" value="'.($field ? $field['prio'] : '0').'">
+            </div>
         ';
 
         return $form;
@@ -184,7 +189,7 @@ class forms{
                     $fields_table = '';
                     $fields_arr = $this->all_configs['db']->query("SELECT * FROM {forms_fields} WHERE form_id = ?i ORDER BY prio", array($this->all_configs['arrequest'][1]), 'assoc:id');
                     $fields_header = '
-                        <table class="table table-bordered table-hover">
+                        <div class="table-responsive"><table class="table table-bordered table-hover table-condensed">
                             <thead>
                                 <tr>
                                     <th> </th>
@@ -217,10 +222,10 @@ class forms{
                             ';
                             $fields_table .= '
                                 <tr>
-                                    <td><a href="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/del/'.$field['id'].'" class="icon-remove" onclick="return confirm(\'Удалить?\');"></a></td>
-                                    <td><input type="text" name="fields['.$field['id'].'][name]" value="'.$field['name'].'"</td>
+                                    <td><a href="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/del/'.$field['id'].'" class="glyphicon glyphicon-remove" onclick="return confirm(\'Удалить?\');"></a></td>
+                                    <td><input class="form-control" type="text" name="fields['.$field['id'].'][name]" value="'.$field['name'].'"</td>
                                     <td>
-                                        <select name="fields['.$field['id'].'][type]">
+                                        <select class="form-control" name="fields['.$field['id'].'][type]">
                                             <option value="text"'.($field['type'] == 'text' ? ' selected="selected"' : '').'>text</option>
                                             <option value="phone"'.($field['type'] == 'phone' ? ' selected="selected"' : '').'>phone</option>
                                             <option value="textarea"'.($field['type'] == 'textarea' ? ' selected="selected"' : '').'>textarea</option>
@@ -228,14 +233,14 @@ class forms{
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="fields['.$field['id'].'][data_type]">
+                                        <select class="form-control" name="fields['.$field['id'].'][data_type]">
                                             <option value=""'.(!$field['data_type'] ? ' selected="selected"' : '').'>обычные</option>
                                             <option value="email"'.($field['data_type'] == 'email' ? ' selected="selected"' : '').'>эл. адрес</option>
                                         </select>
                                     </td>
                                     <td><input name="fields['.$field['id'].'][required]" type="checkbox"'.($field['required'] ? ' checked="checked"' : '').'></td>
                                     <td><input name="fields['.$field['id'].'][active]" type="checkbox"'.($field['active'] ? ' checked="checked"' : '').'></td>
-                                    <td><input style="width: 50px" type="text" name="fields['.$field['id'].'][prio]" value="'.$field['prio'].'"</td>
+                                    <td><input class="form-control" style="width: 50px" type="text" name="fields['.$field['id'].'][prio]" value="'.$field['prio'].'"</td>
                                 </tr>
                             ';
                         }
@@ -243,8 +248,6 @@ class forms{
                                 </table>
                                 <input type="submit" class="btn btn-primary" value="'.l('save').'">
                             </form>
-                            <br>
-                            <br>
                         ';
                     }
 
@@ -273,15 +276,15 @@ class forms{
                             }
                             $user_data .= '
                                 <tr>
-                                    <td><a href="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/del_data/'.$user['id'].'" class="icon-remove" onclick="return confirm(\'Удалить?\');"></a></td>
+                                    <td><a href="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/del_data/'.$user['id'].'" class="glyphicon glyphicon-remove" onclick="return confirm(\'Удалить?\');"></a></td>
                                     '.$fdata.'
                                     <td>'.$user['date'].'</td>
-                                    <td>'.htmlspecialchars($user['from_page']).'</td>
-                                    <td>'.htmlspecialchars($user['referal']).'</td>
+                                    <td><div>'.htmlspecialchars($user['from_page']).'</div></td>
+                                    <td><div style="word-break:break-all">'.htmlspecialchars($user['referal']).'</div></td>
                                 </tr>
                             ';
                         }
-                        $user_data .= '</table>';
+                        $user_data .= '</table></div>';
                     }
 
 
@@ -300,20 +303,20 @@ class forms{
                                 <div class="tab-pane active" id="form">
                                     <form method="post" action="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/update">
                                         '.$this->form($form).'
-                                            <br>
-                                            <br>
-                                        <input type="submit" class="btn btn-primary" value="'.l('save').'">
+                                        <div class="form-group">
+                                            <input type="submit" class="btn btn-primary" value="'.l('save').'">
+                                        </div>
                                     </form>
                                 </div>
                                 <div class="tab-pane" id="fields">
-                                    '.$fields_table.'
+                                    '.$fields_table.'<br>
                                     <fieldset>
                                         <legend>Добавить новое</legend>
                                         <form action="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/save_new_field" method="post">
                                             '.$this->field_form().'
-                                            <br>
-                                            <br>
-                                            <input type="submit" class="btn btn-primary" value="Добавить">
+                                            <div class="form-group">
+                                                <input type="submit" class="btn btn-primary" value="Добавить">
+                                            </div>
                                         </form>
                                     </fieldset>
                                 </div>

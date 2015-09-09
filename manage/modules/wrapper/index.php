@@ -224,8 +224,8 @@ class wrapper{
                 $mm = array_values($mm);
                 $table.='
                     <tr>
-                        <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/edit/'.$mm[0].'" class="icon-pencil"></a></td>
-                        <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/del/'.$mm[0].'" class="icon-remove" onclick="return confirm(\'Удалить?\');"></a></td>';
+                        <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/edit/'.$mm[0].'" class="glyphicon glyphicon-pencil"></a></td>
+                        <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/del/'.$mm[0].'" class="glyphicon glyphicon-remove" onclick="return confirm(\'Удалить?\');"></a></td>';
                 
                 for($i = 0; $i < count($cols); $i++){
                     if(isset($conf[$this->all_configs['arrequest'][1]]['columns'][$cols[$i]][0]) && $conf[$this->all_configs['arrequest'][1]]['columns'][$cols[$i]][0] == 1){
@@ -258,26 +258,26 @@ class wrapper{
 
                 if($conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][1] != 1){
                     $cols[] = $pp[0];
-                    $form.=$col_humen_name.'<br>';
+                    $form .= '<div class="form-group"><label>'.$col_humen_name.'</label>';
                     if (isset($conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][5])) {
                         $vars = $this->all_configs['db']->query('SELECT id, name FROM {?query}',
                             array($conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][5]))->vars();
-                        $form .= '<select name="'.$pp[0].'"><option value="0">не выбрано</option>';
+                        $form .= '<select class="form-group" name="'.$pp[0].'"><option value="0">не выбрано</option>';
                         foreach ($vars as $var_id=>$var_value) {
                             $form .= '<option'.($var_id == $pp ? ' selected' : '').' value="' . intval($var_id) . '">' . htmlspecialchars($var_value) . '</option>';
                         }
                         $form .= '</select>';
                     } else {
-                        $form .= '<input type="text" value="'.$conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][3].'" name="'.$pp[0].'" size="70">';
+                        $form .= '<input class="form-control" type="text" value="'.$conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][3].'" name="'.$pp[0].'" size="70">';
                     }
-                    $form.='<br><br>';
+                    $form.='</div>';
                 }
                 //echo $pp[0].' - '.$pp[1].'<br>';
             }
 
             $out.='<form action="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/insert" method="POST">
                 '.$form.'
-                <input type="submit" value="Додати" class="btn btn-primary" />
+                <input type="submit" value="Добавить" class="btn btn-primary" />
             </form>';
         }
 ###############################################################################
@@ -310,7 +310,7 @@ class wrapper{
         }
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && isset($this->all_configs['arrequest'][2]) && $this->table_exists($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][2] == 'edit' && is_numeric($this->all_configs['arrequest'][3])){
-            $out.='<h3>Таблиця «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
+            $out.='<h3>Таблица «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
 
             $sql = $this->all_configs['db']->query("SHOW COLUMNS FROM ".$this->all_configs['arrequest'][1]);
             $cols = array();
@@ -324,24 +324,24 @@ class wrapper{
                 } else {
                     $cols[] = $pp;
                     //$conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][0]
-                    $form.=$col_humen_name.'<br>';
+                    $form .= '<div class="form-group"><label>'.$col_humen_name.'</label>';
                     if (isset($conf[$this->all_configs['arrequest'][1]]['columns'][$k][5])) {
                         $vars = $this->all_configs['db']->query('SELECT id, name FROM {?query}',
                             array($conf[$this->all_configs['arrequest'][1]]['columns'][$k][5]))->vars();
-                        $form.='<select name="'.$k.'"><option value="0">не выбрано</option>';
+                        $form.='<select class="form-control" name="'.$k.'"><option value="0">не выбрано</option>';
                         foreach ($vars as $var_id=>$var_value) {
                             $form.='<option'.($var_id == $pp ? ' selected' : '').' value="' . intval($var_id) . '">' . htmlspecialchars($var_value) . '</option>';
                         }
                         $form.='</select>';
                     } else {
                         if(strlen($pp) > 100){
-                            $form.='<textarea name="'.$k.'" rows="9" cols="80">'.htmlspecialchars($pp).'</textarea>';
+                            $form.='<textarea class="form-control" name="'.$k.'" rows="9" cols="80">'.htmlspecialchars($pp).'</textarea>';
                         }else{
-                            $form.='<input type="text" value="'.htmlspecialchars($pp).'" name="'.$k.'" size="70">';
+                            $form.='<input class="form-control" type="text" value="'.htmlspecialchars($pp).'" name="'.$k.'" size="70">';
                             //$form.=$col_humen_name.'<br><input type="text" value="'.$sqll[$pp[0]].'" name="'.$pp[0].'" size="70"><br><br>';
                         }
                     }
-                    $form.='<br><br>';
+                    $form.='</div>';
                 }
                 //echo $pp[0].' - '.$pp[1].'<br>';
             }

@@ -23,11 +23,11 @@ class Inc_helper_map_price
                     $rows .= '<tr'.($row['hidden'] ? ' style="background:#F0F0F0"' : '').'>'
                             . '<td>'.$row['id'].'</td>'
                             . '<td class="editable" data-name="name" data-pk="'.$row['id'].'" data-type="textarea">' . $row['name'] . '</td>'
-                            . '<td class="editable" data-name="price_mark" data-pk="'.$row['id'].'">' . $row['price_mark'] . '</td>'
-                            . '<td class="editable" data-name="price" data-pk="'.$row['id'].'">' . $row['price'] . '</td>'
-                            . '<td class="editable" data-name="time_required" data-pk="'.$row['id'].'">' . htmlspecialchars($row['time_required']) . '</td>'
-                            . '<td class="editable" data-name="prio" data-pk="'.$row['id'].'">' . $row['prio'] . '</td>'
-                            . '<td class="editable" data-name="hidden" data-pk="'.$row['id'].'">' . $row['hidden'] . '</td>'
+                            . '<td class="text-center editable" data-name="price_mark" data-pk="'.$row['id'].'">' . $row['price_mark'] . '</td>'
+                            . '<td class="text-center editable" data-name="price" data-pk="'.$row['id'].'">' . $row['price'] . '</td>'
+                            . '<td class="text-center editable" data-name="time_required" data-pk="'.$row['id'].'">' . htmlspecialchars($row['time_required']) . '</td>'
+                            . '<td class="text-center editable" data-name="prio" data-pk="'.$row['id'].'">' . $row['prio'] . '</td>'
+                            . '<td class="text-center editable" data-name="hidden" data-pk="'.$row['id'].'">' . $row['hidden'] . '</td>'
                             . '<td><a onclick="return confirm(\'Удалить?\');" class="icon-remove" href="del-from-prices-table/' . $row['id'] . '/'.$map_id.'"></a></td>'
                             . '</tr>';
                     if($max_prio < $row['prio']){
@@ -46,28 +46,28 @@ class Inc_helper_map_price
             if($add_row){
                 $rows .= '<tr>'
                     . '<td>Нов.</td>'
-                    . '<td><input class="input-xlarge" type="text" id="pr1-name"></td>'
-                    . '<td><input class="input-mini" type="text"  id="pr1-pricemark"></td>'
-                    . '<td><input class="input-mini" type="text"  id="pr1-price"></td>'
-                    . '<td><input class="input-mini" type="text"  id="pr1-timerequired"></td>'
-                    . '<td><input class="input-mini" type="text"  id="pr1-prio" value="'.($max_prio+1).'"></td>'
-                    . '<td><button class="btn" type="button" id="pr1-btn" data-map="'.$map_id.'">Доб.</button></td>'
+                    . '<td><input class="form-control" type="text" id="pr1-name"></td>'
+                    . '<td><input class="form-control" type="text"  id="pr1-pricemark"></td>'
+                    . '<td><input class="form-control" type="text"  id="pr1-price"></td>'
+                    . '<td><input class="form-control" type="text"  id="pr1-timerequired"></td>'
+                    . '<td><input class="form-control" type="text"  id="pr1-prio" value="'.($max_prio+1).'"></td>'
+                    . '<td><button class="btn btn-default btn-sm" type="button" id="pr1-btn" data-map="'.$map_id.'">Доб.</button></td>'
                     . '</tr>';
             }
-                $tbl .= '<table class="table table-hover tbl-prices" id="tbl-price1">'
+                $tbl .= '<div class="table-responsive"><table class="table table-hover tbl-prices table-condensed" id="tbl-price1">'
                     . '<thead>'
                     . '<tr>'
                     . '<td>id</td>'
                     . '<td>Вид предоставляемых работ</td>'
-                    . '<td>От</td>'
-                    . '<td>Цена, грн.</td>'
-                    . '<td>Время, мин</td>'
-                    . '<td>Прио.</td>'
-                    . '<td>Скрыть</td>'
+                    . '<td class="text-center">От</td>'
+                    . '<td class="text-center">Цена, грн.</td>'
+                    . '<td class="text-center">Время, мин</td>'
+                    . '<td class="text-center">Прио.</td>'
+                    . '<td class="text-center">Скрыть</td>'
                     . '<td></td>'
                     . '</tr></thead><tbody>'
                     . $rows
-                    . '</tbody></table>';
+                    . '</tbody></table></div>';
             $out = $tbl;
         }
         if ($type == 2) {
@@ -82,13 +82,13 @@ class Inc_helper_map_price
                     $rows .= '<tr'.($row['hidden'] ? ' style="background:#F0F0F0"' : '').'>'
                         . '<td>' . $row['id'] . '</td>'
                         . '<td class="editable" data-name="name" data-pk="'.$row['id'].'" data-type="textarea">' . $row['name'] . '</td>'
-                        . '<td class="editable" data-name="price_copy_mark" data-pk="'.$row['id'].'">' . $row['price_copy_mark'] . '</td>'
-                        . '<td class="editable" data-name="price_copy" data-pk="'.$row['id'].'">' . $row['price_copy'] . '</td>'
-                        . '<td class="editable" data-name="price_mark" data-pk="'.$row['id'].'">' . $row['price_mark'] . '</td>'
-                        . '<td class="editable" data-name="price" data-pk="'.$row['id'].'">' . $row['price'] . '</td>'
-                        . '<td class="editable" data-name="time_required" data-pk="'.$row['id'].'">' . htmlspecialchars($row['time_required']) . '</td>'
-                        . '<td class="editable" data-name="prio" data-pk="'.$row['id'].'">' . $row['prio'] . '</td>'
-                        . '<td class="editable" data-name="hidden" data-pk="'.$row['id'].'">' . $row['hidden'] . '</td>'
+                        . '<td class="text-center editable" data-name="price_copy_mark" data-pk="'.$row['id'].'">' . $row['price_copy_mark'] . '</td>'
+                        . '<td class="text-center editable" data-name="price_copy" data-pk="'.$row['id'].'">' . $row['price_copy'] . '</td>'
+                        . '<td class="text-center editable" data-name="price_mark" data-pk="'.$row['id'].'">' . $row['price_mark'] . '</td>'
+                        . '<td class="text-center editable" data-name="price" data-pk="'.$row['id'].'">' . $row['price'] . '</td>'
+                        . '<td class="text-center editable" data-name="time_required" data-pk="'.$row['id'].'">' . htmlspecialchars($row['time_required']) . '</td>'
+                        . '<td class="text-center editable" data-name="prio" data-pk="'.$row['id'].'">' . $row['prio'] . '</td>'
+                        . '<td class="text-center editable" data-name="hidden" data-pk="'.$row['id'].'">' . $row['hidden'] . '</td>'
                         . '<td><a onclick="return confirm(\'Удалить?\');" class="icon-remove" href="del-from-prices-table/' . $row['id'] . '/'.$map_id.'"></a></td>'
                         . '</tr>';
                     if($max_prio < $row['prio']){
@@ -107,29 +107,29 @@ class Inc_helper_map_price
             if($add_row){
                 $rows .= '<tr>'
                         . '<td>Нов.</td>'
-                        . '<td><input class="input-xlarge" type="text" id="pr2-name"></td>'
-                        . '<td><input class="input-mini" type="text" id="pr2-pricecopymark"></td>'
-                        . '<td><input class="input-mini" type="text"  id="pr2-pricecopy"></td>'
-                        . '<td><input class="input-mini" type="text"  id="pr2-pricemark"></td>'
-                        . '<td><input class="input-mini" type="text"  id="pr2-price"></td>'
-                        . '<td><input class="input-mini" type="text"  id="pr2-timerequired"></td>'
-                        . '<td><input class="input-mini" type="text"  id="pr2-prio" value="'.($max_prio+1).'"></td>'
-                        . '<td><button class="btn" type="button" id="pr2-btn" data-map="'.$map_id.'">Доб.</button></td>'
+                        . '<td><input class="form-control" type="text" id="pr2-name"></td>'
+                        . '<td><input class="form-control" type="text" id="pr2-pricecopymark"></td>'
+                        . '<td><input class="form-control" type="text"  id="pr2-pricecopy"></td>'
+                        . '<td><input class="form-control" type="text"  id="pr2-pricemark"></td>'
+                        . '<td><input class="form-control" type="text"  id="pr2-price"></td>'
+                        . '<td><input class="form-control" type="text"  id="pr2-timerequired"></td>'
+                        . '<td><input class="form-control" type="text"  id="pr2-prio" value="'.($max_prio+1).'"></td>'
+                        . '<td><button class="btn btn-default dtn-sm" type="button" id="pr2-btn" data-map="'.$map_id.'">Доб.</button></td>'
                         . '</tr>';
             }    
-                $tbl .= '<table class="table table-hover tbl-prices" id="tbl-price2"><thead><tr>'
+                $tbl .= '<div class="table-responsive"><table class="table-condensed table table-hover tbl-prices" id="tbl-price2"><thead><tr>'
                     . '<td>id</td>'
                     . '<td>Вид предоставляемых работ</td>'
-                    . '<td>От</td>'
-                    . '<td>Копия, грн.</td>'
-                    . '<td>От</td>'
-                    . '<td>Оригинал, грн.</td>'
-                    . '<td>Время, часов</td>'
-                    . '<td>Прио.</td>'
+                    . '<td class="text-center">От</td>'
+                    . '<td class="text-center">Копия, грн.</td>'
+                    . '<td class="text-center">От</td>'
+                    . '<td class="text-center">Оригинал, грн.</td>'
+                    . '<td class="text-center">Время, часов</td>'
+                    . '<td class="text-center">Прио.</td>'
                     . '<td></td>'
                     . '</tr></thead><tbody>'
                      . $rows .
-                    '</tbody></table>';
+                    '</tbody></table></div>';
                 $out = $tbl;
             }
 //        if (!$price_table) {

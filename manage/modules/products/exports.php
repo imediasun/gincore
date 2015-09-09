@@ -33,16 +33,16 @@ function product_exports_form($all_configs)
     );
 
     foreach ($arr as $item) {
-        $html .= '<div class="control-group"><label class="control-label">' . $item['label'] . '</label><div class="controls">';
+        $html .= '<div class="form-group"><label>' . $item['label'] . '</label><br>';
         $onclick = 'onclick="$(\'#export_goods_' . $item['name'] . '\').val(0);$(this).parent().find(\'button\').removeClass(\'hide\');$(this).addClass(\'hide\');"';
         $html .= '<button type="button" ' . $onclick . ' class="btn btn-small btn-success hide">' . $item['label'] . '</button>';
         $onclick = 'onclick="$(\'#export_goods_' . $item['name'] . '\').val(1);$(this).parent().find(\'button\').removeClass(\'hide\');$(this).addClass(\'hide\');"';
         $html .= '<button type="button" ' . $onclick . ' class="btn btn-small btn-danger">' . $item['label'] . '</button>';
-        $html .= '<input type="hidden" value="0" name="' . $item['name'] . '" id="export_goods_' . $item['name'] . '"/></div></div>';
+        $html .= '<input type="hidden" value="0" name="' . $item['name'] . '" id="export_goods_' . $item['name'] . '"/></div>';
     }
 
-    $html .= '<div class="control-group"><div class="controls">';
-    $html .= '<input type="submit" value="Выгрузить данные" class="btn btn-small btn-primary"></div></div></form>';
+    $html .= '<div class="form-group">';
+    $html .= '<input type="submit" value="Выгрузить данные" class="btn btn-small btn-primary"></div></form>';
 
     return $html;
 }

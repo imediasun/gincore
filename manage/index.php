@@ -91,8 +91,9 @@ if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0],
         if($active_lang){
             $active_lang_name = $lnge['name'];
         }
+        // class="'.$active_lang.'"
         $lang_switch .= '
-            <li class="'.$active_lang.'">
+            <li>
                 <a href="'.$all_configs['prefix'].'set_lang/'.$lnge['url'].'">
                     '.$lnge['name'].'
                 </a>
@@ -100,17 +101,15 @@ if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0],
         ';
     }
     $lang_switch = '
-        <div class="btn-group" data-toggle="buttons-radio">
-            <div class="btn-group">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    '.$active_lang_name.'
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    '.$lang_switch.'
-                </ul>
-            </div>
-        </div>
+        <li class="btn-group dropdown" data-toggle="buttons-radio">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                '.$active_lang_name.'
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu hdropdown notification animated flipInX">
+                '.$lang_switch.'
+            </ul>
+        </li>
     ';
     if(!$ifauth['is_1']){
         $input['lang_switch'] = $lang_switch;
@@ -121,6 +120,7 @@ if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0],
 ////generate modules
 
 $input['current_admin'] = ($ifauth['fio'] ?: $ifauth['login']);
+$input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
 
 $modules = scandir('./modules/');
 

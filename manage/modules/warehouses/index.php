@@ -489,8 +489,8 @@ class warehouses
         $out = '';
         if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')) {
             $out .= '<div id="scanner-moves-alert" class="alert fade"><button type="button" class="close" data-dismiss="alert">&times;</button><div id="scanner-moves-alert-body"></div></div>';
-            $out .= '<input value="" id="scanner-moves" type="text" placeholder="заказ, изделие или локация" class="input-xxlarge" />';
-            $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="заказ или локация" class="input-xxlarge" />';
+            $out .= '<input value="" id="scanner-moves" type="text" placeholder="заказ, изделие или локация" class="form-control" />';
+            $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="заказ или локация" class="form-control" />';
         }
 
         return array(
@@ -883,7 +883,7 @@ class warehouses
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // склады
-            $admin_out .= "<div class='accordion' id='accordion_warehouses'>";
+            $admin_out .= "<div class='panel-group' id='accordion_warehouses'>";
             // форма для создания склада
             $admin_out .= $this->form_warehouse();
             //$warehouses_options = '';
@@ -926,18 +926,18 @@ class warehouses
         }
 
         return "
-            <div class='accordion-group'>
-                <div class='accordion-heading'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
                     <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses_types' href='#collapse_warehouse_type_{$i}'>{$accordion_title}</a>
                 </div>
-                <div id='collapse_warehouse_type_{$i}' class='accordion-body collapse'>
-                    <div class='accordion-inner'>
-                        <form method='POST' class='form-horizontal'>
-                            <div class='control-group'><label class='control-label'>Название: </label>
-                                <div class='controls'><input placeholder='введите название' class='span5' name='name' value='{$name}' /></div></div>
-                            <div class='control-group'><label class='control-label'>Иконка (fa fa-home): </label>
-                                <div class='controls'><input placeholder='введите иконку' class='span5' name='icon' value='{$icon}' /></div></div>
-                            <div class='control-group'><label class='control-label'></label><div class='controls'>{$btn}</div></div>
+                <div id='collapse_warehouse_type_{$i}' class='panel-collapse collapse'>
+                    <div class='panel-body'>
+                        <form method='POST'>
+                            <div class='form-group'><label>Название: </label>
+                                <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
+                            <div class='form-group'><label'>Иконка (fa fa-home): </label>
+                                <input placeholder='введите иконку' class='form-control' name='icon' value='{$icon}' /></div>
+                            <div class='form-group'><label></label>{$btn}</div>
                         </form>
                     </div>
                 </div>
@@ -950,7 +950,7 @@ class warehouses
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $admin_out .= "<div class='accordion' id='accordion_warehouses_types'>";
+            $admin_out .= "<div class='panel-group' id='accordion_warehouses_types'>";
             $admin_out .= $this->warehouses_settings_warehouses_types_form();
             $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
             foreach ($types as $type) {
@@ -982,20 +982,20 @@ class warehouses
         }
 
         return "
-            <div class='accordion-group'>
-                <div class='accordion-heading'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
                     <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses_groups' href='#collapse_warehouse_group_{$i}'>{$accordion_title}</a>
                 </div>
-                <div id='collapse_warehouse_group_{$i}' class='accordion-body collapse'>
-                    <div class='accordion-inner'>
-                        <form method='POST' class='form-horizontal'>
-                            <div class='control-group'><label class='control-label'>Название: </label>
-                                <div class='controls'><input placeholder='введите название' class='span5' name='name' value='{$name}' /></div></div>
-                            <div class='control-group'><label class='control-label'>Цвет (#000000): </label>
-                                <div class='controls'><input placeholder='введите цвет' class='span5' name='color' value='{$color}' /></div></div>
-                            <div class='control-group'><label class='control-label'>Адрес: </label>
-                                <div class='controls'><input placeholder='введите адрес' class='span5' name='address' value='{$address}' /></div></div>
-                            <div class='control-group'><label class='control-label'></label><div class='controls'>{$btn}</div></div>
+                <div id='collapse_warehouse_group_{$i}' class='panel-collapse collapse'>
+                    <div class='panel-body'>
+                        <form method='POST'>
+                            <div class='form-group'><label>Название: </label>
+                                <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
+                            <div class='form-group'><label>Цвет (#000000): </label>
+                                <input placeholder='введите цвет' class='form-control' name='color' value='{$color}' /></div>
+                            <div class='form-group'><label>Адрес: </label>
+                                <input placeholder='введите адрес' class='form-control' name='address' value='{$address}' /></div>
+                            <div class='form-group'><label></label>{$btn}</div>
                         </form>
                     </div>
                 </div>
@@ -1008,7 +1008,7 @@ class warehouses
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $admin_out .= "<div class='accordion' id='accordion_warehouses_groups'>";
+            $admin_out .= "<div class='panel-group' id='accordion_warehouses_groups'>";
             $admin_out .= $this->warehouses_settings_warehouses_groups_form();
             $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
             foreach ($groups as $group) {
@@ -1274,7 +1274,7 @@ class warehouses
                     $inv['count_inv_items'] = isset($counts_inv_items[$inv['id']]) ? $counts_inv_items[$inv['id']] : 0;
                     $right_html .= '<tr><td></td>';
                     $right_html .= '<td class="open-product-inv" onclick="open_product_inventory(this, ' . $inv['goods_id'] . ')">';
-                    $right_html .= '<i class="' . ((isset($_GET['inv_p']) && $_GET['inv_p'] == $inv['goods_id']) ? 'icon-chevron-up' : 'icon-chevron-down' ) . '"></i>';
+                    $right_html .= '<i class="' . ((isset($_GET['inv_p']) && $_GET['inv_p'] == $inv['goods_id']) ? 'glyphicon glyphicon-chevron-up' : 'glyphicon glyphicon-chevron-down' ) . '"></i>';
                     $right_html .= htmlspecialchars($inv['gtitle']) . '</td>';
                     $right_html .= '<td>' . $inv['count_items'] . '</td>';
                     $right_html .= '<td>' . $inv['count_inv_items'] . '</td>';
@@ -1468,39 +1468,38 @@ class warehouses
     function filter_block($warehouses_options, $i = 1)
     {
         // фильтр по серийнику
-        $out = '<div class=" pull-right">';
-        $out .= '<form class="form-inline" method="POST"><label class="control-label">Серийный номер: </label>';
-        $out .= ' <input name="serial" placeholder="серийный номер" value="' . ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') . '" />';
-        $out .= ' <input class="btn" type="submit" name="filter-warehouses" value="Поиск" /></form>';//.form-horizontal
-        $out .= '<form class="form-inline" method="POST"><label class="control-label">Номер заказа поставщику: </label>';
-        $out .= ' <input name="so_id" placeholder="номер заказа поставщику" value="' . ((isset($_GET['so_id']) && $_GET['so_id']>0) ? intval($_GET['so_id']) : '') . '" />';
-        $out .= ' <input class="btn" type="submit" name="filter-warehouses" value="Поиск" /></form>';//.form-horizontal
+        $out = '<div class="pull-right" style="max-width:600px">';
+        $out .= '<form class="form-horizontal" method="POST"><label class="col-sm-5 control-label">Серийный номер:&nbsp;</label>';
+        $out .= '<div class="input-group col-sm-7"><input class="form-control" name="serial" placeholder="серийный номер" value="' . ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') . '" />';
+        $out .= '<div class="input-group-btn"><input class="btn" type="submit" name="filter-warehouses" value="Поиск" /></div></div></form>';//.form-horizontal
+        $out .= '<br><form class="form-horizontal" method="POST"><label class="col-sm-5 control-label">Номер заказа поставщику:&nbsp;</label>';
+        $out .= '<div class="input-group col-sm-7"><input class="form-control" name="so_id" placeholder="номер заказа поставщику" value="' . ((isset($_GET['so_id']) && $_GET['so_id']>0) ? intval($_GET['so_id']) : '') . '" />';
+        $out .= '<div class="input-group-btn"><input class="btn" type="submit" name="filter-warehouses" value="Поиск" /></div></div></form>';//.form-horizontal
         $out .= '</div>';
         $out .= '<div class="">';
         // фильтр по складам
-        $out .= '<form method="post" class="form-horizontal"><div style="display:table;" class="control-group"><label class="control-label">Склад:</label>';
-        $out .= '<div class="controls"><select onchange="change_warehouse(this)" class="multiselect input-small" name="warehouses[]" multiple="multiple">';
+        $out .= '<form method="post">'
+               .'<div style="display:table;" class="form-group"><label>Склад:</label><br>';
+        $out .= '<select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]" multiple="multiple">';
         $out .= $warehouses_options;
-        $out .= '</select></div></div>';
+        $out .= '</select></div>';
         // фильтр по локациям
-        $out .= '<div class="control-group"><label class="control-label">Локация:</label><div class="controls">';
-        $out .= '<select class="multiselect input-medium select-location" name="locations[]" multiple="multiple">';
+        $out .= '<div class="form-group"><label>Локация:</label><br>';
+        $out .= '<select class="multiselect  form-control select-location" name="locations[]" multiple="multiple">';
         if (isset($_GET['whs'])) {
             $out .= $this->all_configs['suppliers_orders']->gen_locations($_GET['whs'], isset($_GET['lcs']) ? $_GET['lcs'] : null);
         }
-        $out .= '</select></div></div>';
+        $out .= '</select></div>';
         // тип вывода
-        $out .= '<div class="control-group"><label class="control-label">Тип вывода:</label>';
-        $out .= '<div class="controls">';
-        $out .= '<label class="checkbox"><input checked type="radio" value="item" name="display" /> по изделию</label>';
-        $out .= '<label class="checkbox"><input  ' . ((isset($_GET['d']) && $_GET['d'] == 'a') ? 'checked' : '') . ' type="radio" value="amount" name="display" /> по наименованию</label>';
+        $out .= '<div class="form-group"><label>Тип вывода:</label>';
+        $out .= '<div class="radio"><label><input checked type="radio" value="item" name="display" /> по изделию</label></div>';
+        $out .= '<div class="radio"><label><input  ' . ((isset($_GET['d']) && $_GET['d'] == 'a') ? 'checked' : '') . ' type="radio" value="amount" name="display" /> по наименованию</label></div>';
         $out .= '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Товар: </label>';
-        $out .= '<div class="controls">';
+        $out .= '<div class="form-group" style="max-width:400px"><label>Товар: </label>';
         $out .= typeahead($this->all_configs['db'], 'goods', true,
             isset($_GET['pid']) && $_GET['pid'] > 0 ? intval($_GET['pid']): 0, $i);
-        $out .= '</div></div>';
-        $out .= '<div class="control-group"><div class="controls"><input class="btn" type="submit" name="filter-warehouses" value="Применить" /></div></div></form></div>';//.form-horizontal
+        $out .= '</div>';
+        $out .= '<div class="form-group"><input class="btn" type="submit" name="filter-warehouses" value="Применить" /></div></form></div>';//.form-horizontal
 
         return $out;
     }
@@ -1702,12 +1701,12 @@ class warehouses
                                 }
                                 $url = $queryString . implode('-', $_f_goods);
                                 $out .= '<tr class="border-top well cursor-pointer" onclick="window.location.href=\'' . $url . '\' + window.location.hash">';
-                                $out .= '<td><i class="icon-chevron-up"></i></td>';
+                                $out .= '<td><i class="glyphicon glyphicon-chevron-up"></i></td>';
                             } else {
                                 array_push($_f_goods, $product['goods_id']);
                                 $url = $queryString . implode('-', $_f_goods);
                                 $out .= '<tr class="border-top cursor-pointer" onclick="window.location.href=\'' . $url . '\' + window.location.hash">';
-                                $out .= '<td><i class="icon-chevron-down"></i></td>';
+                                $out .= '<td><i class="glyphicon glyphicon-chevron-down"></i></td>';
                             }
                             $out .= '<td>' . '</td>';
                             $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">' . htmlspecialchars($product['product_title']) . '</a></td>';                            $out .= '<td>' . '</td>';
@@ -1787,9 +1786,9 @@ class warehouses
 
         $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
         $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
-        $warehouses_type = '<select name="type"><option value=""></option>';
-        $warehouses_types = '<select name="type_id"><option value=""></option>';
-        $warehouses_groups = '<select name="group_id"><option value=""></option>';
+        $warehouses_type = '<select name="type" class="form-control"><option value=""></option>';
+        $warehouses_types = '<select name="type_id" class="form-control"><option value=""></option>';
+        $warehouses_groups = '<select name="group_id" class="form-control"><option value=""></option>';
         if ($warehouse == null) {
             foreach ($this->all_configs['configs']['erp-warehouses-types'] as $w_id=>$w_name) {
                 $warehouses_type .= '<option value="' . $w_id . '">' . $w_name . '</option>';
@@ -1835,7 +1834,7 @@ class warehouses
                 $consider_store = 'checked';
             if (count($warehouse['locations']) > 0) {
                 foreach ($warehouse['locations'] as $location_id=>$location) {
-                    $warehouses_locations .= '<input type="text" class="row-input" value="' . htmlspecialchars($location) . '" name="location-id[' . $location_id . ']">';
+                    $warehouses_locations .= '<input type="text" class="form-control" value="' . htmlspecialchars($location) . '" name="location-id[' . $location_id . ']">';
                 }
             }
         }
@@ -1843,9 +1842,9 @@ class warehouses
         $warehouses_types .= '</select>';
         $warehouses_groups .= '</select>';
 
-        $warehouses_locations .= '<input type="text" name="location[]" class="row-input">';
-        $onclick = '$(\'<input>\').attr({type: \'text\', name: \'location[]\', class: \'row-input\'}).insertBefore(this);';
-        $warehouses_locations .= '<i onclick="' . $onclick . '" class="icon-plus cursor-pointer"></i>';
+        $warehouses_locations .= '<input type="text" name="location[]" class="form-control">';
+        $onclick = '$(\'<input>\').attr({type: \'text\', name: \'location[]\', class: \'form-control\'}).insertBefore(this);';
+        $warehouses_locations .= '<i onclick="' . $onclick . '" class="glyphicon glyphicon-plus cursor-pointer"></i>';
 
         if ($i == 1) {
             $in = 'in';
@@ -1854,40 +1853,38 @@ class warehouses
         }
 
         return "
-            <div class='accordion-group'>
-                <div class='accordion-heading'>
+            <div class='panel panel-default'>
+                <div class='panel-heading'>
                     <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses' href='#collapse_warehouse_{$i}'>{$accordion_title}</a>
                 </div>
-                <div id='collapse_warehouse_{$i}' class='accordion-body collapse {$in}'>
-                    <div class='accordion-inner'>
-                        <form method='POST' class='form-horizontal'>
-                            <div class='control-group'><label class='control-label'>Название: </label>
-                                <div class='controls'><input placeholder='введите название' class='span5' name='title' value='{$title}' /></div></div>
-                            <div class='control-group'><label class='control-label'>Код 1с: </label>
-                                <div class='controls'><input placeholder='введите код 1с' class='span5' name='code_1c' value='{$code_1c}' /></div></div>
-                            <div class='control-group'><label class='control-label'></label>
-                                <div class='controls'>
-                                    <label class='checkbox'><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn' name='consider_store' value='1' /> Учитывать в свободном остатке</label>
-                                    <label class='checkbox'><input {$consider_all} type='checkbox' class='btn  consider_{$i}' name='consider_all' value='1' /> Учитывать в общем остатке</label>
-                                </div>
+                <div id='collapse_warehouse_{$i}' class='panel-body collapse {$in}'>
+                    <div class='panel-body'>
+                        <form method='POST'>
+                            <div class='form-group'><label>Название: </label>
+                                <input placeholder='введите название' class='form-control' name='title' value='{$title}' /></div>
+                            <div class='form-group'><label>Код 1с: </label>
+                                <input placeholder='введите код 1с' class='form-control' name='code_1c' value='{$code_1c}' /></div>
+                            <div class='form-group'>
+                                <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn' name='consider_store' value='1' /> Учитывать в свободном остатке</label></div>
+                                <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn  consider_{$i}' name='consider_all' value='1' /> Учитывать в общем остатке</label></div>
                             </div>
-                            <div class='control-group'><label class='control-label'>Тип склада: </label>
-                                <div class='controls'>{$warehouses_type}</div></div>
-                            <div class='control-group'><label class='control-label'>Принадлежность к Сервисному центру: </label>
-                                <div class='controls'>{$warehouses_groups}</div></div>
-                            <div class='control-group'><label class='control-label'>Категория: </label>
-                                <div class='controls'>{$warehouses_types}</div></div>
-                            <div class='control-group'><label class='control-label'>
+                            <div class='form-group'><label >Тип склада: </label>
+                                {$warehouses_type}</div>
+                            <div class='form-group'><label>Принадлежность к Сервисному центру: </label>
+                                {$warehouses_groups}</div>
+                            <div class='form-group'><label>Категория: </label>
+                                {$warehouses_types}</div>
+                            <div class='form-group'><label>
                                 Адрес для квитанции: </label>
-                                <div class='controls'><input class='span5' name='print_address' value='{$print_address}' /></div>
+                                <input class='form-control' name='print_address' value='{$print_address}' />
                             </div>
-                            <div class='control-group'><label class='control-label'>
+                            <div class='form-group'><label>
                                 Телефон для квитанции: </label>
-                                <div class='controls'><input class='span5' name='print_phone' value='{$print_phone}' /></div>
+                                <input class='form-control' name='print_phone' value='{$print_phone}' />
                             </div>
-                            <div class='control-group'><label class='control-label'>Локации: </label>
-                                <div class='controls'>{$warehouses_locations}</div></div>
-                            <div class='control-group'><label class='control-label'></label><div class='controls'>{$btn}</div></div>
+                            <div class='form-group'><label>Локации: </label>
+                                {$warehouses_locations}</div>
+                            <div class='form-group'>{$btn}</div>
                         </form>
                     </div>
                 </div>

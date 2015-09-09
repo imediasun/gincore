@@ -124,7 +124,12 @@ $(document).ready(function () {
     });*/
 
     $('.cloneAndClear').live('click', function() {
-        var clone = $(this).prev().clone();
+        if($(this).data('addon')){
+            var $el = $(this).parent().prev();
+        }else{
+            var $el = $(this).prev();
+        }
+        var clone = $el.clone();
         var input = clone.find('.clone_clear_val');
         input.val('');
         if (input.hasClass('global-typeahead')) {
@@ -164,10 +169,11 @@ $(document).ready(function () {
 
     $('.datetimepicker').live('click', function () {
         $(this).datetimepicker({
-            language: 'ru',
-            pick12HourFormat: false
+            locale: 'ru',
+            defaultDate: $(this).val(),
+            format: $(this).data('format').replace('dd', 'DD').replace('yyyy', 'YYYY').replace('hh', 'HH')
         });
-        $(this).datetimepicker('show');
+        $(this).data('DateTimePicker').show();
     });
 
     $('.editable-click').live('click', function (event) {
@@ -689,7 +695,7 @@ function remove_message(_this, mess_id, type) {
                     if (mess_id == 'all') {
                         $('#accordion-messages').html('Сообщений нет');
                     } else {
-                        $(_this).parents('.accordion-group').remove();
+                        $(_this).parents('.panel').remove();
                     }
                 }
                 $('.new-count-mess').html(msg['qty']);
@@ -914,7 +920,10 @@ function close_alert_box()
     $('.bootbox .modal-footer').find('button[data-bb-handler="ok"]').click();
 }
 
-function alert_box(_this, content, ajax_act, data, callback, url) {
+function alert_box(_this, content, ajax_act, data, callback, url, e) {
+    if(e){
+        e.stopPropagation();
+    }
     if ($(_this).hasClass('disabled') || $(_this).prop('disabled'))
         return false;
 
@@ -1017,16 +1026,17 @@ function alert_box(_this, content, ajax_act, data, callback, url) {
                     }
                 }
                 if (msg['width']) {
-                    $('.modal-body').css({maxHeight: '500px'});
-                    $('.bootbox.modal').css({
-                        left: '20px',
-                        marginLeft: '0',
-                        marginRight: '0',
-                        maxWidth: '100%',
-                        right: '20px',
-                        width: 'auto',
-                        top: '45%'
-                    });
+                    $('.bootbox.modal').addClass('bootbox-big');
+//                    $('.modal-body').css({maxHeight: '500px'});
+//                    $('.bootbox.modal').css({
+//                        left: '20px',
+//                        marginLeft: '0',
+//                        marginRight: '0',
+//                        maxWidth: '100%',
+//                        right: '20px',
+//                        width: 'auto',
+//                        top: '45%'
+//                    });
                 }
                 $(_this).button('reset');
                 return false;

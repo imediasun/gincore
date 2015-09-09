@@ -182,15 +182,18 @@ class translates{
                             $out .= '
                                 <form onSubmit="return confirm(\'Вы абсолютно уверены в том что хотите скопировать?\')" '.
                                 'action="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/copy/make_magic" method="post">
-                                    Копировать <br>
-                                    <select name="from">
-                                        '.$options.'
-                                    </select>
-                                    <br><br>
-                                    Куда <br>
-                                    <select name="to">
-                                        '.$options.'
-                                    </select> <br><br>
+                                    <div class="form-group">
+                                        <label>Копировать</label>
+                                        <select name="from" class="form-control">
+                                            '.$options.'
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Куда</label>
+                                        <select class="form-control" name="to">
+                                            '.$options.'
+                                        </select>
+                                    </div>
                                     <input class="btn btn-primary" type="submit" value="Копировать">
                                 </form>
                             ';
@@ -237,43 +240,38 @@ class translates{
                                 <form action="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/add/save" method="post">
                                 <fieldset>
                                     <legend>Данные</legend>
-                                    <div>
                             ';
                             foreach($columns as $column){
                                 if($column['Field'] != 'id'){
                                     $out .= '
-                                        '.$column['Field'].'<br>
-                                        <input name="data['.$column['Field'].']" type="text">
-                                        <br>
-                                        <br>
+                                        <div class="from-control">
+                                            <label>'.$column['Field'].'</label>
+                                            <input class="form-control" name="data['.$column['Field'].']" type="text">
+                                        </div>
                                     ';
                                 }
                             }
                             $out .= '
-                                    </div>
                                 </fieldset><br><br>
                             ';
 
                             $out .= '
                                 <fieldset>
                                     <legend>Переводы</legend>
-                                    <div>
                             ';
                             foreach($config['fields'] as $field => $field_name){
                                 foreach($languages as $lng => $l){
                                     if($l['state']){
                                         $out .= '
-                                            '.$field_name.', '.$lng.'
-                                            <br>
-                                            <input name="translates['.$lng.']['.$field.']" type="text">
-                                            <br>
-                                            <br>
+                                            <div class="from-control">
+                                                <label>'.$field_name.', '.$lng.'</label>
+                                                <input class="form-control" name="translates['.$lng.']['.$field.']" type="text">
+                                            </div>
                                         ';
                                     }
                                 }
                             }
                             $out .= '
-                                    </div>
                                 </fieldset>
                                  <input type="submit" class="save-btn btn btn-primary" value="'.l('save').'">
                                 </form>
@@ -352,30 +350,31 @@ class translates{
                             $out .= '<fieldset>
                                         
                                         <legend>'.$field_name.' </legend>
-                                        <div><p class="muted">'.$field.'</p>';
+                                        <p class="text-muted">'.$field.'</p>';
 
                             foreach($langs as $lng => $translate){
                                 if(isset($languages[$lng]) && $languages[$lng]['state']){
                                     $value = htmlspecialchars($translate[$field]);
                                     $out .= '
-                                        '.$languages[$lng]['name'].', '.$lng.'<br>
+                                        <span class="form-group" style="display:block">
+                                            <label>'.$languages[$lng]['name'].', '.$lng.'</label>
                                     ';
                                     $f_name = 'data['.$id.']['.$lng.']['.$field.']';
                                     if(strlen($value) > 50){
                                         $out .= '
-                                            <textarea style="width: 500px; height: 150px" name="'.$f_name.'">'.$value.'</textarea>
-                                            <br>
+                                            <textarea class="form-control" style="height: 150px" name="'.$f_name.'">'.$value.'</textarea>
+                                        </span>
                                         ';
                                     }else{
                                         $out .= '
-                                            <input type="text" name="'.$f_name.'" value="'.$value.'">
-                                            <br>
+                                            <input class="form-control" type="text" name="'.$f_name.'" value="'.$value.'">
+                                        </span>
                                         ';
                                     }
                                 }
                             }
 
-                            $out .= '</div></fieldset>';
+                            $out .= '</fieldset>';
                         }
 
                         $out .= '</div></fieldset><br><br>';

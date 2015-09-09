@@ -3,7 +3,7 @@
     <div class="row-fluid">
         <div class="span3 map_tree">
             <div>
-                <input placeholder="поиск по дереву" type="text" id="tree_search" name="tree_search">
+                <input class="form-control" placeholder="поиск по дереву" type="text" id="tree_search" name="tree_search">
             </div>
             <div id="jqxWidget">
                     
@@ -17,11 +17,14 @@
                     {-html-mmenu}
                 </div>
                 <div id="jqxMenu">
-                    <label class="checkbox">{-txt-map_published_short} 
-                        <input id="page_state" type="checkbox" checked="checked">
-                    </label>
-                    <button style="margin-bottom: 7px" id="add_item" class="btn btn-info">{-txt-map_add_subpage}</button>	
-                    <button id="copy_item" class="btn btn-info">Копіювати</button>	
+                    <div class="checkbox"> 
+                        <label> 
+                            <input id="page_state" type="checkbox" checked="checked">
+                            {-txt-map_published_short}
+                        </label> 
+                    </div>
+                    <button style="margin-bottom: 7px" id="add_item" class="btn btn-info btn-sm">{-txt-map_add_subpage}</button>	
+                    <button id="copy_item" class="btn btn-info btn-sm">Копировать</button>	
                 </div>
             </div>
         </div>

@@ -23,8 +23,8 @@
 }
 
 #middle{
-    margin-top: 41px;
-    padding: 10px;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* css for timepicker */
@@ -667,11 +667,16 @@ input.row-input {
     width: 30px;
 }
 
+.relative{
+    position: relative;
+}
+
 .cloneAndClear {
     cursor: pointer;
     display: block !important;
     margin: -20px 10px !important;
     position: absolute;
+    right: 0;
 }
 
 #add-alarm .btn {
@@ -737,4 +742,16 @@ input.row-input {
 }
 .form-group-row > div{
     padding: 0;
+}
+
+.bootbox-big.modal{
+    overflow: hidden;
+    bottom: auto;
+}
+.bootbox-big .modal-dialog{
+    width: 95%;
+}
+.bootbox-big .modal-body{
+    max-height: 500px;
+    overflow: auto;
 }

@@ -578,10 +578,10 @@ class clients
             $phones_html = '';
             if ($phones && $phones > 0) {
                 foreach ($phones as $phone) {
-                    $phones_html .= '<div class="controls"><input class="form-control clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="' . htmlspecialchars($phone) . '" /></div>';
+                    $phones_html .= '<input class="form-control clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="' . htmlspecialchars($phone) . '" />';
                 }
             } else {
-                $phones_html .= '<div class="controls"><input class="form-control clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="" /></div>';
+                $phones_html .= '<input class="form-control clone_clear_val" type="text" onkeydown="return isNumberKey(event)" name="phone[]" value="" />';
             }
 
             return $phones_html;
@@ -704,8 +704,8 @@ class clients
                 <div class="controls"><input value="' . htmlspecialchars($client['email']) . '" name="email" class="form-control " /></div></div>';
 
 
-            $out .= '<div class="form-group"><label class="control-label">Телефон: </label>';
-            $out .= $this->phones($client['id']) . ' <i class="cloneAndClear icon-plus"></i></div>';
+            $out .= '<div class="form-group"><label class="control-label">Телефон: </label><div class="relative">';
+            $out .= '<div>'.$this->phones($client['id']) . '</div> <i class="cloneAndClear glyphicon glyphicon-plus"></i></div></div>';
             //    <input value="' . htmlspecialchars($client['phone']) . '" name="phone" class="span5" />';*/
             $out .= '<div class="form-group"><label class="control-label">Дата регистрации: </label>
                 <div class="controls"><span title="' . do_nice_date($client['date_add'], false) . '">' . do_nice_date($client['date_add']) . '</span></div></div>';
@@ -724,7 +724,7 @@ class clients
                 $out .= '</select></div></div>';
                 if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
                     $out .= '<div class="form-group"><label class="control-label">Пароль: </label>'
-                    . '<i class="icon-warning-sign editable-click" data-type="text" '
+                    . '<i class="glyphicon glyphicon-warning-sign editable-click" data-type="text" '
                     . 'data-pk="'.$this->all_configs['arrequest'][2].'" '
                     . 'data-type="password" '
                     . 'data-url="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/ajax?act=change-client-password" '

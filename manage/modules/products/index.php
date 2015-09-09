@@ -57,7 +57,7 @@ class products
             $image_html .= '<div><label class="checkbox"><input value="1" name="one-image-secret_title" checked id="one-image-secret_title" type="checkbox" />всем аналогичным товарам</label></div>';
 
         if ($this->all_configs['configs']['set_watermark'] == true)
-            $image_html .= '<div><label class="checkbox"><input value="1" checked id="product_watermark" type="checkbox" />водяной знак</label></div>';
+            $image_html .= '<div class="checkbox"><label ><input value="1" checked id="product_watermark" type="checkbox" />водяной знак</label></div>';
 
         $image_html .= '
             <div id="file-uploader">
@@ -104,7 +104,7 @@ class products
             }
         }
         $image_html .= '<p>Добавить ссылку на youtube:</p>';
-        $image_html .= '<div><div><input placeholder="видео" class="span8" name="youtube[]" value="" /></div></div>';
+        $image_html .= '<div><div><input class="form-control" placeholder="видео" class="span8" name="youtube[]" value="" /></div></div>';
 
 
         return $image_html;
@@ -580,12 +580,12 @@ class products
                 </div>
             ';
         }
-        $goods_html .= '<div class="control-group"><label class="control-label">Название: </label>
-                        <div class="controls"><input autocomplete="off" placeholder="введите название" class="span5 global-typeahead" data-anyway="1" data-table="goods" name="title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['title']) : '') . '" /></div></div>';
-        $goods_html .= '<div class="control-group"><label class="control-label">Внутр. (секретное) название: </label>
-                        <div class="controls"><input placeholder="введите секретное название" class="span5" name="secret_title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['secret_title']) : '') . '" /></div></div>';
-        $goods_html .= '<div class="control-group"><label class="control-label">Артикул (код товара): </label>
-                        <div class="controls"><input placeholder="введите код товара" class="span5" name="article" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['article']) : '') . '" /></div></div>';
+        $goods_html .= '<div class="form-group"><label>Название: </label>
+                        <input autocomplete="off" placeholder="введите название" class="form-control global-typeahead" data-anyway="1" data-table="goods" name="title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['title']) : '') . '" /></div>';
+        $goods_html .= '<div class="form-group"><label class="control-label">Внутр. (секретное) название: </label>
+                        <input placeholder="введите секретное название" class="form-control" name="secret_title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['secret_title']) : '') . '" /></div>';
+        $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>
+                        <input placeholder="введите код товара" class="form-control" name="article" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['article']) : '') . '" /></div>';
         $goods_html .= '<input type="hidden" name="id" value="" />';
 
         if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
@@ -690,7 +690,7 @@ class products
                     '<a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($product['url']) . '/' .
                     $this->all_configs['configs']['product-page'] . '/' . $product['id'] . '/">' .
                     htmlspecialchars($product['title']) .
-                    '<i class="icon-eye-open"></i></a></legend>' .
+                    '<i class="glyphicon glyphicon-eye-open"></i></a></legend>' .
                     $this->show_product_body();
             } else {
                 $goods_html .= '<p  class="text-error">Товар не найден</p>';
@@ -968,15 +968,15 @@ class products
         }
 
         $filters_html = '<p class="label label-info">Отобразить</p>';
-        $filters_html .= '<ul class="ul-list"><li><label class="checkbox"><input type="checkbox" ';
+        $filters_html .= '<div class="well"><ul style="padding-left:25px"><li><label class="checkbox"><input type="checkbox" ';
         $filters_html .= $this->click_filters('show', 'my') . '>Мои товары</label></li>';
         $filters_html .= '<li><label class="checkbox"><input type="checkbox" ' . $this->click_filters('show', 'empty');
         $filters_html .= '>Не заполненные</label></li>';
         $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'noimage');
-        $filters_html .= '>Без картинок</label></li></ul>';
+        $filters_html .= '>Без картинок</label></li></ul></div>';
 
         $filters_html .= '<p class="label label-info">По складам</p>';
-        $filters_html .= '<ul class="ul-list"><li>';//<label class="checkbox"><input type="checkbox" id="my_checkbox" value="my" name="my" ' . $this->my_checked . ' onclick="checkbox_select(this, \'' . $a . '\')">Мои товары</label></li>';
+        $filters_html .= '<div class="well"><ul style="padding-left:25px">';//<label class="checkbox"><input type="checkbox" id="my_checkbox" value="my" name="my" ' . $this->my_checked . ' onclick="checkbox_select(this, \'' . $a . '\')">Мои товары</label></li>';
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
         if ($warehouses) {
             foreach ($warehouses as $wh_id=>$wh_title) {
@@ -984,7 +984,7 @@ class products
                 $filters_html .= $this->click_filters('wh', $wh_id) . '>' . htmlspecialchars($wh_title) . '</label></li>';
             }
         }
-        $filters_html .= '</ul>';
+        $filters_html .= '</ul></div>';
 
         return $filters_html;
     }
@@ -1255,38 +1255,38 @@ class products
                 //$sort = '&sort=' . $_GET['sort'];
                 switch ($_GET['sort']) {
                     case 'id':
-                        $sort_id = '<a href="?sort=rid">ID<i class="icon-chevron-down"></i>';
+                        $sort_id = '<a href="?sort=rid">ID<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'rid':
-                        $sort_id = '<a href="?sort=id">ID<i class="icon-chevron-up"></i>';
+                        $sort_id = '<a href="?sort=id">ID<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'title':
-                        $sort_title = '<a href="?sort=rtitle">Название продукта<i class="icon-chevron-down"></i>';
+                        $sort_title = '<a href="?sort=rtitle">Название продукта<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'rtitle':
-                        $sort_title = '<a href="?sort=title">Название продукта<i class="icon-chevron-up"></i>';
+                        $sort_title = '<a href="?sort=title">Название продукта<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'price':
-                        $sort_price = '<a href="?sort=rprice">Цена<i class="icon-chevron-down"></i>';
+                        $sort_price = '<a href="?sort=rprice">Цена<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'rprice':
-                        $sort_price = '<a href="?sort=price">Цена<i class="icon-chevron-up"></i>';
+                        $sort_price = '<a href="?sort=price">Цена<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'date':
-                        $sort_date = '<a href="?sort=rdate">Дата<i class="icon-chevron-down"></i>';
+                        $sort_date = '<a href="?sort=rdate">Дата<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'rdate':
-                        $sort_date = '<a href="?sort=date">Дата<i class="icon-chevron-up"></i>';
+                        $sort_date = '<a href="?sort=date">Дата<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'avail':
-                        $sort_avail = '<a href="?sort=ravail">Вкл.<i class="icon-chevron-down"></i>';
+                        $sort_avail = '<a href="?sort=ravail">Вкл.<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'ravail':
-                        $sort_avail = '<a href="?sort=avail">Вкл.<i class="icon-chevron-up"></i>';
+                        $sort_avail = '<a href="?sort=avail">Вкл.<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                 }
             } else {
-                $sort_id = '<a href="?sort=rid">ID<i class="icon-chevron-down"></i>';
+                $sort_id = '<a href="?sort=rid">ID<i class="glyphicon glyphicon-chevron-down"></i>';
             }
 
             $quick_edit_title = '';
@@ -1304,7 +1304,7 @@ class products
             $goods_html .= '<td>' . $sort_title . '</a></td><td colspan="2">';
             if ($this->all_configs['oRole']->hasPrivilege('edit-goods')) {
                 $goods_html .= '<div class="btn-group">';
-                $goods_html .= '<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-wrench"></i></a>';
+                $goods_html .= '<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="glyphicon glyphicon-wrench"></i></a>';
                 $goods_html .= '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">';
                 if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
                     $goods_html .= '<li ' . (isset($_GET['edit']) && $_GET['edit'] == 'active_price' ? 'class="active"' : '') . '>';
@@ -1362,9 +1362,9 @@ class products
                     }
                 }
                 if ($good['image_set'] == 1)
-                    $image_icon = '<i class="icon-picture"></i>';
+                    $image_icon = '<i class="glyphicon glyphicon-picture"></i>';
                 if (intval($good['price']) > 0)
-                    $price_icon = '<i class="icon-shopping-cart"></i>';
+                    $price_icon = '<i class="glyphicon glyphicon-shopping-cart"></i>';
 
                 $add_name = '';
 
@@ -1376,10 +1376,10 @@ class products
                     $img = ' <img src="' . $url . '">';
                 }
 
-                $content = '<i class="icon-move popover-info" data-content="' . (isset($serials[$id]) ? $serials[$id] : 'Нет на складе') . '" data-original-title=""></i>';
+                $content = '<i class="glyphicon glyphicon-move popover-info" data-content="' . (isset($serials[$id]) ? $serials[$id] : 'Нет на складе') . '" data-original-title=""></i>';
                 $goods_html .= '<tr>
                     <td class="small_ids">' . $good['id'] . $img . '</td>
-                    <td><a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($good['url']) . '/' . $this->all_configs['configs']['product-page'] . '/' . $good['id'] . '/"><i class="icon-eye-open"></i></a></td>
+                    <td><a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($good['url']) . '/' . $this->all_configs['configs']['product-page'] . '/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a></td>
                     <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . $add_name . '</a> ' . $content . '</td>
                     <td>' . $image_icon . '</td>
                     <td>' . $price_icon . '</td>
@@ -2114,45 +2114,45 @@ class products
                 array($this->all_configs['arrequest'][2]))->row();
 
             if ($product) {
-                $goods_html .= '<form class="form-horizontal" method="post">';
-                $goods_html .= '<div class="control-group"><label class="control-label">Название: </label>';
-                $goods_html .= '<div class="controls"><input class="span5" placeholder="введите название" name="title" value="';
+                $goods_html .= '<form method="post">';
+                $goods_html .= '<div class="form-group"><label>Название: </label>';
+                $goods_html .= '<input class="form-control" placeholder="введите название" name="title" value="';
                 if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post']))
                     $goods_html .= htmlspecialchars($this->errors['post']['title']);
                 else
                     $goods_html .= htmlspecialchars($product['title']);
-                $goods_html .= '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Внутрен. (секретное): </label>';
-                $goods_html .= '<div class="controls"><input class="span5" placeholder="введите внутреннее название" name="secret_title" value="';
+                $goods_html .= '" /></div>';
+                $goods_html .= '<div class="form-group"><label class="control-label">Внутрен. (секретное): </label>';
+                $goods_html .= '<div class="controls"><input class="form-control" placeholder="введите внутреннее название" name="secret_title" value="';
                 if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post']))
                     $goods_html .= htmlspecialchars($this->errors['post']['secret_title']);
                 else
                     $goods_html .= htmlspecialchars($product['secret_title']);
                 $goods_html .= '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Артикул (код товара): </label>';
-                $goods_html .= '<div class="controls"><input placeholder="введите код товара" class="span5" name="article" value="';
+                $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>';
+                $goods_html .= '<div class="controls"><input placeholder="введите код товара" class="form-control" name="article" value="';
                 if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post']))
                     $goods_html .= htmlspecialchars($this->errors['post']['article']);
                 else
                     $goods_html .= htmlspecialchars($product['article']);
                 $goods_html .= '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">url: </label>';
-                $goods_html .= '<div class="controls"><input class="span5" placeholder="введите url" name="url" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('url', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['url']) : htmlspecialchars($product['url'])) . '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Штрих код: </label>
-                            <div class="controls"><input placeholder="штрих код" class="span5" name="barcode" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['barcode']) : $product['barcode']) . '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Приоритет: </label>
-                            <div class="controls"><input onkeydown="return isNumberKey(event)" class="span5" name="prio" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('prio', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['prio']) : $product['prio']) . '" /></div></div>';
+                $goods_html .= '<div class="form-group"><label>url: </label>';
+                $goods_html .= '<input class="form-control" placeholder="введите url" name="url" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('url', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['url']) : htmlspecialchars($product['url'])) . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>Штрих код: </label>
+                            <input placeholder="штрих код" class="form-control" name="barcode" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['barcode']) : $product['barcode']) . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>Приоритет: </label>
+                            <input onkeydown="return isNumberKey(event)" class="form-control" name="prio" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('prio', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['prio']) : $product['prio']) . '" /></div>';
                 //use-inec $goods_html .= '<input type="button" class="btn export_product" value="Создать выгрузку в 1с" data="' . $product['id'] . '" />';
-                $goods_html .= '<div class="control-group"><label class="control-label">Розничная цена: </label>
-                            <div class="controls">' . number_format($product['price'] / 100, 2, '.', ' ') . '</div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Закупочная цена последней партии: </label>
-                            <div class="controls">' . number_format($product['price_purchase'] / 100, 2, '.', ' ') . '</div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Оптовая цена: </label>
-                            <div class="controls">' . number_format($product['price_wholesale'] / 100, 2, '.', ' ') . '</div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Свободный остаток:</label>
-                            <div class="controls">' . intval($product['qty_store']) . '</div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Общий остаток:</label>
-                            <div class="controls">' . intval($product['qty_wh']) . '</div></div>';
+                $goods_html .= '<div class="form-group"><label>Розничная цена: </label>
+                            ' . number_format($product['price'] / 100, 2, '.', ' ') . '</div>';
+                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии: </label>
+                            ' . number_format($product['price_purchase'] / 100, 2, '.', ' ') . '</div>';
+                $goods_html .= '<div class="form-group"><label>Оптовая цена: </label>
+                            ' . number_format($product['price_wholesale'] / 100, 2, '.', ' ') . '</div>';
+                $goods_html .= '<div class="form-group"><label>Свободный остаток:</label>
+                            ' . intval($product['qty_store']) . '</div>';
+                $goods_html .= '<div class="form-group"><label>Общий остаток:</label>
+                            ' . intval($product['qty_wh']) . '</div>';
                 $goods_html .= $this->btn_save_product('main');
                 $goods_html .= '</form>';
             }
@@ -2191,24 +2191,24 @@ class products
                 $checked = '';
                 if ($product['avail'] == 1)
                     $checked = 'checked';
-                $goods_html .= '<form class="form-horizontal" method="post">';
-                $goods_html .= '<div class="control-group"><div class="controls">';
-                $goods_html .= '<label class="checkbox"><input name="avail" ' . $checked . ' type="checkbox">Активность</label></div></div>';
+                $goods_html .= '<form method="post" style="max-width:300px">';
+                $goods_html .= '<div class="form-group"><div class="checkbox">';
+                $goods_html .= '<label><input name="avail" ' . $checked . ' type="checkbox">Активность</label></div></div>';
                 $checked = '';
                 if ($product['type'] == 1)
                     $checked = 'checked';
-                $goods_html .= '<div class="control-group"><div class="controls">';
-                $goods_html .= '<label class="checkbox"><input name="type" ' . $checked . ' type="checkbox">Услуга</label></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Категории: </label>';
-                $goods_html .= '<div class="controls">';
-                $goods_html .= '<select class="multiselect input-small" multiple="multiple" name="categories[]">';
+                $goods_html .= '<div class="form-group"><div class="checkbox">';
+                $goods_html .= '<label><input name="type" ' . $checked . ' type="checkbox">Услуга</label></div></div>';
+                $goods_html .= '<div class="form-group"><label>Категории: </label>';
+                $goods_html .= '';
+                $goods_html .= '<select class="multiselect form-control" multiple="multiple" name="categories[]">';
                 $categories = $this->get_categories();
                 $selected_categories = $this->all_configs['db']->query('SELECT cg.category_id, cg.category_id
                         FROM {category_goods} as cg WHERE cg.goods_id=?i',
                     array($this->all_configs['arrequest'][2]))->vars();
                 $goods_html .= build_array_tree($categories, array_keys($selected_categories));
                 $goods_html .= '</select>';
-                $goods_html .= '</div></div>';
+                $goods_html .= '</div>';
                 $goods_html .= $this->btn_save_product('additionally');
                 $goods_html .= '</form>';
             }
@@ -2258,12 +2258,12 @@ class products
             $author = $this->all_configs['db']->query('SELECT login FROM {users} as u, {goods} as g
                 WHERE u.id=g.author AND g.id=?i ',
                 array($this->all_configs['arrequest'][2]))->el();
-            $goods_html .= '<form class="form-horizontal" method="post">';
-            $goods_html .= '<div class="control-group"><label class="control-label">Автор: </label>';
-            $goods_html .= '<div class="controls"><a style="display: block;margin-top: 4px;" href="'
-                . $this->all_configs['prefix'] . 'users">' . $author . '</a></div></div>';
-            $goods_html .= '<div class="control-group"><label class="control-label">Менеджер: </label>';
-            $goods_html .= '<div class="controls"><select class="multiselect input-small" ';
+            $goods_html .= '<form style="max-width: 300px" method="post">';
+            $goods_html .= '<div class="form-group"><label>Автор: </label>';
+            $goods_html .= ' <a href="'
+                . $this->all_configs['prefix'] . 'users">' . $author . '</a></div>';
+            $goods_html .= '<div class="form-group"><label>Менеджер: </label>';
+            $goods_html .= '<select class="multiselect form-control" ';
             // проверка на количество менеджеров у товара
             $goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
             $goods_html .= ' name="users[]"><option value="0">Не выбран</option>';
@@ -2276,7 +2276,7 @@ class products
                     $goods_html .= '>' . $manager['login'] . '</option>';
                 }
             }
-            $goods_html .= '</select></div></div>';
+            $goods_html .= '</select></div>';
             $goods_html .= $this->btn_save_product('managers_managers');
             $goods_html .= '</form>';
         }
@@ -2412,20 +2412,20 @@ class products
                 array($this->all_configs['arrequest'][2]))->assoc();
             if ($goods_suppliers) {
                 foreach ($goods_suppliers as $product_supplier) {
-                    $goods_html .= '<input type="text" name="links[]" placeholder="гиперссылка" class="row-input" value="' . $product_supplier['link'] . '" />';
+                    $goods_html .= '<input type="text" name="links[]" placeholder="гиперссылка" class="form-control" value="' . $product_supplier['link'] . '" />';
                 }
             }
-            $goods_html .= '<input type="text" name="links[]" placeholder="гиперссылка" class="row-input" />';
-            $goods_html .= '<i class="icon-plus cursor-pointer" onclick="$(\'<input>\').attr({type: \'text\', name: \'links[]\', class: \'row-input\'}).insertBefore(this);"></i></div>';
+            $goods_html .= '<input type="text" name="links[]" placeholder="гиперссылка" class="form-control" />';
+            $goods_html .= '<i class="glyphicon glyphicon-plus cursor-pointer" onclick="$(\'<input>\').attr({type: \'text\', name: \'links[]\', class: \'form-control\'}).insertBefore(this);"></i></div>';
             $goods_html .= $this->btn_save_product('financestock_finance');
             $goods_html .= '</form>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-                $goods_html .= '<div id="accordion_product_suppliers_orders" class="accordion"><div class="accordion-group">';
-                $goods_html .= '<div class="accordion-heading">';
-                $goods_html .= '<a class="accordion-toggle" href="#collapse_create_product_supplier_order" data-parent="#accordion_product_suppliers_orders" data-toggle="collapse">Создать заказ поставщику</a>';
-                $goods_html .= '</div><div id="collapse_create_product_supplier_order" class="accordion-body collapse"><div class="accordion-inner">';
+                $goods_html .= '<div id="accordion_product_suppliers_orders"><div class="panel-group">';
+                $goods_html .= '<div class="panel panel-default"><div class="panel-heading">';
+                $goods_html .= '<a class="panel-toggle" href="#collapse_create_product_supplier_order" data-parent="#accordion_product_suppliers_orders" data-toggle="collapse">Создать заказ поставщику</a>';
+                $goods_html .= '</div><div id="collapse_create_product_supplier_order" class="panel-body collapse"><div class="accordion-inner">';
                 $goods_html .= $this->all_configs['suppliers_orders']->create_order_block();
-                $goods_html .= '</div><!--.accordion-inner--></div><!--#collapse_create_product_supplier_order--></div><!--.accordion-group--></div><!--#accordion_product_suppliers_orders-->';
+                $goods_html .= '</div><!--.accordion-inner--></div></div><!--#collapse_create_product_supplier_order--></div><!--.accordion-group--></div><!--#accordion_product_suppliers_orders-->';
             }
             //$goods_html .= '<h4  class="text-success">Заказы поставщикам</h4>';
             //$goods_html .= $this->all_configs['suppliers_orders']->show_suppliers_orders($this->all_configs['arrequest'][2]);
@@ -2435,7 +2435,9 @@ class products
             $count_on_page = $queries['count_on_page'];
 
             $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
-            $goods_html .= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders);
+            $goods_html .= '<div class="table-responsive">'.
+                                $this->all_configs['suppliers_orders']->show_suppliers_orders($orders).
+                           '</div>';
 
             $count = $this->all_configs['db']->query('SELECT count(id) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
                 array($this->all_configs['arrequest'][2]))->el();
@@ -2491,14 +2493,14 @@ class products
                 array($_SESSION['id'], $this->all_configs['arrequest'][2]))->row();
             $checked = '';
             if ($user && $user['each_sale'] == 1) $checked = 'checked';
-            $goods_html .= '<form class="form-horizontal" method="post">';
-            $goods_html .= '<div class="control-group"><div class="controls"><label class="checkbox"><input ' . $checked . ' type="checkbox" name="each_sale" /> уведомлять меня о каждой продаже этого товара</div></div>';
+            $goods_html .= '<form method="post" style="max-width:400px">';
+            $goods_html .= '<div class="form-group"><div class="checkbox"><label><input ' . $checked . ' type="checkbox" name="each_sale" /> уведомлять меня о каждой продаже этого товара</div></div>';
             $checked = '';
             if ($user && $user['by_balance'] == 1) $checked = 'checked';
             $balance = '';
             if ($user && $user['balance'] > 0) $balance = $user['balance'];
-            $goods_html .= '<div class="control-group"><div class="controls"><label class="checkbox"><input ' . $checked . ' type="checkbox" name="by_balance" /> уведомлять меня об остатке</label>
-                        <input placeholder="количество товаров" value="' . $balance . '" type="text" class="span2" onkeydown="return isNumberKey(event)" name="balance" /> или менее единиц.</div></div>';
+            $goods_html .= '<div class="form-group"><label class="checkbox-inline"><input ' . $checked . ' type="checkbox" name="by_balance" /> уведомлять меня об остатке</label>
+                        <div class="input-group"><input placeholder="количество товаров" value="' . $balance . '" type="text" class="form-control" onkeydown="return isNumberKey(event)" name="balance" /><div class="input-group-addon">или менее единиц.</div></div>';
             //$checked = '';
             //if ($user && $user['by_critical_balance'] == 1) $checked = 'checked';
             //$critical_balance = '';
@@ -2610,32 +2612,32 @@ class products
             if ($product) {
                 $disabled_row = $this->all_configs['oRole']->hasPrivilege('external-marketing') ? '' : 'disabled';
 
-                $goods_html .= '<form class="form-horizontal" method="post">';
-                $goods_html .= '<div class="control-group"><label class="control-label">Розничная цена: </label>';
-                $goods_html .= '<div class="controls"><input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="цена" class="span5" name="price" value="' . number_format($product['price'] / 100, 2, '.', '') . '" /></div></div>';
+                $goods_html .= '<form method="post">';
+                $goods_html .= '<div class="form-group"><label>Розничная цена: </label>';
+                $goods_html .= '<input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="цена" class="form-control" name="price" value="' . number_format($product['price'] / 100, 2, '.', '') . '" /></div>';
                 $disabled_row = '';
                 if (!$this->all_configs['oRole']->hasPrivilege('external-marketing') || $this->all_configs['configs']['onec-use'] == true || $this->all_configs['configs']['erp-use'] == true)
                     $disabled_row = 'disabled';
 
                 if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
                     && $this->all_configs['configs']['use-goods-old-price'] == true) {
-                    $goods_html .= '<div class="control-group"><label class="control-label">Старая цена: </label>';
-                    $goods_html .= '<div class="controls"><input placeholder="старая цена" ' . $disabled_row;
-                    $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="span5" name="old_price" value="';
-                    $goods_html .= number_format($product['old_price'] / 100, 2, '.', '') . '" /></div></div>';
+                    $goods_html .= '<div class="form-group"><label>Старая цена: </label>';
+                    $goods_html .= '<input placeholder="старая цена" ' . $disabled_row;
+                    $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="old_price" value="';
+                    $goods_html .= number_format($product['old_price'] / 100, 2, '.', '') . '" /></div>';
                 }
-                $goods_html .= '<div class="control-group"><label class="control-label">Закупочная цена последней партии: </label>';
-                $goods_html .= '<div class="controls"><input placeholder="закупочная цена" ' . $disabled_row;
-                $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="span5" name="price_purchase" value="';
-                $goods_html .= number_format($product['price_purchase'] / 100, 2, '.', '') . '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Оптовая цена: </label>';
-                $goods_html .= '<div class="controls"><input placeholder="оптовая цена" ' . $disabled_row;
-                $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="span5" name="price_wholesale" value="';
-                $goods_html .= number_format($product['price_wholesale'] / 100, 2, '.', '') . '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Свободный остаток:</label><div class="controls">';
-                $goods_html .= '<input ' . $disabled_row . ' placeholder="количество" onkeydown="return isNumberKey(event)" class="span5" name="exist" value="' . $product['qty_store'] . '" /></div></div>';
-                $goods_html .= '<div class="control-group"><label class="control-label">Общий остаток:</label><div class="controls">';
-                $goods_html .= '<input ' . $disabled_row . ' placeholder="количество" onkeydown="return isNumberKey(event)" class="span5" name="qty_wh" value="' . $product['qty_wh'] . '" /></div></div>';
+                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии: </label>';
+                $goods_html .= '<input placeholder="закупочная цена" ' . $disabled_row;
+                $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_purchase" value="';
+                $goods_html .= number_format($product['price_purchase'] / 100, 2, '.', '') . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>Оптовая цена: </label>';
+                $goods_html .= '<input placeholder="оптовая цена" ' . $disabled_row;
+                $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_wholesale" value="';
+                $goods_html .= number_format($product['price_wholesale'] / 100, 2, '.', '') . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>Свободный остаток:</label>';
+                $goods_html .= '<input ' . $disabled_row . ' placeholder="количество" onkeydown="return isNumberKey(event)" class="form-control" name="exist" value="' . $product['qty_store'] . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>Общий остаток:</label>';
+                $goods_html .= '<input ' . $disabled_row . ' placeholder="количество" onkeydown="return isNumberKey(event)" class="form-control" name="qty_wh" value="' . $product['qty_wh'] . '" /></div>';
                 $goods_html .= $this->btn_save_product('omt_procurement');
                 $goods_html .= '</form>';
             }

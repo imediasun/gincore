@@ -75,19 +75,15 @@ class settings{
                 $out.='
 
                 <form action="'.$this->all_configs['prefix'].'settings/'.$pp['id'].'/update" method="POST">
-                    
-                    '.l('sets_param').': <b>'.$pp['name'].'</b><br><br>
-                    <form class="form-horizontal">
-                      <div class="control-group">
-                        <label class="control-label" for="inputParam">'.l('sets_value').':</label>
-                        <div class="controls">
-                            <textarea id="inputParam" '.($pp['ro'] == '1' ? 'disabled="disabled"' : '').' name="value" rows="5" cols="60">'.$pp['value'].'</textarea>
-                        </div>
+                    <div class="form-group">
+                        <label>'.l('sets_param').'</label>: '.$pp['name'].'
+                    </div>
+                      <div class="form-group">
+                        <label>'.l('sets_value').':</label>
+                        <textarea class="form-control" id="inputParam" '.($pp['ro'] == '1' ? 'disabled="disabled"' : '').' name="value" rows="5" cols="60">'.$pp['value'].'</textarea>
                       </div>
-                      <div class="control-group">
-                        <div class="controls">
+                      <div class="form-group">
                           <input type="submit" value="'.l('save').'" class="btn btn-primary">
-                        </div>
                       </div>
                     </form>
 
@@ -119,10 +115,25 @@ class settings{
                 $out = '
                 <h3>Добавление нового параметра</h3>
                 <form action="'.$this->all_configs['prefix'].'settings/add/ok" method="post">
-                    '.l('sets_param').': <input type="text" name="name" value=""><br><br>
-                    '.l('sets_value').': <textarea name="value"></textarea><br><br>
-                    '.l('name').': <textarea  name="title"></textarea><br><br>
-                    '.l('sets_read_only').': <input type="checkbox" name="ro" value="1"><br><br>
+                    <div class="form-group">
+                        <label>'.l('sets_param').':</label> 
+                        <input type="text" name="name" class="form-control" value="">
+                    </div>
+                    <div class="form-group"> 
+                        <label>'.l('sets_value').': </label> 
+                        <textarea class="form-control" name="value"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>'.l('name').': </label> 
+                        <textarea  class="form-control" name="title"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="ro" value="1"> '.l('sets_read_only').'
+                            </label>
+                        </div>
+                    </div>
                     <input type="submit" value="'.l('save').'" class="btn btn-primary">
                 </form>
             ';
