@@ -12,8 +12,8 @@ $(function(){
         toggle:'popover',
         title:'Создать сообщение <i class="icon-remove close-popover" onclick="javascript:$(\'.send-mess\').popover(\'hide\');"></i>',
         content:'' +
-            '<p><input class="na-mess span3" /></p>' +
-            '<p><textarea class="ta-mess span3" rows="3"></textarea></p>' +
+            '<p><input class="na-mess  form-control" /></p>' +
+            '<p><textarea class="ta-mess form-control" rows="3"></textarea></p>' +
             '<p><input type="button" class="btn" onclick="send_mess()" value="Отправить" /></p>',
     });
 });

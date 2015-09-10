@@ -659,8 +659,8 @@ input.row-input {
 
 #save_all_fixed{
     position: fixed;
-    right: 35px;
-    top: 63px;
+    right: 0;
+    top: 80px;
 }
 
 .input-min {

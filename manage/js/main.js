@@ -526,7 +526,7 @@ function endcountdown()
     if (order_id == 0) {
         sound('alarm.mp3');
         $("html, body").animate({scrollTop: 0}, "quick");
-        $('#middle').prepend('<div class="alert fade in">' +
+        $('#middle').prepend('<div class="alert alert-danger">' +
             '<button type="button" class="close" data-dismiss="alert">×</button>' + text + '</div>');
     }
 }

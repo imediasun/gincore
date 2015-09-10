@@ -328,51 +328,48 @@ if ($act == 'alarm-clock') {
     $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
 
     $data['content'] = '<br />
-    <div class="accordion" id="accordion-alarms">
-        <div class="accordion-group">
-            <div class="accordion-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms" href="#accordion-alarm-add">
-                Добавить напоминание
-            </a>
-        </div>
-        <div id="accordion-alarm-add" class="accordion-body collapse">
-            <div class="accordion-inner">
-                <form method="post" id="add-alarm" class="form-inline">
-                    <input type="hidden" name="order_id" value="' . $order_id . '" />
-                    <p>
-                        <textarea class="input-xlarge" name="text" placeholder="комментарий к напоминанию" rows="1" cols="1"></textarea>
-                        <label class="checkbox">
-                            <input ' . ($order_id > 0 ? '' : 'disabled') . ' type="checkbox" name="text-to-private-comment">
-                            Продублировать<br />в скрытый комментарий
-                        </label>
-                    </p>
-                    <p>
-                        <div class="datetimepicker input-append">
-                            <input class="input-xlarge" placeholder="Дата напоминания" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_alarm" value="" />
-                            <span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
+    <div class="panel-" id="accordion-alarms">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms" href="#accordion-alarm-add">
+                    Добавить напоминание
+                </a>
+            </div>
+            <div id="accordion-alarm-add" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <form method="post" id="add-alarm">
+                        <input type="hidden" name="order_id" value="' . $order_id . '" />
+                        <textarea class="form-control" name="text" placeholder="комментарий к напоминанию"></textarea>
+                        <div class="checkbox">
+                            <label>
+                                <input ' . ($order_id > 0 ? '' : 'disabled') . ' type="checkbox" name="text-to-private-comment">
+                                Продублировать в скрытый комментарий
+                            </label>
                         </div>
-                    </p>
-                    <p>
-                        ' . typeahead($all_configs['db'], 'users', false, $user_id, 26, 'input-xlarge') . '
-                        <input type="button" class="btn" onclick="add_alarm(this)" value="Добавить" />
-                    </p>
-                </form>
+                        <div class="form-group">
+                            <input class="form-control datetimepicker" placeholder="Дата напоминания" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_alarm" value="" />
+                        </div>
+                        <div class="form-group">
+                            ' . typeahead($all_configs['db'], 'users', false, $user_id, 26, 'input-xlarge') . '
+                        </div>
+                        <input style="margin-left:0" type="button" class="btn btn-default" onclick="add_alarm(this)" value="Добавить" />
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    <br />';
+    ';
     $data['content'] .= show_alarms($all_configs, $user_id);
 
     $data['content'] .=
-        '<div class="accordion" id="accordion-alarms-history">
-        <div class="accordion-group">
-            <div class="accordion-heading">
+        '<div class="panel-group" id="accordion-alarms-history">
+        <div class="panel-default panel">
+            <div class="panel-heading">
             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms-history" href="#accordion-alarm-show">
                 История
             </a>
         </div>
-        <div id="accordion-alarm-show" class="accordion-body collapse">
-            <div class="accordion-inner">';
+        <div id="accordion-alarm-show" class="panel-collapse collapse">
+            <div class="panel-body">';
     $data['content'] .=
                 show_alarms($all_configs, $user_id, true);
     $data['content'] .=

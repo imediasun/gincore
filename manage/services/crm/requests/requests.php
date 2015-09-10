@@ -154,7 +154,7 @@ class requests extends \service{
                       '.$this->get_statuses_list($request['status'], $id, false, !$request['active']).'
                     </div>
                 </td>
-                <td><a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($request['product_id'])).'" target="_blank">на сайте</a></td>
+                <td><a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($request['product_id'])).'" target="_blank">на&nbsp;сайте</a></td>
                 <td>
                     <div class="input-prepend">
                       <span class="add-on">
@@ -178,7 +178,7 @@ class requests extends \service{
                                 .'№'.$request['order_id'].
                             '</a>' : 
 //                                'не принято'.($request['active'] ? ' <a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>' : '')).'
-                                'не принято <a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>').'
+                                'не&nbsp;принято&nbsp;<a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>').'
                 </td>
             </tr>
         ';
@@ -191,7 +191,7 @@ class requests extends \service{
             $statuses_opts .= '<option'.((is_numeric($active) && (int)$active === $s_id) || (is_array($active) && in_array($s_id, $active)) ? ' selected' : '').' value="'.$s_id.'">'.$s['name'].'</option>';
         }
         return '<select'.($disabled ? ' disabled' : '').($multiselect ? ' class="multiselect input-small form-control" multiple="multiple"' : ' class="form-control"').
-                            ' style="width: 130px" name="status_id'.($multi || $multiselect ? '['.$multi.']' : '').'">'.
+                            ' style="" name="status_id'.($multi || $multiselect ? '['.$multi.']' : '').'">'.
                     $statuses_opts.
                '</select>';
     }
@@ -456,7 +456,7 @@ class requests extends \service{
                 <input type="hidden" name="call_id" value="'.$call_id.'">
                 <div class="row-fluid new_request_row">
                     <div class="span4">'
-                        .typeahead($this->all_configs['db'], 'categories-last', true, $request_data ? $request_data['product_id'] : 0, 3, 'input-medium popover-info', 'input-min')
+                        .typeahead($this->all_configs['db'], 'categories-last', true, $request_data ? $request_data['product_id'] : 0, 3, 'input-medium popover-info', '')
                         .'<span class="request_product">'
                             . ($request_data['product_id'] ? ' <a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($request_data['product_id'])).'" target="_blank">на&nbsp;сайте</a>' : '')
                         .'</span>'
