@@ -8,8 +8,8 @@ $config['sql_host'] = '192.168.1.2';
 $config['sql_login']='root';
 $config['sql_pass']='rootFB1root';
 //$config['sql_pass']='rootFBroot';
-$config['sql_bd']='u_restore_saas_light';
-$config['sql_tbl_prefix']='rs_';
+$config['sql_bd']='u_restore';
+$config['sql_tbl_prefix']='restore4_';
 
 
 $def_lang = 'ru';

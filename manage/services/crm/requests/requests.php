@@ -113,11 +113,13 @@ class requests extends \service{
         $where = $c_query.$p_query.$a_query.$o_query.$oid_query.$ids_query.$fitlers_query;
         $req = $this->all_configs['db']->query("SELECT r.*, c.code, c.referer_id, c.client_id, "
                                                      ."r.id as rid, IF(u.fio = '',u.email,u.fio) as operator_fio, "
-                                                    . "c.date as call_date, rf.name as rf_name "
+                                                     ."IF(c.phone = '' OR c.phone IS NULL, cp.phone, c.phone) as phone, "
+                                                     ."c.date as call_date, rf.name as rf_name "
                                               ."FROM {crm_requests} as r "
                                               ."LEFT JOIN {crm_calls} as c ON c.id = r.call_id "
                                               ."LEFT JOIN {users} as u ON u.id = r.operator_id "
                                               ."LEFT JOIN {crm_referers} as rf ON rf.id = c.referer_id "
+                                              ."LEFT JOIN {clients} as cp ON cp.id = c.client_id "
                                               ."WHERE ".$where
                                               ."ORDER BY ".$order."r.date DESC".$limit_query, array(), $scheme);
         if($use_pages){
@@ -179,6 +181,9 @@ class requests extends \service{
                             '</a>' : 
 //                                'не принято'.($request['active'] ? ' <a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>' : '')).'
                                 'не&nbsp;принято&nbsp;<a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>').'
+                </td>
+                <td style="text-align:center">
+                    '.get_service('crm/sms')->get_form_btn($request['phone'], $request['id'], 'requests').'
                 </td>
             </tr>
         ';
@@ -342,6 +347,7 @@ class requests extends \service{
                                     <th>устройство</th>
                                     <th>комментарий</th>
                                     <th>№&nbsp;ремонта</th>
+                                    <th style="text-align:center">SMS</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -352,6 +358,7 @@ class requests extends \service{
                     </form>
                     '.$this->request_to_order_form().'
                     '.page_block($count_pages).'
+                    '.get_service('crm/sms')->get_form('requests').'
                 </div>
             </div>
         ';
@@ -381,6 +388,7 @@ class requests extends \service{
                                 <th>устройство</th>
                                 <th>комментарий</th>
                                 <th>№ ремонта</th>
+                                <th style="text-align:center">SMS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -390,6 +398,7 @@ class requests extends \service{
                     <input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения">
                 </form>
                 '.$this->request_to_order_form().'
+                '.get_service('crm/sms')->get_form('requests').'
             ';
         }else{
             $requests = '<br><div class="center">Заявок нет</div>';

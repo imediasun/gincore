@@ -5438,3 +5438,16 @@ table p{
         float: right !important;
     }
 }
+
+@media all and (max-width: 768px){
+    .sidebar_devices{
+        margin-top: 5px;
+    }
+}
+
+.service_mobile_page_title{
+    margin-top: 5px;
+    text-align: center;
+    color: #009EE8;
+    font-size: 22px;
+}

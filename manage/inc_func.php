@@ -288,13 +288,17 @@ function send_mail($to, $sbj, $msgtxt)
 }
 
 // отправка сообщений через turbosms
-function send_sms($phone, $message)
+function send_sms($phone, $message, $sender = null)
 {
     global $all_configs;
 
     include_once $all_configs['sitepath'] . 'shop/turbosms.class.php';
 
-    $from = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
+    if(is_null($sender)){
+        $from = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
+    }else{
+        $from = trim($sender);
+    }
     $login = isset($all_configs['settings']['turbosms-login']) ? trim($all_configs['settings']['turbosms-login']) : '';
     $password = isset($all_configs['settings']['turbosms-password']) ? trim($all_configs['settings']['turbosms-password']) : '';
 

@@ -69,6 +69,13 @@ class translates{
                     'text' => 'Значение'
                 )
             ),
+            $this->tbl_prefix.'sms_templates' => array(
+                'name' => 'Шаблоны смс',
+                'key' => 'sms_templates_id',
+                'fields' => array(
+                    'body' => 'Текст'
+                )
+            ),
         );
         
         if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax'){

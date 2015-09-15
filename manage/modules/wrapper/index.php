@@ -121,6 +121,15 @@ class wrapper{
                     'clicks' => array('0', '0', 'Клики', '0'),
                 )
             ),
+            $config['sql_tbl_prefix'].'sms_senders' => array(
+                'settings' => array('name' => 'СМС: отправители'),
+                'columns' => array(
+                    //hide, ro, realname, default, class, foreignkey to {table}.id
+                    'id' => array('0', '1', 'ID', ''),
+                    'sender' => array('0', '0', 'Sender', ''),
+                    'type' => array('0', '0', 'Тип', '0'),
+                )
+            ),
         );
         return $conf;
     }

@@ -34,9 +34,9 @@ $cfg['server']='192.168.1.2';
 $cfg['mysql_login']='root';
 //$cfg['mysql_password']='rootFBroot';
 $cfg['mysql_password']='rootFB1root';
-$cfg['mysql_db']='u_restore_saas_light';
+$cfg['mysql_db']='u_restore';
 
-$cfg['tbl']='rs_';
+$cfg['tbl']='restore4_';
 $cfg['tbl_map']=$cfg['tbl'].'map';
 $cfg['tbl_users']=$cfg['tbl'].'users';
 $cfg['tbl_section']=$cfg['tbl'].'section';
