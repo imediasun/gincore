@@ -1,6 +1,6 @@
 
 var multiselect = {
-    buttonContainer: '<span class="dropdown dropdown-absolute" />',
+    buttonContainer: '<div class="btn-group multiselect-btn-group" />',
     nonSelectedText: 'Выбрать',
     enableFiltering: true,
     inheritClass: true,
@@ -392,6 +392,10 @@ $(document).ready(function () {
         title: 'Обновите информацию',
         pk: {act: "infobox", do: "set", hash: module+(arrequest_for_editable()[1] || '')}, //
         emptytext:'Нет данных, нажмите чтобы добавить.'
+    });
+    
+    $('.header-link.hide-menu').click(function(){
+        $.cookie('hide_menu', $('body').hasClass('hide-sidebar') ? 1 : 0);
     });
 });
 

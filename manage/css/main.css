@@ -246,6 +246,9 @@ table.show-suppliers-orders tr > td {
 .multiselect-container li a{
     outline: none;
 }
+.multiselect-btn-group.open{
+    z-index: initial !important;
+}
 
 /* begin chains */
 td.td-moves {

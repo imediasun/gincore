@@ -121,6 +121,7 @@ if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0],
 
 $input['current_admin'] = ($ifauth['fio'] ?: $ifauth['login']);
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
+$input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
 
 $modules = scandir('./modules/');
 
