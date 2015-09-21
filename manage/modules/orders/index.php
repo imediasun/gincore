@@ -2043,10 +2043,24 @@ class orders
                 }
                 $order_html .= '</div><div class="span8"><div class="from-control">';
                 $order_html .= ' <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-sum\')" data-o_id="' . $order['id'] . '" title="История изменений"></span>';
-                $order_html .= ' <label>Стоимость ремонта: </label><div class="input-group">';
-                $order_html .= '<input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" /><div class="input-group-addon">грн.</div>';
-                $order_html .= '</div><span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' грн (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
+                $order_html .= ' 
+                    <label>Стоимость ремонта: </label>
+                    <div class="input-group">
+                        <input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" />
+                        <div class="input-group-addon">грн.</div>
+                    </div>';
+                $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' грн (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
                 $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
+                $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
+                if($this->all_configs['oRole']->hasPrivilege('accounting')){
+                    if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
+                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
+                        $order_html .= '<input type="button" class="btn btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
+                    } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
+                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
+                        $order_html .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+                    }
+                }
                 $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';
                 $order_html .= '</div></div>';
 

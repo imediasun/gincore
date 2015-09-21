@@ -26,6 +26,43 @@ function gen_tree() {
     });
 }*/
 
+function create_transaction(_this, conf) {
+
+    $(_this).button('loading');
+    $.ajax({
+        url: prefix+'accountings/ajax/?act=create-transaction',
+        dataType: "json",
+        data: $('#transaction_form').serialize() + (conf == 1 ? '&confirm=1' : ''),
+        type: 'POST',
+        success: function (data) {
+            if (data) {
+                if (data['state'] == true) {
+                    location.reload();
+                } else {
+                    if (data['msg']) {
+                        if (data['confirm']) {
+                            if (confirm(data['msg'])) {
+                                create_transaction(_this, 1);
+                            }
+                        } else {
+                            alert(data['msg']);
+                        }
+                    }
+                }
+            }
+            $(_this).button('reset');
+        }
+    });
+
+    return false;
+}
+
+function pay_client_order(_this, tt, order_id, b_id, extra) {
+    var data = {client_order_id: order_id, b_id: b_id, transaction_extra: extra};
+    alert_box(_this, false, 'begin-transaction-' + tt + '-co', data, null, 'accountings/ajax/');
+    return false;
+}
+
 function sale_order(_this, item) {
     $(_this).button('loading');
     var data = $(_this).parents('form').serializeArray();

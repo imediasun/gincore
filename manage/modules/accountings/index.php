@@ -3144,7 +3144,7 @@ class accountings
                     if ($order['sum'] > $order['sum_paid'] && ($order['status'] == $this->all_configs['configs']['order-status-wait-pay']
                             || $order['status'] == $this->all_configs['configs']['order-status-part-pay'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['order_id'] . ', 0)';
-                        $btn = '<input type="button" class="btn btn-mini" value="Принять оплату" onclick="' . $onclick . '" />';
+                        $btn = '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
                     }
                     $payment = (array_key_exists($order['payment'], $this->all_configs['configs']['payment-msg'])) ? $this->all_configs['configs']['payment-msg'][$order['payment']]['name'] : '';
                     //$fio = (mb_strlen(trim($order['fio']), 'UTF-8') > 0) ? trim($order['fio']) : ((mb_strlen(trim($order['phone']), 'UTF-8') > 0) ? trim($order['phone']) : trim($order['email']));
@@ -3327,13 +3327,13 @@ class accountings
         }
         if ($chain['return'] == 0 && $chain['price'] > $chain['paid'] && $type == 0) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ')';
-            $out .= '<input type="button" class="btn btn-mini" value="Принять оплату" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
         } elseif ($chain['return'] == 0 && $chain['delivery_cost'] > $chain['delivery_paid'] && $type == 1) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ', \'delivery\')';
-            $out .= '<input type="button" class="btn btn-mini" value="Принять оплату" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
         } elseif ($chain['return'] == 0 && $chain['payment_cost'] > $chain['payment_paid'] && $type == 2) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ', \'payment\')';
-            $out .= '<input type="button" class="btn btn-mini" value="Принять оплату" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
         } else {
 
         }
@@ -3484,10 +3484,10 @@ class accountings
                     }
                     if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
-                        $out .= '<input type="button" class="btn btn-mini" value="Принять предоплату" onclick="' . $onclick . '" />';
+                        $out .= '<input type="button" class="btn btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
                     } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
-                        $out .= '<input type="button" class="btn btn-mini" value="Принять оплату" onclick="' . $onclick . '" />';
+                        $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
                     }
                     $out .= '</td></tr>';
                 }
