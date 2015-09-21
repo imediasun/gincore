@@ -26,6 +26,53 @@ function gen_tree() {
     });
 }*/
 
+function sale_order(_this, item) {
+    $(_this).button('loading');
+    var data = $(_this).parents('form').serializeArray();
+    $.ajax({
+        url: prefix + module + '/ajax/?act=sale-order',
+        type: 'POST',
+        dataType: "json",
+        data: data,
+        success: function(msg) {
+            if (msg) {
+                if (msg['state'] == false) {
+                    if (msg['message']) {
+                        alert(msg['message']);
+                    }
+                }else {
+                    if (msg['location']) {
+                        window.location = msg['location'];
+                    }
+                }
+
+                $(_this).button('reset');
+            }
+        }
+    });
+}
+
+function display_serial_product_title_and_price(_this, item_id)
+{
+    $(_this).parent().find('small').html('');
+    $.ajax({
+        url: prefix + 'messages.php?act=get-product-title-and-price',
+        type: 'POST',
+        dataType: "json",
+        data: '&item_id=' + item_id,
+        success: function(msg) {
+            if (msg) {
+                if (msg['msg']) {
+                    $(_this).parent().find('.product-title').html(msg['msg']);
+                    $('#sale_poduct_cost').val(msg['price'] ? msg['price'] : '');
+                    $(_this).siblings('input[name=items]').val(msg['id']);
+                }
+            }
+        }
+    });
+    return false;
+}
+
 function display_service_information(_this) {
 
     $.ajax({
@@ -369,7 +416,7 @@ function add_new_order(_this) {
     $.ajax({
         url: prefix + module + '/ajax/?act=add-order',
         type: 'POST',
-        data: $('#order-form').serialize(),
+        data: $(_this).parents('form').serialize(),
         success: function(msg) {
             if (msg) {
                 if (msg['state'] == false && (msg['msg'] || msg['message'])) {

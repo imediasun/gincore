@@ -872,11 +872,11 @@ class Chains
             if ($item_id === 0) {
                 $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
             }
-            $out .= '<form class="form-horizontal" method="post" id="sold-item-form">';
-            $out .= '<div class="control-group"><label class="control-label">Клиент:</label>';
-            $out .= '<div class="controls">' . typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'input-medium') . '</div></div>';
-            $out .= '<div class="control-group"><label class="control-label">Стоимость:</label>';
-            $out .= '<div class="controls"><input type="text" name="price" class="input-medium" placeholder="укажите стоимость" /></div></div>';
+            $out .= '<form method="post" id="sold-item-form">';
+            $out .= '<div class="form-group"><label>Клиент:</label>';
+            $out .= '' . typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'fonm-control') . '</div>';
+            $out .= '<div class="form-group"><label>Стоимость:</label>';
+            $out .= '<input type="text" name="price" class="form-control" placeholder="укажите стоимость" /></div>';
             if ($can) {
                 $out .= '<input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="Продать" />';
             } else {
@@ -1033,6 +1033,7 @@ class Chains
 
     public function add_order($post, $mod_id, $send = true)
     {
+        $type = isset($post['type']) ? $post['type'] : 0;
         $sum_paid = isset($post['sum_paid']) ? intval($post['sum_paid'] * 100) : 0;
         $approximate_cost = isset($post['approximate_cost']) ? intval($post['approximate_cost'] * 100) : 0;
         $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
@@ -1070,7 +1071,7 @@ class Chains
             $data['state'] = false;
             $data['msg'] = 'У Вас нет прав';
         }
-        if (!isset($post['returnings']) && $data['state'] == true && !$crm_request && !$code && !$referer_id) {
+        if (!isset($post['returnings']) && $type !== 3 && $data['state'] == true && !$crm_request && !$code && !$referer_id) {
             $data['state'] = false;
             $data['msg'] = 'Укажите код или источник';
         }
@@ -1172,6 +1173,7 @@ class Chains
                     FROM (SELECT 0 as id UNION SELECT id FROM {orders}) o
                     WHERE NOT EXISTS (SELECT 1 FROM {orders} su WHERE su.id=o.id+1) ORDER BY o.id LIMIT 1')->el();
             }
+            
             $sum = $sum_paid > $approximate_cost ? $sum_paid : $approximate_cost;
             $params = array(
                 $post['id'],
@@ -1233,6 +1235,10 @@ class Chains
             }
 
             if ($data['state'] == true && $data['id'] > 0) {
+                // скрытый камент
+                if(isset($_POST['private_comment'])){
+                    $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], trim($_POST['private_comment']), 1);
+                }
                 // прикрепляем заявку к заказу
                 if(isset($_POST['crm_request'])){
                     get_service('crm/requests')->attach_to_order($data['id'], $crm_request);
@@ -2832,7 +2838,7 @@ class Chains
 
         if ($this->all_configs['configs']['erp-use'] == true) {
             $rand = $rand ? $rand : rand(1000, 9999);
-            $out .= '<form class="form-horizontal" method="post" id="moving-item-form-' . $rand . '">';
+            $out .= '<form method="post" id="moving-item-form-' . $rand . '">';
             if ($item_id === 0 && $order === null) {
                 $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
             }
@@ -2844,36 +2850,36 @@ class Chains
                 $out .= '<input type="hidden" name="goods_id" value="' . $goods_id . '" />';
             }
             if ($item_id === 0 && is_array($order) && array_key_exists('id', $order) && intval($order['id']) == 0) {
-                $out .= '<div class="control-group"><label class="control-label">Серийный номер:</label><div class="controls">';
+                $out .= '<div class="form-group"><label>Серийный номер:</label>';
                 //$out .= '<input name="item_id" type="text" value="" placeholder="Серийный номер" class="imput-large" /></div></div>';
                 $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '', 'display_serial_product', true) . '';
-                $out .= ' <small class="clone_clear_html product-title"></small></div>';
+                $out .= ' <small class="clone_clear_html product-title"></small>';
                 $out .= '<i class="glypicon glypicon-plus cloneAndClear" title="Добавить"></i></div>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
-                $out .= '<div class="control-group"><label class="control-label">Номер ремонта:</label><div class="controls">';
+                $out .= '<div class="form-group"><label class="control-label">Номер ремонта:</label><div class="controls">';
                 $out .= '<input name="order_id" type="text" value="' . $order['id'] . '" placeholder="Номер ремонта" class="imput-large" /></div></div>';
             }
             $with_logistic = (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0) ? true : false;
             //Перемещение Склад откуда
             if ($item_id === null) {
-                $out .= '<div class="control-group"><label class="control-label">Количество:</label>';
-                $out .= '<div class="controls"><input type="text" maxlength="2" placeholder="Количество" name="count" onkeydown="return isNumberKey(event)" value="1" />';
-                $out .= '</div></div><div class="control-group"><label class="control-label">Склад откуда:</label>';
-                $out .= '<div class="controls"><select class="select-warehouses-item-move" name="wh_id">';
+                $out .= '<div class="form-group"><label>Количество:</label>';
+                $out .= '<input class="form-control" type="text" maxlength="2" placeholder="Количество" name="count" onkeydown="return isNumberKey(event)" value="1" />';
+                $out .= '</div><div class="form-group"><label>Склад откуда:</label>';
+                $out .= '<select class="select-warehouses-item-move form-control" name="wh_id">';
                 $out .= $this->get_options_for_move_item_form($with_logistic);
-                $out .= '</select></div></div>';
+                $out .= '</select></div>';
             }
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || $this->all_configs['oRole']->hasPrivilege('engineer')) {
-                $out .= '<div class="control-group"><label class="control-label">Склад куда:</label>';
-                $out .= '<div class="controls"><select onchange="change_warehouse(this)" class="input-medium select-warehouses-item-move" name="wh_id_destination">';
+                $out .= '<div class="form-group"><label>Склад куда:</label>';
+                $out .= '<select onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination">';
                 $out .= $this->get_options_for_move_item_form($with_logistic, $wh_id);
-                $out .= '</select></div></div>';
+                $out .= '</select></div>';
 
-                $out .= '<div class="control-group"><label class="control-label">Локация:</label><div class="controls">';
-                $out .= '<select class="multiselect input-medium select-location" name="location">';
+                $out .= '<div class="form-group"><label>Локация:</label>';
+                $out .= '<select class="multiselect form-control select-location" name="location">';
                 $out .= $this->all_configs['suppliers_orders']->gen_locations($wh_id);
-                $out .= '</select></div></div>';
+                $out .= '</select></div>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
                 $out .= '<div class="control-group"><label class="control-label">Статус:</label><div class="controls">';

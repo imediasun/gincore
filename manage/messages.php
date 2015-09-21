@@ -508,13 +508,18 @@ if ($act == 'move-order') {
 }
 
 // название товара по серийнику
-if ($act == 'get-product-title') {
+if ($act == 'get-product-title' || $act == 'get-product-title-and-price') {
+    $item_ids = isset($_POST['item_id']) ? intval($_POST['item_id']) : 0;
     $product = $all_configs['db']->query('SELECT g.title, g.price FROM {goods} as g, {warehouses_goods_items} as i
-        WHERE g.id=i.goods_id AND i.id=?i', array(isset($_POST['item_id']) ? intval($_POST['item_id']) : 0))->row();
+        WHERE g.id=i.goods_id AND i.id=?i', array($item_ids))->row();
 
     if ($product) {
         $data['state'] = true;
         $data['msg'] = htmlspecialchars($product['title']) . ' (' . ($product['price'] / 100) . ')';
+        if($act == 'get-product-title-and-price'){
+            $data['price'] = $product['price'] / 100;
+            $data['id'] = $item_ids;
+        }
     }
 
     header("Content-Type: application/json; charset=UTF-8");
