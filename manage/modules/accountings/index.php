@@ -887,16 +887,44 @@ class accountings
                     $out .= '<option value="' . $c_id . '">' . $c_name . '</option>';
                 }
             }
-            $out .= '</select></div><div class="form-group">';
+            $out .= '</select></div>';
             $out .= '';
             if ($contractor) {
                 if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                    $out .= "<input type='hidden' name='contractor-id' value='{$contractor['id']}' />
-                        <input type='button' class='btn btn-primary' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='Редактировать' />
-                        <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='Удалить' />";
+                    $out .= "
+                        <div class='form-group'>
+                            <input type='hidden' name='contractor-id' value='{$contractor['id']}' />
+                            <input type='button' class='btn btn-primary' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='Редактировать' />
+                            <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='Удалить' />
+                        </div>
+                    ";
                 }
+                $client_contr = $this->all_configs['db']->query("SELECT id FROM {clients} "
+                                                    . "WHERE contractor_id = ?i", array($contractor['id']), 'el');
+                $out .= "
+                    <div class='form-group'>
+                        <label>Клиент:</label> ".
+                            ($client_contr ? 
+                                '<a href="'.$this->all_configs['prefix'].'clients/create/'.$client_contr.'">'.
+                                    $client_contr.
+                                '</a>' : 
+                                    '<span class="text-danger">Не привязан</span>')
+                            ." 
+                    </div>
+                ";
+            }else{
+                $out .= '
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Эл. адрес</label>
+                        <input type="text" name="email" class="form-control">
+                    </div>
+                ';
             }
-            $out .= '</div></form>';
+            $out .= '</form>';
         }
         if ($contractor) {
             $out .= '</div></div></div>';
@@ -1111,6 +1139,7 @@ class accountings
 
         // добавление нового контрагента
         if ($act == 'contractor-create') {
+            
             $data['state'] = true;
             // права
             if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -1143,6 +1172,31 @@ class accountings
                     }
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                         array($user_id, 'add-contractor', $mod_id, $contractor_id));
+                    // создаем клиента для контрагента
+                    $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
+                    $email = isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
+                    require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+                    $access = new access($this->all_configs, false);
+                    $phone = $access->is_phone($phone);
+                    if($phone || $email){
+                        $exists_client = $access->get_client($email, $phone, true);
+                        if($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i", array($exists_client['id']), 'el')){
+                            // привязываем к существующему если к нему не привязан контрагент
+                            $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
+                                                           ."WHERE id = ?i", array($contractor_id,$exists_client['id']));
+                        }else{
+                            // создаем клиента и привязываем
+                            $result = $access->registration(array(
+                                'email' => $email,
+                                'phone' => $phone[0],
+                                'fio' => $_POST['title']
+                            ));
+                            if($result['new']){
+                                $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
+                                                               ."WHERE id = ?i", array($contractor_id,$result['id']));
+                            }
+                        }
+                    }
                 } else {
                     $data['state'] = false;
                     $data['message'] = 'Такой контрагент уже существует';
@@ -1502,7 +1556,7 @@ class accountings
             $data['state'] = true;
             $data['content'] = $this->form_contractor();
             $data['functions'] = array('reset_multiselect()');
-            $data['btns'] = "<input type='button' class='btn' onclick='contractor_create(this)' value='Создать' />";
+            $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this)' value='Создать' />";
         }
 
         // Кредит Отказ

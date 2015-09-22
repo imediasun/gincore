@@ -696,7 +696,7 @@ class access
         return $result;
     }
 
-    private function get_client($email = null, $phones = null)
+    public function get_client($email = null, $phones = null, $or = false)
     {
         $user = null;
         $query = null;
@@ -706,17 +706,22 @@ class access
         }
 
         if ($email && is_string($email)) {
-            $query = $this->all_configs['db']->makeQuery('cl.email=?', array($email));
+            $email_query = $this->all_configs['db']->makeQuery('cl.email=?', array($email));
+            if($or && $query){
+                $query .= ' OR '.$email_query;
+            }else{
+                $query = $email_query;
+            }
         }
 
         if ($query != null) {
             $user = $this->all_configs['db']->query('SELECT cl.id, cl.email FROM {clients} as cl
-                LEFT JOIN {clients_phones} clp ON clp.client_id=cl.id WHERE (?query)', array($query))->row();
+                LEFT JOIN {clients_phones} clp ON clp.client_id=cl.id WHERE (?query) LIMIT 1', array($query))->row();
         }
 
         if ($user) {
-            $user['phones'] = $this->all_configs['db']->query('SELECT cl.id, clp.phone FROM {clients} as cl
-                LEFT JOIN {clients_phones} clp ON clp.client_id=cl.id WHERE (?query)', array($query))->vars();
+            $user['phones'] = $this->all_configs['db']->query('SELECT client_id, phone '
+                    .'FROM {clients_phones} WHERE client_id = ?i', array($user['id']))->vars();
         }
 
         return $user;
