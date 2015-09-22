@@ -522,16 +522,17 @@ function endcountdown()
 {
     var countdown = $(this);
     var order_id = countdown.data('o_id');
+    var alarm_id = countdown.data('alarm_id');
     var text = countdown.data('text');
 
     $('#btn-timer-' + order_id + '.text-info').removeClass('text-info');
     countdown.countdown('destroy');
 
     if (order_id == 0) {
-        sound('alarm.mp3');
+        sound('alarm.mp3', 2);
         $("html, body").animate({scrollTop: 0}, "quick");
-        $('#middle').prepend('<div class="alert alert-danger">' +
-            '<button type="button" class="close" data-dismiss="alert">×</button>' + text + '</div>');
+        $('#wrapper>.content').prepend('<div class="alert alert-danger">' +
+            '<button type="button" class="close close_alarm" data-alarm_id="'+alarm_id+'" data-dismiss="alert">×</button>' + text + '</div>');
     }
 }
 
@@ -552,6 +553,7 @@ function startcountdown(msg) {
             if (date > 0 && countdown.length > 0) {
 
                 countdown.attr('data-text', value.text);
+                countdown.attr('data-alarm_id', value.id);
                 $('#btn-timer-' + index + ':not(.text-info)').addClass('text-info');
 
                 countdown.countdown({
@@ -620,6 +622,14 @@ function check_mess(last_time_query) {
 }
 
 $(document).ready(function () {
+
+    $(document).on('click', '.close_alarm', function(){
+        $.ajax({
+            url: prefix + 'messages.php',
+            type: 'POST',
+            data: 'act=close-alarm&id=' + $(this).data('alarm_id')
+        });
+    });
 
     $('.btn-timer').live('mouseover', function () {
         var order_id = $(this).data('o_id');
@@ -1059,7 +1069,7 @@ function remove_by_id(_this, element_id) {
     $('#' + element_id).remove();
 }
 
-function sound(track) {
+function sound(track, time_sec) {
     var audioElement = document.createElement('audio');
     audioElement.setAttribute('src', prefix + track);
     audioElement.setAttribute('autoplay', 'autoplay');
@@ -1067,6 +1077,11 @@ function sound(track) {
     audioElement.addEventListener("load", function() {
         audioElement.play();
     }, true);
+    if(time_sec){
+        setTimeout(function(){
+            audioElement.pause();
+        }, time_sec * 1000);
+    }
 }
 
 function display_serial_product(_this, item_id)

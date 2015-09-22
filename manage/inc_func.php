@@ -1178,8 +1178,8 @@ function timerout($order_id, $show_timer = false)
         $onclick = 'onclick="alert_box(this, false, \'alarm-clock\', undefined, undefined, \'messages.php\')"';
         $hidden = $show_timer == false ? 'hidden' : '';
 
-        $html = '<a href="#" class="label-menu-corner" ' . $onclick . '>';
-        $html .= '<i data-o_id="' . $order_id . '" href="javascript:void(0);"  id="btn-timer-' . $order_id . '" class="fa fa-bell cursor-pointer btn-timer"></i>';
+        $html = '<a href="#" data-o_id="' . $order_id . '"  id="btn-timer-' . $order_id . '" class="label-menu-corner" ' . $onclick . '>';
+        $html .= '<i href="javascript:void(0);" class="fa fa-bell cursor-pointer btn-timer"></i>';
         $html .= ' <span id="alarm-timer-' . $order_id . '" data-o_id="' . $order_id . '" class="' . $hidden . ' alarm-timer"></span>';
         if ($order_id == 0) {
             $html .= '<span data-o_id="1" onclick="alert_box(this, false, \'get-messages\', undefined, undefined, \'messages.php\', event)" class="count-alarm-timer cursor-pointer label label-success"></span>';

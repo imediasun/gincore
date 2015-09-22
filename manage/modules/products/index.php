@@ -50,8 +50,11 @@ class products
         }
     }
 
+    // отключено
     function genimage()
     {
+        return '';
+        
         $image_html = '';
         if ($this->all_configs['configs']['one-image-secret_title'] == true)
             $image_html .= '<div><label class="checkbox"><input value="1" name="one-image-secret_title" checked id="one-image-secret_title" type="checkbox" />всем аналогичным товарам</label></div>';

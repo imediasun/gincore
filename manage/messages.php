@@ -306,7 +306,7 @@ if ($act == 'add-alarm') {
 
     if ($data['state'] == true) {
         $id = $all_configs['db']->query(
-            'INSERT INTO {alarm_clock} (date_alarm, user_id, for_user_id, text, order_id) VALUES (?, ?i, ?n, ?, ?n)',
+            'INSERT INTO {alarm_clock} (date_alarm, user_id, for_user_id, text, order_id, closed) VALUES (?, ?i, ?n, ?, ?n, 0)',
             array($date, $user_id, $for_user_id, $text, $order_id), 'id');
 
         if ($id) {
@@ -767,7 +767,7 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
     $data['tc_suppliers_orders'] = $data['tc_suppliers_orders_all'] = $all_configs['manageModel']->get_count_suppliers_orders($q3['query']);
 
     // напоминания к заказам
-    $alarms = $all_configs['db']->query('SELECT UNIX_TIMESTAMP(date_alarm) as date, order_id, COUNT(*) as qty,
+    $alarms = $all_configs['db']->query('SELECT id, UNIX_TIMESTAMP(date_alarm) as date, order_id, COUNT(*) as qty,
         GROUP_CONCAT(text, " <a href=\'' . $all_configs['prefix'] . 'orders/create/", order_id, "\'>", order_id, "</a>") as text
         FROM {alarm_clock} WHERE IF(for_user_id>0, for_user_id=?i, true) AND date_alarm>NOW()
         GROUP BY order_id ORDER BY date_alarm', array($user_id))->assoc('order_id');
@@ -787,6 +787,15 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
         'alarms' => $alarms,
     ));
     exit;
+}
+
+// закрываем аларм
+if ( isset($_POST['act']) && $_POST['act'] == 'close-alarm' ) {
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : '';
+    if($id){
+        $all_configs['db']->query("UPDATE {alarm_clock} SET closed = 1 "
+                                 ."WHERE id = ?i AND for_user_id = ?i", array($id, $user_id));
+    }
 }
 
 // отправляем сообщение

@@ -848,8 +848,8 @@ class warehouses
             $admin_out .= '<div id="settings" class="tab-pane">';
 
             $admin_out .= '<ul class="nav nav-pills">';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Склад</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="Создать/редактировать группу склада">Группы</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Сервисные центры</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="Создать/редактировать группу склада">Склады</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="Создать/редактировать категорию склада">Категории</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="Закрепить администратора за кассой">Администраторы</a></li>';
             $admin_out .= '</ul>';

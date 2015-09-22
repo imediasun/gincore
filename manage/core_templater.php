@@ -77,6 +77,22 @@ $input['page_title'] = $pre_title;
 $input['module'] = isset($all_configs['arrequest'][0]) ? $all_configs['arrequest'][0] : '';
 
 $input_html['timer'] = timerout(0);
+
+// селектим не закрытые напоминания для юзера
+$alarms = $all_configs['db']->query('SELECT id, text, order_id FROM {alarm_clock} '
+                                   .'WHERE for_user_id = ?i AND closed = 0 '
+                                         .'AND date_alarm < NOW()', array($ifauth['id']), 'assoc');
+$timer_alerts = '';
+foreach($alarms as $alarm){
+    $timer_alerts .= '
+        <div class="alert alert-danger">
+            '.$alarm['text'].($alarm['order_id'] ? ' <a href="'.$all_configs['prefix'].'orders/create/'.$alarm['order_id'].'">'.$alarm['order_id'].'</a>' : '').'
+            <button type="button" class="close close_alarm" data-dismiss="alert" data-alarm_id="'.$alarm['id'].'">×</button>
+        </div>
+    ';
+}
+$input_html['timer_alerts'] = $timer_alerts;
+
 $input_html['mainmenu'] = $mainmenu;
 if (isset($infoblock)){
     $input_html['infoblock'] = $infoblock->genblock();

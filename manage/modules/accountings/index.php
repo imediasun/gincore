@@ -3615,7 +3615,7 @@ class accountings
                     //if ($contractor['type'] == ) { если надо конкретный тип контрагентов
                     $contractors_html .= '<tr class="'
                         . ($contractor['amount'] > 0 ? 'success' : '')
-                        . ($contractor['amount'] < 0 ? 'error' : '')
+                        . ($contractor['amount'] < 0 ? 'danger' : '')
                         . '">'
                         . '<td>' . $contractor['id'] . '</td>';
                     $contractors_html .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
@@ -3623,7 +3623,9 @@ class accountings
                     $contractors_html .= '<td>' . show_price($contractor['amount'])
                         . ' '
                         //. $this->all_configs['suppliers_orders']->currencies[$this->all_configs['configs']['erp-contractor-balance-currency']]['shortName']
-                        . '</td><td><input class="btn btn-default btn-xs" type="button" value="Проверить" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" /></td></tr>';
+                        .'</td><td><input class="btn btn-default btn-xs" type="button" value="Проверить" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" />'
+                        .'<div class="pull-right">'.($contractor['amount'] > 0 ? 'Вам должны' : 
+                                                     ($contractor['amount'] > 0 ? 'Вы должны' : '')).'</div></td></tr>';
                     //}
                 }
                 $contractors_html .= '</tbody></table>';
