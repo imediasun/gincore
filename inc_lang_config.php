@@ -10,7 +10,8 @@ function change_key( $array, $old_key, $new_key) {
 
 $lang_arr = array();
 
-$langs_arr = $db->query("SELECT url, name, `default`, text_direction FROM {langs} WHERE state = 1 ORDER BY prio")->assoc('url');
+$langs_arr = $db->query("SELECT url, name, `default`, text_direction FROM {langs} "
+                       ."WHERE state = 1 ORDER BY prio")->assoc('url');
 
 foreach($langs_arr as $lngg){
     if($lngg['default']){

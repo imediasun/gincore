@@ -587,43 +587,43 @@ if ($act == 'stock_move-order') {
 }
 
 // смена контактных телефонов
-if ($act == 'show_contact_phones'){
-	$data['state'] = true;
-	// detect current state
-    if($all_configs['settings']['content_alarm']){
-		$html = 'включено отображение аварийных контактных телефонов :<br>';
-		$html .= ($all_configs['settings']['content_phone_mob_alarm'] ? ', ' .$all_configs['settings']['content_phone_mob_alarm'] : '');
-		$data['btns'] = '<input onclick="alert_box(this, false, \'usually_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить обычные телефоны " class="btn" />';
-	}
-	else{
-		$html = 'включено отображение обычных контактных телефонов :<br>';
-		$data['btns'] = '<input onclick="alert_box(this, false, \'alarm_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить аварийные телефоны " class="btn" />';
-	}
-	$data['content'] = $html;
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
-}
+//if ($act == 'show_contact_phones'){
+//	$data['state'] = true;
+//	// detect current state
+//    if($all_configs['settings']['content_alarm']){
+//		$html = 'включено отображение аварийных контактных телефонов :<br>';
+//		$html .= ($all_configs['settings']['content_phone_mob_alarm'] ? ', ' .$all_configs['settings']['content_phone_mob_alarm'] : '');
+//		$data['btns'] = '<input onclick="alert_box(this, false, \'usually_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить обычные телефоны " class="btn" />';
+//	}
+//	else{
+//		$html = 'включено отображение обычных контактных телефонов :<br>';
+//		$data['btns'] = '<input onclick="alert_box(this, false, \'alarm_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить аварийные телефоны " class="btn" />';
+//	}
+//	$data['content'] = $html;
+//    header("Content-Type: application/json; charset=UTF-8");
+//    echo json_encode($data);
+//    exit;
+//}
 
 // переключение на аварийные телефоны
-if ($act == 'alarm_contact_phones'){
-	$data['state'] = true;
-	$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('1','content_alarm'));
-	$data['content'] = 'Телефон переключен на аварийный';
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
-}
+//if ($act == 'alarm_contact_phones'){
+//	$data['state'] = true;
+//	$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('1','content_alarm'));
+//	$data['content'] = 'Телефон переключен на аварийный';
+//    header("Content-Type: application/json; charset=UTF-8");
+//    echo json_encode($data);
+//    exit;
+//}
 
 // переключение на обычные телефоны
-if ($act == 'usually_contact_phones'){
-	$data['state'] = true;
-	$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('0','content_alarm'));
-	$data['content'] = 'Телефон переключен на обычный';
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
-}
+//if ($act == 'usually_contact_phones'){
+//	$data['state'] = true;
+//	$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('0','content_alarm'));
+//	$data['content'] = 'Телефон переключен на обычный';
+//    header("Content-Type: application/json; charset=UTF-8");
+//    echo json_encode($data);
+//    exit;
+//}
 
 // количество не прочтенных сообщений
 function count_unread_messages($type = null) {

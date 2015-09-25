@@ -25,9 +25,9 @@ class wrapper{
     }
 
     private function genconfig(){
-        global $config;
+        global $dbcfg;
         $conf = array(
-            $config['sql_tbl_prefix'].'reviews' => array(
+            $dbcfg['_prefix'].'reviews' => array(
                 'settings' => array('name' => 'Отзывы'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -41,7 +41,7 @@ class wrapper{
                     'service_id' => array('0', '0', 'id сервиса', '')
                 )//columns
             ),
-            $config['sql_tbl_prefix'].'sources' => array(
+            $dbcfg['_prefix'].'sources' => array(
                 'settings' => array('name' => 'Источники рекламы и телефоны'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -51,7 +51,7 @@ class wrapper{
                     'phone_static' => array('0', '0', 'Телефон стационарный', '')
                 )//columns
             ),
-            $config['sql_tbl_prefix'].'page_types' => array(
+            $dbcfg['_prefix'].'page_types' => array(
                 'settings' => array('name' => 'Типы страниц'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -59,7 +59,7 @@ class wrapper{
                     'name' => array('0', '0', 'Название', '')
                 )
             ),
-            $config['sql_tbl_prefix'].'map_prices' => array(
+            $dbcfg['_prefix'].'map_prices' => array(
                 'settings' => array('name' => 'Все цены'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -75,7 +75,7 @@ class wrapper{
                     'prio' => array('0', '0', 'Приоритет', ''),
                 )
             ),
-            $config['sql_tbl_prefix'].'visitors' => array(
+            $dbcfg['_prefix'].'visitors' => array(
                 'settings' => array('name' => 'посетители'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -88,7 +88,7 @@ class wrapper{
                     
                 )
             ),
-            $config['sql_tbl_prefix'].'crm_referers' => array(
+            $dbcfg['_prefix'].'crm_referers' => array(
                 'settings' => array('name' => 'Список каналов (источники продаж)'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -97,7 +97,7 @@ class wrapper{
                     'group_id' => array('0', '0', 'Группа (0-Затраты, 1-Context, 2-Remarketing, 3-Search)', ''),
                 )
             ),
-            $config['sql_tbl_prefix'].'visitors_system_codes' => array(
+            $dbcfg['_prefix'].'visitors_system_codes' => array(
                 'settings' => array('name' => 'Системные коды на скидку'),
                 'columns' => array(
                     //hide, ro, realname, default
@@ -108,12 +108,12 @@ class wrapper{
                     'description' => array('0', '0', 'описание', '')
                 )
             ),
-            $config['sql_tbl_prefix'].'crm_expenses' => array(
+            $dbcfg['_prefix'].'crm_expenses' => array(
                 'settings' => array('name' => 'Список затрат'),
                 'columns' => array(
                     //hide, ro, realname, default, class, foreignkey to {table}.id
                     'id' => array('0', '1', 'ID', ''),
-                    'sum_uah' => array('0', '0', 'Сумма грн.', ''),
+                    'sum_uah' => array('0', '0', 'Сумма '.viewCurrency().'', ''),
                     'referer_id' => array('0', '0', 'Канал', '', '', 'crm_referers'),
                     'date_add' => array('0', '0', 'Дата', date("Y-m-d"), 'datepicker'),
                     'comment' => array('0', '0', 'Коментарий', ''),
@@ -121,7 +121,7 @@ class wrapper{
                     'clicks' => array('0', '0', 'Клики', '0'),
                 )
             ),
-            $config['sql_tbl_prefix'].'sms_senders' => array(
+            $dbcfg['_prefix'].'sms_senders' => array(
                 'settings' => array('name' => 'СМС: отправители'),
                 'columns' => array(
                     //hide, ro, realname, default, class, foreignkey to {table}.id
@@ -140,24 +140,24 @@ class wrapper{
     }
 
     private function genmenu(){
-        global $config;
+        global $dbcfg;
 
         $conf = $this->genconfig();
 
         $out = '<h4>Доступные таблицы</h4>';
 
-        $sql = $this->all_configs['db']->query("SHOW TABLES FROM ?q", array($config['sql_bd']))->assoc();
+        $sql = $this->all_configs['db']->query("SHOW TABLES FROM ?q", array($dbcfg['dbname']))->assoc();
 
         if(!$sql){
             $out.='Ошибка получения списка таблиц';
         }
 
 
-        $tables_prefix = $config['sql_tbl_prefix'];
+        $tables_prefix = $dbcfg['_prefix'];
         $out.='<ul>';
         foreach($sql as $pp){
-            if(isset($conf[$pp['Tables_in_'.$config['sql_bd']]]) && substr($pp['Tables_in_'.$config['sql_bd']], 0, strlen($tables_prefix)) == $tables_prefix){
-                $out.='<li><a style="'.(isset($this->all_configs['arrequest'][1]) && $pp['Tables_in_'.$config['sql_bd']] == $this->all_configs['arrequest'][1] ? 'font-weight:bold' : '').'" href="'.$this->all_configs['prefix'].'wrapper/'.$pp['Tables_in_'.$config['sql_bd']].'">'.$this->genconfig_tablename($pp['Tables_in_'.$config['sql_bd']]).'</a> </li>';
+            if(isset($conf[$pp['Tables_in_'.$dbcfg['dbname']]]) && substr($pp['Tables_in_'.$dbcfg['dbname']], 0, strlen($tables_prefix)) == $tables_prefix){
+                $out.='<li><a style="'.(isset($this->all_configs['arrequest'][1]) && $pp['Tables_in_'.$dbcfg['dbname']] == $this->all_configs['arrequest'][1] ? 'font-weight:bold' : '').'" href="'.$this->all_configs['prefix'].'wrapper/'.$pp['Tables_in_'.$dbcfg['dbname']].'">'.$this->genconfig_tablename($pp['Tables_in_'.$dbcfg['dbname']]).'</a> </li>';
             }
         }
         $out.='</ul>';

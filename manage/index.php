@@ -15,7 +15,7 @@ include 'inc_settings.php';
 require $all_configs['sitepath'].'inc_lang_func.php';
 
 if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_lang' && isset($all_configs['arrequest'][1])){
-    $cotnent_lang_cookie = $config['sql_tbl_prefix'].'content_lang';
+    $cotnent_lang_cookie = $dbcfg['_prefix'].'content_lang';
     setcookie($cotnent_lang_cookie, $all_configs['arrequest'][1], time() + 3600 * 24 * 30, $all_configs['prefix']);
     header('Location: '.$_SERVER['HTTP_REFERER']);
     exit;
@@ -27,7 +27,7 @@ $langs = get_langs();
 //print_r($_GET);
 #авторизация
 $auth = new Auth($all_configs['db'], $langs['lang'], $langs['def_lang'], $langs['langs']);
-$auth->cookie_session_name = $config['sql_tbl_prefix'].'cid';
+$auth->cookie_session_name = $dbcfg['_prefix'].'cid';
 $ifauth = $auth->IfAuth();
 $ifadmin = $ifauth['is_adm'];
 //echo $ifauth['login'];
@@ -82,6 +82,22 @@ if(isset($all_configs['arrequest'][0])){
     }
 }
 
+if($ifauth){
+    if(!$all_configs['settings']['complete-master'] && 
+            (!isset($all_configs['arrequest'][0]) || ($all_configs['arrequest'][0] != 'master' 
+                                                      && $all_configs['arrequest'][0] != 'debug'
+                                                      && $all_configs['arrequest'][0] != 'logout'))
+    ){
+        header('Location: '.$all_configs['prefix'].'master');
+        exit;
+    }
+    if($all_configs['settings']['complete-master'] && isset($all_configs['arrequest'][0]) 
+                                                   && $all_configs['arrequest'][0] == 'master'){
+        header('Location: '.$all_configs['prefix']);
+        exit;
+    }
+}
+
 if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0], array('map','forms','flayers', 'seo'))) {
     //langs
     $lang_switch = '';
@@ -126,6 +142,7 @@ $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ?
 $modules = scandir('./modules/');
 
 foreach($modules as $mod_folder){
+    if(strpos($mod_folder, 'dis_') === 0){ continue; }
     $module = $all_configs['path'].'/modules/'.$mod_folder.'/index.php';
     if(file_exists($module)){
         require_once $module;

@@ -1,0 +1,10 @@
+.number{
+    position: absolute;
+    left: 0;
+    top: 7px;
+    margin-left: -5px;
+}
+.row{
+    margin-left: -15px !important;
+    position: relative;
+}

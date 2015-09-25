@@ -737,7 +737,7 @@ class orders
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
             
-            //$orders_html .= '<p class="text-error">Обязательно сообщить клиенту!<br />"Диагностика у нас бесплатная в случае последующего ремонта и в случае когда мы не можем сремонтировать устройство.<br />В случае отказа от ремонта со стороны клиента - диагностика составит 100 грн."</p>';
+            //$orders_html .= '<p class="text-error">Обязательно сообщить клиенту!<br />"Диагностика у нас бесплатная в случае последующего ремонта и в случае когда мы не можем сремонтировать устройство.<br />В случае отказа от ремонта со стороны клиента - диагностика составит 100 '.viewCurrency().'"</p>';
             //$orders_html .= '<div class="control-group"><label class="control-label">Номер заказа: </label>';
 //            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
 
@@ -830,7 +830,7 @@ class orders
                                                 <label>Ориентировочная стоимость: </label>
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" value="" name="approximate_cost" />
-                                                    <span class="input-group-addon">грн.</span>
+                                                    <span class="input-group-addon">'.viewCurrency().'</span>
                                                 </div>
                                             </div>
                                             <!--<div class="form-group">
@@ -842,7 +842,7 @@ class orders
                                                 <label>Предоплата: </label>
                                                 <div class="input-group">
                                                     <input type="text" placeholder="Введите сумму" class="form-control" value="" name="sum_paid" />  
-                                                    <span class="input-group-addon">грн.</span>
+                                                    <span class="input-group-addon">'.viewCurrency().'</span>
                                                     <input type="text" placeholder="Комментарий к предоплате" class="form-control" value="" name="prepay_comment" /> 
                                                 </div>
                                             </div>
@@ -945,7 +945,7 @@ class orders
                         <label>Цена продажи: </label>
                         <div class="input-group">
                             <input type="text" id="sale_poduct_cost" class="form-control" value="" name="price" />
-                            <span class="input-group-addon">грн.</span>
+                            <span class="input-group-addon">'.viewCurrency().'</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1908,7 +1908,7 @@ class orders
                 $order_html .= '<div class="form-group"><label>Ориентировочная дата готовности: </label> ';
                 $order_html .= '<span title="' . do_nice_date($order['date_readiness'], false) . '">' . do_nice_date($order['date_readiness']) . '</span></div>';
                 if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $order_html .= '<div class="form-group"><label>Ориентировочная стоимость: </label> ' . ($order['approximate_cost'] / 100) . ' грн.</div>';
+                    $order_html .= '<div class="form-group"><label>Ориентировочная стоимость: </label> ' . ($order['approximate_cost'] / 100) . ' '.viewCurrency().'</div>';
                 }
             }
             $order_html .= '</div><div class="span6">';
@@ -2047,9 +2047,9 @@ class orders
                     <label>Стоимость ремонта: </label>
                     <div class="input-group">
                         <input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" />
-                        <div class="input-group-addon">грн.</div>
+                        <div class="input-group-addon">'.viewCurrency().'</div>
                     </div>';
-                $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' грн (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
+                $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' '.viewCurrency().' (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
                 $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
                 $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
                 if($this->all_configs['oRole']->hasPrivilege('accounting')){
@@ -2402,11 +2402,11 @@ class orders
                 array($order_id))->row();
 
             if ($order) {
-                $data['content'] = '<form method="POST" id="sms-form" class="form-horizontal">';
-                $data['content'] .= '<div class="control-group"><label class="control-label">Номер телефона: </label><div class="controls">';
-                $data['content'] .= '<input name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
-                $data['content'] .= '<div class="control-group"><label class="control-label">Текст: </label><div class="controls">';
-                $data['content'] .= '<textarea class="show-length" maxlength="69" name="text">Ваше устройство готово. Стоимость ремонта: ' . ($order['sum'] / 100) . ' грн.</textarea></div></div>';
+                $data['content'] = '<form method="POST" id="sms-form">';
+                $data['content'] .= '<div class="form-group"><label>Номер телефона: </label><div class="controls">';
+                $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
+                $data['content'] .= '<div class="form-group"><label class="control-label">Текст: </label><div class="controls">';
+                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваше устройство готово. Стоимость ремонта: ' . ($order['sum'] / 100) . ' '.viewCurrency().'.</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="Отправить" />';
@@ -2728,7 +2728,8 @@ class orders
         if ($act == 'service-information') {
             $data['state'] = true;
             $data['title'] = 'Важная информация';
-            $data['content'] = trim($this->all_configs['settings']['service-page-information']);
+//            $data['content'] = trim($this->all_configs['settings']['service-page-information']);
+            $data['content'] = '';
 
             if (isset($_POST['category_id'])) {
                 // достаем категорию

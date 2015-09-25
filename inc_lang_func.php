@@ -1,10 +1,6 @@
 <?php
 
 /**
- * Жесть!
- */
-
-/**
  * выбрать перевод сразу для нескольких страниц
  */
 function get_few_translates($table, $key, $sql_where = ''){

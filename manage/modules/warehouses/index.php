@@ -525,7 +525,7 @@ class warehouses
                 if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                     $out .= '<div>Общая сумма: ';
                     $out .= (array_key_exists('grn-cash', $this->all_configs['settings']) ? $this->show_price($warehouse['all_amount'], 2, $this->all_configs['settings']['grn-cash']) : 'Укажите курс');
-                    $out .= ' грн. (' . $this->show_price($warehouse['all_amount']) . ' $)</div>';
+                    $out .= ' '.viewCurrency().' (' . $this->show_price($warehouse['all_amount']) . ' $)</div>';
                 }
                 $out .= '</div>';
                 $out .= '<div class="pull-left vertical-line"></div>';
@@ -2149,16 +2149,16 @@ class warehouses
                 array($order_id))->row();
             $data['state'] = true;
             $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="Создать" />';
-            $data['content'] = '<form method="POST" id="debit-so-form" class="form-horizontal">';
+            $data['content'] = '<form method="POST" id="debit-so-form">';
             $data['content'] .= '<input type="hidden" value="' . $order_id . '" name="order_id" />';
 
-            $data['content'] .= '<div class="control-group"><label class="control-label"><center><b>Серийный номер</b><br>';
+            $data['content'] .= '<div class="form-group"><label class="control-label"><center><b>Серийный номер</b><br>';
             if ($order) {
                 $data['content'] .= htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['location']);
             }
             $data['content'] .= '</center></label>';
             $onchange = '$(\'#debit-so-form input.dso_serial\').val(\'\');$(\'#debit-so-form input.dso_auto_serial\').prop(\'checked\', $(this).is(\':checked\') ? true : true);';
-            $data['content'] .= '<div class="controls"><label class="checkbox"><input id="dso_auto_serial_all" onchange="' . $onchange . '" type="checkbox" /> <b>Создать все</b></label>';
+            $data['content'] .= '<div class="pull-right"><label class="checkbox"><input id="dso_auto_serial_all" onchange="' . $onchange . '" type="checkbox" /> <b>Создать все</b></label>';
             $onchange = '$(\'#debit-so-form input.dso_print\').prop(\'checked\', $(this).is(\':checked\') ? true : false);';
             $data['content'] .= '<label class="checkbox"><input type="checkbox" id="dso_print_all" onchange="' . $onchange . '" /> <b>Распечатать все</b></label></div></div><hr>';
 
@@ -2167,13 +2167,13 @@ class warehouses
 
             if ($count > 0) {
                 for ($i = 1; $i <= $count; $i++) {
-                    $data['content'] .= '<div class="control-group" id="dso-group-' . $i . '"><label class="control-label">';
+                    $data['content'] .= '<div class="form-group" id="dso-group-' . $i . '">';
                     $onkeyup = 'if(this.value.trim()== \'\'){$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', true);}else{$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', false);}';
-                    $data['content'] .= '<input onkeyup="' . $onkeyup . '" type="text" class="input-large dso_serial" placeholder="серийный номер" name="serial[' . $i . ']" /></label>';
+                    $data['content'] .= '<input onkeyup="' . $onkeyup . '" type="text" class="form-control input-large dso_serial" placeholder="серийный номер" name="serial[' . $i . ']" />';
                     $onchange = '$(\'#dso_auto_serial_all\').prop(\'checked\', false);$(\'#dso-group-' . $i . ' input.dso_serial\').val(\'\');this.checked=true;';
-                    $data['content'] .= '<div class="controls"><label class="checkbox"><input checked onchange="' . $onchange . '" type="checkbox" class="dso_auto_serial" name="auto[' . $i . ']" /> Сгенерировать серийник</label>';
+                    $data['content'] .= '<div class="checkbox"><label class=""><input checked onchange="' . $onchange . '" type="checkbox" class="dso_auto_serial" name="auto[' . $i . ']" /> Сгенерировать серийник</label>';
                     $onchange = '$(\'#dso_print_all\').prop(\'checked\', false);';
-                    $data['content'] .= '<label class="checkbox"><input onchange="' . $onchange . '" type="checkbox" name="print[' . $i . ']" class="dso_print" /> Распечатать серийник</label>';
+                    $data['content'] .= '</div><div class="checkbox"><label class=""><input onchange="' . $onchange . '" type="checkbox" name="print[' . $i . ']" class="dso_print" /> Распечатать серийник</label>';
                     $data['content'] .= '</div><div class="dso-msg center"></div></div>';
                 }
             } else {

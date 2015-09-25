@@ -158,6 +158,7 @@ class debug{
         if ($this->all_configs['arrequest'][1] == 'reset') {
 
             if(!empty($_GET)) {
+                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=0');
                 $this->all_configs['db']->query('TRUNCATE TABLE {orders_images}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes_amount_by_day}');
                 $this->all_configs['db']->query('UPDATE {cashboxes_currencies} SET `amount` = 0');
@@ -173,6 +174,7 @@ class debug{
                 $this->all_configs['db']->query('ALTER TABLE {orders_goods} auto_increment = 1');
                 $this->all_configs['db']->query('TRUNCATE TABLE {orders_suppliers_clients}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {order_status}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {goods_amount}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_goods_amount}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_stock_moves}');
                 $this->all_configs['db']->query('DELETE FROM {warehouses_goods_items}');
@@ -183,7 +185,59 @@ class debug{
                 $this->all_configs['db']->query('TRUNCATE TABLE {alarm_clock}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {users_marked}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {goods_demand}');
-
+                $this->all_configs['db']->query('TRUNCATE TABLE {clients}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {clients_phones}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {chains}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {chains_bodies}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {chains_headers}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {chains_moves}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes_currencies}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes_courses}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {contractors}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {contractors_categories_links}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {goods_suppliers}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {orders_manager_history}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {users_notices}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_goods_amount}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_goods_items}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_groups}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_locations}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_stock_moves}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {warehouses_users}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {sms_senders}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {sms_templates}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {sms_templates_strings}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {sms_log}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {tasks}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {crm_analytics}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {crm_calls}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {crm_expenses}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {crm_requests}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {cron_history}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {forms}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {forms_data}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {forms_fields}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {forms_fields_strings}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {merchant_logger}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {forms_strings}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {forms_users}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {image_titles}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {visitors}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {visitors_code}');
+                $this->all_configs['db']->query('TRUNCATE TABLE {visitors_system_codes}');
+                $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE id <> ?i', array($_SESSION['id']));
+                $this->all_configs['db']->query('DELETE FROM {users} WHERE id <> ?i', array($_SESSION['id']));
+                $this->all_configs['db']->query("UPDATE {settings} SET value = 0 "
+                                               ."WHERE name = 'complete-master'");
+                $this->all_configs['db']->query("UPDATE {settings} SET value = '' "
+                                               ."WHERE name = 'content_email'");
+                $this->all_configs['db']->query("UPDATE {settings} SET value = 'Сервисный центр' "
+                                               ."WHERE name = 'site_name'");
+                $this->all_configs['db']->query("UPDATE {goods} SET date_add = NOW()");
+                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=1');
+                
                 $out = '<div class="alert alert-success">'
                     .'Вы успешно обновили информацию<br>'
                     .'<a class="alert-link" href="' . $href . '">Вернуться к отладчику</a>'

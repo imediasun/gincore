@@ -4,20 +4,16 @@ class Suppliers
 {
     protected $all_configs;
 
-    public $currencies = array(
-        1 => array('name' => 'Гривна', 'shortName' => 'UAH', 'currency-name' => 'grn-cash'),
-        2 => array('name' => 'ЕВРО', 'shortName' => 'EUR', 'currency-name' => ''),
-        3 => array('name' => 'Доллар США', 'shortName' => 'USD', 'currency-name' => 'price'),
-        4 => array('name' => 'Российский рубль', 'shortName' => 'RUB', 'currency-name' => ''),
-    );
+    public $currencies = null;
 
-    public $currency_suppliers_orders = 3; // валюта заказов поставщикам
+    public $currency_suppliers_orders; // валюта заказов поставщикам
     public $currency_clients_orders; // валюта заказов клиентов
 
     function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
-
+        $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
+        $this->currencies = $this->all_configs['configs']['currencies'];
         $currencies = $this->currencies;
         foreach ($currencies as $k=>$currency) {
             if ($currency['currency-name'] == $this->all_configs['configs']['default-currency']) {
@@ -697,10 +693,10 @@ class Suppliers
                     'Цены'          => array(
                         0   =>  array(
                             'Цена'          => array(
-                                'Представление' =>  $sum1 . ' грн за шт',
+                                'Представление' =>  $sum1 . ' '.viewCurrency().' за шт',
                                 'ИдТипаЦены'    =>  $this->all_configs['configs']['onec-code-price'],
                                 'ЦенаЗаЕдиницу' =>  $sum1,
-                                'Валюта'        =>  'грн',
+                                'Валюта'        =>  ''.viewCurrency().'',
                                 'Единица'       =>  'шт',
                                 'Коэффициент'   =>  1,
                                 'Курс'          =>  ($this->all_configs['settings']['grn-cash']/100),
@@ -708,10 +704,10 @@ class Suppliers
                         ),
                         1   =>  array(
                             'Цена'          => array(
-                                'Представление' =>  $sum2 . ' грн за шт',
+                                'Представление' =>  $sum2 . ' '.viewCurrency().' за шт',
                                 'ИдТипаЦены'    =>  $this->all_configs['configs']['onec-code-price_purchase'],
                                 'ЦенаЗаЕдиницу' =>  $sum2,
-                                'Валюта'        =>  'грн',
+                                'Валюта'        =>  ''.viewCurrency().'',
                                 'Единица'       =>  'шт',
                                 'Коэффициент'   =>  1,
                                 'Курс'          =>  ($this->all_configs['settings']['grn-cash']/100),
@@ -719,10 +715,10 @@ class Suppliers
                         ),
                         2   =>  array(
                             'Цена'          => array(
-                                'Представление' =>  $sum3 . ' грн за шт',
+                                'Представление' =>  $sum3 . ' '.viewCurrency().' за шт',
                                 'ИдТипаЦены'    =>  $this->all_configs['configs']['onec-code-price_wholesale'],
                                 'ЦенаЗаЕдиницу' =>  $sum3,
-                                'Валюта'        =>  'грн',
+                                'Валюта'        =>  ''.viewCurrency().'',
                                 'Единица'       =>  'шт',
                                 'Коэффициент'   =>  1,
                                 'Курс'          =>  ($this->all_configs['settings']['grn-cash']/100),
@@ -1068,7 +1064,7 @@ class Suppliers
                 'Роль'          =>  "Продавец",
                 'Курс'          =>  $order['course_value'],
                 'Сумма'         =>  $sum,
-                'Валюта'        =>  "грн",
+                'Валюта'        =>  viewCurrency(),
                 'Время'         =>  date('H:i:s', strtotime($order['date'])),
                 'Комментарий'   =>  $order['comment'],
                 'Контрагенты'   =>  array(
@@ -1548,18 +1544,18 @@ class Suppliers
         $data = array();
         $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
         $data['state'] = true;
-        $data['content'] = '<form id="form-accept-so" class="form-horizontal" method="post">';
+        $data['content'] = '<form id="form-accept-so" method="post">';
 
-        $data['content'] .= '<div class="control-group"><label class="control-label">Количество: </label><div class="controls">';
-        $data['content'] .= '<input type="text" name="count" placeholder="количество" /></div></div>';
+        $data['content'] .= '<div class="form-group"><label">Количество: </label><div class="controls">';
+        $data['content'] .= '<input class="form-control" type="text" name="count" placeholder="количество" /></div></div>';
 
-        $data['content'] .= '<div class="control-group"><label class="control-label">Склад: </label><div class="controls">';
+        $data['content'] .= '<div class="form-group"><label">Склад: </label><div class="controls">';
         // список складов
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} WHERE consider_store=1',
             array())->vars();
         $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i', array($order_id))->row();
         if ($warehouses) {
-            $data['content'] .= '<select name="wh_id" onchange="change_warehouse(this)" class="select-warehouses-item-move"><option value=""></option>';
+            $data['content'] .= '<select name="wh_id" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move"><option value=""></option>';
             foreach ($warehouses as $wh_id=>$wh_title) {
                 $selected = $order && $wh_id == $order['wh_id'] ? 'selected' : '';
                 $data['content'] .= '<option ' . $selected . ' value="' . $wh_id . '">' . htmlspecialchars($wh_title) . '</option>';
@@ -1570,28 +1566,25 @@ class Suppliers
         }
         $data['content'] .= '</div></div>';
 
-        $data['content'] .= '<div class="control-group"><label class="control-label">Локация:</label><div class="controls">';
-        $data['content'] .= '<select class="multiselect select-location" name="location">';
+        $data['content'] .= '<div class="form-group"><label>Локация:</label><div class="controls">';
+        $data['content'] .= '<select class="multiselect select-location form-control" name="location">';
         $data['content'] .= $this->gen_locations($order ? $order['wh_id'] : 0);
         $data['content'] .= '</select></div></div>';
 
-        $data['content'] .= '<div class="control-group"><label class="control-label">Дата проверки: </label><div class="controls">';
-        $data['content'] .= '<div class="datetimepicker input-append">';
-        $data['content'] .= '<input placeholder="Дата проверки" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value="" />';
-        $data['content'] .= '<span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>';
-        $data['content'] .= '</div></div></div>';
+        $data['content'] .= '<div class="form-group"><label>Дата проверки: </label><div class="controls">';
+        $data['content'] .= '<input class="form-control datetimepicker" placeholder="Дата проверки" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value="" />';
+        $data['content'] .= '</div></div>';
 
-        $data['content'] .= '<div class="control-group"><div class="controls"><label class="checkbox">';
+        $data['content'] .= '<div class="form-group"><div class="checkbox"><label class="">';
         $data['content'] .= '<input type="checkbox" name="without_check" value="1" /> Без проверки</label></div></div>';
 
-        $data['content'] .= '<div id="order_supplier_date_wait" style="display:none;" class="control-group"><label class="control-label">Дата поставки: </label>
-                    <div class="controls"><div class="datetimepicker input-append">
-                    <input placeholder="дата" data-format="yyyy-MM-dd" type="text" name="date_come" value="" />
-                    <span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
-                    </div></div></div>';
+        $data['content'] .= '<div id="order_supplier_date_wait" style="display:none;" class="form-group"><label class="control-label">Дата поставки: </label>
+                    <div class="controls">
+                    <input class="datetimepicker" placeholder="дата" data-format="yyyy-MM-dd" type="text" name="date_come" value="" />
+                    </div></div>';
 
         $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
-        $data['content'] .= '</form><div style="height: 200px;"></div>';
+        $data['content'] .= '</form>';
         $data['btns'] = '<input class="btn btn-success" onclick="accept_supplier_order(this)" type="button" value="Создать" />';
         $data['functions'] = array('reset_multiselect()');
 

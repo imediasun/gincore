@@ -41,80 +41,6 @@ if (function_exists($function)) {
     $error = 'Fatal error: Call to undefined function ' . $function . '() in ' . $all_configs['path'] . 'cron.php on line 22';
 }
 
-function monitoring_del_old_data($params = array()){
-    global $all_configs;
-    $db = $all_configs['db'];
-    
-    $interval = 7; // все что больше 7 дней удаляем
-    
-    $db->query("DELETE FROM {monitoring_diff_history} WHERE date < DATE_ADD(NOW(), INTERVAL -?i DAY)", array($interval));
-    $db->query("DELETE FROM {monitoring_data} WHERE date < DATE_ADD(NOW(), INTERVAL -?i DAY)", array($interval));
-}
-
-function monitoring_start_all_processes(){
-    global $all_configs;
-    $db = $all_configs['db'];
-    $sites = $db->query("SELECT * FROM {monitoring}")->assoc();
-    
-    $qty = 0;
-    $site_stream = array();
-    $qty_all = 0;
-    $sites_qty = count($sites);
-    $curl = array();
-    foreach($sites as $site){
-        $qty_all ++;
-        $qty ++;
-        $site_stream[$site['id']] = $site;
-        if($qty == 3 || $qty_all == $sites_qty){
-            $postvars = http_build_query(array(
-               'sites' => $site_stream
-            ));
-            $curl[$qty_all] = curl_init();
-            curl_setopt($curl[$qty_all], CURLOPT_URL, 'http://'.$_SERVER['HTTP_HOST'].$all_configs['prefix'].'monitoring_service.php');
-            curl_setopt($curl[$qty_all], CURLOPT_POSTFIELDS, $postvars);
-            $qty = 0;
-            $site_stream = array();
-        }
-    }
-    $mh = curl_multi_init();
-    foreach($curl as $ch){
-        curl_multi_add_handle($mh, $ch);
-    }
-    curl_multi_exec($mh, $still_running);
-}
-
-function monitoring_get_links($params){
-    
-}
-
-/*// Уведомлять менеджера об отсутствии новых записей в статусе заказа более Х дней.
-//cron.php?act=orders_comments&days=10
-function orders_comments($params)
-{
-    global $all_configs;
-
-    $days = isset($params['days']) ? intval($params['days']) : $all_configs['settings']['orders_comments_days'];
-
-    $data = $all_configs['db']->query('SELECT o.id, o.manager, oc.date_add FROM {orders} as o
-        LEFT JOIN (SELECT order_id, MAX(date_add) as date_add
-        FROM {orders_comments} WHERE private=0 GROUP BY order_id) as oc ON oc.order_id=o.id
-        WHERE (oc.order_id IS NULL || (oc.order_id IS NOT NULL && oc.date_add < DATE_ADD(NOW(), INTERVAL -?i DAY)))
-          AND status NOT IN (?li) AND o.manager>?i GROUP BY o.id',
-    array($days, $all_configs['configs']['order-statuses-nocomments'], 0))->assoc('id');
-
-    if ($data) {
-        $messages = new Mailer($all_configs);
-        foreach ($data as $d) {
-            if ($d['id'] > 0 && $d['manager'] > 0) {
-                $href = $all_configs['manageprefix'] . 'orders/create/' . $d['id'];
-                $content = 'Уведомление об отсутствии новых записей в статусе заказа ';
-                $content .= '<a href="' . $href . '">№' . $d['id'] . '</a> более ' . $days . ' дней';
-                $messages->send_message($content, 'Отсутствие новых записей в заказе', $d['manager'], 1);
-            }
-        }
-    }
-}*/
-
 // Уведомлять менеджера о том что осталось 7 дней, осталось 3 дня,
 // остался 1 день до конца 14ти дневного срока гарантийного обслуживания (для гарантийных аппаратов Яблока).
 //cron.php?act=warranties_left_days&days=1,3,7
@@ -146,46 +72,6 @@ function warranties_left_days($params)
         }
     }
 }
-
-// Уведомлять менеджера по закупкам о нарушении оборачиваемости
-// (указываем максимальный срок, который изделие может находится на складе)
-//cron.php?act=unsold_items&days=10
-function unsold_items($params)
-{
-    /*global $all_configs;
-
-    $days = isset($params['days']) ? intval($params['days']) : $all_configs['settings']['unsold_items_days'];
-
-    $data = $all_configs['db']->query('SELECT serial, id as item_id FROM {warehouses_goods_items}
-        WHERE date_add < DATE_ADD(NOW(), INTERVAL -?i DAY) AND order_id IS NULL',
-        array($days))->assoc();
-
-    if ($data) {
-        $messages = new Mailer($all_configs);
-        foreach ($data as $d) {
-            $content = 'Уведомление о нарушении оборачиваемости изделия ';
-            $content .= suppliers_order_generate_serial($d, true, true);
-            $messages->send_message($content, 'Нарушена оборачиваемость', 'edit-suppliers-orders', 1);
-        }
-    }*/
-}
-//генерация кода на скидук клиентам
-//cron.php?act=generate_codes
-function generate_codes() {
-    global $all_configs;
-    
-    $a = rand(1, 9);
-    $b = rand(0, 9);
-    
-    $all_configs['db']->query(
-                    'UPDATE {settings} SET `value` = ? WHERE `name` = ?',
-                    array($a . $a .$b . $b, 'price_code_client'));
-    
-    $all_configs['db']->query(
-                    'UPDATE {settings} SET `value` = ? WHERE `name` = ?',
-                    array(str_repeat(rand(0, 9), 4), 'price_code_pseudoclient'));
-}
-
 // автоматическое добавление комментарий
 //cron.php?act=auto_orders_comments
 function auto_orders_comments($params)
@@ -233,10 +119,6 @@ function auto_orders_comments($params)
             }
         }
     }
-    
-    
-
-    
 }
 
 // обновление количества товаров и закупочной суммы по складам и по товарам
@@ -354,46 +236,6 @@ function amount_by_day($params)
             }
         }
     }
-
-    /*// история продаж по менеджерам
-
-    // учитывать оплату за доставку и за комиссию в марже
-    $query = '';
-    if ($all_configs['configs']['manage-prefit-commission'] == false)
-        $query = $all_configs['db']->makeQuery('t.chain_id>0 AND', array());
-
-    $profits = $all_configs['db']->query('SELECT h.goods_user_id,
-              SUM(IF(t.transaction_type=2, t.value_to, 0)) as `to`,
-              SUM(IF(t.transaction_type=1, t.value_from, 0)) as `from`,
-              (SELECT SUM(i.price * (o.course_value / 100)) FROM {warehouses_goods_items} as i, {orders} as o
-                WHERE i.id=t.item_id AND t.client_order_id=o.id AND t.client_order_id=i.order_id) as `purchase`
-            FROM {cashboxes_transactions} as t, {chains_headers} as h
-            WHERE ?query DATE(t.date_add)=CURDATE() AND t.item_id=h.item_id',
-        array($query))->assoc();
-
-    if ($profits) {
-        foreach ($profits as $profit) {
-            if ($profit['goods_user_id'] == 0)
-                continue;
-
-            $margin = $profit['to'] - $profit['purchase'];
-
-            if ($profit['from'] > 0) {
-                $margin = $profit['to'] - $profit['from'];
-            }
-
-            $u_p_id = $all_configs['db']->query('SELECT id FROM {users_profit_by_day} WHERE user_id=?i
-                    AND DATE(date_add) = CURDATE()', array($profit['goods_user_id']))->el();
-
-            if ($u_p_id > 0) {
-                $all_configs['db']->query('UPDATE {users_profit_by_day} SET amount=?i WHERE id=?i',
-                    array($margin, $u_p_id));
-            } else {
-                $all_configs['db']->query('INSERT INTO {users_profit_by_day} (amount, user_id) VALUES (?i, ?i)',
-                    array($margin, $profit['goods_user_id']));
-            }
-        }
-    }*/
 }
 
 // уведомлять об остатке X или менее единиц (раз в день)
@@ -414,9 +256,6 @@ function balance_goods($params)
             $content .= '<a href="' . $all_configs['manageprefix'] . 'products/create/' . $product['goods_id'] . '">';
             $content .= htmlspecialchars($product['title']) . '</a>. ';
             $messages->send_message($content, 'Остаток товара', $product['user_id'], 1);
-
-            //$all_configs['db']->query('UPDATE {users_notices} SET last_balance_send=?i WHERE id=?i',
-            //    array($product['qty_store'], $product['id']));
         }
     }
 }
@@ -482,26 +321,6 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
         return '<a class="' . $class . '" href="' . $all_configs['manageprefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
     else
         return $serial;
-}
-
-
-/**
- * Установка режима нормальных/аварийных телефонов
- * @param $params array
- */
-function alert_set_phone($params) {
-	global $all_configs;
-
-	if (isset($params['set'])) {
-		switch ($params['set']) {
-			case 0:
-				$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('0','content_alarm'));
-				break;
-			case 1:
-				$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('1','content_alarm'));
-				break;
-		}
-	}
 }
 
 // сохраняем статитстику заказов /manage/orders#orders_manager

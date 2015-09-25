@@ -7,7 +7,7 @@ include __DIR__.'/../inc_settings.php';
 $langs = get_langs();
 
 $auth = new Auth($all_configs['db'], $langs['lang'], $langs['def_lang'], $langs['langs']);
-$auth->cookie_session_name = $config['sql_tbl_prefix'].'cid';
+$auth->cookie_session_name = $dbcfg['_prefix'].'cid';
 if(!$auth->IfAuth()){
     exit('access denied');
 }

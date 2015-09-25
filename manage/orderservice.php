@@ -334,7 +334,7 @@ class tl_exch extends SoapClient
             // send accountant message
             require_once $this->all_configs['sitepath'] . 'mail.php';
             $messages = new Mailer($this->all_configs);
-            $content = 'Заказ №' . $number . ' сумма ' . ($in - $out) . 'грн.';
+            $content = 'Заказ №' . $number . ' сумма ' . ($in - $out) . ''.viewCurrency().'';
             $messages->send_message($content, 'Терминал, ошибка при создании транзакции внесении', 'accounting', 1);
         }
 
@@ -395,7 +395,7 @@ class tl_exch extends SoapClient
             // send accountant message
             require_once $this->all_configs['sitepath'] . 'mail.php';
             $messages = new Mailer($this->all_configs);
-            $content = 'Заказ №' . $number . ' сумма ' . $out . 'грн.';
+            $content = 'Заказ №' . $number . ' сумма ' . $out . ''.viewCurrency().'';
             $messages->send_message($content, 'Терминал, ошибка при создании транзакции выплаты', 'accounting', 1);
         }
 

@@ -2,7 +2,7 @@
 
 
 $modulename[] = 'users';
-$modulemenu[] = 'Администраторы';
+$modulemenu[] = 'Сотрудники';
 $moduleactive[] = !$ifauth['is_2'];
 
 class users

@@ -157,7 +157,9 @@ class calls extends \service{
         $statuses_opts = '<option value="0">нет</option>';
         $referers = $this->get_referers();
         foreach($referers as $id => $name){
-            $statuses_opts .= '<option'.($active == $id ? ' selected' : '').' value="'.$id.'">'.$name.'</option>';
+            if($id){
+                $statuses_opts .= '<option'.($active == $id ? ' selected' : '').' value="'.$id.'">'.$name.'</option>';
+            }
         }
         return '<select'.($disabled ? ' disabled' : '').' name="referer_id'.($multi ? '['.$multi.']' : '').'" class="form-control">'.$statuses_opts.'</select>';
     }

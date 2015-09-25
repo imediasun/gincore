@@ -995,8 +995,9 @@ class accountings
                     <input class='form-control' placeholder='введите название статьи' name='title' value='{$name}' /></div></div>
                 <div class='form-group'><label>Родительская статья: </label>
                     {$category_html}</div></div>
-                <div class='form-group'><label>Код 1с: </label>
+                <!--<div class='form-group'><label>Код 1с: </label>
                     <input class='form-control' placeholder='введите код 1с статьи' name='code_1c' value='{$code_1c}' /></div></div>
+                -->
                 <div class='form-group'><label>Комментарий: </label><div class='controls'>
                     <textarea class='form-control' name='comment' placeholder='введите комментарий к статье'>{$comment}</textarea></div></div>
                 <div class='form-group'>

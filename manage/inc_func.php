@@ -1,7 +1,12 @@
 <?php
 
+function viewCurrency(){
+    global $all_configs;
+    return $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['viewName'];
+}
+
 function get_langs(){
-    global $all_configs, $config;
+    global $all_configs, $dbcfg;
     $return = array();
     $langs = $all_configs['db']->query("SELECT name, url, `default` FROM {langs} WHERE state = 1")->assoc();
     
@@ -14,7 +19,7 @@ function get_langs(){
 
     $return['langs'] = $langs;
 
-    $cotnent_lang_cookie = $config['sql_tbl_prefix'].'content_lang';
+    $cotnent_lang_cookie = $dbcfg['_prefix'].'content_lang';
     if(!isset($_COOKIE[$cotnent_lang_cookie])){
         $return['lang'] = $return['def_lang'];
         setcookie($cotnent_lang_cookie, $return['def_lang'], time() + 3600 * 24 * 30, $all_configs['prefix']);

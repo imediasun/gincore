@@ -21,7 +21,7 @@ $all_configs['arrequest'] = clear_empty_inarray(explode('/', $request));
 
 $all_configs['configs'] = Configs::get();
 $all_configs['settings'] = $all_configs['db']->query("SELECT name, value FROM {settings}")->vars();
-$all_configs['oRole'] = new Role($all_configs, $config['sql_tbl_prefix']);
+$all_configs['oRole'] = new Role($all_configs, $dbcfg['_prefix']);
 
 $all_configs['manageModel'] = new manageModel($all_configs);
 $all_configs['suppliers_orders'] = new Suppliers($all_configs);

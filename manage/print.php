@@ -187,12 +187,12 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     foreach ($goods as $product) {
                         if ($product['type'] == 0) {
                             $products .= htmlspecialchars($product['title']) . '<br/>';
-                            $products_cost .= ($product['price'] / 100) . ' грн.<br />';
+                            $products_cost .= ($product['price'] / 100) . ' '.viewCurrency().'<br />';
                             $services_cost -= ($product['price'] / 100);
                         }
                         if ($product['type'] == 1) {
                             $services .= htmlspecialchars($product['title']) . '<br/>';
-                            //$services_cost .= ($product['price'] / 100) . 'грн.<br />';
+                            //$services_cost .= ($product['price'] / 100) . ''.viewCurrency().'<br />';
                         }
                     }
                 }

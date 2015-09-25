@@ -1,0 +1,124 @@
+<div id="middle">
+    <h1 class="text-center">Благодарим за регистрацию в системе!</h1>
+    <p class="text-center m-b-xl">Для начала пользования рекомендуем указать данные о вашей компании:</p>
+    <form method="post" class="form-horizontal ajax_form" action="{-txt-prefix}master/ajax/">
+        <input type="hidden" name="act" value="save_data">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                Ваш бизнес
+            </label>
+            <div class="col-sm-5">
+                <select class="form-control">
+                    <option value="0">Ремонт портативной электроники, бытовой техники</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Эл. адрес</label>
+            <div class="col-sm-5">
+                <input type="email" name="email" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                Укажите количество отделений (филиалов) вашей компании
+            </label>
+            <div class="col-sm-9">
+                <div class="services-row m-b-xs" data-id="0">
+                    <div class="row">
+                        <div class="number">1.</div>
+                        <div class="col-xs-3">
+                            <input class="form-control fill-select" data-select=".services-select" type="text" name="services[0][name]" placeholder="Название">
+                        </div>
+                        <div class="col-xs-3">
+                            <input class="form-control" type="text" name="services[0][address]" placeholder="Адрес">
+                        </div>
+                        <div class="col-xs-3">
+                            <input class="form-control colorpicker" type="text" name="services[0][color]" placeholder="Цвет">
+                        </div>
+                    </div>
+                </div>
+                <button type="button" data-clone=".services-row" class="clone-elements btn btn-info btn-xs">
+                    <i class="fa fa-plus"></i> добавить
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                Добавьте сотрудников в систему
+            </label>
+            <div class="col-sm-9">
+                <div class="client-row m-b-xs" data-id="0">
+                    <div class="row">
+                        <div class="number">1.</div>
+                        <div class="col-xs-3">
+                            <select class="form-control" name="users[0][position]">
+                                <option selected disabled>Должность</option>
+                                {-html-roles}
+                            </select>
+                        </div>
+                        <div class="col-xs-3">
+                            <input class="form-control" type="text" name="users[0][fio]" placeholder="ФИО">
+                        </div>
+                    </div>
+                    <div class="row m-t-xs">
+                        <div class="col-xs-3">
+                            <input class="form-control" type="text" name="users[0][login]" placeholder="Логин">
+                        </div>
+                        <div class="col-xs-3">
+                            <input class="form-control" type="text" name="users[0][password]" placeholder="Пароль">
+                        </div>
+                    </div>
+                    <div class="row m-t-xs">
+                        <div class="col-xs-6">
+                            <select class="form-control services-select" name="users[0][service]">
+                                <option selected disabled>Отделение, на котором сотрудник</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" data-clone=".client-row" class="clone-elements btn btn-info btn-xs">
+                    <i class="fa fa-plus"></i> добавить
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                Укажите валюту, в которой клиенты рассчитываются с вами:
+            </label>
+            <div class="col-xs-4">
+                <select class="form-control check-checkboxes" data-main="1" name="orders_currency">
+                    <option disabled selected>Выберите валюту</option>
+                    {-html-currencies_select}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                Укажите валюту, в которой вы ведете взаиморассчеты с поставщиками:
+            </label>
+            <div class="col-xs-4">
+                <select class="form-control check-checkboxes" name="contractors_currency">
+                    <option disabled selected>Выберите валюту</option>
+                    {-html-currencies_select}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                Укажите валюту, в которой возможны рассчеты в системе:
+            </label>
+            <div class="col-xs-9">
+                {-html-currencies}
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-3">&nbsp;</div>
+                <div class="col-xs-9">
+                    <input type="submit" class="btn btn-primary" value="Продолжить работу в системе">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1253,7 +1253,7 @@ class Chains
                     include_once $this->all_configs['sitepath'] . 'mail.php';
                     $messages = new Mailer($this->all_configs);
                     $href = $this->all_configs['prefix'] . 'accountings?co_id=' . $data['id'] . '#a_orders-clients';
-                    $content = 'Необходимо принять предоплату ' . ( $sum_paid / 100) . ' грн. по заказу <a href="' . $href . '">№' . $data['id'] . '</a>';
+                    $content = 'Необходимо принять предоплату ' . ( $sum_paid / 100) . ' '.viewCurrency().' по заказу <a href="' . $href . '">№' . $data['id'] . '</a>';
                     $messages->send_message($content, 'Необходимо принять предоплату', 'mess-accountings-clients-orders', 1);
                 }
                 // подменный фонд
@@ -1738,7 +1738,7 @@ class Chains
                 include_once $this->all_configs['sitepath'] . 'mail.php';
                 $messages = new Mailer($this->all_configs);
                 $href = $this->all_configs['prefix'] . 'accountings?co_id=' . $order['id'] . '#a_orders-clients';
-                $content = 'Необходимо принять оплату ' . intval($post['price']) . ' грн. по заказу <a href="' . $href . '">№' . $order['id'] . '</a>';
+                $content = 'Необходимо принять оплату ' . intval($post['price']) . ' '.viewCurrency().' по заказу <a href="' . $href . '">№' . $order['id'] . '</a>';
                 $messages->send_message($content, 'Необходимо принять оплату', 'mess-accountings-clients-orders', 1);
 
                 $data['location'] = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
@@ -1863,7 +1863,7 @@ class Chains
                         $content = 'Необходимо завершить закупку запчасти ';
                         $content .= '<a href="' . $this->all_configs['prefix'] . 'orders/edit/' . $data['id'] . '#create_supplier_order">№' . $data['id'] . '</a>';
                         $content .= ' под ремонт №' . $order_id;
-                        $messages->send_message($content, 'Закупка запчасти', 'edit-suppliers-orders', 1);
+//                        $messages->send_message($content, 'Закупка запчасти', 'edit-suppliers-orders', 1);
                     }
                 }
                 //}
@@ -2437,7 +2437,7 @@ class Chains
                 || ($post['transaction_type'] == 2 && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
             && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)) {
             $data['state'] = false;
-            $data['msg'] = 'Оплата производится только в долларах';
+            $data['msg'] = 'Оплата производится только в валюте '.$this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name'];
         }
 
         if ($data['state'] == true && $post['transaction_type'] == 1 && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
