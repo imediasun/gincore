@@ -42,7 +42,9 @@ class wh_helper extends \service{
     }
     
     function clear_cache(){
-        unlink($this->cache_warehouses);
+        if(file_exists($this->cache_warehouses)){
+            unlink($this->cache_warehouses);
+        }
     }
     
     public static function getInstanse(){

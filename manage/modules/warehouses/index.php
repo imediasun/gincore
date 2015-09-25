@@ -1862,9 +1862,9 @@ class warehouses
                         <form method='POST'>
                             <div class='form-group'><label>Название: </label>
                                 <input placeholder='введите название' class='form-control' name='title' value='{$title}' /></div>
-                            <div class='form-group'><label>Код 1с: </label>
+                            <!--<div class='form-group'><label>Код 1с: </label>
                                 <input placeholder='введите код 1с' class='form-control' name='code_1c' value='{$code_1c}' /></div>
-                            <div class='form-group'>
+                            --><div class='form-group'>
                                 <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn' name='consider_store' value='1' /> Учитывать в свободном остатке</label></div>
                                 <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn  consider_{$i}' name='consider_all' value='1' /> Учитывать в общем остатке</label></div>
                             </div>

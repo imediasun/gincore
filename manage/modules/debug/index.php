@@ -238,6 +238,9 @@ class debug{
                 $this->all_configs['db']->query("UPDATE {goods} SET date_add = NOW()");
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=1');
                 
+                $this->all_configs['db']->query("INSERT INTO {clients}(phone,pass,fio,date_add,person) "
+                                               ."VALUES('000000000000','-','Списание товара',NOW(),1)");
+                
                 // чистим кеш складов
                 get_service('wh_helper')->clear_cache();
                 
