@@ -238,6 +238,9 @@ class debug{
                 $this->all_configs['db']->query("UPDATE {goods} SET date_add = NOW()");
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=1');
                 
+                // чистим кеш складов
+                get_service('wh_helper')->clear_cache();
+                
                 $out = '<div class="alert alert-success">'
                     .'Вы успешно обновили информацию<br>'
                     .'<a class="alert-link" href="' . $href . '">Вернуться к отладчику</a>'
