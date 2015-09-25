@@ -138,6 +138,12 @@ class master{
                 if($id){
                     // основной
                     $main_wh = $this->create_warehouse($service['name'], $service['address'], 1, $id);
+                    // прикрепляем текущего админа к складу
+                    $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) "
+                                    ."VALUES(?i,?i,?i,1)", 
+                                array($id,
+                                      $main_wh['loc_id'],
+                                      $_SESSION['id']));
                     // недостача
                     $this->create_warehouse('Недостача '.$service['name'], '', 2, $id);
                     // логистика
