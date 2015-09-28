@@ -560,7 +560,7 @@ class requests extends \service{
     }
     
     // список заявок при создании заказа по айди клиента и товара
-    public function get_requests_list_by_order_client($client_id, $product_id, $active_request = null){
+    public function get_requests_list_by_order_client($client_id, $product_id, $active_request = null, $return_count = false){
         $requests = $this->get_requests($client_id, $product_id, true, true);
         $response = '';
         if($requests){
@@ -626,13 +626,19 @@ class requests extends \service{
                         </td>
                     </tr>';
             }
+            $count = count($requests);
             $response = $list.'</tbody></table>'.
                         // показываем алерт с введите фио есть у выбранной заявки нету фио клиента
                         ($active_request ? '<script>check_active_request()</script>' : '');
         }else{
+            $count = 0;
             $response = 'Заявок нет.';
         }
-        return $response;
+        if($return_count){
+            return array($count, $response);
+        }else{
+            return $response;
+        }
     }
     
     public function ajax($data){
@@ -770,8 +776,11 @@ class requests extends \service{
                 $product_id = isset($data['product_id']) ? (int)$data['product_id'] : 0;
                 $response['state'] = true;
                 if($client_id || $product_id){
-                    $response['content'] = $this->get_requests_list_by_order_client($client_id, $product_id);
+                    $get = $this->get_requests_list_by_order_client($client_id, $product_id, null, true);
+                    $response['has_requests'] = $get[0];
+                    $response['content'] = $get[1];
                 }else{
+                    $response['has_requests'] = 0;
                     $response['content'] = 'Заявок нет.';
                 }
             break;

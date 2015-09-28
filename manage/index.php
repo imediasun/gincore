@@ -82,7 +82,7 @@ if(isset($all_configs['arrequest'][0])){
     }
 }
 
-if($ifauth){
+if($ifauth && $all_configs['configs']['settings-master-enabled']){
     if(!$all_configs['settings']['complete-master'] && 
             (!isset($all_configs['arrequest'][0]) || ($all_configs['arrequest'][0] != 'master' 
                                                       && $all_configs['arrequest'][0] != 'debug'
@@ -117,12 +117,12 @@ if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0],
         ';
     }
     $lang_switch = '
-        <li class="btn-group dropdown" data-toggle="buttons-radio">
+        <li class="btn-group dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 '.$active_lang_name.'
                 <span class="caret"></span>
             </a>
-            <ul class="dropdown-menu hdropdown notification animated flipInX">
+            <ul class="dropdown-menu hdropdown animated flipInX">
                 '.$lang_switch.'
             </ul>
         </li>
@@ -142,7 +142,12 @@ $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ?
 $modules = scandir('./modules/');
 
 foreach($modules as $mod_folder){
-    if(strpos($mod_folder, 'dis_') === 0){ continue; }
+    if($all_configs['configs']['manage-active-modules'][0] != '*' 
+            && (strpos($mod_folder, 'dis_') === 0 
+                    || !in_array($mod_folder,$all_configs['configs']['manage-active-modules']))
+            || (!$all_configs['configs']['settings-master-enabled'] && $mod_folder == 'master')){ 
+        continue; 
+    }
     $module = $all_configs['path'].'/modules/'.$mod_folder.'/index.php';
     if(file_exists($module)){
         require_once $module;
@@ -250,6 +255,8 @@ if ($messages && array_key_exists('html', $messages) && array_key_exists('i_coun
     $input['new_mess_count'] = $new_mess_count;
     $input['count_mess'] = $count_mess;
 }*/
+
+$input['show_contact_phones_class'] = $all_configs['configs']['manage-show-phones-btn'] ? '' : 'hidden';
 
 ################################################################################
 

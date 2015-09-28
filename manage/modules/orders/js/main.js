@@ -26,90 +26,6 @@ function gen_tree() {
     });
 }*/
 
-function create_transaction(_this, conf) {
-
-    $(_this).button('loading');
-    $.ajax({
-        url: prefix+'accountings/ajax/?act=create-transaction',
-        dataType: "json",
-        data: $('#transaction_form').serialize() + (conf == 1 ? '&confirm=1' : ''),
-        type: 'POST',
-        success: function (data) {
-            if (data) {
-                if (data['state'] == true) {
-                    location.reload();
-                } else {
-                    if (data['msg']) {
-                        if (data['confirm']) {
-                            if (confirm(data['msg'])) {
-                                create_transaction(_this, 1);
-                            }
-                        } else {
-                            alert(data['msg']);
-                        }
-                    }
-                }
-            }
-            $(_this).button('reset');
-        }
-    });
-
-    return false;
-}
-
-function pay_client_order(_this, tt, order_id, b_id, extra) {
-    var data = {client_order_id: order_id, b_id: b_id, transaction_extra: extra};
-    alert_box(_this, false, 'begin-transaction-' + tt + '-co', data, null, 'accountings/ajax/');
-    return false;
-}
-
-function sale_order(_this, item) {
-    $(_this).button('loading');
-    var data = $(_this).parents('form').serializeArray();
-    $.ajax({
-        url: prefix + module + '/ajax/?act=sale-order',
-        type: 'POST',
-        dataType: "json",
-        data: data,
-        success: function(msg) {
-            if (msg) {
-                if (msg['state'] == false) {
-                    if (msg['message']) {
-                        alert(msg['message']);
-                    }
-                }else {
-                    if (msg['location']) {
-                        window.location = msg['location'];
-                    }
-                }
-
-                $(_this).button('reset');
-            }
-        }
-    });
-}
-
-function display_serial_product_title_and_price(_this, item_id)
-{
-    $(_this).parent().find('small').html('');
-    $.ajax({
-        url: prefix + 'messages.php?act=get-product-title-and-price',
-        type: 'POST',
-        dataType: "json",
-        data: '&item_id=' + item_id,
-        success: function(msg) {
-            if (msg) {
-                if (msg['msg']) {
-                    $(_this).parent().find('.product-title').html(msg['msg']);
-                    $('#sale_poduct_cost').val(msg['price'] ? msg['price'] : '');
-                    $(_this).siblings('input[name=items]').val(msg['id']);
-                }
-            }
-        }
-    });
-    return false;
-}
-
 function display_service_information(_this) {
 
     $.ajax({
@@ -453,7 +369,7 @@ function add_new_order(_this) {
     $.ajax({
         url: prefix + module + '/ajax/?act=add-order',
         type: 'POST',
-        data: $(_this).parents('form').serialize(),
+        data: $('#order-form').serialize(),
         success: function(msg) {
             if (msg) {
                 if (msg['state'] == false && (msg['msg'] || msg['message'])) {
@@ -597,10 +513,26 @@ function get_requests(_this, item_id, response){
             success: function (data) {
                 if(data.state){
                     $('#client_requests').html(data.content);
+                    if(!data.has_requests){
+                        clear_sources();
+                    }
                 }
             }
         });
     }
+}
+function clear_sources(){
+    if($('#crm_order_code').attr('disabled')){
+        $('#crm_order_code').attr('disabled', false).val('');
+    }
+    if($('#crm_order_referer').find('select').attr('disabled')){
+        $('#crm_order_referer').find('select').attr('disabled', false).val(0);
+    }
+}
+function set_no_request(){
+    $('input[name="categories-last-value"],input[name="categories-last"]').val('');
+    $('input[name="clients-value"],input[name="clients"]').val('');
+    clear_sources();
 }
 function change_crm_request($this){
     var product_id = $this.data('product_id'),
@@ -621,10 +553,7 @@ function change_crm_request($this){
        $('#crm_order_code').attr('disabled', true).val(code);
        $('#crm_order_referer').find('select').attr('disabled', true).val(referer_id);
     }else{
-       $('input[name="categories-last-value"],input[name="categories-last"]').val('');
-       $('input[name="clients-value"],input[name="clients"]').val('');
-       $('#crm_order_code').attr('disabled', false).val('');
-       $('#crm_order_referer').find('select').attr('disabled', false).val(0);
+       set_no_request();
     }
 }
 function check_active_request(){

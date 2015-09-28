@@ -163,6 +163,7 @@ class master{
         $users_added = array();
         foreach($users as $i => $user){
             if($user['login'] && $user['password']){
+                $user['position'] = isset($user['position']) ? $user['position'] : 0;
                 $user_id = $this->db->query("INSERT INTO {users}(login,pass,email,fio,is_adm,role,state,avail) "
                                            ."VALUES(?,?,?,?,1,?i,1,1)", array(
                                                $user['login'],$user['password'],$user['login'],

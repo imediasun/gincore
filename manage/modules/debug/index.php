@@ -43,18 +43,21 @@ class debug{
                     'title' => 'Повышенные цены для посетителей',
             ),
             array(
-                'url' => 'reset',
-                'title' => 'Сброс',
-            ),
-			 array(
                 'url' => 'price_parser',
                 'title' => 'Парсер цен со страниц оборудования ',
             ),
-			array(
+            array(
                 'url' => 'show_price_tables',
                 'title' => 'Показать таблички с ценами',
             ),
         );
+        // доступ к сбросу
+        if($this->all_configs['configs']['manage-reset-access']){
+            $this->debuggers[] = array(
+                'url' => 'reset',
+                'title' => 'Сброс',
+            );
+        }
 
         $input_html['mmenu'] = $this->genmenu();
 
@@ -155,7 +158,7 @@ class debug{
 
         }
 
-        if ($this->all_configs['arrequest'][1] == 'reset') {
+        if ($this->all_configs['arrequest'][1] == 'reset' && $this->all_configs['configs']['manage-reset-access']) {
 
             if(!empty($_GET)) {
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=0');

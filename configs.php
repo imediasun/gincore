@@ -9,6 +9,47 @@ class Configs {
         'canonical-host'            =>  'http://restore.kiev.ua',
         'shop-name'                 =>  'Яблоко',
 
+        /*
+         * блок конфига для саас
+         */
+        
+//            'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов
+//            'manage-active-modules'     => array( // активные модуле в админке
+//                                                'accountings','categories','clients',
+//                                                'debug','logistics','master','orders',
+//                                                'partners','products','settings','statistics',
+//                                                'tasks','users','warehouses','wrapper'
+//                                           ),
+//            'manage-reset-access'       =>  true, // доступен ли сброс в модуле дебаг
+//            'settings-master-enabled'   =>  true, // мастер настрйоки при регистрации новой админки
+//              'currencies'                => array(
+//                      1 => array('name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'currency-name' => 'grn-cash'),
+//                      2 => array('name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'currency-name' => ''),
+//                      3 => array('name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'currency-name' => 'price'),
+//                      4 => array('name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'currency-name' => ''),
+//                      5 => array('name' => 'Белорусский рубль', 'shortName' => 'BYR', 'viewName' => 'бр.', 'currency-name' => ''),
+//                      6 => array('name' => 'Тенге', 'shortName' => 'KZT', 'viewName' => 'тнг.', 'currency-name' => ''),
+//               ),
+        
+        /*
+         * блок конфига для админки рестора
+         */
+            
+            'manage-show-phones-btn'    => true, // показать или скрыть кнопку смены аварийных телефонов
+            'manage-active-modules'     => array('*'), // активные модуле в админке
+            'manage-reset-access'       =>  false, // доступен ли сброс в модуле дебаг
+            'settings-master-enabled'   =>  false, // мастер настрйоки при регистрации новой админки
+            'currencies'                => array(
+                  1 => array('name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'currency-name' => 'grn-cash'),
+                  2 => array('name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'currency-name' => ''),
+                  3 => array('name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'currency-name' => 'price'),
+                  4 => array('name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'currency-name' => ''),
+            ),
+        
+        /**
+         *  --------------------------------
+         */
+        
         'manage-redirect-to-https'  =>  false,
         'manage-use-memcached'      =>  true,
         'site-use-memcached'        =>  false,
@@ -76,14 +117,6 @@ class Configs {
         'guest_id'                  =>  'gid',
         'session_id'                =>  'sid',
         'wishlist'                  =>  'wl',
-        'currencies'                => array(
-                1 => array('name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'currency-name' => 'grn-cash'),
-                2 => array('name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'currency-name' => ''),
-                3 => array('name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'currency-name' => 'price'),
-                4 => array('name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'currency-name' => ''),
-                5 => array('name' => 'Белорусский рубль', 'shortName' => 'BYR', 'viewName' => 'бр.', 'currency-name' => ''),
-                6 => array('name' => 'Тенге', 'shortName' => 'KZT', 'viewName' => 'тнг.', 'currency-name' => ''),
-            ),
         'currency'                  =>  'currency',
         'region'                    =>  'region',
         'course'                    =>  'course',

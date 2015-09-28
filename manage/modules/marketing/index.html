@@ -1,0 +1,34 @@
+<div id="middle">
+    <div role="tabpanel">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#monitoring" role="tab" data-toggle="tab">Мониторинг конкурентов</a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="monitoring">
+                <form action="{-txt-prefix}marketing/add_site" method="post" class="form-inline">
+                    <div class="form-group">
+                        <label>Сайт конкурента:</label>
+                        <div class="input-group">
+                            <input type="text" name="site" class="form-control"> 
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-primary">Добавить</button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <table class="table table-hover">
+                    {-html-mcontent}
+                </table>
+            </div>
+        </div>
+        
+        {-html-modals}
+
+    </div>
+</div>
