@@ -137,10 +137,10 @@ if($curmod){
     $input_js['module'] = $js;
     
     $input_html['module_content'] = file_get_contents($mod_path.'index.html');
-    $pattern = "/\{\-(txt|html)\-([a-zA-Z0-9_]{1,20})\}/";
+    $pattern = "/\{\-(txt|html)\-([a-zA-Z0-9_]{1,120})\}/";
     $input_html['module_content'] = preg_replace_callback($pattern, "replace_pattern", $input_html['module_content'] );
 }
 
-$pattern = "/\{\-(txt|js|css|html)\-([a-zA-Z0-9_]{1,20})\}/";
+$pattern = "/\{\-(txt|js|css|html)\-([a-zA-Z0-9_]{1,120})\}/";
 $html = preg_replace_callback($pattern, "replace_pattern", $html);
  
