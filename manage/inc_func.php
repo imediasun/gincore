@@ -1,8 +1,9 @@
 <?php
 
-function viewCurrency(){
+function viewCurrency($show = 'viewName'){
     global $all_configs;
-    return $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['viewName'];
+    $s = $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']][$show];
+    return $s;
 }
 
 function get_langs(){

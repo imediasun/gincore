@@ -14,10 +14,11 @@ $(document).ready(function () {
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             },
             opens: 'right',
-            format: 'YYYY-MM-DD',
+            
             startDate: date_start ? date_start : moment().format("YYYY-MM-01"),
             endDate: date_end ? date_end : moment().format("YYYY-MM-DD"),
             locale: {
+		format: 'YYYY-MM-DD',
                 firstDay: 1
             }
         },

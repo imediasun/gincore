@@ -233,14 +233,16 @@ if($modulename){
 if($curmod){
     $all_configs['curmod'] = $curmod;
     new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
-
-    require_once 'classes/infoblock.class.php';
-    $infoblock = new Infoblock($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
-    $input_html['call_btn'] = get_service('crm/calls')->create_call_form();
 }else{
-    $all_configs['curmod'] = '';
-    $input_html['module_content'] = '<div style="text-align:center;margin-top: 60px;">'.l('manage_main_text').'</div>';
+    $curmod = $all_configs['curmod'] = 'dashboard';
+    require_once $all_configs['path'].'modules/dashboard/index.php';
+    new dashboard($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
 }
+
+require_once 'classes/infoblock.class.php';
+$infoblock = new Infoblock($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+$input_html['call_btn'] = get_service('crm/calls')->create_call_form();
+
 /*
 // сообщения
 $messages = get_messages();
