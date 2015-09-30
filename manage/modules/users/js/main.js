@@ -1,9 +1,31 @@
-$(document).ready(function(){
-
-    $('.datepicker').datepicker();
-});
+var avatar_uploader = null;
+function create_avatar_uploader(){
+    var $fileuploader = $('#fileuploader');
+    if($fileuploader.length){
+        avatar_uploader = new qq.FileUploader({
+            element: $fileuploader[0],
+            action: prefix + module + '/ajax/',
+            multiple: false,
+            demoMode: false,
+            disableDefaultDropzone: true,
+            sizeLimit: 3 * 1024 * 1024,
+            allowedExtensions: ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'],
+            maxConnections: 1,
+            debug: false,
+            onSubmit: function(){
+                
+            },
+            onComplete: function(id, filename, data){
+                if(data.success){
+                    $('.upload_avatar_btn[data-uid="'+data.uid+'"]').attr('src', data.avatar);
+                }
+            }
+        });           
+    }
+}
 
 $(function(){
+    $('.datepicker').datepicker();
 
     $('.send-mess').popover({
         trigger:'click',
@@ -16,6 +38,18 @@ $(function(){
             '<p><textarea class="ta-mess form-control" rows="3"></textarea></p>' +
             '<p><input type="button" class="btn" onclick="send_mess()" value="Отправить" /></p>',
     });
+    
+    create_avatar_uploader();
+    
+    $('.upload_avatar_btn').click(function(){
+        avatar_uploader.setParams({
+            act: 'upload_avatar',
+            uid: $(this).data('uid')
+        });
+        $('#upload_avatar').modal('show');
+    });
+    
+    
 });
 
 

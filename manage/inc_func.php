@@ -1,5 +1,18 @@
 <?php
 
+function avatar($avatar_img){
+    global $all_configs;
+    $avatar_path = $all_configs['configs']['users-avatars-path'];
+    $img = $avatar_path.$avatar_img;
+    $avatar = '';
+    if(is_file($all_configs['path'].$img)){
+        $avatar = $img;
+    }else{
+        $avatar = $avatar_path.'default.png';
+    }
+    return $all_configs['prefix'].$avatar;
+}
+
 function viewCurrency($show = 'viewName'){
     global $all_configs;
     $s = $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']][$show];

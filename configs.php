@@ -13,6 +13,8 @@ class Configs {
          * блок конфига для саас
          */
         
+        'users-avatars-path'        => 'img/avatars/',
+        
 //            'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов
 //            'manage-active-modules'     => array( // активные модуле в админке
 //                                                'accountings','categories','clients',

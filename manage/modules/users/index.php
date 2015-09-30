@@ -8,7 +8,7 @@ $moduleactive[] = !$ifauth['is_2'];
 class users
 {
     protected $all_configs;
-
+    
     function __construct($all_configs)
     {
         $this->all_configs = &$all_configs;
@@ -45,7 +45,75 @@ class users
         }
     }
     
-        
+    private function count_resize_vars($width, $height, $out_w, $out_h, $no_stretch = false){
+        $vars = array();
+        $vertical = true;
+        if($width >= $height){
+            $vertical = false;
+        }
+        if($no_stretch){
+            $out_w = $out_w > $width ? $width : $out_w;
+            $out_h = $out_h > $height ? $height : $out_h;
+        }
+        if(!$out_h){
+            $out_h = $out_w * ($height / $width);
+        }
+        if($width > $out_w || $height > $out_h){
+            if(!$vertical){
+                $h = $out_h;
+                $w = $out_h * ($width / $height);
+                if($w < $out_w){
+                    $w = $out_w;
+                    $h = $out_w * ($height / $width);
+                }
+            }else{
+                $w = $out_w;
+                $h = $out_w * ($height / $width);
+                if($h < $out_h){
+                    $h = $out_h;
+                    $w = $out_h * ($width / $height);
+                }
+            }
+            $vars['resize'] = array(
+                'width' => $w,
+                'height' => $h
+            );
+            $vars['crop'] = array(
+                'width' => $out_w,
+                'height' => $out_h,
+                'start_width' => ($w - $out_w) / 2,
+                'start_height' => ($h - $out_h) / 2
+            );
+        }else{
+            $vars['resize'] = '';
+            $vars['crop'] = '';
+        }
+        return $vars;
+    }
+
+    public function resize_image($image_path, $data){
+        if($data){
+            $img = new LiveImage($image_path);
+            $img->resize($data['width'], $data['height'], false);
+            $img->output(null, $image_path);
+            chmod($image_path, 0777);
+        }
+    }
+    
+    public function crop_image($image_path, $crop){
+        if($crop){
+            $img = new LiveImage($image_path);
+            $img->crop($crop['width'], $crop['height'], $crop['start_width'], $crop['start_height']);
+            $img->output(null, $image_path);
+            chmod($image_path, 0777);
+        }
+    }
+    
+    public function new_filename($file){
+        $file_parts = pathinfo($file);
+        return md5(microtime(true)).'.'.$file_parts['extension'];
+    }
+    
     private function ajax()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -56,6 +124,44 @@ class users
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
+        // загрузка аватарки
+        if($act == 'upload_avatar'){
+            include_once 'qqfileuploader.php';
+            include_once 'class_image.php';
+            $uid = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
+            if($uid){
+                $uploader = new qqFileUploader(array('jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'), 3145728);
+                $path_avatars = $this->all_configs['path'].$this->all_configs['configs']['users-avatars-path'];
+                $result = $uploader->handleUpload($path_avatars);
+                if($result['success']){
+                    $file = $this->new_filename($result['file']);
+                    rename($path_avatars.$result['file'], $path_avatars.$file);
+                    $result['file'] = $file;
+                    $image_path = $path_avatars.$file;
+                    $out_w = 75;
+                    $out_h = 75;
+                    $image_info = getimagesize($image_path);
+                    $image_vars = $this->count_resize_vars($image_info[0], $image_info[1], $out_w, $out_h, false);
+                    $this->resize_image($image_path, $image_vars['resize']);
+                    $this->crop_image($image_path, $image_vars['crop']);
+                    $result['success'] = true;
+                    $result['path'] = $this->all_configs['prefix'].$this->all_configs['configs']['users-avatars-path'];
+                    $result['avatar'] = $result['path'].$file;
+                    $result['msg'] = '';
+                    $result['uid'] = $uid;
+                    $this->all_configs['db']->query("UPDATE {users} SET avatar = ? "
+                                                   ."WHERE id = ?i", array($file, $uid));
+                }else{
+                    $result['filename'] = '';
+                    $result['path'] = '';
+                    $result['msg'] = '';
+                    $result['file'] = '';
+                }
+                echo json_encode($result);
+                exit;
+            }
+        }
+        
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");
@@ -198,6 +304,10 @@ class users
         header("Location:". $_SERVER['REQUEST_URI']);
     }
 
+    function avatar($avatar_img){
+        return avatar($avatar_img);
+    }
+    
     function gencontent()
     {
         $users_html = '';
@@ -234,9 +344,10 @@ class users
             <div class="tab-content">';
 
         // список пользователей и ихние роля
-        $users_html .= '<div id="edit_tab_users" class="tab-pane active"><form method="post" id="users-form">';
+        $users_html .= '<div id="edit_tab_users" class="tab-pane active"><form enctype="multipart/form-data" method="post" id="users-form">';
         $users_html .= '<table class="table table-striped"><thead><tr>'
                 . '<td>ID</td>'
+                . '<td>Фото</td>'
                 . '<td><i class="glyphicon glyphicon-envelope"></i></td>'
                 . '<td>Логин</td>'
                 . '<td><i class="glyphicon glyphicon-off"></i></td>'
@@ -263,13 +374,17 @@ class users
                     if ( $user['auth_cert_only'] )
                         $cert_checked = 'checked';
                     
-                    $users_html .= '<tr>'
-                        . '<td>' . $user['id'] . '</td>'
-                        . '<td><input type="checkbox" name="send-mess-user[' . $user['id'] . ']" '
-                                . 'class="send-mess-user" value="' . $user['id'] . '" /></td>'
-                        . '<td>' . htmlspecialchars($user['login']) . '</td>'
-                        . '<td><input ' . $checked . ' type="checkbox" name="avail_user[' . $user['id'] . ']" /></td>'
-                        . '<td><i class="glyphicon glyphicon-warning-sign editable-click" data-type="text" '
+                    $users_html .= 
+                         '<tr>'
+                        .'<td>' . $user['id'] . '</td>'
+                        .'<td>
+                            <img class="upload_avatar_btn" data-uid="'.$user['id'].'" width="40" src="'.$this->avatar($user['avatar']).'">
+                         </td>'
+                        .'<td><input type="checkbox" name="send-mess-user[' . $user['id'] . ']" '
+                               . 'class="send-mess-user" value="' . $user['id'] . '" /></td>'
+                        .'<td>' . htmlspecialchars($user['login']) . '</td>'
+                        .'<td><input ' . $checked . ' type="checkbox" name="avail_user[' . $user['id'] . ']" /></td>'
+                        .'<td><i class="glyphicon glyphicon-warning-sign editable-click" data-type="text" '
                             . 'data-pk="'.$user['id'].'" '
                             . 'data-type="password" '
                             . 'data-url="'.$this->all_configs['arrequest'][0].'/ajax?act=change-admin-password" '
@@ -312,7 +427,21 @@ class users
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
             $users_html .= '<input type="submit" name="change-roles" value="Сохранить" class="btn btn-primary" />';
         //}
-        $users_html .= '</form></div>';
+        $users_html .= '</form></div>
+            <div id="upload_avatar" class="modal fade">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                      <h4 class="modal-title">Аватар</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="fileuploader"></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        ';
 
         // список ролей и ихние доступы
         $users_html .= '<div id="edit_tab_roles" class="tab-pane"><form class="form-horizontal" method="post"><div style="display: inline-block; width: 100%;">';
