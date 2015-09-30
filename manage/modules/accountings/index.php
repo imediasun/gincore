@@ -1,8 +1,8 @@
 <?php
 
-$modulename[] = 'accountings';
-$modulemenu[] = 'Бухгалтерия';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[30] = 'accountings';
+$modulemenu[30] = 'Бухгалтерия';
+$moduleactive[30] = !$ifauth['is_2'];
 
 class accountings
 {
@@ -694,13 +694,13 @@ class accountings
         $out .= '</ul><div class="tab-content">';
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<div id="cashboxes" class="content_tab tab-pane">';
+            $out .= '<div id="cashboxes" class="content_tab tab-pane clearfix">';
             $out .= '</div><!--#cashboxes-->';
         }
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
-            $out .= '<div id="transactions" class="content_tab tab-pane">';
+            $out .= '<div id="transactions" class="content_tab tab-pane clearfix">';
             $out .= '</div><!--#transactions-->';
         }
 
@@ -708,27 +708,27 @@ class accountings
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")
                 || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
                 || $this->all_configs['oRole']->hasPrivilege('partner')) {
-            $out .= '<div id="reports" class="content_tab tab-pane">';
+            $out .= '<div id="reports" class="content_tab tab-pane clearfix">';
             $out .= '</div><!--#reports-->';
         }
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // постоплата
-            $out .= '<div id="orders_pre" class="content_tab tab-pane">';
+            $out .= '<div id="orders_pre" class="content_tab tab-pane clearfix">';
             $out .= '</div>';
 
-            $out .= '<div id="a_orders" class="content_tab tab-pane">';
+            $out .= '<div id="a_orders" class="content_tab tab-pane clearfix">';
             $out .= '</div><!--#a_orders-->';
         }
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-contractors')) {
-            $out .= '<div id="contractors" class="content_tab tab-pane">';
+            $out .= '<div id="contractors" class="content_tab tab-pane clearfix">';
             $out .= '</div><!--#contractors-->';
         }
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<div id="settings" class="content_tab tab-pane">';
+            $out .= '<div id="settings" class="content_tab tab-pane clearfix">';
             $out .= '</div>';
         }
 

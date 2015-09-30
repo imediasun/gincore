@@ -17,10 +17,10 @@ $input['map_published_short'] = l('map_published_short');
 $input['map_add_subpage'] = l('map_add_subpage');
 
 // настройки
-$modulename[] = 'map';
-$modulemenu[] = l('map_modulemenu');  //карта сайта
+$modulename[150] = 'map';
+$modulemenu[150] = l('map_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[150] = !$ifauth['is_2'];
 
 ///////////
 class map{

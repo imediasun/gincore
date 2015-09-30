@@ -8,10 +8,10 @@ $lang_arr = array_merge($lang_arr, $settings_lang);
 
 
 // настройки
-$modulename[] = 'settings';
-$modulemenu[] = l('sets_modulemenu');  //карта сайта
+$modulename[110] = 'settings';
+$modulemenu[110] = l('sets_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[110] = !$ifauth['is_2'];
 
 class settings{
 

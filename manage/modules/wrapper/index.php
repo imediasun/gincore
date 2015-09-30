@@ -1,8 +1,8 @@
 <?php
 
-$modulename[] = 'wrapper';
-$modulemenu[] = 'Таблицы';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[130] = 'wrapper';
+$modulemenu[130] = 'Таблицы';
+$moduleactive[130] = !$ifauth['is_2'];
 
 class wrapper{
 

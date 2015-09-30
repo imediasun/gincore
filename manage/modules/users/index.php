@@ -1,9 +1,9 @@
 <?php
 
 
-$modulename[] = 'users';
-$modulemenu[] = 'Сотрудники';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[80] = 'users';
+$modulemenu[80] = 'Сотрудники';
+$moduleactive[80] = !$ifauth['is_2'];
 
 class users
 {

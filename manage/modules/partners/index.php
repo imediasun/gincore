@@ -1,9 +1,9 @@
 <?php
 
 
-$modulename[] = 'partners';
-$modulemenu[] = 'Партнеры';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[200] = 'partners';
+$modulemenu[200] = 'Партнеры';
+$moduleactive[200] = !$ifauth['is_2'];
 
 class partners
 {

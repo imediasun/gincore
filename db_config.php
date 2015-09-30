@@ -5,6 +5,7 @@ $dbcfg = array(
     'username' => 'root',
     'password' => 'rootFB1root',
     'dbname'   => 'u_restore',
+//    'dbname'   => 'u_restore_saas',
     'charset'  => 'utf8',
     '_debug'   => false,
     '_prefix'  => 'restore4_',

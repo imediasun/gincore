@@ -1,9 +1,9 @@
 <?php
 
 
-$modulename[] = 'warehouses';
-$modulemenu[] = 'Склады';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[40] = 'warehouses';
+$modulemenu[40] = 'Склады';
+$moduleactive[40] = !$ifauth['is_2'];
 
 class warehouses
 {
@@ -447,13 +447,13 @@ class warehouses
         }
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics")) {
             // склады
-            $out .= '<div id="warehouses" class="tab-pane">';
+            $out .= '<div id="warehouses" class="tab-pane clearfix">';
             $out .= '</div><!--#warehouses-->';
         }
         // только кладовщик
         if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')) {
             // приходование заказа
-            $out .= '<div id="orders" class="tab-pane">';
+            $out .= '<div id="orders" class="tab-pane clearfix">';
             $out .= '</div><!--#orders-->';
         }
 
@@ -845,7 +845,7 @@ class warehouses
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // настройка
-            $admin_out .= '<div id="settings" class="tab-pane">';
+//            $admin_out .= '<div id="settings" class="tab-pane">';
 
             $admin_out .= '<ul class="nav nav-pills">';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Сервисные центры</a></li>';
@@ -868,7 +868,7 @@ class warehouses
             $admin_out .= '<div id="settings-warehouses_types" class="pill-pane">';
             $admin_out .= '</div><!--#settings-warehouses_types-->';
 
-            $admin_out .= '</div><!--.pill-content--></div><!--#settings-->';
+//            $admin_out .= '</div><!--.pill-content--></div><!--#settings-->';
         }
 
         return array(

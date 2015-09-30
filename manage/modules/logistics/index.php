@@ -1,9 +1,9 @@
 <?php
 
 
-$modulename[] = 'logistics';
-$modulemenu[] = 'Логистика';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[50] = 'logistics';
+$modulemenu[50] = 'Логистика';
+$moduleactive[50] = !$ifauth['is_2'];
 
 
 class logistics

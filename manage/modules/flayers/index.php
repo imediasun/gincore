@@ -6,10 +6,10 @@ $lang_arr = array_merge($lang_arr, $flayers_lang);
 
 
 // настройки
-$modulename[] = 'flayers';
-$modulemenu[] = l('flayers_modulemenu');  //карта сайта
+$modulename[180] = 'flayers';
+$modulemenu[180] = l('flayers_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[180] = !$ifauth['is_2'];
 
 class flayers{
 

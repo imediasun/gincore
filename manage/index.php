@@ -80,6 +80,8 @@ if(isset($all_configs['arrequest'][0])){
         header("Location: " . $all_configs['prefix']);
         exit;
     }
+}else{
+    $input['home_active'] = 'class="active"';
 }
 
 if($ifauth && $all_configs['configs']['settings-master-enabled']){
@@ -157,6 +159,7 @@ foreach($modules as $mod_folder){
 
 $additionally = '';
 if($modulename){
+    ksort($modulename);
     foreach($modulename as $k => $v){
         if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == $v){
             $curmod = $v;
@@ -230,14 +233,16 @@ if($modulename){
             </li>';
 }
 ################################################################################
-
-if($curmod){
-    $all_configs['curmod'] = $curmod;
-    new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
-}else{
-    $curmod = $all_configs['curmod'] = 'dashboard';
-    require_once $all_configs['path'].'modules/dashboard/index.php';
-    new dashboard($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+$all_configs['curmod'] = null;
+if($ifauth){
+    if($curmod){
+        $all_configs['curmod'] = $curmod;
+        new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+    }else{
+        $curmod = $all_configs['curmod'] = 'dashboard';
+        require_once $all_configs['path'].'modules/dashboard/index.php';
+        new dashboard($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+    }
 }
 
 require_once 'classes/infoblock.class.php';

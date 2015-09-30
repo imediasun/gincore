@@ -1,9 +1,9 @@
  <?php
 
 
-$modulename[] = 'orders';
-$modulemenu[] = 'Заказы';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[10] = 'orders';
+$modulemenu[10] = 'Заказы';
+$moduleactive[10] = !$ifauth['is_2'];
 
 class orders
 {
@@ -479,23 +479,23 @@ class orders
 
         // вывод заказов
         if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<div id="show_orders" class="tab-pane"></div>';
+            $orders_html .= '<div id="show_orders" class="tab-pane clearfix"></div>';
         }
         // создать заказ клиента
         if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<div id="create_order" class="tab-pane">';
+            $orders_html .= '<div id="create_order" class="tab-pane clearfix">';
             $orders_html .= '</div>';
         }
         // менеджер заказов
         if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<div id="orders_manager" class="tab-pane">';
+            $orders_html .= '<div id="orders_manager" class="tab-pane clearfix">';
             $orders_html .= '</div>';
         }
         // заказ поставщику
         if ( $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') ) {
-            $orders_html .= '<div id="show_suppliers_orders" class="tab-pane"></div>';
+            $orders_html .= '<div id="show_suppliers_orders" class="tab-pane clearfix"></div>';
 
-            $orders_html .= '<div id="create_supplier_order" class="tab-pane">';
+            $orders_html .= '<div id="create_supplier_order" class="tab-pane clearfix">';
             $orders_html .= '</div>';
         }
 

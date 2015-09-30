@@ -6,10 +6,10 @@ $lang_arr = array_merge($lang_arr, $forms_lang);
 
 
 // настройки
-$modulename[] = 'forms';
-$modulemenu[] = l('form_modulemenu');  //карта сайта
+$modulename[170] = 'forms';
+$modulemenu[170] = l('form_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[170] = !$ifauth['is_2'];
 
 class forms{
 

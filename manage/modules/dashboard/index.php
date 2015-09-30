@@ -150,7 +150,7 @@ class dashboard{
         foreach($statuses as $status => $name){
             $orders = $this->db->query("SELECT count(*) "
                                       ."FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
-            $p = $this->percent_format($orders / $all_orders * 100);
+            $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
             $stats .= '
                 <div class="m-t-xs">
                     <span class="font-bold no-margins">

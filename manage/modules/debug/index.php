@@ -8,10 +8,10 @@ $lang_arr = array_merge($lang_arr, $settings_lang);
 
 
 // настройки
-$modulename[] = 'debug';
-$modulemenu[] = l('debug_modulemenu');  //карта сайта
+$modulename[120] = 'debug';
+$modulemenu[120] = l('debug_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[120] = !$ifauth['is_2'];
 
 class debug{
 

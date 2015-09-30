@@ -1,8 +1,8 @@
 <?php
 
-$modulename[] = 'tasks';
-$modulemenu[] = 'Задачи';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[90] = 'tasks';
+$modulemenu[90] = 'Задачи';
+$moduleactive[90] = !$ifauth['is_2'];
 
 //ini_set('xdebug.trace_format', 1);
 

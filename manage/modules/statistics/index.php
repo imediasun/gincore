@@ -1,9 +1,9 @@
 <?php
 
 
-$modulename[] = 'statistics';
-$modulemenu[] = 'Статистика';
-$moduleactive[] = !$ifauth['is_1'];
+$modulename[100] = 'statistics';
+$modulemenu[100] = 'Статистика';
+$moduleactive[100] = !$ifauth['is_1'];
 
 class statistics
 {

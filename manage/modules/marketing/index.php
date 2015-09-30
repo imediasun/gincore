@@ -33,9 +33,9 @@
 //exit;
 
 // настройки
-$modulename[] = 'marketing';
-$modulemenu[] = 'Маркетинг'; 
-$moduleactive[] = true;
+$modulename[190] = 'marketing';
+$modulemenu[190] = 'Маркетинг'; 
+$moduleactive[190] = true;
 
 class marketing{
     

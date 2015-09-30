@@ -8,10 +8,10 @@ $lang_arr = array_merge($lang_arr, $langs_lang);
 
 
 // настройки
-$modulename[] = 'langs';
-$modulemenu[] = l('langs_modulemenu');  //карта сайта
+$modulename[160] = 'langs';
+$modulemenu[160] = l('langs_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[160] = !$ifauth['is_2'];
 
 class langs{
 

@@ -1,8 +1,8 @@
 <?php
 
-$modulename[] = 'clients';
-$modulemenu[] = 'Клиенты';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[20] = 'clients';
+$modulemenu[20] = 'Клиенты';
+$moduleactive[20] = !$ifauth['is_2'];
 
 class clients
 {

@@ -9,10 +9,10 @@ $lang_arr = array_merge($lang_arr, $langs_translates);
 
 
 // настройки
-$modulename[] = 'translates';
-$modulemenu[] = l('trans_modulemenu');  //карта сайта
+$modulename[140] = 'translates';
+$modulemenu[140] = l('trans_modulemenu');  //карта сайта
 
-$moduleactive[] = !$ifauth['is_2'];
+$moduleactive[140] = !$ifauth['is_2'];
 
 class translates{
     

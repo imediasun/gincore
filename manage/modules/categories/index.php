@@ -1,9 +1,9 @@
 <?php
 
 
-$modulename[] = 'categories';
-$modulemenu[] = 'Категории';
-$moduleactive[] = !$ifauth['is_2'];
+$modulename[70] = 'categories';
+$modulemenu[70] = 'Категории';
+$moduleactive[70] = !$ifauth['is_2'];
 
 class categories
 {
