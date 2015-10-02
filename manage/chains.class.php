@@ -627,22 +627,23 @@ class Chains
             return false;
 
         // фильтры
-        $out = '<div class="span2"><form method="post"><legend>Фильтры:</legend>';
-        $out .= '<div class="form-group"><label>Товар:</label>';
-        $out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
-        $out .= '</div><div class="form-group"><label>Серийный номер:</label><input name="serial" value="';
-        $out .= isset($_GET['serial']) && !empty($_GET['serial']) ? trim(htmlspecialchars($_GET['serial'])) : '';
-        $out .= '" type="text" class="form-control" placeholder="Серийный номер" class="form-control"></div>';
-        $out .= '<div class="form-group"><label>ФИО:</label>';
-        $out .= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0).'</div>';
-        $out .= '<div class="form-group"><label>№ заказа на ремонт:</label><input name="client-order-number" value="';
-        $out .= isset($_GET['con']) && !empty($_GET['con']) ? trim(htmlspecialchars($_GET['con'])) : '';
-        $out .= '" type="text" class="form-control" placeholder="№ заказа на ремонт"></div>';
-        $out .= '<div class="form-group"><div class="checkbox"><label><input name="noitems" ';
-        $out .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> Без изделий</label></div>';
-        $out .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="Фильтровать"></div></div>';
-        $out .= '</div></form></div><div class="span10">';
+        $filters = '<form method="post"><legend>Фильтры:</legend>';
+        $filters .= '<div class="form-group"><label>Товар:</label>';
+        $filters .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
+        $filters .= '</div><div class="form-group"><label>Серийный номер:</label><input name="serial" value="';
+        $filters .= isset($_GET['serial']) && !empty($_GET['serial']) ? trim(htmlspecialchars($_GET['serial'])) : '';
+        $filters .= '" type="text" class="form-control" placeholder="Серийный номер" class="form-control"></div>';
+        $filters .= '<div class="form-group"><label>ФИО:</label>';
+        $filters .= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0).'</div>';
+        $filters .= '<div class="form-group"><label>№ заказа на ремонт:</label><input name="client-order-number" value="';
+        $filters .= isset($_GET['con']) && !empty($_GET['con']) ? trim(htmlspecialchars($_GET['con'])) : '';
+        $filters .= '" type="text" class="form-control" placeholder="№ заказа на ремонт"></div>';
+        $filters .= '<div class="form-group"><div class="checkbox"><label><input name="noitems" ';
+        $filters .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> Без изделий</label></div>';
+        $filters .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="Фильтровать"></div></div>';
+        $filters .= '</div></form>';
 
+        $out = '';
         if ($operations && count($operations) > 0) {
             $out .= '<table class="table table-compact"><thead><tr><td>Заказ</td><td>Дата</td><td>Наименование</td>';//<td>Склад</td>
             if ($type == 1)
@@ -667,7 +668,10 @@ class Chains
         }
         $out .= '</div>';
 
-        return $out;
+        return array(
+            'html' => $out,
+            'menu' => $filters
+        );
     }
 
     function show_stockman_operation($op, $type, $serials)

@@ -6,6 +6,39 @@ $moduleactive[30] = !$ifauth['is_2'];
 
 class accountings
 {
+    
+    public static $mod_submenu = array(
+        array(
+            'click_tab' => true,
+            'url' => '#cashboxes',
+            'name' => 'Кассы'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#transactions',
+            'name' => 'Транзакции'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#reports',
+            'name' => 'Отчеты'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#a_orders',
+            'name' => 'Заказы'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#contractors',
+            'name' => 'Контрагенты'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#settings',
+            'name' => 'Настройки'
+        ), 
+    );
     protected $cashboxes = array();
     protected $contractors = array();
 
@@ -669,27 +702,27 @@ class accountings
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_cashboxes" onclick="click_tab(this, event)" data-toggle="tab" href="#cashboxes">Кассы</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_cashboxes" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_transactions" onclick="click_tab(this, event)" data-toggle="tab" href="#transactions">Транзакции</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_transactions" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
         }
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")
                 || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
                 || $this->all_configs['oRole']->hasPrivilege('partner')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_reports" onclick="click_tab(this, event)" data-toggle="tab" href="#reports">Отчеты</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_reports" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             //$out .= '<li><a class="click_tab" data-open_tab="accountings_orders_pre" onclick="click_tab(this, event)" data-toggle="tab" href="#orders_pre">Предоплата (заказы)<span class="tab_count hide tc_sum_accountings_orders_pre"></span></a></li>';
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_orders" onclick="click_tab(this, event)" data-toggle="tab" href="#a_orders">Заказы<span class="tab_count hide tc_sum_accountings_orders"></span></a>';
+            $out .= '<li><a class="click_tab" data-open_tab="accountings_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_accountings_orders"></span></a>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-contractors')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_contractors" onclick="click_tab(this, event)" data-toggle="tab" href="#contractors">Контрагенты</a>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_contractors" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_settings" onclick="click_tab(this, event)" data-toggle="tab" href="#settings">Настройки</a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="accountings_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[5]['url'].'">'.self::$mod_submenu[5]['name'].'</a></li>';
         }
         $out .= '</ul><div class="tab-content">';
 
@@ -1085,7 +1118,11 @@ class accountings
                         array($this, $_POST['tab']),
                         array((isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'], 'UTF-8')) > 0) ? trim($_POST['hashs']) : null)
                     );
-                    echo json_encode(array('html' => $function['html'], 'state' => true, 'functions' => $function['functions']));
+                    $return = array('html' => $function['html'], 'state' => true, 'functions' => $function['functions']);
+                    if (isset($function['menu'])) {
+                        $return['menu'] = $function['menu'];
+                    }
+                    echo json_encode($return);
                 } else {
                     echo json_encode(array('message' => 'Не найдено', 'state' => false));
                 }
@@ -3293,11 +3330,13 @@ class accountings
         $out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out = '<ul class="nav nav-pills">';
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_orders_clients"';
+            $out = '<ul class="list-unstyled inline clearfix">';
+            $out .= '<li><a class="click_tab btn btn-info" onclick="click_tab(this, event)" data-open_tab="accountings_orders_clients"';
             $out .= ' href="#a_orders-clients" title="Заказы клиентов">Клиентов<span class="tab_count hide tc_accountings_clients_orders"></span></a></li>';
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_orders_suppliers"';
-            $out .= ' href="#a_orders-suppliers" title="Заказы поставщику">Поставщику<span class="tab_count hide tc_accountings_suppliers_orders"></span></a></li></ul>';
+            $out .= '<li><a class="click_tab btn btn-warning" onclick="click_tab(this, event)" data-open_tab="accountings_orders_suppliers"';
+            $out .= ' href="#a_orders-suppliers" title="Заказы поставщику">Поставщику<span class="tab_count hide tc_accountings_suppliers_orders"></span></a></li>';
+            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li></ul>';
+            $out .= '<div class="clearfix hidden theme_bg p-sm m-b-md" id="filters"><div id="a_orders-menu"></div></div>';
             $out .= '<div class="pill-content">';
 
             $out .= '<div id="a_orders-suppliers" class="pill-pane">';
@@ -3317,11 +3356,9 @@ class accountings
     function accountings_orders_suppliers()
     {
         $out = '';
-
+        $fitlers = '';
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out = '<div class="span2">';
-            $out .= $this->all_configs['suppliers_orders']->show_filters_suppliers_orders();
-            $out .= '</div><div class="span10">';
+            $fitlers = $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,true,false);
             $out .= '<h4>Заказы поставщику которые ждут оплаты</h4><br />';
             $_GET['type'] = 'pay';
             $queries = $this->all_configs['manageModel']->suppliers_orders_query($_GET);
@@ -3336,11 +3373,10 @@ class accountings
             //$count = $this->all_configs['manageModel']->get_count_accounting_suppliers_orders();
             $count_page = ceil($count / $count_on_page);
             $out .= page_block($count_page, '#a_orders-suppliers');
-            $out .= '</div>';
         }
-
         return array(
             'html' => $out,
+            'menu' => $fitlers,
             'functions' => array('reset_multiselect()'),
         );
     }
@@ -3406,26 +3442,26 @@ class accountings
                 . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
                 . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
-            $out = '<div class="span2"><form method="post"><legend>Фильтры:</legend>';
+            $filters = '<form method="post"><legend>Фильтры:</legend>';
             //$out .= '<label>Оператор:</label>';
             //$out .= '<select class="multiselect input-small report-filter" name="operators[]" multiple="multiple">';
             //$operators = $this->get_operators();
             //$out .= build_array_tree($operators, ((isset($_GET['op'])) ? explode(',', $_GET['op']) : array()));
             //$out .= '</select>';
-            $out .= '<div class="form-group"><label>Дата:</label>';
-            $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
-            $out .= '<div class="form-group"><label>№ заказа:</label><input name="client-order_id" value="';
-            $out .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? $_GET['co_id'] : '';
-            $out .= '" type="text" class="form-control" placeholder="№ заказа"></div>';
-            $out .= '<div class="form-group"><label>Категория:</label>';
-            $out .= typeahead($this->all_configs['db'], 'categories', false, isset($_GET['g_cg']) && $_GET['g_cg'] > 0 ? $_GET['g_cg'] : 0);
-            $out .= '</div><div class="form-group"><label>ФИО:</label><input name="client-order" value="';
-            $out .= isset($_GET['co']) && !empty($_GET['co']) ? trim(htmlspecialchars($_GET['co'])) : '';
-            $out .= '" type="text" class="form-control" placeholder="ФИО">';
-            $out .= '</div><div class="form-group"><label>Товар:</label>';
-            $out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
-            $out .= '</div><div class="form-group"><input type="submit" name="filters" class="btn btn-primary" value="Фильтровать"></div></div>';
-            $out .= '</form></div><div class="span10">';
+            $filters .= '<div class="form-group"><label>Дата:</label>';
+            $filters .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
+            $filters .= '<div class="form-group"><label>№ заказа:</label><input name="client-order_id" value="';
+            $filters .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? $_GET['co_id'] : '';
+            $filters .= '" type="text" class="form-control" placeholder="№ заказа"></div>';
+            $filters .= '<div class="form-group"><label>Категория:</label>';
+            $filters .= typeahead($this->all_configs['db'], 'categories', false, isset($_GET['g_cg']) && $_GET['g_cg'] > 0 ? $_GET['g_cg'] : 0);
+            $filters .= '</div><div class="form-group"><label>ФИО:</label><input name="client-order" value="';
+            $filters .= isset($_GET['co']) && !empty($_GET['co']) ? trim(htmlspecialchars($_GET['co'])) : '';
+            $filters .= '" type="text" class="form-control" placeholder="ФИО">';
+            $filters .= '</div><div class="form-group"><label>Товар:</label>';
+            $filters .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
+            $filters .= '</div><div class="form-group"><input type="submit" name="filters" class="btn btn-primary" value="Фильтровать"></div></div>';
+            $filters .= '</form>';
 
             $chains = array();
             $_chains = null;
@@ -3587,11 +3623,12 @@ class accountings
             } else {
                 $out .= '<p class="text-error">Нет заказов</p>';
             }*/
-            $out .= '</div>';
+            $out .= '';
         }
 
         return array(
             'html' => $out,
+            'menu' => $filters,
             'functions' => array('reset_multiselect()'),
         );
     }

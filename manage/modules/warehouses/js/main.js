@@ -114,6 +114,7 @@ function multiselect() {
         buttonContainer: '<span class="dropdown" />',
         nonSelectedText: 'Выбрать',
         enableFiltering: true,
+        numberDisplayed: 1,
         maxHeight: 200
     });
 }

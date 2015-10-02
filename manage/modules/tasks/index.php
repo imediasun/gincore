@@ -8,7 +8,18 @@ $moduleactive[90] = !$ifauth['is_2'];
 
 class tasks
 {
-
+    public static $mod_submenu = array(
+        array(
+            'click_tab' => true,
+            'url' => '#alltasks',
+            'name' => 'Задачи'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#newtask',
+            'name' => 'Создать задачу'
+        ),
+    );
     protected $tasks = array();
     protected $all_configs;
     protected $tasks_filer_statuses = array();
@@ -125,12 +136,12 @@ class tasks
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
 
         //if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-        $out .= '<li><a class="click_tab default" data-open_tab="tasks_alltasks" onclick="click_tab(this, event)" data-toggle="tab" href="#alltasks">'
-                . 'Задачи</a></li>';
+        $out .= '<li><a class="click_tab default" data-open_tab="tasks_alltasks" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'
+                . self::$mod_submenu[0]['name'] .'</a></li>';
         //}
         if ($this->all_configs['oRole']->hasPrivilege('create-task')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="tasks_newtask" onclick="click_tab(this, event)" data-toggle="tab" href="#newtask">'
-                    . 'Создать задачу</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="tasks_newtask" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'
+                    . self::$mod_submenu[1]['name'] .'</a></li>';
         }
 
 

@@ -2222,6 +2222,9 @@ body {
     text-transform: none;
     font-weight: 600
 }
+#side-menu > li > .nav-second-level > li > .nav-second-level a {
+    padding-left: 50px
+}
 
 #side-menu li .nav-second-level li.active a {
     color: #34495e
@@ -3575,6 +3578,11 @@ ul.mailbox-list li:hover a {
     margin-right: 0;
 }
 
+.row.row-15{
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
 .label-menu-corner .label {
     font-size: 10px;
     line-height: 12px;
@@ -3593,4 +3601,15 @@ ul.mailbox-list li:hover a {
 
 .nav-tabs {
     margin-bottom: 0;
+}
+
+.theme_bg{
+    background-color: #edf0f5;
+}
+
+.well-white{
+    background-color: #ffffff;
+}
+.backgroud-white{
+    background-color: #ffffff;
 }

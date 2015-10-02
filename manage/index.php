@@ -161,12 +161,28 @@ $additionally = '';
 if($modulename){
     ksort($modulename);
     foreach($modulename as $k => $v){
+        $active_mod = false;
         if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == $v){
+            $active_mod = true;
             $curmod = $v;
             $pre_title = strip_tags($modulemenu[$k]);
         }
-
         if ($moduleactive[$k] == true) {
+            $hassubmenu = isset($v::$mod_submenu);
+            if($hassubmenu){
+                $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
+                foreach($v::$mod_submenu as $sm){
+                    if($active_mod && isset($sm['click_tab']) && $sm['click_tab']){
+                        $data = ' class="module_submenu_click_tab_event" data-href="'.$sm['url'].'"';
+                    }else{
+                        $data = '';
+                    }
+                    $submenu .= '<li><a'.$data.' href="'.$all_configs['prefix'].$v.$sm['url'].'">'.$sm['name'].'</a></li>';
+                }
+                $submenu .= '</ul>';
+            }else{
+                $submenu = '';
+            }
             if (($v == 'marketing' && $all_configs['oRole']->hasPrivilege('monitoring')) ||
                 ($v == 'products' && $all_configs['oRole']->hasPrivilege('show-goods'))
                 || ($v == 'categories' && $all_configs['oRole']->hasPrivilege('show-categories-filters'))
@@ -206,24 +222,25 @@ if($modulename){
                     || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains' 
                     || $v == 'debug'  || $v == 'tasks' || $v == 'flayers' || $v == 'statistics' 
                     || $v == 'seo') {
-                    $additionally .= '<li ' . ($curmod == $v ? 'class="active"' : '') . '>'
-                                  . '<a href="' . $all_configs['prefix'] . $v . '" >' . $modulemenu[$k] . '</a></li>';
+                    
+                    $additionally .= '
+                        <li '.($curmod == $v ? 'class="active"' : '').'>
+                            <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
+                            '.$submenu.'
+                        </li>
+                    ';
                 } else {
-                    $mainmenu .= '<li ' . ($curmod == $v ? 'class="active"' : '') . '>'
-                              . '<a href="' . $all_configs['prefix'] . $v . '" >' . $modulemenu[$k] . '</a></li>';
+                    $mainmenu .= '
+                        <li '.($curmod == $v ? 'class="active"' : '').'>
+                            <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
+                            '.$submenu.'
+                        </li>
+                    ';
                 }
             }
         }
-
-        /*if($moduleactive[$k] == true){
-            if ($v == 'subdomains' || $v == 'admin' || $v == 'debug') {
-                $additionally .= '<li ' . ($curmod == $v ? 'class="active"' : '') . '><a href="' . $all_configs['prefix'] . $v . '" >' . $modulemenu[$k] . '</a></li>';
-            } else {
-                $mainmenu .= '<li '.($curmod == $v ? 'class="active"' : '').'"><a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].'</a></li>';
-            }
-        }*/
     }
-    if(!empty($additionally))
+    if(!empty($additionally)){
         $mainmenu .= '
             <li>
                 <a href="#"><span class="nav-label">Еще</span><span class="fa arrow"></span> </a>
@@ -231,6 +248,7 @@ if($modulename){
                     '.$additionally.'
                 </ul>
             </li>';
+    }
 }
 ################################################################################
 $all_configs['curmod'] = null;

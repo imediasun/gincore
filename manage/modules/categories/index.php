@@ -286,7 +286,9 @@ class categories
             $categories_html .= '<p><input class="form-control" id="tree_search" type="text" name="tree_search" placeholder="поиск по дереву"></p>';
             $categories_html .= '<div class="well four-column" id="search_results" style="display: none;"><ul></ul></div>';
             $categories = $this->get_categories();
-            $categories_html .= '<div class="four-column dd" id="categories-tree">' . build_array_tree($categories, array(), 2) . '</div>';
+            $categories_html .= '<div class="four-column dd backgroud-white" id="categories-tree">' . 
+                                    build_array_tree($categories, array(), 2) . 
+                                '</div>';
         } else {
             $categories_html .= '<p  class="text-error">Не существует ниодной категории</p>';
         }
@@ -463,8 +465,8 @@ class categories
             $category_html .= '<div class="form-group"><label>Название:</label>
                 <input class="form-control" name="title" value="' . $cur_category['title'] . '" /></div>';
             $category_html .= '<input type="hidden" class="span5" name="id" value="' . $cur_category['id'] . '" />';
-            $category_html .= '<div class="form-group"><label class="control-label">url:</label>
-                <input class="form-control" name="url" value="' . $cur_category['url'] . '" /></div>';
+//            $category_html .= '<div class="form-group"><label class="control-label">url:</label>
+//                <input class="form-control" name="url" value="' . $cur_category['url'] . '" /></div>';
             /*if ( $cur_category['parent_id'] == 0 ) {
                 $category_html .= '<div class="control-group"><label class="control-label">Выберите превью:</label>
                     <div class="controls"><input class="span5" name="thumbs" type="file" /></div>
@@ -490,8 +492,8 @@ class categories
                 <div class="controls"><textarea name="content" class="form-control" rows="3">' . htmlspecialchars($cur_category['content']) . '</textarea></div>';
             $category_html .= '<div class="form-group"><label>Приоритет: </label>
                     <input class="form-control" type="text" value="' . $cur_category['prio'] . '" name="prio"  /></div>';
-            $category_html .= '<div class="form-group"><label>Склады поставщиков США/Китай: </label>
-                <textarea name="warehouses_suppliers" class="form-control" rows="3">' . $cur_category['warehouses_suppliers'] . '</textarea></div>';
+//            $category_html .= '<div class="form-group"><label>Склады поставщиков США/Китай: </label>
+//                <textarea name="warehouses_suppliers" class="form-control" rows="3">' . $cur_category['warehouses_suppliers'] . '</textarea></div>';
             $category_html .= '<div class="form-group"><label>Важная информация: </label>
                 <textarea name="information" class="form-control" rows="3">' . $cur_category['information'] . '</textarea></div>';
 
@@ -694,8 +696,8 @@ class categories
         $category_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
         $category_html .= '<li><a class="click_tab default" data-open_tab="categories_edit_tab_category" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_category">Категория</a></li>';
         $category_html .= '<li><a class="click_tab" data-open_tab="categories_edit_tab_goods" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_goods">Товары</a></li>';
-        if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories'))
-            $category_html .= '<li><a class="click_tab" data-open_tab="categories_edit_tab_seo" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_seo">SEO</a></li>';
+//        if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories'))
+//            $category_html .= '<li><a class="click_tab" data-open_tab="categories_edit_tab_seo" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_seo">SEO</a></li>';
         $category_html .= '</ul>';
 
         $category_html .= '<div class="tab-content"><div id="edit_tab_category" class="tab-pane">';

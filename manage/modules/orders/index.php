@@ -1,20 +1,45 @@
  <?php
 
-
+$moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
 $modulemenu[10] = 'Заказы';
-$moduleactive[10] = !$ifauth['is_2'];
 
 class orders
 {
+    public static $mod_submenu = array(
+        array(
+            'click_tab' => true,
+            'url' => '#show_orders',
+            'name' => 'Заказы клиентов'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#create_order',
+            'name' => 'Создать заказ'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#show_suppliers_orders',
+            'name' => 'Заказы поставщику'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#create_supplier_order',
+            'name' => 'Создать заказ поставщику'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#orders_manager',
+            'name' => 'Менеджер заказов'
+        ), 
+    );
     protected $all_configs;
-
     public $count_on_page;
-
+    
     function __construct(&$all_configs, $gen_module = true)
     {
         $this->all_configs = $all_configs;
-
+        
         if($gen_module){
             $this->count_on_page = count_on_page();
 
@@ -305,9 +330,14 @@ class orders
         exit;
     }
 
-    function show_filter_manager(){
-        $out = '<div class="form-group"><label>Менеджер:</label> ';
-        $out .= '<select class="multiselect form-control" name="managers[]" multiple="multiple">';
+    function show_filter_manager($compact = false){
+        $out = '<div class="'.($compact ? 'input-group' : 'form-group').'">';
+        if(!$compact){
+            $out .= '<label>Менеджер:</label> ';
+        }else{
+            $out .= '<p class="form-control-static">Менеджер:</p><span class="input-group-btn">';
+        }
+        $out .= '<select'.($compact ? ' data-numberDisplayed="0"' : '').' class="multiselect form-control'.($compact ? ' btn-sm ' : '').'" name="managers[]" multiple="multiple">';
         // менеджеры
         $managers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
@@ -319,7 +349,7 @@ class orders
             $out .= '<option ' . ($mg_get && in_array($manager['id'], $mg_get) ? 'selected' : '');
             $out .= ' value="' . $manager['id'] . '">' . htmlspecialchars($manager['name']) . '</option>';
         }
-        $out .= '</select></span></div>';
+        $out .= '</select>'.($compact ? '</span>' : '').'</div>';
         return $out;
     }
     
@@ -337,25 +367,105 @@ class orders
             WHERE user_id=?i AND type=?', array($_SESSION['id'], 'co'))->el();
 
         $out = '';
-        // фильтры заказов клиентов
-        //$out .= '<div id="left-menu-clients-order">';
-        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $out .= '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/#create_order" ';
-            $out .= 'class="btn btn-success hash_link btn-mini">Создать заказ</a><br /><br />';
+        // индинеры
+        $engineers = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
+            array('engineer'))->assoc();
+        $engineer_options = '';
+        foreach ($engineers as $engineer) {
+            $engineer_options .= '<option ' . ((isset($_GET['eng']) && in_array($engineer['id'], explode(',', $_GET['eng']))) ? 'selected' : '');
+            $engineer_options .= ' value="' . $engineer['id'] . '">' . htmlspecialchars($engineer['name']) . '</option>';
         }
-
-        $out .= '<div class="btn-group-vertical">';
-        $out .= '<a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
-        $out .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
-        $out .= '<a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="';
-        $out .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked">Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span></a>';
-        $out .= '<a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') . ' text-left" href="';
-        $out .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=co#show_orders">Отмеченные: ';
-        $out .= '<span class="icons-marked star-marked-active"> </span> <span id="count-marked-co">' . $count_marked . '</span></a>';
-        $out .= '</div><br><br>';
-
-        $out .= '<form method="post">';
-
+        // приемщики
+        $accepter_options = '';
+        $accepters = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
+            array('create-clients-orders', 'site-administration'))->assoc();
+        foreach ($accepters as $accepter) {
+            $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'], explode(',', $_GET['acp'])))) ? 'selected' : '';
+            $accepter_options .= '<option ' . $selected . ' value="' . $accepter['id'] . '">' . htmlspecialchars($accepter['name']) . '</option>';
+        }
+        // статусы
+        $status_options = '';
+        foreach ($this->all_configs['configs']['order-status'] as $os_id=>$os_v) {
+            $status_options .= '<option ' . ((isset($_GET['st']) && in_array($os_id, explode(',', $_GET['st']))) ? 'selected' : '');
+            $status_options .= ' value="' . $os_id . '">' . htmlspecialchars($os_v['name']) . '</option>';
+        }
+        $out .= '
+        <form method="post">
+        <div class="clearfix theme_bg p-sm m-b-md">
+            <div class="row row-15">
+                <div class="col-sm-2">
+                    <div class="btn-group-vertical">
+                        <a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" 
+                           href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">
+                               Всего: <span id="count-clients-orders">' . $count . '</span>
+                        </a>
+                        <a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="
+                            '.$this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked">
+                                Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span>
+                        </a>
+                        <a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') . ' text-left" href="
+                            '.$this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=co#show_orders">
+                            Отмеченные: <span class="icons-marked star-marked-active"> </span> <span id="count-marked-co">' . $count_marked . '</span>
+                        </a>
+                    </div> <br><br>
+                    <input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />
+                    <input name="client" value="'.(isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '').'" type="text" class="form-control" placeholder="телефон/ФИО клиента">
+                    <input name="order_id" value="'.(isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
+                    <input type="text" name="serial" class="form-control" value="' . (isset($_GET['serial']) ? $_GET['serial'] : '') . '" placeholder="Серийный номер">
+                </div>
+                <div class="col-sm-3">
+                    '.typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini').'
+                    '.typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini').'
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="np" ' . (isset($_GET['np']) ? 'checked' : '') . ' /> Принято через почту</label>
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="rf" '.(isset($_GET['rf']) ? 'checked' : '').' /> Выдан подменный фонд</label>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div>
+                        <div class="input-group">
+                            <p class="form-control-static">Инженер:</p>
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]" multiple="multiple">
+                                '.$engineer_options.'
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                    '.$this->show_filter_manager(true).'
+                    <div>
+                        <div class="input-group">
+                            <p class="form-control-static">Приемщик:</p> 
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
+                                    ? 'disabled' : '') . ' class="multiselect btn-sm" name="accepter[]" multiple="multiple">
+                                    '.$accepter_options.'
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="input-group">
+                            <p class="form-control-static">Статус:</p>
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]" multiple="multiple">
+                                    '.$status_options.'
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3" style="overflow:hidden">
+        ';
         // фильтр по складам (дерево)
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
             FROM {orders} as o, {warehouses} as w LEFT JOIN {warehouses_groups} as gr ON gr.id=w.group_id
@@ -394,64 +504,12 @@ class orders
             }
             $out .= '</ul>';
         }
-        $out .= '<div class="checkbox"><label><input type="checkbox" name="np" ' . (isset($_GET['np']) ? 'checked' : '') . ' /> Принято через нп</label></div>';
-        $out .= '<div class="checkbox"><label><input type="checkbox" name="rf" ' . (isset($_GET['rf']) ? 'checked' : '') . ' /> Выдан подменный фонд</label></div>';
-        // инженеры
-        $out .= '<div><div class="input-group"><p class="form-control-static">Инженер:</p> ';
-        $out .= '<span class="input-group-btn"><select class="multiselect btn-sm" name="engineers[]" multiple="multiple">';
-        $engineers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
-            array('engineer'))->assoc();
-        foreach ($engineers as $engineer) {
-            $out .= '<option ' . ((isset($_GET['eng']) && in_array($engineer['id'], explode(',', $_GET['eng']))) ? 'selected' : '');
-            $out .= ' value="' . $engineer['id'] . '">' . htmlspecialchars($engineer['name']) . '</option>';
-        }
-        $out .= '</select></span></div></div>';
-        // манагеры
-        $out .= $this->show_filter_manager();
-        // приемщики
-        $out .= '<div><div class="input-group"><p class="form-control-static">Приемщик:</p> ';
-        $out .= '<span class="input-group-btn"><select ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
-                ? 'disabled' : '') . ' class="multiselect btn-sm" name="accepter[]" multiple="multiple">';
-        $accepters = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('create-clients-orders', 'site-administration'))->assoc();
-        foreach ($accepters as $accepter) {
-            $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'], explode(',', $_GET['acp'])))) ? 'selected' : '';
-            $out .= '<option ' . $selected . ' value="' . $accepter['id'] . '">' . htmlspecialchars($accepter['name']) . '</option>';
-        }
-        $out .= '</select></span></div></div>';
-        // статусы
-        $out .= '<div><div class="input-group"><p class="form-control-static">Статус:</p> ';
-        $out .= '<span class="input-group-btn"><select class="multiselect btn-sm" name="status[]" multiple="multiple">';
-        foreach ($this->all_configs['configs']['order-status'] as $os_id=>$os_v) {
-            $out .= '<option ' . ((isset($_GET['st']) && in_array($os_id, explode(',', $_GET['st']))) ? 'selected' : '');
-            $out .= ' value="' . $os_id . '">' . htmlspecialchars($os_v['name']) . '</option>';
-        }
-        $out .= '</select></span></div></div>';
-        //$out .= '<label>Дата:</label>';
-        $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
-        //$out .= '<label>Категория:</label>';
-        //$out .= typeahead($this->all_configs['db'], 'categories', false, isset($_GET['g_cg']) && $_GET['g_cg'] > 0 ? $_GET['g_cg'] : 0);
-        //$out .= '<label>№заказа/телефон/ФИО:</label>';
-        $out .= '<input name="client" value="';
-        $out .= isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '';
-        $out .= '" type="text" class="form-control" placeholder="телефон/ФИО клиента">';
-        $out .= '<input name="order_id" value="';
-        $out .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '';
-        $out .= '" type="text" class="form-control" placeholder="№ заказа">';
-        //$out .= '<label>Товар:</label>';
-        //$out .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 5, 'input-small', 'input-mini');
-        //$out .= '<label>Устройство:</label>';
         
-        $out .= typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini');
-        $out .= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini');
-        //$out .= '<label>Серийный номер:</label>';
-        $out .= '<div class="form-group"><input type="text" name="serial" class="form-control" value="' . (isset($_GET['serial']) ? $_GET['serial'] : '') . '" placeholder="Серийный номер">';
-        $out .= '</div><input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">';
-        $out .= '</form>';
+        $out .= '
+                </div>
+            </div>
+        </div>
+        </form>';
 
         return $out;
     }
@@ -462,17 +520,17 @@ class orders
 
         $orders_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_show_orders" onclick="click_tab(this, event)" data-toggle="tab" href="#show_orders">Заказы<span class="tab_count hide tc_clients_orders"></span></a></li>';
+            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_show_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'<span class="tab_count hide tc_clients_orders"></span></a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_order" onclick="click_tab(this, event)" data-toggle="tab" href="#create_order">Создать заказ</a></li>';
+            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_show_suppliers_orders" onclick="click_tab(this, event)" data-toggle="tab" href="#show_suppliers_orders">Заказы поставщику<span class="tab_count hide tc_suppliers_orders"></span></a></li>';
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_supplier_order" onclick="click_tab(this, event)" data-toggle="tab" href="#create_supplier_order">Создать заказ поставщику</a></li>';
+            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_show_suppliers_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'<span class="tab_count hide tc_suppliers_orders"></span></a></li>';
+            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_supplier_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_manager" onclick="click_tab(this, event)" data-toggle="tab" href="#orders_manager">Менеджер заказов</a></li>';
+            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_manager" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a></li>';
         }
 
         $orders_html .= '</ul><div class="tab-content">';
@@ -515,23 +573,23 @@ class orders
 
         $orders_html = '';
         if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html = '<div class="span2">' . $this->clients_orders_menu();
-            $orders_html .= '</div><div class="span10">';
+            $orders_html .= '<div class="span12">';
 
-            $orders_html .= '<ul class="nav nav-pills">';
-            $orders_html .= '<li class="active"><a class="click_tab" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders">Заказ на ремонт</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold">Продажи</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab" href="#show_orders-return" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_return">Возвраты поставщикам</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab" href="#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff">Списания</a></li>';
-            $orders_html .= '</ul><div class="pill-content">';
-
+            $orders_html .= '<ul class="list-unstyled inline clearfix">';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-bolt"></i> РЕМОНТЫ</a></li>';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-users"></i> ПРОДАЖИ</a></li>';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i> СПИСАНИЯ</a></li>';
+            $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
+            if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
+                $orders_html .= '<li class="pull-right"><a href="' . $this->all_configs['prefix'] . 'orders/#create_order" class="btn btn-success hash_link">Создать заказ</a></li>';
+            }
+            $orders_html .= '</ul>
+                <div class="hidden" id="filters">'.$this->clients_orders_menu().'</div>
+                <div class="pill-content">';
             $orders_html .= '<div id="show_orders-orders" class="pill-pane active">';
             $orders_html .= '</div>';
 
             $orders_html .= '<div id="show_orders-sold" class="pill-pane">';
-            $orders_html .= '</div>';
-
-            $orders_html .= '<div id="show_orders-return" class="pill-pane">';
             $orders_html .= '</div>';
 
             $orders_html .= '<div id="show_orders-writeoff" class="pill-pane">';
@@ -651,7 +709,7 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>Дата</td>';
+            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>№ заказа</td><td>Дата</td>';
             $orders_html .= '<td>Приемщик</td><td>Менеджер</td><td>Статус</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
@@ -662,7 +720,7 @@ class orders
             foreach ($orders as $order) {
                 $orders_html .= display_client_order($order);
             }
-            $orders_html .= '</tbody></table>';
+            $orders_html .= '</tbody></table></div>';
 
             // количество заказов клиентов
             $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
@@ -678,7 +736,8 @@ class orders
 
         return array(
             'html' => $orders_html,
-            'functions' => array(),
+            'menu' => $this->clients_orders_menu(),
+            'functions' => array('reset_multiselect()','gen_tree()'),
         );
     }
 
@@ -859,7 +918,7 @@ class orders
                                                     <div class="col-sm-6">
                                                         <div class="checkbox"><label><input type="checkbox" value="1" name="client_took" /> Устройство у клиента</label></div>
                                                         <div class="checkbox"><label><input type="checkbox" value="1" name="urgent" /> Срочный ремонт</label></div>
-                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="np_accept" /> Принято через Новую Почту</label></div>
+                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="np_accept" /> Принято через почту</label></div>
                                                         <div class="checkbox"><label><input type="checkbox" value="1" name="nonconsent" /> Можно пускать в работу без согласования</label></div>
                                                         <div class="checkbox"><label><input type="checkbox" value="1" name="is_waiting" /> Клиент готов ждать 2-3 недели запчасть</label></div>
                                                     </div>
@@ -962,24 +1021,21 @@ class orders
     function orders_show_suppliers_orders($hash = '#show_suppliers_orders')
     {
         if (trim($hash) == '#show_suppliers_orders' || (trim($hash) != '#show_suppliers_orders-all'
-                && trim($hash) != '#show_suppliers_orders-wait' && trim($hash) != '#show_suppliers_orders-procurement'))
+                && trim($hash) != '#show_suppliers_orders-wait' && trim($hash) != '#show_suppliers_orders-procurement'
+                && trim($hash) != '#show_suppliers_orders-return'))
             $hash = '#show_suppliers_orders-all';
 
-        $orders_html = '<div class="span2">';
-        $orders_html .= '<a href="' . $this->all_configs['prefix'] . 'orders/#create_supplier_order" ';
-        $orders_html .= 'class="btn btn-success hash_link btn-mini">Создать заказ</a><br /><br />';
-        $orders_html .= '<div id="show_suppliers_orders-menu"></div>';
-        //$orders_html .= $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(true);
-        //$orders_html .= '<br /><button class="btn" onclick="suppliers_orders_unload(this, \'suppliers-orders-unload-csv\')">Выгрузить в CSV</button>';
-        //$orders_html .= '<button class="btn" onclick="suppliers_orders_unload(this, \'suppliers-orders-unload-xls\')">Выгрузить в XLS</button>';
+        $orders_html = '<div>';
 
-        $orders_html .= '</div><div class="span10">';
-
-        $orders_html .= '<ul class="nav nav-pills">';
-        $orders_html .= '<li class="active"><a class="click_tab" href="#show_suppliers_orders-all" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_all">Все заказы<span class="tab_count hide tc_suppliers_orders_all"></span></a></li>';
-        $orders_html .= '<li class=""><a class="click_tab" href="#show_suppliers_orders-wait" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_wait">Ожидают проверки</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab" href="#show_suppliers_orders-procurement" title="" onclick="click_tab(this, event)" data-open_tab="orders_recommendations_procurement">Рекомендации по закупкам</a></li>';
-        $orders_html .= '</ul><div class="pill-content">';
+        $orders_html .= '<ul class="list-unstyled inline clearfix">';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_suppliers_orders-all" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_all"><i class="fa fa-bolt"></i> Все заказы<span class="tab_count hide tc_suppliers_orders_all"></span></a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_suppliers_orders-wait" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_wait"><i class="fa fa-clock-o"></i> Ожидают проверки</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-warning" href="#show_suppliers_orders-return" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_return"><i class="fa fa-exchange"></i> Возвраты поставщикам</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_suppliers_orders-procurement" title="" onclick="click_tab(this, event)" data-open_tab="orders_recommendations_procurement">Рекомендации по закупкам</a></li>';
+        $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
+        $orders_html .= '</ul>
+            <div class="hidden" id="filters"><div id="show_suppliers_orders-menu"></div></div>
+        <div class="pill-content">';
 
         $orders_html .= '<div id="show_suppliers_orders-all" class="pill-pane">';
         $orders_html .= '</div>';
@@ -987,6 +1043,9 @@ class orders
         $orders_html .= '<div id="show_suppliers_orders-wait" class="pill-pane">';
         $orders_html .= '</div>';
 
+        $orders_html .= '<div id="show_suppliers_orders-return" class="pill-pane">';
+        $orders_html .= '</div>';
+        
         $orders_html .= '<div id="show_suppliers_orders-procurement" class="pill-pane">';
         $orders_html .= '</div>';
 
@@ -1137,7 +1196,7 @@ class orders
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
-        $out = '<form method="post">';
+        $out = '<form method="post"><div class="clearfix theme_bg p-sm m-b-md">';
         $out .= '<div class="form-group"><label>Категории</label>';
         $out .= '<select class="multiselect form-control" multiple="multiple" name="ctg[]">';
         $categories = $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
@@ -1152,7 +1211,7 @@ class orders
         $out .= '<div class="form-group"><label>Дата от:</label>';
         $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
         $out .= '</div><input type="submit" class="btn btn-primary" value="Применить" name="procurement-filter" />';
-        $out .= '</form>';
+        $out .= '</div></form>';
 
         return $out;
     }
@@ -1815,21 +1874,31 @@ class orders
             $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
                 !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ? true : false;
 
-            $order_html .= '<form method="post" id="order-form" class="container">';
+            $order_html .= '<form method="post" id="order-form" class="container backgroud-white p-sm">';
 
             $order_html .= '<div class="row-fluid">';
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $print_warranty = print_link($order['id'], 'warranty');
-                $print_check = print_link($order['id'], 'check', '№' . $order['id']);
+                $print_warranty = print_link($order['id'], 'warranty', '<i class="cursor-pointer fa fa-wrench"></i><span>ГАРАН</span>', 'order_print_btn');
+                $print_check = print_link($order['id'], 'check', '<i class="cursor-pointer fa fa-user"></i><span>ЧЕК</span>', 'order_print_btn');
             } else {
-                $print_check = '№' . $order['id'];
+                $print_check = '';
                 $print_warranty = '';
             }
             //$order_html .= '<label><span class="muted">Принят: </span> ';
             //$order_html .= '</label>';
             $order_html .= '<div class="span6"><div class="span12"><div class="span6">';
-            $order_html .= '<h3>' . $print_check . $print_warranty . ' <small> Принят: <span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></small></h3>';
+            $order_html .= '
+                <small style="font-size:10px" title="' . do_nice_date($order['date_add'], false) . '">
+                    Принят: '.do_nice_date($order['date_add']).'
+                </small><br>
+                <h3>
+                    №'.$order['id'].'
+                    <a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-ambulance"></i><span>КВИТ</span></a>'
+                    .$print_check
+                    .$print_warranty 
+                    .'<a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-users"></i><span>АКТ</span></a>
+                </h3>';
             
             
             
@@ -1916,7 +1985,7 @@ class orders
             $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
             $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
             $accepted .= $order['np_accept'] == 1 ? 
-                            '<i title="Принято через новую почту" class="fa fa-arrows text-danger"></i> ' :
+                            '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
                             '<i style="color:' . $color . ';" title="Принято в сервисном центре" class="' . htmlspecialchars($order['icon']) . '"></i> ';
             $accepted .= $order['aw_title'].' ';
             $order_html .= '<div class="form-group center"><br>' . $accepted . timerout($order['id'], true) . '</div>';

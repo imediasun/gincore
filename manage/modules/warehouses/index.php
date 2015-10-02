@@ -7,6 +7,33 @@ $moduleactive[40] = !$ifauth['is_2'];
 
 class warehouses
 {
+    public static $mod_submenu = array(
+        array(
+            'click_tab' => true,
+            'url' => '#scanner_moves',
+            'name' => 'Перемещения'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#warehouses',
+            'name' => 'Склады'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#show_items',
+            'name' => 'Товары'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#orders',
+            'name' => 'Заказы'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#settings',
+            'name' => 'Настройки'
+        ), 
+    );
     protected $warehouses;
     protected $all_configs;
     protected $errors;
@@ -427,15 +454,15 @@ class warehouses
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="#scanner_moves">Перемещения</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="#warehouses">Склады</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="#show_items">Товары</a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_orders" onclick="click_tab(this, event)" data-toggle="tab" href="#orders">Заказы<span class="tab_count hide tc_sum_warehouses_orders"></span></a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="warehouses_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_warehouses_orders"></span></a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration"))
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_settings" onclick="click_tab(this, event)" data-toggle="tab" href="#settings">Настройки</a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="warehouses_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a></li>';
         //if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders"))
         //    $out .= '<li><a class="click_tab" data-open_tab="warehouses_inventories" onclick="click_tab(this, event)" data-toggle="tab" href="#inventories">Инвентаризация</a></li>';
         $out .= '</ul><div class="tab-content">';
@@ -489,7 +516,9 @@ class warehouses
         $out = '';
         if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')) {
             $out .= '<div id="scanner-moves-alert" class="alert fade"><button type="button" class="close" data-dismiss="alert">&times;</button><div id="scanner-moves-alert-body"></div></div>';
-            $out .= '<input value="" id="scanner-moves" type="text" placeholder="заказ, изделие или локация" class="form-control" />';
+            $out .= '
+                <label>Укажите номер заказа, изделия или локации. После чего нажмите Enter. Или используйте сканер.</label>
+                <input value="" id="scanner-moves" type="text" placeholder="заказ, изделие или локация" class="form-control" />';
             $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="заказ или локация" class="form-control" />';
         }
 
@@ -711,25 +740,21 @@ class warehouses
 
         if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')) {
 
-            $out .= '<ul class="nav nav-pills">';
+            $out .= '<ul class="list-unstyled inline clearfix">';
 
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-                $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_bind"';
+                $out .= '<li><a class="click_tab btn btn-success" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_bind"';
                 $out .= ' title="Привязать серийный номер к заказу" href="#orders-clients_bind">Привязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
 
-                $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_unbind"';
+                $out .= '<li><a class="click_tab btn btn-danger" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_unbind"';
                 $out .= ' title="Отвязать серийный номер от заказа" href="#orders-clients_unbind">Отвязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
             }
-
-            //$out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_issued"';
-            //$out .= ' title="Выдать изделие со склада" href="#orders-clients_issued">Выдать<span class="tab_count hide tc_warehouses_clients_orders_issued"></span></a></li>';
-            //$out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_accept"';
-            //$out .= ' title="Принять изделие на склад" href="#orders-clients_accept">Принять<span class="tab_count hide tc_warehouses_clients_orders_accept"></span></a></li>';
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-                $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_suppliers"';
+                $out .= '<li><a class="click_tab  btn btn-warning" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_suppliers"';
                 $out .= ' title="Заказы поставщику которые ждут приходования" href="#orders-suppliers">Заказы поставщику<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
             }
-            $out .= '</ul><div class="pill-content">';
+            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
+            $out .= '</ul><div class="clearfix hidden theme_bg p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<div id="orders-suppliers" class="pill-pane">';
                 $out .= '</div><!--#orders-suppliers-->';
@@ -776,9 +801,7 @@ class warehouses
             //$q = $this->all_configs['chains']->query_warehouses();
             //$query .= ' AND o.' . trim($q['query_for_my_warehouses']);
 
-            $out = '<div class="span2">';
-            $out .= $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,false);
-            $out .= '</div><div class="span10">';
+            $out .= '<div>';
             $out .= '<h4>Заказы поставщику, которые ждут приходования</h4>';
             $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
             $out .= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders, true);
@@ -791,6 +814,7 @@ class warehouses
 
         return array(
             'html' => $out,
+            'menu' => $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,false,false),
             'functions' => array('reset_multiselect()'),
         );
     }
@@ -800,7 +824,8 @@ class warehouses
         $out = $this->all_configs['chains']->show_stockman_operations();
 
         return array(
-            'html' => $out,
+            'html' => $out['html'],
+            'menu' => $out['menu'],
             'functions' => array(),
         );
     }
@@ -810,7 +835,8 @@ class warehouses
         $out = $this->all_configs['chains']->show_stockman_operations(2, '#orders-clients_issued');
 
         return array(
-            'html' => $out,
+            'html' => $out['html'],
+            'menu' => $out['menu'],
             'functions' => array(),
         );
     }
@@ -820,7 +846,8 @@ class warehouses
         $out = $this->all_configs['chains']->show_stockman_operations(3, '#orders-clients_accept');
 
         return array(
-            'html' => $out,
+            'html' => $out['html'],
+            'menu' => $out['menu'],
             'functions' => array(),
         );
     }
@@ -830,7 +857,8 @@ class warehouses
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
 
         return array(
-            'html' => $out,
+            'html' => $out['html'],
+            'menu' => $out['menu'],
             'functions' => array(),
         );
     }
@@ -848,8 +876,8 @@ class warehouses
 //            $admin_out .= '<div id="settings" class="tab-pane">';
 
             $admin_out .= '<ul class="nav nav-pills">';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Сервисные центры</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="Создать/редактировать группу склада">Склады</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="Создать/редактировать группу склада">Сервисные центры</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Склады</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="Создать/редактировать категорию склада">Категории</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="Закрепить администратора за кассой">Администраторы</a></li>';
             $admin_out .= '</ul>';
@@ -977,7 +1005,7 @@ class warehouses
         } else {
             $i = 0;
             $btn = "<input type='submit' class='btn' name='warehouse-group-add' value='Создать' />";
-            $accordion_title = 'Создать группу склада';
+            $accordion_title = 'Создать  сервисный центр (группу складов)';
             $name = $color = $address = '';
         }
 
@@ -1467,39 +1495,75 @@ class warehouses
 
     function filter_block($warehouses_options, $i = 1)
     {
-        // фильтр по серийнику
-        $out = '<div class="pull-right" style="max-width:600px">';
-        $out .= '<form class="form-horizontal" method="POST"><label class="col-sm-5 control-label">Серийный номер:&nbsp;</label>';
-        $out .= '<div class="input-group col-sm-7"><input class="form-control" name="serial" placeholder="серийный номер" value="' . ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') . '" />';
-        $out .= '<div class="input-group-btn"><input class="btn" type="submit" name="filter-warehouses" value="Поиск" /></div></div></form>';//.form-horizontal
-        $out .= '<br><form class="form-horizontal" method="POST"><label class="col-sm-5 control-label">Номер заказа поставщику:&nbsp;</label>';
-        $out .= '<div class="input-group col-sm-7"><input class="form-control" name="so_id" placeholder="номер заказа поставщику" value="' . ((isset($_GET['so_id']) && $_GET['so_id']>0) ? intval($_GET['so_id']) : '') . '" />';
-        $out .= '<div class="input-group-btn"><input class="btn" type="submit" name="filter-warehouses" value="Поиск" /></div></div></form>';//.form-horizontal
-        $out .= '</div>';
-        $out .= '<div class="">';
-        // фильтр по складам
-        $out .= '<form method="post">'
-               .'<div style="display:table;" class="form-group"><label>Склад:</label><br>';
-        $out .= '<select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]" multiple="multiple">';
-        $out .= $warehouses_options;
-        $out .= '</select></div>';
-        // фильтр по локациям
-        $out .= '<div class="form-group"><label>Локация:</label><br>';
-        $out .= '<select class="multiselect  form-control select-location" name="locations[]" multiple="multiple">';
+        $wh_select = '';
         if (isset($_GET['whs'])) {
-            $out .= $this->all_configs['suppliers_orders']->gen_locations($_GET['whs'], isset($_GET['lcs']) ? $_GET['lcs'] : null);
+            $wh_select = $this->all_configs['suppliers_orders']->gen_locations($_GET['whs'], isset($_GET['lcs']) ? $_GET['lcs'] : null);
         }
-        $out .= '</select></div>';
-        // тип вывода
-        $out .= '<div class="form-group"><label>Тип вывода:</label>';
-        $out .= '<div class="radio"><label><input checked type="radio" value="item" name="display" /> по изделию</label></div>';
-        $out .= '<div class="radio"><label><input  ' . ((isset($_GET['d']) && $_GET['d'] == 'a') ? 'checked' : '') . ' type="radio" value="amount" name="display" /> по наименованию</label></div>';
-        $out .= '</div></div>';
-        $out .= '<div class="form-group" style="max-width:400px"><label>Товар: </label>';
-        $out .= typeahead($this->all_configs['db'], 'goods', true,
-            isset($_GET['pid']) && $_GET['pid'] > 0 ? intval($_GET['pid']): 0, $i);
-        $out .= '</div>';
-        $out .= '<div class="form-group"><input class="btn" type="submit" name="filter-warehouses" value="Применить" /></div></form></div>';//.form-horizontal
+        // фильтр по серийнику
+        $out = '
+            <div class="row row-15">
+                <form method="post">
+                    <div class="col-sm-4">
+                        <div class="row row-15">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Склад:</label><br>
+                                    <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]" multiple="multiple">
+                                        '.$warehouses_options.'
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Локация:</label><br>
+                                    <select class="multiselect form-control select-location" name="locations[]" multiple="multiple">
+                                        '.$wh_select.'
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="max-width:400px">
+                            <label>Товар: </label>
+                            '.typeahead($this->all_configs['db'], 'goods', true, isset($_GET['pid']) && $_GET['pid'] > 0 ? intval($_GET['pid']): 0, $i).'
+                        </div>
+                        <div class="form-group">
+                            <input class="btn btn-info" type="submit" name="filter-warehouses" value="Применить" />
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label>Тип вывода:</label>
+                            <div class="radio">
+                                <label><input checked type="radio" value="item" name="display" /> по изделию</label>
+                            </div>
+                            <div class="radio">
+                                <label><input  ' . ((isset($_GET['d']) && $_GET['d'] == 'a') ? 'checked' : '') . ' type="radio" value="amount" name="display" /> по наименованию</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="col-sm-6">
+                    <form class="form-horizontal" method="POST">
+                        <label class="col-sm-6 control-label">Серийный номер:&nbsp;</label>
+                        <div class="input-group col-sm-6">
+                            <input class="form-control" name="serial" placeholder="серийный номер" value="' . ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') . '" />
+                            <div class="input-group-btn">
+                                <input class="btn" type="submit" name="filter-warehouses" value="Поиск" />
+                            </div>
+                        </div>
+                    </form>
+                    <form class="form-horizontal m-t-sm" method="POST">
+                        <label class="col-sm-6 control-label">Номер заказа поставщику:&nbsp;</label>
+                        <div class="input-group col-sm-6">
+                            <input class="form-control" name="so_id" placeholder="номер заказа поставщику" value="' . ((isset($_GET['so_id']) && $_GET['so_id']>0) ? intval($_GET['so_id']) : '') . '" />
+                            <div class="input-group-btn">
+                                <input class="btn" type="submit" name="filter-warehouses" value="Поиск" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        ';
 
         return $out;
     }
@@ -1920,7 +1984,15 @@ class warehouses
                         array($this, $_POST['tab']),
                         array((isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'], 'UTF-8')) > 0) ? trim($_POST['hashs']) : null)
                     );
-                    echo json_encode(array('html' =>  $function['html'], 'state' => true, 'functions' => $function['functions']));
+                    $return = array(
+                        'html' =>  $function['html'], 
+                        'state' => true, 
+                        'functions' => $function['functions']
+                    );
+                    if (isset($function['menu'])) {
+                        $return['menu'] = $function['menu'];
+                    }
+                    echo json_encode($return);
                 } else {
                     echo json_encode(array('message' => 'Не найдено', 'state' => false));
                 }

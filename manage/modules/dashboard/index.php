@@ -85,7 +85,7 @@ class dashboard{
                                     ."WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
         $orders = $this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c "
                                   ."FROM {orders} "
-                                  ."WHERE ?q GROUP BY d", array($this->make_filters('date_add')))->vars();
+                                  ."WHERE ?q AND type = 0 GROUP BY d", array($this->make_filters('date_add')))->vars();
         $calls_js = array();
         $orders_js = array();
         $visitors_js = array();
@@ -169,13 +169,16 @@ class dashboard{
     
     private function get_engineer_stats(){
         $query_filter = $this->make_filters('o.date_add');
-        $all_orders = $this->db->query("SELECT count(*) FROM {orders} as o WHERE ?q", array($query_filter), 'el');
         $orders = $this->db->query("SELECT engineer, IF(u.fio!='',u.fio,u.login) as fio, "
                                          ."count(o.id) as orders "
                                   ."FROM {orders} as o "
                                   ."LEFT JOIN {users} as u ON u.id = o.engineer "
                                   ."WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY engineer "
                                   ."ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']), 'assoc');
+        $all_orders = 0;
+        foreach($orders as $ord){
+            $all_orders += $ord['orders'];
+        }
         $stats = '';
         foreach($orders as $i => $o){
             $p = $this->percent_format($o['orders'] / $all_orders * 100);
@@ -195,18 +198,23 @@ class dashboard{
         $today_cash = $this->db->query("SELECT SUM(value_to) / 100 "
                                       ."FROM {cashboxes_transactions} "
                                       ."WHERE date_transaction >= ? AND transaction_type = 2", array(date('Y-m-d 00:00:00')), 'el');
-        $period_cash = $this->db->query("SELECT SUM(value_to) / 100 "
-                                       ."FROM {cashboxes_transactions} "
-                                       ."WHERE ?q AND transaction_type = 2", array($query_filter), 'el');
-        $chart_cash = $this->db->query("SELECT DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, sum(value_to)/100 as c "
+        $chart_cash = $this->db->query("SELECT "
+                                        ."DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, "
+                                        ."SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
                                       ."FROM {cashboxes_transactions} "
-                                      ."WHERE ?q AND transaction_type = 2 GROUP BY d", array($query_filter))->vars();
+                                      ."WHERE ?q AND transaction_type = 2 "
+                                        ."AND type NOT IN (1, 2, 3, 4) AND type NOT IN (6,10) "
+                                        ."AND client_order_id > 0 "
+                                      ."GROUP BY d", array($query_filter))->vars();
         $cash_chart_js = array();
         $period = $this->get_date_period();
+        $period_cash = 0;
         foreach($period as $dt) {
             $date = $dt->format('Y-m-d');
             $d_js = 'gd('.$dt->format('Y').','.$dt->format('n').','.$dt->format('j').')';
-            $cash_chart_js[] = '['.$d_js.','.(isset($chart_cash[$date]) ? number_format($chart_cash[$date],2,'.','') : 0).']';
+            $cash = isset($chart_cash[$date]) ? number_format($chart_cash[$date],2,'.','') : 0;
+            $period_cash += $cash;
+            $cash_chart_js[] = '['.$d_js.','.$cash.']';
         }
         return array(
             'today' => $this->price_format($today_cash),

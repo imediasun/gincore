@@ -229,7 +229,7 @@ $(document).ready(function () {
         });
     });
 
-    $('.multiselect').multiselect(multiselect);
+    init_multiselect();
 
     $('.global-typeahead').live('focusin', '.global-typeahead', function(e) {
 
@@ -870,8 +870,9 @@ function click_tab(_this, e, hashs) {
             if (msg['state'] == true && msg['html']) {
                 $($(_this).attr('href')).html(msg['html']);
 
-                $('ul.nav-pills > li.active').removeClass('active');
+                $(_this).closest('ul').find('li.active').removeClass('active').children('.active').removeClass('active');
                 $(_this).parent('li').addClass('active');
+                $(_this).addClass('active');
                 $('div.pill-content > div.active').removeClass('active');
                 $('div.pill-content > div' + $(_this).attr('href')).addClass('active');
             }
@@ -882,6 +883,7 @@ function click_tab(_this, e, hashs) {
         if (msg) {
             if (msg['menu']) {
                 var str = window.location.hash.split('-');
+                console.log(str[0] + '-menu');
                 $(str[0] + '-menu').html(msg['menu']);
             }
             if (msg['functions'] && msg['functions'].length > 0) {
@@ -920,10 +922,22 @@ function is_enter(_this, e, id, func) {
     }
 }
 
+function init_multiselect(){
+    $('.multiselect').each(function(){
+        var $this = $(this),
+            opts = multiselect;
+        if(typeof $this.attr('data-numberDisplayed') !== 'undefined'){
+            opts.numberDisplayed = $this.attr('data-numberDisplayed');
+        }
+        $this.multiselect(opts);
+    });
+}
+
 function reset_multiselect() {
     $('.multiselect').multiselect('destroy');
 
-    $('.multiselect').multiselect(multiselect);//.trigger('reset');
+    init_multiselect();
+//    $('.multiselect').multiselect(multiselect);//.trigger('reset');
     //$('.multiselect').multiselect('setOptions', multiselect)//.multiselect('rebuild');
     //$('.multiselect').multiselect('refresh');
     //$('.multiselect').multiselect('rebuild');
@@ -1325,5 +1339,29 @@ $(function(){
             }
         });
         return false;
+    });
+    
+    $(document).on('click', '.toggle-hidden', function(){
+        var $this = $(this),
+            $context = $this.closest('.tab-pane'),
+            $toggle = $('#'+$this.attr('data-toggle'), $context);
+        if(!$toggle.length){
+            $toggle = $('#'+$this.attr('data-toggle'), $context.find('.pill-pane.active'));
+        }
+        if($toggle.hasClass('hidden')){
+            $toggle.removeClass('hidden');
+            $this.addClass('active');
+        }else{
+            $this.removeClass('active');
+            $toggle.addClass('hidden');
+        }
+    });
+    
+    $('.module_submenu_click_tab_event').click(function(e){
+        var $menu = $('a[href="'+$(this).data('href')+'"]');
+        if($menu.length){
+            e.preventDefault();
+            $menu.click();
+        }
     });
 });

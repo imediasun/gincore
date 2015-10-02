@@ -264,19 +264,19 @@ class Suppliers
 
     function show_filter_service_center(){
         $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id', array())->assoc();
-        $orders_html = '<div class="form-group"><label>Сервисный Центр:</label> ';
-        $orders_html .= '<select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
+        $orders_html = '<div class="input-group"><p class="form-control-static">Сервисный Центр:</p> ';
+        $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
         $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) : 
                   (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());
         foreach ($wh_groups as $wh_group) {
             $orders_html .= '<option ' . ($wg_get && in_array($wh_group['id'], $wg_get) ? 'selected' : '');
             $orders_html .= ' value="' . $wh_group['id'] . '">' . $wh_group['name'] . '</option>';
         }
-        $orders_html .= '</select></div>';
+        $orders_html .= '</select></span></div>';
         return $orders_html;
     }
     
-    function show_filters_suppliers_orders($show_my = false ,$show_nav = true)
+    function show_filters_suppliers_orders($show_my = false ,$show_nav = true,$inner_wrapper = true)
     {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
@@ -284,7 +284,11 @@ class Suppliers
 
         //$count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}', array())->el();
 
-        $orders_html = '<form method="post">';
+        $orders_html = '
+            <form method="post">
+            '.($inner_wrapper ? '<div class="clearfix theme_bg p-sm m-b-md">' : '').'
+                <div class="row row-15">
+        ';
         //$orders_html .= '<a onclick="location_menu(this, event)" href="' . $this->all_configs['prefix'] . 'orders" class="';
         //$orders_html .= (count($_GET) > 3 ? '' : 'disabled ' ) . 'btn text-left">';
         //$orders_html .= 'Всего: <span id="count-clients-orders">' . $count . '</span></a>';
@@ -303,66 +307,70 @@ class Suppliers
         $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
             WHERE user_id=?i AND type=?', array($_SESSION['id'], 'so'))->el();
 
-        $orders_html .= '<div class="btn-group-vertical">';
-        $orders_html .= '<a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
-        $orders_html .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#show_suppliers_orders">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
-        $orders_html .= '<a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="';
-        $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked#show_suppliers_orders">Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span></a>';
-        $orders_html .= '<a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'so' ? 'disabled' : '') . ' text-left" href="';
-        $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=so#show_suppliers_orders">Отмеченные: ';
-        $orders_html .= '<span class="icons-marked star-marked-active"> </span> <span id="count-marked-so">' . $count_marked . '</span></a>';
+        $orders_html .= '<div class="col-sm-2">';
+            $orders_html .= '<div class="btn-group-vertical">';
+            $orders_html .= '<a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
+            $orders_html .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#show_suppliers_orders">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
+            $orders_html .= '<a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="';
+            $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked#show_suppliers_orders">Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span></a>';
+            $orders_html .= '<a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'so' ? 'disabled' : '') . ' text-left" href="';
+            $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=so#show_suppliers_orders">Отмеченные: ';
+            $orders_html .= '<span class="icons-marked star-marked-active"> </span> <span id="count-marked-so">' . $count_marked . '</span></a>';
+            $orders_html .= '</div>';
+            $orders_html .= '<br><br><input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">';
         $orders_html .= '</div>';
-		// show part of interface - redmine task #546
-		if ($show_nav == true) {
-                    $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['whk']) ? 'checked' : '') . ' type="checkbox" name="wh-kiev" /> Киев</label></div>';
-                    $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['wha']) ? 'checked' : '') . ' type="checkbox" name="wh-abroad" /> Заграница</label></div>';
+        // show part of interface - redmine task #546
+        if ($show_nav == true) {
+            $orders_html .= '<div class="col-sm-2">';
+                $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['whk']) ? 'checked' : '') . ' type="checkbox" name="wh-kiev" /> Киев</label></div>';
+                $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['wha']) ? 'checked' : '') . ' type="checkbox" name="wh-abroad" /> Заграница</label></div>';
+            $orders_html .= '</div>';
         }
-		
-        
-        $orders_html .= $this->show_filter_service_center();
-        
-        $orders_html .= '<div class="form-group"><label>Поставщик:</label>';
-        $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
-            array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
-        $orders_html .= '<select class="multiselect form-control" multiple="multiple" name="suppliers[]">';
-        foreach ($suppliers as $supplier) {
-            $orders_html .= '<option ' . ((isset($_GET['sp']) && in_array($supplier['id'], explode(',', $_GET['sp']))) ? 'selected' : '');
-            $orders_html .= ' value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
-        }
-		// show part of interface - redmine task #546
-		if ($show_nav == true) {
-			$orders_html .= '</select></div><div class="form-group"><label>Статус:</label><select class="form-control" name="so-status"><option value="0">Выбрать</option>';
-			$orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 1 ? 'selected' : '') . ' value="1">Не принятые</option>';
-			$orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 2 ? 'selected' : '') . ' value="2">Удаленные</option>';
-			$orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 3 ? 'selected' : '') . ' value="3">Просроченные</option>';
-			$orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 4 ? 'selected' : '') . ' value="4">Ожидаем поступления</option>';
-        }
-        $orders_html .= '</select></div><div class="form-group"><label>Дата:</label>';
-        $orders_html .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
-        //$orders_html .= '<label>№ заказа:</label>';
-        $orders_html .= '<input type="hidden" placeholder="№ заказа" name="supplier_order_id" class="form-control" value="';
-        $orders_html .= (isset($_GET['so_id']) && $_GET['so_id'] > 0 ? $_GET['so_id'] : '') . '" />';
+        $orders_html .= '<div class="col-sm-3">';
+            $orders_html .= $this->show_filter_service_center();
+            $orders_html .= '<div class="input-group"><p class="form-control-static">Поставщик:</p>';
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
+                array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
+            $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="suppliers[]">';
+            foreach ($suppliers as $supplier) {
+                $orders_html .= '<option ' . ((isset($_GET['sp']) && in_array($supplier['id'], explode(',', $_GET['sp']))) ? 'selected' : '');
+                $orders_html .= ' value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
+            }
+            // show part of interface - redmine task #546
+            if ($show_nav == true) {
+                $orders_html .= '</select></span></div><div class="input-group"><p class="form-control-static">Статус:</p><span class="input-group-btn"><select class="form-control" style="width: 98px" name="so-status"><option value="0">Выбрать</option>';
+                $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 1 ? 'selected' : '') . ' value="1">Не принятые</option>';
+                $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 2 ? 'selected' : '') . ' value="2">Удаленные</option>';
+                $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 3 ? 'selected' : '') . ' value="3">Просроченные</option>';
+                $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 4 ? 'selected' : '') . ' value="4">Ожидаем поступления</option>';
+            }
+            $orders_html .= '</select></span></div>';
+        $orders_html .= '</div>';
+        $orders_html .= '<div class="col-sm-2">';
+            $orders_html .= '<div class="form-group">';
+            $orders_html .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
+            //$orders_html .= '<label>№ заказа:</label>';
+            $orders_html .= '<input type="hidden" placeholder="№ заказа" name="supplier_order_id" class="form-control" value="';
+            $orders_html .= (isset($_GET['so_id']) && $_GET['so_id'] > 0 ? $_GET['so_id'] : '') . '" />';
 
-        $orders_html .= '</div><div class="form-group"><label>№ заказа:</label>';
-        $orders_html .= '<input type="text" placeholder="№ заказа" name="supplier_order_id_part" class="form-control" value="';
-        $orders_html .= (isset($_GET['pso_id']) && $_GET['pso_id'] > 0 ? $_GET['pso_id'] : '') . '" /></div>';
+            $orders_html .= '</div><div class="form-group">';
+            $orders_html .= '<input type="text" placeholder="№ заказа" name="supplier_order_id_part" class="form-control" value="';
+            $orders_html .= (isset($_GET['pso_id']) && $_GET['pso_id'] > 0 ? $_GET['pso_id'] : '') . '" /></div>';
+        $orders_html .= '</div>';
+        $orders_html .= '<div class="col-sm-3">';
+            if ($show_my == true) {
+                $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('edit-map') ? false : true;
+                $orders_html .= '<div class="form-group"><div class="checkbox"><label><input name="my" type="checkbox" ';
+                $orders_html .= $my || (isset($_GET['my']) && $_GET['my'] == 1) ? ' checked ' : '';
+                $orders_html .= ($my ? ' disabled ' : '') . ' /> Только мои</label></div></div>';
+            }
+            $orders_html .= '<div class="form-group"><div class="checkbox"><label><input name="noavail" type="checkbox" ';
+            $orders_html .= ((isset($_GET['avail']) && $_GET['avail'] == 0) ? ' checked ' : '') . ' />Не активные</label></div></div>';
+            $orders_html .= '<div class="form-group"><label>Товар:</label>';
+            $orders_html .= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini').'</div>';
+        $orders_html .= '</div>';
 
-        //$orders_html .= '<label>Статус:</label>';
-        //$orders_html .= '<select class="input-medium" name="so_st"><option value="">Выберите</option><option value="">Новый заказ</option>';
-        //$orders_html .= '<option value="">Неоприходован</option><option value="">Оприходован и оплачен</option></select>';
-        $orders_html .= '<div class="form-group"><label>Товар:</label>';
-        $orders_html .= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini').'</div>';
-        if ($show_my == true) {
-            $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('edit-map') ? false : true;
-            $orders_html .= '<div class="form-group"><div class="checkbox"><label><input name="my" type="checkbox" ';
-            $orders_html .= $my || (isset($_GET['my']) && $_GET['my'] == 1) ? ' checked ' : '';
-            $orders_html .= ($my ? ' disabled ' : '') . ' /> Только мои</label></div></div>';
-        }
-        $orders_html .= '<div class="form-group"><div class="checkbox"><label><input name="noavail" type="checkbox" ';
-        $orders_html .= ((isset($_GET['avail']) && $_GET['avail'] == 0) ? ' checked ' : '') . ' />Не активные</label></div></div>';
-
-        $orders_html .= '<input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">';
-        $orders_html .= '</form>';
+        $orders_html .= '</div>'.($inner_wrapper ? '</div>' : '').'</form>';
 
         //$href = '';
         //$orders_html .= '<br /><a target="_blank" href="' . $href . '" class="btn">Выгрузить данные</a>';

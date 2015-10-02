@@ -711,7 +711,6 @@ class manageModel
         }
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
-
         $orders = $this->all_configs['db']->query('SELECT o.id as order_id, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
               SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title, SUM(IF(t.type=?i, 0, 1)) as qty,

@@ -401,7 +401,9 @@ function count_on_page()
         $count = $_COOKIE[$cfg['tbl'] . $all_configs['configs']['count-on-page']];
     } else {
         reset($all_configs['configs']['manage-count-on-page']);
+        next($all_configs['configs']['manage-count-on-page']);
         $count = key($all_configs['configs']['manage-count-on-page']);
+        reset($all_configs['configs']['manage-count-on-page']);
     }
 
     return $count;
@@ -914,7 +916,7 @@ function display_client_order($order)
 
     $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
     $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
-    $accepted .= $order['np_accept'] == 1 ? '<i title="Принято через новую почту" class="fa fa-arrows text-danger"></i> ' :
+    $accepted .= $order['np_accept'] == 1 ? '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
         '<i style="color:' . $color . ';" title="Принято в ' . htmlspecialchars($order['aw_wh_title']) . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
 
     $get = '?' . get_to_string($_GET);
@@ -952,7 +954,7 @@ function display_client_order($order)
 /*
  * ссылка на печать
  * */
-function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-print"></i>')
+function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-print"></i>', $class = "")
 {
     global $all_configs;
 
@@ -962,7 +964,7 @@ function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-pr
 
     if ($object_id) {
         $url = $all_configs['prefix'] . 'print.php?act=' . $act . '&object_id=' . $object_id;
-        return '&nbsp;<a title="print ' . $act . '" target="_blank" href="' . $url . '">' . $name . '</a>';
+        return '<a class="'.$class.'" title="print ' . $act . '" target="_blank" href="' . $url . '">' . $name . '</a>';
     }
 }
 

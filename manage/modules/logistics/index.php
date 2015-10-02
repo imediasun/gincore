@@ -8,6 +8,18 @@ $moduleactive[50] = !$ifauth['is_2'];
 
 class logistics
 {
+    public static $mod_submenu = array(
+        array(
+            'click_tab' => true,
+            'url' => '#motions',
+            'name' => 'Логистика'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#settings',
+            'name' => 'Настройки'
+        )
+    );
     protected $all_configs;
     protected $db;
 
@@ -50,10 +62,10 @@ class logistics
     {
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         $out .= '<li><a class="click_tab default" data-open_tab="logistics_motions" onclick="click_tab(this, event)" ';
-        $out .= 'data-toggle="tab" href="#motions">Логистика</a></li>';
+        $out .= 'data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
             $out .= '<li><a class="click_tab" data-open_tab="logistics_settings" onclick="click_tab(this, event)" ';
-            $out .= 'data-toggle="tab" href="#settings">Настройки</a></li>';
+            $out .= 'data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
         }
         $out .= '</ul><div class="tab-content">';
 

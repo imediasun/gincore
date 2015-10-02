@@ -1,5 +1,5 @@
 function gen_tree() {
-    $("#tree").Tree();
+    $("[id='tree']").Tree();
 }
 
 /*function add_supplier_form(_this) {

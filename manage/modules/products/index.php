@@ -48,6 +48,13 @@ class products
             }
             $input_html['mcontent'] = $this->gencreate();
         }
+        if(!empty($input_html['mmenu'])){
+            $input_html['menu_span'] = 'col-sm-3';
+            $input_html['content_span'] = 'col-sm-9';
+        }else{
+            $input_html['menu_span'] = '';
+            $input_html['content_span'] = 'col-sm-10 col-sm-offset-1';
+        }
     }
 
     // отключено
@@ -690,10 +697,12 @@ class products
 
             if ($product) {
                 $goods_html .= '<fieldset><legend>Редактирование товара ID: ' . $product['id'] . '. ' .
-                    '<a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($product['url']) . '/' .
-                    $this->all_configs['configs']['product-page'] . '/' . $product['id'] . '/">' .
-                    htmlspecialchars($product['title']) .
-                    '<i class="glyphicon glyphicon-eye-open"></i></a></legend>' .
+//                    '<a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($product['url']) . '/' .
+//                    $this->all_configs['configs']['product-page'] . '/' . $product['id'] . '/">' .
+//                    htmlspecialchars($product['title']) .
+//                    '<i class="glyphicon glyphicon-eye-open"></i></a>
+                        htmlspecialchars($product['title']).
+                    '</legend>' .
                     $this->show_product_body();
             } else {
                 $goods_html .= '<p  class="text-error">Товар не найден</p>';
@@ -1041,16 +1050,7 @@ class products
                     <label>по внутрен.названию <input type="checkbox" name="search-secret_title" /></label>
                     <label>по коду 1с <input type="checkbox" name="search-code_1c" /></label>
                 </div>-->
-
-                    <br />
-                    <form class="form-horizontal" method="post">
-                        <input name="text" type="text" value="' . (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') . '" />
-                        <input type="submit" name="search" value="Поиск" class="btn" />
-                    </form>
             </div>';
-        if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            $categories_html .= '<p><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create" class="btn btn-success">Добавить товар</a></p>'; //<a href="" class="btn btn-danger">Удалить</a>
-        }
 
         $filters_html = $this->genfilter(); // список фильтров
         $data = array();
@@ -1066,7 +1066,7 @@ class products
 
         $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
         $categories_html .= '<p class="label label-info">Категории</p>';
-        $categories_html .= '<ul class="nav nav-list well" id="tree">' . $this->categories_tree_menu($categories_tree) . '</ul>';
+        $categories_html .= '<ul class="nav nav-list well well-white" id="tree">' . $this->categories_tree_menu($categories_tree) . '</ul>';
 
         return $categories_html . '<p></p>' . $filters_html;
 
@@ -1233,15 +1233,35 @@ class products
         $goods = $this->goods;
 
         // строим таблицу доступных товаров
-        $goods_html = '<div class="tabbable"><ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab"  href="#goods">Товары</a></li>'
-            . (($this->all_configs['configs']['no-warranties'] == false) ?
-                '<li><a data-toggle="tab"  href="#settings">Настройки</a></li>'
-                : '') . ''
-            . ($this->all_configs['oRole']->hasPrivilege('export-goods') ?
-                '<li><a data-toggle="tab" href="#exports">Экспорт</a></li>'
-                : '' ) .
-            '</ul><div class="tab-content"><div id="goods" class="tab-pane active">';
+        $goods_html = '<div class="tabbable">
+            <div class="clearfix nav-tabs">
+                <ul class="nav nav-tabs pull-left" style="border-bottom:0">
+                    <li class="active"><a data-toggle="tab"  href="#goods">Товары</a></li>'
+                . (($this->all_configs['configs']['no-warranties'] == false) ?
+                    '<li><a data-toggle="tab"  href="#settings">Настройки</a></li>'
+                    : '') . ''
+                . ($this->all_configs['oRole']->hasPrivilege('export-goods') ?
+                    '<li><a data-toggle="tab" href="#exports">Экспорт</a></li>'
+                    : '' ) .
+                '
+                </ul>
+                <div class="pull-right">
+                    <form class="pull-left m-r-xs" method="post">
+                        <div class="input-group" style="width:250px">
+                            <input class="form-control" name="text" type="text" value="' . (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') . '" />
+                            <span class="input-group-btn">
+                                <input type="submit" name="search" value="Поиск" class="btn" />
+                            </span>
+                        </div>
+                    </form>
+        ';
+        if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
+            $goods_html .= '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create" class="btn btn-success pull-right">Добавить товар</a>'; //<a href="" class="btn btn-danger">Удалить</a>
+        }
+        $goods_html .= '
+                </div>
+            </div>
+            <div class="tab-content"><div id="goods" class="tab-pane active">';
 
         if (count($goods) > 0) {
             // узнаем количество страниц доступных товаров
@@ -1303,7 +1323,7 @@ class products
             }
             $goods_html .= '<table class="table table-striped"><thead><tr>';
             $goods_html .= '<td>' . $sort_id . '</a></td>';
-            $goods_html .= '<td></td>';
+//            $goods_html .= '<td></td>';
             $goods_html .= '<td>' . $sort_title . '</a></td><td colspan="2">';
             if ($this->all_configs['oRole']->hasPrivilege('edit-goods')) {
                 $goods_html .= '<div class="btn-group">';
@@ -1382,10 +1402,11 @@ class products
                 $content = '<i class="glyphicon glyphicon-move popover-info" data-content="' . (isset($serials[$id]) ? $serials[$id] : 'Нет на складе') . '" data-original-title=""></i>';
                 $goods_html .= '<tr>
                     <td class="small_ids">' . $good['id'] . $img . '</td>
-                    <td><a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($good['url']) . '/' . $this->all_configs['configs']['product-page'] . '/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                    <!--<td><a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($good['url']) . '/' . $this->all_configs['configs']['product-page'] . '/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                        -->
                     <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . $add_name . '</a> ' . $content . '</td>
                     <td>' . $image_icon . '</td>
-                    <td>' . $price_icon . '</td>
+                    <td><!--' . $price_icon . '--></td>
                     <td>' . $edit . '</td>
                     <td>' . $avail . '</td>
                     <td>' . number_format($good['price'] / 100, 2, ',', ' ') . '</td>
@@ -2125,22 +2146,22 @@ class products
                 else
                     $goods_html .= htmlspecialchars($product['title']);
                 $goods_html .= '" /></div>';
-                $goods_html .= '<div class="form-group"><label class="control-label">Внутрен. (секретное): </label>';
-                $goods_html .= '<div class="controls"><input class="form-control" placeholder="введите внутреннее название" name="secret_title" value="';
-                if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post']))
-                    $goods_html .= htmlspecialchars($this->errors['post']['secret_title']);
-                else
-                    $goods_html .= htmlspecialchars($product['secret_title']);
-                $goods_html .= '" /></div></div>';
-                $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>';
-                $goods_html .= '<div class="controls"><input placeholder="введите код товара" class="form-control" name="article" value="';
-                if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post']))
-                    $goods_html .= htmlspecialchars($this->errors['post']['article']);
-                else
-                    $goods_html .= htmlspecialchars($product['article']);
-                $goods_html .= '" /></div></div>';
-                $goods_html .= '<div class="form-group"><label>url: </label>';
-                $goods_html .= '<input class="form-control" placeholder="введите url" name="url" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('url', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['url']) : htmlspecialchars($product['url'])) . '" /></div>';
+//                $goods_html .= '<div class="form-group"><label class="control-label">Внутрен. (секретное): </label>';
+//                $goods_html .= '<div class="controls"><input class="form-control" placeholder="введите внутреннее название" name="secret_title" value="';
+//                if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post']))
+//                    $goods_html .= htmlspecialchars($this->errors['post']['secret_title']);
+//                else
+//                    $goods_html .= htmlspecialchars($product['secret_title']);
+//                $goods_html .= '" /></div></div>';
+//                $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>';
+//                $goods_html .= '<div class="controls"><input placeholder="введите код товара" class="form-control" name="article" value="';
+//                if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post']))
+//                    $goods_html .= htmlspecialchars($this->errors['post']['article']);
+//                else
+//                    $goods_html .= htmlspecialchars($product['article']);
+//                $goods_html .= '" /></div></div>';
+//                $goods_html .= '<div class="form-group"><label>url: </label>';
+//                $goods_html .= '<input class="form-control" placeholder="введите url" name="url" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('url', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['url']) : htmlspecialchars($product['url'])) . '" /></div>';
                 $goods_html .= '<div class="form-group"><label>Штрих код: </label>
                             <input placeholder="штрих код" class="form-control" name="barcode" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['barcode']) : $product['barcode']) . '" /></div>';
                 $goods_html .= '<div class="form-group"><label>Приоритет: </label>
@@ -2763,7 +2784,7 @@ class products
         $goods_html = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-            $goods_html .= '<div class="control-group" id="save_all_fixed" ><div class="controls">';
+            $goods_html .= '<div class="control-group"><div class="controls">';
             $goods_html .= '<input class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-product-' . $tab . '">';
             if ($this->all_configs['configs']['save_goods-export_to_1c'] == true && $this->all_configs['configs']['onec-use'] == true)
                 $goods_html .= '<label class="checkbox"><input type="checkbox" checked name="1c-export" />Отправить в 1с</label>';
