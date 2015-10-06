@@ -3613,3 +3613,14 @@ ul.mailbox-list li:hover a {
 .backgroud-white{
     background-color: #ffffff;
 }
+
+.filters-box{
+    border: 1px solid #d9d9d9;
+}
+.filters-box .b-r{
+    height: 183px;
+    border-right: 1px solid #d9d9d9;
+}
+.filters-box-sm .b-r{
+    height: 152px;
+}

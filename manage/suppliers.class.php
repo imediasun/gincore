@@ -286,7 +286,7 @@ class Suppliers
 
         $orders_html = '
             <form method="post">
-            '.($inner_wrapper ? '<div class="clearfix theme_bg p-sm m-b-md">' : '').'
+            '.($inner_wrapper ? '<div class="clearfix theme_bg filters-box filters-box-sm p-sm m-b-md">' : '').'
                 <div class="row row-15">
         ';
         //$orders_html .= '<a onclick="location_menu(this, event)" href="' . $this->all_configs['prefix'] . 'orders" class="';
@@ -307,7 +307,7 @@ class Suppliers
         $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
             WHERE user_id=?i AND type=?', array($_SESSION['id'], 'so'))->el();
 
-        $orders_html .= '<div class="col-sm-2">';
+        $orders_html .= '<div class="col-sm-2 b-r">';
             $orders_html .= '<div class="btn-group-vertical">';
             $orders_html .= '<a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
             $orders_html .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#show_suppliers_orders">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
@@ -321,12 +321,12 @@ class Suppliers
         $orders_html .= '</div>';
         // show part of interface - redmine task #546
         if ($show_nav == true) {
-            $orders_html .= '<div class="col-sm-2">';
+            $orders_html .= '<div class="col-sm-2 b-r">';
                 $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['whk']) ? 'checked' : '') . ' type="checkbox" name="wh-kiev" /> Киев</label></div>';
                 $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['wha']) ? 'checked' : '') . ' type="checkbox" name="wh-abroad" /> Заграница</label></div>';
             $orders_html .= '</div>';
         }
-        $orders_html .= '<div class="col-sm-3">';
+        $orders_html .= '<div class="col-sm-3 b-r">';
             $orders_html .= $this->show_filter_service_center();
             $orders_html .= '<div class="input-group"><p class="form-control-static">Поставщик:</p>';
             $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
@@ -346,7 +346,7 @@ class Suppliers
             }
             $orders_html .= '</select></span></div>';
         $orders_html .= '</div>';
-        $orders_html .= '<div class="col-sm-2">';
+        $orders_html .= '<div class="col-sm-2 b-r">';
             $orders_html .= '<div class="form-group">';
             $orders_html .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
             //$orders_html .= '<label>№ заказа:</label>';

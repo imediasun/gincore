@@ -50,7 +50,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
     $data = array();
 
     $limit = isset($_POST['act']) && $_POST['act'] > 0 && $_POST['act'] < 150 ? intval($_POST['limit']) : 30;
-
+    $is_double = isset($_POST['double']) && $_POST['double'] ? true : false;
+    
     if (isset($_POST['query']) && !empty($_POST['query']) && isset($_POST['table']) && !empty($_POST['table'])) {
 
         $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim(preg_replace('/ {1,}/', ' ', mb_strtolower($_POST['query'], 'UTF-8'))));
@@ -132,7 +133,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
         }
         if ($_POST['table'] == 'clients') {
             $data = $all_configs['db']->query('SELECT c.id, GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
-                      ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title, c.fio
+                      ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title, c.fio, c.phone
                     FROM {clients} as c
                     LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
                     WHERE (c.email LIKE "%?e%" OR c.fio LIKE "%?e%" OR c.phone LIKE "%?e%" OR p.phone LIKE "%?e%") AND c.id<>?i

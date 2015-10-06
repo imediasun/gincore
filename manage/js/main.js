@@ -335,6 +335,94 @@ $(document).ready(function () {
         });
     });
 
+
+    $(document).on('focusin', '.typeahead-double', function(e) {
+        var $this = $(this),
+            id = $this.data('id'),
+            this_field = $this.data('field'),
+            call_function = $this.data('function');
+        $(this).typeahead({
+            items: 50,
+            minLength: 1,
+            source: function (query, process) {
+                id = $(this.$element).data('id');
+                call_function = $(this.$element).data('function');
+                var table = $(this.$element).data('table');
+                var fix = $('.select-typeahead-' + $(this.$element).data('select')).val();
+                var fields = [];
+                $('#' + id).val('');
+                $('.typeahead-double[data-id="'+id+'"]').each(function(){
+                    fields.push($(this).data('field'));
+                });
+                return $.ajax({
+                    url: prefix + 'messages.php',
+                    type: 'POST',
+                    data: {act: 'global-typeahead', fields: fields.join(','), 
+                           double: true, query: query, table: table, fix: fix,
+                           limit: this.options.items, object: arrequest()[2]},
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result) {
+                            var resultList = result.map(function (item) {
+                                var aItem = { original: item, id: item.id, name:
+                                    item.title.replace(/\u00A0/g, " ").replace(/[\r\n]+/g, "\n")};
+                                return JSON.stringify(aItem);
+                            });
+                            return process(resultList);
+                        }
+                        return false;
+                    }
+                });
+            },
+            matcher: function (obj) {
+                var item = JSON.parse(obj);
+                this.query = $.trim(this.query);
+                return item.name.toLowerCase();
+            },
+            highlighter: function (obj) {
+                var item = JSON.parse(obj);
+                var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
+                return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                    return '<strong>' + match + '</strong>'
+                })
+            },
+            updater: function (obj) {
+                var item = JSON.parse(obj),
+                    _this = this;
+                $('#' + id).attr('value', item.id);
+                if(call_function.indexOf(',') > 0){
+                    var functions = call_function.split(',');
+                    $.each(functions, function(k,v){
+                        if (typeof window[v] == 'function') {
+                             window[v](_this.$element, item.id, item.original);
+                        }
+                    });
+                }else{
+                    if (typeof window[call_function] == 'function') {
+                         window[call_function](_this.$element, item.id, item.original);
+                    }
+                }
+                var return_value = '';
+                $('.typeahead-double[data-id="'+id+'"]').each(function(){
+                    var field = $(this).data('field');
+                    if(field === this_field){
+                        return_value = item.original[field];
+                    }
+                    $(this).val(item.original[field]);
+                });
+                return return_value;
+            }
+        }).on('focusout', this, function(e) {
+            id = $(this).data('id');
+            if ($(this).val() == '') {
+                $('#' + id).val('');
+                $('.typeahead-double[data-id="'+id+'"]').each(function(){
+                    $(this).val('');
+                });
+            }
+        });
+    });
+
     $('span#ga').parent().click(function () {
         var b = $('body');
         b.append('<div class="loading-wrapper"></div>');
@@ -960,6 +1048,11 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
     else
         $(_this).addClass('disabled');
 
+    bootbox.addLocale('ru', {
+        OK : 'Отмена',
+        CANCEL : 'Отмена',
+        CONFIRM : 'Подтвердить'
+    });
     bootbox.setDefaults({
         /**
          * @optional String

@@ -754,7 +754,7 @@ class warehouses
                 $out .= ' title="Заказы поставщику которые ждут приходования" href="#orders-suppliers">Заказы поставщику<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
             }
             $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
-            $out .= '</ul><div class="clearfix hidden theme_bg p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
+            $out .= '</ul><div class="clearfix hidden theme_bg filters-box p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<div id="orders-suppliers" class="pill-pane">';
                 $out .= '</div><!--#orders-suppliers-->';

@@ -1040,7 +1040,7 @@ class Chains
         $type = isset($post['type']) ? $post['type'] : 0;
         $sum_paid = isset($post['sum_paid']) ? intval($post['sum_paid'] * 100) : 0;
         $approximate_cost = isset($post['approximate_cost']) ? intval($post['approximate_cost'] * 100) : 0;
-        $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
+        $client_id = isset($post['client_id']) ? intval($post['client_id']) : 0;
         $note = isset($post['serials']) ? trim($post['serials']) : '';
         $repair = isset($post['repair']) ? intval($post['repair']) : 0;
         $status = $repair == 2 ? $this->all_configs['configs']['order-status-rework'] : $this->all_configs['configs']['order-status-new'];
@@ -1050,9 +1050,41 @@ class Chains
         $referer_id = !empty($_POST['referer_id']) ? $_POST['referer_id'] : null;
         $crm_request = !empty($_POST['crm_request']) ? $_POST['crm_request'] : null;
         
-        // достаем клиента
-        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
-            array($client_id))->row();
+        if(empty($_POST['client_fio'])){
+            $data['state'] = false;
+            $data['msg'] = 'Укажите ФИО клиента';
+        }
+        
+        if(empty($_POST['client_phone'])){
+            $data['state'] = false;
+            $data['msg'] = 'Укажите телефон клиента';
+        }
+        
+        if($client_id){
+            // достаем клиента
+            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
+                array($client_id))->row();
+        }else{
+            // создать клиента
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            $access = new \access($this->all_configs, false);
+            if($access->is_phone($_POST['client_phone'])){
+                $u = $access->registration(array('phone' => $_POST['client_phone'],
+                                                 'fio' => $_POST['client_fio']));
+                if($u['id'] > 0){
+                    $client_id = $u['id'];
+                    $client = array(
+                        'id' =>  $client_id,
+                        'phone' => $_POST['client_phone'],
+                        'fio' => $_POST['client_fio']
+                    );
+                    $data['new_client_id'] = $client_id;
+                }else{
+                    $data['state'] = false;
+                    $data['msg'] = isset($u['msg']) ? $u['msg'] : 'Ошибка создания клиента';
+                }
+            }
+        }
 
         // достаем категорию
         $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
@@ -1063,10 +1095,6 @@ class Chains
             'SELECT wh_id, location_id FROM {warehouses_users} WHERE user_id=?i AND main=?i',
             array($user_id, 1))->row();
 
-        /*if ($data['state'] == true && !isset($post['repair'])) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите вид ремонта';
-        }*/
         if ($data['state'] == true && !$wh) {
             $data['state'] = false;
             $data['msg'] = 'Вы не закрепленны не за одним складом';
@@ -1166,10 +1194,10 @@ class Chains
 
         if ($data['state'] == true && $category && $client && $wh && !$order) {
 
-            if(!$client['fio'] && !empty($_POST['client_fio_hidden'])){
+            if(!$client['fio'] && !empty($_POST['client_fio'])){
                 $this->all_configs['db']->query("UPDATE {clients} SET fio = ? WHERE id = ?i", 
-                                                                array($_POST['client_fio_hidden'], $client['id']));
-                $client['fio'] = $_POST['client_fio_hidden'];
+                                                                array($_POST['client_fio'], $client['id']));
+                $client['fio'] = $_POST['client_fio'];
             }
             
             if (!isset($post['id']) || intval($post['id']) == 0) {
@@ -2382,12 +2410,12 @@ class Chains
                 if ($data['state'] == true && $post['transaction_type'] == 2 && (!array_key_exists($post['cashbox_currencies_to'], $currencies)
                         || $currencies[$post['cashbox_currencies_to']]['currency-name'] != $this->all_configs['configs']['default-currency'])) {
                     $data['state'] = false;
-                    $data['msg'] = 'Внесение денег не производится в этой валюте';
+                    $data['msg'] = 'Выбранная Вами валюта не совпадает с валютой в заказе';
                 }
                 if ($data['state'] == true && $post['transaction_type'] == 1 && (!array_key_exists($post['cashbox_currencies_from'], $currencies)
                         || $currencies[$post['cashbox_currencies_from']]['currency-name'] != $this->all_configs['configs']['default-currency'])) {
                     $data['state'] = false;
-                    $data['msg'] = 'Внесение денег не производится в этой валюте';
+                    $data['msg'] = 'Выбранная Вами валюта не совпадает с основной валютой';
                 }
 
                 /*if ($order['return'] == 1) {

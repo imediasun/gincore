@@ -456,6 +456,9 @@ function add_new_order(_this) {
         data: $(_this).parents('form').serialize(),
         success: function(msg) {
             if (msg) {
+                if(msg.new_client_id){
+                    $('.typeahead-double-value[name=client_id]').val(msg.new_client_id);
+                }
                 if (msg['state'] == false && (msg['msg'] || msg['message'])) {
                     if (msg['prompt']) {
                         alert_box(undefined, (msg['msg'] || msg['message']));
@@ -607,14 +610,14 @@ function change_crm_request($this){
         client_id = $this.data('client_id'),
         referer_id = $this.data('referer_id'),
         code = $this.data('code');
-    if(!$this.attr('data-client_fio')){
-       var new_fio = show_fio_prompt(false, true);
-       if(new_fio){
-           $('input[name=crm_request][data-client_id='+client_id+']').attr('data-client_fio', new_fio);
-       }
-    }else{
-       $('#client_fio_hidden').val($this.attr('data-client_fio'));
-    }
+//    if(!$this.attr('data-client_fio')){
+//       var new_fio = show_fio_prompt(false, true);
+//       if(new_fio){
+//           $('input[name=crm_request][data-client_id='+client_id+']').attr('data-client_fio', new_fio);
+//       }
+//    }else{
+//       $('#client_fio_hidden').val($this.attr('data-client_fio'));
+//    }
     if(product_id && client_id){
        $('input[name="clients"]').val(client_id);
        $('input[name="categories-last"]').val(product_id);

@@ -153,6 +153,20 @@ class orders
                 $url .= 'rf=1';
             }
 
+            if (isset($post['nm'])) {
+                // не оплаченные
+                if (!empty($url))
+                    $url .= '&';
+                $url .= 'nm=1';
+            }
+
+            if (isset($post['ar'])) {
+                // принимались на доработку
+                if (!empty($url))
+                    $url .= '&';
+                $url .= 'ar=1';
+            }
+
             if (isset($post['order_id']) && $post['order_id'] > 0) {
                 // фильтр по id
                 if (!empty($url))
@@ -394,10 +408,10 @@ class orders
             $status_options .= ' value="' . $os_id . '">' . htmlspecialchars($os_v['name']) . '</option>';
         }
         $out .= '
-        <form method="post">
-        <div class="clearfix theme_bg p-sm m-b-md">
+        <form method="post" class="">
+        <div class="clearfix theme_bg filters-box p-sm m-b-md">
             <div class="row row-15">
-                <div class="col-sm-2">
+                <div class="col-sm-2 b-r">
                     <div class="btn-group-vertical">
                         <a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" 
                            href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">
@@ -414,23 +428,35 @@ class orders
                     </div> <br><br>
                     <input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">
                 </div>
-                <div class="col-sm-2">
-                    <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />
-                    <input name="client" value="'.(isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '').'" type="text" class="form-control" placeholder="телефон/ФИО клиента">
-                    <input name="order_id" value="'.(isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
+                <div class="col-sm-2 b-r">
+                    <div class="form-group">
+                        <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />
+                    </div>
+                    <div class="form-group">
+                        <input name="client" value="'.(isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '').'" type="text" class="form-control" placeholder="телефон/ФИО клиента">
+                    </div>
+                    <div class="form-group">
+                        <input name="order_id" value="'.(isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
+                    </div>
                     <input type="text" name="serial" class="form-control" value="' . (isset($_GET['serial']) ? $_GET['serial'] : '') . '" placeholder="Серийный номер">
                 </div>
-                <div class="col-sm-3">
-                    '.typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini').'
-                    '.typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini').'
+                <div class="col-sm-3 b-r">
+                    '.typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini', '', false, false, '', false, 'Модель').'
+                    '.typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini', '', false, false, '', false, 'Запчасть').'
                     <div class="checkbox">
                         <label><input type="checkbox" name="np" ' . (isset($_GET['np']) ? 'checked' : '') . ' /> Принято через почту</label>
                     </div>
                     <div class="checkbox">
                         <label><input type="checkbox" name="rf" '.(isset($_GET['rf']) ? 'checked' : '').' /> Выдан подменный фонд</label>
                     </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="nm" '.(isset($_GET['nm']) ? 'checked' : '').' /> Не оплаченные</label>
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="ar" '.(isset($_GET['ar']) ? 'checked' : '').' /> Принимались на доработку</label>
+                    </div>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-2 b-r">
                     <div>
                         <div class="input-group">
                             <p class="form-control-static">Инженер:</p>
@@ -799,7 +825,9 @@ class orders
             //$orders_html .= '<p class="text-error">Обязательно сообщить клиенту!<br />"Диагностика у нас бесплатная в случае последующего ремонта и в случае когда мы не можем сремонтировать устройство.<br />В случае отказа от ремонта со стороны клиента - диагностика составит 100 '.viewCurrency().'"</p>';
             //$orders_html .= '<div class="control-group"><label class="control-label">Номер заказа: </label>';
 //            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
-
+            
+            $client_id = $order_data ? $order_data['client_id'] : 0;
+            $client_fields = client_double_typeahead($client_id, 'get_requests');
             $orders_html = '
                 <ul class="nav nav-tabs default_tabs" role="tablist">
                     <li role="presentation" class="active">
@@ -818,14 +846,22 @@ class orders
                                         <fieldset>
                                             <legend>Клиент</legend>
                                             <div class="form-group">
-                                                <label>Выберите клиента: </label>
-                                                <div class="input-group">
+                                                <label>Укажите данные клиента: </label>
+                                                <div class="row row-15">
+                                                    <div class="col-sm-6">
+                                                        '.$client_fields['phone'].'
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        '.$client_fields['fio'].'
+                                                    </div>
+                                                </div>
+                                                <!--<div class="input-group">
                                                     <input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
                                                     '.typeahead($this->all_configs['db'], 'clients', false, ($order_data ? $order_data['client_id'] : 0), 2, 'input-xlarge', 'input-medium', 'get_requests,check_fio')
                                                     .'<span class="input-group-btn">
                                                         <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить">
                                                     </span>
-                                                </div>
+                                                </div>-->
                                             </div>
                                             '.get_service('crm/calls')->assets().'
                                             <div class="form-group">
@@ -1196,7 +1232,7 @@ class orders
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
-        $out = '<form method="post"><div class="clearfix theme_bg p-sm m-b-md">';
+        $out = '<form method="post"><div class="clearfix theme_bg filters-box p-sm m-b-md">';
         $out .= '<div class="form-group"><label>Категории</label>';
         $out .= '<select class="multiselect form-control" multiple="multiple" name="ctg[]">';
         $categories = $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();

@@ -503,8 +503,10 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 /**
  * autocomplete
  * */
-function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, $class = 'input-medium',
-                   $class_select = 'input-small', $function = '', $multi = false, $anyway = false, $m = '', $no_clear_if_null = false)
+function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, 
+                   $class = 'input-medium',$class_select = 'input-small', $function = '', 
+                   $multi = false, $anyway = false, $m = '', $no_clear_if_null = false,
+                   $placeholder = 'Введите')
 {
     //static $iterator = 0; $iterator++;
     //$iterator += $i;
@@ -535,15 +537,31 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
         $out .= '</select></div><div class="col-sm-7">';
     }
-    $out .= '<input type="hidden" value="' . $object_id . '" name="' . $table . ($multi ? '[' . $m . ']' : '') . '" class="typeahead-value-' . $table . $iterator . '">';
-    $out .= '<input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" name="' . $table . '-value' . ($multi ? '[' . $m . ']' : '') . '" type="text" value="' . $object_name . '" data-input="' . $table . $iterator . '" ';
-    $out .= ' data-function="' . $function . '" data-select="' . $iterator . '" data-table="' . $table . '" ';
-    $out .= ($anyway == true ? 'data-anyway="1"' : '') . ' class="form-control global-typeahead ' . $class . '" placeholder="Введите">';
+    $out .= '
+        <input type="hidden" value="'.$object_id.'" name="'.$table.($multi ? '['.$m.']' : '').'" class="typeahead-value-'.$table.$iterator.'">
+        <input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" 
+            name="'.$table.'-value'.($multi ? '['.$m.']' : '').'" type="text" value="'.$object_name.'" data-input="'.$table.$iterator.'" 
+            data-function="'.$function.'" data-select="'.$iterator.'" data-table="'.$table.'" '.
+            ($anyway == true ? 'data-anyway="1"' : '').' class="form-control global-typeahead '.$class.'" placeholder="'.$placeholder.'">
+    ';
     if($show_categories){
         $out .= "</div></div>";
     }
 
     return $out;
+}
+
+function client_double_typeahead($id = null, $callbacks = ''){
+    global $all_configs;
+    $input_id = 'typeahead-double-'.time();
+    $client = $all_configs['db']->query("SELECT * FROM {clients} WHERE id = ?i", array($id), 'row');
+    $value_field = '<input class="typeahead-double-value" id="'.$input_id.'" type="hidden" name="client_id" value="'.($id ?: '').'">';
+    $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" class="form-control typeahead-double" data-id="'.$input_id.'" type="text" placeholder="Телефон" name="client_phone" value="'.($client ? $client['phone'] : $client['phone']).'">';
+    $fio_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="fio" class="form-control typeahead-double" type="text"  data-id="'.$input_id.'" placeholder="ФИО" name="client_fio" value="'.($client ? $client['fio'] : $client['fio']).'">';
+    return array(
+        'phone' => $value_field.$phone_field,
+        'fio' => $fio_field
+    );
 }
 
 /**

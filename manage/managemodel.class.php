@@ -396,14 +396,21 @@ class manageModel
         if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0)
             $day_to = $filters['dt'] . ' 23:59:59';
 
+        $date_query = '';
         if ($day_from && $day_to) {
             $query = $this->all_configs['db']->makeQuery('WHERE DATE(o.date_add) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($day_from, $day_to));
+            $date_query = $this->all_configs['db']->makeQuery('DATE(date) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
               AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($day_from, $day_to));
         } elseif ($day_from) {
             $query = $this->all_configs['db']->makeQuery('WHERE DATE(o.date_add)>=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
                 array($day_from));
+            $date_query = $this->all_configs['db']->makeQuery('DATE(date)>=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
+                array($day_from));
         } elseif ($day_to) {
             $query = $this->all_configs['db']->makeQuery('WHERE DATE(o.date_add)<=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
+                array($day_to));
+            $date_query = $this->all_configs['db']->makeQuery('DATE(date)<=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
                 array($day_to));
         } else {
             $query = $this->all_configs['db']->makeQuery('WHERE 1=1', array());
@@ -418,6 +425,20 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.user_id=?i',
                 array($query, intval($filters['c_id'])));
         }
+
+        // не оплаченные
+        if (isset($filters['nm']) && $filters['nm'] > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.status = ?i AND (o.sum > o.sum_paid OR o.sum = 0)',
+                array($query, $this->all_configs['configs']['order-status-issued']));
+        }
+
+        // принимались на доработку
+        if (isset($filters['ar']) && $filters['ar'] > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND (SELECT id FROM {order_status} '
+                                                                    .'WHERE order_id = o.id AND status = ?i ?q LIMIT 1) IS NOT NULL',
+                array($query, $this->all_configs['configs']['order-status-rework'], $date_query ? ' AND '.$date_query : ''));
+        }
+        
         if (isset($filters['co']) && !empty($filters['co'])) {
             $query = $this->all_configs['db']->makeQuery('?query AND (o.id=?i OR c.fio LIKE "%?e%" OR c.phone LIKE "%?e%")',
                 array($query, intval($filters['co']), trim($filters['co']), trim($filters['co'])));

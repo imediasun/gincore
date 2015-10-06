@@ -3695,8 +3695,8 @@ class accountings
                 $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_cashboxes" href="#settings-cashboxes" title="Создать/редактировать кассу">Кассы</a></li>';
                 $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_currencies" href="#settings-currencies" title="Валюты">Валюты</a></li>';
             }
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_categories_expense" href="#settings-categories_expense" title="Создать/редактировать статью расход">Статьи расход</a></li>';
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_categories_income" href="#settings-categories_income" title="Создать/редактировать статью приход">Статьи приход</a></li>';
+            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_categories_expense" href="#settings-categories_expense" title="Создать/редактировать статью расход">Статьи расходов</a></li>';
+            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_categories_income" href="#settings-categories_income" title="Создать/редактировать статью приход">Статьи поступлений</a></li>';
             $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_contractors" href="#settings-contractors" title="Создание/редактирование контрагентов">Контрагенты</a></li>';
             $out .= '</ul>';
             $out .= '<div class="pill-content">';

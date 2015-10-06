@@ -238,6 +238,8 @@ class debug{
                                                ."WHERE name = 'content_email'");
                 $this->all_configs['db']->query("UPDATE {settings} SET value = 'Сервисный центр' "
                                                ."WHERE name = 'site_name'");
+                $this->all_configs['db']->query("UPDATE {settings} SET value = '1,3,6,12' "
+                                               ."WHERE name = 'order_warranties'");
                 $this->all_configs['db']->query("UPDATE {goods} SET date_add = NOW()");
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=1');
                 
