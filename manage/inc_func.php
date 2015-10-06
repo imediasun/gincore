@@ -553,7 +553,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
 
 function client_double_typeahead($id = null, $callbacks = ''){
     global $all_configs;
-    $input_id = 'typeahead-double-'.time();
+    $input_id = 'typeahead-double-'.microtime(true).rand(1,99999);
     $client = $all_configs['db']->query("SELECT * FROM {clients} WHERE id = ?i", array($id), 'row');
     $value_field = '<input class="typeahead-double-value" id="'.$input_id.'" type="hidden" name="client_id" value="'.($id ?: '').'">';
     $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" class="form-control typeahead-double" data-id="'.$input_id.'" type="text" placeholder="Телефон" name="client_phone" value="'.($client ? $client['phone'] : $client['phone']).'">';

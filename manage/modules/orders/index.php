@@ -601,9 +601,9 @@ class orders
         if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
             $orders_html .= '<div class="span12">';
 
-            $orders_html .= '<ul class="list-unstyled inline clearfix">';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-bolt"></i> РЕМОНТЫ</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-users"></i> ПРОДАЖИ</a></li>';
+            $orders_html .= '<ul class="list-unstyled inline clearfix m-b-md">';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-wrench"></i> РЕМОНТЫ</a></li>';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-money"></i> ПРОДАЖИ</a></li>';
             $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i> СПИСАНИЯ</a></li>';
             $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
             if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
@@ -828,6 +828,10 @@ class orders
             
             $client_id = $order_data ? $order_data['client_id'] : 0;
             $client_fields = client_double_typeahead($client_id, 'get_requests');
+            $colors_select = '';
+            foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
+                $colors_select .= '<option value="'.$i.'">'.$c.'</option>';
+            }
             $orders_html = '
                 <ul class="nav nav-tabs default_tabs" role="tablist">
                     <li role="presentation" class="active">
@@ -880,18 +884,24 @@ class orders
                                             <div class="form-group">
                                                 <label class="control-label">Выберите устройство: </label>
                                                 <div class="input-group">
-                                                    '.typeahead($this->all_configs['db'], 'categories-last', true, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 'display_service_information,get_requests')
+                                                    '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 'display_service_information,get_requests')
                                                     .'
                                                     <div class="input-group-btn">
-                                                        <a target="_blank" href="' . $this->all_configs['prefix'] . 'categories/create" class="btn btn-info">Добавить</a>
+                                                        <button type="button" id="show_add_device_form" class="btn btn-info">
+                                                            Добавить новое
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
+                                                <label class="control-label">Цвет: </label>
+                                                <select class="form-control" name="color">'.$colors_select.'</select>
+                                            </div>
+                                            <!--<div class="form-group">
                                                 <label class="control-label">Серийный номер запчасти: </label>
                                                 '.typeahead($this->all_configs['db'], 'serials', false, '', 3, 'input-medium clone_clear_val', '', 'display_serial_product', false, true)
                                                 .'<small class="clone_clear_html product-title"></small>
-                                            </div>
+                                            </div>-->
                                             <div class="form-group">
                                                 <label>Серийный номер: </label>
                                                 <input type="text" class="form-control" value="" name="serial" />
@@ -974,7 +984,8 @@ class orders
                                             </div>
                                         </fieldset>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-6 relative">
+                                        <div id="new_device_form" class="theme_bg new_device_form p-md"></div>
                                         <fieldset>
                                             <legend>Заявки</legend>
                                                 <div id="client_requests">
@@ -1004,20 +1015,28 @@ class orders
     }
     
     function order_for_sale_form(){
+        $client_fields_for_sale = client_double_typeahead();
         $form = '
             <form method="post">
                 <input type="hidden" name="type" value="3">
                 <fieldset>
                     <legend>Клиент</legend>
                     <div class="form-group">
-                        <label>Выберите клиента: </label>
-                        <div class="input-group">
-                            <input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
-                            '.typeahead($this->all_configs['db'], 'clients', false, 0, 3, 'input-xlarge', 'input-medium', 'check_fio')
-                            .'<span class="input-group-btn">
-                                <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить">
-                            </span>
+                        <label>Укажите данные клиента: </label>
+                        <div class="row row-15">
+                            <div class="col-sm-6">
+                                '.$client_fields_for_sale['phone'].'
+                            </div>
+                            <div class="col-sm-6">
+                                '.$client_fields_for_sale['fio'].'
+                            </div>
                         </div>
+                        <!--<input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
+                        '.typeahead($this->all_configs['db'], 'clients', false, 0, 3, 'input-xlarge', 'input-medium', 'check_fio')
+                        .'<span class="input-group-btn">
+                            <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить">
+                        </span>
+                        -->
                     </div>
                     <div class="form-group">
                         <label style="padding-top:0">Код на скидку: </label>
@@ -1886,7 +1905,7 @@ class orders
         $order_id = $order_id == 0 ? intval($this->all_configs['arrequest'][2]) : $order_id;
         $order_html = '';
         // достаем заказ с прикрепленными к нему товарами
-        $order = $this->all_configs['db']->query('SELECT o.*, l.location, w.title as wh_title, gr.color, tp.icon,
+        $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
                 a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title
                 FROM {orders} as o
@@ -1960,6 +1979,21 @@ class orders
                             ' . $icon . ' Устройство: 
                         </label> ';
                 $order_html .= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4, 'input-medium').'';
+                
+                $colors_select = '';
+                if(is_null($order['o_color'])){
+                    $colors_select .= '<option value="-1" selected disabled>Не выбран</option>';
+                }
+                foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
+                    $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'.$c.'</option>';
+                }
+                $order_html .= 
+                    '<div class="form-group">
+                        <label class="control-label">Цвет: </label>
+                        <select class="form-control" name="color">'.$colors_select.'</select>
+                    </div>
+                ';
+                
                 //$order_html .= typeahead($this->all_configs['db'], 'goods-goods', false, $order['title'], 8, 'input-medium', 'input-medium', 'order_products');
                 $order_html .= /*htmlspecialchars($order['title']) . */' ' . htmlspecialchars($order['note']) . '</div>';
             }
@@ -2684,6 +2718,11 @@ class orders
                         array(mb_strlen($_POST['return_id'], 'UTF-8') > 0 ? trim($_POST['return_id']) : null, $this->all_configs['arrequest'][2]));
                 }
                 unset($order['return_id']);
+                if(isset($_POST['color']) && array_key_exists($_POST['color'], $this->all_configs['configs']['devices-colors'])){
+                    $order['color'] = $_POST['color'];
+                }else{
+                    unset($order['color']);
+                }
                 $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
                 $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
                 $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];

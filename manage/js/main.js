@@ -1396,15 +1396,20 @@ $(function(){
             }
         });
     }
-    set_events();
-    $('.ajax_form').live('submit', function(e){
+    function ajax_form_event(_this, e){
         e.preventDefault();
-        var $form = $(this);
+        var $this = $(_this),
+            $form = $this.hasClass('ajax_form') ? $this : $this.closest('.ajax_form');
         $form.find(':submit').attr('disabled', true);
+        if($form.hasClass('emulate_form')){
+            var data = $form.clone().wrap('<form></form>').parent().serialize();
+        }else{
+            var data = $form.serialize();
+        }
         $.ajax({
-            url: $form.attr('action'),
-            type: $form.attr('method'),
-            data: $form.serialize(),
+            url: $form.attr('action') || $form.attr('data-action'),
+            type: $form.attr('method') || $form.attr('data-method'),
+            data: data,
             dataType: 'json',
             success: function (data) {
                 $form.find(':submit').attr('disabled', false);
@@ -1432,6 +1437,13 @@ $(function(){
             }
         });
         return false;
+    }
+    set_events();
+    $('.ajax_form').live('submit', function(e){
+        return ajax_form_event(this, e);
+    });
+    $('.ajax_form.emulate_form :submit').live('click', function(e){
+        return ajax_form_event(this, e);
     });
     
     $(document).on('click', '.toggle-hidden', function(){

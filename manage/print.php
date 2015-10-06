@@ -301,6 +301,14 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                            '<select id="lang_change" name="lang">'.$langs_select.'</select>'.
                       '</form></div>';
         }
+        if($act == 'location'){
+            $print_html .= '
+                <div class="printer_preview unprint">
+                    <p>Формат этикеток настроен под печать на термопринтере HPRT LPQ58</p>
+                    <img src="'.$all_configs['prefix'].'img/hprt_lpq58.jpg">
+                </div>
+            ';
+        }
         $print_html = $l_sel.$print_html;
     }
 }
@@ -324,7 +332,20 @@ if ($print_html) {?>
 
         <style>
             /* print begin */
-
+            .printer_preview{
+                position: absolute;
+                right: 20px;
+                width: 300px;
+                top: 20px;
+            }
+            .printer_preview p{
+                line-height: 20px;
+                font-size: 16px;
+                text-align: center;
+            }
+            .printer_preview img{
+                width: 100%;
+            }
             @media print {
                 .label-box {
                     page-break-before: always;

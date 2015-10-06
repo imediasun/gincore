@@ -161,100 +161,6 @@ $(function() {
     }, 1000*60*5);
 });
 
-/*function change_city( city_id ) {
-    checkout_change();
-}*/
-
-/*function checkout_change(change) {
-
-    var person      =  $('#legal-person').attr('checked') ? false : true;
-    //var warr_cost   =  (goods_id && goods_id > 0) ? '&warr_cost=' + goods_id : '';
-    var shipping    =  $('.checkout-shipping:checked').val();
-
-    if (change == 1 || change == 2) {
-        if (change == 1) {
-            if (person == false) {
-                $('#course').attr('value', 'grn-noncash').find('option[value="grn-cash"]').attr('disabled', true);
-            } else {
-                $('#course > option[value="grn-cash"]').attr('disabled', false).attr('selected', true);
-            }
-        }
-        $('#course_value').val($('#course option:selected').text());
-    }
-
-    var $post       =  $('#order-form').serialize();
-
-    $.ajax({
-
-        url: prefix+module+'/ajax/?act=checkout-change',
-        type: 'POST',
-        data: $post + '&person=' + person,
-        cache: false,
-        success: function(msg){
-            if ( msg['error'] ) {
-                alert(msg['message']);
-            } else {
-                for (var k in msg) {
-                    if (k != 'payment' && k != 'shipping') {
-                        $('#' + k).html(msg[k]);
-                    }
-                }
-                if (person == false) {
-                    $('#show-corp-rate').show();
-                    $('.checkout-corporation-info').find('input').val('');
-                    $('.checkout-corporation-info').show();
-                } else {
-                    $('#show-corp-rate').hide();
-                    $('.checkout-corporation-info').find('input').val('');
-                    $('.checkout-corporation-info').hide();
-                }
-                if ( msg['shipping'] != 'courier_today' && msg['shipping'] != 'courier' && msg['shipping'] != 'express' )
-                    $('#address_block').hide();
-                else
-                    $('#address_block').show();
-
-                if ( msg['shipping'] != 'novaposhta_cash' && msg['shipping'] != 'novaposhta' )
-                    $('#np_address_block').hide();
-                else
-                    $('#np_address_block').show();
-
-                if ( $('.checkout-payment:checked').val() == 'installment' )
-                    $('#installment-table').css('display', 'table');
-                else
-                    $('#installment-table').css('display', 'none');
-
-                if (  msg['shipping'] != 'pickup' )
-                    $('#office_block').hide();
-                else
-                    $('#office_block').show();
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.responseText);
-        }
-    });
-    return false;
-}*/
-/*function change_region(value) {
-
-    $.ajax({
-        url: prefix+module+'/ajax/?act=change-region',
-        type: 'POST',
-        data: '&region='+value,
-        cache: false,
-        success: function(msg) {
-            if ( msg['error'] ) {
-                alert(msg['message']);
-            } else {
-                checkout_change();
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            show_alert(xhr.responseText, 1);
-        }
-    });
-    return false;
-}*/
 
 function location_menu(_this, e) {
     e.preventDefault();
@@ -312,7 +218,39 @@ $(function() {
 
         return false;
     });
+    
+    $(document).on('click', '#show_add_device_form', function(){
+        var $form = $('#new_device_form'),
+            $this = $(this),
+            id = (new Date()).getTime();
+        $this.attr('data-id', 'source-'+id);
+        $form.attr('data-id', 'form-'+id);
+        if(!$form.hasClass('loaded')){
+            $.ajax({
+                url: prefix+'categories/ajax/?act=create_form',
+                dataType: "json",
+                data: '&name='+$this.closest('.form-group').find('input[name=categories-last-value]').val(),
+                type:'POST',
+                success: function(msg) {
+                    $form.addClass('loaded').html(msg.html);
+                    $form.show();
+                }
+            });
+        }else{
+            $form.toggle();
+        }
+    });
 });
+
+function select_order_device(data, $form){
+    if(data.state && data.id){
+        var id = $form.parent().attr('data-id'),
+            $f = $('[data-id="source-'+id.replace('form-','')+'"]').closest('.input-group');
+        $f.find('input[name=categories-last]').val(data.id);
+        $f.find('input[name=categories-last-value]').val(data.name);
+        $('#new_device_form').hide().empty().removeClass('loaded');
+    }
+}
 
 function create_client(_this) {
     $(_this).button('loading');

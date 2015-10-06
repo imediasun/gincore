@@ -5,10 +5,8 @@
     height: 40px;
 }
 #logo_gincore img{
-    margin-left: -9px;
-    height: 40px;
-    width: 175px !important;
-    max-width: 175px !important;
+    margin-left: -1px;
+    max-width: 155px !important;
 }
 
 @media all and (max-width: 768px){

@@ -1043,6 +1043,7 @@ class Chains
         $client_id = isset($post['client_id']) ? intval($post['client_id']) : 0;
         $note = isset($post['serials']) ? trim($post['serials']) : '';
         $repair = isset($post['repair']) ? intval($post['repair']) : 0;
+        $color = isset($post['color']) ? intval($post['color']) : -1;
         $status = $repair == 2 ? $this->all_configs['configs']['order-status-rework'] : $this->all_configs['configs']['order-status-new'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $data = array('state' => true, 'msg' => '', 'id' => null);
@@ -1103,10 +1104,11 @@ class Chains
             $data['state'] = false;
             $data['msg'] = 'У Вас нет прав';
         }
-        if (!isset($post['returnings']) && $type !== 3 && $data['state'] == true && !$crm_request && !$code && !$referer_id) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите код или источник';
-        }
+        // сделали не обязательными кароч
+//        if (!isset($post['returnings']) && $type !== 3 && $data['state'] == true && !$crm_request && !$code && !$referer_id) {
+//            $data['state'] = false;
+//            $data['msg'] = 'Укажите код или источник';
+//        }
         $order = null;
         // доработка
         if ($data['state'] == true && $repair == 2) {
@@ -1211,7 +1213,7 @@ class Chains
                 $post['id'],
                 intval($client['id']),
                 $client['fio'],
-                mb_strlen(trim($client['email']), 'UTF-8') > 0 ? trim($client['email']) : NULL,
+                isset($client['email']) && mb_strlen(trim($client['email']), 'UTF-8') > 0 ? trim($client['email']) : NULL,
                 mb_strlen(trim($client['phone']), 'UTF-8') > 0 ? trim($client['phone']) : NULL,
                 isset($post['comment']) ? trim($post['comment']) : '',
                 intval($category['id']),
@@ -1247,7 +1249,8 @@ class Chains
                 $wh['location_id'],
                 $wh['wh_id'],
                 $code ? $this->all_configs['db']->makeQuery(" ? ", array($code)) : 'null',
-                $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null'
+                $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
+                array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null'
             );
 
             // создаем заказ
@@ -1256,9 +1259,9 @@ class Chains
                     'INSERT INTO {orders} (id, user_id, fio, email, phone, comment, category_id, accepter, title, note,
                       serial, battery, charger, cover, box, repair, urgent, np_accept, notify, partner, approximate_cost,
                       `sum`, defect, client_took, date_readiness, course_key, course_value, `type`, prepay, is_replacement_fund,
-                      replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id, accept_wh_id,code,referer_id) VALUES
+                      replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id, accept_wh_id,code,referer_id,color) VALUES
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
-                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q)',
+                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q)',
                     $params, 'id');
                 $data['id'] = $post['id'];
             } catch (Exception $e) {
@@ -1629,14 +1632,42 @@ class Chains
             $data['state'] = false;
             $data['message'] = 'Свободные изделия для продажи не найдены';
         }
-        // клиент
-        $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
-        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i', array($client_id))->row();
-
-        if ($data['state'] == true && !$client) {
+        if(empty($_POST['client_fio'])){
             $data['state'] = false;
-            $data['message'] = 'Укажите клиента';
+            $data['msg'] = 'Укажите ФИО клиента';
         }
+        if(empty($_POST['client_phone'])){
+            $data['state'] = false;
+            $data['msg'] = 'Укажите телефон клиента';
+        }
+        // клиент
+        $client_id = isset($post['client_id']) ? intval($post['client_id']) : 0;
+        if($client_id){
+            // достаем клиента
+            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
+                array($client_id))->row();
+        }else{
+            // создать клиента
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            $access = new \access($this->all_configs, false);
+            if($access->is_phone($_POST['client_phone'])){
+                $u = $access->registration(array('phone' => $_POST['client_phone'],
+                                                 'fio' => $_POST['client_fio']));
+                if($u['id'] > 0){
+                    $client_id = $u['id'];
+                    $client = array(
+                        'id' =>  $client_id,
+                        'phone' => $_POST['client_phone'],
+                        'fio' => $_POST['client_fio']
+                    );
+                    $data['new_client_id'] = $client_id;
+                }else{
+                    $data['state'] = false;
+                    $data['msg'] = isset($u['msg']) ? $u['msg'] : 'Ошибка создания клиента';
+                }
+            }
+        }
+        
         if ($data['state'] == true && (!isset($post['price']) || intval($post['price']) == 0)) {
             $data['state'] = false;
             $data['message'] = 'Укажите сумму';

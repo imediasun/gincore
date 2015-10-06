@@ -48,7 +48,7 @@ class categories
         }
     }
 
-    private function check_post($post)
+    private function check_post($post, $redirect = true)
     {
         $mod_id = $this->all_configs['configs']['categories-manage-page'];
 
@@ -65,9 +65,13 @@ class categories
             $category_url = $this->all_configs['db']->query('SELECT id FROM {categories} WHERE url=?', array($url))->el();
 
             if ( $category_url ) {
-                header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
-                    . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2] . '/?error=url');
-                exit;
+                if($redirect){
+                    header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+                        . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2] . '/?error=url');
+                    exit;
+                }else{
+                    return array('error' => 'Категория с таким названием уже существует.');
+                }
             }
 
             $id = $this->all_configs['db']->query('INSERT INTO {categories}
@@ -89,9 +93,13 @@ class categories
 
             //$new_url = $this->create_cat_url($id, '');генерация вложенного юрл
 
-            header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
-                . $this->all_configs['arrequest'][1] . '/' . $id);
-            exit;
+            if($redirect){
+                header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+                    . $this->all_configs['arrequest'][1] . '/' . $id);
+                exit;
+            }else{
+                return $id;
+            }
         } elseif ( isset($post['edit-seo']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories') ) {
             // редактирование seo
             $ar = $this->all_configs['db']->query('UPDATE {categories}
@@ -227,7 +235,7 @@ class categories
                 return false;
             }*/
             //$new_url = $this->create_cat_url(intval($post['id']), '');генерация вложенного юрл
-
+            
             header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                 . $this->all_configs['arrequest'][1] . '/' . intval($post['id']));
             exit;
@@ -247,28 +255,37 @@ class categories
         }
         return substr($url, 0, strlen($url)-1);
     }*/
-    private function gencreate()
+    private function gencreate($name = '', $ajax = false, $callback = '')
     {
         if ( !$this->all_configs['oRole']->hasPrivilege('create-filters-categories') )
             return '<p  class="text-error">У Вас нет прав для создания новой категории</p>';
 
+        $attr = 'form method="post"';
+        $form_close = 'form';
+        if($ajax){
+            $attr = 'div class="emulate_form ajax_form" data-callback="'.$callback.'" data-method="post" '
+                    .'data-action="'.$this->all_configs['prefix'].'categories/ajax/?act=create_new"';
+            $form_close = 'div';
+        }
+        
         // строим форму добавления категории
-        $category_html = '<form method="post"><fieldset><legend>Добавление новой категории</legend>';
+        $category_html = '<'.$attr.'><fieldset><legend>Добавление новой категории (название устройства)</legend>';
         if ( isset($_GET['error']) && $_GET['error'] == 'url')
             $category_html .= '<p class="text-error">Категория с таким названием уже существует</p>';
         $category_html .= '<div class="form-group"><label>Название:</label>
-            <input autocomplete="off" placeholder="введите название" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="" /></div>';
+            <input autocomplete="off" placeholder="Укажите название устройства или категории. Пример: IPhone 5" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="'.($name ? htmlspecialchars($name) : '').'" /></div>';
         $category_html .= '<div class="form-group"><div class="checkbox"><label>
             <input name="avail" type="checkbox">Активность</label></div></div>';
-        $category_html .= '<div class="form-group"><label>Родитель:</label>
-            ' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large') . '</div>';
+        $category_html .= '<div class="form-group"><label>Высшая (родительская) категория:</label>
+            ' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large','', '', 
+                          false, false, '', false, 'Укажите название высшей категории или оставьте пустым. Пример: Iphone') . '</div>';
         $category_html .= '<div class="form-group"><label>Описание:</label>
             <textarea placeholder="краткое описание" name="content" class="form-control" rows="3"></textarea></div>';
 
         $category_html .= '<div class="form-group">
                 <input class="btn btn-primary" type="submit" value="создать" name="create-category" /></div>';
 
-        $category_html .= '</fieldset></form>';
+        $category_html .= '</fieldset></'.$form_close.'>';
 
         return $category_html;
     }
@@ -744,7 +761,26 @@ class categories
             echo json_encode(array('message' => 'Нет прав', 'state' => false));
             exit;
         }
+        
+        if($act == 'create_form'){
+            $name = isset($_POST['name']) ? trim($_POST['name']) : '';
+            echo json_encode(array('html' => $this->gencreate($name, true, 'select_order_device'), 'state' => true));
+            exit;
+        }
 
+        if($act == 'create_new'){
+            $_POST['create-category'] = true;
+            $create = $this->check_post($_POST, false);
+            if(isset($create['error'])){
+                echo json_encode(array('state' => false, 'msg' => $create['error']));
+            }else{
+//            $create = 1;
+//            $_POST['title'] = 'test';
+                echo json_encode(array('state' => true, 'id' => $create, 'name' => $_POST['title']));
+            }
+            exit;
+        }
+        
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {

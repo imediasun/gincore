@@ -453,10 +453,10 @@ class warehouses
         $this->preload();
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
-        if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
             $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
+        if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves"))
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
             $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
