@@ -414,11 +414,18 @@ $(document).ready(function () {
             }
         }).on('focusout', this, function(e) {
             id = $(this).data('id');
-            if ($(this).val() == '') {
-                $('#' + id).val('');
-                $('.typeahead-double[data-id="'+id+'"]').each(function(){
-                    $(this).val('');
-                });
+            var $clear_els = $('#' + id);
+            var is_clear = true;
+            $('.typeahead-double[data-id="'+id+'"]').each(function(){
+                var $this = $(this);
+                if($.trim($this.val())){
+                    is_clear = false;
+                }else{
+                    $clear_els.add($this);
+                }
+            });
+            if (is_clear) {
+                $clear_els.val('');
             }
         });
     });

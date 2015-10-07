@@ -923,14 +923,23 @@ class accountings
             $out .= '</select></div>';
             $out .= '';
             if ($contractor) {
-                if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+                if($contractor['comment'] == 'system'){
+                    // системного низя менять
                     $out .= "
                         <div class='form-group'>
-                            <input type='hidden' name='contractor-id' value='{$contractor['id']}' />
-                            <input type='button' class='btn btn-primary' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='Редактировать' />
-                            <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='Удалить' />
+                            <p class='text-info'>Технический контрагент - не подлежит редактированию</p>
                         </div>
                     ";
+                }else{
+                    if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+                        $out .= "
+                            <div class='form-group'>
+                                <input type='hidden' name='contractor-id' value='{$contractor['id']}' />
+                                <input type='button' class='btn btn-primary' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='Редактировать' />
+                                <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='Удалить' />
+                            </div>
+                        ";
+                    }
                 }
                 $client_contr = $this->all_configs['db']->query("SELECT id FROM {clients} "
                                                     . "WHERE contractor_id = ?i", array($contractor['id']), 'el');
@@ -1244,6 +1253,12 @@ class accountings
         // редактирование контрагента
         if ($act == 'contractor-edit') {
             $data['state'] = true;
+            $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
+                                                        ."WHERE id = ?i AND comment = 'system'", array($this->all_configs['arrequest'][2]), 'el');
+            if($is_system){
+                $data['state'] = false;
+                $data['message'] = 'Системный контрагент - не подлежит редактированию';
+            }
             // права
             if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 $data['state'] = false;
@@ -1825,36 +1840,44 @@ class accountings
             if (!isset($_POST['contractor_id']) || $_POST['contractor_id'] == 0) {
                 $data['msg'] = 'Такого контрагента не существует';
             } else {
-                $count_t = 0;
-                // количество транзакций
-                if (array_key_exists('erp-use-for-accountings-operations', $this->all_configs['configs'])
-                    && count($this->all_configs['configs']['erp-use-for-accountings-operations']) > 0) {
-                    $query = '';
-                    if (array_key_exists('erp-use-id-for-accountings-operations', $this->all_configs['configs'])
-                        && count($this->all_configs['configs']['erp-use-id-for-accountings-operations']) > 0) {
-                        $query = $this->all_configs['db']->makeQuery('c.id IN (?li) OR',
-                            array($this->all_configs['configs']['erp-use-id-for-accountings-operations']));
-                    }
-                    $count_t = $this->all_configs['db']->query('SELECT count(t.id)
-                            FROM {cashboxes_transactions} as t, {contractors_categories_links} as l, {contractors} as c
-                            WHERE t.contractor_category_link=l.id AND l.contractors_id=c.id AND c.id=?i
-                              AND (?query c.type IN (?li))',
-                        array($_POST['contractor_id'], $query,
-                            array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])))->el();
-                }
-
-                if ($count_t > 0) {
-                    $data['msg'] = 'Контрагент содержит операции, его нельзя удалить';
-                } else {
-                    $ar = $this->all_configs['db']->query('DELETE FROM {contractors} WHERE id=?i', array($_POST['contractor_id']))->ar();
-
-                    // история
-                    if ($ar) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'remove-contractor', $mod_id, $_POST['contractor_id']));
+                $data['state'] = true;
+                $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
+                                                            ."WHERE id = ?i AND comment = 'system'", array($_POST['contractor_id']), 'el');
+                if($is_system){
+                    $data['state'] = false;
+                    $data['msg'] = 'Системный контрагент - не подлежит редактированию';
+                }else{
+                    $count_t = 0;
+                    // количество транзакций
+                    if (array_key_exists('erp-use-for-accountings-operations', $this->all_configs['configs'])
+                        && count($this->all_configs['configs']['erp-use-for-accountings-operations']) > 0) {
+                        $query = '';
+                        if (array_key_exists('erp-use-id-for-accountings-operations', $this->all_configs['configs'])
+                            && count($this->all_configs['configs']['erp-use-id-for-accountings-operations']) > 0) {
+                            $query = $this->all_configs['db']->makeQuery('c.id IN (?li) OR',
+                                array($this->all_configs['configs']['erp-use-id-for-accountings-operations']));
+                        }
+                        $count_t = $this->all_configs['db']->query('SELECT count(t.id)
+                                FROM {cashboxes_transactions} as t, {contractors_categories_links} as l, {contractors} as c
+                                WHERE t.contractor_category_link=l.id AND l.contractors_id=c.id AND c.id=?i
+                                  AND (?query c.type IN (?li))',
+                            array($_POST['contractor_id'], $query,
+                                array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])))->el();
                     }
 
-                    $data['state'] = true;
+                    if ($count_t > 0) {
+                        $data['msg'] = 'Контрагент содержит операции, его нельзя удалить';
+                    } else {
+                        $ar = $this->all_configs['db']->query('DELETE FROM {contractors} WHERE id=?i', array($_POST['contractor_id']))->ar();
+
+                        // история
+                        if ($ar) {
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                                array($user_id, 'remove-contractor', $mod_id, $_POST['contractor_id']));
+                        }
+
+                        $data['state'] = true;
+                    }
                 }
             }
         }

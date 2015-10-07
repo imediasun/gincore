@@ -922,11 +922,25 @@ class orders
                                             </div>
                                             <div class="form-group">
                                                 <label>Неисправность со слов клиента: </label>
+                                                <div class="row row-15 form-group">
+                                                    <div class="col-sm-6">
+                                                        <label>Замена:</label> 
+                                                        <input class="form-control" name="repair_part" placeholder="укажите деталь">
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <label>Качество детали:</label> 
+                                                        <select class="form-control" name="repair_part_quality">
+                                                            <option value="Не согласовано">Не согласовано</option>
+                                                            <option value="Оригинал">Оригинал</option>
+                                                            <option value="Копия">Копия</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                                 <textarea class="form-control" name="defect"></textarea>
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">Внешний вид: </label>
-                                                <textarea class="form-control" name="comment"></textarea>
+                                                <textarea class="form-control" name="comment">Потертости, царапины</textarea>
                                             </div>
                                         </fieldset>
                                         <fieldset>
@@ -976,7 +990,7 @@ class orders
                                                         </label></div>
                                                         <div class="checkbox"><label>
                                                             <input onclick="if ($(this).prop(\'checked\')){$(\'.replacement_fund\').show();}else{$(\'.replacement_fund\').hide();}" type="checkbox" value="1" name="is_replacement_fund" />
-                                                            Подменный фонд
+                                                            Выдан подменный фонд
                                                             <input type="text" style="display:none;" placeholder="Модель, серийный номер" class="form-control replacement_fund" value="" name="replacement_fund" />
                                                         </label></div>
                                                     </div>
@@ -1934,8 +1948,8 @@ class orders
             $order_html .= '<div class="row-fluid">';
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $print_warranty = print_link($order['id'], 'warranty', '<i class="cursor-pointer fa fa-wrench"></i><span>ГАРАН</span>', 'order_print_btn');
-                $print_check = print_link($order['id'], 'check', '<i class="cursor-pointer fa fa-user"></i><span>ЧЕК</span>', 'order_print_btn');
+                $print_warranty = print_link($order['id'], 'warranty', '<i class="cursor-pointer fa fa-lock"></i><span>ГАРАН</span>', 'order_print_btn');
+                $print_check = print_link($order['id'], 'check', '<i class="cursor-pointer fa fa-list-alt"></i><span>ЧЕК</span>', 'order_print_btn');
             } else {
                 $print_check = '';
                 $print_warranty = '';
@@ -1949,7 +1963,7 @@ class orders
                 </small><br>
                 <h3>
                     №'.$order['id'].'
-                    <a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-ambulance"></i><span>КВИТ</span></a>'
+                    <a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-file-text-o"></i><span>КВИТ</span></a>'
                     .$print_check
                     .$print_warranty 
                     .'<a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-users"></i><span>АКТ</span></a>
@@ -2171,7 +2185,7 @@ class orders
             }
             $order_html .= '</div></div>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')/* && $_SESSION['id'] == $order['manager']*/) {
-                $order_html .= '<div class="span12"><div class="span4">';
+                $order_html .= '<div class="row-fluid"><div class="span6">';
                 $hide = in_array($order['status'], $this->all_configs['configs']['order-status-issue-btn']) ? '' : 'style="display:none;"';
                 $status = $order['status'] == $this->all_configs['configs']['order-status-ready'] ? $this->all_configs['configs']['order-status-issued']
                     : ($order['status'] == $this->all_configs['configs']['order-status-refused'] || $order['status'] == $this->all_configs['configs']['order-status-unrepairable']
@@ -2180,7 +2194,7 @@ class orders
                     $order_html .= '<input id="close-order" ' . $hide . ' class="btn btn-success" onclick="issue_order(this)" data-status="' . $status . '" type="button" value="Выдать" />';
                     $order_html .= ' <input id="update-order" class="btn btn-info" onclick="update_order(this)" type="button" value="Сохранить" />';
                 }
-                $order_html .= '</div><div class="span8"><div class="from-control">';
+                $order_html .= '</div><div class="span6"><div class="from-control">';
                 $order_html .= ' <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-sum\')" data-o_id="' . $order['id'] . '" title="История изменений"></span>';
                 $order_html .= ' 
                     <label>Стоимость ремонта: </label>
@@ -2194,10 +2208,10 @@ class orders
                 if($this->all_configs['oRole']->hasPrivilege('accounting')){
                     if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
-                        $order_html .= '<input type="button" class="btn btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
+                        $order_html .= '<input type="button" class="btn btn-success btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
                     } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
-                        $order_html .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+                        $order_html .= '<input type="button" class="btn btn-success btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
                     }
                 }
                 $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';

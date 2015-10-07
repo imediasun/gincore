@@ -181,6 +181,23 @@ class master{
             }
         }
         
+        // создаем системных контрагентов
+        // покупатель
+        $this->db->query('INSERT IGNORE INTO {contractors}
+                                        (title, type, comment) VALUES (?, ?i, ?)',
+                                    array('Покупатель', 3, 'system'));
+        // покупатель списания
+        $this->db->query('INSERT IGNORE INTO {contractors}
+                                        (title, type, comment) VALUES (?, ?i, ?)',
+                                    array('Покупатель списания', 3, 'system'));
+        // ввод денежных остатков
+        $id = $this->db->query('INSERT IGNORE INTO {contractors}
+                                        (title, type, comment) VALUES (?, ?i, ?)',
+                                    array('Ввод денежных остатков', 1, 'system'), 'id');
+        $this->db->query('INSERT IGNORE INTO {contractors_categories_links}
+                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
+                                array(32, $id));
+        
         // ставим отметку что мастер настройки закончен
         $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
         

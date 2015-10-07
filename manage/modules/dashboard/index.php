@@ -195,15 +195,23 @@ class dashboard{
     
     private function get_cash(){
         $query_filter = $this->make_filters('date_transaction');
-        $today_cash = $this->db->query("SELECT SUM(value_to) / 100 "
+        $today_date = date('Y-m-d 00:00:00');
+        $today_date_to = date('Y-m-d 23:59:59');
+        $today_date = '2015-04-01 00:00:00';
+        $today_date_to = '2015-04-01 23:59:59';
+        $today_cash = $this->db->query("SELECT SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
                                       ."FROM {cashboxes_transactions} "
-                                      ."WHERE date_transaction >= ? AND transaction_type = 2", array(date('Y-m-d 00:00:00')), 'el');
+                                      ."WHERE date_transaction BETWEEN ? AND ? "
+                                        ."AND transaction_type = 2 "
+                                        ."AND type NOT IN (1, 2, 3, 4, 6, 10) "
+                                        ."AND client_order_id > 0 ",
+                                        array($today_date, $today_date_to), 'el');
         $chart_cash = $this->db->query("SELECT "
                                         ."DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, "
                                         ."SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
                                       ."FROM {cashboxes_transactions} "
                                       ."WHERE ?q AND transaction_type = 2 "
-                                        ."AND type NOT IN (1, 2, 3, 4) AND type NOT IN (6,10) "
+                                        ."AND type NOT IN (1, 2, 3, 4, 6, 10) "
                                         ."AND client_order_id > 0 "
                                       ."GROUP BY d", array($query_filter))->vars();
         $cash_chart_js = array();

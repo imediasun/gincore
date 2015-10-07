@@ -1,4 +1,4 @@
-#show_tradein_orders, #show_tradein_orders table select {
+.order_print_btn#show_tradein_orders, #show_tradein_orders table select {
     font-size: 0.8em;
 }
 
@@ -436,15 +436,16 @@ td.td-sc-count {
     margin: 0 2px;
     text-align: center;
     display: inline-block;
-    width: 40px;
+    width: 35px;
     padding: 3px 0;
     border: 1px solid #eeeeee;
-    font-size: 12px;
+    font-size: 10px;
 }
 .order_print_btn:hover{
     border-color: #d3d3d3;
 }
 .order_print_btn i{
+    margin-bottom: 2px;
     font-size: 14px;
 }
 .order_print_btn span{

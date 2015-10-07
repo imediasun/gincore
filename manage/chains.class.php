@@ -1050,6 +1050,15 @@ class Chains
         $code = !empty($_POST['code']) ? $_POST['code'] : null;
         $referer_id = !empty($_POST['referer_id']) ? $_POST['referer_id'] : null;
         $crm_request = !empty($_POST['crm_request']) ? $_POST['crm_request'] : null;
+        $repair_part = !empty($_POST['repair_part']) ? trim($_POST['repair_part']) : '';
+        $repair_part_quality = !empty($_POST['repair_part_quality']) ? $_POST['repair_part_quality'] : 'Не согласовано';
+        
+        $private_comment = '';
+        if($repair_part){
+            $private_comment .= 'Замена '.htmlspecialchars($repair_part).'. ';
+        }
+        $private_comment .= ' Качество '.htmlspecialchars($repair_part_quality).'. ';
+        $private_comment .= isset($_POST['private_comment']) ? trim($_POST['private_comment']) : '' ;
         
         if(empty($_POST['client_fio'])){
             $data['state'] = false;
@@ -1271,8 +1280,8 @@ class Chains
 
             if ($data['state'] == true && $data['id'] > 0) {
                 // скрытый камент
-                if(isset($_POST['private_comment'])){
-                    $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], trim($_POST['private_comment']), 1);
+                if($private_comment){
+                    $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], $private_comment, 1);
                 }
                 // прикрепляем заявку к заказу
                 if(isset($_POST['crm_request'])){
