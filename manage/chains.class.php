@@ -1060,18 +1060,19 @@ class Chains
         $type = isset($post['type']) ? $post['type'] : 0;
         $sum_paid = isset($post['sum_paid']) ? intval($post['sum_paid'] * 100) : 0;
         $approximate_cost = isset($post['approximate_cost']) ? intval($post['approximate_cost'] * 100) : 0;
-        $client_id = isset($post['client_id']) ? intval($post['client_id']) : 0;
+        $client_id = isset($post['client_id']) ? intval($post['client_id']) : 
+                        isset($post['clients']) ? intval($post['clients']) : 0;
         $note = isset($post['serials']) ? trim($post['serials']) : '';
         $repair = isset($post['repair']) ? intval($post['repair']) : 0;
         $color = isset($post['color']) ? intval($post['color']) : -1;
         $status = $repair == 2 ? $this->all_configs['configs']['order-status-rework'] : $this->all_configs['configs']['order-status-new'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $data = array('state' => true, 'msg' => '', 'id' => null);
-        $code = !empty($_POST['code']) ? $_POST['code'] : null;
-        $referer_id = !empty($_POST['referer_id']) ? $_POST['referer_id'] : null;
-        $crm_request = !empty($_POST['crm_request']) ? $_POST['crm_request'] : null;
-        $repair_part = !empty($_POST['repair_part']) ? trim($_POST['repair_part']) : '';
-        $repair_part_quality = !empty($_POST['repair_part_quality']) ? $_POST['repair_part_quality'] : 'Не согласовано';
+        $code = !empty($post['code']) ? $post['code'] : null;
+        $referer_id = !empty($post['referer_id']) ? $post['referer_id'] : null;
+        $crm_request = !empty($post['crm_request']) ? $post['crm_request'] : null;
+        $repair_part = !empty($post['repair_part']) ? trim($post['repair_part']) : '';
+        $repair_part_quality = !empty($post['repair_part_quality']) ? $post['repair_part_quality'] : 'Не согласовано';
         
         $next = isset($post['next']) ? trim($post['next']) : '';
         
@@ -1080,23 +1081,22 @@ class Chains
             $private_comment .= 'Замена '.htmlspecialchars($repair_part).'. ';
         }
         $private_comment .= ' Качество '.htmlspecialchars($repair_part_quality).'. ';
-        $private_comment .= isset($_POST['private_comment']) ? trim($_POST['private_comment']) : '' ;
+        $private_comment .= isset($post['private_comment']) ? trim($post['private_comment']) : '' ;
         
-        if(empty($_POST['client_fio'])){
-            $data['state'] = false;
-            $data['msg'] = 'Укажите ФИО клиента';
-        }
-        
-        if(empty($_POST['client_phone'])){
-            $data['state'] = false;
-            $data['msg'] = 'Укажите телефон клиента';
-        }
         
         if($client_id){
             // достаем клиента
             $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
                 array($client_id))->row();
         }else{
+            if(empty($post['client_fio'])){
+                $data['state'] = false;
+                $data['msg'] = 'Укажите ФИО клиента';
+            }
+            if(empty($post['client_phone'])){
+                $data['state'] = false;
+                $data['msg'] = 'Укажите телефон клиента';
+            }
             // создать клиента
             require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
             $access = new \access($this->all_configs, false);
@@ -1227,10 +1227,10 @@ class Chains
 
         if ($data['state'] == true && $category && $client && $wh && !$order) {
 
-            if(!$client['fio'] && !empty($_POST['client_fio'])){
+            if(!$client['fio'] && !empty($post['client_fio'])){
                 $this->all_configs['db']->query("UPDATE {clients} SET fio = ? WHERE id = ?i", 
-                                                                array($_POST['client_fio'], $client['id']));
-                $client['fio'] = $_POST['client_fio'];
+                                                                array($post['client_fio'], $client['id']));
+                $client['fio'] = $post['client_fio'];
             }
             
             if (!isset($post['id']) || intval($post['id']) == 0) {
@@ -1306,7 +1306,7 @@ class Chains
                     $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], $private_comment, 1);
                 }
                 // прикрепляем заявку к заказу
-                if(isset($_POST['crm_request'])){
+                if(isset($post['crm_request'])){
                     get_service('crm/requests')->attach_to_order($data['id'], $crm_request);
                 }
                 // сумма
