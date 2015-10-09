@@ -525,6 +525,9 @@ class Chains
             }elseif($only_count){
                 $so_goods = $this->stockman_operations_goods();
                 $goods = $so_goods['goods'];
+                if(!$goods){
+                    $goods = array(0);
+                }
                 $filters_query = $this->all_configs['db']->makeQuery('?query AND g.goods_id IN (?li)',
                     array($filters_query, array_keys($goods)));
             }else{

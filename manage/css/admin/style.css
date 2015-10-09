@@ -1144,22 +1144,26 @@ body.blank {
     color: #c0392b
 }
 
+.btn.btn-outline:hover,
 .btn-primary.btn-outline:hover, .btn-success.btn-outline:hover, .btn-info.btn-outline:hover, .btn-warning.btn-outline:hover, .btn-danger.btn-outline:hover {
     color: #fff
 }
 
+.btn,
 .btn-primary {
     background-color: #34495e;
     border-color: #34495e;
     color: #FFFFFF
 }
 
+.btn:hover, .btn:focus, .btn:active, .btn.active, .open .dropdown-toggle.btn,
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
     background-color: #3f5872;
     border-color: #3f5872;
     color: #FFFFFF
 }
 
+.btn:active, .btn.active, .open .dropdown-toggle.btn,
 .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
     background-image: none
 }
