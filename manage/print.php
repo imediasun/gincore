@@ -226,6 +226,11 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             }
         }
 
+        // квитанция
+        if ($act == 'invoice') {
+            $print_html = 'к';
+        }
+        
         // чек
         if ($act == 'check') {
 

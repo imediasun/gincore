@@ -385,13 +385,17 @@ function update_order(_this) {
     return false;
 }
 
-function add_new_order(_this) {
+function add_new_order(_this, next) {
     $(_this).button('loading');
 
+    var data = $(_this).parents('form').serialize();
+    if(next){
+        data += '&next='+next;
+    }
     $.ajax({
         url: prefix + module + '/ajax/?act=add-order',
         type: 'POST',
-        data: $(_this).parents('form').serialize(),
+        data: data,
         success: function(msg) {
             if (msg) {
                 if(msg.new_client_id){
@@ -410,8 +414,17 @@ function add_new_order(_this) {
                         alert((msg['msg'] || msg['message']));
                     }
                 }
-                if (msg['location']) {
-                    window.location.href = msg['location'];
+                if(msg['open_window']) {
+                    window.open(msg['open_window']);
+                }
+                if(msg['location']) {
+                    var cur_loc = window.location.pathname+window.location.search+window.location.hash;
+                    console.log(cur_loc, msg['location']);
+                    if(msg['location'] == cur_loc){
+                        window.location.reload(true);
+                    }else{
+                        window.location.href = msg['location'];
+                    }
                 }
             }
             $(_this).button('reset');

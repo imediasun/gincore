@@ -540,8 +540,10 @@ class users
                         <label>Права доступа:</label>
                         отметьте нужные
                     </div>';
+        $groups = $this->get_permissions_groups();
         $yet = 0;
         $roles = array();
+        $group_html = array();
         foreach ( $pers as $per ) {
             if ( $yet === 0 ) {
                 $yet = $per['role_id'];
@@ -550,17 +552,25 @@ class users
                 $roles[$per['role_id']] = $per['role_name'];
                 continue;
             }
-            $users_html .= '
+            $group_html[(int)$per['group_id']][] = '
                 <div class="checkbox">
                     <label><input id="per_id_a_' . $per['per_id'] . '" class="del-a-' . $per['child'] . '"
                         onchange="per_change(this, \'a-' . $per['child'] . '\', \'a-' . $per['per_id'] . '\')"
                         type="checkbox" name="permissions[a-' . $per['per_id'] . ']">' . htmlspecialchars($per['per_name']) . '</label>
                 </div>';
         }
-        //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-            $users_html .= '<div class="control-group"><div class="controls">
-                <input class="btn btn-primary" type="submit" name="add-role" value="создать"></div></div>';
-        //}
+        foreach($groups as $group_id => $name){
+            if(!empty($group_html[$group_id])){
+                $users_html .= '
+                    <div class="form-group">
+                        <label>'.$name.'</label>
+                        '.implode('', $group_html[$group_id]).'
+                    </div>
+                ';
+            }
+        }
+        $users_html .= '<div class="control-group"><div class="controls">
+            <input class="btn btn-primary" type="submit" name="add-role" value="создать"></div></div>';
         $users_html .= '</fieldset></form>';
         $users_html .= '</div>';
 
@@ -650,13 +660,25 @@ class users
 
         $per = $this->all_configs['db']->query("
             SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
-              p.name as per_name, p.link, p.child
+              p.name as per_name, p.link, p.child, p.group_id
             FROM {users_roles} as r
             CROSS JOIN {users_permissions} as p
             LEFT JOIN (SELECT * FROM {users_role_permission})per ON per.role_id=r.id AND per.permission_id=p.id
             ORDER BY role_id, per_id
         ")->assoc();
 
+        return $per;
+    }
+
+    private function get_permissions_groups()
+    {
+        $per = $this->all_configs['db']->query("
+            SELECT id, name
+            FROM {users_permissions_groups}
+            ORDER BY prio
+        ")->vars();
+        $per[0] = 'Без группы';
+        
         return $per;
     }
 

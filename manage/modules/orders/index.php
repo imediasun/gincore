@@ -827,6 +827,7 @@ class orders
 //            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
             
             $client_id = $order_data ? $order_data['client_id'] : 0;
+            $client_id = !$client_id && isset($_GET['c']) ? (int)$_GET['c'] : 0;
             $client_fields = client_double_typeahead($client_id, 'get_requests');
             $colors_select = '';
             foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
@@ -1011,7 +1012,18 @@ class orders
                                         </fieldset>
                                     </div>
                                 </div>
-                                <input id="add-client-order" class="btn btn-primary" type="button" onclick="add_new_order(this)" value="Добавить" />
+                                <div class="btn-group dropup">
+                                  <input id="add-client-order" class="btn btn-primary" type="button" onclick="add_new_order(this)" value="Добавить" />
+                                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li><a href="#" onclick="add_new_order(this, \'print\'); return false;">Добавить и распечатать квитанцию</a></li>
+                                    <li><a href="#" onclick="add_new_order(this, \'new_order\'); return false;">Добавить и принять еще одно устройство от этого клиента</a></li>
+                                    <li><a href="#" onclick="add_new_order(this, \'print_and_new_order\'); return false;">Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента</a></li>
+                                  </ul>
+                                </div>
                             </form>
                         </div>
                         <div class="tab-pane" id="sale">

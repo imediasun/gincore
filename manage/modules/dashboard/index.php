@@ -197,8 +197,8 @@ class dashboard{
         $query_filter = $this->make_filters('date_transaction');
         $today_date = date('Y-m-d 00:00:00');
         $today_date_to = date('Y-m-d 23:59:59');
-        $today_date = '2015-04-01 00:00:00';
-        $today_date_to = '2015-04-01 23:59:59';
+//        $today_date = '2015-04-01 00:00:00';
+//        $today_date_to = '2015-04-01 23:59:59';
         $today_cash = $this->db->query("SELECT SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
                                       ."FROM {cashboxes_transactions} "
                                       ."WHERE date_transaction BETWEEN ? AND ? "

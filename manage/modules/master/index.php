@@ -147,7 +147,7 @@ class master{
                     // недостача
                     $this->create_warehouse('Недостача '.$service['name'], '', 2, $id);
                     // логистика
-                    $this->create_warehouse('Логистика '.$service['name'], '', 3, $id);
+                    $this->create_warehouse('Брак '.$service['name'], '', 1, $id);
                     // клиент
                     $this->create_warehouse('Клиент '.$service['name'], '', 4, $id);
                     $added_services[$i] = array(
@@ -156,6 +156,9 @@ class master{
                 }
             }
         }
+        // склад логистика без группы
+        $this->create_warehouse('Логистика', '', 3, 0);
+        
         if(!$added_services){
             return array('state' => false, 'msg' => 'Добавьте отделения');
         }
@@ -205,12 +208,12 @@ class master{
         return array('state' => true, 'redirect' => $prefix.'orders');
     }
     
-    private function create_warehouse($name, $address, $type, $group_id){
+    private function create_warehouse($name, $address, $type, $group_id, $consider_all = 0, $consider_store = 1){
         // создаем склад
         $warehouse_id = $this->db->query('INSERT IGNORE INTO {warehouses}
             (consider_all, consider_store, code_1c, title, print_address,
-             print_phone, type, group_id, type_id) VALUES (0, 1, null, ?, ?, null, ?i, ?n, ?n)',
-                array($name, $address, $type, $group_id, 1), 'id');
+             print_phone, type, group_id, type_id) VALUES (?i, ?i, null, ?, ?, null, ?i, ?n, ?n)',
+                array($consider_all, $consider_store, $name, $address, $type, $group_id, 1), 'id');
         // и локацию
         $location_id = $this->db->query("INSERT IGNORE INTO {warehouses_locations} (wh_id,location)"
                         ."VALUES(?i,?)", array($warehouse_id, $name), 'id');

@@ -445,6 +445,15 @@ class Chains
 
             $this->move_item($item_id, null, $data['wh_id_destination'], $data['location'], $mod_id);
 
+            // привяжите запчасть, потом поставьте статус "готов", потом "примите на доработку" 
+            // отвяжите запчасть и вуаля- статус не изменился.  
+            // По факту устройство ожидает отгрузки запчасти, а статус "принят на доработку"
+            // меняем статус ожидает запчастей
+            update_order_status(
+                $this->all_configs['db']->query("SELECT id,phone,notify,status "
+                                               ."FROM {orders} WHERE id = ?i", array($item['order_id']), 'row')
+                , $this->all_configs['configs']['order-status-waits']);
+            
             /*if ($ar1 || $ar2) {
                 $this->all_configs['manageModel']->move_product_item(
                     $item['wh_id'],
@@ -513,7 +522,12 @@ class Chains
             if ($goods) {
                 $filters_query = $this->all_configs['db']->makeQuery('?query AND g.goods_id IN (?li)',
                     array($filters_query, array_keys($goods)));
-            } else {
+            }elseif($only_count){
+                $so_goods = $this->stockman_operations_goods();
+                $goods = $so_goods['goods'];
+                $filters_query = $this->all_configs['db']->makeQuery('?query AND g.goods_id IN (?li)',
+                    array($filters_query, array_keys($goods)));
+            }else{
                 return null;
             }
         }
@@ -530,7 +544,6 @@ class Chains
         $skip = (isset($filters['p']) && $filters['p'] > 0) ? ($count_on_page * ($filters['p'] - 1)) : 0;
 
         if ($only_count == true) {
-
             if ($type == 1) {
                 $operations = $this->all_configs['db']->query('SELECT COUNT(DISTINCT g.order_id)
                     FROM {orders_suppliers_clients} as l, {orders} as o, {orders_goods} as g
@@ -582,9 +595,7 @@ class Chains
 
         return $operations;
     }
-
-    function show_stockman_operations($type = 1, $hash = '#orders-clients_bind')
-    {
+    function stockman_operations_goods(){
         $serials = array();
         $goods = array();
         $data = $this->all_configs['db']->query(
@@ -611,7 +622,16 @@ class Chains
                 $serials[$i['goods_id']]['count'][$i['wh_id']]['locations'][$i['location_id']]['items'][$i['item_id']] = $i['serial'];
             }
         }
-
+        return array(
+            'goods' => $goods,
+            'serials' => $serials
+        );
+    }
+    function show_stockman_operations($type = 1, $hash = '#orders-clients_bind')
+    {
+        $so_goods = $this->stockman_operations_goods();
+        $goods = $so_goods['goods'];
+        $serials = $so_goods['serials'];
         /*
          * $type = 1 привязка серийного номера
          * $type = 2 выдача изделия
@@ -1053,6 +1073,8 @@ class Chains
         $repair_part = !empty($_POST['repair_part']) ? trim($_POST['repair_part']) : '';
         $repair_part_quality = !empty($_POST['repair_part_quality']) ? $_POST['repair_part_quality'] : 'Не согласовано';
         
+        $next = isset($post['next']) ? trim($post['next']) : '';
+        
         $private_comment = '';
         if($repair_part){
             $private_comment .= 'Замена '.htmlspecialchars($repair_part).'. ';
@@ -1349,7 +1371,22 @@ class Chains
                 $post = array('wh_id_destination' => $wh['wh_id'], 'order_id' => $data['id'], 'location' => $wh['location_id']);
                 $result = $this->move_item_request($post, $mod_id);
 
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                switch($next){
+                    case 'print':
+                        $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                    break;
+                    case 'new_order':
+                        $data['location'] = $this->all_configs['prefix'].'orders?c='.$client['id'].'#create_order';
+                    break;
+                    case 'print_and_new_order':
+                        $data['location'] = $this->all_configs['prefix'].'orders?c='.$client['id'].'#create_order';
+                        $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                    break;
+                    default:
+                        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                    break;
+                }
 
                 // достаем запчасти которые можно проверить по категории (устройству)
                 $items = $this->all_configs['db']->query('SELECT i.id as item_id, i.serial, i.user_id
@@ -1372,7 +1409,7 @@ class Chains
                         $messages->send_message($content, 'Можно проверить запчасть', $user_id, 1);
                     }
                 }
-
+                
             }
         }
 

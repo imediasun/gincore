@@ -199,9 +199,9 @@ class products
                 }*/
             } else {
                 $id = $this->all_configs['db']->query('INSERT INTO {goods}
-                    (title, secret_title, url, avail, price, article, author) VALUES (?, ?, ?n, ?i, ?i, ?, ?i)',
-                    array(trim($post['title']), trim($post['secret_title']), $url, isset($post['avail']) ? 1 : 0,
-                        trim($post['price']) * 100, $user_id, trim($post['article'])), 'id'
+                    (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
+                    array(trim($post['title']), '', $url, isset($post['avail']) ? 1 : 0,
+                        trim($post['price']) * 100, $user_id, '', isset($_POST['type']) ? 1 : 0), 'id'
                 );
 
                 if ($id > 0) {
@@ -562,9 +562,9 @@ class products
         //$categories = $this->get_categories();
         // строим форму добавления нового товара
         // основные описания
-        $goods_html = '<form class="form-horizontal" method="post"><fieldset><legend>Добавление нового товара:</legend>';
+        $goods_html = '<form method="post" class="backgroud-white p-sm"><fieldset><legend>Добавление нового товара/услуги:</legend>';
         if (is_array($this->errors) && array_key_exists('error', $this->errors)) {
-            $goods_html .= '<div class="alert alert-error fade in">';
+            $goods_html .= '<div class="alert alert-danger fade in">';
             $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>';
             $goods_html .= $this->errors['error'] . '</div>';
         }
@@ -592,27 +592,27 @@ class products
         }
         $goods_html .= '<div class="form-group"><label>Название: </label>
                         <input autocomplete="off" placeholder="введите название" class="form-control global-typeahead" data-anyway="1" data-table="goods" name="title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['title']) : '') . '" /></div>';
-        $goods_html .= '<div class="form-group"><label class="control-label">Внутр. (секретное) название: </label>
-                        <input placeholder="введите секретное название" class="form-control" name="secret_title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['secret_title']) : '') . '" /></div>';
-        $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>
-                        <input placeholder="введите код товара" class="form-control" name="article" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['article']) : '') . '" /></div>';
+//        $goods_html .= '<div class="form-group"><label class="control-label">Внутр. (секретное) название: </label>
+//                        <input placeholder="введите секретное название" class="form-control" name="secret_title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['secret_title']) : '') . '" /></div>';
+//        $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>
+//                        <input placeholder="введите код товара" class="form-control" name="article" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('article', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['article']) : '') . '" /></div>';
         $goods_html .= '<input type="hidden" name="id" value="" />';
 
         if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-            $goods_html .= '<div class="control-group"><label class="control-label">Цена: </label>
-                            <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="введите цену" class="span5" name="price" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('price', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
+            $goods_html .= '<div class="form-group"><label class="control-label">Цена: </label>
+                            <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="введите цену" class="form-control" name="price" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('price', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
         }
-        $goods_html .= '<div class="control-group"><div class="controls">
-                        <label class="checkbox"><input name="avail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('avail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Активность</label></div></div>';
-        $goods_html .= '<div class="control-group"><div class="controls">
-                        <label class="checkbox"><input name="mail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('mail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Требуется обработать товарную позицию</label></div></div>';
-        $goods_html .= '<div class="control-group"><label class="control-label">Категории: </label><div class="controls">';
-        $goods_html .= '<select class="multiselect input-small" multiple="multiple" name="categories[]">';
+        $goods_html .= '<div class="form-group"><div class="checkbox">
+                        <label class=""><input name="avail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('avail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Активность</label></div></div>';
+//        $goods_html .= '<div class="form-group"><div class="checkbox">
+//                        <label class=""><input name="mail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('mail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Требуется обработать товарную позицию</label></div></div>';
+        $goods_html .= '<div class="form-group"><label class="control-label">Категории: </label><div class="controls">';
+        $goods_html .= '<select class="multiselect input-small form-control" multiple="multiple" name="categories[]">';
         $categories = $this->get_categories();
         $goods_html .= build_array_tree($categories, isset($_GET['cat_id']) ? $_GET['cat_id'] : '');
         $goods_html .= '</select></div></div>';
-        $goods_html .= '<div class="control-group"><label class="control-label">Менеджер: </label>';
-        $goods_html .= '<div class="controls"><select class="multiselect input-small" ';
+        $goods_html .= '<div class="form-group"><label class="control-label">Менеджер: </label>';
+        $goods_html .= '<div class="controls"><select class="multiselect input-small form-control" ';
         // проверка на количество менеджеров у товара
         $goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
         $goods_html .= ' name="users[]">';
@@ -629,7 +629,15 @@ class products
             }
         }
         $goods_html .= '</select></div></div>';
-        $goods_html .= '<input id="save_all_fixed" class="btn btn-primary" type="submit" value="Добавить" name="create-product">';
+        $goods_html .= '
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input name="type" value="1" type="checkbox"> Услуга
+                    </label>
+                </div>
+            </div>';
+        $goods_html .= '<input class="btn btn-primary" type="submit" value="Добавить" name="create-product">';
         $goods_html .= '</fieldset></form>';
 
         return $goods_html;
