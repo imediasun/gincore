@@ -829,7 +829,7 @@ class orders
             $client_id = $order_data ? $order_data['client_id'] : 0;
             $client_id = !$client_id && isset($_GET['c']) ? (int)$_GET['c'] : 0;
             $client_fields = client_double_typeahead($client_id, 'get_requests');
-            $colors_select = '';
+            $colors_select = '<option value="-1">Не выбран</option>';
             foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
                 $colors_select .= '<option value="'.$i.'">'.$c.'</option>';
             }
@@ -1013,7 +1013,7 @@ class orders
                                     </div>
                                 </div>
                                 <div class="btn-group dropup">
-                                  <input id="add-client-order" class="btn btn-primary" type="button" onclick="add_new_order(this)" value="Добавить" />
+                                  <input id="add-client-order" class="btn btn-primary" type="button" onclick="add_new_order(this,\'\',\'create_order\')" value="Добавить" />
                                   <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle Dropdown</span>

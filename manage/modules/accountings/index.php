@@ -1098,7 +1098,8 @@ class accountings
     function ajax()
     {
         $data = array(
-            'state' => false
+            'state' => false,
+            'message' => 'Не известная ошибка'
         );
 
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -3685,8 +3686,8 @@ class accountings
                         . ' '
                         //. $this->all_configs['suppliers_orders']->currencies[$this->all_configs['configs']['erp-contractor-balance-currency']]['shortName']
                         .'</td><td><input class="btn btn-default btn-xs" type="button" value="Проверить" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" />'
-                        .'<div class="pull-right">'.($contractor['amount'] > 0 ? 'Вам должны' : 
-                                                     ($contractor['amount'] > 0 ? 'Вы должны' : '')).'</div></td></tr>';
+                        .'<div class="pull-right">'.($contractor['amount'] > 0 ? 'Вы должны' : 
+                                                     ($contractor['amount'] < 0 ? 'Вам должны' : '')).'</div></td></tr>';
                     //}
                 }
                 $contractors_html .= '</tbody></table>';

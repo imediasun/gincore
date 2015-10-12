@@ -322,7 +322,7 @@ class Suppliers
         // show part of interface - redmine task #546
         if ($show_nav == true) {
             $orders_html .= '<div class="col-sm-2 b-r">';
-                $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['whk']) ? 'checked' : '') . ' type="checkbox" name="wh-kiev" /> Киев</label></div>';
+                $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['whk']) ? 'checked' : '') . ' type="checkbox" name="wh-kiev" /> Локально</label></div>';
                 $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['wha']) ? 'checked' : '') . ' type="checkbox" name="wh-abroad" /> Заграница</label></div>';
             $orders_html .= '</div>';
         }
@@ -338,7 +338,7 @@ class Suppliers
             }
             // show part of interface - redmine task #546
             if ($show_nav == true) {
-                $orders_html .= '</select></span></div><div class="input-group"><p class="form-control-static">Статус:</p><span class="input-group-btn"><select class="form-control" style="width: 98px" name="so-status"><option value="0">Выбрать</option>';
+                $orders_html .= '</select></span></div><div class="input-group"><p class="form-control-static">Статус:</p><span class="input-group-btn"><select data-numberDisplayed="2" class="form-control multiselect" style="width: 98px" name="so-status"><option value="0">Выбрать</option>';
                 $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 1 ? 'selected' : '') . ' value="1">Не принятые</option>';
                 $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 2 ? 'selected' : '') . ' value="2">Удаленные</option>';
                 $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 3 ? 'selected' : '') . ' value="3">Просроченные</option>';
@@ -352,10 +352,15 @@ class Suppliers
             //$orders_html .= '<label>№ заказа:</label>';
             $orders_html .= '<input type="hidden" placeholder="№ заказа" name="supplier_order_id" class="form-control" value="';
             $orders_html .= (isset($_GET['so_id']) && $_GET['so_id'] > 0 ? $_GET['so_id'] : '') . '" />';
-
-            $orders_html .= '</div><div class="form-group">';
-            $orders_html .= '<input type="text" placeholder="№ заказа" name="supplier_order_id_part" class="form-control" value="';
+            $orders_html .= '</div>';
+            
+            $orders_html .= '<div class="form-group">';
+            $orders_html .= '<input type="text" placeholder="№ заказа поставщику" name="supplier_order_id_part" class="form-control" value="';
             $orders_html .= (isset($_GET['pso_id']) && $_GET['pso_id'] > 0 ? $_GET['pso_id'] : '') . '" /></div>';
+            
+            $orders_html .= '<div class="form-group">';
+            $orders_html .= '<input type="text" placeholder="№ заказа клиента" name="client-order" class="form-control" value="';
+            $orders_html .= (isset($_GET['co']) && $_GET['co'] > 0 ? $_GET['co'] : '') . '" /></div>';
         $orders_html .= '</div>';
         $orders_html .= '<div class="col-sm-3">';
             if ($show_my == true) {
@@ -398,19 +403,27 @@ class Suppliers
                 
             
             foreach ($orders as $order) {
-
+                $status_txt = 'Новый заказ, ожидание поставки';
                 $class = '';
-                if (strtotime($order['date_wait']) < time() && $order['confirm'] != 1)
+                if (strtotime($order['date_wait']) < time() && $order['confirm'] != 1){
+                    $status_txt = 'Пропущена поставка (дата поставки в прошлом и заказ не был принят)';
                     $class = ' danger ';
+                }
 
-                if ($order['confirm'] != 1 && ($order['count_debit'] != $order['count_come'] || $order['sum_paid'] == 0) && $order['wh_id'] > 0 && $order['count_come'] > 0)
+                if ($order['confirm'] != 1 && ($order['count_debit'] != $order['count_come'] || $order['sum_paid'] == 0) && $order['wh_id'] > 0 && $order['count_come'] > 0){
+                    $status_txt = 'Принят, но не приходован на склад';
                     $class = ' info ';
+                }
 
-                if ($order['confirm'] == 1)
+                if ($order['confirm'] == 1){
+                    $status_txt = 'Успешно обработан';
                     $class = ' success ';
+                }
 
-                if ($order['avail'] == 0)
+                if ($order['avail'] == 0){
+                    $status_txt = 'Отменен';
                     $class = ' red ';
+                }
 
                 $client_orders = $this->all_configs['db']->query('SELECT  wt.icon, wt.name AS wt_name, wg.color, wg.name AS wg_name '
                         . 'FROM {orders_suppliers_clients} AS osc '
@@ -471,7 +484,7 @@ class Suppliers
 
                 $edit_comment = '<i class="glyphicon glyphicon-pencil editable-click pull-right" data-placement="left" data-display="false" data-title="Редактировать комментарий" data-url="messages.php?act=edit-supplier-order-comment" data-pk="' . $order['id'] . '" data-type="textarea" data-value="' . htmlspecialchars($order['comment']) . '"></i>';
 
-                $goods_html .= '<tr class=" ' . $class . '" id="supplier-order_id-' . $order['id'] . '">
+                $goods_html .= '<tr title="'.$status_txt.'" class=" ' . $class . '" id="supplier-order_id-' . $order['id'] . '">
                     <td>' . show_marked($order['id'], 'so', $order['m_id']) . '</td>
                     <td><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></td>
                     <td>' . $icon . get_user_name($order) . '</td>
@@ -540,7 +553,7 @@ class Suppliers
                     $data['msg'] = 'Осталась ' . ($so['count'] - count($links)) . ' свободных заявок';
                 } else {
                     $data['state'] = true;
-                    $data['msg'] = 'Успешно';
+                    $data['msg'] = 'Успешно сохранено';
 
                     foreach ($cos as $co) {
 
@@ -608,7 +621,7 @@ class Suppliers
 
             if ($ar) {
                 $data['state'] = true;
-                $data['msg'] = 'Успешно';
+                $data['msg'] = 'Успешно сохранено';
 
                 $diff = array_diff(array_keys($links), $co_ids);
                 if (count($diff) > 0) {
@@ -648,7 +661,7 @@ class Suppliers
                 $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="Сохранить" />';
 
                 $data['content'] = '<h6>Ремонты ожидающие данную запчасть</h6>';
-                $data['content'] .= '<form id="form-orders-links" class="form-horizontal" method="post">';
+                $data['content'] .= '<form id="form-orders-links" method="post">';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
 
                 // звязки заказов
@@ -656,10 +669,19 @@ class Suppliers
                     'SELECT id, client_order_id FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
                     array($order_id))->vars();
 
-                $data['content'] .= '<div class="control-group"><label class="control-label">Номер ремонта: </label>';
+                $data['content'] .= '<div class="form-group"><label class="control-label">Номер ремонта: </label>';
                 for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
                     $co_id = current($clients_orders);
-                    $data['content'] .= '<div class="controls"><input class="clone_clear_val input-medium" type="text" value="' . $co_id . '" name="so_co[]"></div>';
+                    $data['content'] .= '
+                        <div class="'.($co_id ? 'input-group ' : '').'form-group">
+                            <input class="clone_clear_val form-control" type="text" value="' . $co_id . '" name="so_co[]">
+                            '.($co_id ? '
+                                <span class="input-group-addon">
+                                    <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">перейти в заказ клиента</a>
+                                </span>' 
+                              : '').'
+                        </div>
+                    ';
                     next($clients_orders);
                 }
                 $data['content'] .= '</div></form>';
@@ -673,7 +695,7 @@ class Suppliers
 
     function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?1'></script>";
     }
 
     function exportProduct($product)
@@ -801,7 +823,7 @@ class Suppliers
             $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
-        $goods_html = '<form data-validate="parsley" id="suppliers-order-form" method="post"><div style="max-width:400px">';
+        $goods_html = '<form data-validate="parsley" id="suppliers-order-form" method="post"><div style="max-width:500px">';
         $disabled = '';
         $info_html = '';
         $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div></div>';
@@ -945,8 +967,8 @@ class Suppliers
                 $goods_html .= '<div class="form-group"><label>Запчасть <b class="text-danger">*</b>: </label>'
                     . '' . typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], (15 + $typeahead), 'input-xlarge', 'input-medium') . '</div>';
             }
-            $goods_html .= '<div class="form-group"><label>Тип склада <b class="text-danger">*</b>: </label>'
-                . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' /> Киев</label></div>'
+            $goods_html .= '<div class="form-group"><label>Тип поставки <b class="text-danger">*</b>: </label>'
+                . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' /> Локально</label></div>'
                 . '<div class="radio"><label><input type="radio" name="warehouse_type" data-required="true" value="2" ' . ($order['warehouse_type'] == 2 ? 'checked' : '') . ' /> Заграница</label></div></div>';
 
             $goods_html .= '<div class="form-group"><label>Номер: </label>'
@@ -958,7 +980,7 @@ class Suppliers
             $goods_html .= '<div class="form-group"><label>Примечание: </label>'
                 . '<textarea ' . $disabled . ' name="comment-supplier" class="form-control">' . htmlspecialchars($order['comment']) . '</textarea></div>';
 
-            $goods_html .= '<div class="form-group"><label>№ ремонта: </label>' . $so_co . '</div>';
+            $goods_html .= '<div class="form-group"><label>№ ремонта</label> (если запчасть заказывается под конкретный ремонт): ' . $so_co . '</div>';
             $goods_html .= '<div id="for-new-supplier-order"></div>';
             if ($all == true) {
                 $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>' . $info_html;

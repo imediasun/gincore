@@ -191,6 +191,9 @@ function orders_link(_this, form_open_btn) {
                 }
                 if (msg['state'] == true) {
                     $(form_open_btn).click();
+                    if(msg['msg']){
+                        alert(msg['msg']);
+                    }
                 }
             }
             $(_this).button('reset');

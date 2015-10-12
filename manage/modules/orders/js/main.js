@@ -385,12 +385,15 @@ function update_order(_this) {
     return false;
 }
 
-function add_new_order(_this, next) {
+function add_new_order(_this, next, from) {
     $(_this).button('loading');
 
     var data = $(_this).parents('form').serialize();
     if(next){
         data += '&next='+next;
+    }
+    if(from){
+        data += '&from='+from;
     }
     $.ajax({
         url: prefix + module + '/ajax/?act=add-order',

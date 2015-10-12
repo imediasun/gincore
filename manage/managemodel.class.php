@@ -236,6 +236,11 @@ class manageModel
                 array($query, $filters['pso_id'], $filters['pso_id'], $filters['pso_id']));
         }
 
+        if (isset($filters['co']) && $filters['co'] > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.id = ?i',
+                array($query, $filters['co']));
+        }
+
         if (isset($filters['so_id']) && $filters['so_id'] > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND (o.num=?i OR o.id=?i OR o.parent_id=?i)',
                 array($query, $filters['so_id'], $filters['so_id'], $filters['so_id']));

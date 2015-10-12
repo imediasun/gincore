@@ -2439,7 +2439,7 @@ class products
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
             $goods_html .= '<form class="form-horizontal" method="post">';
-            $goods_html .= '<div class="well"><h4>Склады поставщиков Киев</h4>';
+            $goods_html .= '<div class="well"><h4>Склады поставщиков Локально</h4>';
             $goods_suppliers = $this->all_configs['db']->query('SELECT link FROM {goods_suppliers} WHERE goods_id=?i',
                 array($this->all_configs['arrequest'][2]))->assoc();
             if ($goods_suppliers) {

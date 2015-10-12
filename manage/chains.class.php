@@ -739,7 +739,7 @@ class Chains
             $b_out = '<input class="btn btn-xs" type="button" value="Сохранить" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
         }
         if ($type == 1) {
-            $out .= '<td>' . ($op['warehouse_type'] == 1 ? 'Киев' : ($op['warehouse_type'] == 2 ? 'Заграница' : '')) . '</td>';
+            $out .= '<td>' . ($op['warehouse_type'] == 1 ? 'Локально' : ($op['warehouse_type'] == 2 ? 'Заграница' : '')) . '</td>';
         }
         if ($type == 1) {
             $out .= '<td><div class="input-group" style="max-width:200px">' . $this->select_bind_item_wh($op, $type, $serials);
@@ -965,9 +965,9 @@ class Chains
                 array($product['goods_id']))->row();
             $data['confirm']['content'] = 'Товара нет в наличии, подтвердить?';
             $data['confirm']['btns'] = "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 1);close_alert_box();'>
-                Заказать в Киеве<br /><small>срок 1-3 дня (" . ($qty ? $qty['qty_1'] : '0') . ")</small></button>";
+                Заказать локально<br /><small>срок 1-3 дня (" . ($qty ? $qty['qty_1'] : '0') . ")</small></button>";
             $data['confirm']['btns'] .= "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 2);close_alert_box();'>
-                Заказать в Заграницей<br /><small>срок 2-3 недели (" . ($qty ? $qty['qty_2'] : '0') . ")</small></button>";
+                Заказать за границей<br /><small>срок 2-3 недели (" . ($qty ? $qty['qty_2'] : '0') . ")</small></button>";
             $data['state'] = false;
         }
 
@@ -1060,11 +1060,14 @@ class Chains
 
     public function add_order($post, $mod_id, $send = true)
     {
+        // откуда пришел запрос на создание заказа
+        $from = isset($post['from']) ? $post['from'] : '';
+        
         $type = isset($post['type']) ? $post['type'] : 0;
         $sum_paid = isset($post['sum_paid']) ? intval($post['sum_paid'] * 100) : 0;
         $approximate_cost = isset($post['approximate_cost']) ? intval($post['approximate_cost'] * 100) : 0;
         $client_id = isset($post['client_id']) ? intval($post['client_id']) : 
-                        isset($post['clients']) ? intval($post['clients']) : 0;
+                        (isset($post['clients']) ? intval($post['clients']) : 0);
         $note = isset($post['serials']) ? trim($post['serials']) : '';
         $repair = isset($post['repair']) ? intval($post['repair']) : 0;
         $color = isset($post['color']) ? intval($post['color']) : -1;
@@ -1079,13 +1082,13 @@ class Chains
         
         $next = isset($post['next']) ? trim($post['next']) : '';
         
-        $private_comment = '';
+        $part_quality_comment = '';
         if($repair_part){
-            $private_comment .= 'Замена '.htmlspecialchars($repair_part).'. ';
+            $part_quality_comment .= 'Замена '.htmlspecialchars($repair_part).'. ';
         }
-        $private_comment .= ' Качество '.htmlspecialchars($repair_part_quality).'. ';
-        $private_comment .= isset($post['private_comment']) ? trim($post['private_comment']) : '' ;
+        $part_quality_comment .= 'Качество '.htmlspecialchars($repair_part_quality).'. ';
         
+        $private_comment = $part_quality_comment.(isset($post['private_comment']) ? trim($post['private_comment']) : '');
         
         if($client_id){
             // достаем клиента
@@ -1121,6 +1124,14 @@ class Chains
             }
         }
 
+        // создание заказа с модуля заказы - таб создать заказ
+        if($from == 'create_order'){
+            if($color < 0){
+                $data['state'] = false;
+                $data['msg'] = 'Выберите цвет устройства';
+            }
+        }
+        
         // достаем категорию
         $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
             array(isset($post['categories-last']) ? intval($post['categories-last']) : 0))->row();
@@ -1266,7 +1277,7 @@ class Chains
                 isset($post['partner']) && intval($post['partner']) > 0 ? intval($post['partner']) : NULL,
                 $approximate_cost,
                 $sum,
-                isset($post['defect']) ? trim($post['defect']) : '',
+                $part_quality_comment.(isset($post['defect']) ? trim($post['defect']) : ''),
                 isset($post['client_took']) ? 1 : 0,
                 isset($post['date_readiness']) && strtotime($post['date_readiness']) > 0 ? date('Y-m-d H:i:s', strtotime($post['date_readiness'])) : null,
                 $this->all_configs['configs']['default-course'],
@@ -1965,7 +1976,7 @@ class Chains
                     $arr = array(
                         'goods-goods' => $product['goods_id'],
                         'so_co' => array($order_id),
-                        'comment-supplier' => $product['warehouse_type'] == 1 ? 'Киев' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
+                        'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
                         'warehouse_type' => $product['warehouse_type'],
                     );
                     $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $arr);
@@ -2970,7 +2981,7 @@ class Chains
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
                 $out .= '<div class="form-group"><label class="control-label">Номер ремонта:</label><div class="controls">';
-                $out .= '<input name="order_id" type="text" value="' . $order['id'] . '" placeholder="Номер ремонта" class="imput-large" /></div></div>';
+                $out .= '<input name="order_id" type="text" value="' . $order['id'] . '" placeholder="Номер ремонта" class="form-control" /></div></div>';
             }
             $with_logistic = (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0) ? true : false;
             //Перемещение Склад откуда
@@ -2997,9 +3008,9 @@ class Chains
                 $out .= '<div class="control-group"><label class="control-label">Статус:</label><div class="controls">';
                 $out .= $this->order_status($order['status'], true) . '</div></div>';
                 $out .= '<div class="control-group"><label class="control-label">Публичный комментарий:</label><div class="controls">';
-                $out .= '<textarea name="public_comment" class="imput-large"></textarea></div></div>';
+                $out .= '<textarea name="public_comment" class="form-control"></textarea></div></div>';
                 $out .= '<div class="control-group"><label class="control-label">Скрытый комментарий:</label><div class="controls">';
-                $out .= '<textarea name="private_comment" class="imput-large"></textarea></div></div>';
+                $out .= '<textarea name="private_comment" class="form-control"></textarea></div></div>';
             }
             if ($show_btn == true || $this->all_configs['configs']['erp-move-item-logistics'] == true) {
                 $out .= '<div class="control-group"><label class="control-label">';
