@@ -647,7 +647,7 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>Дата</td>';
+            $orders_html .= '<table class="table table-hover"><thead><tr><td>№ заказа</td><td></td><td>Дата</td>';
             $orders_html .= '<td>Приемщик</td><td>Менеджер</td><td>Статус</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';

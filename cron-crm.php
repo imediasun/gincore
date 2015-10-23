@@ -46,7 +46,7 @@ switch($act){
     // достаем аналитику с гугла
     case 'crm_ga_analitics':
         
-        $date_first = '2015-07-21'; // дата старта
+        $date_first = '2015-08-03'; // дата старта
 
         // каждый день начиная с даты старта кроме тех дней что уже спарсены
         $dates = $db->query('SELECT date FROM (
@@ -137,7 +137,7 @@ switch($act){
     // источник на код на скидку
     case 'crm_ga_discount_code':
         
-        //$date = '2015-07-22'; // дата старта - вчера
+        //$date = '2015-08-03'; // дата старта - вчера
         //$date = date("Y-m-d");
         $date = date("Y-m-d", strtotime('-1 day'));
         
@@ -263,10 +263,11 @@ function get_referers_config(){
         9 => array('name' => 'Facebook', 'regexp' => '/(.*\.facebook\.com *\/ *referral *)/'),
         //10 => array('name' => 'Facebook Ad', 'regexp' => '//'),
         11 => array('name' => '(Direct)', 'regexp' => '/( *\(direct\) *\/ *\(none\) *)/'),
+        12 => array('name' => 'Other', 'regexp' => '/(.*)/'), // (,*/ *referral *)
         13 => array('name' => 'Email', 'regexp' => '/(.*\/ *email *)/'),
         14 => array('name' => 'Youtube', 'regexp' => '/( *youtube\.com *\/ *referral *)/'),
         15 => array('name' => 'Other organic', 'regexp' => '/(.*\/ *organic *)/'),
-        12 => array('name' => 'Other', 'regexp' => '/(.*)/'), // (,*/ *referral *)
+        24 => array('name' => 'Nanofantiki', 'regexp' => '/(.*\/ *nanofantiki*)/'),
     );
     return $referers;
 }

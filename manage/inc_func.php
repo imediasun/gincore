@@ -942,11 +942,12 @@ function display_client_order($order)
     return '<tr class="remove-marked-object">'
     . '<td class="floatleft">' .
     ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('show-clients-orders') ?
+        '<a href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '">&nbsp;' . $order['order_id'] . '</a> ' .
         '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
         : '')
     . show_marked($order['order_id'], 'co', $order['m_id'])
     . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="Переместить заказ"></i></td>'
-    . '<td>№' . $order['order_id'] .  timerout($order['order_id']) . '</td>'
+    . '<td>' /* . $order['order_id'] */ .  timerout($order['order_id']) . '</td>'
     . '<td><span title="' . do_nice_date($order['date'], false) . '">' . do_nice_date($order['date']) . '</span></td>'
     . '<td>' . get_user_name($order, 'a_') . '</td>'
     . '<td>' . (($order['manager'] == 0 && $all_configs['oRole']->hasPrivilege('edit-clients-orders')) ?
@@ -1094,7 +1095,7 @@ function link_to_logistic($order, $shipping_tabs = null, $only_bool = false)
 {
     global $all_configs;
 
-    $link = '№' . $order['order_id'];//'#motions_orders';
+    $link =  $order['order_id'];//'#motions_orders';
     $bool = false;
 
     if ($shipping_tabs == null && array_key_exists('manage-orders-shipping-tab', $all_configs['configs'])
@@ -1118,7 +1119,7 @@ function link_to_logistic($order, $shipping_tabs = null, $only_bool = false)
 
             $bool = true;
             $link = '<a href="' . $all_configs['prefix'] . 'logistics?o_id=' . $order['order_id']
-                . '#' . $tab['href'] . '">№' . $order['order_id'] . '</a>';
+                . '#' . $tab['href'] . '">' . $order['order_id'] . '</a>';
             break;
         }
     }

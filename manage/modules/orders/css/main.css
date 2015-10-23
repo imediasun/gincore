@@ -170,10 +170,12 @@
     text-decoration: underline;
 }
 
+#show_orders table{
+  background-color: #f9f9f9;
+}
+
 #show_orders table tr > td {
     padding: 2px;
-
-    background: rgba(243, 243, 243, .85);
     font-size: 0.8em;
 }
 
