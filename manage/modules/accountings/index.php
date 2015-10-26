@@ -399,9 +399,12 @@ class accountings
         } elseif (isset($post['cashbox-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создание кассы
             $cashboxes_type = 1;
-            $avail = isset($post['avail']) ? 1 : null;
-            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
-            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
+//            $avail = isset($post['avail']) ? 1 : null;
+//            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
+//            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
+            $avail = 1;
+            $avail_in_balance = 1;
+            $avail_in_orders = 1;
 
             $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
                 VALUES (?i, ?n, ?n, ?n, ?)',
@@ -424,9 +427,12 @@ class accountings
                 exit;
             }
             $cashboxes_type = 1;
-            $avail = isset($post['avail']) ? 1 : null;
-            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
-            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
+//            $avail = isset($post['avail']) ? 1 : null;
+//            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
+//            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
+            $avail = 1;
+            $avail_in_balance = 1;
+            $avail_in_orders = 1;
 
             $ar = $this->all_configs['db']->query('UPDATE {cashboxes} SET cashboxes_type=?i, avail=?n, avail_in_balance=?n, avail_in_orders=?n, name=?
                   WHERE id=?i',
@@ -851,13 +857,13 @@ class accountings
                                 <label>Используемые валюты: </label>
                                 {$currencies_html}
                             </div>
-                            <div class='form-group'>
+                            <!--<div class='form-group'>
                                 <div class='controls'>
                                     <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label></div>
                                     <div class='checkbox'><label><input type='checkbox' {$avail_in_balance} class='btn' name='avail_in_balance' value='1' /> Учитывать в балансе</label></div>
                                     <div class='checkbox'><label><input type='checkbox' {$avail_in_orders} class='btn' name='avail_in_orders' value='1' /> Участвуют в заказах</label></div>
                                 </div>
-                            </div>
+                            </div>-->
                             <div class='form-group'>{$btn}</div>
                         </form>
                     </div>

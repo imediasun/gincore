@@ -335,7 +335,7 @@ $(document).ready(function () {
         });
     });
 
-
+    
     $(document).on('focusin', '.typeahead-double', function(e) {
         var $this = $(this),
             id = $this.data('id'),
@@ -1396,8 +1396,21 @@ $(function(){
             if(submit_on_blur){
                 var inputs = submit_on_blur.split(',');
                 $.each(inputs, function(k, v){
-                    $this.find('[name="'+v+'"]').blur(function(){
-                        $this.submit();
+                    $this.find('[name="'+v+'"]').blur(function(e){
+                        var has_values = false;
+                        $.each(inputs, function(k, v){
+                            var $val_el = $this.find('[name="'+v+'"]');
+                            if($val_el.hasClass('global-typeahead')){
+                                $val_el = $this.find('.typeahead-value-'+$val_el.attr('data-input'));
+                            }
+                            var val = $.trim($val_el.val());
+                            if(val != '' && val != 0){
+                                has_values = true;
+                            }
+                        });
+                        if(has_values){
+                            $this.submit();
+                        }
                     });
                 });
             }

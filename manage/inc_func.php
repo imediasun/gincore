@@ -542,7 +542,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         <input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" 
             name="'.$table.'-value'.($multi ? '['.$m.']' : '').'" type="text" value="'.$object_name.'" data-input="'.$table.$iterator.'" 
             data-function="'.$function.'" data-select="'.$iterator.'" data-table="'.$table.'" '.
-            ($anyway == true ? 'data-anyway="1"' : '').' class="form-control global-typeahead '.$class.'" placeholder="'.$placeholder.'">
+            ($anyway == true ? 'data-anyway="1"' : '').' autocomplete="off" class="form-control global-typeahead '.$class.'" placeholder="'.$placeholder.'">
     ';
     if($show_categories){
         $out .= "</div></div>";
