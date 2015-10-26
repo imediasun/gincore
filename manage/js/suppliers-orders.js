@@ -6,7 +6,7 @@ function edit_so_date_check(_this, event, order_id) {
         url: prefix + module + '/ajax/?act=edit-so-date_check',
         dataType: "json",
 
-        data: {order_id: order_id, date_check: $(_this).siblings('input[name="date_check"]').val()},
+        data: {order_id: order_id, date_check: $(_this).parent().siblings('input[name="date_check"]').val()},
         type:'POST',
         success: function(msg) {
             if (msg['state'] == false && msg['msg']) {
