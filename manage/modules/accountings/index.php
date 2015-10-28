@@ -3388,7 +3388,7 @@ class accountings
         $out = '';
         $fitlers = '';
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $fitlers = $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,true,false);
+            $fitlers = $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,true,false,'a_orders-suppliers');
             $out .= '<h4>Заказы поставщику которые ждут оплаты</h4><br />';
             $_GET['type'] = 'pay';
             $queries = $this->all_configs['manageModel']->suppliers_orders_query($_GET);

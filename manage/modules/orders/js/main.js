@@ -240,6 +240,9 @@ $(function() {
             $form.toggle();
         }
     });
+    $(document).on('click', '#hide_add_device_form', function(){
+        $('#show_add_device_form').click();
+    });
 });
 
 function select_order_device(data, $form){

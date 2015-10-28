@@ -282,8 +282,11 @@ class categories
         $category_html .= '<div class="form-group"><label>Описание:</label>
             <textarea placeholder="краткое описание" name="content" class="form-control" rows="3"></textarea></div>';
 
-        $category_html .= '<div class="form-group">
-                <input class="btn btn-primary" type="submit" value="создать" name="create-category" /></div>';
+        $category_html .= '
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="создать" name="create-category" />
+                '.($ajax ? '<button type="button" class="btn btn-default" id="hide_add_device_form">Отмена</button>' : '').'
+            </div>';
 
         $category_html .= '</fieldset></'.$form_close.'>';
 

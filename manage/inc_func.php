@@ -13,6 +13,12 @@ function avatar($avatar_img){
     return $all_configs['prefix'].$avatar;
 }
 
+function viewCurrencySuppliers($show = 'viewName'){
+    global $all_configs;
+    $s = $all_configs['configs']['currencies'][$all_configs['settings']['currency_suppliers_orders']][$show];
+    return $s;
+}
+
 function viewCurrency($show = 'viewName'){
     global $all_configs;
     $s = $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']][$show];
@@ -556,8 +562,14 @@ function client_double_typeahead($id = null, $callbacks = ''){
     $input_id = 'typeahead-double-'.microtime(true).rand(1,99999);
     $client = $all_configs['db']->query("SELECT * FROM {clients} WHERE id = ?i", array($id), 'row');
     $value_field = '<input class="typeahead-double-value" id="'.$input_id.'" type="hidden" name="client_id" value="'.($id ?: '').'">';
-    $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" class="form-control typeahead-double" data-id="'.$input_id.'" type="text" placeholder="Телефон" name="client_phone" value="'.($client ? $client['phone'] : $client['phone']).'">';
-    $fio_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="fio" class="form-control typeahead-double" type="text"  data-id="'.$input_id.'" placeholder="ФИО" name="client_fio" value="'.($client ? $client['fio'] : $client['fio']).'">';
+    $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" 
+                     class="form-control typeahead-double" data-id="'.$input_id.'" type="text" 
+                     placeholder="Телефон" name="client_phone" 
+                     value="'.($client ? $client['phone'] : $client['phone']).'">';
+    $fio_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="fio" 
+                   class="form-control typeahead-double" type="text"  data-id="'.$input_id.'" 
+                   placeholder="ФИО" name="client_fio" 
+                   value="'.($client ? $client['fio'] : $client['fio']).'">';
     return array(
         'phone' => $value_field.$phone_field,
         'fio' => $fio_field

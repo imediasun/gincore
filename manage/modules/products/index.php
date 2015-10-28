@@ -655,7 +655,7 @@ class products
         if (isset($_GET['error'])) {
             if ($_GET['error'] == 'manager') {
                 //$goods_html .= '<p class="text-error">Закрепите менеджера за товаром</p>';
-                $goods_html .= '<div class="alert alert-error fade in">';
+                $goods_html .= '<div class="alert alert-danger fade in">';
                 $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>Закрепите менеджера за товаром или привяжите контрагента к клиенту</div>';
             }
         }

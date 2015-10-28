@@ -814,7 +814,7 @@ class warehouses
 
         return array(
             'html' => $out,
-            'menu' => $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,false,false),
+            'menu' => $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,false,false,'orders-suppliers'),
             'functions' => array('reset_multiselect()'),
         );
     }
@@ -1866,6 +1866,8 @@ class warehouses
 
             $btn = "<input type='submit' class='btn' name='warehouse-add' value='Создать' />";
             $accordion_title = 'Создать склад';
+            $consider_store = 'checked';
+            $consider_all = 'checked';
             $title = '';
             $code_1c = '';
             $print_address = '';

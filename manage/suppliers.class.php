@@ -138,6 +138,9 @@ class Suppliers
                     }
                 }
             }
+            
+            // сообщение что типа сохранено
+            $_SESSION['suppliers_edit_order_msg'] = 'Сохранено успешно';
         }
 
         return $data;
@@ -276,7 +279,7 @@ class Suppliers
         return $orders_html;
     }
     
-    function show_filters_suppliers_orders($show_my = false ,$show_nav = true,$inner_wrapper = true)
+    function show_filters_suppliers_orders($show_my = false ,$show_nav = true,$inner_wrapper = true,$hash='show_suppliers_orders')
     {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
@@ -310,11 +313,11 @@ class Suppliers
         $orders_html .= '<div class="col-sm-2 b-r">';
             $orders_html .= '<div class="btn-group-vertical">';
             $orders_html .= '<a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" ';
-            $orders_html .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#show_suppliers_orders">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
+            $orders_html .= ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#'.$hash.'">Всего: <span id="count-clients-orders">' . $count . '</span></a>';
             $orders_html .= '<a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="';
-            $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked#show_suppliers_orders">Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span></a>';
+            $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked#'.$hash.'">Необработано: <span id="count-clients-untreated-orders">' . $count_unworked . '</span></a>';
             $orders_html .= '<a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'so' ? 'disabled' : '') . ' text-left" href="';
-            $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=so#show_suppliers_orders">Отмеченные: ';
+            $orders_html .= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=so#'.$hash.'">Отмеченные: ';
             $orders_html .= '<span class="icons-marked star-marked-active"> </span> <span id="count-marked-so">' . $count_marked . '</span></a>';
             $orders_html .= '</div>';
             $orders_html .= '<br><br><input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">';
@@ -695,7 +698,7 @@ class Suppliers
 
     function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?1'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?2'></script>";
     }
 
     function exportProduct($product)
@@ -823,7 +826,23 @@ class Suppliers
             $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
-        $goods_html = '<form data-validate="parsley" id="suppliers-order-form" method="post"><div style="max-width:500px">';
+        $goods_html = '';
+        if(isset($_SESSION['suppliers_edit_order_msg'])){
+            $goods_html .= 
+                '<div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    '.$_SESSION['suppliers_edit_order_msg'].'
+                </div>
+            ';
+            unset($_SESSION['suppliers_edit_order_msg']);
+        }
+        if($order_id){
+            $goods_html .= '<h3>Редактирование заказа поставщику №'.$order_id.'</h3>';
+        }else{
+            $goods_html .= '<h3>Создание нового заказа поставщику</h3>';
+        }
+        $goods_html .= '<br><form data-validate="parsley" id="suppliers-order-form" method="post"><div style="max-width:500px">';
         $disabled = '';
         $info_html = '';
         $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div></div>';
@@ -975,7 +994,7 @@ class Suppliers
                 . '<input type="text" ' . $disabled . ' name="warehouse-order-num" class="form-control" value="' . $order['num'] . '"/></div>';
             $goods_html .= '<div class="form-group"><label>Количество <b class="text-danger">*</b>: </label>'
                 . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event)" name="warehouse-order-count" class="form-control" value="' . htmlspecialchars($order['count']) . '"/></div>';
-            $goods_html .= '<div class="form-group"><label>Цена за один <b class="text-danger">*</b>: </label>'
+            $goods_html .= '<div class="form-group"><label>Цена за один ('.viewCurrencySuppliers('shortName').')<b class="text-danger">*</b>: </label>'
                 . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event, this)" name="warehouse-order-price" class="form-control" value="' . htmlspecialchars($order['price']) . '"/></div>';
             $goods_html .= '<div class="form-group"><label>Примечание: </label>'
                 . '<textarea ' . $disabled . ' name="comment-supplier" class="form-control">' . htmlspecialchars($order['comment']) . '</textarea></div>';
@@ -1493,7 +1512,11 @@ class Suppliers
             // если нет даты прихода
             if (!isset($_POST['date_come']) || empty($_POST['date_come']) || strtotime($_POST['date_come']) == 0) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('new_date'=>1,'message'=>'Укажите новую дату'));
+                echo json_encode(array(
+                    'new_date'=>1,
+                    'message'=>'Вы приняли на склад не все количество товара, укажите дату, '
+                              .'на когда ожидать поставку оставшегося в заказе товара?'
+                ));
                 exit;
             }
             if ($order['parent_id'] > 0)
@@ -1608,9 +1631,9 @@ class Suppliers
         $data['content'] .= '<div class="form-group"><div class="checkbox"><label class="">';
         $data['content'] .= '<input type="checkbox" name="without_check" value="1" /> Без проверки</label></div></div>';
 
-        $data['content'] .= '<div id="order_supplier_date_wait" style="display:none;" class="form-group"><label class="control-label">Дата поставки: </label>
+        $data['content'] .= '<div id="order_supplier_date_wait" style="display:none;" class="form-group"><label class="control-label">Дата поставки оставшегося в заказе товара: </label>
                     <div class="controls">
-                    <input class="datetimepicker" placeholder="дата" data-format="yyyy-MM-dd" type="text" name="date_come" value="" />
+                    <input class="form-control datetimepicker" placeholder="дата" data-format="yyyy-MM-dd" type="text" name="date_come" value="" />
                     </div></div>';
 
         $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';

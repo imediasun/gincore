@@ -100,6 +100,14 @@ class master{
         $cashbox_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
                                                               ."avail_in_balance,avail_in_orders,name) "
                                       ."VALUES(1,1,1,1,1,'Основная')")->id();
+        // создаем кассу на которой будет происходить переводы валюты для контрагентов
+        $cashbox_c_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+                                                                ."avail_in_balance,avail_in_orders,name) "
+                                      ."VALUES(2,1,1,1,1,'Транзитная')")->id();
+        // создаем кассу терминал
+        $cashbox_t_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+                                                                ."avail_in_balance,avail_in_orders,name) "
+                                      ."VALUES(3,1,1,1,1,'Терминал')")->id();
         
         $this->db->query("INSERT INTO {settings}(section, name, value, title) "
                         ."VALUES(1,'currency_suppliers_orders',?i,'Валюта заказов поставщикам') "
@@ -120,6 +128,12 @@ class master{
                 // привязываем валюты в основную кассу
                 $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                                 ."VALUES(?i,?i,0)", array($cashbox_id, $curr));
+                // привязываем валюты в транзитную кассу
+                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                                ."VALUES(?i,?i,0)", array($cashbox_c_id, $curr));
+                // привязываем валюты в терминал кассу
+                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                                ."VALUES(?i,?i,0)", array($cashbox_t_id, $curr));
                 $currencies_added[$curr] = $id;
             }
         }
@@ -137,16 +151,14 @@ class master{
                     array($service['name'], $color, $_SESSION['id'], $service['address']), 'id');
                 if($id){
                     // основной
-                    $main_wh = $this->create_warehouse($service['name'], $service['address'], 1, $id);
+                    $main_wh = $this->create_warehouse($service['name'], $service['address'], 1, $id, 1);
                     // прикрепляем текущего админа к складу
                     $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) "
                                     ."VALUES(?i,?i,?i,1)", 
                                 array($id,
                                       $main_wh['loc_id'],
                                       $_SESSION['id']));
-                    // недостача
-                    $this->create_warehouse('Недостача '.$service['name'], '', 2, $id);
-                    // логистика
+                    // брак
                     $this->create_warehouse('Брак '.$service['name'], '', 1, $id);
                     // клиент
                     $this->create_warehouse('Клиент '.$service['name'], '', 4, $id);
@@ -158,6 +170,8 @@ class master{
         }
         // склад логистика без группы
         $this->create_warehouse('Логистика', '', 3, 0);
+        // недостача без группы
+        $this->create_warehouse('Недостача', '', 2, 0);
         
         if(!$added_services){
             return array('state' => false, 'msg' => 'Добавьте отделения');

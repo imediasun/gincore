@@ -827,7 +827,9 @@ class orders
 //            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
             
             $client_id = $order_data ? $order_data['client_id'] : 0;
-            $client_id = !$client_id && isset($_GET['c']) ? (int)$_GET['c'] : 0;
+            if(!$client_id){
+                $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
+            }
             $client_fields = client_double_typeahead($client_id, 'get_requests');
             $colors_select = '<option value="-1">Не выбран</option>';
             foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
@@ -851,7 +853,7 @@ class orders
                                         <fieldset>
                                             <legend>Клиент</legend>
                                             <div class="form-group">
-                                                <label>Укажите данные клиента: </label>
+                                                <label>Укажите данные клиента <b class="text-danger">*</b>: </label>
                                                 <div class="row row-15">
                                                     <div class="col-sm-6">
                                                         '.$client_fields['phone'].'
@@ -883,7 +885,7 @@ class orders
                                         <fieldset>
                                             <legend>Устройство</legend>
                                             <div class="form-group">
-                                                <label class="control-label">Выберите устройство: </label>
+                                                <label class="control-label">Выберите устройство <b class="text-danger">*</b>: </label>
                                                 <div class="input-group">
                                                     '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 'display_service_information,get_requests')
                                                     .'
@@ -895,7 +897,7 @@ class orders
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="control-label">Цвет: </label>
+                                                <label class="control-label">Цвет <b class="text-danger">*</b>: </label>
                                                 <select class="form-control" name="color">'.$colors_select.'</select>
                                             </div>
                                             <!--<div class="form-group">
@@ -2571,7 +2573,7 @@ class orders
                 $data['content'] .= '<div class="form-group"><label>Номер телефона: </label><div class="controls">';
                 $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
                 $data['content'] .= '<div class="form-group"><label class="control-label">Текст: </label><div class="controls">';
-                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваше устройство готово. Стоимость ремонта: ' . ($order['sum'] / 100) . ' '.viewCurrency().'.</textarea></div></div>';
+                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' готов. Стоимость ремонта: ' . ($order['sum'] / 100) . ' '.viewCurrency().'</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="Отправить" />';

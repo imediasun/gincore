@@ -316,6 +316,7 @@ function debit_supplier_order(_this) {
                             $('#dso-group-' + i + ' .dso-msg').html('<div class="text-error">' + msg['result'][i]['msg'] + '</div>');
                         }
                     }
+                    $(_this).hide().siblings("[data-bb-handler='ok']").text('OK');
                 }
                 if (msg['html']) {
                     $('form#debit-so-form').append('<div class="html-msg"><div class="alert alert-block">' +

@@ -415,7 +415,7 @@ span.tab_count {
 #infoblock {
     position: fixed;
     top: 100px;
-    right: -620px;
+    right: -600px;
     width: 600px;
     z-index: 5;
     padding: 5px 10px 10px;
@@ -437,8 +437,8 @@ span.tab_count {
 
 #infoblock > span {
     position: absolute;
-    left: -17px;
-    top: 0px;
+    left: -13px;
+    top: 0;
     display: block;
     height: 20px;
     width: 13px;
@@ -653,9 +653,10 @@ input.row-input {
 }
 
 #move-order {
-    margin-top: 35px;
+    margin-top: 7px;
     padding: 2px;
-    position: absolute;
+    position: fixed;
+    z-index: 1000;
     right: 0;
 }
 

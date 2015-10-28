@@ -22,9 +22,9 @@ class Infoblock
     {
         $info = $this->getinfo($this->all_configs['curmod'] . (isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : ''));
 
-        $html = '<i title="Перемещение заказа" class="icon-move cursor-pointer" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" id="move-order"></i>'
+        $html = '<i title="Перемещение заказа" class="fa fa-arrows cursor-pointer" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" id="move-order"></i>'
             . '<div id="infoblock" class="">'
-            . '<span id="infoblock-call"><i class="icon-info-sign"></i></span>'
+            . '<span id="infoblock-call"><i class="fa fa-info-circle"></i></span>'
             . '<h6 class="title"></h6>'
             //Для этой страницы помощь нельзя добавить
             . '<div class="infoblock-container">'

@@ -67,13 +67,16 @@ class settings{
             $pp = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE id = ?i", array($this->all_configs['arrequest'][1]), 'row');
             $out = '<ul>';
 
-            $out = '<h3>«'.$pp['title'].'»</h3><br>';
+            $out = '<h3>«'.$pp['title'].'»</h3>';
 
 
             if(!isset($this->all_configs['arrequest'][2])){
 
-                $out.='
-
+                if(isset($pp['description'])){
+                    $out .= '<h5 class="text-info">'.htmlspecialchars($pp['description']).'</h5>';
+                }
+                
+                $out.='<br>
                 <form action="'.$this->all_configs['prefix'].'settings/'.$pp['id'].'/update" method="POST">
                     <div class="form-group">
                         <label>'.l('sets_param').'</label>: '.$pp['name'].'
@@ -107,36 +110,40 @@ class settings{
 
         if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'add'){
             if(isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'ok' && isset($_POST['name']) && isset($_POST['value']) && isset($_POST['title'])){
-                $sql = $this->all_configs['db']->query("INSERT INTO {settings}(name, value, title, ro) 
-                            VALUES(?, ?, ?, ?i)", array($_POST['name'], $_POST['value'], $_POST['title'], isset($_POST['ro']) ? 1 : 0));
+                $sql = $this->all_configs['db']->query("INSERT INTO {settings}(description, name, value, title, ro) 
+                            VALUES(?, ?, ?, ?, ?i)", array($_POST['description'], $_POST['name'], $_POST['value'], $_POST['title'], isset($_POST['ro']) ? 1 : 0));
                 header('Location: '.$this->all_configs['prefix'].'settings');
                 exit;
             }else{
                 $out = '
-                <h3>Добавление нового параметра</h3>
-                <form action="'.$this->all_configs['prefix'].'settings/add/ok" method="post">
-                    <div class="form-group">
-                        <label>'.l('sets_param').':</label> 
-                        <input type="text" name="name" class="form-control" value="">
-                    </div>
-                    <div class="form-group"> 
-                        <label>'.l('sets_value').': </label> 
-                        <textarea class="form-control" name="value"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>'.l('name').': </label> 
-                        <textarea  class="form-control" name="title"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="ro" value="1"> '.l('sets_read_only').'
-                            </label>
+                    <h3>Добавление нового параметра</h3>
+                    <form action="'.$this->all_configs['prefix'].'settings/add/ok" method="post">
+                        <div class="form-group">
+                            <label>'.l('sets_param').':</label> 
+                            <input type="text" name="name" class="form-control" value="">
                         </div>
-                    </div>
-                    <input type="submit" value="'.l('save').'" class="btn btn-primary">
-                </form>
-            ';
+                        <div class="form-group"> 
+                            <label>'.l('sets_value').': </label> 
+                            <textarea class="form-control" name="value"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>'.l('name').': </label> 
+                            <textarea  class="form-control" name="title"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Описание: </label> 
+                            <textarea  class="form-control" name="description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="ro" value="1"> '.l('sets_read_only').'
+                                </label>
+                            </div>
+                        </div>
+                        <input type="submit" value="'.l('save').'" class="btn btn-primary">
+                    </form>
+                ';
             }
         }
 
