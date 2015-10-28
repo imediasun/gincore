@@ -893,9 +893,22 @@ class accountings
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
             $out .= '<form method="POST" class="form_contractor "><div class="form-group">';
+            $out .= '</div><div class="form-group"><label class="control-label">Тип контрагента: </label>';
+            $out .= '<select id="contractor_type_select" class="form-control" name="type"><option value=""></option>';
+            foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
+                $sel = '';
+                if ($contractor && $c_id == $contractor['type']) {
+                    $sel = ' selected="selected"';
+                }
+                $cats_1 = $this->all_configs['configs']['erp-contractors-type-categories'][$c_id][1];
+                $cats_2 = $this->all_configs['configs']['erp-contractors-type-categories'][$c_id][2];
+                $out .= '<option'.$sel.' data-categories_1="['.implode(',',$cats_1).']" '
+                        .'data-categories_2="['.implode(',',$cats_2).']" value="' . $c_id . '">' . $c_name . '</option>';
+            }
+            $out .= '</select></div>';
             $out .= '<label>Укажите статьи расходов для контрагента <small>(за что мы платим контрагенту)</small>: </label>';
             $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
-            $out .= '<select class="multiselect input-small" multiple="multiple" name="contractor_categories_id[]">';
+            $out .= '<select class="multiselect input-small" data-type="categories_1" multiple="multiple" name="contractor_categories_id[]">';
             $categories = $this->get_contractors_categories(1);
             if ($contractor) {
                 $out .= build_array_tree($categories, array_keys($contractor['contractors_categories_ids']));
@@ -905,7 +918,7 @@ class accountings
             $out .= '</select></div></div><div class="form-group">';
             $out .= '<label>Укажите статьи приходов для контрагента <small>(за что контрагент нам платит)</small>: </label>';
             $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
-            $out .= '<select class="multiselect input-small" multiple="multiple" name="contractor_categories_id[]">';
+            $out .= '<select class="multiselect input-small" data-type="categories_2" multiple="multiple" name="contractor_categories_id[]">';
             $categories = $this->get_contractors_categories(2);
             if ($contractor) {
                 $out .= build_array_tree($categories, array_keys($contractor['contractors_categories_ids']));
@@ -917,16 +930,6 @@ class accountings
             $out .= '<input placeholder="введите ФИО контрагента" class="input-contractor form-control" name="title" value="' . $name . '" />';
             $out .= '</div><div class="form-group"><label>Комментарий: </label>';
             $out .= '<textarea class="form-control" name="comment" placeholder="введите комментарий к контрагенту">' . $comment . '</textarea>';
-            $out .= '</div><div class="form-group"><label class="control-label">Тип контрагента: </label>';
-            $out .= '<select class="form-control" name="type"><option value=""></option>';
-            foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
-                if ($contractor && $c_id == $contractor['type']) {
-                    $out .= '<option selected="selected" value="' . $c_id . '">' . $c_name . '</option>';
-                } else {
-                    $out .= '<option value="' . $c_id . '">' . $c_name . '</option>';
-                }
-            }
-            $out .= '</select></div>';
             $out .= '';
             if ($contractor) {
                 if($contractor['comment'] == 'system'){

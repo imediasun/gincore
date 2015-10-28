@@ -47,6 +47,7 @@
 
 .remove-product {
     margin-left: 20px;
+    margin-top: -5px;
 }
 
 .input {
@@ -328,6 +329,10 @@ form.small-product-filter > span.ui-combobox > a.ui-button {
     float: left;
 }
 
+#order-form {
+    border: 1px solid #e4e5e7;
+    margin: 35px;
+}
 #order-form .well > h5 {
     margin-top: 0px;
 }
@@ -364,9 +369,52 @@ td.td-sc-count {
 .comment_user {
     border-top: 1px solid #E7E7E7;
     display: block;
-    margin-left: 40%;
     text-align: right;
-    width: 50%;
+    margin-top: 3px;
+    width: 100%;
+}
+
+::-webkit-input-placeholder{  
+   font-style: italic;
+   font-size: 12px;
+}
+:-moz-placeholder{  
+   font-style: italic;
+   font-size: 12px;
+}
+::-moz-placeholder{  
+   font-style: italic;
+   font-size: 12px;
+}
+:-ms-input-placeholder{  
+   font-style: italic;
+   font-size: 12px;
+}
+
+.order-comments .div-thead .div-table-col{
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: visible;
+    border-bottom: 1px solid #e6e6e6;
+    padding: 5px;
+}
+.order-comments .div-table-col{
+    padding: 10px 5px;
+    border: 0;
+}
+.order-comments .div-tfoot .div-table-col{
+    border: 0;
+    padding: 5px 0 0 0;
+}
+
+.parts-table thead td{
+    font-weight: normal;
+}
+.parts-table td{
+    padding: 5px 0 !important;
+}
+.parts-well label{
+    font-weight: normal;
 }
 
 .black {
@@ -434,25 +482,7 @@ td.td-sc-count {
     margin-right: 5px !important;
 }
 
-.order_print_btn{
-    margin: 0 2px;
-    text-align: center;
-    display: inline-block;
-    width: 35px;
-    padding: 3px 0;
-    border: 1px solid #eeeeee;
-    font-size: 10px;
-}
-.order_print_btn:hover{
-    border-color: #d3d3d3;
-}
-.order_print_btn i{
-    margin-bottom: 2px;
-    font-size: 14px;
-}
-.order_print_btn span{
-    display: block;
-}
+
 
 @-webkit-keyframes red-blink {
     0% {
@@ -485,4 +515,12 @@ td.td-sc-count {
     position: absolute;
     border: 1px solid #d9d9d9;
     right:0;
+}
+
+.print_menu li{
+    padding: 0 10px;
+    white-space: nowrap;
+}
+.print_menu li input{
+    margin-top: 1px;
 }

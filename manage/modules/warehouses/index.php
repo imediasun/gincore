@@ -1073,7 +1073,7 @@ class warehouses
                 $wh_users = $this->all_configs['db']->query(
                     'SELECT u.user_id, GROUP_CONCAT(u.wh_id) FROM {warehouses_users} as u GROUP BY u.user_id')->vars();
 
-                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>Сотрудник</td><td>Склады</td><td>Приемка</td></tr></thead><tbody>';
+                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>Сотрудник</td><td>Укажите склады <br>к которым сотрудник имеет доступ</td><td>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</td></tr></thead><tbody>';
                 foreach ($users as $user_id=>$user) {
                     $admin_out .= '<tr><td>' . get_user_name($user) . '</td>';
                     $admin_out .= '<td><select class="multiselect" name="warehouses_users[' . $user_id . '][]" multiple="multiple">';

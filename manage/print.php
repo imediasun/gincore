@@ -21,39 +21,13 @@ if (!$all_configs['oRole']->is_active()) {
 if (isset($_GET['ajax']) && $all_configs['oRole']->hasPrivilege('site-administration')) {
     $return = array('state' => false, 'msg' => 'Произошла ошибка');
 
-    /*if ($return['state'] == true && (!isset($_POST['date']) || intval($_POST['date']) == 0)) {
-        $return['state'] = false;
-        $return['msg'] = 'Выберите дату';
-    }
-
-    if ($return['state'] == true) {
-        $return['date'] = do_nice_date(intval($_POST['date']), false, false, 1);
-    }*/
-
     if ($_GET['ajax'] == 'editor' && isset($_GET['act'])) {
-        if (trim($_GET['act']) == 'check' && isset($_POST['html'])) {
+        $save_act = trim($_GET['act']);
+        if (in_array($save_act, array('check','warranty','invoice','act')) && isset($_POST['html'])) {
             // remove empty tags
             $value = preg_replace("/<[^\/>]*>([\s]?)*<\/[^>]*>/", '', trim($_POST['html']));
             $return['state'] = true;
-//            $all_configs['db']->query('INSERT INTO {settings} (`name`, `value`, title) VALUES (?, ?, ?)
-//                    ON DUPLICATE KEY UPDATE `value`=VALUES(`value`), title=VALUES(title)',
-//                array('print_template_check', $value, 'Шаблон печати квитанции'));
-            $var_id = $all_configs['db']->query("SELECT id FROM {template_vars} WHERE var = 'print_template_check'")->el();
-            $all_configs['db']->query("INSERT INTO {template_vars_strings}(var_id,text,lang) "
-                                    . "VALUES(?i,?,?) ON DUPLICATE KEY UPDATE text = VALUES(text)", 
-                                            array($var_id, $value, $cur_lang));
-        }
-    }
-
-    if ($_GET['ajax'] == 'editor' && isset($_GET['act'])) {
-        if (trim($_GET['act']) == 'warranty' && isset($_POST['html'])) {
-            // remove empty tags
-            $value = preg_replace("/<[^\/>]*>([\s]?)*<\/[^>]*>/", '', trim($_POST['html']));
-            $return['state'] = true;
-//            $all_configs['db']->query('INSERT INTO {settings} (`name`, `value`, title) VALUES (?, ?, ?)
-//                    ON DUPLICATE KEY UPDATE `value`=VALUES(`value`), title=VALUES(title)',
-//                array('print_template_warranty', $value, 'Шаблон печати гарантии'));
-            $var_id = $all_configs['db']->query("SELECT id FROM {template_vars} WHERE var = 'print_template_warranty'")->el();
+            $var_id = $all_configs['db']->query("SELECT id FROM {template_vars} WHERE var = 'print_template_".$save_act."'")->el();
             $all_configs['db']->query("INSERT INTO {template_vars_strings}(var_id,text,lang) "
                                     . "VALUES(?i,?,?) ON DUPLICATE KEY UPDATE text = VALUES(text)", 
                                             array($var_id, $value, $cur_lang));
@@ -220,6 +194,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'warehouse_accept' =>  array('value' => htmlspecialchars($order['aw_title']), 'name' => 'Название склада приема'),
                     'wh_address' =>  array('value' => htmlspecialchars($order['print_address']), 'name' => 'Адрес склада'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                 );
 
                 $print_html = generate_template($arr, 'warranty');
@@ -228,7 +203,61 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
 
         // квитанция
         if ($act == 'invoice') {
-            $print_html = 'к';
+            $order = $all_configs['db']->query(
+                'SELECT o.*, a.fio as a_fio, w.title as wh_title, wa.print_address, wa.title as wa_title,
+                        wa.print_phone, wa.title as wa_title, wag.address as accept_address
+                FROM {orders} as o
+                LEFT JOIN {users} as a ON a.id=o.accepter
+                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
+                LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
+                WHERE o.id=?i', array($object))->row();
+            if ($order) {
+                $editor = true;
+                $arr = array(
+                    'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                    'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                    'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
+                    'now' => array('value' => date("d/m/Y", time()), 'name' => 'Текущая дата'),
+                    'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
+                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
+                    'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
+                    'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
+                    'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                );
+                $print_html = generate_template($arr, 'invoice');
+            }
+        }
+
+        // акт
+        if ($act == 'act') {
+            $order = $all_configs['db']->query(
+                'SELECT o.*, a.fio as a_fio, w.title as wh_title, wa.print_address, wa.title as wa_title,
+                        wa.print_phone, wa.title as wa_title, wag.address as accept_address
+                FROM {orders} as o
+                LEFT JOIN {users} as a ON a.id=o.accepter
+                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
+                LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
+                WHERE o.id=?i', array($object))->row();
+            if ($order) {
+                $editor = true;
+                $arr = array(
+                    'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                    'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
+                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
+                    'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
+                    'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
+                    'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                );
+                $print_html = generate_template($arr, 'act');
+            }
         }
         
         // чек
@@ -270,6 +299,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
                     'wh_address' =>  array('value' => htmlspecialchars($order['print_address']), 'name' => 'Адрес склада'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                 );
                 $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];

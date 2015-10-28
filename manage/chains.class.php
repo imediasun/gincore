@@ -731,7 +731,7 @@ class Chains
                 }
             }
         }
-        $out .= htmlspecialchars($op['title']) . '</a> <i class="glypicon glypicon-move popover-info" data-content="' . $content . '"></i></div>';//<td>' . $w_out . '</td>';
+        $out .= htmlspecialchars($op['title']) . '</a> <i class="fa fa-arrows popover-info" data-content="' . $content . '"></i></div>';//<td>' . $w_out . '</td>';
         if ($type == 1 && $op['item_id'] == 0) {
             $b_out = '<input class="btn btn-xs" type="button" value="Сохранить" onclick="btn_bind_item_serial(this, \'' . $op['id'] . '\')" />';
         }

@@ -321,6 +321,22 @@ class users
                 array($post['login'], $post['pass'], $post['fio'], $post['position'], $post['phone'], $avail, $post['role'], $post['email']), 'id');
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'add-user', $mod_id, intval($id)));
+            // добавляем локацию
+            if(!empty($post['locations'])){
+                $wh_id = $this->all_configs['db']->query(
+                            'SELECT wh_id FROM {warehouses_locations} WHERE id=?i', array($post['locations']))->el();
+                $this->all_configs['db']->query(
+                        'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
+                       .'VALUES (?i,?i,?i,?i)', array($wh_id, $post['locations'], $id, 1));
+            }
+            // добавляем склады
+            if(!empty($post['warehouses'])){
+                foreach($post['warehouses'] as $wh){
+                    $this->all_configs['db']->query(
+                            'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
+                           .'VALUES (?i,?i,?i)', array($wh, $id, 0));
+                }
+            }
         }
 
         header("Location:". $_SERVER['REQUEST_URI']);
@@ -580,6 +596,13 @@ class users
         }
         // добавление нового пользователя
         $users_html .= '<div id="create_tab_user" class="tab-pane">';
+        $warehouses = '';
+        $q = $this->all_configs['chains']->query_warehouses();
+        // списсок складов с общим количеством товаров
+        $warehouses_arr = $this->all_configs['chains']->warehouses($q['query_for_noadmin_w']);
+        foreach ($warehouses_arr as $warehouse) {
+            $warehouses .= '<option value="'.$warehouse['id'].'">'.htmlspecialchars($warehouse['title']).'</option>';
+        }
         $users_html .= '
             <form method="post">
                 <fieldset>
@@ -612,6 +635,16 @@ class users
                         <div class="checkbox">
                             <label><input type="checkbox" name="avail" />Активность</label>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</label>
+                        '.typeahead($this->all_configs['db'], 'locations', false, 0, 0, 'input-large', '', '', false, false).'
+                    </div>
+                    <div class="form-group">
+                        <label>Укажите склады <br>к которым сотрудник имеет доступ</label><br>
+                        <select class="multiselect" name="warehouses[]" multiple="multiple">
+                            '.$warehouses.'
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Роль</label>

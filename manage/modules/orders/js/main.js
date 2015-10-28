@@ -500,6 +500,16 @@ function order_products(_this, product_id, order_product_id, cfm, remove) {
                 if (remove == 1 && msg['state'] == true) {
                     $(_this).parents('tr').remove();
                 }
+                if($('#goods-table').find('tr').length){
+                    $('#goods-table').closest('table').removeClass('hidden');
+                }else{
+                    $('#goods-table').closest('table').addClass('hidden');
+                }
+                if($('#service-table').find('tr').length){
+                    $('#service-table').closest('table').removeClass('hidden');
+                }else{
+                    $('#service-table').closest('table').addClass('hidden');
+                }
             }
             if ($(_this).hasClass('global-typeahead')) {
                 $(_this).val('');
@@ -598,4 +608,15 @@ $(function(){
    $('input[name=crm_request]').live('change', function(){
        change_crm_request($(this));
    }); 
+   
+    $('.dropdown-menu.keep-open').on("click", function(e){
+        e.stopPropagation();
+    });
+    
+    $('#print_now').click(function(){
+        var $checks = $(this).closest('ul').find(':checked');
+        $checks.each(function(){
+            window.open($(this).val());
+        });
+    });
 });

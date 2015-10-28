@@ -1957,33 +1957,67 @@ class orders
             $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
                 !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ? true : false;
 
-            $order_html .= '<form method="post" id="order-form" class="container backgroud-white p-sm">';
+            $order_html .= '<form method="post" id="order-form" class="backgroud-white p-lg">';
 
             $order_html .= '<div class="row-fluid">';
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $print_warranty = print_link($order['id'], 'warranty', '<i class="cursor-pointer fa fa-lock"></i><span>ГАРАН</span>', 'order_print_btn');
-                $print_check = print_link($order['id'], 'check', '<i class="cursor-pointer fa fa-list-alt"></i><span>ЧЕК</span>', 'order_print_btn');
+                $print_warranty = print_link($order['id'], 'warranty', '', true);
+                $print_check    = print_link($order['id'], 'check', '', true);
+                $print_kvit     = print_link($order['id'], 'invoice', '', true);
+                $print_act      = print_link($order['id'], 'act', '', true);
+                $print_btns = '
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-print"></i> <span class="caret"></span>
+                      </button>
+                      <ul class="keep-open dropdown-menu print_menu">
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_kvit.'">Квитанция</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">Чек</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">Гарантия</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">Акт выполненых работ</label/></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="text-center">
+                            <button class="btn btn-sm btn-info" type="button" id="print_now">Распечатать</button>
+                        </li>
+                      </ul>
+                    </div>
+                ';
             } else {
-                $print_check = '';
-                $print_warranty = '';
+                $print_btns = '';
             }
             //$order_html .= '<label><span class="muted">Принят: </span> ';
             //$order_html .= '</label>';
-            $order_html .= '<div class="span6"><div class="span12"><div class="span6">';
+            
+            $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
+            $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
+            $accepted .= $order['np_accept'] == 1 ? 
+                            '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
+                            '<i style="color:' . $color . ';" title="Принято в сервисном центре" class="' . htmlspecialchars($order['icon']) . '"></i> ';
+            $accepted .= $order['aw_title'].' ';
+            
             $order_html .= '
-                <small style="font-size:10px" title="' . do_nice_date($order['date_add'], false) . '">
-                    Принят: '.do_nice_date($order['date_add']).'
-                </small><br>
-                <h3>
-                    №'.$order['id'].'
-                    <a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-file-text-o"></i><span>КВИТ</span></a>'
-                    .$print_check
-                    .$print_warranty 
-                    .'<a href="#" class="order_print_btn"><i class="cursor-pointer fa fa-users"></i><span>АКТ</span></a>
-                </h3>';
-            
-            
+                <div class="span6">
+                <div class="row-fluid">
+                    <div class="span6">
+                        <h3 class="m-t-none">
+                            №'.$order['id'].'
+                            '.$print_btns.'
+                            <button data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS</button>
+                        </h3>
+                    </div>
+                    <div class="span6">
+                        <div class="form-group center">
+                            <small style="font-size:10px" title="' . do_nice_date($order['date_add'], false) . '">
+                                Принят: '.do_nice_date($order['date_add']).'
+                            </small>
+                            <br>
+                            ' . $accepted . timerout($order['id'], true) . '
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span6">';
             
             if (!$only_engineer) {
                 $icon = '<i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="' . $order['id'] . '" onclick="alert_box(this, null, \'order-gallery\')"></i>';
@@ -2080,13 +2114,7 @@ class orders
             }
             $order_html .= '</div><div class="span6">';
             
-            $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
-            $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
-            $accepted .= $order['np_accept'] == 1 ? 
-                            '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
-                            '<i style="color:' . $color . ';" title="Принято в сервисном центре" class="' . htmlspecialchars($order['icon']) . '"></i> ';
-            $accepted .= $order['aw_title'].' ';
-            $order_html .= '<div class="form-group center"><br>' . $accepted . timerout($order['id'], true) . '</div>';
+            
             $order_html .= '<div class="form-group"><label><span onclick="alert_box(this, false, \'stock_moves-order\')" data-o_id="' . $order['id'] . '" class="cursor-pointer glyphicon glyphicon-list" title="История перемещений"></span>';
             $order_html .= ' Локации: </label> ' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']);
             $order_html .= ' <i title="Переместить заказ" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" data-o_id="' . $order['id'] . '" class="glyphicon glyphicon-move cursor-pointer"></i></div>';
@@ -2210,24 +2238,25 @@ class orders
                 }
                 $order_html .= '</div><div class="span6"><div class="from-control">';
                 $order_html .= ' <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-sum\')" data-o_id="' . $order['id'] . '" title="История изменений"></span>';
+                if($this->all_configs['oRole']->hasPrivilege('accounting')){
+                    if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
+                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
+                        $pay_btn = '<input type="button" class="btn btn-success btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
+                    } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
+                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
+                        $pay_btn = '<input type="button" class="btn btn-success" value="Принять оплату" onclick="' . $onclick . '" />';
+                    }
+                }
                 $order_html .= ' 
                     <label>Стоимость ремонта: </label>
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" />
                         <div class="input-group-addon">'.viewCurrency().'</div>
+                        <div class="input-group-btn">'.$pay_btn.'</div>
                     </div>';
                 $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' '.viewCurrency().' (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
                 $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
                 $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
-                if($this->all_configs['oRole']->hasPrivilege('accounting')){
-                    if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
-                        $order_html .= '<input type="button" class="btn btn-success btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
-                    } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
-                        $order_html .= '<input type="button" class="btn btn-success btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
-                    }
-                }
                 $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';
                 $order_html .= '</div></div>';
 
@@ -2239,7 +2268,7 @@ class orders
             $order_html .= '<div class="span6">';
 
             $order_html .= '<div class="row-fluid well well-small">';
-            $public_html = $private_html = '<div class="span6"><div class="div-table div-table-scroll"><div class="div-thead">
+            $public_html = $private_html = '<div class="span6"><div class="div-table order-comments div-table-scroll"><div class="div-thead">
                 <div class="div-table-row"><div class="div-table-col span3" align="center">Дата</div><div class="div-table-col span9">';
             $public_html .= 'Публичный комментарий</div></div></div><div class="div-tbody">';
             $private_html .= 'Скрытый комментарий</div></div></div><div class="div-tbody">';
@@ -2278,24 +2307,24 @@ class orders
             $private_html .= '</div>';
             if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
                 if (!$only_engineer) {
-                    $public_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea class="form-control" name="public_comment"></textarea></div></div>';
-                    $public_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_public_comment" class="btn" value="Добавить" type="submit"></div></div></div>';
+                    $public_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea placeholder="Данный комментарий виден клиенту на сайте" class="form-control" name="public_comment"></textarea></div></div>';
+                    $public_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_public_comment" class="btn btn-sm" value="Добавить" type="submit"></div></div></div>';
                 }
-                $private_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea class="form-control" name="private_comment"></textarea></div></div>';
-                $private_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_private_comment" class="btn" value="Добавить" type="submit"></div></div></div>';
+                $private_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea placeholder="Данный комментарий видят только сотрудники" class="form-control" name="private_comment"></textarea></div></div>';
+                $private_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_private_comment" class="btn btn-sm" value="Добавить" type="submit"></div></div></div>';
             }
             $public_html .= '</div></div>';
             $private_html .= '</div></div>';
             $order_html .= $public_html . $private_html;
             $order_html .= '</div>';
 
-            $order_html .= '<div class="well well-small"><h4>Запчасти</h4>';//<td>Стоимость</td>
-            $order_html .= '<table class="table"><thead><tr><td>Наименование</td>';
+            $order_html .= '<div class="well well-small parts-well"><h4>Запчасти</h4>';//<td>Стоимость</td>
+            $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+            $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>Наименование</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $order_html .= '<td>Цена</td>';
             }
             $order_html .= '<td></td><td></td><td></td></tr></thead><tbody id="goods-table">';
-            $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
             if ($goods) {
                 foreach ($goods as $product) {
                     $product_total += $product['price'] * $product['count'];
@@ -2307,15 +2336,15 @@ class orders
             if ($order['type'] != 3) {
                 if (!$only_engineer) {
                     $order_html .= '<div class="form-group"><label>Выберите запчасть</label>';
-                    $order_html .= typeahead($this->all_configs['db'], 'goods-goods', true, 0, 6, 'input-xlarge', 'input-medium', 'order_products').'</div><br>';
+                    $order_html .= typeahead($this->all_configs['db'], 'goods-goods', true, 0, 6, 'input-xlarge', 'input-medium', 'order_products', false, false, '', false, 'Введите текст').'</div>';
                 }
                 $order_html .= '<hr/><h4>Работы</h4>';
-                $order_html .= '<table class="table"><thead><tr><td>Наименование</td>';
+                $goods = $this->all_configs['manageModel']->order_goods($order['id'], 1);
+                $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>Наименование</td>';
                 /*if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $order_html .= '<td>Цена</td>';
                 }*/
                 $order_html .= '<td></td><td></td></tr></thead><tbody id="service-table">';
-                $goods = $this->all_configs['manageModel']->order_goods($order['id'], 1);
                 if ($goods) {
                     foreach ($goods as $product) {
                         $product_total += $product['price'] * $product['count'];
@@ -2324,7 +2353,7 @@ class orders
                 }
                 $order_html .= '</tbody></table>';
                 $order_html .= '<div class="form-group"><label>Укажите работу</label>';
-                $order_html .= typeahead($this->all_configs['db'], 'goods-service', true, 0, 7, 'input-xlarge', 'input-medium', 'order_products').'</div><br>';
+                $order_html .= typeahead($this->all_configs['db'], 'goods-service', true, 0, 7, 'input-xlarge', 'input-medium', 'order_products', false, false, '', false, 'Введите текст').'</div>';
             }
             $order_html .= '</div>';
 

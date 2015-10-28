@@ -985,7 +985,7 @@ function display_client_order($order)
 /*
  * ссылка на печать
  * */
-function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-print"></i>', $class = "")
+function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-print"></i>', $only_link = false)
 {
     global $all_configs;
 
@@ -995,7 +995,11 @@ function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-pr
 
     if ($object_id) {
         $url = $all_configs['prefix'] . 'print.php?act=' . $act . '&object_id=' . $object_id;
-        return '<a class="'.$class.'" title="print ' . $act . '" target="_blank" href="' . $url . '">' . $name . '</a>';
+        if(!$only_link){
+            return '<a class="'.$class.'" title="print ' . $act . '" target="_blank" href="' . $url . '">' . $name . '</a>';
+        }else{
+            return $url;
+        }
     }
 }
 

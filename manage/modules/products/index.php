@@ -2175,11 +2175,11 @@ class products
                 $goods_html .= '<div class="form-group"><label>Приоритет: </label>
                             <input onkeydown="return isNumberKey(event)" class="form-control" name="prio" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('prio', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['prio']) : $product['prio']) . '" /></div>';
                 //use-inec $goods_html .= '<input type="button" class="btn export_product" value="Создать выгрузку в 1с" data="' . $product['id'] . '" />';
-                $goods_html .= '<div class="form-group"><label>Розничная цена: </label>
+                $goods_html .= '<div class="form-group"><label>Розничная цена ('.viewCurrencySuppliers('shortName').'): </label>
                             ' . number_format($product['price'] / 100, 2, '.', ' ') . '</div>';
-                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии: </label>
+                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии ('.viewCurrencySuppliers('shortName').'): </label>
                             ' . number_format($product['price_purchase'] / 100, 2, '.', ' ') . '</div>';
-                $goods_html .= '<div class="form-group"><label>Оптовая цена: </label>
+                $goods_html .= '<div class="form-group"><label>Оптовая цена ('.viewCurrencySuppliers('shortName').'): </label>
                             ' . number_format($product['price_wholesale'] / 100, 2, '.', ' ') . '</div>';
                 $goods_html .= '<div class="form-group"><label>Свободный остаток:</label>
                             ' . intval($product['qty_store']) . '</div>';
@@ -2645,7 +2645,7 @@ class products
                 $disabled_row = $this->all_configs['oRole']->hasPrivilege('external-marketing') ? '' : 'disabled';
 
                 $goods_html .= '<form method="post">';
-                $goods_html .= '<div class="form-group"><label>Розничная цена: </label>';
+                $goods_html .= '<div class="form-group"><label>Розничная цена ('.viewCurrencySuppliers('shortName').'): </label>';
                 $goods_html .= '<input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="цена" class="form-control" name="price" value="' . number_format($product['price'] / 100, 2, '.', '') . '" /></div>';
                 $disabled_row = '';
                 if (!$this->all_configs['oRole']->hasPrivilege('external-marketing') || $this->all_configs['configs']['onec-use'] == true || $this->all_configs['configs']['erp-use'] == true)
@@ -2653,16 +2653,16 @@ class products
 
                 if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
                     && $this->all_configs['configs']['use-goods-old-price'] == true) {
-                    $goods_html .= '<div class="form-group"><label>Старая цена: </label>';
+                    $goods_html .= '<div class="form-group"><label>Старая цена ('.viewCurrencySuppliers('shortName').'): </label>';
                     $goods_html .= '<input placeholder="старая цена" ' . $disabled_row;
                     $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="old_price" value="';
                     $goods_html .= number_format($product['old_price'] / 100, 2, '.', '') . '" /></div>';
                 }
-                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии: </label>';
+                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии ('.viewCurrencySuppliers('shortName').'): </label>';
                 $goods_html .= '<input placeholder="закупочная цена" ' . $disabled_row;
                 $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_purchase" value="';
                 $goods_html .= number_format($product['price_purchase'] / 100, 2, '.', '') . '" /></div>';
-                $goods_html .= '<div class="form-group"><label>Оптовая цена: </label>';
+                $goods_html .= '<div class="form-group"><label>Оптовая цена ('.viewCurrencySuppliers('shortName').'): </label>';
                 $goods_html .= '<input placeholder="оптовая цена" ' . $disabled_row;
                 $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_wholesale" value="';
                 $goods_html .= number_format($product['price_wholesale'] / 100, 2, '.', '') . '" /></div>';

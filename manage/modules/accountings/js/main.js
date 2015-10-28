@@ -33,6 +33,14 @@ $(function () {
       $('.reports_turnover_margin').removeClass('invisible');
     });
     
+    $(document).on('change', '#contractor_type_select', function(){
+        var $this = $(this).find(':selected');
+        $('.multiselect[data-type="categories_1"]').multiselect('deselectAll', false)
+                                                   .multiselect('select', $this.data('categories_1'));
+        $('.multiselect[data-type="categories_2"]').multiselect('deselectAll', false)
+                                                   .multiselect('select', $this.data('categories_2'));
+    });
+    
 });
 
 function toggle_report_cashflow(_this, e, p) {
