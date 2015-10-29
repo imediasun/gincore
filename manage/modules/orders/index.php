@@ -1957,7 +1957,7 @@ class orders
             $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
                 !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ? true : false;
 
-            $order_html .= '<form method="post" id="order-form" class="backgroud-white p-lg">';
+            $order_html .= '<form method="post" id="order-form" class="order-form-edit backgroud-white p-lg">';
 
             $order_html .= '<div class="row-fluid">';
 
@@ -2238,6 +2238,7 @@ class orders
                 }
                 $order_html .= '</div><div class="span6"><div class="from-control">';
                 $order_html .= ' <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-sum\')" data-o_id="' . $order['id'] . '" title="История изменений"></span>';
+                $pay_btn = '';
                 if($this->all_configs['oRole']->hasPrivilege('accounting')){
                     if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';

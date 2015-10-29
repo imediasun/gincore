@@ -214,11 +214,23 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 WHERE o.id=?i', array($object))->row();
             if ($order) {
                 $editor = true;
+                include './classes/php_rutils/struct/TimeParams.php';
+                include './classes/php_rutils/Dt.php';
+                include './classes/php_rutils/Numeral.php';
+                include './classes/php_rutils/RUtils.php';
+                $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false, 
+                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
+                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
+                $params = new \php_rutils\struct\TimeParams();
+                $params->date = null; //default value, 'now'
+                $params->format = 'd F Y';
+                $params->monthInflected = true;
                 $arr = array(
                     'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
                     'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                    'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
                     'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
-                    'now' => array('value' => date("d/m/Y", time()), 'name' => 'Текущая дата'),
+                    'now' => array('value' => \php_rutils\RUtils::dt()->ruStrFTime($params), 'name' => 'Текущая дата'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
@@ -245,8 +257,20 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 WHERE o.id=?i', array($object))->row();
             if ($order) {
                 $editor = true;
+                include './classes/php_rutils/struct/TimeParams.php';
+                include './classes/php_rutils/Dt.php';
+                include './classes/php_rutils/Numeral.php';
+                include './classes/php_rutils/RUtils.php';
+                $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false, 
+                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
+                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
+                $params = new \php_rutils\struct\TimeParams();
+                $params->date = null; //default value, 'now'
+                $params->format = 'd F Y';
+                $params->monthInflected = true;
                 $arr = array(
                     'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                    'now' => array('value' => \php_rutils\RUtils::dt()->ruStrFTime($params), 'name' => 'Текущая дата'),
                     'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
@@ -255,6 +279,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                    'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
                 );
                 $print_html = generate_template($arr, 'act');
             }

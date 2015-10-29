@@ -824,11 +824,11 @@
          * Builds the filter.
          */
         buildFilter: function() {
-
+            
             // Build filter if filtering OR case insensitive filtering is enabled and the number of options exceeds (or equals) enableFilterLength.
             if (this.options.enableFiltering || this.options.enableCaseInsensitiveFiltering) {
                 var enableFilterLength = Math.max(this.options.enableFiltering, this.options.enableCaseInsensitiveFiltering);
-
+                
                 if (this.$select.find('option').length >= enableFilterLength) {
 
                     this.$filter = $(this.options.templates.filter);

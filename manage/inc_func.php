@@ -996,7 +996,7 @@ function print_link($object_id, $act, $name = '<i class="cursor-pointer fa fa-pr
     if ($object_id) {
         $url = $all_configs['prefix'] . 'print.php?act=' . $act . '&object_id=' . $object_id;
         if(!$only_link){
-            return '<a class="'.$class.'" title="print ' . $act . '" target="_blank" href="' . $url . '">' . $name . '</a>';
+            return '<a title="print ' . $act . '" target="_blank" href="' . $url . '">' . $name . '</a>';
         }else{
             return $url;
         }

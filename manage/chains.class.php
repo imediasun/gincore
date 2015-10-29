@@ -2999,7 +2999,7 @@ class Chains
                 $out .= $this->get_options_for_move_item_form($with_logistic, $wh_id);
                 $out .= '</select></div>';
 
-                $out .= '<div class="form-group"><label>Локация:</label>';
+                $out .= '<div class="form-group"><label>Локация:</label><br>';
                 $out .= '<select class="multiselect form-control select-location" name="location">';
                 $out .= $this->all_configs['suppliers_orders']->gen_locations($wh_id);
                 $out .= '</select></div>';

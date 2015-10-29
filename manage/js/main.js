@@ -1,5 +1,5 @@
 
-var multiselect = {
+var multiselect_options = {
     buttonContainer: '<div class="btn-group multiselect-btn-group" />',
     nonSelectedText: 'Выбрать',
     enableFiltering: true,
@@ -1017,10 +1017,10 @@ function is_enter(_this, e, id, func) {
     }
 }
 
-function init_multiselect(){
+function init_multiselect(){ 
     $('.multiselect').each(function(){
         var $this = $(this),
-            opts = multiselect;
+            opts = multiselect_options;
         if(typeof $this.attr('data-numberDisplayed') !== 'undefined'){
             opts.numberDisplayed = $this.attr('data-numberDisplayed');
         }

@@ -329,15 +329,15 @@ form.small-product-filter > span.ui-combobox > a.ui-button {
     float: left;
 }
 
-#order-form {
+.order-form-edit {
     border: 1px solid #e4e5e7;
     margin: 35px;
 }
-#order-form .well > h5 {
+.order-form-edit .well > h5 {
     margin-top: 0px;
 }
 
-#order-form .well .ui-combobox > input {
+.order-form-edit .well .ui-combobox > input {
     width: 70%;
 }
 

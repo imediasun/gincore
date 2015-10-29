@@ -39,9 +39,47 @@ class Configs {
             // Сотрудник
             4 => array(
                 1 => array(29), // расход
-                2 => array(2), // приход
+                2 => array(1), // приход
             )
         ), 
+        'countries' => array(
+            0 => array(
+                'name' => 'Украина', 
+                'phone' => array(
+                    'code' => 380,
+                    'length' => 9 // длинна без +380
+                )
+            ),
+            1 => array(
+                'name' => 'Россия', 
+                'phone' => array(
+                    'code' => 7,
+                    'length' => 10 
+                )
+            ),
+            2 => array(
+                'name' => 'Казахстан', 
+                'phone' => array(
+                    'code' => 7,
+                    'length' => 10 
+                )
+            ),
+            3 => array(
+                'name' => 'Беларусь', 
+                'phone' => array(
+                    'code' => 375,
+                    'length' => 9 
+                )
+            ),
+            4 => array(
+                'name' => 'Молдавия', 
+                'phone' => array(
+                    'code' => 373,
+                    'length' => 8 
+                )
+            ),
+        ),
+        
         
             'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов
             'manage-active-modules'     => array( // активные модуле в админке
@@ -53,12 +91,12 @@ class Configs {
             'manage-reset-access'       =>  true, // доступен ли сброс в модуле дебаг
             'settings-master-enabled'   =>  true, // мастер настрйоки при регистрации новой админки
               'currencies'                => array(
-                      1 => array('name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'symbol' => '₴', 'currency-name' => 'grn-cash'),
-                      2 => array('name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
-                      3 => array('name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
-                      4 => array('name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
-                      5 => array('name' => 'Белорусский рубль', 'shortName' => 'BYR', 'viewName' => 'бр.', 'symbol' => 'Br', 'currency-name' => ''),
-                      6 => array('name' => 'Тенге', 'shortName' => 'KZT', 'viewName' => 'тнг.', 'symbol' => '₸', 'currency-name' => ''),
+                      1 => array('rutils' => array('words' => array('гривна', 'гривны', 'гривен'), 'gender' => 'female'), 'name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'symbol' => '₴', 'currency-name' => 'grn-cash'),
+                      2 => array('rutils' => array('words' => array('евро', 'евро', 'евро'), 'gender' => 'male'), 'name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
+                      3 => array('rutils' => array('words' => array('доллар', 'доллара', 'долларов'), 'gender' => 'male'), 'name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
+                      4 => array('rutils' => array('words' => array('рубль', 'рубля', 'рублей'), 'gender' => 'male'), 'name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
+                      5 => array('rutils' => array('words' => array('рубль', 'рубля', 'рублей'), 'gender' => 'male'), 'name' => 'Белорусский рубль', 'shortName' => 'BYR', 'viewName' => 'бр.', 'symbol' => 'Br', 'currency-name' => ''),
+                      6 => array('rutils' => array('words' => array('тунге', 'тунге', 'тунге'), 'gender' => 'male'), 'name' => 'Тенге', 'shortName' => 'KZT', 'viewName' => 'тнг.', 'symbol' => '₸', 'currency-name' => ''),
                ),
         
         /*
@@ -70,10 +108,10 @@ class Configs {
 //            'manage-reset-access'       =>  false, // доступен ли сброс в модуле дебаг
 //            'settings-master-enabled'   =>  false, // мастер настрйоки при регистрации новой админки
 //            'currencies'                => array(
-//                  1 => array('name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'symbol' => '₴', 'currency-name' => 'grn-cash'),
-//                  2 => array('name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
-//                  3 => array('name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
-//                  4 => array('name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
+//                  1 => array('rutils' => array('words' => array('гривна', 'гривны', 'гривен'), 'gender' => 'female'),'name' => 'Гривна', 'shortName' => 'UAH', 'viewName' => 'грн.', 'symbol' => '₴', 'currency-name' => 'grn-cash'),
+//                  2 => array('rutils' => array('words' => array('евро', 'евро', 'евро'), 'gender' => 'male'),'name' => 'ЕВРО', 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
+//                  3 => array('rutils' => array('words' => array('доллар', 'доллара', 'долларов'), 'gender' => 'male'),'name' => 'Доллар США', 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
+//                  4 => array('rutils' => array('words' => array('рубль', 'рубля', 'рублей'), 'gender' => 'male'),'name' => 'Российский рубль', 'shortName' => 'RUB', 'viewName' => 'руб.', 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
 //            ),
         
         /**

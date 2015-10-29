@@ -43,7 +43,7 @@ class master{
         $input_html['currencies_select'] = '';
         $input_html['currencies'] = '';
         foreach($this->all_configs['configs']['currencies'] as $cid => $currency){
-            $input_html['currencies_select'] .= '<option value="'.$cid.'">'.$currency['name'].'</option>';
+            $input_html['currencies_select'] .= '<option data-symbol="'.htmlspecialchars($currency['symbol']).'" value="'.$cid.'">'.$currency['name'].'</option>';
             $input_html['currencies'] .= '
                 <div class="clearfix checkbox-with-course">
                     <div class="checkbox pull-left">
@@ -61,6 +61,10 @@ class master{
     }
     
     private function save(){
+        // business
+        $business = isset($_POST['business']) ? $_POST['business'] : '';
+        // phone
+        $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
         // email
         $email = isset($_POST['email']) ? $_POST['email'] : '';
         // сервисные центры
@@ -71,22 +75,74 @@ class master{
         $orders_currency = isset($_POST['orders_currency']) ? $_POST['orders_currency'] : 0;
         // валюта расчетов за заказы поставщикам
         $contractors_currency = isset($_POST['contractors_currency']) ? $_POST['contractors_currency'] : 0;
-        // валюты в бухгалтерии
-        $currencies = isset($_POST['currencies']) ? $_POST['currencies'] : array();
-        // курсы для валют в бухгалтерии
-        $currencies_courses = isset($_POST['currencies_courses']) ? $_POST['currencies_courses'] : array();
+        $contractors_currency_course = isset($_POST['course']) ? $_POST['course'] : 0;
         
+        // валюты в бухгалтерии
+//        $currencies = isset($_POST['currencies']) ? $_POST['currencies'] : array();
+        // курсы для валют в бухгалтерии
+//        $currencies_courses = isset($_POST['currencies_courses']) ? $_POST['currencies_courses'] : array();
+        
+        // проверка на ошибки
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
             return array('state' => false, 'msg' => 'Эл. адрес указан неверно');
         }
         
-        if(!$orders_currency){
+        if(!$orders_currency || !isset($this->all_configs['configs']['currencies'][$orders_currency])){
             return array('state' => false, 'msg' => 'Выберите валюту расчетов за заказы');
         }
         
-        if(!$contractors_currency){
+        if(!$contractors_currency || !isset($this->all_configs['configs']['currencies'][$contractors_currency])){
             return array('state' => false, 'msg' => 'Выберите валюту расчетов за заказы поставщикам');
         }
+        $added_services = 0;
+        $added_services_names = array();
+        $added_services_colors = array();
+        foreach($services as $i => $service){
+            if(trim($service['name'])){
+                if(!$service['color']){
+                    return array('state' => false, 'msg' => 'Не выбран цвет отделения '.htmlspecialchars($service['name']));
+                }
+                if(!$service['address']){
+                    return array('state' => false, 'msg' => 'Не выбран адрес отделения '.htmlspecialchars($service['name']));
+                }
+                if(!$service['phone']){
+                    return array('state' => false, 'msg' => 'Не выбран телефон отделения '.htmlspecialchars($service['name']));
+                }
+                if(in_array($service['name'], $added_services_names)){
+                    return array('state' => false, 'msg' => 'У отделений не могут быть одинаковые названия');
+                }
+                if(in_array($service['color'], $added_services_colors)){
+                    return array('state' => false, 'msg' => 'У отделений не могут быть одинаковые цвета');
+                }
+                $added_services_names[] = trim($service['name']);
+                $added_services_colors[] = trim($service['color']);
+                $added_services ++;
+            }
+        }
+        if(!$added_services){
+            return array('state' => false, 'msg' => 'Добавьте отделения');
+        }
+        $users_added = 0;
+        $users_logins = array();
+        foreach($users as $i => $user){
+            if($user['login']){
+                if($user['password']){
+                    $users_added ++;
+                }else{
+                    return array('state' => false, 'msg' => 'Укажите пароль для пользователя '.htmlspecialchars($user['login']));
+                }
+                if(in_array($user['login'], $users_logins)){
+                    return array('state' => false, 'msg' => 'У пользователей не могут быть одинаковые логины');
+                }
+                $users_logins[] = trim($user['login']);
+            }
+        }
+        // ------- проверка на ошибки
+        
+        // сохраняем бизнес и телефон юзера
+        $this->db->query("INSERT IGNORE INTO {settings}(name,value,title,ro) "
+                        ."VALUES('account_phone',?,'Ваш телефон',1),"
+                              ."('account_business',?,'Ваш бизнес',1)", array($phone,$business));
         
         // вписываем мыло
         $this->db->query("UPDATE {settings} SET value = ? "
@@ -114,13 +170,13 @@ class master{
                         ."ON DUPLICATE KEY UPDATE value = VALUES(value)", array($contractors_currency));
         
         // добавляем валюты
-        $currencies_added = array();
-        $currencies[$orders_currency] = $orders_currency;
+//        $currencies[$orders_currency] = $orders_currency;
         $currencies_courses[$orders_currency] = 1;
-        $currencies[$contractors_currency] = $contractors_currency;
-        foreach($currencies as $curr){
+//        $currencies[$contractors_currency] = $contractors_currency;
+        $currencies_courses[$contractors_currency] = $contractors_currency_course;
+        foreach($currencies_courses as $curr => $course){
             if(isset($this->all_configs['configs']['currencies'][$curr])){
-                $course = isset($currencies_courses[$curr]) ? (float)$currencies_courses[$curr] : 1;
+//                $course = isset($currencies_courses[$curr]) ? (float)$currencies_courses[$curr] : 1;
                 $name = $this->all_configs['configs']['currencies'][$curr]['name'];
                 $short_name = $this->all_configs['configs']['currencies'][$curr]['shortName'];
                 $id = $this->db->query("INSERT IGNORE INTO {cashboxes_courses}(currency,name,short_name,course)"
@@ -134,11 +190,7 @@ class master{
                 // привязываем валюты в терминал кассу
                 $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                                 ."VALUES(?i,?i,0)", array($cashbox_t_id, $curr));
-                $currencies_added[$curr] = $id;
             }
-        }
-        if(!$currencies_added){
-            return array('state' => false, 'msg' => 'Выберите валюты для взаиморассчетов с поставщиками');
         }
         
         // добавляем сервис центры
@@ -151,7 +203,7 @@ class master{
                     array($service['name'], $color, $_SESSION['id'], $service['address']), 'id');
                 if($id){
                     // основной
-                    $main_wh = $this->create_warehouse($service['name'], $service['address'], 1, $id, 1);
+                    $main_wh = $this->create_warehouse($service['name'], $service['address'], $service['phone'], 1, $id, 1);
                     // прикрепляем текущего админа к складу
                     $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) "
                                     ."VALUES(?i,?i,?i,1)", 
@@ -159,9 +211,9 @@ class master{
                                       $main_wh['loc_id'],
                                       $_SESSION['id']));
                     // брак
-                    $this->create_warehouse('Брак '.$service['name'], '', 1, $id);
+                    $this->create_warehouse('Брак '.$service['name'], '', '', 1, $id);
                     // клиент
-                    $this->create_warehouse('Клиент '.$service['name'], '', 4, $id);
+                    $this->create_warehouse('Клиент '.$service['name'], '', '', 4, $id);
                     $added_services[$i] = array(
                         'id' => $id
                     ) + $main_wh;
@@ -169,15 +221,11 @@ class master{
             }
         }
         // склад логистика без группы
-        $this->create_warehouse('Логистика', '', 3, 0);
+        $this->create_warehouse('Логистика', '', '', 3, 0);
         // недостача без группы
-        $this->create_warehouse('Недостача', '', 2, 0);
+        $this->create_warehouse('Недостача', '', '', 2, 0);
         
-        if(!$added_services){
-            return array('state' => false, 'msg' => 'Добавьте отделения');
-        }
         // добавляем юзеров
-        $users_added = array();
         foreach($users as $i => $user){
             if($user['login'] && $user['password']){
                 $user['position'] = isset($user['position']) ? $user['position'] : 0;
@@ -186,7 +234,6 @@ class master{
                                                $user['login'],$user['password'],$user['login'],
                                                $user['fio'],$user['position']
                                            ))->id();
-                $users_added[$i] = $user_id;
                 if($user_id && isset($user['service']) && isset($added_services[$user['service']])){
                     // прикрепляем в складу
                     $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) "
@@ -222,12 +269,12 @@ class master{
         return array('state' => true, 'redirect' => $prefix.'orders');
     }
     
-    private function create_warehouse($name, $address, $type, $group_id, $consider_all = 0, $consider_store = 1){
+    private function create_warehouse($name, $address, $phone, $type, $group_id, $consider_all = 0, $consider_store = 1){
         // создаем склад
         $warehouse_id = $this->db->query('INSERT IGNORE INTO {warehouses}
             (consider_all, consider_store, code_1c, title, print_address,
-             print_phone, type, group_id, type_id) VALUES (?i, ?i, null, ?, ?, null, ?i, ?n, ?n)',
-                array($consider_all, $consider_store, $name, $address, $type, $group_id, 1), 'id');
+             print_phone, type, group_id, type_id) VALUES (?i, ?i, null, ?, ?, ?, ?i, ?n, ?n)',
+                array($consider_all, $consider_store, $name, $address, $phone, $type, $group_id, 1), 'id');
         // и локацию
         $location_id = $this->db->query("INSERT IGNORE INTO {warehouses_locations} (wh_id,location)"
                         ."VALUES(?i,?)", array($warehouse_id, $name), 'id');

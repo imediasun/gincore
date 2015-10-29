@@ -978,7 +978,7 @@ class Suppliers
                 }
                 $goods_html .= '</select></div>';
                 $goods_html .= '<div class="form-group"><label>Дата поставки <b class="text-danger">*</b>: </label>
-                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="' . htmlspecialchars($order['date_wait']) . '" />
+                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="'.($order['date_wait'] ? date('Y-m-d', strtotime($order['date_wait'])) : '').'" />
                                 </div>';
             }
             if ($goods) {

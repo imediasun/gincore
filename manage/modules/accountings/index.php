@@ -915,7 +915,7 @@ class accountings
             } else {
                 $out .= build_array_tree($categories);
             }
-            $out .= '</select></div></div><div class="form-group">';
+            $out .= '</select></div><div class="form-group">';
             $out .= '<label>Укажите статьи приходов для контрагента <small>(за что контрагент нам платит)</small>: </label>';
             $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
             $out .= '<select class="multiselect input-small" data-type="categories_2" multiple="multiple" name="contractor_categories_id[]">';
@@ -961,7 +961,7 @@ class accountings
                                 '</a>' : 
                                     '<span class="text-danger">Не привязан</span>')
                             ." 
-                    </div>
+                    </div></div>
                 ";
             }else{
                 $out .= '
@@ -1856,7 +1856,7 @@ class accountings
                 if($is_system){
                     $data['state'] = false;
                     $data['msg'] = 'Системный контрагент - не подлежит редактированию';
-                }else{
+                }else{ 
                     $count_t = 0;
                     // количество транзакций
                     if (array_key_exists('erp-use-for-accountings-operations', $this->all_configs['configs'])

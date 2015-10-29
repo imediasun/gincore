@@ -207,7 +207,7 @@ function contractor_remove(_this, contractor_id) {
             success: function (data) {
                 if (data['state'] == true) {
                     //$('.select_contractors').html(data['contractors']);
-                    $(_this).parents('div.accordion-group').remove();
+                    $(_this).closest('.panel').remove();
                 } else {
                     alert(data['msg']);
                 }
@@ -383,8 +383,10 @@ function contractor_create(_this) {
         type: 'POST',
         success: function (data) {
             if (data) {
-                if (data['state'] == true)
+                if (data['state'] == true){
                     click_tab_hash();
+                    $(_this).closest('.modal').modal('hide');
+                }
                 if (data['state'] == false && data['message'])
                     alert(data['message'])
             }

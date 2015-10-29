@@ -109,7 +109,7 @@ function toogle_siblings(_this, btn_children)
     }
 }
 
-function multiselect() {
+function multiselect() { 
     $('.multiselect').multiselect({
         buttonContainer: '<span class="dropdown" />',
         nonSelectedText: 'Выбрать',
