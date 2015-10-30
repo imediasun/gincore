@@ -842,10 +842,10 @@ class Suppliers
         }else{
             $goods_html .= '<h3>Создание нового заказа поставщику</h3>';
         }
-        $goods_html .= '<br><form data-validate="parsley" id="suppliers-order-form" method="post"><div style="max-width:500px">';
+        $goods_html .= '<br><form data-validate="parsley" id="suppliers-order-form" method="post"><div class="row row-15"><div class="col-sm-6">';
         $disabled = '';
         $info_html = '';
-        $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div></div>';
+        $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div>';
         if ($suppliers) {
             $order = array(
                 'price'     =>  '',
@@ -854,7 +854,7 @@ class Suppliers
                 'supplier'  =>  '',
                 'goods_id'  =>  '',
                 'title'     =>  'Создать заказ',
-                'btn'       =>  '<input type="button" class="btn" onclick="create_supplier_order(this)" value="Создать" />',
+                'btn'       =>  '<input type="button" class="btn submit-from-btn" onclick="create_supplier_order(this)" value="Создать" />',
                 'product'   =>  '',
                 'comment'   =>  '',
                 'unavailable' => 0,
@@ -952,7 +952,7 @@ class Suppliers
                         'supplier'  =>  '',
                         'goods_id'  =>  '',
                         'title'     =>  'Создать заказ',
-                        'btn'       =>  '<input type="submit" class="btn btn-primary" name="new-order" value="Создать заказ поставщику" />',
+                        'btn'       =>  '<input type="submit" class="btn btn-primary submit-from-btn" name="new-order" value="Создать заказ поставщику" />',
                         'product'   =>  '',
                         'comment'   =>  '',
                         'unavailable' => 0,
@@ -968,15 +968,25 @@ class Suppliers
             }
 
             if ($all == true) {
-                $goods_html .= '<div class="form-group"><label>Поставщик <b class="text-danger">*</b>: </label>'
-                    . '<select class="form-control" data-required="true" name="warehouse-supplier" ' . $disabled . '><option value=""></option>';
-                foreach ( $suppliers as $supplier ) {
-                    if ($order['supplier'] == $supplier['id'])
-                        $goods_html .= '<option selected value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
-                    else
-                        $goods_html .= '<option value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
-                }
-                $goods_html .= '</select></div>';
+                $goods_html .= '
+                    <div class="form-group">
+                        <label>Поставщик <b class="text-danger">*</b>: </label>
+                        <div class="input-group">
+                            <select class="form-control" data-required="true" name="warehouse-supplier" ' . $disabled . '><option value=""></option>';
+                            foreach ( $suppliers as $supplier ) {
+                                if ($order['supplier'] == $supplier['id'])
+                                    $goods_html .= '<option selected value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
+                                else
+                                    $goods_html .= '<option value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
+                            }
+                $goods_html .= '
+                            </select>
+                            <div class="input-group-btn">
+                                <button type="button" onclick="alert_box(this, false, \'create-contractor-form\',{callback: \'quick_create_supplier_callback\'},null,\'accountings/ajax\')" class="btn btn-info">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+                ';
                 $goods_html .= '<div class="form-group"><label>Дата поставки <b class="text-danger">*</b>: </label>
                                 <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="'.($order['date_wait'] ? date('Y-m-d', strtotime($order['date_wait'])) : '').'" />
                                 </div>';
@@ -984,7 +994,11 @@ class Suppliers
             if ($goods) {
                 //$categories_html = $this->gen_categories_selector('5', $disabled);
                 $goods_html .= '<div class="form-group"><label>Запчасть <b class="text-danger">*</b>: </label>'
-                    . '' . typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], (15 + $typeahead), 'input-xlarge', 'input-medium') . '</div>';
+                    .typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], 
+                               (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, 'Введите', 
+                               array('name' => 'Добавить', 
+                                     'action' => 'products/ajax/?act=create_form', 
+                                     'form_id' => 'new_device_form')) . '</div>';
             }
             $goods_html .= '<div class="form-group"><label>Тип поставки <b class="text-danger">*</b>: </label>'
                 . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' /> Локально</label></div>'
@@ -1002,13 +1016,20 @@ class Suppliers
             $goods_html .= '<div class="form-group"><label>№ ремонта</label> (если запчасть заказывается под конкретный ремонт): ' . $so_co . '</div>';
             $goods_html .= '<div id="for-new-supplier-order"></div>';
             if ($all == true) {
-                $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>' . $info_html;
+                $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>';
             }
         } else {
             $goods_html .= '<p  class="text-danger">Нет поставщиков</p>';
         }
 
-        $goods_html .= "</form>";
+        $goods_html .= '
+                </div>
+                <div class="col-sm-6 relative">
+                    <div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
+                </div>
+            </div>
+            '.$info_html.'
+        </form>';
         $goods_html .= $this->append_js();
 
         return $goods_html;

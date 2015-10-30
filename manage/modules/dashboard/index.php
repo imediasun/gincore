@@ -58,6 +58,7 @@ class dashboard{
         $input['line_chart_data_orders'] = $conv_chart['orders'];
         $input['line_chart_data_calls'] = $conv_chart['calls'];
         $input['line_chart_data_visitors'] = $conv_chart['visitors'];
+        $input['init_visitors'] = $conv_chart['init_visitors'] ? 'true' : 'false';
         $input['currency'] = viewCurrency('symbol');
         $input['avg_check'] = $this->get_avg_check();
         $input['workshops_stats'] = $this->get_workshops_stats();
@@ -90,8 +91,12 @@ class dashboard{
         $orders_js = array();
         $visitors_js = array();
         $period = $this->get_date_period();
+        $init_visitors = false;
         foreach($period as $dt) {
             $date = $dt->format('Y-m-d');
+            if(!empty($visitors[$date])){
+                $init_visitors = true;
+            }
             $d_js = 'gd('.$dt->format('Y').','.$dt->format('n').','.$dt->format('j').')';
             $calls_js[$date] = '['.$d_js.','.(isset($calls[$date]) ? $calls[$date] : 0).']';
             $orders_js[$date] = '['.$d_js.','.(isset($orders[$date]) ? $orders[$date] : 0).']';
@@ -100,7 +105,8 @@ class dashboard{
         return array(
             'calls' => implode(',', $calls_js),
             'orders' => implode(',', $orders_js),
-            'visitors' => implode(',', $visitors_js)
+            'visitors' => implode(',', $visitors_js),
+            'init_visitors' => $init_visitors
         );
     }
     

@@ -33,13 +33,7 @@ $(function () {
       $('.reports_turnover_margin').removeClass('invisible');
     });
     
-    $(document).on('change', '#contractor_type_select', function(){
-        var $this = $(this).find(':selected');
-        $('.multiselect[data-type="categories_1"]').multiselect('deselectAll', false)
-                                                   .multiselect('select', $this.data('categories_1'));
-        $('.multiselect[data-type="categories_2"]').multiselect('deselectAll', false)
-                                                   .multiselect('select', $this.data('categories_2'));
-    });
+    
     
 });
 
@@ -372,33 +366,7 @@ function contractor_edit(_this, id) {
     return false;
 }
 
-function contractor_create(_this) {
-    var form_data = $('.bootbox form.form_contractor');
-    $(_this).button('loading');
 
-    $.ajax({
-        url: prefix + module + '/ajax/?act=contractor-create',
-        dataType: "json",
-        data: form_data.serialize(),
-        type: 'POST',
-        success: function (data) {
-            if (data) {
-                if (data['state'] == true){
-                    click_tab_hash();
-                    $(_this).closest('.modal').modal('hide');
-                }
-                if (data['state'] == false && data['message'])
-                    alert(data['message'])
-            }
-            $(_this).button('reset');
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.responseText);
-        }
-    });
-
-    return false;
-}
 
 function check_contractor_amount(_this, contractor_id) {
     $(_this).button('loading');

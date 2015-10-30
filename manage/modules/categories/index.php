@@ -255,7 +255,7 @@ class categories
         }
         return substr($url, 0, strlen($url)-1);
     }*/
-    private function gencreate($name = '', $ajax = false, $callback = '')
+    private function gencreate($name = '', $ajax = false)
     {
         if ( !$this->all_configs['oRole']->hasPrivilege('create-filters-categories') )
             return '<p  class="text-error">У Вас нет прав для создания новой категории</p>';
@@ -263,7 +263,7 @@ class categories
         $attr = 'form method="post"';
         $form_close = 'form';
         if($ajax){
-            $attr = 'div class="emulate_form ajax_form" data-callback="'.$callback.'" data-method="post" '
+            $attr = 'div class="emulate_form ajax_form" data-callback="select_typeahead_device" data-method="post" '
                     .'data-action="'.$this->all_configs['prefix'].'categories/ajax/?act=create_new"';
             $form_close = 'div';
         }
@@ -285,7 +285,7 @@ class categories
         $category_html .= '
             <div class="form-group">
                 <input class="btn btn-primary" type="submit" value="создать" name="create-category" />
-                '.($ajax ? '<button type="button" class="btn btn-default" id="hide_add_device_form">Отмена</button>' : '').'
+                '.($ajax ? '<button type="button" class="btn btn-default hide_typeahead_add_form">Отмена</button>' : '').'
             </div>';
 
         $category_html .= '</fieldset></'.$form_close.'>';
@@ -767,7 +767,7 @@ class categories
         
         if($act == 'create_form'){
             $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-            echo json_encode(array('html' => $this->gencreate($name, true, 'select_order_device'), 'state' => true));
+            echo json_encode(array('html' => $this->gencreate($name, true), 'state' => true));
             exit;
         }
 

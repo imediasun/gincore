@@ -195,6 +195,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'wh_address' =>  array('value' => htmlspecialchars($order['print_address']), 'name' => 'Адрес склада'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                 );
 
                 $print_html = generate_template($arr, 'warranty');
@@ -325,6 +326,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'wh_address' =>  array('value' => htmlspecialchars($order['print_address']), 'name' => 'Адрес склада'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                 );
                 $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];

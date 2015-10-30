@@ -124,13 +124,20 @@ $(document).ready(function () {
     });*/
 
     $('.cloneAndClear').live('click', function() {
-        if($(this).data('addon')){
-            var $el = $(this).parent().prev();
+        var $this = $(this);
+        if($this.data('addon')){
+            var $el = $this.parent().prev();
+        }else if($this.data('clone_siblings')){
+            var $el = $this.siblings($this.data('clone_siblings')).eq(0);
         }else{
-            var $el = $(this).prev();
+            var $el = $this.prev();
         }
         var clone = $el.clone();
-        var input = clone.find('.clone_clear_val');
+        if(clone.hasClass('clone_clear_val')){
+            input = clone;
+        }else{
+            var input = clone.find('.clone_clear_val');
+        }
         input.val('');
         if (input.hasClass('global-typeahead')) {
             var num = 1 * input.attr('data-select');
@@ -140,7 +147,7 @@ $(document).ready(function () {
             input.attr('data-input', 'serials' + next);
         }
         clone.find('.clone_clear_html').html('');
-        $(this).before(clone);
+        $this.before(clone);
     });
 
     /*//form change
@@ -236,7 +243,7 @@ $(document).ready(function () {
         //var auto_typeahead = false;
         var input_selector = $(this).data('input');
         var call_function = $(this).data('function');
-
+        
         $('.global-typeahead').typeahead({
             items: 50,
             minLength: 1,
@@ -333,8 +340,41 @@ $(document).ready(function () {
                 }
             }
         });
+        $(document).on('mousedown', 'ul.typeahead', function(e) {
+          e.preventDefault();
+        });
     });
 
+    $(document).on('click', '.typeahead_add_form', function(){
+        var $this = $(this),
+            $form = $('#'+$this.data('form_id')),
+            id = (new Date()).getTime();
+        $this.attr('data-id', 'source-'+id);
+        $form.attr('data-id', 'form-'+id);
+        if(!$form.hasClass('loaded')){
+            $this.button('loading');
+            $.ajax({
+                url: prefix+$this.data('action'),
+                dataType: "json",
+                data: '&name='+$this.closest('.form-group').find('input.form-control').val(),
+                type:'POST',
+                success: function(msg) {
+                    $form.addClass('loaded').html(msg.html);
+                    $form.show();
+                    reset_multiselect();
+                    $this.button('reset');
+                }
+            });
+            $this.parents('form').find('.submit-from-btn').mousedown(function(){
+                $form.removeClass('loaded').empty().hide();
+            });
+        }else{
+            $form.toggle();
+        }
+    });
+    $(document).on('click', '.hide_typeahead_add_form', function(){
+        $(this).closest('.typeahead_add_form_box').hide();
+    });
     
     $(document).on('focusin', '.typeahead-double', function(e) {
         var $this = $(this),
@@ -492,7 +532,62 @@ $(document).ready(function () {
     $('.header-link.hide-menu').click(function(){
         $.cookie('hide_menu', $('body').hasClass('hide-sidebar') ? 1 : 0);
     });
+    
+    $(document).on('change', '#contractor_type_select', function(){
+        var $this = $(this).find(':selected');
+        $('.multiselect[data-type="categories_1"]').multiselect('deselectAll', false)
+                                                   .multiselect('select', $this.data('categories_1'));
+        $('.multiselect[data-type="categories_2"]').multiselect('deselectAll', false)
+                                                   .multiselect('select', $this.data('categories_2'));
+    });
 });
+
+function contractor_create(_this, callback) {
+    var form_data = $('.bootbox form.form_contractor');
+    $(_this).button('loading');
+
+    $.ajax({
+        url: prefix + 'accountings/ajax/?act=contractor-create',
+        dataType: "json",
+        data: form_data.serialize(),
+        type: 'POST',
+        success: function (data) {
+            if (data) {
+                if (data['state'] == true){
+                    $(_this).closest('.modal').modal('hide');
+                    if(typeof callback == 'function'){
+                        callback(data);
+                    }else{
+                        click_tab_hash();
+                    }
+                }
+                if (data['state'] == false && data['message'])
+                    alert(data['message'])
+            }
+            $(_this).button('reset');
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+
+    return false;
+}
+
+function quick_create_supplier_callback(data){
+    console.log(data);
+    $('select[name="warehouse-supplier"]').append('<option selected value="'+data.id+'">'+data.name+'</option>');
+}
+
+function select_typeahead_device(data, $form){
+    if(data.state && data.id){
+        var id = $form.parent().attr('data-id'),
+            $f = $('[data-id="source-'+id.replace('form-','')+'"]').closest('.input-group');
+        $f.find(':hidden').val(data.id);
+        $f.find('input.form-control').val(data.name);
+        $form.closest('.typeahead_add_form_box').hide().empty().removeClass('loaded');
+    }
+}
 
 function load_infoblock(hash) {
     hash=hash.replace('#', '');
@@ -978,7 +1073,7 @@ function click_tab(_this, e, hashs) {
         if (msg) {
             if (msg['menu']) {
                 var str = window.location.hash.split('-');
-                console.log(str[0] + '-menu');
+//                console.log(str[0] + '-menu');
                 $(str[0] + '-menu').html(msg['menu']);
             }
             if (msg['functions'] && msg['functions'].length > 0) {
@@ -1145,7 +1240,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
                         if (msg['btns']) {
                             $('.bootbox-alert .modal-footer').prepend(msg['btns']);
                         }
-                        //if (typeof callback == 'function') callback();
+//                        if (typeof callback == 'function') callback(msg);
                     }
                     if (msg['functions'] && msg['functions'].length > 0) {
                         for (i in msg['functions']) {

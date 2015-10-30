@@ -58,11 +58,19 @@ class master{
                 </div>
             ';
         }
+        
+        // страны
+        $input_html['country_select'] = '';
+        foreach($this->all_configs['configs']['countries'] as $id => $country){
+            $input_html['country_select'] .= '<option value="'.$id.'">'.$country['name'].'</option>';
+        }
     }
     
     private function save(){
         // business
         $business = isset($_POST['business']) ? $_POST['business'] : '';
+        // country
+        $country = isset($_POST['country']) ? $_POST['country'] : '';
         // phone
         $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
         // email
@@ -83,6 +91,9 @@ class master{
 //        $currencies_courses = isset($_POST['currencies_courses']) ? $_POST['currencies_courses'] : array();
         
         // проверка на ошибки
+        if(!isset($this->all_configs['configs']['countries'][$country])){
+            return array('state' => false, 'msg' => 'Выберите страну');
+        }
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
             return array('state' => false, 'msg' => 'Эл. адрес указан неверно');
         }
@@ -139,6 +150,10 @@ class master{
         }
         // ------- проверка на ошибки
         
+        // сохраняем страну
+        $this->db->query("INSERT INTO {settings}(name,value,title,ro) "
+                        ."VALUES('country',?,'Страна',1) "
+                        ."ON DUPLICATE KEY UPDATE value = ?", array($country,$country));
         // сохраняем бизнес и телефон юзера
         $this->db->query("INSERT IGNORE INTO {settings}(name,value,title,ro) "
                         ."VALUES('account_phone',?,'Ваш телефон',1),"

@@ -886,15 +886,12 @@ class orders
                                             <legend>Устройство</legend>
                                             <div class="form-group">
                                                 <label class="control-label">Выберите устройство <b class="text-danger">*</b>: </label>
-                                                <div class="input-group">
-                                                    '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 'display_service_information,get_requests')
-                                                    .'
-                                                    <div class="input-group-btn">
-                                                        <button type="button" id="show_add_device_form" class="btn btn-info">
-                                                            Добавить новое
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 
+                                                            'display_service_information,get_requests', false, false, '', false, 'Введите', 
+                                                            array('name' => 'Добавить новое', 
+                                                                  'action' => 'categories/ajax/?act=create_form', 
+                                                                  'form_id' => 'new_device_form'))
+                                                .'
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">Цвет <b class="text-danger">*</b>: </label>
@@ -1002,7 +999,7 @@ class orders
                                         </fieldset>
                                     </div>
                                     <div class="col-sm-6 relative">
-                                        <div id="new_device_form" class="theme_bg new_device_form p-md"></div>
+                                        <div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
                                         <fieldset>
                                             <legend>Заявки</legend>
                                                 <div id="client_requests">
@@ -1015,7 +1012,7 @@ class orders
                                     </div>
                                 </div>
                                 <div class="btn-group dropup">
-                                  <input id="add-client-order" class="btn btn-primary" type="button" onclick="add_new_order(this,\'\',\'create_order\')" value="Добавить" />
+                                  <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button" onclick="add_new_order(this,\'\',\'create_order\')" value="Добавить" />
                                   <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle Dropdown</span>
@@ -1649,6 +1646,10 @@ class orders
         if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
             return true;
         }
+        // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+        if (!$order['manager'] && strtotime($order['date_add']) <= time()-86400) {
+            return true;
+        }
         // Принят в ремонт > 3 дней
         if ($order['status'] == $this->all_configs['configs']['order-status-new'] && strtotime($order['date']) + $day * 3 < time()) {
             return true;
@@ -1684,7 +1685,8 @@ class orders
                 LEFT JOIN {orders_suppliers_clients} as l ON l.order_goods_id=g.id
                 LEFT JOIN {contractors_suppliers_orders} as so ON so.id=l.supplier_order_id
                 LEFT JOIN {warehouses} AS w ON o.accept_wh_id=w.id
-                WHERE ?query o.type NOT IN (?li) AND o.status IN (?li) AND UNIX_TIMESTAMP(o.date_add)>? GROUP BY o.id ORDER BY o.date_add',
+                WHERE ?query o.type NOT IN (?li) AND o.status IN (?li) AND UNIX_TIMESTAMP(o.date_add)>? 
+                GROUP BY o.id ORDER BY o.date_add',
                 array($this->all_configs['configs']['order-status-waits'], $filters_query, array(1),
                     $this->all_configs['configs']['order-statuses-manager'], (time() - 60*60*24*90)))->assoc();
         return $orders;
@@ -1733,7 +1735,8 @@ class orders
             // манагер
             $mg = isset($_GET['managers']) ? $_GET['managers'] : array();
             if ($mg) {
-                $query .= $this->all_configs['db']->makeQuery(' o.manager IN (?li) AND ', array($mg));
+                // манагер или заказ который был принят 24 часа назад и никто не взял его
+                $query .= $this->all_configs['db']->makeQuery(' (o.manager IN (?li) OR (o.manager IS NULL AND o.date_add <= DATE_ADD(NOW(), INTERVAL -24 HOUR))) AND ', array($mg));
             }
             // фильтр статистики по дате
             $get_date = isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '';

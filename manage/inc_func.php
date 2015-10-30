@@ -512,7 +512,7 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, 
                    $class = 'input-medium',$class_select = 'input-small', $function = '', 
                    $multi = false, $anyway = false, $m = '', $no_clear_if_null = false,
-                   $placeholder = 'Введите')
+                   $placeholder = 'Введите', $add_btn = array())
 {
     //static $iterator = 0; $iterator++;
     //$iterator += $i;
@@ -552,6 +552,20 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
     ';
     if($show_categories){
         $out .= "</div></div>";
+    }
+    
+    if($add_btn){
+        $out = '
+            <div class="input-group">
+                '.$out.'
+                <div class="input-group-btn">
+                    <button type="button" 
+                            data-form_id="'.$add_btn['form_id'].'" 
+                            data-action="'.$add_btn['action'].'" 
+                            class="typeahead_add_form btn btn-info">'.$add_btn['name'].'</button>
+                </div>
+            </div>
+        ';
     }
 
     return $out;

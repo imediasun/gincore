@@ -43,14 +43,10 @@ function gd(year, month, day) {
     return Date.UTC(year, month - 1, day);
 }
 
-function init_conv_chart(data1,data2,data3){
-    var chartIncomeData = [
-        {
-            label: "&nbsp;Посетители",
-            data: data1,
-            yaxis: 1
-        },
-        {
+function init_conv_chart(data1,data2,data3, init_visitors){
+//    init_visitors = true;
+    var chartIncomeData = [];
+    chartIncomeData.push({
             label: "&nbsp;Заказы",
             data: data2,
             yaxis: 2
@@ -60,7 +56,14 @@ function init_conv_chart(data1,data2,data3){
             data: data3,
             yaxis: 2
         }
-    ];
+    );
+    if(init_visitors){
+        chartIncomeData.push({
+            label: "&nbsp;Посетители",
+            data: data1,
+            yaxis: 1
+        });
+    }
     var chartIncomeOptions = {
         series: {
             lines: {
@@ -79,7 +82,7 @@ function init_conv_chart(data1,data2,data3){
             },
             shadowSize: 0
         },
-        colors: ["#ED1C24",'#FFC90E','#22B14C'],
+        colors: ['#FFC90E','#22B14C',"#ED1C24"],
         grid: {
             tickColor: "#f0f0f0",
             borderWidth: 1,
@@ -95,6 +98,7 @@ function init_conv_chart(data1,data2,data3){
         },
         yaxes: [
             {
+                show: init_visitors,
                 min: 0,
                 position: "right",
                 tickDecimals: 0,
@@ -111,16 +115,8 @@ function init_conv_chart(data1,data2,data3){
                 font:{
                     color: 'yellowgreen'
                 }
-            },
-//            {
-//                min: 0,
-//                position: "left",
-//                tickDecimals: 0,
-//                mode: "number",
-//                font:{
-//                    color: '#22B14C'
-//                }
-//            }
+            }
+
         ],
         legend: {
             position: "ne"

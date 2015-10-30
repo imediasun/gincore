@@ -2215,7 +2215,6 @@ class Chains
     {
         // допустимые валюты
         $currencies = $this->all_configs['suppliers_orders']->currencies;
-
         $data = array('state' => true);
         $cashboxes_currency_id_from = null;
         $cashboxes_currency_id_to = null;
@@ -2498,13 +2497,14 @@ class Chains
                         $data['msg'] = 'Не больше чем ' . show_price(intval($order['price']) - intval($order['paid']));
                     }
                 }*/
+                
                 if ($data['state'] == true && $post['transaction_type'] == 2 && (!array_key_exists($post['cashbox_currencies_to'], $currencies)
-                        || $currencies[$post['cashbox_currencies_to']]['currency-name'] != $this->all_configs['configs']['default-currency'])) {
+                        || $post['cashbox_currencies_to'] != $this->all_configs['settings']['currency_orders'])) {
                     $data['state'] = false;
                     $data['msg'] = 'Выбранная Вами валюта не совпадает с валютой в заказе';
                 }
                 if ($data['state'] == true && $post['transaction_type'] == 1 && (!array_key_exists($post['cashbox_currencies_from'], $currencies)
-                        || $currencies[$post['cashbox_currencies_from']]['currency-name'] != $this->all_configs['configs']['default-currency'])) {
+                        || $post['cashbox_currencies_from'] != $this->all_configs['settings']['currency_orders'])) {
                     $data['state'] = false;
                     $data['msg'] = 'Выбранная Вами валюта не совпадает с основной валютой';
                 }
@@ -2973,11 +2973,13 @@ class Chains
                 $out .= '<input type="hidden" name="goods_id" value="' . $goods_id . '" />';
             }
             if ($item_id === 0 && is_array($order) && array_key_exists('id', $order) && intval($order['id']) == 0) {
-                $out .= '<div class="form-group"><label>Серийный номер:</label>';
+                $out .= '<div class="form-group relative"><label>Серийный номер:</label>';
                 //$out .= '<input name="item_id" type="text" value="" placeholder="Серийный номер" class="imput-large" /></div></div>';
+                $out .= '<div class="serial_input">';
                 $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '', 'display_serial_product', true) . '';
+                $out .= '</div>';
+                $out .= '<i class="fa fa-plus cloneAndClear" data-clone_siblings=".serial_input" style="position:relative;margin:5px 0 0 0 !important" title="Добавить"></i></div>';
                 $out .= ' <small class="clone_clear_html product-title"></small>';
-                $out .= '<i class="glypicon glypicon-plus cloneAndClear" title="Добавить"></i></div>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
                 $out .= '<div class="form-group"><label class="control-label">Номер ремонта:</label><div class="controls">';

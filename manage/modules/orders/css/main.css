@@ -508,14 +508,6 @@ td.td-sc-count {
     }
 }
 
-.new_device_form{
-    display: none;
-    top: 0;
-    left: 0;
-    position: absolute;
-    border: 1px solid #d9d9d9;
-    right:0;
-}
 
 .print_menu li{
     padding: 0 10px;

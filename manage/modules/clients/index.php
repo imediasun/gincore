@@ -726,7 +726,7 @@ class clients
 
 
             $out .= '<div class="form-group"><label class="control-label">Телефон: </label><div class="relative">';
-            $out .= '<div>'.$this->phones($client['id']) . '</div> <i class="cloneAndClear glyphicon glyphicon-plus"></i></div></div>';
+            $out .= ''.$this->phones($client['id']) . ' <i class="cloneAndClear glyphicon glyphicon-plus"></i></div></div>';
             //    <input value="' . htmlspecialchars($client['phone']) . '" name="phone" class="span5" />';*/
             $out .= '<div class="form-group"><label class="control-label">Дата регистрации: </label>
                 <div class="controls"><span title="' . do_nice_date($client['date_add'], false) . '">' . do_nice_date($client['date_add']) . '</span></div></div>';

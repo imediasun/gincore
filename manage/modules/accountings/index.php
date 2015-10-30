@@ -1220,6 +1220,8 @@ class accountings
                     array(trim($_POST['title']), $_POST['type'], trim($_POST['comment'])), 'id');
 
                 if ($contractor_id > 0) {
+                    $data['id'] = $contractor_id;
+                    $data['name'] = htmlspecialchars($_POST['title']);
                     foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
                         if ($contractor_category_id > 0) {
                             $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
@@ -1619,7 +1621,7 @@ class accountings
             $data['state'] = true;
             $data['content'] = $this->form_contractor();
             $data['functions'] = array('reset_multiselect()');
-            $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this)' value='Создать' />";
+            $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this".(isset($_POST['callback']) ? ', '.htmlspecialchars($_POST['callback']): '').")' value='Создать' />";
         }
 
         // Кредит Отказ

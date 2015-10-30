@@ -740,6 +740,7 @@ class access
                 $this->all_configs['db']->query('UPDATE {clients} SET phone=?n WHERE id=?i',
                     array(current($phones), intval($user_id)));
 
+                $this->all_configs['db']->query("DELETE FROM {clients_phones} WHERE client_id = ?i", array($user_id));
                 foreach ($phones as $p) {
                     $this->all_configs['db']->query('INSERT IGNORE INTO {clients_phones} (phone, client_id) VALUES (?, ?i)',
                         array($p, intval($user_id)));
@@ -833,18 +834,24 @@ class access
     {
         $return = array();
         $phones = is_array($value) ? array_filter($value) : explode(',', $value);
-
+        $phone_conf = $this->all_configs['configs']['countries'][$this->all_configs['settings']['country']]['phone'];
+        $phone_length = $phone_conf['length'];
+        $phone_code_length = strlen($phone_conf['code']);
+        $code = $phone_conf['code'];
         foreach ($phones as $phone) {
-            $phone = 1 * preg_replace("/[^0-9]/", "", $phone);
-
+            $phone = preg_replace("/[^0-9]/", "", $phone);
+            if(1*$this->all_configs['settings']['country'] === 0){
+                // для Украины вырезаем первый ноль если указн короткий номер
+                $phone *= 1;
+            }
             $length = mb_strlen('' . $phone, 'UTF-8');
-            if ($length >= 9 && $length != 10 && $length <= 15) {
-                $code = $length == 9 ? 380 : '';
-                $return[] = $code . $phone;
+            if ($length == $phone_length) {
+                $return[] = $code.$phone;
+            }elseif($length == ($phone_length+$phone_code_length) && strpos(''.$phone, ''.$code) === 0){
+                $return[] = $phone;
             }
         }
         $return = array_filter($return);
-
         return count($return) > 0 ? $return : false;
     }
 

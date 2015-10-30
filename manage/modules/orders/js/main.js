@@ -219,41 +219,10 @@ $(function() {
         return false;
     });
     
-    $(document).on('click', '#show_add_device_form', function(){
-        var $form = $('#new_device_form'),
-            $this = $(this),
-            id = (new Date()).getTime();
-        $this.attr('data-id', 'source-'+id);
-        $form.attr('data-id', 'form-'+id);
-        if(!$form.hasClass('loaded')){
-            $.ajax({
-                url: prefix+'categories/ajax/?act=create_form',
-                dataType: "json",
-                data: '&name='+$this.closest('.form-group').find('input[name=categories-last-value]').val(),
-                type:'POST',
-                success: function(msg) {
-                    $form.addClass('loaded').html(msg.html);
-                    $form.show();
-                }
-            });
-        }else{
-            $form.toggle();
-        }
-    });
-    $(document).on('click', '#hide_add_device_form', function(){
-        $('#show_add_device_form').click();
-    });
+    
 });
 
-function select_order_device(data, $form){
-    if(data.state && data.id){
-        var id = $form.parent().attr('data-id'),
-            $f = $('[data-id="source-'+id.replace('form-','')+'"]').closest('.input-group');
-        $f.find('input[name=categories-last]').val(data.id);
-        $f.find('input[name=categories-last-value]').val(data.name);
-        $('#new_device_form').hide().empty().removeClass('loaded');
-    }
-}
+
 
 function create_client(_this) {
     $(_this).button('loading');

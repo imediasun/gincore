@@ -174,7 +174,7 @@ class products
         return $return;
     }
 
-    private function check_post($post)
+    private function check_post($post, $ajax = false)
     {
         $mod_id = $this->all_configs['configs']['products-manage-page'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -207,7 +207,7 @@ class products
                 if ($id > 0) {
                     $_POST['product_id'] = $id;
 
-                    if (count($post['categories']) > 0) {
+                    if (isset($post['categories']) && count($post['categories']) > 0) {
                         foreach ($post['categories'] as $new_cat) {
                             if ($new_cat == 0) continue;
                             $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
@@ -241,9 +241,12 @@ class products
                         $content .= htmlspecialchars(trim($post['title'])) . '</a>.';
                         $messages->send_message($content, 'Требуется обработка товарной позиции', 'mess-create-product', 1);
                     }
-
-                    header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $id);
-                    exit;
+                    if(!$ajax){
+                        header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $id);
+                        exit;
+                    }else{
+                        return array('id' => $id, 'state' => true);
+                    }
                 }
             }
         }
@@ -557,12 +560,19 @@ class products
 
     }
 
-    function create_product_form()
+    function create_product_form($ajax_quick_create = false)
     {
+        $attr = 'form method="post"';
+        $form_close = 'form';
+        if($ajax_quick_create){
+            $attr = 'div class="emulate_form ajax_form" data-callback="select_typeahead_device" data-method="post" '
+                    .'data-action="'.$this->all_configs['prefix'].'products/ajax/?act=create_new"';
+            $form_close = 'div';
+        }
         //$categories = $this->get_categories();
         // строим форму добавления нового товара
         // основные описания
-        $goods_html = '<form method="post" class="backgroud-white p-sm"><fieldset><legend>Добавление нового товара/услуги:</legend>';
+        $goods_html = '<'.$attr.' class="backgroud-white p-sm"><fieldset><legend>Добавление нового товара/услуги:</legend>';
         if (is_array($this->errors) && array_key_exists('error', $this->errors)) {
             $goods_html .= '<div class="alert alert-danger fade in">';
             $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>';
@@ -638,7 +648,10 @@ class products
                 </div>
             </div>';
         $goods_html .= '<input class="btn btn-primary" type="submit" value="Добавить" name="create-product">';
-        $goods_html .= '</fieldset></form>';
+        if($ajax_quick_create){
+            $goods_html .= ' <button type="button" class="btn btn-default hide_typeahead_add_form">Отмена</button>';
+        }
+        $goods_html .= '</fieldset></'.$form_close.'>';
 
         return $goods_html;
     }
@@ -1527,6 +1540,23 @@ class products
             exit;
         }
 
+        if($act == 'create_form'){
+            $form = $this->create_product_form(true);
+            echo json_encode(array('state' => true, 'html' => $form));
+            exit;
+        }
+
+        if($act == 'create_new'){
+            $_POST['create-product'] = true;
+            $create = $this->check_post($_POST, true);
+            if(!empty($create['error'])){
+                echo json_encode(array('state' => false, 'msg' => $create['error']));
+            }else{
+                echo json_encode(array('state' => true, 'id' => $create['id'], 'name' => $_POST['title']));
+            }
+            exit;
+        }
+        
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {

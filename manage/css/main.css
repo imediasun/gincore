@@ -758,3 +758,12 @@ input.row-input {
     max-height: 500px;
     overflow: auto;
 }
+
+.typeahead_add_form_box{
+    display: none;
+    top: 0;
+    left: 0;
+    position: absolute;
+    border: 1px solid #d9d9d9;
+    right:0;
+}
