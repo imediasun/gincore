@@ -1704,37 +1704,8 @@ class accountings
                         array($user_id, 'add-to-cashbox-currency', $mod_id, $_POST['currency_id']));
                 }
 
-                $courses_html = '';
-                $new_courses = $this->all_configs['suppliers_orders']->currencies;
-                // валюты
-                $cashboxes_currencies = $this->cashboxes_courses();
-
-                foreach ($cashboxes_currencies as $cashbox_currency) {
-                    if (array_key_exists($cashbox_currency['currency'], $new_courses))
-                        unset($new_courses[$cashbox_currency['currency']]);
-
-                    $courses_html .= "<tr>
-                        <td><input type='text' class='form-control' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
-                        <td><input type='text' class='form-control' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
-                    if (array_key_exists($cashbox_currency['id'], $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$cashbox_currency['id']]['currency-name'] == $this->all_configs['configs']['default-currency']) {
-                        $courses_html .= "<td></td><td></td>";
-                    } else {
-                        $price = show_price($cashbox_currency['course']);
-                        $courses_html .= "
-                            <td>1 {$cashbox_currency['short_name']} = <input class='form-control' type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' /></td>
-                            <td><i class='glyphicon glyphicon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
-                    }
-                    $courses_html .= '</tr>';
-                }
-                $courses_html .= "<tr><td colspan='4'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr>";
-
-                // добавить валюту
-                $add_course_html = '<option value="">Не выбрана валюта...</option>';
-                if (count($new_courses) > 0) {
-                    foreach ($new_courses as $new_course_id => $new_course) {
-                        $add_course_html .= "<option value='{$new_course_id}'>{$new_course['name']} [{$new_course['shortName']}]</option>";
-                    }
-                }
+                $courses_html = $this->gen_currency_table();
+                $add_course_html = $this->gen_new_currency_options();
 
                 $data['add'] = $add_course_html;
                 $data['show'] = $courses_html;
@@ -2106,7 +2077,9 @@ class accountings
                 $out .= '<table class="cashboxes-table"><tbody>';
                 foreach ($this->cashboxes as $cashbox) {
                     // кроме не активной и транзитной
-                    if ($cashbox['avail'] != 1 || $cashbox['id'] == $this->all_configs['configs']['erp-cashbox-transaction'])
+                    if ($cashbox['avail'] != 1 || $cashbox['id'] == $this->all_configs['configs']['erp-cashbox-transaction']
+                                               || ($cashbox['id'] == $this->all_configs['configs']['erp-so-cashbox-terminal']
+                                                   && !$this->all_configs['configs']['manage-show-terminal-cashbox']))
                         continue;
 
                     $out_cashbox_name .= '<td><h4 class="center">' . $cashbox['name'] . '</h4></td>';
@@ -2993,7 +2966,7 @@ class accountings
             $out .= '</div><div class="form-group">';
             $out .= '<div class="checkbox"><label><input type="checkbox" value="1" name="novaposhta" ';
             $out .= (isset($_GET['np']) && $_GET['np'] == 1) ? 'checked' : '';
-            $out .= ' >принято через Новую Почту</label></div>';
+            $out .= ' >принято через почту</label></div>';
             $out .= '<div class="checkbox"><label><input type="checkbox" value="1" name="warranties" ';
             $out .= (isset($_GET['wrn']) && $_GET['wrn'] == 1) ? 'checked' : '';
             $out .= '>гарантийные</label></div>';
@@ -3796,44 +3769,60 @@ class accountings
         );
     }
 
+    function gen_currency_table(){
+        $new_courses = $this->all_configs['suppliers_orders']->currencies;
+        $cashboxes_currencies = $this->cashboxes_courses();
+        $out = '';
+        foreach ($cashboxes_currencies as $cashbox_currency) {
+            if (array_key_exists($cashbox_currency['currency'], $new_courses))
+                unset($new_courses[$cashbox_currency['currency']]);
+
+            $out .= "<tr>
+                    <td><input class='form-control' type='text' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
+                    <td><input class='form-control' type='text' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
+            if (array_key_exists($cashbox_currency['currency'], $this->all_configs['suppliers_orders']->currencies) && $cashbox_currency['currency'] == $this->all_configs['settings']['currency_orders']) {
+                $out .=
+                    "<td>1 ".$cashbox_currency['short_name']." = 1 ".$cashbox_currency['short_name']."</td><td><b>Основная валюта</b></td>";
+            } else {
+
+                $price = show_price($cashbox_currency['course']);
+//                $price =  number_format($cashbox_currency['course'],2);
+                $out .= "
+                    <td>1 {$cashbox_currency['short_name']} = 
+                        <input style='width:60px' class='input-sm inline-block form-control' type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' />
+                        ".viewCurrency('shortName')."
+                    </td>
+                    <td><i class='glyphicon glyphicon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
+            }
+            $out .= '</tr>';
+        }
+        $out .= "<tr><td colspan='4'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr>";
+        return $out;
+    }
+    
+    function gen_new_currency_options(){
+        $new_courses = $this->all_configs['suppliers_orders']->currencies;
+        $out = '<option value="">Выберите валюту</option>';
+        foreach ($new_courses as $new_course_id => $new_course) {
+            $out .= "<option value='{$new_course_id}'>{$new_course['name']} [{$new_course['shortName']}]</option>";
+        }
+        return $out;
+    }
+    
     function accountings_settings_currencies()
     {
         $out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // валюты
-            $cashboxes_currencies = $this->cashboxes_courses();
             $out .= '<form method="post">';
-            $new_courses = $this->all_configs['suppliers_orders']->currencies;
             // редактируем валюты касс
             $out .= '<table class="table table-striped"><thead><tr><td>Наименование</td><td>Сокращение</td>';
-            $out .= '<td>Курс</td><td>Удалить</td></tr></thead><tbody id="edit-courses-from">';
-            foreach ($cashboxes_currencies as $cashbox_currency) {
-                if (array_key_exists($cashbox_currency['currency'], $new_courses))
-                    unset($new_courses[$cashbox_currency['currency']]);
-
-                $out .= "<tr>
-                        <td><input class='form-control' type='text' name='cashbox_cur_name[{$cashbox_currency['currency']}]' placeholder='Наименование' value='{$cashbox_currency['name']}' /></td>
-                        <td><input class='form-control' type='text' name='cashbox_short_name[{$cashbox_currency['currency']}]' placeholder='Сокращение' value='{$cashbox_currency['short_name']}' /></td>";
-                if (array_key_exists($cashbox_currency['currency'], $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$cashbox_currency['currency']]['currency-name'] == $this->all_configs['configs']['default-currency']) {
-                    $out .=
-                        "<td></td><td></td>";
-                } else {
-
-                    $price = show_price($cashbox_currency['course']);
-                    $out .= "
-                        <td>1 {$cashbox_currency['short_name']} = <input class='form-control input-auto-width inline-block' type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='Курс' value='{$price}' onkeydown='return isNumberKey(event, this)' /></td>
-                        <td><i class='glyphicon glyphicon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
-                }
-                $out .= '</tr>';
-            }
-            $out .= "<tr><td colspan='4'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='Сохранить' /></td></tr></tbody></table>";
+            $out .= '<td>Курс</td><td></td></tr></thead><tbody id="edit-courses-from">'.$this->gen_currency_table().'</tbody></table>';
             $out .= '</form>';
             // добавить валюту
-            $out .= '<form class="form-inline"><label>Добавить валюту </label> <select class="form-control" onchange="add_currency(this)" id="add_new_course"><option value="">Не выбрана валюта...</option>';
-            foreach ($new_courses as $new_course_id => $new_course) {
-                $out .= "<option value='{$new_course_id}'>{$new_course['name']} [{$new_course['shortName']}]</option>";
-            }
+            $out .= '<form class="form-inline"><label>Добавить валюту </label> <select class="form-control" onchange="add_currency(this)" id="add_new_course">';
+            $out .= $this->gen_new_currency_options();
             $out .= '</select></form>';
         }
 

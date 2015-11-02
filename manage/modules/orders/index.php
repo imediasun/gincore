@@ -1966,8 +1966,8 @@ class orders
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $print_warranty = print_link($order['id'], 'warranty', '', true);
-                $print_check    = print_link($order['id'], 'check', '', true);
-                $print_kvit     = print_link($order['id'], 'invoice', '', true);
+                $print_check    = print_link($order['id'], 'invoice', '', true);
+                $print_kvit     = print_link($order['id'], 'check', '', true);
                 $print_act      = print_link($order['id'], 'act', '', true);
                 $print_btns = '
                     <div class="btn-group">

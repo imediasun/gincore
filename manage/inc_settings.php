@@ -25,4 +25,7 @@ $all_configs['oRole'] = new Role($all_configs, $dbcfg['_prefix']);
 
 $all_configs['manageModel'] = new manageModel($all_configs);
 $all_configs['suppliers_orders'] = new Suppliers($all_configs);
+$all_configs['suppliers_orders']->suppliers_orders = $all_configs['settings']['currency_suppliers_orders'];
+$all_configs['suppliers_orders']->currency_clients_orders = $all_configs['settings']['currency_orders'];
+
 $all_configs['chains'] = new Chains($all_configs);

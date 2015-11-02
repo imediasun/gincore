@@ -1281,7 +1281,7 @@ class Chains
                 isset($post['client_took']) ? 1 : 0,
                 isset($post['date_readiness']) && strtotime($post['date_readiness']) > 0 ? date('Y-m-d H:i:s', strtotime($post['date_readiness'])) : null,
                 $this->all_configs['configs']['default-course'],
-                $this->all_configs['settings'][$this->all_configs['configs']['default-course']],
+                getCourse($this->all_configs['settings']['currency_suppliers_orders']),
                 isset($post['type']) ? $post['type'] : 0,
                 $sum_paid,
                 isset($post['is_replacement_fund']) ? 1 : 0,
@@ -1507,7 +1507,7 @@ class Chains
             }
         }
 
-        $course_value = $this->all_configs['settings'][$this->all_configs['configs']['default-course']];
+        $course_value = getCourse($this->all_configs['settings']['currency_suppliers_orders']);
 
         if ($data['state'] == true) {
             foreach ($items as $item) {

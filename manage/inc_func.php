@@ -715,13 +715,22 @@ function select_count_on_page($count = null)
     return $out;
 }
 
+// возвращает курс $currency к основной валюте 
+function getCourse($currency, $convert_to_nocents = false){
+    global $all_configs;
+    $c = $all_configs['db']->query("SELECT course FROM {cashboxes_courses} "
+                                  ."WHERE currency = ?i", array($currency), 'el');
+    $c = (float)number_format($c, 2, '.', '');
+    return $convert_to_nocents ? $c / 100 : $c;
+}
+
 /**
  * warehouses amount
  * */
 function cost_of($warehouses, $settings, $suppliers_orders)
 {
-    $cso = $suppliers_orders->currency_suppliers_orders;
-    $cco = $suppliers_orders->currency_clients_orders;
+    $cso = $settings['currency_suppliers_orders'];
+    $cco = $settings['currency_orders'];
     $c = $suppliers_orders->currencies;
     $cur_price = $price = $count = 0;
     $sum = array();
@@ -729,7 +738,7 @@ function cost_of($warehouses, $settings, $suppliers_orders)
     if ($warehouses && count($warehouses) > 0) {
         foreach ($warehouses as $warehouse) {
             if ($warehouse['consider_all'] == 1) {
-                $cur_price += show_price($warehouse['all_amount'], 2, '', '.', $settings['grn-cash']);
+                $cur_price += show_price($warehouse['all_amount'], 2, '', '.', getCourse($cso));
                 $price += $warehouse['all_amount'];
                 $count += intval($warehouse['sum_qty']);
 
@@ -813,7 +822,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
         $tree .= '<ol class="dd-list nav nav-list">';
     }
     if ($type == 3) {
-        $tree .= '<ul class="nav nav-list">';
+        $tree .= '<ul class="nav nav-list '.($index ? 'm-l-22 border-left' : '').'">';
     }
 
     if (gettype($array) == "array") {

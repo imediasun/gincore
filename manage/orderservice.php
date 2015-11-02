@@ -151,7 +151,7 @@ class tl_exch extends SoapClient
                         array($this->all_configs['configs']['erp-so-client-terminal']))->el();
                     $order['goods'][$order['goods_id']]['count'] = 1;
                     $order['sum_paid'] = 0;
-                    $course = $this->all_configs['settings']['grn-cash'] / 100;
+                    $course = getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100;
                     $order['sum'] = $order['debt'] = $order['price'] * $course;
                 }
             }

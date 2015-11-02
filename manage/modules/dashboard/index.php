@@ -3,6 +3,7 @@
 class dashboard{
 
     function __construct($all_configs, $lang, $def_lang){
+        global $input;
         $this->def_lang = $def_lang;
         $this->lang = $lang;
         $this->all_configs = $all_configs;
@@ -10,8 +11,13 @@ class dashboard{
         $this->arrequest = $this->all_configs['arrequest'];
         $this->prefix = $this->all_configs['prefix'];
         
-        $this->gen_filter_block();
-        $this->gen_content();
+        if ($this->all_configs['oRole']->hasPrivilege('dashboard') ) {
+            $this->gen_filter_block();
+            $this->gen_content();
+        }else{
+            $input['dashboard_class'] = 'hidden';
+            $input['mcontent'] = '<p class="text-center m-t-lg">Администрирование</p>';
+        }
     }
     
     private function gen_filter_block(){

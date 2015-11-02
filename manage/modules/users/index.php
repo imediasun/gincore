@@ -321,13 +321,13 @@ class users
                 array($post['login'], $post['pass'], $post['fio'], $post['position'], $post['phone'], $avail, $post['role'], $post['email']), 'id');
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'add-user', $mod_id, intval($id)));
-            // добавляем локацию
-            if(!empty($post['locations'])){
-                $wh_id = $this->all_configs['db']->query(
-                            'SELECT wh_id FROM {warehouses_locations} WHERE id=?i', array($post['locations']))->el();
+            // добавляем локацию и склад для перемещения заказа при приемке
+            if(!empty($post['location']) && !empty($post['warehouse'])){
+                $wh_id = $post['warehouse'];
+                $location_id = $post['location'];
                 $this->all_configs['db']->query(
                         'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
-                       .'VALUES (?i,?i,?i,?i)', array($wh_id, $post['locations'], $id, 1));
+                       .'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
             }
             // добавляем склады
             if(!empty($post['warehouses'])){
@@ -491,6 +491,7 @@ class users
                 $aRoles[$per['role_id']]['children'][$per['per_id']] = array(
                     'link' => $per['link'],
                     'name' => $per['per_name'],
+                    'group_id' => $per['group_id'],
                     'child' => $per['child'],
                     'checked' => $per['id']
                 );
@@ -505,6 +506,7 @@ class users
                         $per['per_id'] => array(
                             'link' => $per['link'],
                             'name' => $per['per_name'],
+                            'group_id' => $per['group_id'],
                             'child' => $per['child'],
                             'checked' => $per['id']
                         )
@@ -516,23 +518,37 @@ class users
                 //array_push($aRoles[$per['role_id']]['all'], $per['per_id']);
             }
         }
+        $groups = $this->get_permissions_groups();
         // блок управление ролями
         foreach ( $aRoles as $rid=>$v ) {
             $checked = '';
             if ( $v['avail'] )
                 $checked = 'checked';
-            $users_html .=  '<ul class="nav nav-list pull-left" style="padding:0 10px"><li class="nav-header"><br><h4>' . htmlspecialchars($v['name']) . '</h4>
+            $users_html .=  '<ul class="nav nav-list pull-left" style="width:33%;padding:0 10px">
+                <li class="nav-header"><br><h4 class="text-info">' . htmlspecialchars($v['name']) . '</h4>
                 <div class="checkbox"><label><input type="checkbox" '.$checked.' name="active['.$rid.']" />активность</label></div></li>';
             $users_html .=  '<li>Дата конца активности группы</li>';
             $users_html .=  '<li><input class="form-control input-sm datepicker" name="date_end[' . $rid . ']" type="text" value="' . $v['date_end'] . '" ></li>';
+            $group_html = array();
             foreach ( $v['children'] as $pid=>$sv ) {
                 $checked = '';
                 if ( $sv['checked'] )
-                    $checked = 'checked';
-                $users_html .= '<li><div class="checkbox"><label><input id="per_id_' . $rid . '_' . $pid . '" class="del-' . $rid . '-' . $sv['child'] . '"
+                    $checked = 'checked'; 
+                $group_html[(int)$sv['group_id']][] = '
+                    <li><div class="checkbox"><label><input id="per_id_' . $rid . '_' . $pid . '" class="del-' . $rid . '-' . $sv['child'] . '"
                         onchange="per_change(this, \'' . $rid . '-' . $sv['child'] . '\', \'' . $rid . '-' . $pid . '\')"
                         name="permissions[' . $rid . '-' . $pid . ']" ' . $checked . ' type="checkbox" />' .
                     $sv['name'] . '</label></div></li>';
+            }
+            foreach($groups as $group_id => $name){
+                if(!empty($group_html[$group_id])){
+                    $users_html .= '
+                        <li>
+                            <label class="m-t-sm">'.$name.'</label>
+                        </li>
+                        '.implode('', $group_html[$group_id]).'
+                    ';
+                }
             }
             $users_html .=  '</ul><input type="hidden" name="exist-box[' . $rid . ']" value="' . implode(",", $v['all']) . '" />';
         }
@@ -556,7 +572,6 @@ class users
                         <label>Права доступа:</label>
                         отметьте нужные
                     </div>';
-        $groups = $this->get_permissions_groups();
         $yet = 0;
         $roles = array();
         $group_html = array();
@@ -603,6 +618,11 @@ class users
         foreach ($warehouses_arr as $warehouse) {
             $warehouses .= '<option value="'.$warehouse['id'].'">'.htmlspecialchars($warehouse['title']).'</option>';
         }
+        $warehouses_options = '';
+        $whs = $this->all_configs['chains']->warehouses();
+        foreach($whs as $warehouse){
+            $warehouses_options .= '<option value="'.$warehouse['id'].'">'.$warehouse['title'].'</option>';
+        }
         $users_html .= '
             <form method="post">
                 <fieldset>
@@ -638,7 +658,19 @@ class users
                     </div>
                     <div class="form-group">
                         <label>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</label>
-                        '.typeahead($this->all_configs['db'], 'locations', false, 0, 0, 'input-large', '', '', false, false).'
+                        <div class="clearfix">
+                            <div class="pull-left m-r-lg">
+                                <label>Склад:</label><br>
+                                <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouse">
+                                    '.$warehouses_options.'
+                                </select>
+                            </div>
+                            <div class="pull-left">
+                                <label>Локация:</label><br>
+                                <select class="multiselect form-control select-location" name="location">
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Укажите склады <br>к которым сотрудник имеет доступ</label><br>
@@ -653,6 +685,7 @@ class users
                             ' . $role_html . '
                         </select>
                     </div>';
+//                        '.typeahead($this->all_configs['db'], 'locations', false, 0, 0, 'input-large', '', '', false, false).'
 
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
             $users_html .= '<div class="control-group"><div class="controls">

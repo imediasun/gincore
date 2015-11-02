@@ -55,8 +55,14 @@ function generate_template($arr, $act)
     }
 
     // адрес и телефон по-умолчанию
-    $address = 'г.Киев ул. Межигорская 63';
-    $phone = 'тел./факс: (044)393-47-42';
+    if(isset($all_configs['configs']['manage-print-default-service-restore']) && 
+             $all_configs['configs']['manage-print-default-service-restore']){
+        $address = 'г.Киев ул. Межигорская 63';
+        $phone = 'тел./факс: (044)393-47-42';
+    }else{
+        $address = '';
+        $phone = '';
+    }
     if(empty($arr['wh_address']['value'])){
         $arr['wh_address']['value'] = $address;
     }
@@ -327,6 +333,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                    'domain' => array('value' => $_SERVER['HTTP_HOST'], 'name' => 'Домен сайта'),
                 );
                 $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];

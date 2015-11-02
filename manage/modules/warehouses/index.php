@@ -553,8 +553,8 @@ class warehouses
                 $out .= '<div>Общий остаток: ' . intval($warehouse['sum_qty']) . ' шт.</div>';
                 if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                     $out .= '<div>Общая сумма: ';
-                    $out .= (array_key_exists('grn-cash', $this->all_configs['settings']) ? $this->show_price($warehouse['all_amount'], 2, $this->all_configs['settings']['grn-cash']) : 'Укажите курс');
-                    $out .= ' '.viewCurrency().' (' . $this->show_price($warehouse['all_amount']) . ' $)</div>';
+                    $out .= $this->show_price($warehouse['all_amount'], 2, getCourse($this->all_configs['settings']['currency_suppliers_orders']));
+                    $out .= ' '.viewCurrency().' (' . $this->show_price($warehouse['all_amount']) .viewCurrencySuppliers() .' )</div>';
                 }
                 $out .= '</div>';
                 $out .= '<div class="pull-left vertical-line"></div>';

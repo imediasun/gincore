@@ -3627,3 +3627,9 @@ ul.mailbox-list li:hover a {
 .filters-box-sm .b-r{
     height: 152px;
 }
+.border-left{
+    border-left: 1px solid #dedede;
+}
+.m-l-22{
+    margin-left: 22px;
+}

@@ -80,7 +80,8 @@ class Configs {
             ),
         ),
         
-        
+            'manage-print-default-service-restore' => false, // адрес и телефон рестора по умолчанию в печати если не указаны в отделении
+            'manage-show-terminal-cashbox'  => false, // показать или скрыть кассу терминал
             'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов
             'manage-active-modules'     => array( // активные модуле в админке
                                                 'accountings','categories','clients',
@@ -102,7 +103,8 @@ class Configs {
         /*
          * блок конфига для админки рестора
          */
-            
+//            'manage-print-default-service-restore' => true,
+//            'manage-show-terminal-cashbox'    => true, // показать или скрыть кассу терминал
 //            'manage-show-phones-btn'    => true, // показать или скрыть кнопку смены аварийных телефонов
 //            'manage-active-modules'     => array('*'), // активные модуле в админке
 //            'manage-reset-access'       =>  false, // доступен ли сброс в модуле дебаг

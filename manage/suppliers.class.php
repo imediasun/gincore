@@ -15,11 +15,11 @@ class Suppliers
         $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
         $this->currencies = $this->all_configs['configs']['currencies'];
         $currencies = $this->currencies;
-        foreach ($currencies as $k=>$currency) {
-            if ($currency['currency-name'] == $this->all_configs['configs']['default-currency']) {
-                $this->currency_clients_orders = $k;
-            }
-        }
+//        foreach ($currencies as $k=>$currency) {
+//            if ($currency['currency-name'] == $this->all_configs['configs']['default-currency']) {
+                $this->currency_clients_orders = $this->all_configs['settings']['currency_orders'];
+//            }
+//        }
     }
 
     function edit_order($mod_id, $post)
@@ -708,13 +708,13 @@ class Suppliers
             return;
 
         if (array_key_exists('rounding-goods', $this->all_configs['configs']) && $this->all_configs['configs']['rounding-goods'] > 0) {
-            $sum1 = round((($product['price']/100)*($this->all_configs['settings']['grn-cash']/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
-            $sum2 = round((($product['price_purchase']/100)*($this->all_configs['settings']['grn-cash']/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
-            $sum3 = round((($product['price_wholesale']/100)*($this->all_configs['settings']['grn-cash']/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
+            $sum1 = round((($product['price']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
+            $sum2 = round((($product['price_purchase']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
+            $sum3 = round((($product['price_wholesale']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
         } else {
-            $sum1 = round(($product['price']/100)*($this->all_configs['settings']['grn-cash']))/100;
-            $sum2 = round(($product['price_purchase']/100)*($this->all_configs['settings']['grn-cash']))/100;
-            $sum3 = round(($product['price_wholesale']/100)*($this->all_configs['settings']['grn-cash']))/100;
+            $sum1 = round(($product['price']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])))/100;
+            $sum2 = round(($product['price_purchase']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])))/100;
+            $sum3 = round(($product['price_wholesale']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])))/100;
         }
 
         $doc = array(
@@ -732,7 +732,7 @@ class Suppliers
                                 'Валюта'        =>  ''.viewCurrency().'',
                                 'Единица'       =>  'шт',
                                 'Коэффициент'   =>  1,
-                                'Курс'          =>  ($this->all_configs['settings']['grn-cash']/100),
+                                'Курс'          =>  (getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100),
                             ),
                         ),
                         1   =>  array(
@@ -743,7 +743,7 @@ class Suppliers
                                 'Валюта'        =>  ''.viewCurrency().'',
                                 'Единица'       =>  'шт',
                                 'Коэффициент'   =>  1,
-                                'Курс'          =>  ($this->all_configs['settings']['grn-cash']/100),
+                                'Курс'          =>  (getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100),
                             ),
                         ),
                         2   =>  array(
@@ -754,7 +754,7 @@ class Suppliers
                                 'Валюта'        =>  ''.viewCurrency().'',
                                 'Единица'       =>  'шт',
                                 'Коэффициент'   =>  1,
-                                'Курс'          =>  ($this->all_configs['settings']['grn-cash']/100),
+                                'Курс'          =>  (getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100),
                             ),
                         ),
                     ),

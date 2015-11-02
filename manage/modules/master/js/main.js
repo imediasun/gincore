@@ -1,8 +1,24 @@
 var master = (function($){
     
+    function getRandomColor() {
+        var letters = '0123456789abcdef'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    
     function init_colorpickers(){
         $('.colorpicker.colorpicker-element').colorpicker('destroy');
-        $('.colorpicker').colorpicker();
+        $('.colorpicker').colorpicker({
+            format: 'hex'
+        }).on('showPicker.colorpicker', function(event){
+            var $this = $(this);
+            if(!$this.val()){
+                $this.data('colorpicker').setValue(getRandomColor());
+            }
+        });
     }
     
     function count_course(val){

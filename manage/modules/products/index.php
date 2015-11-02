@@ -1952,7 +1952,8 @@ class products
                 exit;
             }
 
-            $prices = build_hotline_url(array('hotline_url' => $_POST['hotline_url'], 'goods_id' => $_POST['goods_id']), $this->all_configs['settings']['grn-cash'], $this->all_configs['configs']);
+            $prices = build_hotline_url(array('hotline_url' => $_POST['hotline_url'], 'goods_id' => $_POST['goods_id']), 
+                                        getCourse($this->all_configs['settings']['currency_suppliers_orders']), $this->all_configs['configs']);
 
             if (!$prices) {
                 header("Content-Type: application/json; charset=UTF-8");

@@ -71,6 +71,8 @@ class master{
         $business = isset($_POST['business']) ? $_POST['business'] : '';
         // country
         $country = isset($_POST['country']) ? $_POST['country'] : '';
+        // название сервисного центра
+        $site_name = isset($_POST['site_name']) ? $_POST['site_name'] : '';
         // phone
         $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
         // email
@@ -93,6 +95,9 @@ class master{
         // проверка на ошибки
         if(!isset($this->all_configs['configs']['countries'][$country])){
             return array('state' => false, 'msg' => 'Выберите страну');
+        }
+        if(empty($site_name)){
+            return array('state' => false, 'msg' => 'Укажите название сервисного центра');
         }
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
             return array('state' => false, 'msg' => 'Эл. адрес указан неверно');
@@ -163,6 +168,10 @@ class master{
         $this->db->query("UPDATE {settings} SET value = ? "
                         ."WHERE name = 'content_email'", array($email));
         
+        // название сервиса
+        $this->db->query("UPDATE {settings} SET value = ? "
+                        ."WHERE name = 'site_name'", array($site_name));
+        
         $this->db->query("INSERT INTO {settings}(section, name, value, title) "
                         ."VALUES(1,'currency_orders',?i,'Валюта заказов') "
                         ."ON DUPLICATE KEY UPDATE value = VALUES(value)", array($orders_currency));
@@ -195,7 +204,7 @@ class master{
                 $name = $this->all_configs['configs']['currencies'][$curr]['name'];
                 $short_name = $this->all_configs['configs']['currencies'][$curr]['shortName'];
                 $id = $this->db->query("INSERT IGNORE INTO {cashboxes_courses}(currency,name,short_name,course)"
-                                ."VALUES(?i,?,?,?f)", array($curr, $name, $short_name, $course), 'id');
+                                ."VALUES(?i,?,?,?f)", array($curr, $name, $short_name, $course * 100), 'id');
                 // привязываем валюты в основную кассу
                 $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                                 ."VALUES(?i,?i,0)", array($cashbox_id, $curr));
@@ -276,6 +285,20 @@ class master{
         $this->db->query('INSERT IGNORE INTO {contractors_categories_links}
                                 (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
                                 array(32, $id));
+        // поставщик
+        $pid = $this->db->query('INSERT IGNORE INTO {contractors}
+                                        (title, type, comment) VALUES (?, ?i, ?)',
+                                    array('Поставщик', 2, ''), 'id');
+        $s_values = array();
+        foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
+            $s_values[] = $this->all_configs['db']->makeQuery("(?i, ?i)", array($sid,$pid));
+        }
+        foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][2] as $sid){
+            $s_values[] = $this->all_configs['db']->makeQuery("(?i, ?i)", array($sid,$pid));
+        }
+        $this->db->query('INSERT IGNORE INTO {contractors_categories_links}
+                                (contractors_categories_id, contractors_id) VALUES ?q',
+                                array(implode(',',$s_values)));
         
         // ставим отметку что мастер настройки закончен
         $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
