@@ -1326,12 +1326,23 @@ function update_order_status($order, $new_status)
                     array('Заказ готов', $user_id, $order['id']));
             }
         }
+        
+        // при приеме заказа на доработку ставим склад менеджера как и в случае обычного приема заказа
+        if ($new_status == $all_configs['configs']['order-status-rework']) {
+            // склад менеджер
+            $wh = $all_configs['db']->query(
+                'SELECT wh_id, location_id FROM {warehouses_users} WHERE user_id=?i AND main=?i',
+                array($user_id, 1))->row();
+            $all_configs['db']->query('UPDATE {orders} SET wh_id=?i, location_id=?i WHERE id=?i',
+                array($wh['wh_id'], $wh['location_id'], $order['id']));
+        }
     }
 
     // пробуем закрыть заказ
     if (in_array($new_status, $all_configs['configs']['order-statuses-closed'])) {
         $return['closed'] = $all_configs['chains']->close_order($order['id'], $mod_id);
     }
+
 
     return $return;
 }

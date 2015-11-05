@@ -38,11 +38,19 @@ class Chains
         $status = false;
 
         if ($order_id > 0) {
+            // достаем склад Клиент из группы текущего склада и перемещаем на него (как в мир)
+            $current_wh = $this->all_configs['db']->query("SELECT wh_id "
+                                                         ."FROM {orders} WHERE id = ?i", array($order_id), 'el');
+            $wh_client = $this->all_configs['db']->query("SELECT w.id as w_id,l.id as l_id FROM {warehouses} as w "
+                                                        ."LEFT JOIN {warehouses_locations} as l ON l.wh_id = w.id "
+                                                        ."WHERE w.group_id = ?i AND w.type = 4", array($current_wh), 'row');
             // продажа
             $arr = array(
                 'order_id' => $order_id,
-                'wh_id_destination' => $this->all_configs['configs']['erp-warehouse-type-mir'],
-                'location' => $this->all_configs['configs']['erp-location-type-mir'],
+//                'wh_id_destination' => $this->all_configs['configs']['erp-warehouse-type-mir'],
+//                'location' => $this->all_configs['configs']['erp-location-type-mir'],
+                'wh_id_destination' => $wh_client['w_id'] ?: $this->all_configs['configs']['erp-warehouse-type-mir'],
+                'location' => $wh_client['l_id'] ?: $this->all_configs['configs']['erp-location-type-mir'],
             );
 
             // достаем заказ
@@ -1173,6 +1181,10 @@ class Chains
                 $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE serial=?',
                     array(trim($post['serial'])))->row();
 
+                if ($order) {
+                    update_order_status($order, $this->all_configs['configs']['order-status-rework']);
+                }
+                
                 if ($data['state'] == true && !$order) {
                     $data['state'] = false;
                     $data['msg'] = '<p>Не найдено совпадений, укажите номер ремонта, по которому принимается доработка</p>';
