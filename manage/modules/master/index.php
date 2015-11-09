@@ -141,28 +141,32 @@ class master{
         }
         $users_added = 0;
         $users_logins = array();
-        foreach($users as $i => $user){
-            if(!isset($user['login']) || !$user['login']){
-                return array('state' => false, 'msg' => 'Укажите логин пользователя ');
+        // если не одного юзера нема, то проверку не делаем 
+        // и даем возможность зарегаться без сотрудников
+        if(count($users) > 1 || $users[0]['fio'] || $users[0]['login'] || $users[0]['password']){
+            foreach($users as $i => $user){
+                if(!isset($user['login']) || !$user['login']){
+                    return array('state' => false, 'msg' => 'Укажите логин пользователя ');
+                }
+                if(!isset($user['fio']) || !$user['fio']){
+                    return array('state' => false, 'msg' => 'Укажите ФИО пользователя ');
+                }
+                if(!isset($user['position']) || !$user['position']){
+                    return array('state' => false, 'msg' => 'Укажите должность пользователя '.htmlspecialchars($user['fio']));
+                }
+                if(!isset($user['service'])){
+                    return array('state' => false, 'msg' => 'Укажите отделение пользователя '.htmlspecialchars($user['fio']));
+                }
+                if($user['password']){
+                    $users_added ++;
+                }else{
+                    return array('state' => false, 'msg' => 'Укажите пароль для пользователя '.htmlspecialchars($user['fio']));
+                }
+                if(in_array($user['login'], $users_logins)){
+                    return array('state' => false, 'msg' => 'У пользователей не могут быть одинаковые логины');
+                }
+                $users_logins[] = trim($user['login']);
             }
-            if(!isset($user['fio']) || !$user['fio']){
-                return array('state' => false, 'msg' => 'Укажите ФИО пользователя ');
-            }
-            if(!isset($user['position']) || !$user['position']){
-                return array('state' => false, 'msg' => 'Укажите должность пользователя '.htmlspecialchars($user['fio']));
-            }
-            if(!isset($user['service'])){
-                return array('state' => false, 'msg' => 'Укажите отделение пользователя '.htmlspecialchars($user['fio']));
-            }
-            if($user['password']){
-                $users_added ++;
-            }else{
-                return array('state' => false, 'msg' => 'Укажите пароль для пользователя '.htmlspecialchars($user['fio']));
-            }
-            if(in_array($user['login'], $users_logins)){
-                return array('state' => false, 'msg' => 'У пользователей не могут быть одинаковые логины');
-            }
-            $users_logins[] = trim($user['login']);
         }
         // ------- проверка на ошибки
         
