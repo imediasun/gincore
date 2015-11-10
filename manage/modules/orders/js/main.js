@@ -430,9 +430,16 @@ function add_new_order(_this, next, from) {
     });
 }*/
 
-function order_products(_this, product_id, order_product_id, cfm, remove) {
+function order_products(_this, product_id, order_product_id, cfm, remove, show_confirm_for_remove) {
 
     //var count = $('#product_count-' + order_product_id).length ? $('#product_count-' + order_product_id).val() : 1;
+
+    var close_supplier_order = '';
+    if(remove && show_confirm_for_remove){
+        if(confirm('Отменить заказ поставщику на эту запчасть?')){
+            close_supplier_order = '&close_supplier_order=1';
+        }
+    }
 
     $.ajax({
         url: prefix + module + '/ajax/' + arrequest()[2] + '?act=add_product',
@@ -441,7 +448,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove) {
             '&product_id=' + product_id +
             //'&count=' + count +
             (typeof cfm === 'undefined' ? '' : '&confirm=' + cfm) +
-            (remove == 1 ? '&remove=' + 1 : ''),
+            (remove == 1 ? '&remove=' + 1 : '') + close_supplier_order,
         success: function(msg) {
             if (msg) {
                 if (msg['confirm'] /*&& confirm(msg['confirm'])*/) {
@@ -468,6 +475,9 @@ function order_products(_this, product_id, order_product_id, cfm, remove) {
                 }
                 if (remove == 1 && msg['state'] == true) {
                     $(_this).parents('tr').remove();
+                }
+                if(msg.reload){
+                    window.location.reload(true);
                 }
                 if($('#goods-table').find('tr').length){
                     $('#goods-table').closest('table').removeClass('hidden');

@@ -996,8 +996,29 @@ class Chains
                     // удаляем
                     $ar = $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE id=?i',
                         array($order_product_id));
+                    $supplier_order = $this->
+                                        all_configs['db']
+                                            ->query("SELECT supplier_order_id as id, o.count, o.supplier "
+                                                   ."FROM {orders_suppliers_clients} as c "
+                                                   ."LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
+                                                   ."WHERE order_goods_id=?i", array($order_product_id), 'row');
                     $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE order_goods_id=?i',
-                        array($order_product_id));
+                                                    array($order_product_id));
+                    // удалить заказ поставщику 
+                    // если он для одного устройства
+                    if(isset($post['close_supplier_order']) && $post['close_supplier_order']){
+                        $this->all_configs['db']->query("UPDATE {contractors_suppliers_orders} SET avail = 0 "
+                                                       ."WHERE id = ?i", array($supplier_order['id']));
+                    }
+                    // поменять статус заказа с ожидает запчастей на принят в ремонт 
+                    // если запчастей все запчасти отвязаны c заказа 
+                    $orders_goods = $this->all_configs['db']->query("SELECT count(*) "
+                                                                   ."FROM {orders_goods} "
+                                                                   ."WHERE order_id = ?i", array($order['id']), 'el');
+                    if(!$orders_goods){
+                        update_order_status($order, $this->all_configs['configs']['order-status-new']);
+                        $data['reload'] = 1;
+                    }
                     if (!$ar) {
                         $data['msg'] = 'Изделие не найдено';
                         $data['state'] = false;

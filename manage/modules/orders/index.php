@@ -1860,7 +1860,14 @@ class orders
     function show_product($product)
     {
         $qty = isset($product['count']) ? intval($product['count']) : 1;
-
+        $supplier_order = $this->
+                            all_configs['db']
+                                ->query("SELECT supplier_order_id as id, o.count, o.supplier "
+                                       ."FROM {orders_suppliers_clients} as c "
+                                       ."LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
+                                       ."WHERE c.client_order_id = ?i AND c.goods_id = ?i", 
+                                            array($product['order_id'], $product['goods_id']), 'row');
+        $confirm_remove_supplier_order = $supplier_order['count'] == 1 ? ', 1' : '';
         /*$count = '<select id="product_count-' . $product['goods_id'] . '" class="input-mini" onchange="order_products(this, ' . $product['goods_id'] . ', 1)">';
         for ($i = 1; $i <= 99; $i++) {
             $count .= '<option ' . ($i == $qty ? 'selected' : '') . ' value="' . $i . '">' . $i . '</option>';
@@ -1877,7 +1884,7 @@ class orders
         //$order_html .= '<td>' . $count . '</td>';
         //$order_html .= '<td><span id="product_sum-' . $product['id'] . '">' . ($product['price'] * $qty / 100) . '</span></td>';
         if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-            $order_html .= '<i title="удалить" class="glyphicon glyphicon-remove remove-product" onclick="order_products(this, ' . $product['goods_id'] . ', ' . $product['id'] . ', 1, 1)"></i>';
+            $order_html .= '<i title="удалить" class="glyphicon glyphicon-remove remove-product" onclick="order_products(this, ' . $product['goods_id'] . ', ' . $product['id'] . ', 1, 1'.$confirm_remove_supplier_order.')"></i>';
         }
         $order_html .= '</td>';
         if ($product['type'] == 0) {
