@@ -578,15 +578,20 @@ function client_double_typeahead($id = null, $callbacks = ''){
     $value_field = '<input class="typeahead-double-value" id="'.$input_id.'" type="hidden" name="client_id" value="'.($id ?: '').'">';
     $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" 
                      class="form-control typeahead-double" data-id="'.$input_id.'" type="text" 
-                     placeholder="Телефон" name="client_phone" 
+                     placeholder="Телефон" name="client_phone" required
                      value="'.($client ? $client['phone'] : $client['phone']).'">';
     $fio_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="fio" 
                    class="form-control typeahead-double" type="text"  data-id="'.$input_id.'" 
-                   placeholder="ФИО" name="client_fio" 
+                   placeholder="ФИО" name="client_fio" required
                    value="'.($client ? $client['fio'] : $client['fio']).'">';
+    $id = '<input data-function="'.$callbacks.'" data-table="clients" data-field="id" 
+                   class="form-control typeahead-double" type="hidden"  data-id="'.$input_id.'" 
+                    name="clients" 
+                   value="'.($client ? $client['id'] : $client['id']).'">';
     return array(
         'phone' => $value_field.$phone_field,
-        'fio' => $fio_field
+        'fio' => $fio_field,
+        'id' => $id
     );
 }
 

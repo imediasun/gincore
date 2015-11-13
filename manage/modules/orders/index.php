@@ -1,4 +1,4 @@
- <?php
+<?php
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
@@ -1042,12 +1042,13 @@ class orders
     function order_for_sale_form(){
         $client_fields_for_sale = client_double_typeahead();
         $form = '
-            <form method="post">
+            <form method="post" id="sale-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
+                '.$client_fields_for_sale['id'].'
                 <fieldset>
                     <legend>Клиент</legend>
                     <div class="form-group">
-                        <label>Укажите данные клиента: </label>
+                        <label>Укажите данные клиента <b class="text-danger">*</b>: </label>
                         <div class="row row-15">
                             <div class="col-sm-6">
                                 '.$client_fields_for_sale['phone'].'
@@ -1075,15 +1076,15 @@ class orders
                 <fieldset>
                     <legend>Товар</legend>
                     <div class="form-group">
-                        <label class="control-label">Код товара (серийный номер): </label>
+                        <label class="control-label">Код товара (серийный номер) <b class="text-danger">*</b>: </label>
                         '.typeahead($this->all_configs['db'], 'serials', false, '', 4, 'input-medium clone_clear_val', '', 'display_serial_product_title_and_price', false, true)
                         .'<small class="clone_clear_html product-title"></small>
                         <input type="hidden" name="items" value="">
                     </div>
                     <div class="form-group">
-                        <label>Цена продажи: </label>
+                        <label>Цена продажи <b class="text-danger">*</b>: </label>
                         <div class="input-group">
-                            <input type="text" id="sale_poduct_cost" class="form-control" value="" name="price" />
+                            <input type="text" required id="sale_poduct_cost" class="form-control" value="" name="price" />
                             <span class="input-group-addon">'.viewCurrency().'</span>
                         </div>
                     </div>
