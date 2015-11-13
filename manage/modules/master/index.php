@@ -219,7 +219,7 @@ class master{
                 $name = $this->all_configs['configs']['currencies'][$curr]['name'];
                 $short_name = $this->all_configs['configs']['currencies'][$curr]['shortName'];
                 $id = $this->db->query("INSERT IGNORE INTO {cashboxes_courses}(currency,name,short_name,course)"
-                                ."VALUES(?i,?,?,?f)", array($curr, $name, $short_name, $course * 100), 'id');
+                                ."VALUES(?i,?,?,?f)", array($curr, $name, $short_name, ($course>0?$course:1) * 100), 'id');
                 // привязываем валюты в основную кассу
                 $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                                 ."VALUES(?i,?i,0)", array($cashbox_id, $curr));

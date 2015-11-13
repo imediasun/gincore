@@ -80,10 +80,9 @@ function sale_order(_this, item) {
                     if (msg['message']) {
                         alert(msg['message']);
                     }
-                }else {
-                    if (msg['location']) {
-                        window.location = msg['location'];
-                    }
+                }
+                if (msg['location']) {
+                    window.location = msg['location'];
                 }
 
                 $(_this).button('reset');

@@ -559,6 +559,7 @@ class access
 
         $person = (!isset($post['person']) || $post['person'] == 'true') ? 1 : 2;
         $fio = isset($post['fio']) ? trim($post['fio']) : null;
+        $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
         /*$institution = isset($post['institution']) ? trim($post['institution']) : null;
         $birthday = isset($post['birthday']) ? trim($post['birthday']) : null;
         $job = isset($post['job']) ? trim($post['job']) : null;
@@ -646,8 +647,8 @@ class access
         if ($result['state'] == true) {
             try {
                 $result['id'] = $this->all_configs['db']->query('INSERT INTO {clients}
-                    (`email`, `confirm`, `pass`, `fio`, `person`) VALUES (?n, ?n, ?, ?, ?)',
-                    array($email, $confirm, $this->wrap_pass($pass), $fio, $person), 'id');
+                    (`email`, `confirm`, `pass`, `fio`, `person`, contractor_id) VALUES (?n, ?n, ?, ?, ?, ?i)',
+                    array($email, $confirm, $this->wrap_pass($pass), $fio, $person, $contractor_id), 'id');
                 /*$result['id'] = $this->all_configs['db']->query('
                     INSERT INTO {clients} (`email`, `confirm`, `pass`, `fio`, `institution`, `birthday`, `job`, `identification_code`,
                         `works_phone`, `passport`, `issued_passport`, `position`, `when_passport_issued`, `relationship`, `registered_address`,

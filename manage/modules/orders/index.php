@@ -2253,7 +2253,7 @@ class orders
                 if($this->all_configs['oRole']->hasPrivilege('accounting')){
                     if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
-                        $pay_btn = '<input type="button" class="btn btn-success btn-xs" value="Принять предоплату" onclick="' . $onclick . '" />';
+                        $pay_btn = '<input type="button" class="btn btn-success btn-xs" value="'.($order['type'] != 3 ? 'Принять предоплату' : 'Принять оплату').'" onclick="' . $onclick . '" />';
                     } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
                         $pay_btn = '<input type="button" class="btn btn-success" value="Принять оплату" onclick="' . $onclick . '" />';
