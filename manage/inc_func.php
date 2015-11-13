@@ -25,6 +25,11 @@ function viewCurrency($show = 'viewName'){
     return $s;
 }
 
+function db(){
+    global $all_configs;
+    return $all_configs['db'];
+}
+
 function get_langs(){
     global $all_configs, $dbcfg;
     $return = array();

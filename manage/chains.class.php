@@ -1242,7 +1242,7 @@ class Chains
             );
             return $this->return_items($post, $mod_id);
         }
-        if ($data['state'] == true && !$client && !$order) {
+        if ($data['state'] == true && (!isset($client) || !$client) && !$order) {
             $data['state'] = false;
             $data['msg'] = 'Выберите клиента';
         }

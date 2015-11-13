@@ -1,4 +1,4 @@
- <?php
+<?php
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';

@@ -609,7 +609,7 @@ class products
         $goods_html .= '<input type="hidden" name="id" value="" />';
 
         if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-            $goods_html .= '<div class="form-group"><label class="control-label">Цена: </label>
+            $goods_html .= '<div class="form-group"><label class="control-label">Цена ('.viewCurrencySuppliers('shortName').'): </label>
                             <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="введите цену" class="form-control" name="price" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('price', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
         }
         $goods_html .= '<div class="form-group"><div class="checkbox">
