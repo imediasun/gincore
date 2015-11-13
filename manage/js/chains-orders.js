@@ -103,7 +103,10 @@ function return_item(_this, items) {
 }
 
 function sold_item(_this, item) {
+
     if (confirm('Активировать продажу?')) {
+        if (false === $('#sold-item-form').parsley().validate())
+        return;
         $(_this).button('loading');
 
         var data = $('#sold-item-form').serializeArray();

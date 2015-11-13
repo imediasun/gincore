@@ -911,7 +911,7 @@ class Chains
             $out .= '<div class="form-group"><label>Клиент:</label>';
             $out .= '' . typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'fonm-control') . '</div>';
             $out .= '<div class="form-group"><label>Стоимость:</label>';
-            $out .= '<input type="text" name="price" class="form-control" placeholder="укажите стоимость" /></div>';
+            $out .= '<input type="text" name="price" required class="form-control" placeholder="укажите стоимость" /></div>';
             if ($can) {
                 $out .= '<input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="Продать" />';
             } else {
@@ -1716,15 +1716,24 @@ class Chains
                 array($items, 1))->assoc();
         }
         // права
-        if (!$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $data['state'] = false;
-            $data['message'] = 'У Вас нет прав';
-        }
         // изделий не найдено
         if ($data['state'] == true && !$items) {
             $data['state'] = false;
             $data['message'] = 'Свободные изделия для продажи не найдены';
         }
+        // клиент
+        $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
+        if($client_id){
+            // достаем клиента
+            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
+                array($client_id))->row();
+        }else{
+
+         if (!$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
+            $data['state'] = false;
+            $data['message'] = 'У Вас нет прав';
+        }
+
         if(empty($_POST['client_fio'])){
             $data['state'] = false;
             $data['msg'] = 'Укажите ФИО клиента';
@@ -1733,13 +1742,6 @@ class Chains
             $data['state'] = false;
             $data['msg'] = 'Укажите телефон клиента';
         }
-        // клиент
-        $client_id = isset($post['client_id']) ? intval($post['client_id']) : 0;
-        if($client_id){
-            // достаем клиента
-            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
-                array($client_id))->row();
-        }else{
             // создать клиента
             require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
             $access = new \access($this->all_configs, false);

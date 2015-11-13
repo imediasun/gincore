@@ -64,6 +64,9 @@ function pay_client_order(_this, tt, order_id, b_id, extra) {
 }
 
 function sale_order(_this, item) {
+    if (false === $('#sale-form').parsley().validate())
+    return;
+
     $(_this).button('loading');
     var data = $(_this).parents('form').serializeArray();
     $.ajax({
