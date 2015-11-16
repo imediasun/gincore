@@ -175,10 +175,12 @@ $(document).ready(function () {
     });*/
 
     $('.datetimepicker').live('click', function () {
+        var format = $(this).data('format') || 'DD.MM.YYYY';
+        var date_format = format.replace('dd', 'DD').replace('yyyy', 'YYYY').replace('hh', 'HH');
         $(this).datetimepicker({
             locale: 'ru',
             defaultDate: $(this).val(),
-            format: $(this).data('format').replace('dd', 'DD').replace('yyyy', 'YYYY').replace('hh', 'HH')
+            format: date_format
         });
         $(this).data('DateTimePicker').show();
     });

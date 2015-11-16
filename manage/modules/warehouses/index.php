@@ -1020,7 +1020,7 @@ class warehouses
                             <div class='form-group'><label>Название: </label>
                                 <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
                             <div class='form-group'><label>Цвет (#000000): </label>
-                                <input placeholder='введите цвет' class='form-control' name='color' value='{$color}' /></div>
+                                <input placeholder='введите цвет' class='colorpicker form-control' name='color' value='{$color}' /></div>
                             <div class='form-group'><label>Адрес: </label>
                                 <input placeholder='введите адрес' class='form-control' name='address' value='{$address}' /></div>
                             <div class='form-group'><label></label>{$btn}</div>

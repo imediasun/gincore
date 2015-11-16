@@ -767,3 +767,10 @@ input.row-input {
     border: 1px solid #d9d9d9;
     right:0;
 }
+.multiselect-sm .multiselect-selected-text{
+    margin-right: 5px;
+    max-width: 200px;
+    float: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

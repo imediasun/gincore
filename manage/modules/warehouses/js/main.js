@@ -1,6 +1,13 @@
 //var array_serial_inputs = {};
 
 $(document).ready(function() {
+    
+    $(document).on('click', 'input.colorpicker:not(.colorpicker-element)', function(){
+        $(this).colorpicker({
+            format: 'hex',
+            align: 'left'
+        }).colorpicker('show');
+    });
 
     var scanner_moves_timer;
 

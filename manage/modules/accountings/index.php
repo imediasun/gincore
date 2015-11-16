@@ -1333,7 +1333,7 @@ class accountings
             // тип транзакции
             $tt = intval(preg_replace("/[^0-9]/", "", $act));
             // сегодня
-            $today = date("d.m.Y", time());
+            $today = date("d.m.Y");
             $select_cashbox = '';
             $selected_cashbox = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
             // список форм для редактирования касс
@@ -1475,20 +1475,20 @@ class accountings
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span>Курс</span></td><td class="hide-not-tt-1 hide-not-tt-2"></td></tr></thead><tbody>';
             //* С кассы 1 3
             $data['content'] .= '<tr class="hide-not-tt-2"><td>*&nbsp;С&nbsp;кассы</td>';
-            $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control cashbox-1">' . $select_cashbox . '</select></td>';
-            $data['content'] .= '<td><input ' . $daf . ' class="form-control" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
-            $data['content'] .= '<td><select class="form-control cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
+            $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control input-sm cashbox-1">' . $select_cashbox . '</select></td>';
+            $data['content'] .= '<td><input ' . $daf . ' class="form-control input-sm" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
+            $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
             $onchange = '
                 $(\'#amount-2\').val(($(\'#amount-1\').val()*$(\'#conversion-course-1\').val()).toFixed(2));
                 if ($(\'#amount-2\').val() > 0)
                     $(\'#conversion-course-2\').val(($(\'#amount-1\').val()/$(\'#amount-2\').val()).toFixed(4));
                 else
                     $(\'#conversion-course-2\').val(0.0000);';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-1" onchange="' . $onchange . '" class="input-mini" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_from"/></span></td>';
+            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-1" style="width:80px" onchange="' . $onchange . '" class="form-control input-mini" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_from"/></span></td>';
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>Прямой</small><br /><small id="conversion-course-db-1">1.0000</small></span></td></tr>';
             //* В кассу 2 3
             $data['content'] .= '<tr class="hide-not-tt-1"><td>* В кассу</td>';
-            $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="form-control cashbox-2">' . $select_cashbox . '</select></td>';
+            $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="form-control input-sm cashbox-2">' . $select_cashbox . '</select></td>';
             $onchange = '
                 if ($(\'#amount-1\').val() > 0 && $(\'#amount-2\').val() > 0) {
                     $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
@@ -1497,8 +1497,8 @@ class accountings
                     $(\'#conversion-course-1\').val(0.0000);
                     $(\'#conversion-course-2\').val(0.0000);
                 }';
-            $data['content'] .= '<td class="hide-conversion"><span><input class="form-control" onchange="' . $onchange . '" id="amount-2" type="text" name="amount_to" value="' . $amount_to . '" onkeydown="return isNumberKey(event, this)" /></span></td>';
-            $data['content'] .= '<td><select class="form-control cashbox_currencies-2" onchange="get_course(0)" name="cashbox_currencies_to">' . $cashbox_currencies . '</select></td>';
+            $data['content'] .= '<td class="hide-conversion"><span><input class="form-control input-sm" onchange="' . $onchange . '" id="amount-2" type="text" style="width:80px" name="amount_to" value="' . $amount_to . '" onkeydown="return isNumberKey(event, this)" /></span></td>';
+            $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-2" onchange="get_course(0)" name="cashbox_currencies_to">' . $cashbox_currencies . '</select></td>';
             $onchange = '
                 if ($(\'#conversion-course-2\').val() > 0)
                     $(\'#amount-2\').val(($(\'#amount-1\').val()/$(\'#conversion-course-2\').val()).toFixed(2));
@@ -1508,24 +1508,24 @@ class accountings
                     $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
                 else
                     $(\'#conversion-course-1\').val(0.0000);';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-2" onchange="' . $onchange . '" class="form-control" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_to"/></span></td>';
+            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-2" style="width:80px" onchange="' . $onchange . '" class="form-control input-sm" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_to"/></span></td>';
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>Обратный</small><br /><small id="conversion-course-db-2">1.0000</small></span></td></tr>';
             if ($co_id == 0) {
                 //* Статья 1
                 $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* Статья</td>';
-                $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect form-control" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
+                $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
                 $data['content'] .= $select_contractors_categories_to . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
                 $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
                 //* Статья 2
                 $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* Статья</td>';
-                $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect input-medium" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
+                $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
                 $data['content'] .= $select_contractors_categories_from . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
                 $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
                 //* Контрагент 1 2
                 $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;Контрагент</td>';
-                $data['content'] .= '<td><select ' . $dc . ' class="form-control select_contractors" name="contractors_id">' . $select_contractors . '</select>';
+                $data['content'] .= '<td><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id">' . $select_contractors . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
                 $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             }
@@ -1568,14 +1568,14 @@ class accountings
             // только обычные транзакции или выдача за заказ клиента
             if ($act == 'begin-transaction-1-co' || $act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
                 // Примечание 1 2 3
-                $data['content'] .= '<tr><td colspan="2"><textarea class="form-control" name="comment" placeholder="примечание"></textarea></td>';
+                $data['content'] .= '<tr><td colspan="2"><textarea class="form-control input-sm" name="comment" placeholder="примечание"></textarea></td>';
                 // только обычные транзакции
                 if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
                     //$data['content'] .= '<td colspan="4" class="center"><input type="text" name="date_transaction" class="input-small date-pickmeup" data-pmu-format="d.m.Y" value="' . $today .'" /></td>';
-                    $data['content'] .= '<td colspan="4" class="center"><div class="datetimepicker">
-                        <input class="form-control" data-format="yyyy-dd-MM" type="text" name="date_transaction" value="' . $today . '" />
-                        <span class="add-on"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
-                        </div></div>';
+                    $data['content'] .= 
+                        '<td colspan="4" class="center"><div class="form-group">
+                            <input class="form-control daterangepicker_single input-sm" type="text" name="date_transaction" value="' . $today . '" />
+                        </div>';
                 }
                 $data['content'] .= '</tr>';
             }
