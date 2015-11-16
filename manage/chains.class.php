@@ -1631,7 +1631,7 @@ class Chains
                 }
                 if ($data['state'] == true) {
                     // оплата
-                    $transaction = $this->create_transaction(array(
+                    $tr_data = array(
                         'transaction_type' => 2, // внесение
                         'cashbox_from' => $this->all_configs['configs']['erp-cashbox-transaction'],
                         'cashbox_to' => $this->all_configs['configs']['erp-cashbox-transaction'],
@@ -1663,11 +1663,18 @@ class Chains
                         'client_contractor' => 1,
                         'date_transaction' => date("Y-m-d H:i:s"),
                         'type' => 3,
-                    ), $mod_id);
+                    );
+                    if(isset($post['confirm'])){
+                        $tr_data['confirm'] = $post['confirm'];
+                    }
+                    $transaction = $this->create_transaction($tr_data, $mod_id);
                     // ошибка при создании транзакции
                     if (!$transaction && !isset($transaction['state']) || $transaction['state'] == false) {
                         $data['state'] = false;
                         $data['message'] = $transaction && array_key_exists('msg', $transaction) ? $transaction['msg'] : 'Транзакция не создана';
+                        if(isset($transaction['confirm'])){
+                            $data['confirm'] = $transaction['confirm'];
+                        }
                     }
                 }
                 if ($data['state'] == true) {
@@ -2489,7 +2496,7 @@ class Chains
                             $data['state'] = false;
                             //$data['msg'] = 'Не больше чем ' . show_price(intval($order['sum']) - intval($order['sum_paid']));
                             $data['msg'] = 'Сума для оплаты составляет ' . show_price(intval($order['sum']) - intval($order['sum_paid'])) . '. Подтверждаете?';
-                            $data['confirm'] = true;
+                            $data['confirm'] = 1;
                         }
                     }
                 }
@@ -3475,7 +3482,7 @@ class Chains
 
     public function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js?1'></script>";
     }
 
 }

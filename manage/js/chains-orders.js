@@ -61,9 +61,9 @@ function ajax_move_item(data, _this) {
     });
 }
 
-function return_item(_this, items) {
+function return_item(_this, items, conf) {
 
-    if (confirm('Активировать возврат?')) {
+    if (conf || confirm('Активировать возврат?')) {
         $(_this).button('loading');
 
         if (!items) {
@@ -77,11 +77,16 @@ function return_item(_this, items) {
             type: 'POST',
             dataType: "json",
 
-            data: '&items=' + items,
+            data: '&items=' + items + (conf == 1 ? '&confirm=1' : ''),
             success: function(msg) {
                 if (msg) {
                     if (msg['state'] == false) {
-                        if (msg['message']) {
+                        if (msg['confirm']) {
+                            if (confirm(msg['message'])) {
+                                return_item(_this, items, 1);
+                                return;
+                            }
+                        } else if(msg['message']) {
                             alert(msg['message']);
                         }
                         if (msg['location']) {
