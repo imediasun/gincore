@@ -24,6 +24,29 @@ function create_avatar_uploader(){
     }
 }
 
+
+function add_user_validation() {
+    loginInput = document.querySelector('input[name="login"]');
+    passwordInput = document.querySelector('input[name="pass"]');
+
+    if(loginInput.value == '') {
+        loginInput.style.background = '#F2DEDE';
+    } else {
+        loginInput.style.background = 'white';
+    }
+
+    if(passwordInput.value == '') {
+        passwordInput.style.background = '#F2DEDE';
+    } else {
+        passwordInput.style.background = 'white';
+    }
+
+    if(loginInput.value == '' || passwordInput.value == '') {
+        document.documentElement.scrollTop = 0;
+        return false;
+    }
+}
+
 $(function(){
     $('.datepicker').datepicker();
 

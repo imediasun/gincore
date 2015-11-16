@@ -628,7 +628,7 @@ class users
                 <fieldset>
                     <legend>Добавление нового пользователя</legend>
                     <div class="form-group">
-                        <label>Логин:</label>
+                        <label>Логин <b class="text-danger">*</b>:</label>
                         <input class="form-control" value="" name="login" placeholder="введите логин">
                     </div>
                     <div class="form-group">
@@ -636,7 +636,7 @@ class users
                         <input class="form-control" value="" name="email" placeholder="введите e-mail">
                     </div>
                     <div class="form-group">
-                        <label>Пароль:</label>
+                        <label>Пароль <b class="text-danger">*</b>:</label>
                         <input class="form-control" value="" name="pass" placeholder="введите пароль">
                     </div>
                     <div class="form-group">
@@ -689,7 +689,7 @@ class users
 
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
             $users_html .= '<div class="control-group"><div class="controls">
-                    <input class="btn btn-primary" type="submit" name="create-user" value="создать"></div></div>';
+                    <input class="btn btn-primary" type="submit" name="create-user" onclick="return add_user_validation();" value="создать"></div></div>';
         //}
         $users_html .= '</fieldset></form>';
         $users_html .= '</div>';
