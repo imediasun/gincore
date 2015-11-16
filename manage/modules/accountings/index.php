@@ -1339,12 +1339,16 @@ class accountings
             // список форм для редактирования касс
             if (count($this->cashboxes) > 0) {
                 $erpct = $this->all_configs['configs']['erp-cashbox-transaction'];
+                $erpt = $this->all_configs['configs']['erp-so-cashbox-terminal'];
 
                 foreach ($this->cashboxes as $cashbox) {
                     // выбор кассы при транзакции
                     if ($cashbox['avail'] == 1) {
                         // кроме транзитной
-                        $select_cashbox .= '<option' . ($cashbox['id'] == $erpct ? ' disabled' : '');
+                        $dis = $cashbox['id'] == $erpct 
+                               || ($cashbox['id'] == $erpt && !$this->all_configs['configs']['manage-show-terminal-cashbox']);
+                        
+                        $select_cashbox .= '<option' . ($dis ? ' disabled' : '');
                         $select_cashbox .= ($cashbox['id'] == $selected_cashbox ? ' selected' : '');
                         $select_cashbox .= ' value="' . $cashbox['id'] . '">' . htmlspecialchars($cashbox['name']) . '</option>';
                         $selected_cashbox = $selected_cashbox == 0 ? $cashbox['id'] : $selected_cashbox;

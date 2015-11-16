@@ -193,10 +193,22 @@ function add_goods_to_inv(_this, tab) {
 }
 
 function consider(_this, i) {
-    var checked = $(_this).attr('checked') ? true : false;
-
-    if (i) {
-        $('.consider_' + i).attr('checked', checked);
+    var $checkboxes = $('.consider_' + i),
+        current = $(_this).attr('name'),
+        is_check = $(_this).is(':checked'),
+        $all = $checkboxes.filter('[name=consider_all]'),
+        $store = $checkboxes.filter('[name=consider_store]');
+    switch(current){
+        case 'consider_all':
+            if(!is_check && $store.is(':checked')){
+                $all.attr('checked', true);
+            }
+        break;
+        case 'consider_store':
+            if(is_check){
+                $all.attr('checked', true);
+            }
+        break;
     }
 }
 
