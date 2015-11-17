@@ -1586,4 +1586,13 @@ $(function(){
             $menu.click();
         }
     });
+    
+    $('#show_glossary').click(function(){
+        var $glossary = $('#glossary');
+        if(!$glossary.hasClass('loaded')){
+            $glossary.html('<iframe src="'+$glossary.data('url')+'"></iframe>');
+            $glossary.addClass('loaded');
+        }
+        $glossary.toggle();
+    });
 });

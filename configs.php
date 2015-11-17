@@ -80,6 +80,8 @@ class Configs {
             ),
         ),
         
+            'manage-show-glossary' => true,
+            'manage-glossary-url'  => 'http://192.168.1.20/fon/unify/restore?iframe=1',
             'manage-print-default-service-restore' => false, // адрес и телефон рестора по умолчанию в печати если не указаны в отделении
             'manage-show-terminal-cashbox'  => false, // показать или скрыть кассу терминал
             'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов

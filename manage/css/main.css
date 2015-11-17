@@ -774,3 +774,32 @@ input.row-input {
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+/* glossary */
+
+.show_glossary{
+    position: fixed;
+    right: 0;
+    top: 95px;
+    z-index: 1000;
+}
+.glossary{
+    display: none;
+    position: fixed;
+    top: 95px;
+    right: 40px;
+    width: 100%;
+    height: 100%;
+    max-width: 700px;
+    max-height: 500px;
+    background-color: #fff;
+    z-index: 1000;
+    box-shadow: 0 0 3px rgba(0,0,0,.3);
+}
+.glossary iframe{
+    border: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* / glossary */
