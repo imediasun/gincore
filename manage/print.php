@@ -210,6 +210,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
 
         // квитанция
         if ($act == 'invoice') {
+            $type = $all_configs['db']->query("SELECT type FROM {orders} WHERE id = ?i", array($object), 'el');
+            if($type == 0) {
             $order = $all_configs['db']->query(
                 'SELECT o.*, a.fio as a_fio, w.title as wh_title, wa.print_address, wa.title as wa_title,
                         wa.print_phone, wa.title as wa_title, wag.address as accept_address
@@ -219,7 +221,23 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
                 LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
                 WHERE o.id=?i', array($object))->row();
+            }
+
+            if($type == 3) {
+                $order = $all_configs['db']->query(
+                    "SELECT o.*, g.title as g_title, g.item_id, wag.address as accept_address,wa.print_phone FROM {orders} as o
+                    LEFT JOIN {orders_goods} as g ON g.order_id = o.id
+                    LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                    LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
+                    LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
+                    WHERE o.id = ?i", array($object))->row();
+            }
+
+
+
             if ($order) {
+
+
                 $editor = true;
                 include './classes/php_rutils/struct/TimeParams.php';
                 include './classes/php_rutils/Dt.php';
@@ -232,6 +250,9 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $params->date = null; //default value, 'now'
                 $params->format = 'd F Y';
                 $params->monthInflected = true;
+
+
+            if($order['type'] == 0) {
                 $arr = array(
                     'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
                     'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
@@ -247,6 +268,25 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                 );
+            }
+
+            if($order['type'] == 3) {
+
+                $arr = array(
+                    'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                    'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                    'product' => array('value' => htmlspecialchars($order['g_title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
+                    'serial' => array('value' => suppliers_order_generate_serial($order), 'name' => 'Серийный номер'),
+                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                    'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
+                    'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'now' => array('value' => \php_rutils\RUtils::dt()->ruStrFTime($params), 'name' => 'Текущая дата'),
+                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                    'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
+                );
+            }
+
+
                 $print_html = generate_template($arr, 'invoice');
             }
         }
