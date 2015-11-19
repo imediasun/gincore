@@ -85,7 +85,7 @@ function edit_supplier_order(_this) {
     return false;
 }
 
-function accept_supplier_order(_this) {
+function accept_supplier_order(_this, callback) {
     $(_this).button('loading');
 
     $.ajax({
@@ -105,6 +105,14 @@ function accept_supplier_order(_this) {
                 $(_this).button('reset');
                 return;
             } else {
+                if(typeof callback == 'function'){
+                    $(_this).button('reset');
+                    $(_this).removeClass('disabled');
+                    $(_this).prop('disabled', false);
+                    close_alert_box();
+                    callback(_this);
+                    return;
+                }
                 close_alert_box();
                 click_tab_hash();
             }
@@ -296,7 +304,7 @@ function debit_supplier_order(_this) {
     $('form#debit-so-form .html-msg').remove();
 
     $.ajax({
-        url: prefix + module + '/ajax/?act=debit-supplier-order',
+        url: prefix + 'warehouses/ajax/?act=debit-supplier-order',
         type: 'POST',
         dataType: "json",
         data: $('form#debit-so-form').serialize(),

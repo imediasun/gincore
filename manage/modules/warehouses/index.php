@@ -2222,7 +2222,7 @@ class warehouses
                 WHERE o.id=?i',
                 array($order_id))->row();
             $data['state'] = true;
-            $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="Создать" />';
+            $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="Приходовать" />';
             $data['content'] = '<form method="POST" id="debit-so-form">';
             $data['content'] .= '<input type="hidden" value="' . $order_id . '" name="order_id" />';
 

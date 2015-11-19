@@ -606,14 +606,22 @@ class Chains
 
         return $operations;
     }
-    function stockman_operations_goods(){
+    function stockman_operations_goods($goods_id = null){
         $serials = array();
         $goods = array();
+        $prod_query = '';
+        if($goods_id){
+            $prod_query = db()->makeQuery(" AND i.goods_id = ?i:g AND l.goods_id = ?i:g ", array('g'=>$goods_id));
+        }
         $data = $this->all_configs['db']->query(
-            'SELECT i.id as item_id, i.order_id, i.serial, i.goods_id, w.title as wh_title, t.location, i.wh_id, i.location_id, i.supplier_order_id
-            FROM {warehouses_goods_items} as i, {warehouses} as w, {warehouses_locations} as t, {orders_suppliers_clients} as l
-            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id AND l.goods_id=i.goods_id', array(1))->assoc();
-
+           'SELECT i.id as item_id, i.order_id, i.serial, i.goods_id, 
+                   w.title as wh_title, t.location, i.wh_id, 
+                   i.location_id, i.supplier_order_id
+            FROM {warehouses_goods_items} as i, 
+                 {warehouses} as w, 
+                 {warehouses_locations} as t, 
+                 {orders_suppliers_clients} as l
+            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id AND l.goods_id=i.goods_id ?q', array(1,$prod_query))->assoc();
         if ($data) {
             foreach ($data as $i) {
                 if ($i['order_id'] == 0) {
@@ -705,7 +713,7 @@ class Chains
         );
     }
 
-    function show_stockman_operation($op, $type, $serials)
+    function show_stockman_operation($op, $type, $serials, $compact = false)
     {
         //$q = $this->query_warehouses();
         //$wh_ids = $q['array_for_my_warehouses'];
@@ -714,43 +722,45 @@ class Chains
         $g_out = $w_out = $wt_out = $s_out = $b_out = '';
 
         $out .= '<tr class="' . $global_class . '">';
-        $out .= '<td>';
-        if ($op['order_id'] > 0) {
-            $out .= '<a href="' . $this->all_configs['prefix'] . 'orders/create/' . $op['order_id'] . '">' . $op['order_id'];
-        } else {
-            /*if ($op['parent'] > 0) {
-                $out .= '<a href="' . $this->all_configs['prefix'] . 'logistics?h_id=' . $op['chain_id'] . '#motions">';
+        if(!$compact){
+            $out .= '<td>';
+            if ($op['order_id'] > 0) {
+                $out .= '<a href="' . $this->all_configs['prefix'] . 'orders/create/' . $op['order_id'] . '">' . $op['order_id'];
+            } else {
+                /*if ($op['parent'] > 0) {
+                    $out .= '<a href="' . $this->all_configs['prefix'] . 'logistics?h_id=' . $op['chain_id'] . '#motions">';
+                }
+                $out .= $op['chain_id'];*/
             }
-            $out .= $op['chain_id'];*/
-        }
-        $out .= '</a></td><td><span title="' . do_nice_date($op['date_add'], false) . '"> ' . do_nice_date($op['date_add']) . '</span></td>';
-        $out .= '<td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $op['goods_id'] . '">';
-        $content = 'Нет на складе';
+            $out .= '</a></td><td><span title="' . do_nice_date($op['date_add'], false) . '"> ' . do_nice_date($op['date_add']) . '</span></td>';
+            $out .= '<td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $op['goods_id'] . '">';
+            $content = 'Нет на складе';
 
-        //if ($op['item_id'] > 0 || $op['last_item_id'] > 0) {
-        //    $content = htmlspecialchars($op['wh_title']) . ' - ' . htmlspecialchars($op['location']);
-        //}
-        if (/*$type == 1 && $op['item_id'] == 0 && */isset($serials[$op['goods_id']]) && isset($serials[$op['goods_id']]['count'])) {
-            $content = '';
-            foreach ($serials[$op['goods_id']]['count'] as $warehouse) {//$serial['count'] .
-                $content .= htmlspecialchars($warehouse['title']);
-                foreach ($warehouse['locations'] as $location) {
-                    $content .= ' - ' . htmlspecialchars($location['title']) . ' - ' . count($location['items']) . '<br />';
+            //if ($op['item_id'] > 0 || $op['last_item_id'] > 0) {
+            //    $content = htmlspecialchars($op['wh_title']) . ' - ' . htmlspecialchars($op['location']);
+            //}
+            if (/*$type == 1 && $op['item_id'] == 0 && */isset($serials[$op['goods_id']]) && isset($serials[$op['goods_id']]['count'])) {
+                $content = '';
+                foreach ($serials[$op['goods_id']]['count'] as $warehouse) {//$serial['count'] .
+                    $content .= htmlspecialchars($warehouse['title']);
+                    foreach ($warehouse['locations'] as $location) {
+                        $content .= ' - ' . htmlspecialchars($location['title']) . ' - ' . count($location['items']) . '<br />';
+                    }
                 }
             }
+            $out .= htmlspecialchars($op['title']) . '</a> <i class="fa fa-arrows popover-info" data-content="' . $content . '"></i></td>';//<td>' . $w_out . '</td>';
+            if ($type == 1) {
+                $out .= '<td>' . ($op['warehouse_type'] == 1 ? 'Локально' : ($op['warehouse_type'] == 2 ? 'Заграница' : '')) . '</td>';
+            }
         }
-        $out .= htmlspecialchars($op['title']) . '</a> <i class="fa fa-arrows popover-info" data-content="' . $content . '"></i></div>';//<td>' . $w_out . '</td>';
         if ($type == 1 && $op['item_id'] == 0) {
-            $b_out = '<input class="btn btn-xs" type="button" value="Сохранить" onclick="btn_bind_item_serial(this, \'' . $op['id'] . '\')" />';
+            $b_out = '<input class="btn btn-xs" type="button" value="Привязать" onclick="btn_bind_item_serial(this, \'' . $op['id'] . '\')" />';
         }
         if ($type == 4 && $op['item_id'] > 0) {
-            $b_out = '<input class="btn btn-xs" type="button" value="Сохранить" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
+            $b_out = '<input class="btn btn-xs" type="button" value="Отвязать" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
         }
         if ($type == 1) {
-            $out .= '<td>' . ($op['warehouse_type'] == 1 ? 'Локально' : ($op['warehouse_type'] == 2 ? 'Заграница' : '')) . '</td>';
-        }
-        if ($type == 1) {
-            $out .= '<td><div class="input-group" style="max-width:200px">' . $this->select_bind_item_wh($op, $type, $serials);
+            $out .= '<td><div class="input-group"'.(!$compact ? ' style="max-width:200px"' : '').'>' . $this->select_bind_item_wh($op, $type, $serials);
             $out .= '<input class="form-control" type="text" value="" style="display:none;" id="bind_item_serial_input-' . $op['id'] . '" />';
             $out .= '<span class="input-group-btn" onclick="toogle_siblings(this, true)"><button class="btn" type="button"><i class="fa fa-keyboard-o"></i></button></span></div></td>';
         }
@@ -1026,9 +1036,9 @@ class Chains
                 }
             } else {
                 $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
-
+                $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
                 $arr = array(
-                    isset($post['confirm']) ? intval($post['confirm']) : 0,
+                    $wh_type,
                     $user_id,
                     $product['goods_id'],
                     $product['article'],
@@ -1049,6 +1059,18 @@ class Chains
                     VALUES (?i, ?n, ?i, ?, ?, ?, ?i, ?i, ?i, ?, ?, ?i, ?i)', $arr, 'id');
 
                 if ($data['id'] > 0 && $order_class) {
+                    // делаем сразу заказ поставщику (если товара нету на складе)
+                    if($wh_type){
+                        $dt = array(
+                            'order_id' => $order_id,
+                            'order_product_id' => $data['id']
+                        );
+                        $create_supplier_order = $this->order_item($this->all_configs['configs']['orders-manage-page'], $dt);
+                        if(!$create_supplier_order['state']){
+                            $data['state'] = false;
+                            $data['msg'] = $create_supplier_order['msg'];
+                        }
+                    }
                     // достаем товар в корзине
                     $product = $this->all_configs['manageModel']->order_goods($order['id'], $product['type'], $data['id']);
                     if ($product) {
@@ -3482,7 +3504,7 @@ class Chains
 
     public function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js?1'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js?2'></script>";
     }
 
 }

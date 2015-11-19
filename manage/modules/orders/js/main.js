@@ -601,3 +601,43 @@ $(function(){
         });
     });
 });
+
+// редактируем заказ поставщику
+function show_suppliers_order(_this, id){
+    $.ajax({
+        url: prefix + module + '/ajax/?act=supplier-order-form',
+        type: 'POST',
+        data: 'id='+id,
+        success: function(msg) {
+            if (msg['state'] == false && msg['message']) {
+                alert(msg['message'])
+            }
+            if(msg['state'] == true && msg['html']) {
+                alert_box(_this, msg.html);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+// привязать запчасть к заказу
+function bind_product(_this, product_id){
+    $.ajax({
+        url: prefix + module + '/ajax/?act=bind-product-to-order',
+        type: 'POST',
+        data: 'product_id='+product_id,
+        success: function(msg) {
+            if (msg['state'] == false && msg['message']) {
+                alert(msg['message'])
+            }
+            if(msg['state'] == true && msg['html']) {
+                alert_box(_this, msg.html);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+}

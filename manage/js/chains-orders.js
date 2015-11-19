@@ -316,7 +316,11 @@ function btn_unbind_request_item_serial(_this, item_id) {
                     alert(msg['msg']);
                 }
                 if (msg['state'] == true) {
-                    $(_this).remove();
+                    if(msg.unbind){
+                        $(_this).replaceWith(msg.unbind);
+                    }else{
+                        $(_this).remove();
+                    }
                 }
             }
             $(_this).removeClass('disabled');
@@ -335,7 +339,7 @@ function btn_unbind_item_serial(_this, rand) {
     $(_this).addClass('disabled');
 
     $.ajax({
-        url: prefix + module + '/ajax/?act=unbind-item-serial',
+        url: prefix + 'warehouses/ajax/?act=unbind-item-serial',
         type: 'POST',
         dataType: "json",
 
@@ -365,7 +369,7 @@ function btn_bind_item_serial(_this, order_product_id, conf) {
     var serial = $('#bind_item_serial_input-' + order_product_id + ':visible').val();
 
     $.ajax({
-        url: prefix + module + '/ajax/?act=bind-item-serial',
+        url: prefix + 'warehouses/ajax/?act=bind-item-serial',
         type: 'POST',
         dataType: "json",
 

@@ -96,25 +96,7 @@ $(document).ready(function() {
 
 });
 
-function toogle_siblings(_this, btn_children)
-{
-    var hiddens = $(_this).siblings('input[type="text"]:hidden, select:hidden, textarea:hidden');
-    var shows = $(_this).siblings('input[type="text"]:visible, select:visible, textarea:visible');
-    hiddens.show();
-    shows.hide();
-    if(btn_children){
-        var children = $(_this).children().children();
-    }else{
-        var children = $(_this).children();
-    }
-    if (children) {
-        if (children.attr('class') == 'fa fa-keyboard-o') {
-            children.attr('class', 'fa fa-caret-square-o-down');
-        } else {
-            children.attr('class', 'fa fa-keyboard-o');
-        }
-    }
-}
+
 
 function multiselect() { 
     $('.multiselect').multiselect({

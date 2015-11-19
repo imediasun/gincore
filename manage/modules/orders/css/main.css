@@ -516,3 +516,29 @@ td.td-sc-count {
 .print_menu li input{
     margin-top: 1px;
 }
+
+.order_product{
+    background-color: #fff;
+}
+.order_product .text-info{
+    padding: 2px 5px;
+    font-size: 11px;
+    width: 87%;
+    float:left;
+}
+.order_product .text-info *{
+    font-size: inherit;
+}
+.order_product_menu{
+    position: relative;
+    float:left;
+    width: 13%;
+}
+.order_product_menu>.btn{
+    width: 100%;
+}
+.order_product_menu a.text-muted{
+    color: #e2e2e2 !important;
+    cursor: default;
+    background: none !important;
+}

@@ -1144,9 +1144,11 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
     if(e){
         e.stopPropagation();
     }
-    if ($(_this).hasClass('disabled') || $(_this).prop('disabled'))
-        return false;
 
+    if (($(_this).hasClass('disabled') || $(_this).prop('disabled')) && 
+            !$(_this).data('alert_box_not_disabled'))
+        return false;
+    
     if ($(_this).is('input') || $(_this).is('button'))
         $(_this).button('loading');
     else
@@ -1596,3 +1598,23 @@ $(function(){
         $glossary.toggle();
     });
 });
+
+function toogle_siblings(_this, btn_children)
+{
+    var hiddens = $(_this).siblings('input[type="text"]:hidden, select:hidden, textarea:hidden');
+    var shows = $(_this).siblings('input[type="text"]:visible, select:visible, textarea:visible');
+    hiddens.show();
+    shows.hide();
+    if(btn_children){
+        var children = $(_this).children().children();
+    }else{
+        var children = $(_this).children();
+    }
+    if (children) {
+        if (children.attr('class') == 'fa fa-keyboard-o') {
+            children.attr('class', 'fa fa-caret-square-o-down');
+        } else {
+            children.attr('class', 'fa fa-keyboard-o');
+        }
+    }
+}

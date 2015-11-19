@@ -1863,7 +1863,8 @@ class orders
         $qty = isset($product['count']) ? intval($product['count']) : 1;
         $supplier_order = $this->
                             all_configs['db']
-                                ->query("SELECT supplier_order_id as id, o.count, o.supplier "
+                                ->query("SELECT supplier_order_id as id, o.count, o.supplier, "
+                                              ."o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
                                        ."FROM {orders_suppliers_clients} as c "
                                        ."LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
                                        ."WHERE c.client_order_id = ?i AND c.goods_id = ?i", 
@@ -1900,10 +1901,45 @@ class orders
                 $msg = '<td>' . suppliers_order_generate_serial($product, true, true) . ' ' . $muted . '</td><td>';
                 if (!strtotime($product['unbind_request']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $msg .= '<i title="отвязать" class="glyphicon glyphicon-minus cursor-pointer" onclick="btn_unbind_request_item_serial(this, \'' . $product['item_id'] . '\')"></i>';
+                }else{
+                    $msg .= $this->get_unbind_order_product_btn($product['item_id']);
                 }
                 $msg .= '</td>';
             } else {
-                if ($product['count_order'] > 0) {
+                $create_role = $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders');
+                $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
+                $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
+                $role_alert = "alert('У Вас недостаточно прав для этой операции')";
+                
+                $avail_create = $avail_accept = $avail_bind = false;
+                $accept_action = $bind_action = $create_action = '';
+                $accept_data = '';
+                
+                if ($product['unavailable'] == 1) {
+                    $msg = 'Запчасть не доступна к заказу ' . $muted . '';
+                }elseif($product['count_debit'] > 0) {
+                    $avail_bind = true;
+                    $bind_action = 'bind_product(this,'.$product['goods_id'].')';
+                    $msg = 'Ожидание отгрузки запчасти
+                            <span title="' . do_nice_date($product['date_debit'], false) . '">' . 
+                            do_nice_date($product['date_debit']) . '</span> ' . 
+                            $muted . '';
+                }elseif($product['count_come'] > 0) {
+                    $avail_accept = true;
+                    $accept_action = "alert_box(this,false,'form-debit-so',{},null,'warehouses/ajax/')";
+                    $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
+                    $msg = 'Запчасть была принята
+                            <span title="' . do_nice_date($product['date_come'], false) . '">' . 
+                            do_nice_date($product['date_come']) . '</span> ' . 
+                            $muted . '';
+                }elseif($product['supplier'] > 0) {
+                    $avail_accept = true;
+                    $accept_action = "alert_box(this, false, 'form-accept-so-and-debit')";
+                    $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
+                    $msg = 'Запчасть заказана (заказ поставщику №' . $product['so_id'] . ').
+                            Дата поставки <span title="' . do_nice_date($product['date_wait'], false) . '">' . 
+                            do_nice_date($product['date_wait']) . '';
+                }elseif($product['count_order'] > 0) {
                     $date_attach = $this->all_configs['db']->query(
                                         "SELECT date_add FROM {orders_suppliers_clients} "
                                        ."WHERE client_order_id = ?i AND supplier_order_id = ?i "
@@ -1911,24 +1947,52 @@ class orders
                                              $product['order_id'],$product['so_id'],
                                              $product['goods_id'],$product['id']
                                          ), 'el');
-                    $msg = '<td colspan="2"><div class="center info"><small><span title="' . do_nice_date($date_attach, false) . '">' . do_nice_date($date_attach) . '</span>
-                        Отправлен запрос на закупку ' . $muted . ' от <span title="' . do_nice_date($product['date_add'], false) . '">' . do_nice_date($product['date_add']) . '</span></small></div></td>';
+                    
+                    $avail_create = true;
+                    $create_action = 'show_suppliers_order(this, '.$supplier_order['id'].')';
+                    $msg = '
+                        <span title="'.do_nice_date($date_attach, false).'">'.
+                            do_nice_date($date_attach).
+                        '</span> '.
+                        'Отправлен запрос на закупку '.$muted.' от '. 
+                        '<span title="'.do_nice_date($product['date_add'], false).'">'.
+                            do_nice_date($product['date_add']).
+                        '</span>
+                    ';
                 }
-                if ($product['supplier'] > 0) {
-                    $msg = '<td colspan="2"><div class="center info"><small>Запчасть заказана (заказ поставщику №' . $product['so_id'] . ').
-                        Дата поставки <span title="' . do_nice_date($product['date_wait'], false) . '">' . do_nice_date($product['date_wait']) . '</span></small></div></td>';
-                }
-                if ($product['count_come'] > 0) {
-                    $msg = '<td colspan="2"><div class="center info"><small>Запчасть была принята
-                        <span title="' . do_nice_date($product['date_come'], false) . '">' . do_nice_date($product['date_come']) . '</span> ' . $muted . '</small></div></td>';
-                }
-                if ($product['count_debit'] > 0) {
-                    $msg = '<td colspan="2"><div class="center info"><small>Ожидание отгрузки запчасти
-                        <span title="' . do_nice_date($product['date_debit'], false) . '">' . do_nice_date($product['date_debit']) . '</span> ' . $muted . '</small></div></td>';
-                }
-                    if ($product['unavailable'] == 1) {
-                    $msg = '<td colspan="2"><div class="center black"><small>Запчасть не доступна к заказу ' . $muted . '</small></div></td>';
-                }
+               
+                $msg = '
+                    <td colspan="2">
+                        <div class="order_product clearfix">
+                            <div class="text-info">
+                                '.$msg.'
+                            </div>
+                            <div class="order_product_menu">
+                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a data-alert_box_not_disabled="true" class="'.(!$avail_create || !$create_role ? 'text-muted' : '').'" onclick="'.($create_role ? $create_action : $role_alert).';return false;">
+                                            <i class="fa fa-pencil"></i> Создать заказ поставщику
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-alert_box_not_disabled="true" '.$accept_data.' class="'.(!$avail_accept || !$accept_role ? 'text-muted' : '').'" onclick="'.($accept_role ? $accept_action : $role_alert).';return false;">
+                                            <i class="fa fa-wrench"></i> Принять и оприходовать заказ
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-alert_box_not_disabled="true" class="'.(!$avail_bind || !$bind_role ? 'text-muted' : '').'" onclick="'.($bind_role ? $bind_action : $role_alert).';return false;">
+                                            <i class="fa fa-random"></i> Отгрузить деталь под ремонт
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                ';
             }
         } else {
             $msg = '<td colspan="2"></td>';
@@ -2438,7 +2502,17 @@ class orders
 
         return $img_id;
     }
-
+    
+    function get_unbind_order_product_btn($item_id){
+        $btn = '';
+        if($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')){
+            $btn = '
+                <input class="btn btn-xs" type="button" value="Отвязать" onclick="alert_box(this,null,\'bind-move-item-form\',{object_id:'.$item_id.'},null,\'warehouses/ajax/\')">
+            ';
+        }
+        return $btn;
+    }
+    
     function ajax()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -2584,6 +2658,11 @@ class orders
         // форма принятия заказа поставщику
         if ($act == 'form-accept-so') {
             $this->all_configs['suppliers_orders']->accept_form();
+        }
+
+        // форма принятия заказа поставщику и приходования
+        if ($act == 'form-accept-so-and-debit') {
+            $this->all_configs['suppliers_orders']->accept_form(true);
         }
 
         // заявки
@@ -2989,9 +3068,31 @@ class orders
         if ($act == 'add-supplier-form') {
             $data['state'] = true;
             $counter = isset($_POST['counter']) ? intval($_POST['counter']) : 0;
-            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(1, null, false, $counter);
+            $id = isset($_POST['id']) ? $_POST['id'] : null;
+            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(1, $id, false, $counter);
+        }
+        
+        if ($act == 'supplier-order-form') {
+            $data['state'] = true;
+            $counter = 0;
+            $id = isset($_POST['id']) ? $_POST['id'] : null;
+            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(true, $id, true, $counter, true);
         }
 
+        // открываем форму привязки запчасти к ремонту
+        if($act == 'bind-product-to-order'){
+            $data['state'] = true;
+            $product_id = $_POST['product_id'];
+            $data_ops = $this->all_configs['chains']->stockman_operations_goods($product_id);
+            $operations = $this->all_configs['chains']->get_operations(1, null, false, $data_ops['goods']);
+            $ops = $this->all_configs['chains']->show_stockman_operation($operations[0], 1, $data_ops['serials'], true);
+            $data['html'] = '
+                <table class="table">
+                    '.$ops.'
+                </table>
+            ';
+        }
+        
         if ($act == 'client-bind') {
 
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
@@ -3075,11 +3176,15 @@ class orders
         // принятие заказа
         if ( $act == 'accept-supplier-order' ) {
             $data = $this->all_configs['suppliers_orders']->accept_order($mod_id, $this->all_configs['chains']);
+//            $data['state'] = true;
         }
 
         // запрос на отвязку серийного номера
         if ($act == 'unbind-request-item-serial') {
             $data = $this->all_configs['chains']->unbind_request($mod_id, $_POST);
+            if($data['state']){
+                $data['unbind'] = $this->get_unbind_order_product_btn((int)$_POST['item_id']);
+            }
         }
 
         // статус заказа поставщику

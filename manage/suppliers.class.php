@@ -698,7 +698,7 @@ class Suppliers
 
     function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?2'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?3'></script>";
     }
 
     function exportProduct($product)
@@ -818,7 +818,7 @@ class Suppliers
         return $out;
     }
 
-    function create_order_block($goods = null, $order_id = null, $all = true, $typeahead = 0)
+    function create_order_block($goods = null, $order_id = null, $all = true, $typeahead = 0, $is_modal = false)
     {
         $suppliers = null;
         if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
@@ -842,7 +842,7 @@ class Suppliers
         }else{
             $goods_html .= '<h3>Создание нового заказа поставщику</h3>';
         }
-        $goods_html .= '<br><form data-validate="parsley" id="suppliers-order-form" method="post"><div class="row row-15"><div class="col-sm-6">';
+        $goods_html .= '<br><form data-validate="parsley" id="suppliers-order-form" method="post"><div class="row row-15"><div class="col-sm-'.($is_modal ? '12' : '6').'">';
         $disabled = '';
         $info_html = '';
         $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div>';
@@ -1613,7 +1613,7 @@ class Suppliers
         exit;
     }
 
-    function accept_form()
+    function accept_form($show_debit_form_after = false)
     {
         $data = array();
         $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
@@ -1659,7 +1659,13 @@ class Suppliers
 
         $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
         $data['content'] .= '</form>';
-        $data['btns'] = '<input class="btn btn-success" onclick="accept_supplier_order(this)" type="button" value="Создать" />';
+        //alert_box(this, false, \'form-debit-so\')
+        $callback = '';
+        if($show_debit_form_after){
+            $callback = ',(form_debit=function(_this){alert_box(_this,false,\'form-debit-so\',{object_id:'.$order_id.'},null,\'warehouses/ajax/\')})';
+        }
+        $data['btns'] = 
+            '<input class="btn btn-success" onclick="accept_supplier_order(this'.$callback.')" type="button" value="Принять" />';
         $data['functions'] = array('reset_multiselect()');
 
         header("Content-Type: application/json; charset=UTF-8");
