@@ -2,6 +2,7 @@
 
 require_once 'inc_config.php';
 require_once 'inc_func.php';
+require_once 'inc_settings.php';
 
 $phone = isset($_GET['t']) ? trim($_GET['t']) : '';
 $code = isset($_GET['code']) ? trim($_GET['code']) : '';
