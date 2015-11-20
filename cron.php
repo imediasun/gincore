@@ -11,7 +11,7 @@ if (!isLocalRequest()) {
  */
 function isLocalRequest()
 {
-	return $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'];
+	return $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] || $_SERVER['SERVER_ADDR'] == '127.0.0.1';
 }
 
 echo "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>";
