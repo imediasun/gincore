@@ -1869,7 +1869,7 @@ class orders
                                        ."LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
                                        ."WHERE c.client_order_id = ?i AND c.goods_id = ?i", 
                                             array($product['order_id'], $product['goods_id']), 'row');
-        $confirm_remove_supplier_order = $supplier_order['count'] == 1 ? ', 1' : '';
+        $confirm_remove_supplier_order = $supplier_order['count'] == 1 && $supplier_order['confirm'] != 1 ? ', 1' : '';
         /*$count = '<select id="product_count-' . $product['goods_id'] . '" class="input-mini" onchange="order_products(this, ' . $product['goods_id'] . ', 1)">';
         for ($i = 1; $i <= 99; $i++) {
             $count .= '<option ' . ($i == $qty ? 'selected' : '') . ' value="' . $i . '">' . $i . '</option>';
