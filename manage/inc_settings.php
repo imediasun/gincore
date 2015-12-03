@@ -51,7 +51,7 @@ foreach($vars as $var_id => $var){
     $k_def = $var_id.'_'.$manage_def_lang;
     $manage_translates[$var] = !empty($translates[$k_cur]['text']) ? $translates[$k_cur]['text'] : $translates[$k_def]['text'];
     if(strpos($var, 'js_') === 0){
-        $manage_translates_js[$var] = $manage_translates[$var];
+        $manage_translates_js[substr($var,3)] = $manage_translates[$var];
     }
 }
 $input['manage_translates_js'] = json_encode($manage_translates_js);
