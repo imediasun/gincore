@@ -793,7 +793,7 @@ class clients
         if ($orders && count($orders) > 0) {
             $model = new Model($this->all_configs['db'], $this->all_configs['configs']);
 
-            $out .= '<table class="table table-compact"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td><td>Приемщик</td>';
+            $out .= '<table class="table table-compact"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td><td>'.l('Приемщик').'</td>';
             $out .= '<td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td><td>Стоимость</td><td>Оплачено</td>';
             $out .= '<td>Клиент</td><td>Контактный тел.</td><td>Сроки</td>';
             $out .= '<td>Склад</td></tr></thead><tbody id="table_clients_orders">';

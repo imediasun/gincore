@@ -2927,7 +2927,7 @@ class accountings
             }
             // приемщикы
             $accepters = $this->all_configs['oRole']->get_users_by_permissions('create-clients-orders');
-            $out .= '<div class="form-group"><label>Приемщик:</label>';
+            $out .= '<div class="form-group"><label>'.l('Приемщик').':</label>';
             //if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
                 $disabled = $this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') ? 'disabled' : '';
                 $out .= '<select ' . $disabled . ' class="multiselect form-control report-filter" name="accepters[]" multiple="multiple">';

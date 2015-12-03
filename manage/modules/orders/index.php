@@ -650,7 +650,7 @@ class orders
 
         if ($orders && count($orders) > 0) {
             $orders_html .= '<table class="table table-hover"><thead><tr><td>№ заказа</td><td></td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             } else {
@@ -695,7 +695,7 @@ class orders
 
         if ($orders && count($orders) > 0) {
             $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             }
@@ -738,7 +738,7 @@ class orders
 
         if ($orders && count($orders) > 0) {
             $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             }
@@ -782,7 +782,7 @@ class orders
 
         if ($orders && count($orders) > 0) {
             $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             }
@@ -2196,7 +2196,7 @@ class orders
             $order_html .= ' Локации: </label> ' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']);
             $order_html .= ' <i title="Переместить заказ" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" data-o_id="' . $order['id'] . '" class="glyphicon glyphicon-move cursor-pointer"></i></div>';
 
-            $order_html .= '<div class="form-group"><label>Приемщик:</label> ' . get_user_name($order, 'a_') . '</div>';
+            $order_html .= '<div class="form-group"><label>'.l('Приемщик').':</label> ' . get_user_name($order, 'a_') . '</div>';
             // не продажа
             if ($order['type'] != 3) {
                 if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
