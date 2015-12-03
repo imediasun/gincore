@@ -80,6 +80,18 @@ class Configs {
             ),
         ),
         
+            'manage-langs' => array(
+                'current' => 'ru',
+                'default' => 'ru',
+                'list' => array(
+                    'ru' => array(
+                        'name' => 'Русский',
+                    ),
+                    'en' => array(
+                        'name' => 'English',
+                    )
+                )
+            ),
             'manage-show-glossary' => true,
             'manage-glossary-url'  => 'http://192.168.1.20/fon/unify/restore?iframe=1',
             'manage-print-default-service-restore' => false, // адрес и телефон рестора по умолчанию в печати если не указаны в отделении
@@ -89,7 +101,7 @@ class Configs {
                                                 'accountings','categories','clients',
                                                 'debug','logistics','master','orders',
                                                 'partners','products','settings','statistics',
-                                                'tasks','users','warehouses','wrapper'
+                                                'tasks','users','warehouses','wrapper','admin_translates'
                                            ),
             'manage-reset-access'       =>  true, // доступен ли сброс в модуле дебаг
             'settings-master-enabled'   =>  true, // мастер настрйоки при регистрации новой админки

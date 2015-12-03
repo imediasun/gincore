@@ -4,10 +4,7 @@
  * модуль редактора страниц и карты сайта
  */
 
-include $all_configs['path'].'modules/map/langs.php';
 include 'inc_helper_price.php';
-
-$lang_arr = array_merge($lang_arr, $map_lang);
 
 // нужные переводы для шаблона
 $input['loading'] = l('loading');

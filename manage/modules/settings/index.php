@@ -1,12 +1,5 @@
 <?php
 
-include $all_configs['path'].'modules/settings/langs.php';
-
-$lang_arr = array_merge($lang_arr, $settings_lang);
-
-// нужные переводы для шаблона
-
-
 // настройки
 $modulename[110] = 'settings';
 $modulemenu[110] = l('sets_modulemenu');  //карта сайта

@@ -190,6 +190,7 @@ if($modulename){
                 || ($v == 'map' && $all_configs['oRole']->hasPrivilege('edit-map'))
                 || ($v == 'langs' && $all_configs['oRole']->hasPrivilege('edit-map'))
                 || ($v == 'translates' && $all_configs['oRole']->hasPrivilege('edit-map'))
+                || ($v == 'admin_translates' && $all_configs['oRole']->hasPrivilege('site-administration'))
                 || ($v == 'flayers' && $all_configs['oRole']->hasPrivilege('site-administration'))
                 || ($v == 'settings' && $all_configs['oRole']->hasPrivilege('site-administration'))
                 || ($v == 'wrapper' && $all_configs['oRole']->hasPrivilege('site-administration'))
@@ -217,7 +218,7 @@ if($modulename){
                 || ($v == 'seo' && $all_configs['oRole']->hasPrivilege('edit-map'))
                     
             ) {
-                if ($v == 'map' || $v == 'langs' || $v == 'translates' || $v == 'chat'
+                if ($v == 'map' || $v == 'langs' || $v == 'translates' || $v == 'admin_translates' || $v == 'chat'
                     || $v == 'settings' || $v == 'users' || $v == 'offices' || $v == 'wrapper'
                     || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains' 
                     || $v == 'debug'  || $v == 'tasks' || $v == 'flayers' || $v == 'statistics' 

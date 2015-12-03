@@ -1,10 +1,5 @@
 <?php
 
-include $all_configs['path'] . 'modules/forms/langs.php';
-
-$lang_arr = array_merge($lang_arr, $forms_lang);
-
-
 // настройки
 $modulename[170] = 'forms';
 $modulemenu[170] = l('form_modulemenu');  //карта сайта

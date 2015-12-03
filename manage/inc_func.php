@@ -33,7 +33,7 @@ function db(){
 function get_langs(){
     global $all_configs, $dbcfg;
     $return = array();
-    $langs = $all_configs['db']->query("SELECT name, url, `default` FROM {langs} WHERE state = 1")->assoc();
+    $langs = $all_configs['db']->query("SELECT name, url, `default` FROM {langs} WHERE state = 1")->assoc('url');
     
     foreach($langs as $lnge){
         if($lnge['default']){
@@ -54,13 +54,36 @@ function get_langs(){
     return $return;
 }
 
-function l($param)
+//function l($param)
+//{
+//    global $lang, $lang_arr, $def_lang;
+//    if (isset($lang_arr[$param][$lang]) && trim($lang_arr[$param][$lang])) {
+//        $text = $lang_arr[$param][$lang];
+//    } else {
+//        $text = $lang_arr[$param][$def_lang];
+//    }
+//    return $text;
+//}
+
+/**
+ * https://php.net/manual/ru/function.printf.php#51763
+ */
+function sprintf_array($format, $arr) 
+{ 
+    return call_user_func_array('sprintf', array_merge((array)$format, $arr)); 
+} 
+
+function l($param, $placeholders = array())
 {
-    global $lang, $lang_arr, $def_lang;
-    if (isset($lang_arr[$param][$lang]) && trim($lang_arr[$param][$lang])) {
-        $text = $lang_arr[$param][$lang];
-    } else {
-        $text = $lang_arr[$param][$def_lang];
+    global $manage_translates;
+    if (!empty($manage_translates[$param])) {
+        $text = $manage_translates[$param];
+    }else{
+        $text = '{'.$param.'}';
+    }
+    
+    if (count($placeholders)) {
+        return sprintf_array($text, $placeholders);
     }
     return $text;
 }

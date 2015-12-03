@@ -1,13 +1,6 @@
 <?php
 ini_set('memory_limit','512M');
 
-include $all_configs['path'].'modules/translates/langs.php';
-
-$lang_arr = array_merge($lang_arr, $langs_translates);
-
-// нужные переводы для шаблона
-
-
 // настройки
 $modulename[140] = 'translates';
 $modulemenu[140] = l('trans_modulemenu');  //карта сайта
@@ -16,13 +9,14 @@ $moduleactive[140] = !$ifauth['is_2'];
 
 class translates{
     
-    private $tbl_prefix;
-    private $config;
+    protected $tbl_prefix;
+    protected $config = null;
+    protected $url = null;
     
     protected $all_configs;
-    private $lang;
-    private $def_lang;
-    private $langs;
+    protected $lang;
+    protected $def_lang;
+    protected $langs;
     function __construct($all_configs, $lang, $def_lang, $langs){
         $this->def_lang = $def_lang;
         $this->lang = $lang;
@@ -32,51 +26,8 @@ class translates{
         global $input_html, $ifauth, $dbcfg;
         
         $this->tbl_prefix = $dbcfg['_prefix'];
-        $this->config = array(
-            $this->tbl_prefix.'map' => array(
-                'name' => 'Переводы для карты сайта',
-    //            'var' => 'url',
-                'key' => 'map_id',
-                'fields' => array(
-                    'name' => 'Название',
-                    'fullname' => 'Заголовок',
-                    'content' => 'Контент'
-                )
-            ),
-            $this->tbl_prefix.'forms' => array(
-                'name' => 'Переводы для форм',
-    //            'var' => 'url',
-                'key' => 'forms_id',
-                'fields' => array(
-                    'name' => 'Название',
-                    'user_result_text' => 'Текст письма пользователю',
-                    'user_result_title' => 'Заголовок письма пользователю'
-                )
-            ),
-            $this->tbl_prefix.'reviews_marks' => array(
-                'name' => 'Переводы оценок отзывов',
-    //            'var' => 'url',
-                'key' => 'mark_id',
-                'fields' => array(
-                    'name' => 'Название'
-                )
-            ),
-            $this->tbl_prefix.'template_vars' => array(
-                'name' => 'Переводы для шаблона сайта',
-                'var' => 'var',
-                'key' => 'var_id',
-                'fields' => array(
-                    'text' => 'Значение'
-                )
-            ),
-            $this->tbl_prefix.'sms_templates' => array(
-                'name' => 'Шаблоны смс',
-                'key' => 'sms_templates_id',
-                'fields' => array(
-                    'body' => 'Текст'
-                )
-            ),
-        );
+        
+        $this->set_config();
         
         if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax'){
             $this->ajax();
@@ -89,31 +40,83 @@ class translates{
         $input_html['mcontent'] = $this->gencontent();
     }
 
-    private function genmenu(){
+    private function set_config(){
+        if(is_null($this->config)){
+            $this->url = __CLASS__;
+            $this->config = array(
+                $this->tbl_prefix.'map' => array(
+                    'name' => 'Переводы для карты сайта',
+        //            'var' => 'url',
+                    'key' => 'map_id',
+                    'fields' => array(
+                        'name' => 'Название',
+                        'fullname' => 'Заголовок',
+                        'content' => 'Контент'
+                    )
+                ),
+                $this->tbl_prefix.'forms' => array(
+                    'name' => 'Переводы для форм',
+        //            'var' => 'url',
+                    'key' => 'forms_id',
+                    'fields' => array(
+                        'name' => 'Название',
+                        'user_result_text' => 'Текст письма пользователю',
+                        'user_result_title' => 'Заголовок письма пользователю'
+                    )
+                ),
+                $this->tbl_prefix.'reviews_marks' => array(
+                    'name' => 'Переводы оценок отзывов',
+        //            'var' => 'url',
+                    'key' => 'mark_id',
+                    'fields' => array(
+                        'name' => 'Название'
+                    )
+                ),
+                $this->tbl_prefix.'template_vars' => array(
+                    'name' => 'Переводы для шаблона сайта',
+                    'var' => 'var',
+                    'key' => 'var_id',
+                    'fields' => array(
+                        'text' => 'Значение'
+                    )
+                ),
+                $this->tbl_prefix.'sms_templates' => array(
+                    'name' => 'Шаблоны смс',
+                    'key' => 'sms_templates_id',
+                    'fields' => array(
+                        'body' => 'Текст'
+                    )
+                ),
+            );
+        }
+    }
+    protected function genmenu(){
         $out = '<h4>Таблицы</h4><ul>';
         foreach($this->config as $table => $conf){
             $out .= '
                 <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == $table ? ' class="active"' : '').
-                      ' href="'.$this->all_configs['prefix'].'translates/'.$table.'">'.$conf['name'].'</a></li>
+                      ' href="'.$this->all_configs['prefix'].''.$this->url.'/'.$table.'">'.$conf['name'].'</a></li>
             ';
         }
         $out .= '<li style="margin-top:15px"><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'changes' ? ' class="active"' : '').
-                        ' href="'.$this->all_configs['prefix'].'translates/changes">Изменения</a></li>';
+                        ' href="'.$this->all_configs['prefix'].''.$this->url.'/changes">Изменения</a></li>';
         $out .= '</ul>';
 
         return $out;
     }
 
     
-    private function gencontent(){
+    protected function gencontent(){
 
-        $languages = $this->all_configs['db']->query("SELECT * FROM {langs}")->assoc('url');
-        foreach($languages as $lnge){
-            if($lnge['default']){
-                $def_lang = $lnge['url'];
-                break;
-            }
-        }
+//        $languages = $this->all_configs['db']->query("SELECT * FROM {langs}")->assoc('url');
+//        foreach($this->langs as $lnge){
+//            if($lnge['default']){
+//                $def_lang = $lnge['url'];
+//                break;
+//            }
+//        }
+        $languages = $this->langs;
+        $def_lang = $this->def_lang;
         
         $out = 'Выберите таблицу слева.';
         if(isset($this->all_configs['arrequest'][1])){
@@ -175,9 +178,9 @@ class translates{
                                         ));
                                 $out = '<h2>Копирование языка '.$from.' в '.$to.'</h2>';
                                 $out .= 'Скопировано успешно. '.
-                                        '<a href="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/copy">Вернуться назад</a>'; 
+                                        '<a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy">Вернуться назад</a>'; 
                             }else{
-                                header('Location: '.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/copy');
+                                header('Location: '.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy');
                                 exit;
                             }
                         }else{
@@ -188,7 +191,7 @@ class translates{
                             }
                             $out .= '
                                 <form onSubmit="return confirm(\'Вы абсолютно уверены в том что хотите скопировать?\')" '.
-                                'action="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/copy/make_magic" method="post">
+                                'action="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy/make_magic" method="post">
                                     <div class="form-group">
                                         <label>Копировать</label>
                                         <select name="from" class="form-control">
@@ -235,7 +238,7 @@ class translates{
                             
                             $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q", 
                                         array($this->all_configs['arrequest'][1], $config['key'], implode(',', $all_fields), implode(',', $values)));
-                            header('Location: '.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1]);
+                            header('Location: '.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1]);
                             exit;
                             
                         }else{
@@ -244,7 +247,7 @@ class translates{
     //                        print_r($columns);
     //                        exit;
                             $out .= '
-                                <form action="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/add/save" method="post">
+                                <form action="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/add/save" method="post">
                                 <fieldset>
                                     <legend>Данные</legend>
                             ';
@@ -268,14 +271,14 @@ class translates{
                             ';
                             foreach($config['fields'] as $field => $field_name){
                                 foreach($languages as $lng => $l){
-                                    if($l['state']){
+//                                    if($l['state']){
                                         $out .= '
                                             <div class="from-control">
                                                 <label>'.$field_name.', '.$lng.'</label>
                                                 <input class="form-control" name="translates['.$lng.']['.$field.']" type="text">
                                             </div>
                                         ';
-                                    }
+//                                    }
                                 }
                             }
                             $out .= '
@@ -324,14 +327,14 @@ class translates{
 
 //                        $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q", 
 //                                    array($this->all_configs['arrequest'][1], $config['key'], implode(',', $all_fields), implode(',', $values)));
-                        header('Location: '.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1]);
+                        header('Location: '.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1]);
                         exit;
                     }
                     
                 }else{
-                    $out = '<small><a href="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/copy">скопировать языки</a></small>';
-                    $out .= '<h3>'.$config['name'].' <a href="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/add">+</a></h3>';
-                    $out .= '<form action="'.$this->all_configs['prefix'].'translates/'.$this->all_configs['arrequest'][1].'/save" method="post">';
+                    $out = '<small><a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy">скопировать языки</a></small>';
+                    $out .= '<h3>'.$config['name'].' <a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/add">+</a></h3>';
+                    $out .= '<form action="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/save" method="post">';
                 
     //                print_r($table);
     //                print_r($translates);
@@ -360,7 +363,7 @@ class translates{
                                         <p class="text-muted">'.$field.'</p>';
 
                             foreach($langs as $lng => $translate){
-                                if(isset($languages[$lng]) && $languages[$lng]['state']){
+//                                if(isset($languages[$lng]) && $languages[$lng]['state']){
                                     $value = htmlspecialchars($translate[$field]);
                                     $out .= '
                                         <span class="form-group" style="display:block">
@@ -378,7 +381,7 @@ class translates{
                                         </span>
                                         ';
                                     }
-                                }
+//                                }
                             }
 
                             $out .= '</fieldset>';
@@ -433,11 +436,11 @@ class translates{
                                 break;
                                 case 'template_vars':
                                     $data = $this->all_configs['db']->query("SELECT var FROM {template_vars} WHERE id = ?i", array($change['id']), 'el');
-                                    $link = 'translates/'.$change['tbl'].'/'.$change['id'];
+                                    $link = ''.$this->url.'/'.$change['tbl'].'/'.$change['id'];
                                 break;
                                 default: 
                                     $data = '';
-                                    $link = 'translates/'.$change['tbl'].'/'.$change['id'];
+                                    $link = ''.$this->url.'/'.$change['tbl'].'/'.$change['id'];
                                 break;
                             }
                             $out .= '<tr>
@@ -464,7 +467,7 @@ class translates{
         return $out;
     }
 
-    private function ajax(){
+    protected function ajax(){
 
         $data = array(
             'state' => false
@@ -476,5 +479,3 @@ class translates{
     }
 
 }
-
-?>

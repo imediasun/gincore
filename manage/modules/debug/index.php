@@ -1,12 +1,5 @@
 <?php
 
-include $all_configs['path'].'modules/debug/langs.php';
-
-$lang_arr = array_merge($lang_arr, $settings_lang);
-
-// нужные переводы для шаблона
-
-
 // настройки
 $modulename[120] = 'debug';
 $modulemenu[120] = l('debug_modulemenu');  //карта сайта

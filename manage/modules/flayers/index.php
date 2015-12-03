@@ -1,10 +1,5 @@
 <?php
 
-include $all_configs['path'].'modules/flayers/langs.php';
-
-$lang_arr = array_merge($lang_arr, $flayers_lang);
-
-
 // настройки
 $modulename[180] = 'flayers';
 $modulemenu[180] = l('flayers_modulemenu');  //карта сайта

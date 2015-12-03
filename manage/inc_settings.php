@@ -6,7 +6,6 @@ include_once 'chains.class.php';
 
 include_once 'class_auth.php';
 
-require_once 'langs.php';
 require_once $all_configs['sitepath'] . 'shop/access_system.class.php';
 require_once $all_configs['sitepath'] . 'configs.php';
 
@@ -29,3 +28,24 @@ $all_configs['suppliers_orders']->suppliers_orders = $all_configs['settings']['c
 $all_configs['suppliers_orders']->currency_clients_orders = $all_configs['settings']['currency_orders'];
 
 $all_configs['chains'] = new Chains($all_configs);
+
+/* определяем языки админки */
+
+// текущий язык админки
+$manage_lang = $all_configs['configs']['manage-langs']['current'];
+//$manage_lang = 'en';
+// дефолтный язык админки
+$manage_def_lang = $all_configs['configs']['manage-langs']['default'];
+// массив языков админки
+$manage_langs = $all_configs['configs']['manage-langs']['list'];
+
+$manage_translates = array();
+$vars = $db->query("SELECT id, var FROM {admin_translates}")->vars();
+$translates = $db->query("SELECT CONCAT(var_id, '_', lang) as id, var_id, text, lang "
+                        ."FROM {admin_translates_strings} "
+                        ."WHERE lang IN (?,?)", array($manage_lang, $manage_def_lang), 'assoc:id');
+foreach($vars as $var_id => $var){
+    $k_cur = $var_id.'_'.$manage_lang;
+    $k_def = $var_id.'_'.$manage_def_lang;
+    $manage_translates[$var] = !empty($translates[$k_cur]['text']) ? $translates[$k_cur]['text'] : $translates[$k_def]['text'];
+}
