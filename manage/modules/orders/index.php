@@ -6,39 +6,13 @@ $modulemenu[10] = l('orders');
 
 class orders
 {
-    public static $mod_submenu;
+    private $mod_submenu;
     protected $all_configs;
     public $count_on_page;
     
     function __construct(&$all_configs, $gen_module = true)
     {
-        $this::$mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#show_orders',
-            'name' => l('customer_orders')//'Заказы клиентов'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#create_order',
-            'name' => l('create_order')//'Создать заказ'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#show_suppliers_orders',
-            'name' => l('suppliers_orders')//'Заказы поставщику'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#create_supplier_order',
-            'name' => l('create_supplier_order')//'Создать заказ поставщику'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#orders_manager',
-            'name' => l('orders_manager')//'Менеджер заказов'
-        ), 
-    );
+        $this->mod_submenu = self::get_submenu();
         
         $this->all_configs = $all_configs;
         
@@ -548,17 +522,17 @@ class orders
 
         $orders_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_show_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'<span class="tab_count hide tc_clients_orders"></span></a></li>';
+            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_show_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'<span class="tab_count hide tc_clients_orders"></span></a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
+            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_show_suppliers_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'<span class="tab_count hide tc_suppliers_orders"></span></a></li>';
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_supplier_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'</a></li>';
+            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_show_suppliers_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'<span class="tab_count hide tc_suppliers_orders"></span></a></li>';
+            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_supplier_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_manager" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a></li>';
+            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_manager" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a></li>';
         }
 
         $orders_html .= '</ul><div class="tab-content">';
@@ -3204,5 +3178,34 @@ class orders
         exit;
     }
 
-
+    public static function get_submenu(){
+        return array(
+            array(
+                'click_tab' => true,
+                'url' => '#show_orders',
+                'name' => l('customer_orders')//'Заказы клиентов'
+            ), 
+            array(
+                'click_tab' => true,
+                'url' => '#create_order',
+                'name' => l('create_order')//'Создать заказ'
+            ), 
+            array(
+                'click_tab' => true,
+                'url' => '#show_suppliers_orders',
+                'name' => l('suppliers_orders')//'Заказы поставщику'
+            ), 
+            array(
+                'click_tab' => true,
+                'url' => '#create_supplier_order',
+                'name' => l('create_supplier_order')//'Создать заказ поставщику'
+            ), 
+            array(
+                'click_tab' => true,
+                'url' => '#orders_manager',
+                'name' => l('orders_manager')//'Менеджер заказов'
+            ), 
+        );
+    }
+    
 }

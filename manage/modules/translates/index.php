@@ -95,7 +95,9 @@ class translates{
         foreach($this->config as $table => $conf){
             $out .= '
                 <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == $table ? ' class="active"' : '').
-                      ' href="'.$this->all_configs['prefix'].''.$this->url.'/'.$table.'">'.$conf['name'].'</a></li>
+                      ' href="'.$this->all_configs['prefix'].''.$this->url.'/'.$table.'">'.$conf['name'].'</a>
+                  '.(isset($conf['add_link']) ? $conf['add_link'] : '').'
+              </li>
             ';
         }
         $out .= '<li style="margin-top:15px"><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'changes' ? ' class="active"' : '').

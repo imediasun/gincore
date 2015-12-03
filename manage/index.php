@@ -191,10 +191,11 @@ if($modulename){
             $pre_title = strip_tags($modulemenu[$k]);
         }
         if ($moduleactive[$k] == true) {
-            $hassubmenu = isset($v::$mod_submenu);
+            $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() : 
+                                 (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
             if($hassubmenu){
                 $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
-                foreach($v::$mod_submenu as $sm){
+                foreach($hassubmenu as $sm){
                     if($active_mod && isset($sm['click_tab']) && $sm['click_tab']){
                         $data = ' class="module_submenu_click_tab_event" data-href="'.$sm['url'].'"';
                     }else{

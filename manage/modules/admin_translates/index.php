@@ -16,6 +16,7 @@ class admin_translates extends translates{
         $this->config = array(
             $dbcfg['_prefix'].'admin_translates' => array(
                 'name' => 'Переводы для шаблонов',
+                'add_link' => '<a href="'.$all_configs['prefix'].'/admin_translates/'.$dbcfg['_prefix'].'admin_translates/add">+</a>',
                 'var' => 'var',
                 'key' => 'var_id',
                 'fields' => array(
