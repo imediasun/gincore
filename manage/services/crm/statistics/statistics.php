@@ -53,7 +53,7 @@ class statistics extends \service{
                 </div>
                 <div class="form-group">
                     Период: 
-                    <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '') . '" />
+                    <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '') . '" />
                 </div>
                 <div class="form-group">
                     Устройство: 
@@ -66,7 +66,7 @@ class statistics extends \service{
             <table class="table table-bordered table-striped table-hover" style="max-width:600px">
                 <thead>
                     <tr>
-                        <th>Статус</th>
+                        <th>'.l('Статус').'</th>
                         <th>Клиенты</th>
                         <th>Конверсия</th>
                     </tr>

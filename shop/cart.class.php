@@ -1687,7 +1687,7 @@ class Cart
         $orders_html .= '<table class="account_table">';
 
         //if (array_key_exists($order['status'],  $this->configs['order-status']))
-        //    $orders_html .= '<tr><td class="td_name">Статус</td><td>' . $this->configs['order-status'][$order['status']]['name'] . '</td></tr>';
+        //    $orders_html .= '<tr><td class="td_name">'.l('Статус').'</td><td>' . $this->configs['order-status'][$order['status']]['name'] . '</td></tr>';
 
         $orders_html .= '<tr><td class="td_name">Стоимость товара</td><td>' . $model->show_price($order['gsum'], null, null, true) . '</td></tr>';
         $orders_html .= '<tr><td class="td_name">Стоимость доставки</td><td>' . $model->show_price($order['delivery_cost'], null, null, true) . '</td></tr>';
@@ -1758,7 +1758,7 @@ class Cart
                 // достаем историю заказа
                 $orders_html_history = '';
                 $history = $this->db->query('SELECT status, date FROM {order_status} WHERE order_id=?i ORDER BY date DESC', array($order['id']))->assoc();
-                $orders_html_history .= '<table class="orders_table order_items_table width_70"><thead><tr><td>Статус</td><td class="otr_border">Дата</td></tr></thead><tbody>';
+                $orders_html_history .= '<table class="orders_table order_items_table width_70"><thead><tr><td>Статус</td><td class="otr_border">'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ( $history as $h ) {
                     if ( array_key_exists($h['status'], $this->configs['order-status']) ) {
                         $orders_html_history .= '<tr>

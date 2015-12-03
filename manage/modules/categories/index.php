@@ -551,7 +551,7 @@ class categories
             $sort_id = '<a href="?sort=rid">ID';
             $sort_title = '<a href="?sort=title">Название продукта';
             $sort_price = '<a href="?sort=price">Цена';
-            $sort_date = '<a href="?sort=date">Дата';
+            $sort_date = '<a href="?sort=date">'.l('Дата').'';
             $sort_avail = '<a href="?sort=avail">Вкл';
             if ( isset($_GET['sort']) ) {
                 $sort = '&sort='.$_GET['sort'];
@@ -580,11 +580,11 @@ class categories
                         $sorting = ' ORDER BY {goods}.id DESC';
                         break;
                     case 'date':
-                        $sort_date = '<a href="?sort=rdate">Дата<i class="glyphicon glyphicon-chevron-down"></i>';
+                        $sort_date = '<a href="?sort=rdate">'.l('Дата').'<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.date_add';
                         break;
                     case 'rdate':
-                        $sort_date = '<a href="?sort=date">Дата<i class="glyphicon glyphicon-chevron-up"></i>';
+                        $sort_date = '<a href="?sort=date">'.l('Дата').'<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.date_add DESC';
                         break;
                     case 'avail':

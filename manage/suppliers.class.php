@@ -351,7 +351,7 @@ class Suppliers
         $orders_html .= '</div>';
         $orders_html .= '<div class="col-sm-2 b-r">';
             $orders_html .= '<div class="form-group">';
-            $orders_html .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
+            $orders_html .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />';
             //$orders_html .= '<label>№ заказа:</label>';
             $orders_html .= '<input type="hidden" placeholder="№ заказа" name="supplier_order_id" class="form-control" value="';
             $orders_html .= (isset($_GET['so_id']) && $_GET['so_id'] > 0 ? $_GET['so_id'] : '') . '" />';
@@ -2881,7 +2881,7 @@ class Suppliers
                 }
                 $out .= '</div>';*/
             } else {
-            $out .= '<div class="out-transaction"><table class="table table-striped table-compact"><thead><tr><td></td><td>Дата</td>';
+            $out .= '<div class="out-transaction"><table class="table table-striped table-compact"><thead><tr><td></td><td>'.l('Дата').'</td>';
             $out .= '<td>Касса</td><td>Контрагент</td><td>Заказ клиента</td><td>Заказ поставщика</td>';
             if ($contractors == true) {
                 $out .= '<td>Транзакция</td><td>Доход</td><td>Расход</td><td>Серийник</td>';

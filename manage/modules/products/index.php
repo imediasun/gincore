@@ -621,7 +621,7 @@ class products
         $categories = $this->get_categories();
         $goods_html .= build_array_tree($categories, isset($_GET['cat_id']) ? $_GET['cat_id'] : '');
         $goods_html .= '</select></div></div>';
-        $goods_html .= '<div class="form-group"><label class="control-label">Менеджер: </label>';
+        $goods_html .= '<div class="form-group"><label class="control-label">' . l('manager') . ': </label>';
         $goods_html .= '<div class="controls"><select class="multiselect input-small form-control" ';
         // проверка на количество менеджеров у товара
         $goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
@@ -1293,7 +1293,7 @@ class products
             $sort_id = '<a href="?sort=rid">ID';
             $sort_title = '<a href="?sort=title">Название продукта';
             $sort_price = '<a href="?sort=price">Цена';
-            $sort_date = '<a href="?sort=date">Дата';
+            $sort_date = '<a href="?sort=date">'.l('Дата').'';
             $sort_avail = '<a href="?sort=avail">Вкл.';
             if (isset($_GET['sort'])) {
                 //$sort = '&sort=' . $_GET['sort'];
@@ -1317,10 +1317,10 @@ class products
                         $sort_price = '<a href="?sort=price">Цена<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'date':
-                        $sort_date = '<a href="?sort=rdate">Дата<i class="glyphicon glyphicon-chevron-down"></i>';
+                        $sort_date = '<a href="?sort=rdate">'.l('Дата').'<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'rdate':
-                        $sort_date = '<a href="?sort=date">Дата<i class="glyphicon glyphicon-chevron-up"></i>';
+                        $sort_date = '<a href="?sort=date">'.l('Дата').'<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'avail':
                         $sort_avail = '<a href="?sort=ravail">Вкл.<i class="glyphicon glyphicon-chevron-down"></i>';
@@ -1471,7 +1471,7 @@ class products
                         $goods_html .= ($is_warranty ? '' : ' disabled ') . ' name="warranties[]"></label>';
                     }
                     $goods_html .= '</div></div></div>';
-                    $goods_html .= '<div class="control-group"><label class="control-label">Менеджер: </label>';
+                    $goods_html .= '<div class="control-group"><label class="control-label">' . l('manager') . ': </label>';
                     $goods_html .= '<div class="controls"><select class="multiselect input-small" name="users">';
                     // проверка на количество менеджеров у товара
                     //$goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
@@ -2325,7 +2325,7 @@ class products
             $goods_html .= '<div class="form-group"><label>Автор: </label>';
             $goods_html .= ' <a href="'
                 . $this->all_configs['prefix'] . 'users">' . $author . '</a></div>';
-            $goods_html .= '<div class="form-group"><label>Менеджер: </label>';
+            $goods_html .= '<div class="form-group"><label>' . l('manager') . ': </label>';
             $goods_html .= '<select class="multiselect form-control" ';
             // проверка на количество менеджеров у товара
             $goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
@@ -2362,7 +2362,7 @@ class products
                                     WHERE c.map_id=?i AND c.object_id=?i ORDER BY c.date_add DESC',
                 array($mod_id, $this->all_configs['arrequest'][2]))->assoc();
             if ($histories && count($histories) > 0) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>Автор</td><td>Редактирование</td><td>Дата</td></tr></thead><tbody>';
+                $goods_html .= '<table class="table table-striped"><thead><tr><td>Автор</td><td>Редактирование</td><td>'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ($histories as $history) {
                     $goods_html .= '<tr><td><a href="' . $this->all_configs['prefix'] . 'users">' . $history['login'] . '</a></td>';
                     $goods_html .= '<td>' . $this->all_configs['configs']['changes'][$history['work']] . '</td>';
@@ -2728,7 +2728,7 @@ class products
 
             if ($goods_suppliers) {
                 $goods_html .= '<table class="table table-striped"><thead><tr><td>Поставщик</td>';
-                $goods_html .= '<td>Цена закупки</td><td>Цена продажи</td><td>Количество</td><td>Дата</td></tr></thead><tbody>';
+                $goods_html .= '<td>Цена закупки</td><td>Цена продажи</td><td>Количество</td><td>'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ($goods_suppliers as $vgs) {
                     $goods_html .= '<tr><td>' . htmlspecialchars($vgs['title']) . '</td>';
                     $goods_html .= '<td>' . number_format($vgs['price'] / 100, 2, ',', ' ') . '</td>';

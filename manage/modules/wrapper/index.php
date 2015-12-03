@@ -80,7 +80,7 @@ class wrapper{
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'uxt' => array('0', '1', 'Дата', ''),
+                    'uxt' => array('0', '1', ''.l('Дата').'', ''),
                     'ip' => array('0', '1', 'IP', ''),
                     'visit_count' => array('0', '1', 'visits', ''),
                     'user_agent' => array('0', '1', 'user agent', ''),
@@ -115,7 +115,7 @@ class wrapper{
                     'id' => array('0', '1', 'ID', ''),
                     'sum_uah' => array('0', '0', 'Сумма '.viewCurrency().'', ''),
                     'referer_id' => array('0', '0', 'Канал', '', '', 'crm_referers'),
-                    'date_add' => array('0', '0', 'Дата', date("Y-m-d"), 'datepicker'),
+                    'date_add' => array('0', '0', ''.l('Дата').'', date("Y-m-d"), 'datepicker'),
                     'comment' => array('0', '0', 'Коментарий', ''),
                     'visits' => array('0', '0', 'Показы', '0'),
                     'clicks' => array('0', '0', 'Клики', '0'),

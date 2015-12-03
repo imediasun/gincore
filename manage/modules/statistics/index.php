@@ -47,7 +47,7 @@ class statistics
                 <thead>
                     <tr>
                         <th class="{ sorter: false }"></th>
-                        <th>Дата</th>
+                        <th>'.l('Дата').'</th>
                         <th class="{ sorter: false }">Показы</th>
                         <th class="{ sorter: false }">Клики</th>
                         <th class="{ sorter: false }">CTR</th>

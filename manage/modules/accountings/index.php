@@ -2915,7 +2915,7 @@ class accountings
             if (!$this->all_configs['oRole']->hasPrivilege('partner') || $this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 // менеджеры
                 $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders');
-                $out .= '<div class="form-group"><label>Менеджер:</label>';
+                $out .= '<div class="form-group"><label>' . l('manager') . ':</label>';
                 //if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
                     $out .= ' <select class="multiselect form-control report-filter" name="managers[]" multiple="multiple">';
                 //} else {
@@ -3206,7 +3206,7 @@ class accountings
 
             $out = '<div class="span2">';
             $out .= '<form method="post">';
-            $out .= '<legend>Фильтры:</legend><label>Менеджер:</label>';
+            $out .= '<legend>Фильтры:</legend><label>' . l('manager') . ':</label>';
             $out .= '<select class="multiselect input-small" name="managers[]" multiple="multiple">';
             // менеджеры
             $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders');
@@ -3215,8 +3215,8 @@ class accountings
                 $out .= ' value="' . $manager['id'] . '">' . htmlspecialchars($manager['name']) . '</option>';
             }
             $out .= '</select>';
-            $out .= '<label>Дата:</label>';
-            $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
+            $out .= '<label>'.l('Дата').':</label>';
+            $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
             $out .= '<label>№ заказа:</label><input name="client-order" value="';
             $out .= isset($_GET['co']) && !empty($_GET['co']) ? trim(htmlspecialchars($_GET['co'])) : '';
             $out .= '" type="text" class="input-medium" placeholder="№ заказа">';
@@ -3238,7 +3238,7 @@ class accountings
 
 
             if (count($orders) > 0) {
-                $out .= '<table class="table table-striped"><thead><tr><td>№</td><td>Дата</td><td>Кто обработал</td>';
+                $out .= '<table class="table table-striped"><thead><tr><td>№</td><td>'.l('Дата').'</td><td>Кто обработал</td>';
                 $out .= '<td>ФИО клиента</td><td>Сумма</td><td>Оплачено</td><td>Способ оплаты</td><td>Оплата</td></tr></thead><tbody>';
                 foreach ($orders as $order) { //<td>Товар</td>
                     $btn = '<div class="text-success">Оплачено</div>';
@@ -3459,8 +3459,8 @@ class accountings
             //$operators = $this->get_operators();
             //$out .= build_array_tree($operators, ((isset($_GET['op'])) ? explode(',', $_GET['op']) : array()));
             //$out .= '</select>';
-            $filters .= '<div class="form-group"><label>Дата:</label>';
-            $filters .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
+            $filters .= '<div class="form-group"><label>'.l('Дата').':</label>';
+            $filters .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
             $filters .= '<div class="form-group"><label>№ заказа:</label><input name="client-order_id" value="';
             $filters .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? $_GET['co_id'] : '';
             $filters .= '" type="text" class="form-control" placeholder="№ заказа"></div>';

@@ -292,12 +292,12 @@ class requests extends \service{
                     '.$operators.'
                 </div>
                 <div class="form-group">
-                    <label>Статус:</label><br>
+                    <label>'.l('Статус').':</label><br>
                     '.$this->get_statuses_list(!empty($_GET['status_id'])?$_GET['status_id']:null, '', true).'
                 </div>
                 <div class="form-group">
-                    <label>Дата:</label>
-                    <input type="text" placeholder="Дата" name="date" class="form-control daterangepicker" value="' . $date . '" />
+                    <label>'.l('Дата').':</label>
+                    <input type="text" placeholder="'.l('Дата').'" name="date" class="form-control daterangepicker" value="' . $date . '" />
                 </div>
                 <div class="form-group">
                     <label>Клиент:</label>
@@ -341,8 +341,8 @@ class requests extends \service{
                                     <th>id</th>
                                     <th>оператор</th>
                                     <th>клиент</th>
-                                    <th>дата</th>
-                                    <th>статус</th>
+                                    <th>'.l('Дата').'</th>
+                                    <th>'.l('Статус').'</th>
                                     <th>ссылка</th>
                                     <th>устройство</th>
                                     <th>комментарий</th>
@@ -383,7 +383,7 @@ class requests extends \service{
                                 <th>id</th>
                                 <th>оператор</th>
                                 <th>дата заявки</th>
-                                <th>статус</th>
+                                <th>'.l('Статус').'</th>
                                 <th>ссылка</th>
                                 <th>устройство</th>
                                 <th>комментарий</th>
@@ -495,7 +495,7 @@ class requests extends \service{
                     <b>Устройство</b>
                 </div>
                 <div class="span4">
-                    <b>Статус</b>
+                    <b>'.l('Статус').'</b>
                 </div>
                 <div class="span4">
                     <b>Комментарий</b>
@@ -757,7 +757,7 @@ class requests extends \service{
                          WHERE ch.object_id=?i AND work=? ORDER BY ch.date_add DESC',
                         array($data['object_id'], $data['type']))->assoc();
                     if ($changes) {
-                        $c = '<table class="table"><thead><tr><td>Менеджер</td><td>Дата</td><td>Изменение</td></tr></thead><tbody>';
+                        $c = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>'.l('Дата').'</td><td>Изменение</td></tr></thead><tbody>';
                         foreach ($changes as $change) {
                             $c .= '<tr><td>' . get_user_name($change) . '</td>'.
                                   '<td><span title="' . do_nice_date($change['date_add'], false) . '">' . do_nice_date($change['date_add']) . '</span></td>'.

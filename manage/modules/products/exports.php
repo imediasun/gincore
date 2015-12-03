@@ -28,7 +28,7 @@ function product_exports_form($all_configs)
         array('label' => 'Цена розничная', 'name' => 'price'),
         array('label' => 'Свободный остаток', 'name' => 'qty_store'),
         array('label' => 'Наличие у поставщика', 'name' => 'foreign_warehouse'),
-        array('label' => 'Менеджер', 'name' => 'managers'),
+        array('label' => l('manager'), 'name' => 'managers'),
         //array('label' => 'Гарантия', 'name' => 'warranties'),
     );
 
@@ -123,7 +123,7 @@ function exports_goods($all_configs, $ids)
                 foreach ($managers as $manager) {
                     if (isset($goods[$manager['goods_id']])) {
                         $arr = array($manager['login'], $manager['email'], $manager['fio'], $manager['phone']);
-                        $goods[$manager['goods_id']][$isset($goods[$manager['goods_id']], 'Менеджер ')] = implode(', ', $arr);
+                        $goods[$manager['goods_id']][$isset($goods[$manager['goods_id']], l('manager') . ' ')] = implode(', ', $arr);
                     }
                 }
             }

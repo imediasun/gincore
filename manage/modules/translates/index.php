@@ -417,7 +417,7 @@ class translates{
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Дата</th>
+                                        <th>'.l('Дата').'</th>
                                         <th>Секция</th>
                                         <th>Язык</th>
                                         <th>ID</th>

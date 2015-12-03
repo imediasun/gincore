@@ -793,8 +793,8 @@ class clients
         if ($orders && count($orders) > 0) {
             $model = new Model($this->all_configs['db'], $this->all_configs['configs']);
 
-            $out .= '<table class="table table-compact"><thead><tr><td></td><td>№ заказа</td><td>Дата</td><td>Приемщик</td>';
-            $out .= '<td>Менеджер</td><td>Статус</td><td>Устройство</td><td>Стоимость</td><td>Оплачено</td>';
+            $out .= '<table class="table table-compact"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td><td>Приемщик</td>';
+            $out .= '<td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td><td>Стоимость</td><td>Оплачено</td>';
             $out .= '<td>Клиент</td><td>Контактный тел.</td><td>Сроки</td>';
             $out .= '<td>Склад</td></tr></thead><tbody id="table_clients_orders">';
             foreach ( $orders as $order ) {
@@ -866,7 +866,7 @@ class clients
         $checked = ''; if ( $review['avail'] == 1 ) $checked = 'checked';
         $out .= '<div class="control-group"><label class="control-label">Одобрен: </label>
             <div class="controls"><input type="checkbox" ' . $checked .' name="avail" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Дата: </label>
+        $out .= '<div class="control-group"><label class="control-label">'.l('Дата').': </label>
             <div class="controls"><span title="'.do_nice_date($review['date'], false).'">' . do_nice_date($review['date']) . '</span></div></div>';
 
         // комментарии к отзыву о товаре
@@ -874,7 +874,7 @@ class clients
             LEFT JOIN (SELECT `email`, `id` FROM {clients})c ON c.`id`=r.`user_id`
             WHERE r.parent_id=?i', array($this->all_configs['arrequest'][3]))->assoc();
         $out .= '</div><div id="comments" class="tab-pane">';
-        $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>Дата</td><td>Одобрен</td></tr></thead><tbody><tr>';
+        $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>'.l('Дата').'</td><td>Одобрен</td></tr></thead><tbody><tr>';
         if ( $comments && count($comments) > 0 ) {
             foreach ( $comments as $comment ) {
                 $avail = '';
@@ -1031,7 +1031,7 @@ class clients
             <div class="controls"><input type="text" class="span5" onkeydown="return isNumberKey(event)" name="usefulness_yes" value="' . (1*$review['usefulness_yes']) .'" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Бесполезность: </label>
             <div class="controls"><input type="text" class="span5" onkeydown="return isNumberKey(event)" name="usefulness_no" value="' . (1*$review['usefulness_no']) .'" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Дата: </label>
+        $out .= '<div class="control-group"><label class="control-label">'.l('Дата').': </label>
             <div class="controls"><input type="text" value="' . date("d.m.Y", strtotime($review['date_add'])) . '" class="span5 edit_date" name="date_add" /></div></div>';
         $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-approve-reviews"></div></div>';
         $out .= '</fieldset></form>';
@@ -1067,7 +1067,7 @@ class clients
         $checked = ''; if ( $review['avail'] == 1 ) $checked = 'checked';
         $out .= '</div><div class="control-group"><label class="control-label">Одобрен: </label>
             <div class="controls"><input type="checkbox" ' . $checked .' name="avail" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Дата: </label>
+        $out .= '<div class="control-group"><label class="control-label">'.l('Дата').': </label>
             <div class="controls"><span title="' . do_nice_date($review['date'], false) . '">' . do_nice_date($review['date']) . '</span></div></div>';
         $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-shop-reviews"></div></div>';
         $out .= '</fieldset></form>';
@@ -1109,7 +1109,7 @@ class clients
 
         $out = '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/create">Создать новый</a>';
         if ( $reviews ) {
-            $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>Дата</td><td>Рейтинг</td><td>Полезный</td><td>Бесполезный</td><td>Одобрен</td></tr></thead><tbody><tr>';
+            $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>'.l('Дата').'</td><td>Рейтинг</td><td>Полезный</td><td>Бесполезный</td><td>Одобрен</td></tr></thead><tbody><tr>';
             foreach ( $reviews as $comment ) {
                 $out .= '<tr>
                     <td>' . (($comment['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $comment['user_id'] . '">' . htmlspecialchars($comment['email']) . ', ' . htmlspecialchars($comment['phone']) . ', ' . htmlspecialchars($comment['fio']) . '</a>' : htmlspecialchars($comment['fio'])) . '</td>
@@ -1142,7 +1142,7 @@ class clients
         }
         $out = '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/create">Создать новый</a>';
         if ( $reviews && count($reviews) > 0 ) {
-            $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>Дата</td><td>Оценка</td><td>Оценка изменения</td><td>Одобрен</td></tr></thead><tbody><tr>';
+            $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>'.l('Дата').'</td><td>Оценка</td><td>Оценка изменения</td><td>Одобрен</td></tr></thead><tbody><tr>';
             foreach ( $reviews as $comment ) {
                 $out .= '<tr>
                     <td>' . (($comment['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $comment['user_id'] . '">' . htmlspecialchars($comment['email']) . ', ' . htmlspecialchars($comment['phone']) . ', ' . htmlspecialchars($comment['fio']) . '</a>' : htmlspecialchars($comment['fio'])) . '</td>

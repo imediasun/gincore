@@ -247,7 +247,7 @@ class forms{
                     }
 
                     $fields_header .= '
-                                <th>дата</th>
+                                <th>'.l('дата').'</th>
                                 <th>со страницы</th>
                                 <th>пришли на страницу с</th>
                             </tr>

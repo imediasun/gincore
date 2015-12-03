@@ -483,7 +483,7 @@ class tasks
                         . '<input ' . $disable_tag . ' value="' . $task['price'] . '" class="form-control" name="task_price" id="task_price"  >'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="taskState">Статус</label>'
+                        . '<label for="taskState">'.l('Статус').'</label>'
                         . $this->get_state_selector($task['state'], $disable_tag)
                     . '</div>'
                     . '<div class="form-group">'
@@ -529,7 +529,7 @@ class tasks
         
         $out .= '<div class="span2">'
                 . '<form method="post">';
-        $out .= '<div class="form-group"><label>Статус:</label>';
+        $out .= '<div class="form-group"><label>'.l('Статус').':</label>';
         $out .= '<select class="multiselect form-control" name="status[]" multiple="multiple">';
         foreach ($this->tasks_filer_statuses as $os_id=>$os_v) {
             $out .= '<option ' . ((isset($_GET['st']) && in_array($os_id, explode(',', $_GET['st']))) ? 'selected' : '');
@@ -541,13 +541,13 @@ class tasks
             $out .= '<select class="multiselect form-control report-filter" name="authors[]" multiple="multiple">';
             $out .= build_array_tree($authors, ((isset($_GET['ath'])) ? explode(',', $_GET['ath']) : array()));
             $out .= '</select></div>';
-            $out .= '<div class="form-group"><label>Менеджер:</label>';
+            $out .= '<div class="form-group"><label>' . l('manager') . ':</label>';
             $out .= '<select class="multiselect form-control report-filter" name="managers[]" multiple="multiple">';
             $out .= build_array_tree($managers, ((isset($_GET['mg'])) ? explode(',', $_GET['mg']) : array()));
             $out .= '</select></div>';
         }
         $out .= '<div class="form-group"><label>Даты:</label>';
-        $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
+        $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
         $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="Фильтровать" />'
                 . '</form>';
         $out .= '</div>'; //row-2, end filers
@@ -611,7 +611,7 @@ class tasks
         $out .= '<table class="tasks-table table table-hover">' //table-striped
                 . '<thead><tr>'
                 . '<td>№</td>'
-                . '<td>Статус</td>'
+                . '<td>'.l('Статус').'</td>'
                 . '<td>Тема</td>'
                 . '<td>Автор</td>'
                 . '<td>Исполнитель</td>'

@@ -684,7 +684,7 @@ class Chains
 
         $out = '';
         if ($operations && count($operations) > 0) {
-            $out .= '<table class="table table-compact"><thead><tr><td>Заказ</td><td>Дата</td><td>Наименование</td>';//<td>Склад</td>
+            $out .= '<table class="table table-compact"><thead><tr><td>Заказ</td><td>'.l('Дата').'</td><td>Наименование</td>';//<td>Склад</td>
             if ($type == 1)
                 $out .= '<td>Сроки</td>';
             if ($type == 2)
@@ -3071,7 +3071,7 @@ class Chains
                 $out .= '</select></div>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
-                $out .= '<div class="control-group"><label class="control-label">Статус:</label><div class="controls">';
+                $out .= '<div class="control-group"><label class="control-label">'.l('Статус').':</label><div class="controls">';
                 $out .= $this->order_status($order['status'], true) . '</div></div>';
                 $out .= '<div class="control-group"><label class="control-label">Публичный комментарий:</label><div class="controls">';
                 $out .= '<textarea name="public_comment" class="form-control"></textarea></div></div>';
@@ -3387,7 +3387,7 @@ class Chains
                 array($where))->assoc();
 
             if ($moves) {//<td>Комментарий</td>
-                $html = '<table class="table"><thead><tr><td>Дата</td><td>Менджер</td><td>Склад</td><td>Локация</td></tr></thead>';
+                $html = '<table class="table"><thead><tr><td>'.l('Дата').'</td><td>Менджер</td><td>Склад</td><td>Локация</td></tr></thead>';
                 foreach ($moves as $move) {
                     $html .= '<tr><td><span title="' . do_nice_date($move['date_move'], false) . '">' . do_nice_date($move['date_move']) . '</span></td>';
                     $html .= '<td>' . get_user_name($move) . '</td>';

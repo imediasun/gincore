@@ -98,7 +98,7 @@ class logistics
         }
         $out = '
             <form>
-                <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="'.(isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '').'" />
+                <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="'.(isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '').'" />
                 <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
                 <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="form-control" placeholder="№ изделия">
                 <label>Откуда: <br>

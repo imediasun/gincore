@@ -710,7 +710,7 @@ class warehouses
 
             if ($select_name) {
                 $select = $this->all_configs['db']->makeQuery('i.id as `№ изделия`, i.serial as `Серийный номер`,
-                    g.title as `Наименование`, i.date_add as `Дата`, w.title as `Склад`, w.id as `№ склада`,
+                    g.title as `Наименование`, i.date_add as `'.l('Дата').'`, w.title as `Склад`, w.id as `№ склада`,
                     l.location as `Локация`, l.id as `№ локации`, i.order_id as `Заказ клиента`,
                     i.supplier_order_id as `Заказ поставщику`, i.price/100 as `Цена`,
                     u.title as `Поставщик`, i.supplier_id as `№ поставщика`', array());
@@ -1227,7 +1227,7 @@ class warehouses
                     ORDER BY it_j.date_scan DESC',
                 array($this->all_configs['arrequest'][2]))->assoc();
 
-            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>Дата</td>';
+            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
             $right_html .= '<td>Наименование</td><td>Кладовщик</td><td>Склад</td></tr></thead><tbody>';
             if ($inventories) {
                 $i = 1;
@@ -1324,7 +1324,7 @@ class warehouses
 
                         $not_on_this_stock = '';
                         if ($_inventories) {
-                            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>Дата</td>';
+                            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
                             $right_html .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
                             $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                             $right_html .= '</td><td></td></tr></thead><tbody>';
@@ -1341,7 +1341,7 @@ class warehouses
                             }
                             $right_html .= '</tbody></table>';
                             if (!empty($not_on_this_stock)) {
-                                $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>Дата</td>';
+                                $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
                                 $right_html .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
                                 $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                                 $right_html .= '</td></tr></thead><tbody>';
@@ -1581,7 +1581,7 @@ class warehouses
 
                 case (1):
 
-                    $out .= '<table class="table table-striped"><thead><tr><td>Серийный номер</td><td>Наименование</td><td>Дата</td>';
+                    $out .= '<table class="table table-striped"><thead><tr><td>Серийный номер</td><td>Наименование</td><td>'.l('Дата').'</td>';
                     $out .= '<td>Склад</td><td>Локация</td><td>Заказ клиента</td><td>Заказ поставщику</td><td>Цена</td><td>Поставщик</td></tr></thead><tbody>';
 
                     foreach ($goods as $product) {
@@ -1674,7 +1674,7 @@ class warehouses
                         array($product['item_id'], $query_for_noadmin))->assoc();
 
                         if (count($item_history) > 0) {
-                            $out .= '<table class="table"><thead><tr><td>Склад</td><td>Локация</td><td>Ответственный</td><td>Дата</td>';
+                            $out .= '<table class="table"><thead><tr><td>Склад</td><td>Локация</td><td>Ответственный</td><td>'.l('Дата').'</td>';
                             $out .= '<td>Операция</td><td>На основании (№ заказа)</td></tr></thead><tbody>';
                             foreach ($item_history as $history) {
                                 $out .= '<tr><td><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $history['wh_id'] . '#show_items">' . htmlspecialchars($history['title'])  . '</a></td>';
@@ -1706,7 +1706,7 @@ class warehouses
                                 ORDER BY invj.date_scan DESC',
                             array($product['item_id']))->assoc();
 
-                        $out .= '<table class="table table-striped"><thead><tr><td></td><td>Дата</td>';
+                        $out .= '<table class="table table-striped"><thead><tr><td></td><td>'.l('Дата').'</td>';
                         $out .= '<td>Кладовщик</td><td>Склад</td></tr></thead><tbody">';
                         if ($inventories) {
                             $i = 1;
@@ -1724,7 +1724,7 @@ class warehouses
 
                         $out .= '<h4>Бизнес цепочки</h4>';
                         if (count($chains) > 0) {
-                            $out .= '<table class="table table-bordered"><thead><tr><td></td><td>Дата</td><td>Наименование</td>';
+                            $out .= '<table class="table table-bordered"><thead><tr><td></td><td>'.l('Дата').'</td><td>Наименование</td>';
                             //if (array_key_exists('order_id', $chains[key($chains)]))
                             //    $out .= '<td>Заказ</td>';
                             $out .= '<td>Заказ</td><td>Склад куда</td><td>Серийник</td><td>Продажа</td><td></td></tr></thead><tbody>';
@@ -1743,7 +1743,7 @@ class warehouses
                     default:
 
                         $out .= '<table class="table table-hover table-medium"><thead><tr><td></td><td>Серийный номер</td>';
-                        $out .= '<td>Наименование</td><td>Дата</td><td>Склад</td><td>Заказ</td>';
+                        $out .= '<td>Наименование</td><td>'.l('Дата').'</td><td>Склад</td><td>Заказ</td>';
                         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                             $out .= '<td>Цена</td>';
                         }
@@ -2327,7 +2327,7 @@ class warehouses
 
                 $not_on_this_stock = '';
                 if ($inventories) {
-                    $data['out'] = '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>Дата</td>';
+                    $data['out'] = '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
                     $data['out'] .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
                     $data['out'] .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                     $data['out'] .= '</td><td></td></tr></thead><tbody>';
@@ -2344,7 +2344,7 @@ class warehouses
                     }
                     $data['out'] .= '</tbody></table>';
                     if (!empty($not_on_this_stock)) {
-                        $data['out'] .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>Дата</td>';
+                        $data['out'] .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
                         $data['out'] .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
                         $data['out'] .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                         $data['out'] .= '</td></tr></thead><tbody>';

@@ -2,42 +2,44 @@
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
-$modulemenu[10] = 'Заказы';
+$modulemenu[10] = l('orders');
 
 class orders
 {
-    public static $mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#show_orders',
-            'name' => 'Заказы клиентов'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#create_order',
-            'name' => 'Создать заказ'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#show_suppliers_orders',
-            'name' => 'Заказы поставщику'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#create_supplier_order',
-            'name' => 'Создать заказ поставщику'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#orders_manager',
-            'name' => 'Менеджер заказов'
-        ), 
-    );
+    public static $mod_submenu;
     protected $all_configs;
     public $count_on_page;
     
     function __construct(&$all_configs, $gen_module = true)
     {
+        $this::$mod_submenu = array(
+        array(
+            'click_tab' => true,
+            'url' => '#show_orders',
+            'name' => l('customer_orders')//'Заказы клиентов'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#create_order',
+            'name' => l('create_order')//'Создать заказ'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#show_suppliers_orders',
+            'name' => l('suppliers_orders')//'Заказы поставщику'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#create_supplier_order',
+            'name' => l('create_supplier_order')//'Создать заказ поставщику'
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#orders_manager',
+            'name' => l('orders_manager')//'Менеджер заказов'
+        ), 
+    );
+        
         $this->all_configs = $all_configs;
         
         if($gen_module){
@@ -55,7 +57,7 @@ class orders
 
             if ($this->can_show_module() == false) {
                 return $input_html['mcontent'] = '<div class="span3"></div>
-                    <div class="span9"><p  class="text-danger">У Вас нет прав для управления заказами</p></div>';
+                    <div class="span9"><p  class="text-danger">'.l('У Вас нет прав для управления заказами').'</p></div>';
             }
 
             // если отправлена форма
@@ -347,9 +349,9 @@ class orders
     function show_filter_manager($compact = false){
         $out = '<div class="'.($compact ? 'input-group' : 'form-group').'">';
         if(!$compact){
-            $out .= '<label>Менеджер:</label> ';
+            $out .= '<label>' . l('manager') . ':</label> ';
         }else{
-            $out .= '<p class="form-control-static">Менеджер:</p><span class="input-group-btn">';
+            $out .= '<p class="form-control-static">' . l('manager') . ':</p><span class="input-group-btn">';
         }
         $out .= '<select'.($compact ? ' data-numberDisplayed="0"' : '').' class="multiselect form-control'.($compact ? ' btn-sm ' : '').'" name="managers[]" multiple="multiple">';
         // менеджеры
@@ -426,11 +428,11 @@ class orders
                             Отмеченные: <span class="icons-marked star-marked-active"> </span> <span id="count-marked-co">' . $count_marked . '</span>
                         </a>
                     </div> <br><br>
-                    <input type="submit" name="filter-orders" class="btn btn-primary" value="Фильтровать">
+                    <input type="submit" name="filter-orders" class="btn btn-primary" value="'.l('Фильтровать').'">
                 </div>
                 <div class="col-sm-2 b-r">
                     <div class="form-group">
-                        <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />
+                        <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />
                     </div>
                     <div class="form-group">
                         <input name="client" value="'.(isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '').'" type="text" class="form-control" placeholder="телефон/ФИО клиента">
@@ -470,7 +472,7 @@ class orders
                     '.$this->show_filter_manager(true).'
                     <div>
                         <div class="input-group">
-                            <p class="form-control-static">Приемщик:</p> 
+                            <p class="form-control-static">'.l('Приемщик').':</p> 
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
                                     ? 'disabled' : '') . ' class="multiselect btn-sm" name="accepter[]" multiple="multiple">
@@ -481,7 +483,7 @@ class orders
                     </div>
                     <div>
                         <div class="input-group">
-                            <p class="form-control-static">Статус:</p>
+                            <p class="form-control-static">'.l('Статус').':</p>
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]" multiple="multiple">
                                     '.$status_options.'
@@ -647,8 +649,8 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table table-hover"><thead><tr><td>№ заказа</td><td></td><td>Дата</td>';
-            $orders_html .= '<td>Приемщик</td><td>Менеджер</td><td>Статус</td><td>Устройство</td>';
+            $orders_html .= '<table class="table table-hover"><thead><tr><td>№ заказа</td><td></td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             } else {
@@ -692,8 +694,8 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>Дата</td>';
-            $orders_html .= '<td>Приемщик</td><td>Менеджер</td><td>Статус</td><td>Устройство</td>';
+            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             }
@@ -735,8 +737,8 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>№ заказа</td><td>Дата</td>';
-            $orders_html .= '<td>Приемщик</td><td>Менеджер</td><td>Статус</td><td>Устройство</td>';
+            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             }
@@ -779,8 +781,8 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>Дата</td>';
-            $orders_html .= '<td>Приемщик</td><td>Менеджер</td><td>Статус</td><td>Устройство</td>';
+            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>Приемщик</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $orders_html .= '<td>Стоимость</td><td>Оплачено</td>';
             }
@@ -1290,7 +1292,7 @@ class orders
         $out .= '<option ' . ($s == 2 ? 'selected' : '') . ' value="2">2</option>';
         $out .= '<option ' . ($s == 1 ? 'selected' : '') . ' value="1">1</option></select></div>';
         $out .= '<div class="form-group"><label>Дата от:</label>';
-        $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker form-control" value="' . $date . '" />';
+        $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />';
         $out .= '</div><input type="submit" class="btn btn-primary" value="Применить" name="procurement-filter" />';
         $out .= '</div></form>';
 
@@ -1836,7 +1838,7 @@ class orders
                     <form class="form-inline well">
                         '.$this->all_configs['suppliers_orders']->show_filter_service_center().'
                         '.$this->show_filter_manager().'
-                        <input type="text" placeholder="Дата" name="date" class="daterangepicker form-control " value="'.$get_date.'" />
+                        <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control " value="'.$get_date.'" />
                         <input type="submit" class="btn btn-primary" value="Фильтровать">
                         <button type="button" class="btn fullscreen"><i class="fa fa-arrows-alt"></i></button>
                     </form>
@@ -2203,7 +2205,7 @@ class orders
                 } else {
                     $manager = get_user_name($order, 'm_');
                 }
-                $order_html .= '<div class="form-group"><label>Менеджер: </label> ' . $manager . '</div>';
+                $order_html .= '<div class="form-group"><label>' . l('manager') . ': </label> ' . $manager . '</div>';
             }
 
             $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '';
@@ -2345,7 +2347,7 @@ class orders
 
             $order_html .= '<div class="row-fluid well well-small">';
             $public_html = $private_html = '<div class="span6"><div class="div-table order-comments div-table-scroll"><div class="div-thead">
-                <div class="div-table-row"><div class="div-table-col span3" align="center">Дата</div><div class="div-table-col span9">';
+                <div class="div-table-row"><div class="div-table-col span3" align="center">'.l('Дата').'</div><div class="div-table-col span9">';
             $public_html .= 'Публичный комментарий</div></div></div><div class="div-tbody">';
             $private_html .= 'Скрытый комментарий</div></div></div><div class="div-tbody">';
             // достаем комментарии к заказу
@@ -2571,7 +2573,7 @@ class orders
                 array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
             if ($statuses) {
                 $sts = $this->all_configs['configs']['order-status'];
-                $data['content'] = '<table class="table"><thead><tr><td>Статус</td><td>Автор</td><td>Дата</td></tr></thead><tbody>';
+                $data['content'] = '<table class="table"><thead><tr><td>'.l('Статус').'</td><td>Автор</td><td>'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ($statuses as $status) {
                     $data['content'] .= '<tr><td>' . (isset($sts[$status['status']]) ? $sts[$status['status']]['name'] : '') . '</td>';
                     $data['content'] .= '<td>' . get_user_name($status) . '</td>';
@@ -2954,7 +2956,7 @@ class orders
                      LEFT JOIN {users} as u ON u.id=ch.user_id WHERE ch.object_id=?i AND ch.map_id=?i AND work=? ORDER BY ch.date_add DESC',
                     array($_POST['object_id'], $mod_id, trim($arr[1])))->assoc();
                 if ($changes) {
-                    $data['content'] = '<table class="table"><thead><tr><td>Менеджер</td><td>Дата</td><td>Изменение</td></tr></thead><tbody>';
+                    $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>'.l('Дата').'</td><td>Изменение</td></tr></thead><tbody>';
                     foreach ($changes as $change) {
                         $data['content'] .= '<tr><td>' . get_user_name($change) . '</td>';
                         $data['content'] .= '<td><span title="' . do_nice_date($change['date_add'], false) . '">' . do_nice_date($change['date_add']) . '</span></td>';

@@ -130,7 +130,7 @@ class logisticsold
 
         $out = '<div class="row-fluid"><div class="span2"><form>';
         // filters
-        $out .= '<input type="text" placeholder="Дата" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
+        $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
         $out .= '<input name="o_id" value="';
         $out .= isset($_GET['o_id']) && intval($_GET['o_id']) > 0 ? intval($_GET['o_id']) : '';
         $out .= '" type="text" class="input-medium" placeholder="№ заказа">';

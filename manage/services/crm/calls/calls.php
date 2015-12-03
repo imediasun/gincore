@@ -70,10 +70,10 @@ class calls extends \service{
                         <tr>
                             <th>id</th>
                             <th>Оператор</th>
-                            <th>Статус</th>
+                            <th>'.l('Статус').'</th>
                             <th>Канал</th>
                             <th>Код</th>
-                            <th>Дата</th>
+                            <th>'.l('Дата').'</th>
                         </tr>
                     </thead>
                     <tbody>'.$list_items.'</tbody>
@@ -133,10 +133,10 @@ class calls extends \service{
                         <th>Заявок</th>
                         <th>client id</th>
                         <th>Оператор</th>
-                        <th>Статус</th>
+                        <th>'.l('Статус').'</th>
                         <th>Канал</th>
                         <th>Код</th>
-                        <th>Дата</th>
+                        <th>'.l('Дата').'</th>
                     </tr>
                 </thead>
                 <tbody>'.$list_items.'</tbody>
