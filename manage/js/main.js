@@ -1597,6 +1597,11 @@ $(function(){
         }
         $glossary.toggle();
     });
+    
+    $('.set_manage_lang').click(function(){
+        $.cookie('manage_lang', $(this).data('lang'), {expires: 365});
+        window.location.reload(true);
+    });
 });
 
 function toogle_siblings(_this, btn_children)

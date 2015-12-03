@@ -31,21 +31,27 @@ $all_configs['chains'] = new Chains($all_configs);
 
 /* определяем языки админки */
 
-// текущий язык админки
-$manage_lang = $all_configs['configs']['manage-langs']['current'];
-//$manage_lang = 'en';
-// дефолтный язык админки
-$manage_def_lang = $all_configs['configs']['manage-langs']['default'];
 // массив языков админки
 $manage_langs = $all_configs['configs']['manage-langs']['list'];
+// дефолтный язык админки
+$manage_def_lang = $all_configs['configs']['manage-langs']['default'];
+
+// текущий язык админки
+$cookie_lang = isset($_COOKIE['manage_lang']) && isset($manage_langs[$_COOKIE['manage_lang']]) ? $_COOKIE['manage_lang'] : '';
+$manage_lang = $cookie_lang ?: $all_configs['configs']['manage-langs']['current'];
 
 $manage_translates = array();
 $vars = $db->query("SELECT id, var FROM {admin_translates}")->vars();
 $translates = $db->query("SELECT CONCAT(var_id, '_', lang) as id, var_id, text, lang "
                         ."FROM {admin_translates_strings} "
                         ."WHERE lang IN (?,?)", array($manage_lang, $manage_def_lang), 'assoc:id');
+$manage_translates_js = array();
 foreach($vars as $var_id => $var){
     $k_cur = $var_id.'_'.$manage_lang;
     $k_def = $var_id.'_'.$manage_def_lang;
     $manage_translates[$var] = !empty($translates[$k_cur]['text']) ? $translates[$k_cur]['text'] : $translates[$k_def]['text'];
+    if(strpos($var, 'js_') === 0){
+        $manage_translates_js[$var] = $manage_translates[$var];
+    }
 }
+$input['manage_translates_js'] = json_encode($manage_translates_js);

@@ -9,10 +9,8 @@ $modulename = $modulemenu = $moduleactive = array();
 
 require_once 'inc_config.php';
 require_once 'inc_func.php';
-
-include 'inc_settings.php';
-
-require $all_configs['sitepath'].'inc_lang_func.php';
+require_once 'inc_settings.php';
+require_once $all_configs['sitepath'].'inc_lang_func.php';
 
 if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_lang' && isset($all_configs['arrequest'][1])){
     $cotnent_lang_cookie = $dbcfg['_prefix'].'content_lang';
@@ -21,7 +19,32 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
     exit;
 }
 
-$langs = get_langs();
+// генерим переключалку языков админки
+$active_lang_name = '';
+$langs_switch = '';
+foreach($manage_langs as $lang_key => $lang){
+    if($lang_key == $manage_lang){
+        $active_lang_name = $lang['name'];
+    }
+    $langs_switch .= '
+        <li data-lang="'.$lang_key.'" class="set_manage_lang">
+            '.$lang['name'].'
+        </li>
+    ';
+}
+$input['manage_langs'] = '
+    <li class="btn-group dropdown manage_langs">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            '.$active_lang_name.'
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu hdropdown animated flipInX">
+            '.$langs_switch.'
+        </ul>
+    </li>
+';
+
+$langs = get_langs(); // языки контента
 
 //print_r($all_configs['arrequest']);
 //print_r($_GET);

@@ -3633,3 +3633,7 @@ ul.mailbox-list li:hover a {
 .m-l-22{
     margin-left: 22px;
 }
+
+.manage_langs li{
+    cursor: pointer;
+}
