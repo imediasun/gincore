@@ -499,7 +499,7 @@ class tasks
             $out .= '</form>';
 
             $data['content'] = $out;
-            $data['btns'] = '<button ' . $disable_state_change . ' id="new_task_button" class="btn btn-success" onclick="task_save(this);">Сохранить</button>';
+            $data['btns'] = '<button ' . $disable_state_change . ' id="new_task_button" class="btn btn-success" onclick="task_save(this);">'.l('Сохранить').'</button>';
             $data['width'] = 'true';
             $data['message'] = '';
             $data['functions'] = array('reset_multiselect()');

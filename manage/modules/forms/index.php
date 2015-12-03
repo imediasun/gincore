@@ -310,7 +310,7 @@ class forms{
                                         <form action="'.$this->all_configs['prefix'].'forms/'.$this->all_configs['arrequest'][1].'/save_new_field" method="post">
                                             '.$this->field_form().'
                                             <div class="form-group">
-                                                <input type="submit" class="btn btn-primary" value="Добавить">
+                                                <input type="submit" class="btn btn-primary" value="'.l('Добавить').'">
                                             </div>
                                         </form>
                                     </fieldset>

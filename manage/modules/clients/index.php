@@ -918,7 +918,7 @@ class clients
             <div class="controls"><textarea class="span5" name="text"></textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Одобрен: </label>
             <div class="controls"><input type="checkbox" name="avail" /></div></div>';
-        $out .= '<div class="control-group"><div class="controls"><input class="btn btn-primary" type="submit" value="Добавить" name="add-shop-reviews"></div></div>';
+        $out .= '<div class="control-group"><div class="controls"><input class="btn btn-primary" type="submit" value="'.l('Добавить').'" name="add-shop-reviews"></div></div>';
         $out .= '</fieldset></form>';
 
         return $out;
@@ -1184,7 +1184,7 @@ class clients
             <div class="controls"><input type="text" class="span5" onkeydown="return isNumberKey(event)" name="usefulness_no" value="" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Одобрен: </label>
             <div class="controls"><input type="checkbox" name="avail" /></div></div>';
-        $out .= '<div class="control-group"><div class="controls"><input class="btn btn-primary" type="submit" value="Добавить" name="add-goods-reviews"></div></div>';
+        $out .= '<div class="control-group"><div class="controls"><input class="btn btn-primary" type="submit" value="'.l('Добавить').'" name="add-goods-reviews"></div></div>';
         $out .= '</fieldset></form>';
 
         return $out;

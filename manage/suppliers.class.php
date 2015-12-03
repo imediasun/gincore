@@ -661,7 +661,7 @@ class Suppliers
                 array($order_id))->row();
 
             if ($order) {
-                $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="Сохранить" />';
+                $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="'.l('Сохранить').'" />';
 
                 $data['content'] = '<h6>Ремонты ожидающие данную запчасть</h6>';
                 $data['content'] .= '<form id="form-orders-links" method="post">';
@@ -889,7 +889,7 @@ class Suppliers
                     $order['date_wait']  =  date("d.m.Y", strtotime($order['date_wait']));
                     $order['price']    /=  100;
                     if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/*$order['user_id'] == $_SESSION['id'] &&*/ $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                        $order['btn']   =  '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="Сохранить" />';
+                        $order['btn']   =  '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="'.l('Сохранить').'" />';
                         //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-primary" onclick="close_supplier_order(this, \'' . $order_id . '\')" value="Закрыть" />';
                         //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-danger" onclick="remove_supplier_order(this, \'' . $order_id . '\')" value="Удалить" />';
                         $order['btn']  .=  ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="Отменить" />';
@@ -982,7 +982,7 @@ class Suppliers
                 $goods_html .= '
                             </select>
                             <div class="input-group-btn">
-                                <button type="button" onclick="alert_box(this, false, \'create-contractor-form\',{callback: \'quick_create_supplier_callback\'},null,\'accountings/ajax\')" class="btn btn-info">Добавить</button>
+                                <button type="button" onclick="alert_box(this, false, \'create-contractor-form\',{callback: \'quick_create_supplier_callback\'},null,\'accountings/ajax\')" class="btn btn-info">'.l('Добавить').'</button>
                             </div>
                         </div>
                     </div>
@@ -996,7 +996,7 @@ class Suppliers
                 $goods_html .= '<div class="form-group"><label>Запчасть <b class="text-danger">*</b>: </label>'
                     .typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], 
                                (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, 'Введите', 
-                               array('name' => 'Добавить', 
+                               array('name' => '"'.l('Добавить').'"', 
                                      'action' => 'products/ajax/?act=create_form', 
                                      'form_id' => 'new_device_form')) . '</div>';
             }

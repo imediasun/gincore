@@ -383,7 +383,7 @@ class logistics
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <input class="btn btn-primary" type="button" value="Сохранить" onclick="create_chain(this)" />
+                                            <input class="btn btn-primary" type="button" value="'.l('Сохранить').'" onclick="create_chain(this)" />
                                         </div>
                                     </div>
                                 </form>

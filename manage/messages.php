@@ -353,7 +353,7 @@ if ($act == 'alarm-clock') {
                         <div class="form-group">
                             ' . typeahead($all_configs['db'], 'users', false, $user_id, 26, 'input-xlarge') . '
                         </div>
-                        <input style="margin-left:0" type="button" class="btn btn-default" onclick="add_alarm(this)" value="Добавить" />
+                        <input style="margin-left:0" type="button" class="btn btn-default" onclick="add_alarm(this)" value="'.l('Добавить').'" />
                     </form>
                 </div>
             </div>
@@ -578,7 +578,7 @@ if ($act == 'stock_move-order') {
     $order = array('id' => $order ? intval($order['id']) : '', 'status' => $order ? intval($order['status']) : '');
     $rand = rand(1000, 9999);
     $data['content'] = $all_configs['chains']->moving_item_form(0, null, null, $order, false, $rand);
-    $data['btns'] = '<input onclick="move_order(this, ' . $rand . ')" type="button" value="Сохранить" class="btn" />';
+    $data['btns'] = '<input onclick="move_order(this, ' . $rand . ')" type="button" value="'.l('Сохранить').'" class="btn" />';
     $data['state'] = true;
     $data['functions'] = array('reset_multiselect()');
 

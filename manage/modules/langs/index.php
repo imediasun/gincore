@@ -107,7 +107,7 @@ class langs{
                         '.$html.'
                     </tbody>
                 </table>
-                <input type="submit" value="Сохранить" class="btn btn-primary">
+                <input type="submit" value="'.l('Сохранить').'" class="btn btn-primary">
             </form>
             
             <br>
@@ -122,7 +122,7 @@ class langs{
                     <label>url:</label>
                     <input type="text" class="form-control" name="url">
                 </div>
-                <input type="submit" value="Добавить" class="btn btn-primary">
+                <input type="submit" value="'.l('Добавить').'" class="btn btn-primary">
             </form>
         ';
 

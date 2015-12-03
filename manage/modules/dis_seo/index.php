@@ -110,7 +110,7 @@ class seo {
 //                                Эмейлы для уведомлений об изменениях в Title или Description страниц<br>
 //                                <input type="text" class="input-xxlarge" name="page_seo_email" value="' . $emails . '">
 //                                    <br>
-//                                <input type="submit" class="btn btn-primary" value="Сохранить">
+//                                <input type="submit" class="btn btn-primary" value="'.l('Сохранить').'">
 //                            </form>
 //                        ';
 //        }
@@ -191,7 +191,7 @@ class seo {
 //                    'robots.txt<br>' .
 //                    '<form action="' . $prefix . 'seo/robots/save" method="post">' .
 //                    '<textarea rows="10" cols="70" style="width:auto" name="robots">' . htmlspecialchars($robots_data) . '</textarea>' .
-//                    '<br><input type="submit" class="btn btn-primary" value="Сохранить">' .
+//                    '<br><input type="submit" class="btn btn-primary" value="'.l('Сохранить').'">' .
 //                    '</form>'
 //            ;
 //        } else {
@@ -481,7 +481,7 @@ class seo {
                     </tr>
                 ';
             }
-            $out .= '</tbody></table><input type="submit" class="btn btn-primary save_fixed" value="Сохранить"><form>';
+            $out .= '</tbody></table><input type="submit" class="btn btn-primary save_fixed" value="'.l('Сохранить').'"><form>';
        }
 
         return $out;

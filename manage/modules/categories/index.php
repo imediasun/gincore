@@ -524,7 +524,7 @@ class categories
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
                 $category_html .= '<div class="form-group"><div class="controls">
-                    <input class="btn btn-primary " type="submit" value="Сохранить" name="edit-category" /></div></div>';
+                    <input class="btn btn-primary " type="submit" value="'.l('Сохранить').'" name="edit-category" /></div></div>';
             } else {
                 $category_html .= '<script>$(":input:not(:disabled)").prop("disabled",true)</script>';
             }
@@ -688,7 +688,7 @@ class categories
                 <input type="checkbox" id="toggle_mce"'.((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '').'>
                 <textarea id="page_content" name="page_content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">' . $cur_category['page_content'] . '</textarea></div>';
             $category_html .= '<div class="form-group">
-                <input class="btn btn-primary" type="submit" value="Сохранить" name="edit-seo" /></div>';
+                <input class="btn btn-primary" type="submit" value="'.l('Сохранить').'" name="edit-seo" /></div>';
             $category_html .= '</form></div>';
         }
 

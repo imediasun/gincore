@@ -107,4 +107,10 @@ $lang_arr = array(
         'ua' => 'Невірний логін або пароль!'
     ),
     
+    'customer_orders' => array(
+        'ru' => 'Заказы клиентов',
+        'ua' => '',
+        'en' => 'Customer Orders'
+    ),
+    
 );

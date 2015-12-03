@@ -842,7 +842,7 @@ class orders
                                                     <input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
                                                     '.typeahead($this->all_configs['db'], 'clients', false, ($order_data ? $order_data['client_id'] : 0), 2, 'input-xlarge', 'input-medium', 'get_requests,check_fio')
                                                     .'<span class="input-group-btn">
-                                                        <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить">
+                                                        <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="'.l('Добавить').'">
                                                     </span>
                                                 </div>-->
                                             </div>
@@ -988,7 +988,7 @@ class orders
                                     </div>
                                 </div>
                                 <div class="btn-group dropup">
-                                  <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button" onclick="add_new_order(this,\'\',\'create_order\')" value="Добавить" />
+                                  <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button" onclick="add_new_order(this,\'\',\'create_order\')" value="'.l('Добавить').'" />
                                   <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle Dropdown</span>
@@ -1036,7 +1036,7 @@ class orders
                         <!--<input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
                         '.typeahead($this->all_configs['db'], 'clients', false, 0, 3, 'input-xlarge', 'input-medium', 'check_fio')
                         .'<span class="input-group-btn">
-                            <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="Добавить">
+                            <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="'.l('Добавить').'">
                         </span>
                         -->
                     </div>
@@ -1069,7 +1069,7 @@ class orders
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
                     </div>
                 </fieldset>
-                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="Добавить" />
+                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="'.l('Добавить').'" />
             </form>
         ';
         return $form;
@@ -2285,7 +2285,7 @@ class orders
                         ? $this->all_configs['configs']['order-status-nowork'] : $order['status']);
                 if ($show_btn == true) {
                     $order_html .= '<input id="close-order" ' . $hide . ' class="btn btn-success" onclick="issue_order(this)" data-status="' . $status . '" type="button" value="Выдать" />';
-                    $order_html .= ' <input id="update-order" class="btn btn-info" onclick="update_order(this)" type="button" value="Сохранить" />';
+                    $order_html .= ' <input id="update-order" class="btn btn-info" onclick="update_order(this)" type="button" value="'.l('Сохранить').'" />';
                 }
                 $order_html .= '</div><div class="span6"><div class="from-control">';
                 $order_html .= ' <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-sum\')" data-o_id="' . $order['id'] . '" title="История изменений"></span>';
@@ -2360,10 +2360,10 @@ class orders
             if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
                 if (!$only_engineer) {
                     $public_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea placeholder="Данный комментарий виден клиенту на сайте" class="form-control" name="public_comment"></textarea></div></div>';
-                    $public_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_public_comment" class="btn btn-sm" value="Добавить" type="submit"></div></div></div>';
+                    $public_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_public_comment" class="btn btn-sm" value="'.l('Добавить').'" type="submit"></div></div></div>';
                 }
                 $private_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea placeholder="Данный комментарий видят только сотрудники" class="form-control" name="private_comment"></textarea></div></div>';
-                $private_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_private_comment" class="btn btn-sm" value="Добавить" type="submit"></div></div></div>';
+                $private_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_private_comment" class="btn btn-sm" value="'.l('Добавить').'" type="submit"></div></div></div>';
             }
             $public_html .= '</div></div>';
             $private_html .= '</div></div>';

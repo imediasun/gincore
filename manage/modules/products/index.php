@@ -647,7 +647,7 @@ class products
                     </label>
                 </div>
             </div>';
-        $goods_html .= '<input class="btn btn-primary" type="submit" value="Добавить" name="create-product">';
+        $goods_html .= '<input class="btn btn-primary" type="submit" value="'.l('Добавить').'" name="create-product">';
         if($ajax_quick_create){
             $goods_html .= ' <button type="button" class="btn btn-default hide_typeahead_add_form">Отмена</button>';
         }
@@ -1440,7 +1440,7 @@ class products
 
             // быстрое редактирование
             if (isset($_GET['edit']) && !empty($_GET['edit']))
-                $goods_html .= '<input type="submit" name="quick-edit" value="Сохранить" class="btn" />';
+                $goods_html .= '<input type="submit" name="quick-edit" value="'.l('Сохранить').'" class="btn" />';
 
             // строим блок страниц
             $goods_html .= page_block($count_page);
@@ -1491,7 +1491,7 @@ class products
                     $goods_html .= '</select></div></div>';
 
                     $goods_html .= '<div class="control-group"><div class="controls">';
-                    $goods_html .= '<input type="submit" value="Сохранить" name="default-add-product" class="btn btn-primary" />';
+                    $goods_html .= '<input type="submit" value="'.l('Сохранить').'" name="default-add-product" class="btn btn-primary" />';
                     $goods_html .= '</div></div></form>';
                 } else {
                     $goods_html .= '<p  class="text-error">У Вас нет прав для добавления новых товаров</p>';

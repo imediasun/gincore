@@ -1233,7 +1233,7 @@ class Chains
                     $data['msg'] = '<p>Не найдено совпадений, укажите номер ремонта, по которому принимается доработка</p>';
                     $data['msg'] .= '<p><input type="text" id="serial-order_id" value="" placeholder="Номер заказа на ремонт" /></p>';
                     $onclick = '$(this).button(\'loading\');$(\'input#serial-id\').val($(\'input#serial-order_id\').val());$(\'input#add-client-order\').click();';
-                    $data['btn'] = '<input onclick="' . $onclick . '" value="Сохранить" type="button" class="btn" />';
+                    $data['btn'] = '<input onclick="' . $onclick . '" value="'.l('Сохранить').'" type="button" class="btn" />';
                     $data['prompt'] = true;
                 }
             }
@@ -3042,7 +3042,7 @@ class Chains
                 $out .= '<div class="serial_input">';
                 $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '', 'display_serial_product', true) . '';
                 $out .= '</div>';
-                $out .= '<i class="fa fa-plus cloneAndClear" data-clone_siblings=".serial_input" style="position:relative;margin:5px 0 0 0 !important" title="Добавить"></i></div>';
+                $out .= '<i class="fa fa-plus cloneAndClear" data-clone_siblings=".serial_input" style="position:relative;margin:5px 0 0 0 !important" title="'.l('Добавить').'"></i></div>';
                 $out .= ' <small class="clone_clear_html product-title"></small>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {

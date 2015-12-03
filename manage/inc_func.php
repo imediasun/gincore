@@ -465,6 +465,8 @@ function get_ip()
  */
 function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0, $wrap_title = false)
 {
+    global $manage_lang;
+    
     if (is_string($date_input))
         $date = strtotime($date_input);
     else
@@ -475,56 +477,66 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
     $date_mounth = date("m", $date);
 
     $months = array(
-        0 => array(
+        'ru' => array(
             '01' => 'января', '02' => 'февраля', '03' => 'марта', '04' => 'апреля', '05' => 'мая', '06' => 'июня',
             '07' => 'июля', '08' => 'августа', '09' => 'сентября', '10' => 'октября', '11' => 'ноября', '12' => 'декабря',
         ),
-        1 => array(
+        'uk' => array(
             '01' => 'січня', '02' => 'лютого', '03' => 'березня', '04' => 'квітня', '05' => 'травня', '06' => 'червня',
             '07' => 'липня', '08' => 'серпня', '09' => 'вересня', '10' => 'жовтня', '11' => 'листопада', '12' => 'грудня',
+        ),
+        'en' => array(
+            '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June',
+            '07' => 'July', '08' => 'Augest', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December',
         ),
     );
 
     $months_short = array(
-        0 => array(
+        'ru' => array(
             '01' => 'янв', '02' => 'фев', '03' => 'мар', '04' => 'апр', '05' => 'мая', '06' => 'июн',
             '07' => 'июл', '08' => 'авг', '09' => 'сен', '10' => 'окт', '11' => 'ноя', '12' => 'дек'
         ),
-        1 => array(
+        'uk' => array(
             '01' => 'січ', '02' => 'лют', '03' => 'бер', '04' => 'кві', '05' => 'тра', '06' => 'чер',
             '07' => 'лип', '08' => 'сер', '09' => 'вер', '10' => 'жов', '11' => 'лис', '12' => 'гру',
+        ),
+        'en' => array(
+            '01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr', '05' => 'May', '06' => 'Jun',
+            '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dec'
         ),
     );
 
     $years_short = array(
-        0 => 'г',
-        1 => 'р',
+        'ru' => 'г',
+        'uk' => 'р',
+        'en' => '',
     );
 
     $today = array(
-        0 => 'Сегодня',
-        1 => 'Сьогодні',
+        'ru' => 'Сегодня',
+        'uk' => 'Сьогодні',
+        'en' => 'Today',
     );
-
+    
     if ($short_format) {
         //текущий день, месяц и год
         if (date("j.n.Y", $date) == date("j.n.Y")) {
             if ($time == true)
                 $out = date("G:i", $date);
             else
-                $out = $today[$lang];
+                $out = $today[$manage_lang];
             // текущий год и не сегодня
         } elseif (date("Y", $date) == date("Y") && date("j.n", $date) != date("j.n")) {
-            $out = date("j", $date) . '&nbsp;' . $months_short[$lang][$date_mounth] . '.';
+            $out = date("j", $date) . '&nbsp;' . $months_short[$manage_lang][$date_mounth] . '';
             //не текущий год
         } else {
             $out = date("d.m.y", $date);
         }
     } else {
         if ($time == true)
-            $out = date("j ", $date) . $months[$lang][$date_mounth] . date(" Y {$years_short[$lang]}., G:i", $date);
+            $out = date("j ", $date) . $months[$manage_lang][$date_mounth] . date(" Y {$years_short[$manage_lang]}, G:i", $date);
         else
-            $out = date("j ", $date) . $months[$lang][$date_mounth] . date(" Y {$years_short[$lang]}.", $date);
+            $out = date("j ", $date) . $months[$manage_lang][$date_mounth] . date(" Y {$years_short[$manage_lang]}", $date);
     }
 
     if($wrap_title){

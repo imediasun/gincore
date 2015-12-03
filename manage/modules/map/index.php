@@ -116,9 +116,9 @@ class map{
         }#section
 
 //        if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][0] == 'map' && is_numeric($this->all_configs['arrequest'][1]))
-//            $out.='<br><a href="'.$this->all_configs['prefix'].'map/add/'.$this->all_configs['arrequest'][1].'">Добавить</a><br>';
+//            $out.='<br><a href="'.$this->all_configs['prefix'].'map/add/'.$this->all_configs['arrequest'][1].'">'.l('Добавить').'</a><br>';
 //        else
-//            $out.='<br><a href="'.$this->all_configs['prefix'].'map/add">Добавить</a><br>';
+//            $out.='<br><a href="'.$this->all_configs['prefix'].'map/add">'.l('Добавить').'</a><br>';
 
 
 

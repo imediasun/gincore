@@ -615,7 +615,7 @@ class logisticsold
             if ($chain['id'] > 0) {
                 $out .= '<label class="checkbox"><input type="checkbox" name="remove" value="1" /> Удалить</label>';
             }
-            $out .= '<input class="btn btn-primary" type="button" value="Сохранить" onclick="create_chain(this)" /></div></div>';
+            $out .= '<input class="btn btn-primary" type="button" value="'.l('Сохранить').'" onclick="create_chain(this)" /></div></div>';
         }
         $out .= '</form>';
         $out .= '</div></div></div>';

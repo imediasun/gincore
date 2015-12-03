@@ -286,7 +286,7 @@ class wrapper{
 
             $out.='<form action="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/insert" method="POST">
                 '.$form.'
-                <input type="submit" value="Добавить" class="btn btn-primary" />
+                <input type="submit" value="'.l('Добавить').'" class="btn btn-primary" />
             </form>';
         }
 ###############################################################################

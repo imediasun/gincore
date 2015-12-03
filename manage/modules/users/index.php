@@ -463,7 +463,7 @@ class users
 
         $users_html .= '</tbody></table>';
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-            $users_html .= '<input type="submit" name="change-roles" value="Сохранить" class="btn btn-primary" />';
+            $users_html .= '<input type="submit" name="change-roles" value="'.l('Сохранить').'" class="btn btn-primary" />';
         //}
         $users_html .= '</form></div>
             <div id="upload_avatar" class="modal fade">
@@ -554,7 +554,7 @@ class users
         }
         $users_html .= '</div>';
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-            $users_html .= '<input type="submit" name="create-roles" value="Сохранить" class="btn btn-primary" />';
+            $users_html .= '<input type="submit" name="create-roles" value="'.l('Сохранить').'" class="btn btn-primary" />';
         //}
         $users_html .= '</form></div>';
 

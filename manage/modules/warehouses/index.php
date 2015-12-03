@@ -1087,7 +1087,7 @@ class warehouses
                     $admin_out .= typeahead($this->all_configs['db'], 'locations', false, $selected, $user_id, 'input-large', '', '', true, false, $user_id);
                     $admin_out .= '</td></tr>';
                 }
-                $admin_out .= '<tr><td colspan="3"><input type="submit" class="btn" name="set-warehouses_users" value="Сохранить" /></td></tr></tbody></table></form>';
+                $admin_out .= '<tr><td colspan="3"><input type="submit" class="btn" name="set-warehouses_users" value="'.l('Сохранить').'" /></td></tr></tbody></table></form>';
             }
         }
 
@@ -1199,7 +1199,7 @@ class warehouses
         $html .= '<input id="scan-serial-' . $id . '" onkeyup="is_enter($(\'.btn-scan_serial\'), event, ' . $id . ', \'scan_serial\')" class="scan-serial focusin"';
         $html .= ' type="text" placeholder="Серийный номер">';
         $html .= '<button class="btn-scan_serial btn" onclick="scan_serial(this, \'' . $id . '\')" type="button">';
-        $html .= 'Добавить</button>';
+        $html .= '"'.l('Добавить').'"</button>';
         $html .= '</div>';
 
         return $html;
@@ -2507,7 +2507,7 @@ class warehouses
                 $rand = rand(1000, 9999);
                 $data['content'] = $this->all_configs['chains']->moving_item_form(intval($_POST['object_id']), null, null, null, false, $rand);
                 $data['content'] .= '<div style="height: 200px"></div>';
-                $data['btns'] = '<input type="button" class="btn" value="Сохранить" onclick="btn_unbind_item_serial(this, ' . $rand . ')" />';
+                $data['btns'] = '<input type="button" class="btn" value="'.l('Сохранить').'" onclick="btn_unbind_item_serial(this, ' . $rand . ')" />';
                 $data['state'] = true;
                 $data['functions'] = array('reset_multiselect()');
             }

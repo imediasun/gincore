@@ -32,7 +32,7 @@ class calls extends \service{
                                 '.typeahead($this->all_configs['db'], 'clients', false, 0, 1001, 'input-xlarge', 'input-medium', '', false, false, '', true).'
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                                <button type="submit" class="btn btn-primary">'.l('Сохранить').'</button>
                             </div>
                         </form>
                     </div>
