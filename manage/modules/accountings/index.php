@@ -1,44 +1,12 @@
 <?php
 
 $modulename[30] = 'accountings';
-$modulemenu[30] = 'Бухгалтерия';
+$modulemenu[30] = l('Бухгалтерия');
 $moduleactive[30] = !$ifauth['is_2'];
 
 class accountings
 {
-    
-    public static $mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#cashboxes',
-            'name' => 'Кассы'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#transactions',
-            'name' => 'Транзакции'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#reports',
-            'name' => 'Отчеты'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#a_orders',
-            'name' => 'Заказы'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#contractors',
-            'name' => 'Контрагенты'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#settings',
-            'name' => 'Настройки'
-        ), 
-    );
+    private $mod_submenu;
     protected $cashboxes = array();
     protected $contractors = array();
 
@@ -65,6 +33,7 @@ class accountings
 
     function __construct(&$all_configs)
     {
+        $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
 
@@ -707,27 +676,27 @@ class accountings
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_cashboxes" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_cashboxes" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_transactions" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_transactions" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
         }
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")
                 || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
                 || $this->all_configs['oRole']->hasPrivilege('partner')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_reports" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_reports" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             //$out .= '<li><a class="click_tab" data-open_tab="accountings_orders_pre" onclick="click_tab(this, event)" data-toggle="tab" href="#orders_pre">Предоплата (заказы)<span class="tab_count hide tc_sum_accountings_orders_pre"></span></a></li>';
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_accountings_orders"></span></a>';
+            $out .= '<li><a class="click_tab" data-open_tab="accountings_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_accountings_orders"></span></a>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-contractors')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_contractors" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a>';
+            $out .= '<li><a class="click_tab default" data-open_tab="accountings_contractors" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a>';
         }
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[5]['url'].'">'.self::$mod_submenu[5]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="accountings_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[5]['url'].'">'.$this->mod_submenu[5]['name'].'</a></li>';
         }
         $out .= '</ul><div class="tab-content">';
 
@@ -3923,5 +3892,40 @@ class accountings
             'functions' => array('reset_multiselect()'),
         );
     }
+
+    public static function get_submenu(){
+    return array(
+        array(
+            'click_tab' => true,
+            'url' => '#cashboxes',
+            'name' => l('Кассы')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#transactions',
+            'name' => l('Транзакции')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#reports',
+            'name' => l('Отчеты')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#a_orders',
+            'name' => l('Заказы')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#contractors',
+            'name' => l('Контрагенты')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#settings',
+            'name' => l('Настройки')
+        ), 
+    );
+}
 
 }

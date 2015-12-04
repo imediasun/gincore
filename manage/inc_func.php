@@ -618,11 +618,11 @@ function client_double_typeahead($id = null, $callbacks = ''){
     $value_field = '<input class="typeahead-double-value" id="'.$input_id.'" type="hidden" name="client_id" value="'.($id ?: '').'">';
     $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" 
                      class="form-control typeahead-double" data-id="'.$input_id.'" type="text" 
-                     placeholder="Телефон" name="client_phone" required
+                     placeholder="'. l('Телефон') . '" name="client_phone" required
                      value="'.($client ? $client['phone'] : $client['phone']).'">';
     $fio_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="fio" 
                    class="form-control typeahead-double" type="text"  data-id="'.$input_id.'" 
-                   placeholder="ФИО" name="client_fio" required
+                   placeholder="' . l('ФИО') . '" name="client_fio" required
                    value="'.($client ? $client['fio'] : $client['fio']).'">';
     $id = '<input data-function="'.$callbacks.'" data-table="clients" data-field="id" 
                    class="form-control typeahead-double" type="hidden"  data-id="'.$input_id.'" 
@@ -1032,7 +1032,7 @@ function display_client_order($order)
     . '<td>' . get_user_name($order, 'a_') . '</td>'
     . '<td>' . (($order['manager'] == 0 && $all_configs['oRole']->hasPrivilege('edit-clients-orders')) ?
         '<form method="post" action="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . '">'
-        . '<input name="accept-manager" type="submit" class="btn btn-default btn-xs" value="Взять заказ" /><input type="hidden" name="id" value="' . $order['order_id'] . '" />'
+        . '<input name="accept-manager" type="submit" class="btn btn-default btn-xs" value="' . l('Взять заказ') . '" /><input type="hidden" name="id" value="' . $order['order_id'] . '" />'
         . '</form>'
         : get_user_name($order, 'h_')) . '</td>'
     . '<td>' . $status . $ordered . '</td>'
@@ -1046,7 +1046,7 @@ function display_client_order($order)
         
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
     . '<td>' . $order['o_phone'] . '</td>'
-    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">Срочно' : '>Не срочно') . '</td>'
+    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">Срочно' : '>' . l('Не срочно')) . '</td>'
     . '<td>' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']) . '</td></tr>';
 }
 

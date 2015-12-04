@@ -1,39 +1,19 @@
 <?php
 
 $modulename[20] = 'clients';
-$modulemenu[20] = 'Клиенты';
+$modulemenu[20] = l('Клиенты');
 $moduleactive[20] = !$ifauth['is_2'];
 
 class clients
 {
-    public static $mod_submenu = array(
-        array(
-            'url' => '?tab=clients',
-            'name' => 'Клиенты'
-        ), 
-        array(
-            'url' => '?tab=calls',
-            'name' => 'Звонки'
-        ), 
-        array(
-            'url' => '?tab=requests',
-            'name' => 'Заявки'
-        ), 
-        array(
-            'url' => '?tab=statistics',
-            'name' => 'Отчеты'
-        ), 
-        array(
-            'url' => '?tab=group_clients',
-            'name' => 'Склеить клиентов'
-        ), 
-    );
+    private $mod_submenu;
     public $error;
     public $all_configs;
     public $count_on_page;
 
     function __construct(&$all_configs)
     {
+        $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
         global $input_html;
@@ -60,6 +40,7 @@ class clients
 
         $input_html['mcontent'] = $error . $this->gencontent();
     }
+
 
     private function check_post($post)
     {
@@ -453,11 +434,11 @@ class clients
                 <br><br>
             <div class="tabbable">
                 <ul class="nav nav-tabs">
-                    <li'.($_GET['tab'] == 'clients' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>
-                    <li'.($_GET['tab'] == 'calls' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>
-                    <li'.($_GET['tab'] == 'requests' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li> 
-                    <li'.($_GET['tab'] == 'statistics' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'</a></li> 
-                    <li'.($_GET['tab'] == 'group_clients' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a></li> 
+                    <li'.($_GET['tab'] == 'clients' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>
+                    <li'.($_GET['tab'] == 'calls' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>
+                    <li'.($_GET['tab'] == 'requests' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li> 
+                    <li'.($_GET['tab'] == 'statistics' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'</a></li> 
+                    <li'.($_GET['tab'] == 'group_clients' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a></li> 
                 </ul>
             </div>
             <div class="tab-content">
@@ -1386,6 +1367,32 @@ class clients
         echo json_encode($data);
         exit;
     }
+
+    public static function get_submenu(){
+        return array(
+        array(
+            'url' => '?tab=clients',
+            'name' => l('Клиенты')
+        ), 
+        array(
+            'url' => '?tab=calls',
+            'name' => l('Звонки')   
+        ), 
+        array(
+            'url' => '?tab=requests',
+            'name' => l('Заявки')
+        ), 
+        array(
+            'url' => '?tab=statistics',
+            'name' => l('Отчеты')
+        ), 
+        array(
+            'url' => '?tab=group_clients',
+            'name' => l('Склеить клиентов')
+        ), 
+    );
+    }
+
 
 }
 

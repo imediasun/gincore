@@ -2,37 +2,17 @@
 
 
 $modulename[80] = 'users';
-$modulemenu[80] = 'Сотрудники';
+$modulemenu[80] = l('Сотрудники');
 $moduleactive[80] = !$ifauth['is_2'];
 
 class users
 {
-    public static $mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#edit_tab_users',
-            'name' => 'Список пользователей'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#edit_tab_roles',
-            'name' => 'Управление ролями'
-        ),
-        array(
-            'click_tab' => true,
-            'url' => '#edit_tab_create',
-            'name' => 'Создать роль'
-        ),
-        array(
-            'click_tab' => true,
-            'url' => '#create_tab_user',
-            'name' => 'Создать пользователя'
-        ),
-    );
+    private $mod_submenu;
     protected $all_configs;
     
     function __construct($all_configs)
     {
+        $this->mod_submenu = self::get_submenu();
         $this->all_configs = &$all_configs;
         global $input_html, $ifauth;
 
@@ -374,10 +354,10 @@ class users
 
         $users_html .= '<div class="tabbable">
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>
-                <li><a data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>
-                <li><a data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li>
-                <li><a data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'</a></li>
+                <li class="active"><a data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>
+                <li><a data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>
+                <li><a data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li>
+                <li><a data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'</a></li>
             </ul>
             <div class="tab-content">';
 
@@ -747,5 +727,30 @@ class users
         
         return $per;
     }
+
+    public static function get_submenu(){
+    return  array(
+        array(
+            'click_tab' => true,
+            'url' => '#edit_tab_users',
+            'name' => l('Список пользователей')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#edit_tab_roles',
+            'name' => l('Управление ролями')
+        ),
+        array(
+            'click_tab' => true,
+            'url' => '#edit_tab_create',
+            'name' => l('Создать роль')
+        ),
+        array(
+            'click_tab' => true,
+            'url' => '#create_tab_user',
+            'name' => l('Создать пользователя')
+        ),
+    );
+}
 
 }

@@ -18,8 +18,8 @@
     var CLASS_JQUERY_TREE_UNCHECKED = 'jquery-tree-unchecked';
     var CLASS_JQUERY_TREE_CHECKED_PARTIAL = 'jquery-tree-checked-partial';
 
-    var COLLAPSE_ALL_CODE = '<span class="' + CLASS_JQUERY_TREE_COLLAPSE_ALL + '">Свернуть все</span>';
-    var EXPAND_ALL_CODE = '<span class="' + CLASS_JQUERY_TREE_EXPAND_ALL + '">Развернуть все</span>';
+    var COLLAPSE_ALL_CODE = '<span class="' + CLASS_JQUERY_TREE_COLLAPSE_ALL + '">' + L['collapse-all'] + '</span>';
+    var EXPAND_ALL_CODE = '<span class="' + CLASS_JQUERY_TREE_EXPAND_ALL + '">' + L['expand-all'] + '</span>';
     var TREE_CONTROLS_CODE = '<div class="' + CLASS_JQUERY_TREE_CONTROLS + '">' +
         COLLAPSE_ALL_CODE +
         EXPAND_ALL_CODE +
