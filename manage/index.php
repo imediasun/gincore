@@ -43,6 +43,8 @@ $input['manage_langs'] = '
         </ul>
     </li>
 ';
+// добавляем переводы в шаблон
+$input = array_merge($input, $manage_translates);
 
 $langs = get_langs(); // языки контента
 

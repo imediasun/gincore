@@ -202,7 +202,7 @@ class dashboard{
                 </div>
             ';
         }
-        return $stats ?: 'За выбранный период нет статистики';
+        return $stats ?: l('dashboard_no_stats');
     }
     
     private function get_cash(){

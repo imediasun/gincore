@@ -43,23 +43,23 @@ function gd(year, month, day) {
     return Date.UTC(year, month - 1, day);
 }
 
-function init_conv_chart(data1,data2,data3, init_visitors){
+function init_conv_chart(id,data1,data2,data3,init_visitors,legend_labels){
 //    init_visitors = true;
     var chartIncomeData = [];
     chartIncomeData.push({
-            label: "&nbsp;Заказы",
+            label: "&nbsp;"+legend_labels[0],
             data: data2,
             yaxis: 2
         },
         {
-            label: "&nbsp;Звонки",
+            label: "&nbsp;"+legend_labels[1],
             data: data3,
             yaxis: 2
         }
     );
     if(init_visitors){
         chartIncomeData.push({
-            label: "&nbsp;Посетители",
+            label: "&nbsp;"+legend_labels[2],
             data: data1,
             yaxis: 1
         });
@@ -84,6 +84,7 @@ function init_conv_chart(data1,data2,data3, init_visitors){
         },
         colors: ['#FFC90E','#22B14C',"#ED1C24"],
         grid: {
+            backgroundColor: "#ffffff",
             tickColor: "#f0f0f0",
             borderWidth: 1,
             borderColor: "#f0f0f0",
@@ -122,8 +123,8 @@ function init_conv_chart(data1,data2,data3, init_visitors){
             position: "ne"
         }
     };
-    var plot = $.plot($("#flot-line-chart"), chartIncomeData, chartIncomeOptions);
-    $("#flot-line-chart").flotUseTooltip();
+    var plot = $.plot($(id), chartIncomeData, chartIncomeOptions);
+    $(id).flotUseTooltip();
     $(window).resize(function () {
         plot.resize();
     });
