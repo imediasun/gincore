@@ -2,38 +2,12 @@
 
 
 $modulename[40] = 'warehouses';
-$modulemenu[40] = 'Склады';
+$modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
 class warehouses
 {
-    public static $mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#scanner_moves',
-            'name' => 'Перемещения'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#warehouses',
-            'name' => 'Склады'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#show_items',
-            'name' => 'Товары'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#orders',
-            'name' => 'Заказы'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#settings',
-            'name' => 'Настройки'
-        ), 
-    );
+    private $mod_submenu;
     protected $warehouses;
     protected $all_configs;
     protected $errors;
@@ -42,6 +16,7 @@ class warehouses
 
     function __construct(&$all_configs)
     {
+        $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
 
@@ -454,15 +429,15 @@ class warehouses
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[2]['url'].'">'.self::$mod_submenu[2]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[3]['url'].'">'.self::$mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_warehouses_orders"></span></a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="warehouses_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_warehouses_orders"></span></a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration"))
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[4]['url'].'">'.self::$mod_submenu[4]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab" data-open_tab="warehouses_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a></li>';
         //if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders"))
         //    $out .= '<li><a class="click_tab" data-open_tab="warehouses_inventories" onclick="click_tab(this, event)" data-toggle="tab" href="#inventories">Инвентаризация</a></li>';
         $out .= '</ul><div class="tab-content">';
@@ -2573,6 +2548,38 @@ class warehouses
 
         return number_format($price, $zero, '.', '');
     }
+
+
+public static function get_submenu(){
+    return array(
+        array(
+            'click_tab' => true,
+            'url' => '#scanner_moves',
+            'name' => l('Перемещения')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#warehouses',
+            'name' => l('Склады')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#show_items',
+            'name' => l('Товары')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#orders',
+            'name' => l('Заказы')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#settings',
+            'name' => l('Настройки')
+        ), 
+    );
+}
+
 
 
 }

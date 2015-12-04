@@ -2,7 +2,7 @@
 
 
 $modulename[70] = 'categories';
-$modulemenu[70] = 'Категории';
+$modulemenu[70] = l('Категории');
 $moduleactive[70] = !$ifauth['is_2'];
 
 class categories

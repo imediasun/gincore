@@ -2,24 +2,14 @@
 
 
 $modulename[50] = 'logistics';
-$modulemenu[50] = 'Логистика';
+$modulemenu[50] = l('Логистика');
 $moduleactive[50] = !$ifauth['is_2'];
 
 
 class logistics
 {
-    public static $mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#motions',
-            'name' => 'Логистика'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#settings',
-            'name' => 'Настройки'
-        )
-    );
+
+    private $mod_submenu;
     protected $all_configs;
     protected $db;
 
@@ -27,6 +17,7 @@ class logistics
     
     function __construct(&$all_configs)
     {
+        $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
         $this->db = $all_configs['db'];
         $this->count_on_page = count_on_page();
@@ -62,10 +53,10 @@ class logistics
     {
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         $out .= '<li><a class="click_tab default" data-open_tab="logistics_motions" onclick="click_tab(this, event)" ';
-        $out .= 'data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'.self::$mod_submenu[0]['name'].'</a></li>';
+        $out .= 'data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
             $out .= '<li><a class="click_tab" data-open_tab="logistics_settings" onclick="click_tab(this, event)" ';
-            $out .= 'data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'.self::$mod_submenu[1]['name'].'</a></li>';
+            $out .= 'data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
         }
         $out .= '</ul><div class="tab-content">';
 
@@ -518,4 +509,20 @@ class logistics
     }
     
     function preload(){}
+
+public static function get_submenu(){
+    return  array(
+        array(
+            'click_tab' => true,
+            'url' => '#motions',
+            'name' => l('Логистика')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#settings',
+            'name' => l('Настройки')
+        )
+    );
+}
+
 }

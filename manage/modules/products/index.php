@@ -2,7 +2,7 @@
 
 
 $modulename[60] = 'products';
-$modulemenu[60] = 'Товары';
+$modulemenu[60] = l('Товары');
 $moduleactive[60] = !$ifauth['is_2'];
 
 class products

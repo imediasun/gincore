@@ -5,7 +5,7 @@ include $all_configs['path'].'modules/translates/index.php';
 
 // настройки
 $modulename[145] = 'admin_translates';
-$modulemenu[145] = 'Переводы админки';  //карта сайта
+$modulemenu[145] = l('Переводы админки');  //карта сайта
 
 $moduleactive[145] = true;
 

@@ -2,7 +2,7 @@
 
 
 $modulename[100] = 'statistics';
-$modulemenu[100] = 'Статистика';
+$modulemenu[100] = l('Статистика');
 $moduleactive[100] = !$ifauth['is_1'];
 
 class statistics

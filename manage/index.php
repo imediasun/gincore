@@ -164,7 +164,7 @@ $input['avatar'] = avatar($ifauth['avatar']);
 $input['current_admin'] = ($ifauth['fio'] ?: $ifauth['login']);
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
 $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
-
+$input['homepage'] = l('Главная');
 $modules = scandir('./modules/');
 
 foreach($modules as $mod_folder){
@@ -268,7 +268,7 @@ if($modulename){
     if(!empty($additionally)){
         $mainmenu .= '
             <li>
-                <a href="#"><span class="nav-label">Еще</span><span class="fa arrow"></span> </a>
+                <a href="#"><span class="nav-label">' . l('еще') . '</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level collapse">
                     '.$additionally.'
                 </ul>

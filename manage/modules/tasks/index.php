@@ -1,25 +1,15 @@
 <?php
 
 $modulename[90] = 'tasks';
-$modulemenu[90] = 'Задачи';
+$modulemenu[90] = l('Задачи');
 $moduleactive[90] = !$ifauth['is_2'];
 
 //ini_set('xdebug.trace_format', 1);
 
 class tasks
 {
-    public static $mod_submenu = array(
-        array(
-            'click_tab' => true,
-            'url' => '#alltasks',
-            'name' => 'Задачи'
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#newtask',
-            'name' => 'Создать задачу'
-        ),
-    );
+
+    private $mod_submenu;
     protected $tasks = array();
     protected $all_configs;
     protected $tasks_filer_statuses = array();
@@ -27,6 +17,7 @@ class tasks
 
     function __construct(&$all_configs)
     {
+        $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
         //$this->tasks_filer_statuses = array(0 => 'Откр.', 1 => 'Реш.', 2 => 'Выполн.');
@@ -136,12 +127,12 @@ class tasks
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
 
         //if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-        $out .= '<li><a class="click_tab default" data-open_tab="tasks_alltasks" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[0]['url'].'">'
-                . self::$mod_submenu[0]['name'] .'</a></li>';
+        $out .= '<li><a class="click_tab default" data-open_tab="tasks_alltasks" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'
+                . $this->mod_submenu[0]['name'] .'</a></li>';
         //}
         if ($this->all_configs['oRole']->hasPrivilege('create-task')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="tasks_newtask" onclick="click_tab(this, event)" data-toggle="tab" href="'.self::$mod_submenu[1]['url'].'">'
-                    . self::$mod_submenu[1]['name'] .'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="tasks_newtask" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'
+                    . $this->mod_submenu[1]['name'] .'</a></li>';
         }
 
 
@@ -735,5 +726,20 @@ class tasks
         return  $this->all_configs['db']->query('SELECT state FROM {tasks} where id=?', array($task_id))->el();
         
     }
+
+public static function get_submenu(){
+    return  array(
+        array(
+            'click_tab' => true,
+            'url' => '#alltasks',
+            'name' => l('Задачи')
+        ), 
+        array(
+            'click_tab' => true,
+            'url' => '#newtask',
+            'name' => l('Создать задачу')
+        ),
+    );
+}
 
 }
