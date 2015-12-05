@@ -507,7 +507,7 @@ class warehouses
     {
         // всего денег по кассам которые consider_all == 1
         $cost_of = cost_of($this->warehouses,  $this->all_configs['settings'], $this->all_configs['suppliers_orders']);
-        $out = '<div class="well">Всего: ';
+        $out = '<div class="well">' . l('Всего') . ': ';
         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
             $out .= $cost_of['cur_price'] . ' (' . $cost_of['html'] .  '), ';
         }
@@ -1913,7 +1913,7 @@ class warehouses
                                 {$warehouses_type}</div>
                             <div class='form-group'><label>Принадлежность к Сервисному центру: </label>
                                 {$warehouses_groups}</div>
-                            <div class='form-group'><label>' . l('Категория') . ': </label>
+                            <div class='form-group'><label>" . l('Категория') . ": </label>
                                 {$warehouses_types}</div>
                             <div class='form-group'><label>
                                 Адрес для квитанции: </label>
@@ -1923,7 +1923,7 @@ class warehouses
                                 Телефон для квитанции: </label>
                                 <input class='form-control' name='print_phone' value='{$print_phone}' />
                             </div>
-                            <div class='form-group'><label>' . l('Локации') . ': </label>
+                            <div class='form-group'><label>" . l('Локации') . ": </label>
                                 {$warehouses_locations}</div>
                             <div class='form-group'>{$btn}</div>
                         </form>
@@ -2529,7 +2529,7 @@ class warehouses
 
         $categories_html = '<select class="input-small searchselect" id="searchselect-'.$num.'"';
         $categories_html .= ' onchange="javascript:$(\'#goods-'.$num.'\').attr(\'data-cat\', this.value);"';
-        $categories_html .= '><option value="0">Все разделы</option>';
+        $categories_html .= '><option value="0">' . l('Все разделы') . '</option>';
         foreach ( $categories as $category ) {
             $categories_html .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
         }

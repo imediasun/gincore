@@ -2540,7 +2540,7 @@ class Cart
                     'shipping'  =>  $shipping,
                     'city'      =>  $data['city'],
                 ), $model);
-                $price = 0 . ' грн. ';
+                $price = 0 . ' '. l('грн.');
                 if ( count($sum) > 0 ) {
                     $prices = $this->get_all_price($delivery, $sum);
                     if ($order === null) {

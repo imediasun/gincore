@@ -579,7 +579,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
     }
     if ($show_categories == true) {
-        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
+        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">' . l('Все разделы') . '</option>';
         $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         foreach ( $categories as $category ) {
@@ -1050,7 +1050,7 @@ function display_client_order($order)
         
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
     . '<td>' . $order['o_phone'] . '</td>'
-    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">Срочно' : '>' . l('Не срочно')) . '</td>'
+    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">' . l('Срочно') . ' ' : '>' . l('Не срочно')) . '</td>'
     . '<td>' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']) . '</td></tr>';
 }
 

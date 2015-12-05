@@ -1265,7 +1265,7 @@ class Suppliers
         $categories = $this->all_configs['db']->query('SELECT title,url,id FROM {categories} WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         $categories_html = '<select ' . $disabled . ' class="input-small searchselect" id="searchselect-' . $num . '"';
         $categories_html .= ' onchange="javascript:$(\'#goods-'.$num.'\').attr(\'data-cat\', this.value);"';
-        $categories_html .= '><option value="0">Все разделы</option>';
+        $categories_html .= '><option value="0">' . l('Все разделы') . '</option>';
 
         foreach ( $categories as $category ) {
             $categories_html .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
@@ -2886,7 +2886,7 @@ class Suppliers
             if ($contractors == true) {
                 $out .= '<td>' . l('Транзакция') . '</td><td>' . l('Доход') . '</td><td>' . l('Расход') . '</td><td>' . l('Серийник') . '</td>';
             } else {
-                $out .= '<td>Цепочка</td><td>Доход</td><td>Расход</td>';
+                $out .= '<td>' . l('Цепочка') . '</td><td>' . l('Доход') . '</td><td>' . l('Расход') . '</td>';
             }
             $out .= '<td>' . l('Ответственный') . '</td><td>' . l('Примечание') . '</td></tr></thead><tbody>';
             $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/ array_fill_keys(array_keys($currencies), '');
@@ -3124,7 +3124,7 @@ class Suppliers
                 $out .= '</tr>';
             }
             // итого
-            $out .= '<tr><td colspan="5"></td><td colspan="2">Итого: ';
+            $out .= '<tr><td colspan="5"></td><td colspan="2">' . l('Итого') . ': ';
             $out_inc = $out_exp = $out_trans ='</td><td>';
             $set = false;
             foreach ($total as $k => $t) {

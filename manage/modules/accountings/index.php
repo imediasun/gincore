@@ -2006,7 +2006,7 @@ class accountings
 
             $out = "<form class='date-filter form-inline' method='get'>"
                   ."<div class='input-group'><input type='text' name='d' class='form-control daterangepicker_single' value='{$day_html}' />"
-                  ."<span class='input-group-btn'><input class='btn' type='submit' value='Применить' /></span></div>";
+                  ."<span class='input-group-btn'><input class='btn' type='submit' value='" . l('Применить') . "' /></span></div>";
             // сумма по кассам если дата не сегодня
             //if ($today != $day) {
             $amounts_by_day = $this->all_configs['db']->query('SELECT a.amount, a.cashboxes_currency_id, c.course
@@ -2015,7 +2015,7 @@ class accountings
                 array($day))->assoc();
 
             if ($amounts_by_day) {
-                $out .= '<p>На ' . $day . '. Всего: ';
+                $out .= '<p>На ' . $day . '. ' . l('Всего') . ': ';
                 $all_amount = 0;
                 //$default_currency = '';
                 $out_amounts = '';

@@ -101,7 +101,7 @@ $(document).ready(function() {
 function multiselect() { 
     $('.multiselect').multiselect({
         buttonContainer: '<span class="dropdown" />',
-        nonSelectedText: 'Выбрать',
+        nonSelectedText: L['choose'],
         enableFiltering: true,
         numberDisplayed: 1,
         maxHeight: 200

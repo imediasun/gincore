@@ -391,7 +391,7 @@ class orders
                     <div class="btn-group-vertical">
                         <a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" 
                            href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">
-                               Всего: <span id="count-clients-orders">' . $count . '</span>
+                               ' . l('Всего') . ': <span id="count-clients-orders">' . $count . '</span>
                         </a>
                         <a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="
                             '.$this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked">
@@ -871,7 +871,7 @@ class orders
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">' . l('Цвет') . ' <b class="text-danger">*</b>: </label>
-                                                <select class="form-control" name="color">'.$colors_select.'</select>
+                                                <select class="form-control" name="color">'. $colors_select.'</select>
                                             </div>
                                             <!--<div class="form-group">
                                                 <label class="control-label">Серийный номер запчасти: </label>
@@ -925,7 +925,7 @@ class orders
                                                 <label>' . l('Ориентировочная стоимость') . ': </label>
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" value="" name="approximate_cost" />
-                                                    <span class="input-group-addon">'.viewCurrency().'</span>
+                                                    <span class="input-group-addon">'. l(viewCurrency()) .'</span>
                                                 </div>
                                             </div>
                                             <!--<div class="form-group">
@@ -2098,12 +2098,12 @@ class orders
                     $colors_select .= '<option value="-1" selected disabled>Не выбран</option>';
                 }
                 foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
-                    $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'.$c.'</option>';
+                    $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'. l($c) .'</option>';
                 }
                 $order_html .= 
                     '<div class="form-group">
                         <label class="control-label">' . l('Цвет') . ': </label>
-                        <select class="form-control" name="color">'.$colors_select.'</select>
+                        <select class="form-control" name="color">'. $colors_select .'</select>
                     </div>
                 ';
                 
@@ -2160,7 +2160,7 @@ class orders
                 $order_html .= '<div class="form-group"><label>' . l('Ориентировочная дата готовности') . ': </label> ';
                 $order_html .= '<span title="' . do_nice_date($order['date_readiness'], false) . '">' . do_nice_date($order['date_readiness']) . '</span></div>';
                 if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $order_html .= '<div class="form-group"><label>' . l('Ориентировочная стоимость') . ': </label> ' . ($order['approximate_cost'] / 100) . ' '.viewCurrency().'</div>';
+                    $order_html .= '<div class="form-group"><label>' . l('Ориентировочная стоимость') . ': </label> ' . ($order['approximate_cost'] / 100) . ' '. l(viewCurrency()) .'</div>';
                 }
             }
             $order_html .= '</div><div class="span6">';
@@ -2191,7 +2191,7 @@ class orders
             if ($order['type'] != 3) {
                 // инженеры
                 $engineers = $this->all_configs['oRole']->get_users_by_permissions('engineer');
-                $html = '<select class="form-control" name="engineer"><option value="">Выбрать</option>';
+                $html = '<select class="form-control" name="engineer"><option value="">' . l('Выбрать') . '</option>';
                 if ($engineers) {
                     foreach ($engineers as $engineer) {
                         $selected = $engineer['id'] == $order['engineer'] ? 'selected' : '';
@@ -2284,7 +2284,7 @@ class orders
                     : ($order['status'] == $this->all_configs['configs']['order-status-refused'] || $order['status'] == $this->all_configs['configs']['order-status-unrepairable']
                         ? $this->all_configs['configs']['order-status-nowork'] : $order['status']);
                 if ($show_btn == true) {
-                    $order_html .= '<input id="close-order" ' . $hide . ' class="btn btn-success" onclick="issue_order(this)" data-status="' . $status . '" type="button" value="Выдать" />';
+                    $order_html .= '<input id="close-order" ' . $hide . ' class="btn btn-success" onclick="issue_order(this)" data-status="' . $status . '" type="button" value="' . l('Выдать') . '" />';
                     $order_html .= ' <input id="update-order" class="btn btn-info" onclick="update_order(this)" type="button" value="'.l('Сохранить').'" />';
                 }
                 $order_html .= '</div><div class="span6"><div class="from-control">';
@@ -2306,7 +2306,7 @@ class orders
                         <div class="input-group-addon">'. l(viewCurrency()) .'</div>
                         <div class="input-group-btn">'.$pay_btn.'</div>
                     </div>';
-                $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' '. l(viewCurrency()).' (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
+                $order_html .= '<span class="text-success">' . l('Оплачено') . ': ' . ($order['sum_paid'] / 100) . ' '. l(viewCurrency()).' (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
                 $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
                 $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
                 $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';

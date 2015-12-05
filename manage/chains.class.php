@@ -3107,13 +3107,13 @@ class Chains
     {
         $order_html = '<select class="order-status form-control" name="status">';
         if (!is_integer($active)) {
-            $order_html .= '<option value="-1">Поменять</option>';
+            $order_html .= '<option value="-1">' . l('Поменять') . '</option>';
         }
         foreach ($this->all_configs['configs']['order-status'] as $k=>$status) {
             $selected = $k === $active ? 'selected' : '';
             $style = 'style="color:#' . htmlspecialchars($status['color']) . '"';
             $name = htmlspecialchars($status['name']);
-            $order_html .= '<option ' . $selected . ' ' . $style . 'value="' . $k . '">' . $name . '</option>';
+            $order_html .= '<option ' . $selected . ' ' . $style . 'value="' . $k . '">' . l($name) . '</option>';
         }
         $order_html .= '</select>';
 

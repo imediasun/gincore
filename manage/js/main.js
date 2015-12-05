@@ -7,7 +7,7 @@ var multiselect_options = {
     includeSelectAllOption: true,
     enableCaseInsensitiveFiltering: true,
     //dropRight: true,
-    selectAllText: 'Отметить все',
+    selectAllText: L['checkAll'],
     //dataprovider: [{label:1, value: 1}],
     maxHeight: 200,
     maxWidth: 330/*,
