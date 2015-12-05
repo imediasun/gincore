@@ -247,7 +247,7 @@ class seo {
 //
 //                $out = '<form action="' . $prefix . 'seo/images/' . $gallery . '/save" method="post">';
 //                $out .= '<div><h2>Галерея «' . $gallery . '»</h2>' .
-//                        ' <input type="submit" class="btn btn-primary" value="Сохранить изменения"></div><br>';
+//                        ' <input type="submit" class="btn btn-primary" value="' . l('Сохранить изменения') . '"></div><br>';
 //                $out .= $this->get_images($gallery);
 //            }
 //        }

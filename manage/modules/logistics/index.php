@@ -102,7 +102,7 @@ class logistics
                             разгрупировать
                     </label>
                 </div>
-                <input type="button" onclick="send_get_form(this)" value="Фильтровать" class="btn btn-primary" />
+                <input type="button" onclick="send_get_form(this)" value="' . l('Фильтровать') . '" class="btn btn-primary" />
             </form>
         ';
         return $out;
@@ -339,20 +339,20 @@ class logistics
                                         <div class="col-sm-4">
                                             <p>Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка</p>
                                             <div class="form-group">
-                                                <label>Склад:</label>
+                                                <label>' . l('Склад') . ':</label>
                                                 <select data-multi="0" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[0]">
                                                     '.$warehouses_select.'
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Локация:</label>
+                                                <label>' . l('Локация') . ':</label>
                                                 <select class="multiselect form-control select-location0" name="location[0]"></select>
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
                                             <p>Укажите склад логистики</p>
                                             <div class="form-group">
-                                                <label>Склад:</label>
+                                                <label>' . l('Склад') . ':</label>
                                                 <select data-multi="1" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[1]">
                                                     '.$warehouses_select.'
                                                 </select>
@@ -361,13 +361,13 @@ class logistics
                                         <div class="col-sm-4">
                                             <p>Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка</p>
                                             <div class="form-group">
-                                                <label>Склад:</label>
+                                                <label>' . l('Склад') . ':</label>
                                                 <select data-multi="2" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[2]">
                                                     '.$warehouses_select.'
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label class="control-label">Локация:</label>
+                                                <label class="control-label">' . l('Локация') . ':</label>
                                                 <select class="multiselect form-control select-location2" name="location[2]"></select>
                                             </div>
                                         </div>

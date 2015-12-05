@@ -288,7 +288,7 @@ class requests extends \service{
             <form class="filter_block" method="get" action="'.$this->all_configs['prefix'].'clients">
                 <input type="hidden" name="tab" value="requests">
                 <div class="form-group">
-                    <label>Оператор:</label><br>
+                    <label>' . l('Оператор') . ':</label><br>
                     '.$operators.'
                 </div>
                 <div class="form-group">
@@ -300,18 +300,18 @@ class requests extends \service{
                     <input type="text" placeholder="'.l('Дата').'" name="date" class="form-control daterangepicker" value="' . $date . '" />
                 </div>
                 <div class="form-group">
-                    <label>Клиент:</label>
+                    <label>' . l('Клиент') . ':</label>
                     '.typeahead($this->all_configs['db'], 'clients', false, (!empty($_GET['clients'])?$_GET['clients']:0), 2, 'input-xlarge', 'input-medium', '', false, false, '').'
                 </div>
                 <div class="form-group">
-                    <label>№&nbsp;Заявки:</label>
-                    <input type="text" name="request_id" class="form-control" placeholder="№ Заявки" value="'.(!empty($_GET['request_id'])?(int)$_GET['request_id']:'').'">
+                    <label>' . l('номер заявки') . ':</label>
+                    <input type="text" name="request_id" class="form-control" placeholder="' . l('номер заявки') . '" value="'.(!empty($_GET['request_id'])?(int)$_GET['request_id']:'').'">
                 </div>
                 <div class="form-group">
-                    <label>Устройство:</label>
+                    <label>' . l('Устройство') . ':</label>
                     '.typeahead($this->all_configs['db'], 'categories-goods', false, isset($_GET['categories-goods'])?(int)$_GET['categories-goods']:0, '', 'input-xlarge', '', '', false, false, '').'
                 </div>
-                <input type="submit" class="btn btn-primary" value="Фильтровать">
+                <input type="submit" class="btn btn-primary" value="' . l('Фильтровать') . '">
             </form>
         ';
     }
@@ -339,14 +339,14 @@ class requests extends \service{
                             <thead>
                                 <tr>
                                     <th>id</th>
-                                    <th>оператор</th>
-                                    <th>клиент</th>
+                                    <th>' . l('оператор') . '</th>
+                                    <th>' . l('клиент') . '</th>
                                     <th>'.l('Дата').'</th>
                                     <th>'.l('Статус').'</th>
-                                    <th>ссылка</th>
-                                    <th>устройство</th>
-                                    <th>комментарий</th>
-                                    <th>№&nbsp;ремонта</th>
+                                    <th>' . l('ссылка') .  '</th>
+                                    <th>' . l('устройство') . '</th>
+                                    <th>' . l('комментарий') . '</th>
+                                    <th>' . l('номер ремонта') . '</th>
                                     <th style="text-align:center">SMS</th>
                                 </tr>
                             </thead>
@@ -354,7 +354,7 @@ class requests extends \service{
                                 '.$list.'
                             </tbody>
                         </table>
-                        <input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения">
+                        <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '">
                     </form>
                     '.$this->request_to_order_form().'
                     '.page_block($count_pages).'
@@ -395,7 +395,7 @@ class requests extends \service{
                             '.$list_items.'
                         </tbody>
                     </table>
-                    <input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения">
+                    <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '">
                 </form>
                 '.$this->request_to_order_form().'
                 '.get_service('crm/sms')->get_form('requests').'
@@ -518,9 +518,9 @@ class requests extends \service{
 //                Звонок: <br>
 //                '.get_service('crm/calls')->calls_list_select($client_id, $call_id).'<br>
 //                <b>Создать заявку:</b><br>
-//                Устройство:<br>
+//               ' . l('Устройство') . ':<br>
 //                '.typeahead($this->all_configs['db'], 'categories-last', true, 0, 3, 'input-medium popover-info', 'input-min').'<br>
-//                Статус: <br>
+//                ' . l('Статус') . ': <br>
 //                '.$this->get_statuses_list().'<br>
 //                Комментарий: <br>
 //                <textarea name="comment" rows="3" cols="25"></textarea>

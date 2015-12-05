@@ -78,7 +78,7 @@ class calls extends \service{
                     </thead>
                     <tbody>'.$list_items.'</tbody>
                 </table>
-                <input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения">
+                <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '">
             </form>
         ';
     }
@@ -129,13 +129,13 @@ class calls extends \service{
                 <thead>
                     <tr>
                         <th>id</th>
-                        <th>Телефон</th>
-                        <th>Заявок</th>
+                        <th>' . l('Телефон') . '</th>
+                        <th>' . l('Заявок') . '</th>
                         <th>client id</th>
-                        <th>Оператор</th>
+                        <th>' . l('Оператор') . '</th>
                         <th>'.l('Статус').'</th>
-                        <th>Канал</th>
-                        <th>Код</th>
+                        <th>' . l('Канал') . '</th>
+                        <th>' . l('Код') . '</th>
                         <th>'.l('Дата').'</th>
                     </tr>
                 </thead>

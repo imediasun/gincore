@@ -284,8 +284,8 @@ class categories
 
         $category_html .= '
             <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="создать" name="create-category" />
-                '.($ajax ? '<button type="button" class="btn btn-default hide_typeahead_add_form">Отмена</button>' : '').'
+                <input class="btn btn-primary" type="submit" value="' . l('Создать') . '" name="create-category" />
+                '.($ajax ? '<button type="button" class="btn btn-default hide_typeahead_add_form">' . l('Отмена') . '</button>' : '').'
             </div>';
 
         $category_html .= '</fieldset></'.$form_close.'>';

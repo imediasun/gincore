@@ -539,7 +539,7 @@ class tasks
         }
         $out .= '<div class="form-group"><label>Даты:</label>';
         $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
-        $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="Фильтровать" />'
+        $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="' . l('Фильтровать') . '" />'
                 . '</form>';
         $out .= '</div>'; //row-2, end filers
         

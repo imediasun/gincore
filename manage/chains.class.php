@@ -666,30 +666,30 @@ class Chains
             return false;
 
         // фильтры
-        $filters = '<form method="post"><legend>Фильтры:</legend>';
-        $filters .= '<div class="form-group"><label>Товар:</label>';
+        $filters = '<form method="post"><legend>' . l('Фильтры') . ':</legend>';
+        $filters .= '<div class="form-group"><label>' . l('Товар') . ':</label>';
         $filters .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
-        $filters .= '</div><div class="form-group"><label>Серийный номер:</label><input name="serial" value="';
+        $filters .= '</div><div class="form-group"><label>' . l('Серийный номер') . ':</label><input name="serial" value="';
         $filters .= isset($_GET['serial']) && !empty($_GET['serial']) ? trim(htmlspecialchars($_GET['serial'])) : '';
         $filters .= '" type="text" class="form-control" placeholder="Серийный номер" class="form-control"></div>';
-        $filters .= '<div class="form-group"><label>ФИО:</label>';
+        $filters .= '<div class="form-group"><label>' . l('ФИО') . ':</label>';
         $filters .= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0).'</div>';
         $filters .= '<div class="form-group"><label>№ заказа на ремонт:</label><input name="client-order-number" value="';
         $filters .= isset($_GET['con']) && !empty($_GET['con']) ? trim(htmlspecialchars($_GET['con'])) : '';
         $filters .= '" type="text" class="form-control" placeholder="№ заказа на ремонт"></div>';
         $filters .= '<div class="form-group"><div class="checkbox"><label><input name="noitems" ';
         $filters .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> Без изделий</label></div>';
-        $filters .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="Фильтровать"></div></div>';
+        $filters .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="' . l('Фильтровать') . '"></div></div>';
         $filters .= '</div></form>';
 
         $out = '';
         if ($operations && count($operations) > 0) {
-            $out .= '<table class="table table-compact"><thead><tr><td>Заказ</td><td>'.l('Дата').'</td><td>Наименование</td>';//<td>Склад</td>
+            $out .= '<table class="table table-compact"><thead><tr><td>' . l('Заказ') . '</td><td>'.l('Дата').'</td><td>' . l('Наименование') . '</td>';//<td>' . l('Склад') . '</td>
             if ($type == 1)
                 $out .= '<td>Сроки</td>';
             if ($type == 2)
                 $out .= '<td>Куда</td>';
-            $out .= '<td>Сер.номер</td><td>Управление</td><td>Сервисный центр</td>';//<td>ФИО клиента</td><td>Управление</td><td>Автор заказа</td>
+            $out .= '<td>Сер.номер</td><td>' . l('Управление') . '</td><td>Сервисный центр</td>';//<td>' . l('ФИО клиента') . '</td><td>' . l('Управление') . '</td><td>Автор заказа</td>
             $out .= '</tr></thead><tbody>';//<td>Сроки</td><td>Комментарий</td>
 
             foreach($operations as $op) {
@@ -885,15 +885,15 @@ class Chains
             /*if ($status) {?
                 $out .= '111';
             }*/
-            $out .= '<div class="well"><h4>Списание изделия</h4>';
+            $out .= '<div class="well"><h4>' . l('Списание изделия') . '</h4>';
             if ($item_id === 0) {
                 $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
             }
             $out .= '<form class="form-horizontal" method="post">';
             if ($can) {
-                $out .= '<input type="button" class="btn" onclick="write_off_item(this, ' . $item_id . ')" value="Списать" />';
+                $out .= '<input type="button" class="btn" onclick="write_off_item(this, ' . $item_id . ')" value="' . l('Списать') .'" />';
             } else {
-                $out .= '<input disabled type="submit" class="btn" value="Списать" />';
+                $out .= '<input disabled type="submit" class="btn" value="' . l('Списать') . '" />';
             }
             $out .= '</form></div>';
 
@@ -913,19 +913,19 @@ class Chains
             /*if ($status) {?
                 $out .= '111';
             }*/
-            $out .= '<div class="well"><h4>Продажа изделия</h4>';
+            $out .= '<div class="well"><h4>' . l('Продажа изделия') . '</h4>';
             if ($item_id === 0) {
                 $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
             }
             $out .= '<form method="post" id="sold-item-form">';
-            $out .= '<div class="form-group"><label>Клиент:</label>';
+            $out .= '<div class="form-group"><label>' . l('Клиент') . ':</label>';
             $out .= '' . typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'fonm-control') . '</div>';
-            $out .= '<div class="form-group"><label>Стоимость:</label>';
-            $out .= '<input type="text" name="price" required class="form-control" placeholder="укажите стоимость" /></div>';
+            $out .= '<div class="form-group"><label>' . l('Стоимость') . ':</label>';
+            $out .= '<input type="text" name="price" required class="form-control" placeholder="' . l('укажите стоимость') . '" /></div>';
             if ($can) {
                 $out .= '<input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="Продать" />';
             } else {
-                $out .= '<input disabled type="submit" class="btn" value="Продать" />';
+                $out .= '<input disabled type="submit" class="btn" value="' . l('Продать') . '" />';
             }
             $out .= '</form></div>';
 
@@ -3000,7 +3000,7 @@ class Chains
         if ($this->all_configs['configs']['erp-use'] == true
             && $this->all_configs['oRole']->hasPrivilege('return-items-suppliers')) {
 
-            $out .= '<div class="well"><h4>Возврат поставщику</h4>';
+            $out .= '<div class="well"><h4>' . l('Возврат поставщику') . '</h4>';
             // проверяем можем ли списать
             $can = $item_id > 0 ? $this->can_use_item($item_id) : true;
 
@@ -3009,9 +3009,9 @@ class Chains
                 $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
             }
             if ($can) {
-                $out .= '<input type="button" class="btn" onclick="return_item(this, ' . $item_id . ')" value="Вернуть" />';
+                $out .= '<input type="button" class="btn" onclick="return_item(this, ' . $item_id . ')" value="' . l('Вернуть') . '" />';
             } else {
-                $out .= '<input disabled type="submit" class="btn" value="Вернуть" />';
+                $out .= '<input disabled type="submit" class="btn" value="' . l('Вернуть') . '" />';
             }
             $out .= '</form></div>';
         }
@@ -3037,7 +3037,7 @@ class Chains
                 $out .= '<input type="hidden" name="goods_id" value="' . $goods_id . '" />';
             }
             if ($item_id === 0 && is_array($order) && array_key_exists('id', $order) && intval($order['id']) == 0) {
-                $out .= '<div class="form-group relative"><label>Серийный номер:</label>';
+                $out .= '<div class="form-group relative"><label>' . l('Серийный номер') . ':</label>';
                 //$out .= '<input name="item_id" type="text" value="" placeholder="Серийный номер" class="imput-large" /></div></div>';
                 $out .= '<div class="serial_input">';
                 $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '', 'display_serial_product', true) . '';
@@ -3060,12 +3060,12 @@ class Chains
                 $out .= '</select></div>';
             }
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || $this->all_configs['oRole']->hasPrivilege('engineer')) {
-                $out .= '<div class="form-group"><label>Склад куда:</label>';
+                $out .= '<div class="form-group"><label>' . l('Склад куда') . ':</label>';
                 $out .= '<select onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination">';
                 $out .= $this->get_options_for_move_item_form($with_logistic, $wh_id);
                 $out .= '</select></div>';
 
-                $out .= '<div class="form-group"><label>Локация:</label><br>';
+                $out .= '<div class="form-group"><label>' . l('Локация') . ':</label><br>';
                 $out .= '<select class="multiselect form-control select-location" name="location">';
                 $out .= $this->all_configs['suppliers_orders']->gen_locations($wh_id);
                 $out .= '</select></div>';
@@ -3073,9 +3073,9 @@ class Chains
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
                 $out .= '<div class="control-group"><label class="control-label">'.l('Статус').':</label><div class="controls">';
                 $out .= $this->order_status($order['status'], true) . '</div></div>';
-                $out .= '<div class="control-group"><label class="control-label">Публичный комментарий:</label><div class="controls">';
+                $out .= '<div class="control-group"><label class="control-label">' . l('Публичный комментарий') . ':</label><div class="controls">';
                 $out .= '<textarea name="public_comment" class="form-control"></textarea></div></div>';
-                $out .= '<div class="control-group"><label class="control-label">Скрытый комментарий:</label><div class="controls">';
+                $out .= '<div class="control-group"><label class="control-label">' . l('Скрытый комментарий') . ':</label><div class="controls">';
                 $out .= '<textarea name="private_comment" class="form-control"></textarea></div></div>';
             }
             if ($show_btn == true || $this->all_configs['configs']['erp-move-item-logistics'] == true) {
@@ -3083,7 +3083,7 @@ class Chains
                 if ($show_btn == true) {
                     // проверяем привязано ли изделие к цепочке
                     $attr = $this->can_use_item($item_id) ? 'onclick="move_item(this, ' . $rand . ')"' : 'disabled';
-                    $out .= '<input ' . $attr . ' type="button" value="Создать" class="btn" />';
+                    $out .= '<input ' . $attr . ' type="button" value="' . l('Создать') . '" class="btn" />';
                 }
                 $out .= '</label><div class="controls"><label class="checkbox">';
                 if ($this->all_configs['configs']['erp-move-item-logistics'] == true) {
@@ -3387,7 +3387,7 @@ class Chains
                 array($where))->assoc();
 
             if ($moves) {//<td>Комментарий</td>
-                $html = '<table class="table"><thead><tr><td>'.l('Дата').'</td><td>Менджер</td><td>Склад</td><td>Локация</td></tr></thead>';
+                $html = '<table class="table"><thead><tr><td>'.l('Дата').'</td><td>' . l('Менeджер') . '</td><td>' . l('Склад') .'</td><td>' . l('Локация') . '</td></tr></thead>';
                 foreach ($moves as $move) {
                     $html .= '<tr><td><span title="' . do_nice_date($move['date_move'], false) . '">' . do_nice_date($move['date_move']) . '</span></td>';
                     $html .= '<td>' . get_user_name($move) . '</td>';

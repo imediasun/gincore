@@ -168,7 +168,7 @@ class logisticsold
         $out .= build_array_tree($wharehouses, ((isset($whto_ar)) ? $whto_ar : array()));
         $out .= '</select></label>';
         
-        $out .= '<input type="button" onclick="send_get_form(this)" value="Фильтровать" class="btn" />';
+        $out .= '<input type="button" onclick="send_get_form(this)" value="' . l('Фильтровать') . '" class="btn" />';
         $out .= '</form></div>'
                 . '<div class="span10">';
         // content begin
@@ -582,7 +582,7 @@ class logisticsold
         foreach ($chain['bodies'] as $body) {
             $row_inform .= '<td>' . (isset($informs[$i]) ? htmlspecialchars($informs[$i]) : '') . '</td>';
 
-            $row_settings .= '<td><div class="control-group"><label class="control-label">Склад:</label><div class="controls">';
+            $row_settings .= '<td><div class="control-group"><label class="control-label">' . l('Склад') . ':</label><div class="controls">';
             if ($chain['id'] > 0) {
                 $row_settings .= $body['title'];
             } else {
@@ -592,7 +592,7 @@ class logisticsold
             }
             $row_settings .= '</div></div>';
             if ($body['type'] == $this->all_configs['chains']->chain_warehouse) {
-                $row_settings .= '<div class="control-group"><label class="control-label">Локация:</label><div class="controls">';
+                $row_settings .= '<div class="control-group"><label class="control-label">' . l('Локация') . ':</label><div class="controls">';
                 if ($chain['id'] > 0) {
                     $row_settings .= $body['location'];
                 } else {

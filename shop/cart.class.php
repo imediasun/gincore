@@ -1843,7 +1843,7 @@ class Cart
             <table class="orders_table order_items_table ' . (($admin_panel > 0) ? 'table table-striped' : '') . '">' .
                 '<thead>' .
                     '<tr>' .
-                        '<td>Наименование</td>' .
+                        '<td>' . l('Наименование') . '</td>' .
                         '<td>Цена товара</td>' .
                         (( $admin_panel > 0) ?
                             ($oRole && $oRole->hasPrivilege('client-order-discount') ? '<td class="td-sc-discount">Скидка</td>' : '')

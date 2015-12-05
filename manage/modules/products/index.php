@@ -649,7 +649,7 @@ class products
             </div>';
         $goods_html .= '<input class="btn btn-primary" type="submit" value="'.l('Добавить').'" name="create-product">';
         if($ajax_quick_create){
-            $goods_html .= ' <button type="button" class="btn btn-default hide_typeahead_add_form">Отмена</button>';
+            $goods_html .= ' <button type="button" class="btn btn-default hide_typeahead_add_form">' . l('Отмена') . '</button>';
         }
         $goods_html .= '</fieldset></'.$form_close.'>';
 
@@ -1271,7 +1271,7 @@ class products
                         <div class="input-group" style="width:250px">
                             <input class="form-control" name="text" type="text" value="' . (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') . '" />
                             <span class="input-group-btn">
-                                <input type="submit" name="search" value="Поиск" class="btn" />
+                                <input type="submit" name="search" value="' . l('Поиск') . '" class="btn" />
                             </span>
                         </div>
                     </form>
@@ -1658,7 +1658,7 @@ class products
                 $data['btns'] = '<input type="button" value="Удалить" class="btn btn-danger" onclick="goods_section(this, 1)" />';
             } else {
                 $data['content'] .= '<input type="text" id="goods_section_name" value="" placeholder="новый раздел" />';
-                $data['btns'] = '<input type="button" value="Создать" class="btn btn-success" onclick="goods_section(this, 0)" />';
+                $data['btns'] = '<input type="button" value="' . l('Создать') . '" class="btn btn-success" onclick="goods_section(this, 0)" />';
             }
             $data['content'] .= '</form>';
             header("Content-Type: application/json; charset=UTF-8");
@@ -2431,7 +2431,7 @@ class products
                 array($this->all_configs['arrequest'][2]))->assoc();
 
             if ($counts) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>Склад</td><td>Общий остаток</td>';
+                $goods_html .= '<table class="table table-striped"><thead><tr><td>' . l('Склад') . '</td><td>Общий остаток</td>';
                 $goods_html .= '<td>Свободный остаток</td></tr></thead><tbody>';
                 $all_qty_wh = 0;
                 $all_qty_store = 0;
@@ -2445,7 +2445,7 @@ class products
                     $goods_html .= '<td>' . intval($vgw['qty_wh']) . '</td>';
                     $goods_html .= '<td>' . intval($vgw['qty_store']) . '</td></tr>';
                 }
-                $goods_html .= '<tr><td><b>Всего</b></td><td>' . $all_qty_wh . '</td>';
+                $goods_html .= '<tr><td><b>' . l('Всего') .'</b></td><td>' . $all_qty_wh . '</td>';
                 $goods_html .= '<td>' . $all_qty_store . '</td></tr></tbody></table>';
             } else {
                 $goods_html .= '<p  class="text-error">Нет информации</p>';
@@ -2727,7 +2727,7 @@ class products
                 array($this->all_configs['arrequest'][2]))->assoc();
 
             if ($goods_suppliers) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>Поставщик</td>';
+                $goods_html .= '<table class="table table-striped"><thead><tr><td>' . l('Поставщик') . '</td>';
                 $goods_html .= '<td>Цена закупки</td><td>Цена продажи</td><td>Количество</td><td>'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ($goods_suppliers as $vgs) {
                     $goods_html .= '<tr><td>' . htmlspecialchars($vgs['title']) . '</td>';
@@ -2824,7 +2824,7 @@ class products
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-goods')) {
             $goods_html .= '<div class="control-group"><div class="controls">';
-            $goods_html .= '<input class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-product-' . $tab . '">';
+            $goods_html .= '<input class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-product-' . $tab . '">';
             if ($this->all_configs['configs']['save_goods-export_to_1c'] == true && $this->all_configs['configs']['onec-use'] == true)
                 $goods_html .= '<label class="checkbox"><input type="checkbox" checked name="1c-export" />Отправить в 1с</label>';
             $goods_html .= '</div></div>';
