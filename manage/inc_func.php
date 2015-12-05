@@ -552,8 +552,12 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, 
                    $class = 'input-medium',$class_select = 'input-small', $function = '', 
                    $multi = false, $anyway = false, $m = '', $no_clear_if_null = false,
-                   $placeholder = 'Введите', $add_btn = array())
+                   $placeholder = '', $add_btn = array())
 {
+
+    if(empty($placeholder)) {
+        $placeholder = l('Введите');
+    }
     //static $iterator = 0; $iterator++;
     //$iterator += $i;
     $iterator = $i;
@@ -1001,7 +1005,7 @@ function display_client_order($order)
     if (array_key_exists($order['status'], $all_configs['configs']['order-status'])) {
         $status_name = $all_configs['configs']['order-status'][$order['status']]['name'];
         $status_color = $all_configs['configs']['order-status'][$order['status']]['color'];
-        $status = '<span style="color:#' . $status_color . '">' . $status_name . '</span>';
+        $status = '<span style="color:#' . $status_color . '">' . l($status_name) . '</span>';
     }
 
     $ordered = '';

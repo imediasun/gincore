@@ -42,7 +42,7 @@ function product_exports_form($all_configs)
     }
 
     $html .= '<div class="form-group">';
-    $html .= '<input type="submit" value="Выгрузить данные" class="btn btn-small btn-primary"></div></form>';
+    $html .= '<input type="submit" value="' . l('Выгрузить данные') . '" class="btn btn-small btn-primary"></div></form>';
 
     return $html;
 }

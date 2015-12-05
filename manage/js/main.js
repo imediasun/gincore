@@ -1,7 +1,7 @@
 
 var multiselect_options = {
     buttonContainer: '<div class="btn-group multiselect-btn-group" />',
-    nonSelectedText: 'Выбрать',
+    nonSelectedText: L['choose'],
     enableFiltering: true,
     inheritClass: true,
     includeSelectAllOption: true,
@@ -1155,9 +1155,9 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         $(_this).addClass('disabled');
 
     bootbox.addLocale('ru', {
-        OK : 'Отмена',
-        CANCEL : 'Отмена',
-        CONFIRM : 'Подтвердить'
+        OK : L['cansel'],
+        CANCEL : L['cansel'],
+        CONFIRM : L['confirm']
     });
     bootbox.setDefaults({
         /**

@@ -486,7 +486,7 @@ class Cart
                         $warranties_html =
                             (!empty($warr['html']) ?
                                 '<div class="cart_item_block">' .
-                                '<div class="cart_item_block_title">Гарантия (мес.)</div>' .
+                                '<div class="cart_item_block_title">Гарантия ('. l('мес') . ')</div>' .
                                 '<ul class="cart_warranties_select">' . $warr['html'] . '</ul>' .
                                 '</div>' : '');
 
@@ -1334,7 +1334,7 @@ class Cart
             $url = 'http://' . $this->configs['host'] . $this->prefix . 'manage/orders/create/' . $parent;
             $admin_email_text = '<br><br> Посмотреть: <a href="' . $url . '">' . $url . '</a>';
             $admin_email_text .= '<br><br> Со страницы: ' . htmlspecialchars($from_page);
-            send_mail($settings['email_service'], 'Новый заказ №' . $parent . ' на ' . ($mess_local_sum/100) . ' грн.', $admin_email_text);
+            send_mail($settings['email_service'], 'Новый заказ №' . $parent . ' на ' . ($mess_local_sum/100) . ' ' . l('грн') . '.', $admin_email_text);
         }
 
         // сообщение админам
@@ -1747,7 +1747,7 @@ class Cart
               og.warranties, og.warranties_cost, og.id, og.foreign_warehouse, g.no_warranties
             FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND g.id=og.goods_id', array($order['id']))->assoc();
 
-        $orders_html .= '<h3>Товары</h3>';
+        $orders_html .= '<h3>' . l('Товары') . '</h3>';
         if ( $goods && count($goods) > 0 ) {
 
             // выводим товары в заказе
@@ -1843,7 +1843,7 @@ class Cart
             <table class="orders_table order_items_table ' . (($admin_panel > 0) ? 'table table-striped' : '') . '">' .
                 '<thead>' .
                     '<tr>' .
-                        '<td>Наименование</td>' .
+                        '<td>' . l('Наименование') . '</td>' .
                         '<td>Цена товара</td>' .
                         (( $admin_panel > 0) ?
                             ($oRole && $oRole->hasPrivilege('client-order-discount') ? '<td class="td-sc-discount">Скидка</td>' : '')
@@ -1885,12 +1885,12 @@ class Cart
             //if ( $good['warranties'] > 0 ) {
                 $warr = $model->show_warranties($good, $this, $good['warranties'], false, false, true );
                 if ( empty($warr['html']) )
-                    $warranty_count = '<input type="hidden" name="warranties[' . $admin_panel . '][' . $good['goods_id'] . $admin_panel . ']">' . 0 . ' мес.';
+                    $warranty_count = '<input type="hidden" name="warranties[' . $admin_panel . '][' . $good['goods_id'] . $admin_panel . ']">' . 0 . ' '. l('мес') . '';
                 else
                     $warranty_count = '<select onchange="checkout_change()" class="help-select" name="warranties[' . $admin_panel . '][' . $good['goods_id'] . ']">' . $warr['html'] . '</select>';
                 //<option value="">0</option>
             //} else {
-            //    $warranty_count = '<input type="hidden" name="warranties[' . $good['goods_id'] . ']">' . $good['warranties'] . ' мес.';
+            //    $warranty_count = '<input type="hidden" name="warranties[' . $good['goods_id'] . ']">' . $good['warranties'] . ' '. l('мес') . '';
             //}
             /*$price = $model->show_price($good['price'], $order['course_key']);
             //$cost = $model->show_price($good['price'], $order['course_key'], false, $good['count']);
@@ -1938,7 +1938,7 @@ class Cart
                         </div>'
                     : '' ) .
                 (($good['no_warranties'] != 1 || $good['warranties'] > 0) ?
-                    'Гарантийный пакет <span id="war-months-' . $good['goods_id'] . $admin_panel . '">' . $warranty . '</span> мес. для ' . htmlspecialchars($good['title']) . '</td>'
+                    'Гарантийный пакет <span id="war-months-' . $good['goods_id'] . $admin_panel . '">' . $warranty . '</span> '. l('мес') . ' для ' . htmlspecialchars($good['title']) . '</td>'
                     : '' ) .
                 '<td><label id="warranty-cost-' . $good['goods_id'] . $admin_panel . '">' . $warranty_cost . '</label></td>' .
                 ($oRole && $oRole->hasPrivilege('client-order-discount') ? '<td class="td-sc-discount"></td>' : '') .
@@ -1964,7 +1964,7 @@ class Cart
             ($oRole && $oRole->hasPrivilege('external-marketing') ?
                 '<td class="td-sc-discount">' .
                 ($edit == true && $oRole && $oRole->hasPrivilege('client-order-discount') ?
-                    '<input onchange="checkout_change()" type="input" class="input-small" id="product-discount-' . $good['goods_id'] . $admin_panel . '" value="' . ($good['discount']/100) . '" name="discount[' . $admin_panel . ']" /> грн.'
+                    '<input onchange="checkout_change()" type="input" class="input-small" id="product-discount-' . $good['goods_id'] . $admin_panel . '" value="' . ($good['discount']/100) . '" name="discount[' . $admin_panel . ']" /> ' . l('грн') . '.'
                     : $model->show_price($good['discount'], null, null, true)) . '<b> X </b></td>' : '') .
                 '<td>' . $count . '</td>
                 <td><label id="products-cost-' . $good['goods_id'] . $admin_panel . '">' . $cost . '</label></td>' .
