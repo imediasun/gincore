@@ -578,9 +578,9 @@ class orders
             $orders_html .= '<div class="span12">';
 
             $orders_html .= '<ul class="list-unstyled inline clearfix m-b-md">';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-wrench"></i>' . l('РЕМОНТЫ') . '</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-money"></i>' . l('ПРОДАЖИ') . '</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i>' . l('СПИСАНИЯ') . '</a></li>';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-wrench"></i> ' . l('РЕМОНТЫ') . '</a></li>';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-money"></i> ' . l('ПРОДАЖИ') . '</a></li>';
+            $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i> ' . l('СПИСАНИЯ') . '</a></li>';
             $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i>' . l('Фильтровать') . '<i class="fa fa-caret-down"></i></button></li>';
             if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
                 $orders_html .= '<li class="pull-right"><a href="' . $this->all_configs['prefix'] . 'orders/#create_order" class="btn btn-success hash_link">' . l('Создать заказ') . '</a></li>';
