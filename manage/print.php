@@ -182,7 +182,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
                     'date' => array('value' => date("d/m/Y", strtotime($order['date_add'])), 'name' => 'Дата создания заказа на ремонт'),
                     'now' => array('value' => date("d/m/Y", time()), 'name' => 'Текущая дата'),
-                    'warranty' => array('value' => $order['warranty'] > 0 ? $order['warranty'] . ' мес.' : 'Без гарантии', 'name' => 'Гарантия'),
+                    'warranty' => array('value' => $order['warranty'] > 0 ? $order['warranty'] . ' '. l('мес') . '' : 'Без гарантии', 'name' => 'Гарантия'),
                     'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
                     'defect' => array('value' => htmlspecialchars($order['defect']), 'name' => 'Неисправность'),

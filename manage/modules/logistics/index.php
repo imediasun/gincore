@@ -90,16 +90,16 @@ class logistics
         $out = '
             <form>
                 <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="'.(isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '').'" />
-                <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
-                <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="form-control" placeholder="№ изделия">
-                <label>Откуда: <br>
+                <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="form-control" placeholder="' . l('номер заказа') . '">
+                <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="form-control" placeholder="' . l('номер изделия') . '">
+                <label>' . l('Откуда') . ': <br>
                 <select class="multiselect form-control" name="whfrom[]" multiple="multiple">'.$warehouses_select.'</select></label>
-                <label>Куда: <br>
+                <label>' . l('Куда') . ': <br>
                 <select class="multiselect form-control" name="whto[]" multiple="multiple">'.$warehouses_select_to.'</select></label>
                 <div class="checkbox">
                     <label>
                         <input'.(isset($_GET['serials_in_orders']) ? ' checked' : '').' value="1" type="checkbox" name="serials_in_orders"> 
-                            разгрупировать
+                            ' . l('разгрупировать') . '
                     </label>
                 </div>
                 <input type="button" onclick="send_get_form(this)" value="' . l('Фильтровать') . '" class="btn btn-primary" />
@@ -264,7 +264,7 @@ class logistics
             $count_page = ceil($chains_moves_count_all / $this->count_on_page);
             $pages = page_block($count_page, '#motions');
         }else{
-            $rows = 'Нет цепочек';
+            $rows = l('Нет цепочек');
             $pages = '';
         }
         
@@ -330,7 +330,7 @@ class logistics
                 '<div class="panel-group" id="accordion-logistics">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-logistics" href="#collapseLogistics-0">Добавить логистическую цепочку</a>
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-logistics" href="#collapseLogistics-0">' . l('Добавить логистическую цепочку') . '</a>
                         </div>
                         <div id="collapseLogistics-0" class="panel-collapse collapse">
                             <div class="panel-body">

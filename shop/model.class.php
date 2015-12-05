@@ -409,7 +409,7 @@ class Model
                             $warranties_html .= '
                                 <li '.$data.' data-in_sc="'.($already_in_shopping_cart ? 1 : 0).'" id="warranty-' . $warranty . '" class="text-left warranties center ' . $class . '">
                                     <div class="warranty_ico"><span>' . $warranty .  '</span></div>
-                                    '.(!$in_cart ? '<div class="warranty_value">Гарантия ' . $warranty . ' мес.</div>' : '').'
+                                    '.(!$in_cart ? '<div class="warranty_value">Гарантия ' . $warranty . ' '. l('мес') . '</div>' : '').'
                                     <div class="warranty_price red-title">' . $this->cur_currency($p) . '</div>
                                 </li>';
 
@@ -593,9 +593,9 @@ class Model
     function currency_view($data){
         return
             '<span class="for-currency-hide dollar"><span data="dollar" ' . $data['for_sum'] . '>' .            number_format($data['price'], 0, ',', ' ') .        '</span> $ </span>'.
-            '<span class="for-currency-hide grn-cash"><span data="grn-cash" ' . $data['for_sum'] . '>' .        number_format($data['grn-cash'], 0, ',', ' ') .     '</span> грн. </span>'.
-            '<span class="for-currency-hide grn-vat"><span data="grn-vat" ' . $data['for_sum'] . '>' .          number_format($data['grn-vat'], 0, ',', ' ') .      '</span> грн. </span>'.
-            '<span class="for-currency-hide grn-noncash"><span data="grn-noncash" ' . $data['for_sum'] . '>' .  number_format($data['grn-noncash'], 0, ',', ' ') .  '</span> грн. </span>';
+            '<span class="for-currency-hide grn-cash"><span data="grn-cash" ' . $data['for_sum'] . '>' .        number_format($data['grn-cash'], 0, ',', ' ') .     '</span> ' . l('грн') .'. </span>'.
+            '<span class="for-currency-hide grn-vat"><span data="grn-vat" ' . $data['for_sum'] . '>' .          number_format($data['grn-vat'], 0, ',', ' ') .      '</span> ' . l('грн') .'. </span>'.
+            '<span class="for-currency-hide grn-noncash"><span data="grn-noncash" ' . $data['for_sum'] . '>' .  number_format($data['grn-noncash'], 0, ',', ' ') .  '</span> ' . l('грн') .'. </span>';
     }
 
     function show_price ($price, $course_value, $course_key)

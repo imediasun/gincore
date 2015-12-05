@@ -525,7 +525,7 @@ class warehouses
                 $out .= '<div class="show_warehouse">';
                 $print_link = print_link(array_keys($warehouse['locations']), 'location');
                 $out .= '<h5><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $warehouse['id'] . '#show_items">' . $warehouse['title'] . '</a> ' . $print_link . '</h5>';
-                $out .= '<div>Общий остаток: ' . intval($warehouse['sum_qty']) . ' шт.</div>';
+                $out .= '<div>' . l('Общий остаток') . ': ' . intval($warehouse['sum_qty']) . ' шт.</div>';
                 if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                     $out .= '<div>Общая сумма: ';
                     $out .= $this->show_price($warehouse['all_amount'], 2, getCourse($this->all_configs['settings']['currency_suppliers_orders']));
@@ -719,14 +719,14 @@ class warehouses
 
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<li><a class="click_tab btn btn-success" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_bind"';
-                $out .= ' title="Привязать серийный номер к заказу" href="#orders-clients_bind">Привязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
+                $out .= ' title="' . l('Привязать серийный номер к заказу') .'" href="#orders-clients_bind">Привязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
 
                 $out .= '<li><a class="click_tab btn btn-danger" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_unbind"';
-                $out .= ' title="Отвязать серийный номер от заказа" href="#orders-clients_unbind">Отвязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
+                $out .= ' title="' . l('Отвязать серийный номер от заказа') .'" href="#orders-clients_unbind">Отвязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
             }
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<li><a class="click_tab  btn btn-warning" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_suppliers"';
-                $out .= ' title="Заказы поставщику которые ждут приходования" href="#orders-suppliers">Заказы поставщику<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
+                $out .= ' title="' . l('Заказы поставщику которые ждут приходования') . '" href="#orders-suppliers">Заказы поставщику<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
             }
             $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
             $out .= '</ul><div class="clearfix hidden theme_bg filters-box p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
@@ -1361,7 +1361,7 @@ class warehouses
                 array($this->all_configs['arrequest'][2]))->assoc();
 
             $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td>';
-            $right_html .= '<td>' . l('Наименование') . '</td><td>' . l('Склад') . '</td><td>Цена, ';
+            $right_html .= '<td>' . l('Наименование') . '</td><td>' . l('Склад') . '</td><td>' . l('Цена') . ', ';
             $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
             $right_html .= '</td><td><input type="checkbox" class="checked_all_writeoff" onchange="checked_all_writeoff(this)" /></td></tr></thead><tbody>';
 

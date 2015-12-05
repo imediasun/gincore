@@ -2023,13 +2023,13 @@ class orders
                         <i class="fa fa-print"></i> <span class="caret"></span>
                       </button>
                       <ul class="keep-open dropdown-menu print_menu">
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_kvit.'">Квитанция</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">Чек</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">Гарантия</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">Акт выполненых работ</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_kvit.'">' . l('Квитанция') . '</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">' . l('Чек') . '</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">' . l('Гарантия') . '</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">' . l('Акт выполненых работ') . '</label/></li>
                         <li role="separator" class="divider"></li>
                         <li class="text-center">
-                            <button class="btn btn-sm btn-info" type="button" id="print_now">Распечатать</button>
+                            <button class="btn btn-sm btn-info" type="button" id="print_now">' . l('Распечатать') . '</button>
                         </li>
                       </ul>
                     </div>
@@ -2250,7 +2250,7 @@ class orders
                 foreach ($order_warranties as $warranty) {
                     $order_html .= '<option ' . ($order['warranty'] == intval($warranty) ? 'selected' : '') . ' value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
                 }
-                $order_html .= '</select><div class="input-group-addon">мес.</div></div></div>';
+                $order_html .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
             }
             
             // заказ на основе заявки
@@ -2303,10 +2303,10 @@ class orders
                     <label>' . l('Стоимость ремонта') . ': </label>
                     <div class="input-group input-group-sm">
                         <input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" />
-                        <div class="input-group-addon">'.viewCurrency().'</div>
+                        <div class="input-group-addon">'. l(viewCurrency()) .'</div>
                         <div class="input-group-btn">'.$pay_btn.'</div>
                     </div>';
-                $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' '.viewCurrency().' (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
+                $order_html .= '<span class="text-success">Оплачено: ' . ($order['sum_paid'] / 100) . ' '. l(viewCurrency()).' (из них предоплата ' . ($order['prepay'] / 100) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
                 $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
                 $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
                 $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';

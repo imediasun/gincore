@@ -353,7 +353,7 @@ class Suppliers
             $orders_html .= '<div class="form-group">';
             $orders_html .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />';
             //$orders_html .= '<label>' . l('номер заказа') . ':</label>';
-            $orders_html .= '<input type="hidden" placeholder="№ заказа" name="supplier_order_id" class="form-control" value="';
+            $orders_html .= '<input type="hidden" placeholder="' . l('номер заказа') . '" name="supplier_order_id" class="form-control" value="';
             $orders_html .= (isset($_GET['so_id']) && $_GET['so_id'] > 0 ? $_GET['so_id'] : '') . '" />';
             $orders_html .= '</div>';
             

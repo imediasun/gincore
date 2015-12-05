@@ -3188,7 +3188,7 @@ class accountings
             $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
             $out .= '<label>' . l('номер заказа') . ':</label><input name="client-order" value="';
             $out .= isset($_GET['co']) && !empty($_GET['co']) ? trim(htmlspecialchars($_GET['co'])) : '';
-            $out .= '" type="text" class="input-medium" placeholder="№ заказа">';
+            $out .= '" type="text" class="input-medium" placeholder="' . l('номер заказа') . '">';
             $out .= '<label>' . l('Клиент') . ':</label>';
             $out .= '<div>' . typeahead($this->all_configs['db'], 'clients', false, (isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0), 3) . '</div>';
             $out .= '<input type="submit" name="filters" class="btn" value="' . l('Фильтровать') . '">';
@@ -3432,7 +3432,7 @@ class accountings
             $filters .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
             $filters .= '<div class="form-group"><label>' . l('номер заказа') . ':</label><input name="client-order_id" value="';
             $filters .= isset($_GET['co_id']) && $_GET['co_id'] > 0 ? $_GET['co_id'] : '';
-            $filters .= '" type="text" class="form-control" placeholder="№ заказа"></div>';
+            $filters .= '" type="text" class="form-control" placeholder="' . l('номер заказа') . '"></div>';
             $filters .= '<div class="form-group"><label>' . l('Категория') . ':</label>';
             $filters .= typeahead($this->all_configs['db'], 'categories', false, isset($_GET['g_cg']) && $_GET['g_cg'] > 0 ? $_GET['g_cg'] : 0);
             $filters .= '</div><div class="form-group"><label>' . l('ФИО') . ':</label><input name="client-order" value="';

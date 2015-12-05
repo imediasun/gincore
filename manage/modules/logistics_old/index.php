@@ -63,7 +63,7 @@ class logisticsold
     {
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         $out .= '<li><a class="click_tab default" data-open_tab="logistics_motions" onclick="click_tab(this, event)" ';
-        $out .= 'data-toggle="tab" href="#motions">Логистика</a></li>';
+        $out .= 'data-toggle="tab" href="#motions">' . l('Логистика') . '</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
             $out .= '<li><a class="click_tab" data-open_tab="logistics_settings" onclick="click_tab(this, event)" ';
             $out .= 'data-toggle="tab" href="#settings">Настройки</a></li>';
@@ -133,10 +133,10 @@ class logisticsold
         $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
         $out .= '<input name="o_id" value="';
         $out .= isset($_GET['o_id']) && intval($_GET['o_id']) > 0 ? intval($_GET['o_id']) : '';
-        $out .= '" type="text" class="input-medium" placeholder="№ заказа">';
+        $out .= '" type="text" class="input-medium" placeholder="' . l('номер заказа') . '">';
         $out .= '<input name="i_id" value="';
         $out .= isset($_GET['i_id']) && mb_strlen($_GET['i_id'], 'UTF-8') > 0 ? trim($_GET['i_id']) : '';
-        $out .= '" type="text" class="input-medium" placeholder="№ изделия">';
+        $out .= '" type="text" class="input-medium" placeholder="' . l('номер изделия') . '">';
         $out .= '<label>Курьер: <br>';
         $out .= '<select disabled class="input-medium" name="crr"><option value="">Любой</option>';
         $locations = $this->all_configs['db']->query('SELECT l.id, l.location
@@ -159,11 +159,11 @@ class logisticsold
         }
         $wharehouses = $this->all_configs['db']->query('SELECT id, title
             FROM {warehouses} WHERE type=1 ORDER BY id', array())->assoc();
-        $out .= '<label>Откуда: <br>';
+        $out .= '<label>' . l('Откуда') . ': <br>';
         $out .= '<select class="multiselect input-small" name="whfrom[]" multiple="multiple">';
         $out .= build_array_tree($wharehouses, ((isset($whfrom_ar)) ? $whfrom_ar : array()));
         $out .= '</select></label>';
-        $out .= '<label>Куда: <br>';
+        $out .= '<label>' . l('Куда') . ': <br>';
         $out .= '<select class="multiselect input-small" name="whto[]" multiple="multiple">';
         $out .= build_array_tree($wharehouses, ((isset($whto_ar)) ? $whto_ar : array()));
         $out .= '</select></label>';
@@ -543,7 +543,7 @@ class logisticsold
             $chain = array(
                 'id' => 0,
                 'avail' => 1,
-                'title' => 'Добавить логистическую цепочку',
+                'title' => '' . l('Добавить логистическую цепочку') . '',
                 'title_end' => '',
                 'bodies' => array(
                     array('wh_id' => 0, 'location_id' => 0, 'type' => $this->all_configs['chains']->chain_warehouse),
