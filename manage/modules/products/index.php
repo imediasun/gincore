@@ -1340,7 +1340,7 @@ class products
                 if ($_GET['edit'] == 'ym_id')
                     $quick_edit_title = 'yandex market ID';
                 if (($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing'))
-                    $quick_edit_title = 'Цена';
+                    $quick_edit_title = l('Цена');
             }
             $goods_html .= '<table class="table table-striped"><thead><tr>';
             $goods_html .= '<td>' . $sort_id . '</a></td>';
@@ -1352,10 +1352,10 @@ class products
                 $goods_html .= '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">';
                 if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
                     $goods_html .= '<li ' . (isset($_GET['edit']) && $_GET['edit'] == 'active_price' ? 'class="active"' : '') . '>';
-                    $goods_html .= '<a tabindex="-1" href="?edit=active_price&' . get_to_string('edit') . '">Редактирование цены и активности</a></li>';
+                    $goods_html .= '<a tabindex="-1" href="?edit=active_price&' . get_to_string('edit') . '">' . l('Редактирование цены и активности') . '</a></li>';
                 }
                 $goods_html .= '<li class="divider"></li><li ' . (!isset($_GET['edit']) ? 'class="active"' : '') . '>';
-                $goods_html .= '<a tabindex="-1" href="' . $this->all_configs['prefix'] . 'products">Стандартный вид</a></li>';
+                $goods_html .= '<a tabindex="-1" href="' . $this->all_configs['prefix'] . 'products">' . l('Стандартный вид') . '</a></li>';
                 $goods_html .= '</ul></div>';
             }
             $goods_html .= '</td><td>' . $quick_edit_title . '</td>';
@@ -1395,8 +1395,8 @@ class products
                     }
                     // редактирование активности
                     if (($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')) {
-                        $avail = '<div class="edit_active"><label class="checkbox"><input value="1" ' . ($good['avail'] == 1 ? 'checked' : '') . ' name="avail[' . $good['id'] . ']" type="radio" />Вкл</label>';
-                        $avail .= '<label class="checkbox"><input value="0" ' . ($good['avail'] == 1 ? '' : 'checked') . ' name="avail[' . $good['id'] . ']" type="radio" />Выкл</label></div>';
+                        $avail = '<div class="edit_active"><label class="checkbox"><input value="1" ' . ($good['avail'] == 1 ? 'checked' : '') . ' name="avail[' . $good['id'] . ']" type="radio" />' . l('Вкл') . '</label>';
+                        $avail .= '<label class="checkbox"><input value="0" ' . ($good['avail'] == 1 ? '' : 'checked') . ' name="avail[' . $good['id'] . ']" type="radio" />' . l('Выкл') . '</label></div>';
                     }
                     // редактирование свободного остатка
                     if (($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')

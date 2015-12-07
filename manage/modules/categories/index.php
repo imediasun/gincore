@@ -588,11 +588,11 @@ class categories
                         $sorting = ' ORDER BY {goods}.date_add DESC';
                         break;
                     case 'avail':
-                        $sort_avail = '<a href="?sort=ravail">Вкл<i class="glyphicon glyphicon-chevron-down"></i>';
+                        $sort_avail = '<a href="?sort=ravail">' . l('Вкл') . '<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.avail';
                         break;
                     case 'ravail':
-                        $sort_avail = '<a href="?sort=avail">Вкл<i class="glyphicon glyphicon-chevron-up"></i>';
+                        $sort_avail = '<a href="?sort=avail">' . l('Вкл') . '<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.avail DESC';
                         break;
                 }

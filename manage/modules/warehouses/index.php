@@ -938,8 +938,8 @@ class warehouses
                         <form method='POST'>
                             <div class='form-group'><label>" . l('Название') . ": </label>
                                 <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
-                            <div class='form-group'><label'>Иконка (fa fa-home): </label>
-                                <input placeholder='введите иконку' class='form-control' name='icon' value='{$icon}' /></div>
+                            <div class='form-group'><label'>" . l('Иконка') . " (fa fa-home): </label>
+                                <input placeholder='" . l('введите иконку') . "' class='form-control' name='icon' value='{$icon}' /></div>
                             <div class='form-group'><label></label>{$btn}</div>
                         </form>
                     </div>

@@ -45,7 +45,7 @@ class translates{
             $this->url = __CLASS__;
             $this->config = array(
                 $this->tbl_prefix.'map' => array(
-                    'name' => 'Переводы для карты сайта',
+                    'name' => l('Переводы для карты сайта'),
         //            'var' => 'url',
                     'key' => 'map_id',
                     'fields' => array(
@@ -55,7 +55,7 @@ class translates{
                     )
                 ),
                 $this->tbl_prefix.'forms' => array(
-                    'name' => 'Переводы для форм',
+                    'name' => l('Переводы для форм'),
         //            'var' => 'url',
                     'key' => 'forms_id',
                     'fields' => array(
@@ -65,7 +65,7 @@ class translates{
                     )
                 ),
                 $this->tbl_prefix.'reviews_marks' => array(
-                    'name' => 'Переводы оценок отзывов',
+                    'name' => l('Переводы оценок отзывов'),
         //            'var' => 'url',
                     'key' => 'mark_id',
                     'fields' => array(
@@ -73,7 +73,7 @@ class translates{
                     )
                 ),
                 $this->tbl_prefix.'template_vars' => array(
-                    'name' => 'Переводы для шаблона сайта',
+                    'name' => l('Переводы для шаблона сайта'),
                     'var' => 'var',
                     'key' => 'var_id',
                     'fields' => array(
@@ -81,7 +81,7 @@ class translates{
                     )
                 ),
                 $this->tbl_prefix.'sms_templates' => array(
-                    'name' => 'Шаблоны смс',
+                    'name' => l('Шаблоны смс'),
                     'key' => 'sms_templates_id',
                     'fields' => array(
                         'body' => 'Текст'
@@ -101,7 +101,7 @@ class translates{
             ';
         }
         $out .= '<li style="margin-top:15px"><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'changes' ? ' class="active"' : '').
-                        ' href="'.$this->all_configs['prefix'].''.$this->url.'/changes">Изменения</a></li>';
+                        ' href="'.$this->all_configs['prefix'].''.$this->url.'/changes">' . l('Изменения') . '</a></li>';
         $out .= '</ul>';
 
         return $out;
@@ -179,7 +179,7 @@ class translates{
                                             'update' => implode(',', $update)
                                         ));
                                 $out = '<h2>Копирование языка '.$from.' в '.$to.'</h2>';
-                                $out .= 'Скопировано успешно. '.
+                                $out .= l('Скопировано успешно') . '. '.
                                         '<a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy">Вернуться назад</a>'; 
                             }else{
                                 header('Location: '.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy');
@@ -201,7 +201,7 @@ class translates{
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Куда</label>
+                                        <label>' . l('Куда') . '</label>
                                         <select class="form-control" name="to">
                                             '.$options.'
                                         </select>
@@ -251,7 +251,7 @@ class translates{
                             $out .= '
                                 <form action="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/add/save" method="post">
                                 <fieldset>
-                                    <legend>Данные</legend>
+                                    <legend>' . l('Данные') . '</legend>
                             ';
                             foreach($columns as $column){
                                 if($column['Field'] != 'id'){
@@ -269,7 +269,7 @@ class translates{
 
                             $out .= '
                                 <fieldset>
-                                    <legend>Переводы</legend>
+                                    <legend>' . l('Переводы') . '</legend>
                             ';
                             foreach($config['fields'] as $field => $field_name){
                                 foreach($languages as $lng => $l){
@@ -334,7 +334,7 @@ class translates{
                     }
                     
                 }else{
-                    $out = '<small><a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy">скопировать языки</a></small>';
+                    $out = '<small><a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy">' . l('скопировать языки') . '</a></small>';
                     $out .= '<h3>'.$config['name'].' <a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/add">+</a></h3>';
                     $out .= '<form action="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/save" method="post">';
                 
@@ -415,15 +415,15 @@ class translates{
                         $data = $this->all_configs['db']->plainQuery($query)->assoc();
                         
                         $out = '
-                            <h3>Изменения за последние 3 недели</h3>
+                            <h3>' . l('Изменения за последние 3 недели') . '</h3>
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
                                         <th>'.l('Дата').'</th>
-                                        <th>Секция</th>
-                                        <th>Язык</th>
+                                        <th>' . l('Секция') . '</th>
+                                        <th>' . l('Язык') . '</th>
                                         <th>ID</th>
-                                        <th>данные</th>
+                                        <th>' . l('данные') . '</th>
                                         <th></th>
                                     </tr>
                                 </thead>

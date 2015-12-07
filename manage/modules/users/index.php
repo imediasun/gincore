@@ -609,19 +609,19 @@ class users
                     <legend>' . l('Добавление нового пользователя') . '</legend>
                     <div class="form-group">
                         <label>' . l('Логин') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="login" placeholder="введите логин">
+                        <input class="form-control" value="" name="login" placeholder="' . l('введите логин') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('E-mail') . ':</label>
-                        <input class="form-control" value="" name="email" placeholder="введите e-mail">
+                        <input class="form-control" value="" name="email" placeholder="' . l('введите e-mail') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('Пароль') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="pass" placeholder="введите пароль">
+                        <input class="form-control" value="" name="pass" placeholder="' . l('введите пароль') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('ФИО') . ':</label>
-                        <input class="form-control" value="" name="fio" placeholder="введите фио">
+                        <input class="form-control" value="" name="fio" placeholder="' . l('введите фио') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('Должность') . '</label>
@@ -661,7 +661,7 @@ class users
                     <div class="form-group">
                         <label>' . l('Роль') . '</label>
                         <select name="role" class="form-control">
-                            <option value="">выберите роль</option>
+                            <option value="">' . l('выберите роль') . '</option>
                             ' . $role_html . '
                         </select>
                     </div>';
