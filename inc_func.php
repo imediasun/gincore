@@ -250,6 +250,7 @@ function redirect301($url2redirect, $permanently = true){
 
 
 function check_phone($phone){
+    return $phone;
     return preg_match('/^380 \(\d{2}\) \d{3}\-\d{2}\-\d{2}$/', $phone);
 }
 

@@ -672,7 +672,7 @@ class Suppliers
                     'SELECT id, client_order_id FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
                     array($order_id))->vars();
 
-                $data['content'] .= '<div class="form-group"><label class="control-label">Номер ремонта: </label>';
+                $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Номер ремонта') . ': </label>';
                 for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
                     $co_id = current($clients_orders);
                     $data['content'] .= '
@@ -2107,7 +2107,7 @@ class Suppliers
                 $item_id,
                 null,
                 null,
-                'Товар приходован на склад'
+                l('Товар приходован на склад')
             );
 
             // связка между контрагентом и категорией

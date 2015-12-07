@@ -379,10 +379,10 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 2 ? 'Доработка' : $arr['repair']['value'];
 
-                $arr['complect']['value'] .= $order['battery'] == 1 ? 'Аккумулятор<br />' : '';
-                $arr['complect']['value'] .= $order['charger'] == 1 ? 'Зарядное устройство/кабель<br />' : '';
-                $arr['complect']['value'] .= $order['cover'] == 1 ? 'Задняя крышка<br />' : '';
-                $arr['complect']['value'] .= $order['box'] == 1 ? ' Коробка' : '';
+                $arr['complect']['value'] .= $order['battery'] == 1 ? l('Аккумулятор') . '<br />' : '';
+                $arr['complect']['value'] .= $order['charger'] == 1 ? l('Зарядное устройств кабель') . '<br />' : '';
+                $arr['complect']['value'] .= $order['cover'] == 1 ? l('Задняя крышка') . '<br />' : '';
+                $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка') : '';
 
                 $print_html = generate_template($arr, 'check');
             }

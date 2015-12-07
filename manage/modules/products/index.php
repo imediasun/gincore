@@ -594,7 +594,7 @@ class products
                 <div class="control-group">
                     <label class="control-label">Группа размеров: </label><div class="controls">
                     <select name="size_group[]" id="goods_add_size_group">
-                        <option value="0">Не выбрана</option>
+                        <option value="0">' . l('Не выбран') . '</option>
                         '.$size_groups.'
                     </select></div>
                 </div>
@@ -2297,7 +2297,7 @@ class products
             if ($product) {
                 $goods_html .= '<ul class="nav nav-pills">';
                 $goods_html .= '<li><a class="click_tab" data-open_tab="products_managers_managers" onclick="click_tab(this, event)" title="Уведомления" href="#managers-managers">Менеджеры</a></li>';
-                $goods_html .= '<li><a class="click_tab" data-open_tab="products_managers_history" onclick="click_tab(this, event)" title="Уведомления" href="#managers-history">История изменений</a></li>';
+                $goods_html .= '<li><a class="click_tab" data-open_tab="products_managers_history" onclick="click_tab(this, event)" title="Уведомления" href="#managers-history">' . l('История изменений') . '</a></li>';
                 $goods_html .= '</ul><div class="pill-content">';
 
                 $goods_html .= '<div id="managers-managers" class="pill-pane">';
@@ -2329,7 +2329,7 @@ class products
             $goods_html .= '<select class="multiselect form-control" ';
             // проверка на количество менеджеров у товара
             $goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
-            $goods_html .= ' name="users[]"><option value="0">Не выбран</option>';
+            $goods_html .= ' name="users[]"><option value="0">' . l('Не выбран') . '</option>';
             $managers = $this->get_managers($this->all_configs['arrequest'][2]);
 
             if ($managers && count($managers) > 0) {

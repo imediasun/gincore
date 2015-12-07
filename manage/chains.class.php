@@ -923,7 +923,7 @@ class Chains
             $out .= '<div class="form-group"><label>' . l('Стоимость') . ':</label>';
             $out .= '<input type="text" name="price" required class="form-control" placeholder="' . l('укажите стоимость') . '" /></div>';
             if ($can) {
-                $out .= '<input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="Продать" />';
+                $out .= '<input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="' . l('Продать') . '" />';
             } else {
                 $out .= '<input disabled type="submit" class="btn" value="' . l('Продать') . '" />';
             }
@@ -3046,8 +3046,8 @@ class Chains
                 $out .= ' <small class="clone_clear_html product-title"></small>';
             }
             if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
-                $out .= '<div class="form-group"><label class="control-label">Номер ремонта:</label><div class="controls">';
-                $out .= '<input name="order_id" type="text" value="' . $order['id'] . '" placeholder="Номер ремонта" class="form-control" /></div></div>';
+                $out .= '<div class="form-group"><label class="control-label">' . l('Номер ремонта') . ':</label><div class="controls">';
+                $out .= '<input name="order_id" type="text" value="' . $order['id'] . '" placeholder="' . l('Номер ремонта') . '" class="form-control" /></div></div>';
             }
             $with_logistic = (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0) ? true : false;
             //Перемещение Склад откуда

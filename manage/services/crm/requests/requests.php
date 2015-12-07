@@ -151,7 +151,7 @@ class requests extends \service{
                 <td>
                     <div class="input-prepend">
                       <span class="add-on">
-                        <span class="cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-status\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="История изменений"></span>
+                        <span class="cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-status\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="' . l('История изменений') . '"></span>
                       </span>
                       '.$this->get_statuses_list($request['status'], $id, false, !$request['active']).'
                     </div>
@@ -160,7 +160,7 @@ class requests extends \service{
                 <td>
                     <div class="input-prepend">
                       <span class="add-on">
-                       <span class="cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-product_id\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="История изменений"></span>'
+                       <span class="cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-product_id\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="' . l('История изменений') . '"></span>'
                       .'</span>'
                       .str_replace('<input', !$request['active'] ? '<input disabled' : '<input',
                             typeahead($this->all_configs['db'], 'categories-goods', false, $request['product_id'], $id, 'input-medium', '', '', true, false, $id)
@@ -170,7 +170,7 @@ class requests extends \service{
                 <td>
                     <div class="input-prepend">
                       <span class="add-on">
-                        <span class="pull-left cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-comment\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="История изменений"></span>
+                        <span class="pull-left cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-comment\'}, null, \'services/ajax.php\')" data-o_id="'.$id.'" title="' . l('История изменений') . '"></span>
                       </span>
                         <textarea'.(!$request['active'] ? ' disabled' : '').' name="comment['.$id.']" style="width: 140px" class="form-control" rows="2">'.htmlspecialchars($request['comment']).'</textarea>
                     </div>

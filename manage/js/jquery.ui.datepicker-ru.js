@@ -21,5 +21,5 @@ jQuery(function($) {
         yearSuffix: ''
     };
 
-    $.datepicker.setDefaults($.datepicker.regional['ru']);
+    //$.datepicker.setDefaults($.datepicker.regional['ru']);
 });

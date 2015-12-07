@@ -654,7 +654,7 @@ function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 
         $return = number_format($p, $zero, $delimiter, $space);
         $price_html .= str_replace(array(' ', '\xA0'), '&nbsp;', trim($return));
         $price_html .= array_key_exists($c, $currencies) && array_key_exists('shortName', $currencies[$c])
-            ? '&nbsp;' . htmlspecialchars($currencies[$c]['shortName']) : '';
+            ? '&nbsp;' . htmlspecialchars(($currencies[$c]['shortName'])) : '';
         $price_html .= count($price) > 1 && $p != $last ? '; ' : '';
     }
 

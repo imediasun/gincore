@@ -14,19 +14,33 @@ class accountings
 
     public $count_on_page;
 
+//    protected $months = array(
+//        '01' => 'январь',
+//        '02' => 'февраль',
+//        '03' => 'март',
+//        '04' => 'апрель',
+//        '05' => 'май',
+//        '06' => 'июнь',
+//        '07' => 'июль',
+//        '08' => 'август',
+//        '09' => 'сентябрь',
+//        '10' => 'октябрь',
+//        '11' => 'ноябрь',
+//        '12' => 'декабрь',
+//    );
     protected $months = array(
-        '01' => 'январь',
-        '02' => 'февраль',
-        '03' => 'март',
-        '04' => 'апрель',
-        '05' => 'май',
-        '06' => 'июнь',
-        '07' => 'июль',
-        '08' => 'август',
-        '09' => 'сентябрь',
-        '10' => 'октябрь',
-        '11' => 'ноябрь',
-        '12' => 'декабрь',
+        '01' => 'January',
+        '02' => 'February',
+        '03' => 'March',
+        '04' => 'April',
+        '05' => 'May',
+        '06' => 'June',
+        '07' => 'July',
+        '08' => 'Augest',
+        '09' => 'September',
+        '10' => 'October',
+        '11' => 'November',
+        '12' => 'December',
     );
 
     protected $course_default = 100; // default course (uah) in cent
@@ -2024,7 +2038,7 @@ class accountings
                         //if ($currencies[$amount_by_day['cashboxes_currency_id']]['default'] == 1)
                         //    $default_currency = $currencies[$amount_by_day['cashboxes_currency_id']]['shortName'];
                         $all_amount += $amount_by_day['amount'] * ($amount_by_day['course'] / 100);
-                        $out_amounts .= show_price($amount_by_day['amount']) . ' ' . $currencies[$amount_by_day['cashboxes_currency_id']]['shortName'] . '  ';
+                        $out_amounts .= show_price($amount_by_day['amount']) . ' ' . ($currencies[$amount_by_day['cashboxes_currency_id']]['shortName']) . '  ';
                     }
                 }
                 if ($this->all_configs['configs']['manage-actngs-in-1-amount'] == true)
@@ -2059,7 +2073,7 @@ class accountings
                     if (array_key_exists('currencies', $cashbox)) {
                         ksort($cashbox['currencies']);
                         foreach ($cashbox['currencies'] as $cur_id => $currency) {
-                            $name = show_price($currency['amount']) . ' ' . htmlspecialchars($currency['short_name']);
+                            $name = show_price($currency['amount']) . ' ' . htmlspecialchars(l($currency['short_name'])); //@TODO переделать 
                             $cashboxes_cur[$cashbox['id']][$cur_id] = $name;
                         }
                     }
@@ -2109,7 +2123,7 @@ class accountings
             foreach ($amounts['cashboxes'] as $amount) {
                 if ($amount['amount'] != 0) {
                     $out .= empty($out) ? '' : ', ';
-                    $out .= show_price($amount['amount'], 2, ' ') . ' ' . htmlspecialchars($amount['short_name']);
+                    $out .= show_price($amount['amount'], 2, ' ') . ' ' . htmlspecialchars(l($amount['short_name']));
                     $sum[$amount['currency']] = array_key_exists('currency', $sum) ?
                         ($sum[$amount['currency']] + $amount['amount']) : $amount['amount'];
                 }
@@ -2910,7 +2924,7 @@ class accountings
             // инженеры
             if (!$this->all_configs['oRole']->hasPrivilege('partner') || $this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 $engineers = $this->all_configs['oRole']->get_users_by_permissions('engineer');
-                $out .= '<div class="form-group"><label>' . l('Инженер') . ':</label>';
+                $out .= '<div class="form-group"><label> ' . l('Инженер') . ':</label>';
                 //if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
                     $out .= '<select class="multiselect form-control report-filter" name="engineers[]" multiple="multiple">';
                 //} else {
@@ -3216,7 +3230,7 @@ class accountings
                     if ($order['sum'] > $order['sum_paid'] && ($order['status'] == $this->all_configs['configs']['order-status-wait-pay']
                             || $order['status'] == $this->all_configs['configs']['order-status-part-pay'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['order_id'] . ', 0)';
-                        $btn = '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+                        $btn = '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
                     }
                     $payment = (array_key_exists($order['payment'], $this->all_configs['configs']['payment-msg'])) ? $this->all_configs['configs']['payment-msg'][$order['payment']]['name'] : '';
                     //$fio = (mb_strlen(trim($order['fio']), 'UTF-8') > 0) ? trim($order['fio']) : ((mb_strlen(trim($order['phone']), 'UTF-8') > 0) ? trim($order['phone']) : trim($order['email']));
@@ -3398,13 +3412,13 @@ class accountings
         }
         if ($chain['return'] == 0 && $chain['price'] > $chain['paid'] && $type == 0) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ')';
-            $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
         } elseif ($chain['return'] == 0 && $chain['delivery_cost'] > $chain['delivery_paid'] && $type == 1) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ', \'delivery\')';
-            $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
         } elseif ($chain['return'] == 0 && $chain['payment_cost'] > $chain['payment_paid'] && $type == 2) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ', \'payment\')';
-            $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
         } else {
 
         }
@@ -3558,7 +3572,7 @@ class accountings
                         $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять предоплату') . '" onclick="' . $onclick . '" />';
                     } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
-                        $out .= '<input type="button" class="btn btn-xs" value="Принять оплату" onclick="' . $onclick . '" />';
+                        $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
                     }
                     $out .= '</td></tr>';
                 }
@@ -3567,7 +3581,7 @@ class accountings
                 $count_page = ceil($count / $count_on_page);
                 $out .= page_block($count_page, '#a_orders-clients');
             } else {
-                $out .= '<p class="text-error">Нет заказов</p>';
+                $out .= '<p class="text-error">' . l('Нет заказов') . '</p>';
             }
 
             /*if (count($chains) > 0) {

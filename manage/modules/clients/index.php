@@ -554,7 +554,7 @@ class clients
         $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
         if ($contractors) {
             $out .= '<div class="control-group"><label class="control-label">Контрагент: </label><div class="controls">';
-            $out .= '<select name="contractor_id" class="multiselect"><option value="">Не выбран</option>';
+            $out .= '<select name="contractor_id" class="multiselect"><option value="">' . l('Не выбран') . '</option>';
             foreach ($contractors as $contractor) {
                 $out .= '<option value="' . $contractor['id'] . '">' . htmlspecialchars($contractor['title']) . '</option>';
             }
@@ -716,7 +716,7 @@ class clients
             $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
             if ($contractors) {
                 $out .= '<div class="form-group"><label class="control-label">Контрагент: </label><div class="controls">';
-                $out .= '<select name="contractor_id" class="multiselect form-control "><option value="">Не выбран</option>';
+                $out .= '<select name="contractor_id" class="multiselect form-control "><option value="">' . l('Не выбран') . '</option>';
                 foreach ($contractors as $contractor) {
                     if ($contractor['id'] == $client['contractor_id'])
                         $out .= '<option selected value="' . $contractor['id'] . '">' . htmlspecialchars($contractor['title']) . '</option>';
