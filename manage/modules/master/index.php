@@ -104,7 +104,7 @@ class master{
         }
         
         if(!$orders_currency || !isset($this->all_configs['configs']['currencies'][$orders_currency])){
-            return array('state' => false, 'msg' => 'Выберите валюту расчетов за заказы');
+            return array('state' => false, 'msg' => l('Выберите валюту расчетов за заказы'));
         }
         
         if(!$contractors_currency || !isset($this->all_configs['configs']['currencies'][$contractors_currency])){

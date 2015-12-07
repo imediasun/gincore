@@ -875,7 +875,7 @@ class accountings
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
             $out .= '<form method="POST" class="form_contractor "><div class="form-group">';
-            $out .= '</div><div class="form-group"><label class="control-label">Тип контрагента: </label>';
+            $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': </label>';
             $out .= '<select id="contractor_type_select" class="form-control" name="type"><option value=""></option>';
             foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
                 $sel = '';
@@ -888,7 +888,7 @@ class accountings
                         .'data-categories_2="['.implode(',',$cats_2).']" value="' . $c_id . '">' . $c_name . '</option>';
             }
             $out .= '</select></div>';
-            $out .= '<label>Укажите статьи расходов для контрагента <small>(за что мы платим контрагенту)</small>: </label>';
+            $out .= '<label>' . l('Укажите статьи расходов для контрагента') . ' <small>(' . l('за что мы платим контрагенту') . ')</small>: </label>';
             $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
             $out .= '<select class="multiselect input-small" data-type="categories_1" multiple="multiple" name="contractor_categories_id[]">';
             $categories = $this->get_contractors_categories(1);
@@ -898,7 +898,7 @@ class accountings
                 $out .= build_array_tree($categories);
             }
             $out .= '</select></div><div class="form-group">';
-            $out .= '<label>Укажите статьи приходов для контрагента <small>(за что контрагент нам платит)</small>: </label>';
+            $out .= '<label>' . l('Укажите статьи приходов для контрагента') . ' <small>(' . l('за что контрагент нам платит') . ')</small>: </label>';
             $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
             $out .= '<select class="multiselect input-small" data-type="categories_2" multiple="multiple" name="contractor_categories_id[]">';
             $categories = $this->get_contractors_categories(2);
@@ -910,7 +910,7 @@ class accountings
             $out .= '</select></div></div>';
             $out .= '<div class="form-group"><label>' . l('ФИО') . ': </label>';
             $out .= '<input placeholder="введите ФИО контрагента" class="input-contractor form-control" name="title" value="' . $name . '" />';
-            $out .= '</div><div class="form-group"><label>Комментарий: </label>';
+            $out .= '</div><div class="form-group"><label>' . l('Комментарий') . ': </label>';
             $out .= '<textarea class="form-control" name="comment" placeholder="введите комментарий к контрагенту">' . $comment . '</textarea>';
             $out .= '';
             if ($contractor) {
@@ -918,7 +918,7 @@ class accountings
                     // системного низя менять
                     $out .= "
                         <div class='form-group'>
-                            <p class='text-info'>Технический контрагент - не подлежит редактированию</p>
+                            <p class='text-info'>" . l('Технический контрагент - не подлежит редактированию') . "</p>
                         </div>
                     ";
                 }else{
@@ -927,7 +927,7 @@ class accountings
                             <div class='form-group'>
                                 <input type='hidden' name='contractor-id' value='{$contractor['id']}' />
                                 <input type='button' class='btn btn-primary' onclick='contractor_edit(this, \"{$contractor['id']}\")' value='" . l('Редактировать') . "' />
-                                <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='Удалить' />
+                                <input type='button' onclick='contractor_remove(this, \"{$contractor['id']}\")' class='btn btn-danger contractor-remove' value='" . l('Удалить') . "' />
                             </div>
                         ";
                     }
@@ -936,7 +936,7 @@ class accountings
                                                     . "WHERE contractor_id = ?i", array($contractor['id']), 'el');
                 $out .= "
                     <div class='form-group'>
-                        <label>' . l('Клиент') . ':</label> ".
+                        <label>" . l('Клиент') . ":</label> ".
                             ($client_contr ? 
                                 '<a href="'.$this->all_configs['prefix'].'clients/create/'.$client_contr.'">'.
                                     $client_contr.
@@ -974,7 +974,7 @@ class accountings
             if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 $btn .= "<input type='hidden' name='contractor_category-id' value='{$contractor_category['id']}' />";
                 $btn .= "<input type='button' class='btn' onclick='$(\"form.form_contractor_category\").submit();' value='" . l('Редактировать') . "' />";
-                $btn .= "<input type='button' onclick='contractor_category_remove(this, \"{$contractor_category['id']}\")' class='btn btn-danger contractor_category-remove' value='Удалить' />";
+                $btn .= "<input type='button' onclick='contractor_category_remove(this, \"{$contractor_category['id']}\")' class='btn btn-danger contractor_category-remove' value='" . l('Удалить') . "' />";
             }
         } else {
             $btn .= "<input type='button' class='btn' onclick='$(\"form.form_contractor_category\").submit();' value='" . l('Создать') . "' />";
@@ -1031,7 +1031,7 @@ class accountings
                 <!--<div class='form-group'><label>Код 1с: </label>
                     <input class='form-control' placeholder='введите код 1с статьи' name='code_1c' value='{$code_1c}' /></div></div>
                 -->
-                <div class='form-group'><label>Комментарий: </label><div class='controls'>
+                <div class='form-group'><label>' . l('Комментарий') . ': </label><div class='controls'>
                     <textarea class='form-control' name='comment' placeholder='введите комментарий к статье'>{$comment}</textarea></div></div>
                 <div class='form-group'>
                     <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label></div></div>
@@ -1418,7 +1418,7 @@ class accountings
                 }
                 // выдача
                 if ($tt == 1) {
-                    $btn = 'Выдать';
+                    $btn = l('Выдать');
                     $amount_from = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
                             array($select_query_1, $_POST['client_order_id']))->el() / 100;
                 }
@@ -3252,7 +3252,7 @@ class accountings
                 // строим блок страниц
                 $out .= page_block($count_page, '#orders_pre-noncash');
             } else {
-                $out .= '<p  class="text-error">Нет заказов</p>';
+                $out .= '<p  class="text-error">' . l('Нет заказов') . '</p>';
             }
             $out .= '</div>';
         }
@@ -3307,7 +3307,7 @@ class accountings
                 }
                 $out .= '</tbody></table>';
             } else {
-                $out .= '<p  class="text-error">Нет заказов</p>';
+                $out .= '<p  class="text-error">' . l('Нет заказов') . '</p>';
             }
         }
 
@@ -3615,7 +3615,7 @@ class accountings
                 $count_page = ceil($count / $count_on_page);
                 $out .= page_block($count_page, '#a_orders-clients');
             } else {
-                $out .= '<p class="text-error">Нет заказов</p>';
+                $out .= '<p class="text-error">' . l('Нет заказов') . '</p>';
             }*/
             $out .= '';
         }
@@ -3655,7 +3655,7 @@ class accountings
                     $contractors_html .= '<td>' . show_price($contractor['amount'])
                         . ' '
                         //. $this->all_configs['suppliers_orders']->currencies[$this->all_configs['configs']['erp-contractor-balance-currency']]['shortName']
-                        .'</td><td><input class="btn btn-default btn-xs" type="button" value="Проверить" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" />'
+                        .'</td><td><input class="btn btn-default btn-xs" type="button" value="' . l('Проверить') . '" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" />'
                         .'<div class="pull-right">'.($contractor['amount'] > 0 ? 'Вы должны' : 
                                                      ($contractor['amount'] < 0 ? 'Вам должны' : '')).'</div></td></tr>';
                     //}
@@ -3802,7 +3802,7 @@ class accountings
         $new_courses = $this->all_configs['suppliers_orders']->currencies;
         $out = '';
         if($show_default){
-            $out .= '<option value="">Выберите валюту</option>';
+            $out .= '<option value="">' . l('Выберите валюту') . '</option>';
         }
         foreach ($new_courses as $new_course_id => $new_course) {
             if ($show_all || !array_key_exists($new_course_id, $cashboxes_currencies)){
@@ -3827,7 +3827,7 @@ class accountings
             $out .= '<form method="post">';
             // редактируем валюты касс
             $out .= '<table class="table table-striped"><thead><tr><td>' . l('Наименование') . '</td>';
-            $out .= '<td>Курс</td><td></td></tr></thead><tbody id="edit-courses-from">'.$this->gen_currency_table().'</tbody></table>';
+            $out .= '<td>' . l('Курс') . '</td><td></td></tr></thead><tbody id="edit-courses-from">'.$this->gen_currency_table().'</tbody></table>';
             $out .= '</form>';
             // добавить валюту
             $out .= '<form class="form-inline"><label>Добавить валюту </label> <select class="form-control" onchange="add_currency(this)" id="add_new_course">';
@@ -3847,7 +3847,7 @@ class accountings
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // создать статью расход
-            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-expense\')" type="button">Создать статью расход</button>';
+            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-expense\')" type="button">' . l('Создать статью расход') . '</button>';
 
             // списсок статей
             $categories = $this->get_contractors_categories(1);
@@ -3866,7 +3866,7 @@ class accountings
 
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // создать статью приход
-            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-income\')" type="button">Создать статью приход</button>';
+            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-income\')" type="button">' . l('Создать статью приход') . '</button>';
 
             // списсок статей
             $categories = $this->get_contractors_categories(2);
@@ -3886,7 +3886,7 @@ class accountings
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             // форма для создания контрагента расход
             $out = '<div class="panel-group" id="accordion_contractors">';
-            $out .= '<button type="button" onclick="alert_box(this, false, \'create-contractor-form\')" class="btn btn-primary">Создать контрагента</button>';
+            $out .= '<button type="button" onclick="alert_box(this, false, \'create-contractor-form\')" class="btn btn-primary">' . l('Создать контрагента') . '</button>';
             $out .= '<br><br><legend>Редактирование статей контрагента</legend>';
             // список форм для редактирования категории расход
             if (count($this->contractors) > 0) {

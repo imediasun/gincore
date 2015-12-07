@@ -647,7 +647,7 @@ class orders
             $orders_html .= page_block($count_page, '#show_orders');
 
         } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">Заказов не найдено</p></div>';
+            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
         }
 
         return array(
@@ -690,7 +690,7 @@ class orders
             $orders_html .= page_block($count_page, '#show_orders');
 
         } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">Заказов не найдено</p></div>';
+            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
         }
 
         return array(
@@ -733,7 +733,7 @@ class orders
             $orders_html .= page_block($count_page, '#show_orders');
 
         } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">Заказов не найдено</p></div>';
+            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
         }
 
         return array(
@@ -777,7 +777,7 @@ class orders
             $orders_html .= page_block($count_page, '#show_orders');
 
         } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">Заказов не найдено</p></div>';
+            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
         }
 
         return array(
@@ -937,7 +937,7 @@ class orders
                                                 <label>' . l('Предоплата') . ': </label>
                                                 <div class="input-group">
                                                     <input type="text" placeholder="' . l('Введите сумму') . '" class="form-control" value="" name="sum_paid" />  
-                                                    <span class="input-group-addon">'.viewCurrency().'</span>
+                                                    <span class="input-group-addon">'. l(viewCurrency()).'</span>
                                                     <input type="text" placeholder="' . l('Комментарий к предоплате') . '" class="form-control" value="" name="prepay_comment" /> 
                                                 </div>
                                             </div>
@@ -994,9 +994,9 @@ class orders
                                     <span class="sr-only">Toggle Dropdown</span>
                                   </button>
                                   <ul class="dropdown-menu">
-                                    <li><a href="#" onclick="add_new_order(this, \'print\'); return false;">Добавить и распечатать квитанцию</a></li>
-                                    <li><a href="#" onclick="add_new_order(this, \'new_order\'); return false;">Добавить и принять еще одно устройство от этого клиента</a></li>
-                                    <li><a href="#" onclick="add_new_order(this, \'print_and_new_order\'); return false;">Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента</a></li>
+                                    <li><a href="#" onclick="add_new_order(this, \'print\'); return false;">' . l('Добавить и распечатать квитанцию') . '</a></li>
+                                    <li><a href="#" onclick="add_new_order(this, \'new_order\'); return false;">' . l('Добавить и принять еще одно устройство от этого клиента') . '</a></li>
+                                    <li><a href="#" onclick="add_new_order(this, \'print_and_new_order\'); return false;">' . l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') . '</a></li>
                                   </ul>
                                 </div>
                             </form>
@@ -1061,7 +1061,7 @@ class orders
                         <label>' . l('Цена продажи') . ' <b class="text-danger">*</b>: </label>
                         <div class="input-group">
                             <input type="text" required id="sale_poduct_cost" class="form-control" value="" name="price" />
-                            <span class="input-group-addon">'.viewCurrency().'</span>
+                            <span class="input-group-addon">'. l(viewCurrency()) .'</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1085,10 +1085,10 @@ class orders
         $orders_html = '<div>';
 
         $orders_html .= '<ul class="list-unstyled inline clearfix">';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_suppliers_orders-all" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_all"><i class="fa fa-bolt"></i>' . l('Все заказы') . '<span class="tab_count hide tc_suppliers_orders_all"></span></a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_suppliers_orders-wait" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_wait"><i class="fa fa-clock-o"></i>' . l('Ожидают проверки') . '</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-warning" href="#show_suppliers_orders-return" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_return"><i class="fa fa-exchange"></i>' . l('Возвраты поставщикам') . '</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_suppliers_orders-procurement" title="" onclick="click_tab(this, event)" data-open_tab="orders_recommendations_procurement">' . l('Рекомендации по закупкам') . '</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_suppliers_orders-all" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_all"><i class="fa fa-bolt"></i> ' . l('Все заказы') . '<span class="tab_count hide tc_suppliers_orders_all"></span></a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_suppliers_orders-wait" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_wait"><i class="fa fa-clock-o"></i> ' . l('Ожидают проверки') . '</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-warning" href="#show_suppliers_orders-return" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_return"><i class="fa fa-exchange"></i> ' . l('Возвраты поставщикам') . '</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_suppliers_orders-procurement" title="" onclick="click_tab(this, event)" data-open_tab="orders_recommendations_procurement"> ' . l('Рекомендации по закупкам') . '</a></li>';
         $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li>';
         $orders_html .= '</ul>
             <div class="hidden" id="filters"><div id="show_suppliers_orders-menu"></div></div>
@@ -1187,10 +1187,10 @@ class orders
 
             //$orders_html .= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders);
             if ($orders) {
-                $orders_html .= '<table class="show-suppliers-orders table"><thead><tr><td></td><td>Дата созд.</td>
-                    <td>Код</td><td>' . l('Наименование') . '</td><td>Кол-во</td><td>Оприх.</td><td>' . l('Склад') . '</td><td>' . l('Локация') . '</td>
-                    <td>Проверить до</td><td>Проверка</td><td>Номера ремонтов, на которых можно проверить запчасти</td>
-                    <td>Комментарий</td></tr></thead><tbody>';
+                $orders_html .= '<table class="show-suppliers-orders table"><thead><tr><td></td><td>' . l('Дата созд.') . '</td>
+                    <td>Код</td><td>' . l('Наименование') . '</td><td>' . l('Кол-во') . '</td><td>' . l('Оприх.') . '</td><td>' . l('Склад') . '</td><td>' . l('Локация') . '</td>
+                    <td>' . l('Проверить до') . '</td><td>' . l('Проверка') . '</td><td>' . l('Номера ремонтов, на которых можно проверить запчасти') . '</td>
+                    <td>' . l('Комментарий') . '</td></tr></thead><tbody>';
                 foreach ($orders as $order) {
                     $print_btn = $items = '';
                     if (count($order['items']) > 0) {
@@ -1229,7 +1229,7 @@ class orders
                 }
                 $orders_html .= '</tbody></table>';
             } else {
-                $orders_html .= '<p  class="text-danger">Нет заказов</p>';
+                $orders_html .= '<p  class="text-danger">' . l('Нет заказов') . '</p>';
             }
 
             $count = $this->all_configs['manageModel']->get_count_suppliers_orders($query);
@@ -1254,7 +1254,7 @@ class orders
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $out = '<form method="post"><div class="clearfix theme_bg filters-box p-sm m-b-md">';
-        $out .= '<div class="form-group"><label>Категории</label>';
+        $out .= '<div class="form-group"><label>' . l('Категории') . '</label>';
         $out .= '<select class="multiselect form-control" multiple="multiple" name="ctg[]">';
         $categories = $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
         $out .= build_array_tree($categories, isset($_GET['ctg']) ? explode(',', $_GET['ctg']) : null);
@@ -1580,7 +1580,7 @@ class orders
                 }
                 $orders_html .= '</tbody></table>';
             } else {
-                $orders_html .= '<p class="text-danger">Для правильности рассчетов укажите сроки доставки заказа поставщику</p>';
+                $orders_html .= '<p class="text-danger">' . l('Для правильности рассчетов укажите сроки доставки заказа поставщику') . '</p>';
             }
         }
         if (!isset($debug)) $debug = '';
@@ -2547,7 +2547,7 @@ class orders
                 array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
             if ($statuses) {
                 $sts = $this->all_configs['configs']['order-status'];
-                $data['content'] = '<table class="table"><thead><tr><td>'.l('Статус').'</td><td>Автор</td><td>'.l('Дата').'</td></tr></thead><tbody>';
+                $data['content'] = '<table class="table"><thead><tr><td>'.l('Статус').'</td><td>' . l('Автор') . '</td><td>'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ($statuses as $status) {
                     $data['content'] .= '<tr><td>' . (isset($sts[$status['status']]) ? $sts[$status['status']]['name'] : '') . '</td>';
                     $data['content'] .= '<td>' . get_user_name($status) . '</td>';
@@ -2590,7 +2590,7 @@ class orders
             $data['content'] .= '</div></div>';
 
             //if ($this->all_configs['oRole']->hasPrivilege('client-order-photo')) {
-                $data['btns'] = '<input type="button" class="btn btn-info btn-show-webcam" value="Открыть вебкамеру">';
+                $data['btns'] = '<input type="button" class="btn btn-info btn-show-webcam" value="' . l('Открыть вебкамеру') . '">';
                 $data['btns'] .= '<input type="button" style="display: none;" class="btn btn-info btn-capture" value="Сфотографировать" data-loading-text="Фотографирование...">';
                 $data['btns'] .= '<input data-order_id="' . $order_id . '" type="button" style="display: none;" class="btn btn-success" id="btn-upload-and-crop" value="Загрузить и прикрепить">';
             //}
@@ -2666,13 +2666,13 @@ class orders
 
             if ($order) {
                 $data['content'] = '<form method="POST" id="sms-form">';
-                $data['content'] .= '<div class="form-group"><label>Номер телефона: </label><div class="controls">';
+                $data['content'] .= '<div class="form-group"><label>' . l('Номер телефона') . ': </label><div class="controls">';
                 $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
-                $data['content'] .= '<div class="form-group"><label class="control-label">Текст: </label><div class="controls">';
+                $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Текст') . ': </label><div class="controls">';
                 $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' готов. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '.viewCurrency().'</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
-                $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="Отправить" />';
+                $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';
             }
         }
 
@@ -2922,7 +2922,7 @@ class orders
         // история изменений инженера
         if (count($arr) == 2 && isset($arr[1])) {
             $data['state'] = true;
-            $data['content'] = 'История изменений не найдена';
+            $data['content'] = l('История изменений не найдена');
 
             if (isset($_POST['object_id'])) {
                 $changes = $this->all_configs['db']->query(

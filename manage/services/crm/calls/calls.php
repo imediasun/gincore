@@ -22,13 +22,13 @@ class calls extends \service{
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Создать новый звонок</h4>
+                            <h4 class="modal-title">' . l('Создать новый звонок') . '</h4>
                         </div>
                         <form autocomplete="off" method="post" action="'.$this->all_configs['prefix'].'services/ajax.php" class="ajax_form">
                             <input type="hidden" name="service" value="crm/calls">
                             <input type="hidden" name="action" value="new_call">
                             <div class="modal-body">
-                                Номер телефона: <br>
+                                ' . l('Номер телефона') . ': <br>
                                 '.typeahead($this->all_configs['db'], 'clients', false, 0, 1001, 'input-xlarge', 'input-medium', '', false, false, '', true).'
                             </div>
                             <div class="modal-footer">
@@ -154,7 +154,7 @@ class calls extends \service{
     
     // выпадающий список источников
     public function get_referers_list($active = 0, $multi = '', $disabled = false){
-        $statuses_opts = '<option value="0">нет</option>';
+        $statuses_opts = '<option value="0">' . l('нет') . '</option>';
         $referers = $this->get_referers();
         foreach($referers as $id => $name){
             if($id){

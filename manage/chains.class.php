@@ -671,14 +671,14 @@ class Chains
         $filters .= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
         $filters .= '</div><div class="form-group"><label>' . l('Серийный номер') . ':</label><input name="serial" value="';
         $filters .= isset($_GET['serial']) && !empty($_GET['serial']) ? trim(htmlspecialchars($_GET['serial'])) : '';
-        $filters .= '" type="text" class="form-control" placeholder="Серийный номер" class="form-control"></div>';
+        $filters .= '" type="text" class="form-control" placeholder="' . l('Серийный номер') . '" class="form-control"></div>';
         $filters .= '<div class="form-group"><label>' . l('ФИО') . ':</label>';
         $filters .= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0).'</div>';
-        $filters .= '<div class="form-group"><label>№ заказа на ремонт:</label><input name="client-order-number" value="';
+        $filters .= '<div class="form-group"><label>' . l('номер заказа на ремонт') . ':</label><input name="client-order-number" value="';
         $filters .= isset($_GET['con']) && !empty($_GET['con']) ? trim(htmlspecialchars($_GET['con'])) : '';
-        $filters .= '" type="text" class="form-control" placeholder="№ заказа на ремонт"></div>';
+        $filters .= '" type="text" class="form-control" placeholder="' . l('номер заказа на ремонт') . '"></div>';
         $filters .= '<div class="form-group"><div class="checkbox"><label><input name="noitems" ';
-        $filters .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> Без изделий</label></div>';
+        $filters .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> ' . l('Без изделий') . '</label></div>';
         $filters .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="' . l('Фильтровать') . '"></div></div>';
         $filters .= '</div></form>';
 
@@ -689,7 +689,7 @@ class Chains
                 $out .= '<td>Сроки</td>';
             if ($type == 2)
                 $out .= '<td>Куда</td>';
-            $out .= '<td>Сер.номер</td><td>' . l('Управление') . '</td><td>Сервисный центр</td>';//<td>' . l('ФИО клиента') . '</td><td>' . l('Управление') . '</td><td>Автор заказа</td>
+            $out .= '<td>Сер.номер</td><td>' . l('Управление') . '</td><td>Сервисный центр</td>';//<td>' . l('ФИО клиента') . '</td><td>' . l('Управление') . '</td><td>' . l('Автор') . ' заказа</td>
             $out .= '</tr></thead><tbody>';//<td>Сроки</td><td>Комментарий</td>
 
             foreach($operations as $op) {
@@ -703,7 +703,7 @@ class Chains
             // строим блок страниц
             $out .= page_block($count_page, $hash);
         } else {
-            $out .= 'Нет операций';
+            $out .= l('Нет операций');
         }
         $out .= '</div>';
 
@@ -3038,7 +3038,7 @@ class Chains
             }
             if ($item_id === 0 && is_array($order) && array_key_exists('id', $order) && intval($order['id']) == 0) {
                 $out .= '<div class="form-group relative"><label>' . l('Серийный номер') . ':</label>';
-                //$out .= '<input name="item_id" type="text" value="" placeholder="Серийный номер" class="imput-large" /></div></div>';
+                //$out .= '<input name="item_id" type="text" value="" placeholder="' . l('Серийный номер') . '" class="imput-large" /></div></div>';
                 $out .= '<div class="serial_input">';
                 $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '', 'display_serial_product', true) . '';
                 $out .= '</div>';

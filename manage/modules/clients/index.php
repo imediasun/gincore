@@ -465,7 +465,7 @@ class clients
 //        $out .= '<input value="' . (isset($_GET['client_2']) ? $_GET['client_2'] : '') . '" name="client_2" /></div></div>';
         $out .= '' . typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_2']) ? $_GET['client_2'] : 0, 2, 'input-medium', 'input-small', '', true, false, '2') . '</div></div>';
         $out .= '<div class="control-group"><label class="control-label"></label><div class="controls">';
-        $out .= '<input type="button" value="Склеить" onclick="group_clients(this)" class="btn btn-default" /></div></div>';
+        $out .= '<input type="button" value="' . l('Склеить') . '" onclick="group_clients(this)" class="btn btn-default" /></div></div>';
         $out .= '</form>';
 
         return $out;
@@ -788,7 +788,7 @@ class clients
             // строим блок страниц
             $out .= page_block($count_page);
         } else {
-            $out .= '<div class="span9"><p  class="text-error">Заказов не найдено</p></div>';
+            $out .= '<div class="span9"><p  class="text-error">' . l('Заказов не найдено') . '</p></div>';
         }
         $out .= '
             </div>
@@ -825,7 +825,7 @@ class clients
             <div class="controls">' . (($review['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $review['user_id'] . '/">' . htmlspecialchars($review['email']) . '</a>' : htmlspecialchars($review['fio'])) . '</div></div>';
         $out .= '<div class="control-group"><label class="control-label">' . l('Товар') . ': </label>
             <div class="controls"><a href="' . $this->all_configs['prefix'] . 'products/create/' . $review['goods_id'] . '/#imt-comments">' . htmlspecialchars($review['title']) . '</a></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text">' . htmlspecialchars($review['text']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Плюсы: </label>
             <div class="controls"><textarea class="span5" name="advantages">' . htmlspecialchars($review['advantages']) . '</textarea></div></div>';
@@ -895,7 +895,7 @@ class clients
         $out .= '<div class="control-group"><div class="controls"><label class="radio"><input type="radio" name="become_status" value="1" />' .$this->all_configs['configs']['reviews-shop-become_status'][1] . ',</label>';
         $out .= '<label class="radio"><input type="radio" name="become_status" value="2" />' . $this->all_configs['configs']['reviews-shop-become_status'][2] . ',</label>';
         $out .= '<label class="radio"><input type="radio" name="become_status" value="3" />' . $this->all_configs['configs']['reviews-shop-become_status'][3] . '</label></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text"></textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Одобрен: </label>
             <div class="controls"><input type="checkbox" name="avail" /></div></div>';
@@ -959,7 +959,7 @@ class clients
                                         <li><input onclick="window.location.href=\'' . $this->all_configs['prefix'] . 'clients/approve-reviews/create/' . $comment['id'] . '\'" class="btn btn-info btn-mini" type="button" value="' . l('Редактировать') . '" /></li>
                                         <li><input onclick="confirm_parse_comment(' . $comment['id'] . ', 0)" class="btn btn-success btn-mini" type="button" value="Подтвердить (откл)" /></li>
                                         <li><input onclick="confirm_parse_comment(' . $comment['id'] . ', 1)" class="btn btn-success btn-mini" type="button" value="Подтвердить (вкл)" /></li>
-                                        <li><input onclick="refute_parse_comment(' . $comment['id'] . ')" class="btn btn-danger btn-mini" type="button" value="Удалить" /></li>
+                                        <li><input onclick="refute_parse_comment(' . $comment['id'] . ')" class="btn btn-danger btn-mini" type="button" value="' . l('Удалить') . '" /></li>
                                     </ul>
                                 <!--</div>-->
                             </td>
@@ -993,7 +993,7 @@ class clients
             <div class="controls"><input type="text" value="' . htmlspecialchars($review['fio']) . '" class="span5" name="fio" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">' . l('Товар') . ': </label>
             <div class="controls"><a href="' . $this->all_configs['prefix'] . 'products/create/' . $review['goods_id'] . '/">' . htmlspecialchars($review['title']) . '</a></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text">' . htmlspecialchars($review['content']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Плюсы: </label>
             <div class="controls"><textarea class="span5" name="advantages">' . htmlspecialchars($review['advantages']) . '</textarea></div></div>';
@@ -1035,7 +1035,7 @@ class clients
         $out = '<form class="form-horizontal"  method="post"><fieldset><legend>Редактирование комментария о магазине ID: ' . $review['id'] . '.</legend>';
         $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ': </label>
             <div class="controls">' . (($review['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $review['user_id'] . '/">' . htmlspecialchars($review['email']) . '</a>' : htmlspecialchars($review['fio'])) . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text">' . htmlspecialchars($review['text']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Оценка: </label>';
         $checked = ''; if ( $review['status'] == 1 ) $checked = 'checked'; $out .= '<div class="controls"><input type="radio" name="status" value="1" ' . $checked . ' /> ' . $this->all_configs['configs']['reviews-shop-status'][1] . '</div>';
@@ -1151,7 +1151,7 @@ class clients
 
         $out .= typeahead($this->all_configs['db'], 'goods', true) . '</div></div>';
 
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text"></textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Рейтинг: </label>
             <div class="controls"><select name="rating" class="span5">';

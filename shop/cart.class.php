@@ -340,7 +340,7 @@ class Cart
                 '<table class="form-table account_table"><tbody>' .
                     '<tr><td class="left">Ф.И.О.</td>'.
                         '<td class="left"><input ' . $d . ' type="text" class="input" name="fio" value="' . htmlspecialchars($fio) . '" /></td></tr>' .
-                    '<tr><td class="left">Номер телефона *</td>' .
+                    '<tr><td class="left">' . l('Номер телефона') . ' *</td>' .
                         '<td class="left"><input ' . $d . ' type="text" data-type="phone" data-required="true" data-trigger="change" class="input '
                 . ((isset($_POST['phone']) && mb_strlen(trim($_POST['phone']),'UTF-8') == 0) ? 'input-error' : '')
                 . '" onkeypress="return isNumberKey(event)" name="phone" value="' . htmlspecialchars($phone) . '" /></td></tr>' .
@@ -575,14 +575,14 @@ class Cart
                                             <div class="remove_item_wrap_inner">
                                                 <div class="remove_item_confirm">
                                                     <input class="remove-item btn" data-rel="' . $m . '" data-id="' . $good['id'] . '"' .
-                            ' type="button" name="remove" value="Удалить" />
+                            ' type="button" name="remove" value="' . l('Удалить') . '" />
                             <input data-id="' . $good['goods_id'] . '" data-cart_id="' . $desc['cart_id'] . '" class="add-to-wishlist btn" type="button" value="Добавить в список желаний" />
                                                 </div>
                                                 <input class="remove-item-from-cart btn" type="button" value="Удалить товар из корзины" />
                                             </div>
                                         </div>
                                 </div>
-                                <div class="text-right sc_count">' . $c . ' шт.</div>
+                                <div class="text-right sc_count">' . $c . ' ' . l('шт.') . '</div>
                                 <div class="cart_item_body">
                                     <div class="cart_item_main_info' . (!$warranties_html && !$services_html ? ' min_height' : '') . '' . (!$warranties_html ? ' no_warranties' : '') . '">
                                         <h2><a href="' . $this->prefix . urlencode($desc['url']) . '/' . $this->configs['product-page'] . '/' . $desc['id'] . '">' . htmlspecialchars($desc['title']) . '</a></h2>' /*
@@ -1456,7 +1456,7 @@ class Cart
                     $mess_goods_html .= "<tr>
                                             <td width='25%' valign='middle' style='padding: 10px;'><img src='cid:{$img_hash}' title=\"{$goods['title']}\" alt=\"{$goods['title']}\" /></td>
                                             <td width='40%' valtrign='middle' style='padding: 10px;'><a href='http://{$_SERVER['HTTP_HOST']}{$this->prefix}{$goods['url']}/{$this->configs['product-page']}/{$goods['goods_id']}'>{$goods['title']}</a></td>
-                                            <td width='15%' valign='middle' style='padding: 10px;'>{$count} шт.</td>
+                                            <td width='15%' valign='middle' style='padding: 10px;'>{$count} ' . l('шт.') . '</td>
                                             <td width='20%' valign='middle' style='padding: 10px;'>{$cur_sum[$course['course_key']]} грн.</td>
                                         </tr>";
                 }
@@ -1851,7 +1851,7 @@ class Cart
                         '<td>Количество</td>' .
                         '<td>Стоимость</td>' .
                         (( $admin_panel > 0) ?
-                            ($edit == true ? '<td>Удалить</td>' : '')
+                            ($edit == true ? '<td>' . l('Удалить') . '</td>' : '')
                             : '' ) .
                     '</tr>'.
                 '</thead>'.

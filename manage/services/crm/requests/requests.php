@@ -522,7 +522,7 @@ class requests extends \service{
 //                '.typeahead($this->all_configs['db'], 'categories-last', true, 0, 3, 'input-medium popover-info', 'input-min').'<br>
 //                ' . l('Статус') . ': <br>
 //                '.$this->get_statuses_list().'<br>
-//                Комментарий: <br>
+//                ' . l('Комментарий') . ': <br>
 //                <textarea name="comment" rows="3" cols="25"></textarea>
 //                <br>
 //                <button type="submit" class="btn btn-primary">Создать заявку</button>

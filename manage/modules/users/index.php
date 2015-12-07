@@ -545,8 +545,8 @@ class users
                 <fieldset>
                     <legend>Добавление новой роли</legend>
                     <div class="form-group">
-                        <label>Название:</label>
-                        <input class="form-control" value="" name="name" placeholder="введите название">
+                        <label>' . l('Название') . ':</label>
+                        <input class="form-control" value="" name="name" placeholder="' . l('введите название') . '">
                     </div>
                     <div class="form-group">
                         <label>Права доступа:</label>

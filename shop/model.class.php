@@ -602,7 +602,7 @@ class Model
     {
         $price = $this->get_prices($price, $course_key, $course_value);
 
-        return number_format($price, 0, ',', ' ') . ' грн.';
+        return number_format($price, 0, ',', ' ') . ' ' . l('грн.');
     }
 
     function cur_currency($price, $sum = '', $count = 1, $prices = null)
@@ -652,7 +652,7 @@ class Model
 
         if ( intval($exist) > 0 ) {
             $count = '';
-            $selected_count = '1 шт.';
+            $selected_count = '1 ' . l('шт.') . '';
             if ( $count_goods > $exist )
                 $count_goods = 1;
             for ($i=1; $i<=$exist; $i++) {
@@ -662,11 +662,11 @@ class Model
                     if(!$view){
                         $count .= '<option selected value="' . $i . '">' . $i . '</option>';
                     }else{
-                        $selected_count = $i . ' шт.';
+                        $selected_count = $i . ' ' . l('шт.') . '';
                         if (!$onclick){
-                            $count .= '<li class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' шт.</span></li>';
+                            $count .= '<li class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' ' . l('шт.') . '</span></li>';
                         }else{
-                            $count .= '<li onclick="sc_change_goods_count(' . $i . ', ' . $gid . ')" class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' шт.</span></li>';
+                            $count .= '<li onclick="sc_change_goods_count(' . $i . ', ' . $gid . ')" class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' ' . l('шт.') . '</span></li>';
                         }
                     }
                 } else {
@@ -674,10 +674,10 @@ class Model
                         $count .= '<option value="' . $i . '">' . $i . '</option>';
                     }else{
                         if ( $onclick == false )
-                            $count .= '<li data-value="' . $i . '"><span>' . $i . ' шт.</span></li>';
+                            $count .= '<li data-value="' . $i . '"><span>' . $i . ' ' . l('шт.') . '</span></li>';
                         else
                             $count .= '<li onclick="sc_change_goods_count(' . $i . ', ' . $gid . ')" data-value="' . $i . '">
-                                <span>' . $i . ' шт.</span></li>';
+                                <span>' . $i . ' ' . l('шт.') . '</span></li>';
                     }
                 }
             }

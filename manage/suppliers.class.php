@@ -395,10 +395,10 @@ class Suppliers
         if ( $orders ) {
             //$str_order_count = $orders ? '<span id="str_order_count" class="badge badge-info">'.count($orders).'</span>' : '';
 
-            $goods_html .= '<table class="show-suppliers-orders table"><thead><tr><td></td><td>Дата созд.</td><td>Создал</td>
-                <td>Код</td><td>' . l('Поставщик') . '</td><td>' . l('Наименование') . '</td><td>Кол-во</td><td>' . l('Цена') . '</td>
-                <td>Стоимость</td><td>' . l('Оплачено') . '</td><td>Дата пост.</td><td>Принято</td><td>Принял</td><td>' . l('Склад') . '</td>
-                <td>Оприх.</td><td>Примеч.</td><td></td></tr></thead><tbody>';
+            $goods_html .= '<table class="show-suppliers-orders table"><thead><tr><td></td><td>' . l('Дата созд.') . '</td><td>' . l('Создал') . '</td>
+                <td>' . l('Код') . '</td><td>' . l('Поставщик') . '</td><td>' . l('Наименование') . '</td><td>' . l('Кол-во') . '</td><td>' . l('Цена') . '</td>
+                <td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td><td>' . l('Дата пост.') . '</td><td>' . l('Принято') . '</td><td>' . l('Принял') . '</td><td>' . l('Склад') . '</td>
+                <td>' . l('Оприх.') . '</td><td>' . l('Примеч.') . '</td><td></td></tr></thead><tbody>';
                 //<td>Кол-во</td><td>К оплате</td><td>Созд.</td>
 
 //                print_r($orders);
@@ -508,7 +508,7 @@ class Suppliers
             }
             $goods_html .= '</tbody></table>';
         } else {
-            $goods_html .= '<p  class="text-danger">Нет заказов</p>';
+            $goods_html .= '<p  class="text-danger">' . l('Нет заказов') . '</p>';
         }
 
         $goods_html .= $this->append_js();
@@ -891,7 +891,7 @@ class Suppliers
                     if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/*$order['user_id'] == $_SESSION['id'] &&*/ $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
                         $order['btn']   =  '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="'.l('Сохранить').'" />';
                         //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-primary" onclick="close_supplier_order(this, \'' . $order_id . '\')" value="Закрыть" />';
-                        //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-danger" onclick="remove_supplier_order(this, \'' . $order_id . '\')" value="Удалить" />';
+                        //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-danger" onclick="remove_supplier_order(this, \'' . $order_id . '\')" value="' . l(value='" . l('Удалить') . "') . '" />';
                         $order['btn']  .=  ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="Отменить" />';
                         $order['btn']  .=  ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="Запчасть не доступна к заказу" />';
                     } else {
@@ -906,14 +906,14 @@ class Suppliers
                     }
                     if ($order['count_come'] > 0) {
                         $info_html .= '<div class="form-group"><label>' . l('Принято') . ':&nbsp;</label>'
-                            . '' . $order['count_come'] . ' шт.</div>';
+                            . '' . $order['count_come'] . ' ' . l('шт.') . '</div>';
                     }
                     if ($order['count_debit'] > 0) {
                         $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . $order['items'];
                         $print_btn = '<a target="_blank" title="Печать" href="' . $url . '"><i class="fa fa-print"></i></a>';
 
                         $info_html .= '<div class="form-group"><label>' . l('Оприходовано') . ':&nbsp;</label>'
-                            . '' . $order['count_debit'] . ' шт. ' . $print_btn . '</div>';
+                            . '' . $order['count_debit'] . ' ' . l('шт.') . ' ' . $print_btn . '</div>';
                     }
                     if ($order['wh_id'] > 0) {
                         $info_html .= '<div class="form-group"><label>' . l('Склад') . ':&nbsp;</label>'
@@ -2018,11 +2018,11 @@ class Suppliers
         }
 
         if ($count_error_item > 0) {
-            $result_html .= '<p>Не добавлено ' . $count_error_item . ' шт.</p>';
+            $result_html .= '<p>Не добавлено ' . $count_error_item . ' ' . l('шт.') . '</p>';
         }
 
         if (count($items) > 0) {
-            $result_html .= '<p>Добавлено ' . count($items) . ' шт.<br />' . implode('<br />', $items) . '</p>';
+            $result_html .= '<p>Добавлено ' . count($items) . ' ' . l('шт.') . '<br />' . implode('<br />', $items) . '</p>';
 
             // обновление заказов у которых все товары в наличии
             $this->all_configs['db']->query('UPDATE {orders} as o SET o.status=?i WHERE o.id IN (

@@ -110,7 +110,7 @@ class products
             $image_html .= '<p>Ссылки на youtube:</p>';
             foreach ($videos as $video) {
                 $image_html .= '<div><input style="float:left" placeholder="видео" class="span8" name="youtube[' . $video['id'] . ']" value="' . $video['image'] . '" />';
-                $image_html .= '<label style="margin-bottom:15px "><input name="remove-video[' . $video['id'] . ']" type="checkbox" /> Удалить</label></div>';
+                $image_html .= '<label style="margin-bottom:15px "><input name="remove-video[' . $video['id'] . ']" type="checkbox" /> ' . l('Удалить') . '</label></div>';
             }
         }
         $image_html .= '<p>Добавить ссылку на youtube:</p>';
@@ -600,8 +600,8 @@ class products
                 </div>
             ';
         }
-        $goods_html .= '<div class="form-group"><label>Название: </label>
-                        <input autocomplete="off" placeholder="введите название" class="form-control global-typeahead" data-anyway="1" data-table="goods" name="title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['title']) : '') . '" /></div>';
+        $goods_html .= '<div class="form-group"><label>' . l('Название') . ': </label>
+                        <input autocomplete="off" placeholder="' . l('введите название') . '" class="form-control global-typeahead" data-anyway="1" data-table="goods" name="title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['title']) : '') . '" /></div>';
 //        $goods_html .= '<div class="form-group"><label class="control-label">Внутр. (секретное) название: </label>
 //                        <input placeholder="введите секретное название" class="form-control" name="secret_title" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('secret_title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['secret_title']) : '') . '" /></div>';
 //        $goods_html .= '<div class="form-group"><label class="control-label">Артикул (код товара): </label>
@@ -616,7 +616,7 @@ class products
                         <label class=""><input name="avail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('avail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Активность</label></div></div>';
 //        $goods_html .= '<div class="form-group"><div class="checkbox">
 //                        <label class=""><input name="mail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('mail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Требуется обработать товарную позицию</label></div></div>';
-        $goods_html .= '<div class="form-group"><label class="control-label">Категории: </label><div class="controls">';
+        $goods_html .= '<div class="form-group"><label class="control-label">' . l('Категории') . ': </label><div class="controls">';
         $goods_html .= '<select class="multiselect input-small form-control" multiple="multiple" name="categories[]">';
         $categories = $this->get_categories();
         $goods_html .= build_array_tree($categories, isset($_GET['cat_id']) ? $_GET['cat_id'] : '');
@@ -1086,7 +1086,7 @@ class products
         }
 
         $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
-        $categories_html .= '<p class="label label-info">Категории</p>';
+        $categories_html .= '<p class="label label-info">' . l('Категории') . '</p>';
         $categories_html .= '<ul class="nav nav-list well well-white" id="tree">' . $this->categories_tree_menu($categories_tree) . '</ul>';
 
         return $categories_html . '<p></p>' . $filters_html;
@@ -1655,7 +1655,7 @@ class products
                     }
                 }
                 $data['content'] .= '</select>';
-                $data['btns'] = '<input type="button" value="Удалить" class="btn btn-danger" onclick="goods_section(this, 1)" />';
+                $data['btns'] = '<input type="button" value="' . l('Удалить') . '" class="btn btn-danger" onclick="goods_section(this, 1)" />';
             } else {
                 $data['content'] .= '<input type="text" id="goods_section_name" value="" placeholder="новый раздел" />';
                 $data['btns'] = '<input type="button" value="' . l('Создать') . '" class="btn btn-success" onclick="goods_section(this, 0)" />';
@@ -2178,8 +2178,8 @@ class products
 
             if ($product) {
                 $goods_html .= '<form method="post">';
-                $goods_html .= '<div class="form-group"><label>Название: </label>';
-                $goods_html .= '<input class="form-control" placeholder="введите название" name="title" value="';
+                $goods_html .= '<div class="form-group"><label>' . l('Название') . ': </label>';
+                $goods_html .= '<input class="form-control" placeholder="' . l('введите название') . '" name="title" value="';
                 if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post']))
                     $goods_html .= htmlspecialchars($this->errors['post']['title']);
                 else
@@ -2262,7 +2262,7 @@ class products
                     $checked = 'checked';
                 $goods_html .= '<div class="form-group"><div class="checkbox">';
                 $goods_html .= '<label><input name="type" ' . $checked . ' type="checkbox">Услуга</label></div></div>';
-                $goods_html .= '<div class="form-group"><label>Категории: </label>';
+                $goods_html .= '<div class="form-group"><label>' . l('Категории') . ': </label>';
                 $goods_html .= '';
                 $goods_html .= '<select class="multiselect form-control" multiple="multiple" name="categories[]">';
                 $categories = $this->get_categories();
@@ -2322,7 +2322,7 @@ class products
                 WHERE u.id=g.author AND g.id=?i ',
                 array($this->all_configs['arrequest'][2]))->el();
             $goods_html .= '<form style="max-width: 300px" method="post">';
-            $goods_html .= '<div class="form-group"><label>Автор: </label>';
+            $goods_html .= '<div class="form-group"><label>' . l('Автор') . ': </label>';
             $goods_html .= ' <a href="'
                 . $this->all_configs['prefix'] . 'users">' . $author . '</a></div>';
             $goods_html .= '<div class="form-group"><label>' . l('manager') . ': </label>';
@@ -2362,7 +2362,7 @@ class products
                                     WHERE c.map_id=?i AND c.object_id=?i ORDER BY c.date_add DESC',
                 array($mod_id, $this->all_configs['arrequest'][2]))->assoc();
             if ($histories && count($histories) > 0) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>Автор</td><td>Редактирование</td><td>'.l('Дата').'</td></tr></thead><tbody>';
+                $goods_html .= '<table class="table table-striped"><thead><tr><td>' . l('Автор') . '</td><td>Редактирование</td><td>'.l('Дата').'</td></tr></thead><tbody>';
                 foreach ($histories as $history) {
                     $goods_html .= '<tr><td><a href="' . $this->all_configs['prefix'] . 'users">' . $history['login'] . '</a></td>';
                     $goods_html .= '<td>' . $this->all_configs['configs']['changes'][$history['work']] . '</td>';
@@ -2391,7 +2391,7 @@ class products
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
             $goods_html .= '<ul class="nav nav-pills">';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_financestock_stock" onclick="click_tab(this, event)" title="Склады" href="#financestock-stock">Склады</a></li>';
+            $goods_html .= '<li><a class="click_tab" data-open_tab="products_financestock_stock" onclick="click_tab(this, event)" title="Склады" href="#financestock-stock">' . l('Склады') . '</a></li>';
             $goods_html .= '<li><a class="click_tab" data-open_tab="products_financestock_finance" onclick="click_tab(this, event)" title="Заказы поставщикам" href="#financestock-finance">Заказы поставщикам</a></li>';
             $goods_html .= '</ul><div class="pill-content">';
 

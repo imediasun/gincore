@@ -272,7 +272,7 @@ class categories
         $category_html = '<'.$attr.'><fieldset><legend>Добавление новой категории (название устройства)</legend>';
         if ( isset($_GET['error']) && $_GET['error'] == 'url')
             $category_html .= '<p class="text-error">Категория с таким названием уже существует</p>';
-        $category_html .= '<div class="form-group"><label>Название:</label>
+        $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
             <input autocomplete="off" placeholder="Укажите название устройства или категории. Пример: IPhone 5" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="'.($name ? htmlspecialchars($name) : '').'" /></div>';
         $category_html .= '<div class="form-group"><div class="checkbox"><label>
             <input name="avail" type="checkbox">Активность</label></div></div>';
@@ -299,7 +299,7 @@ class categories
         $categories_html = '';
 
         if ( $this->all_configs['oRole']->hasPrivilege('create-filters-categories') ) {
-            $categories_html .= '<p><a href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/create" class="btn btn-success">Создать категорию</a>
+            $categories_html .= '<p><a href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/create" class="btn btn-success">' . l('Создать категорию') . '</a>
                 </p>';//<a href="" class="btn btn-danger">Удалить</a>
         }
         if ( count($categories) > 0 ) {
@@ -482,7 +482,7 @@ class categories
                 <legend>' . $thumbs . ' Редактирование категории ID: ' . $cur_category['id'] . '. ' . $cur_category['title'] . '</legend>';
             if ( isset($_GET['error']) && $_GET['error'] == 'url')
                 $category_html .= '<p  class="text-error">Категория с таким названием уже существует</p>';
-            $category_html .= '<div class="form-group"><label>Название:</label>
+            $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
                 <input class="form-control" name="title" value="' . $cur_category['title'] . '" /></div>';
             $category_html .= '<input type="hidden" class="span5" name="id" value="' . $cur_category['id'] . '" />';
 //            $category_html .= '<div class="form-group"><label class="control-label">url:</label>

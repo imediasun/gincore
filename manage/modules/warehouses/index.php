@@ -493,7 +493,7 @@ class warehouses
             $out .= '<div id="scanner-moves-alert" class="alert fade"><button type="button" class="close" data-dismiss="alert">&times;</button><div id="scanner-moves-alert-body"></div></div>';
             $out .= '
                 <label>Укажите номер заказа, изделия или локации. После чего нажмите Enter. Или используйте сканер.</label>
-                <input value="" id="scanner-moves" type="text" placeholder="заказ, изделие или локация" class="form-control" />';
+                <input value="" id="scanner-moves" type="text" placeholder="' . l('заказ, изделие или локация') . '" class="form-control" />';
             $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="заказ или локация" class="form-control" />';
         }
 
@@ -511,7 +511,7 @@ class warehouses
         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
             $out .= $cost_of['cur_price'] . ' (' . $cost_of['html'] .  '), ';
         }
-        $out .= $cost_of['count'] . ' шт.</div>';
+        $out .= $cost_of['count'] . ' ' . l('шт.') . '</div>';
         $wh = $this->get_warehouses_options();
         $warehouses_options = $wh['wo'];
         // фильтрация
@@ -525,9 +525,9 @@ class warehouses
                 $out .= '<div class="show_warehouse">';
                 $print_link = print_link(array_keys($warehouse['locations']), 'location');
                 $out .= '<h5><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $warehouse['id'] . '#show_items">' . $warehouse['title'] . '</a> ' . $print_link . '</h5>';
-                $out .= '<div>' . l('Общий остаток') . ': ' . intval($warehouse['sum_qty']) . ' шт.</div>';
+                $out .= '<div>' . l('Общий остаток') . ': ' . intval($warehouse['sum_qty']) . ' ' . l('шт.') . '</div>';
                 if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                    $out .= '<div>Общая сумма: ';
+                    $out .= '<div>' . l('Общая сумма') . ': ';
                     $out .= $this->show_price($warehouse['all_amount'], 2, getCourse($this->all_configs['settings']['currency_suppliers_orders']));
                     $out .= ' '.viewCurrency().' (' . $this->show_price($warehouse['all_amount']) .viewCurrencySuppliers() .' )</div>';
                 }
@@ -719,16 +719,16 @@ class warehouses
 
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<li><a class="click_tab btn btn-success" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_bind"';
-                $out .= ' title="' . l('Привязать серийный номер к заказу') .'" href="#orders-clients_bind">Привязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
+                $out .= ' title="' . l('Привязать серийный номер к заказу') .'" href="#orders-clients_bind">' . l('Привязать сер.номер') . '<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
 
                 $out .= '<li><a class="click_tab btn btn-danger" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_unbind"';
-                $out .= ' title="' . l('Отвязать серийный номер от заказа') .'" href="#orders-clients_unbind">Отвязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
+                $out .= ' title="' . l('Отвязать серийный номер от заказа') .'" href="#orders-clients_unbind">' . l('Отвязать сер.номер') . '<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
             }
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<li><a class="click_tab  btn btn-warning" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_suppliers"';
-                $out .= ' title="' . l('Заказы поставщику которые ждут приходования') . '" href="#orders-suppliers">Заказы поставщику<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
+                $out .= ' title="' . l('Заказы поставщику которые ждут приходования') . '" href="#orders-suppliers">' . l('Заказы поставщику') . '<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
             }
-            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
+            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li>';
             $out .= '</ul><div class="clearfix hidden theme_bg filters-box p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<div id="orders-suppliers" class="pill-pane">';
@@ -851,10 +851,10 @@ class warehouses
 //            $admin_out .= '<div id="settings" class="tab-pane">';
 
             $admin_out .= '<ul class="nav nav-pills">';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="Создать/редактировать группу склада">Сервисные центры</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Склады</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="Создать/редактировать категорию склада">Категории</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="Закрепить администратора за кассой">Администраторы</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="' . l('Создать') . '/' . l('редактировать группу склада') . '">' . l('Сервисные центры') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="' . l('Создать') . '/' . l('редактировать категорию склада') . '">' . l('Категории') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="' . l('Закрепить администратора за кассой') . '">' . l('Администраторы') . '</a></li>';
             $admin_out .= '</ul>';
             $admin_out .= '<div class="pill-content">';
 
@@ -918,13 +918,13 @@ class warehouses
         if ($type) {
             $i = $type['id'];
             $btn = "<input type='hidden' name='warehouse-type-id' value='{$type['id']}' /><input type='submit' class='btn' name='warehouse-type-edit' value='" . l('Редактировать') . "' />";
-            $accordion_title = 'Редактировать категорию склада "' . htmlspecialchars($type['name']) . '"';
+            $accordion_title = l('Редактировать категорию склада') .  ' "' . htmlspecialchars($type['name']) . '"';
             $name = htmlspecialchars($type['name']);
             $icon = htmlspecialchars($type['icon']);
         } else {
             $i = 0;
             $btn = "<input type='submit' class='btn' name='warehouse-type-add' value='" . l('Создать') . "' />";
-            $accordion_title = 'Создать категорию склада';
+            $accordion_title = l('Создать категорию склада');
             $name = $icon = '';
         }
 
@@ -936,8 +936,8 @@ class warehouses
                 <div id='collapse_warehouse_type_{$i}' class='panel-collapse collapse'>
                     <div class='panel-body'>
                         <form method='POST'>
-                            <div class='form-group'><label>Название: </label>
-                                <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
+                            <div class='form-group'><label>" . l('Название') . ": </label>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
                             <div class='form-group'><label'>Иконка (fa fa-home): </label>
                                 <input placeholder='введите иконку' class='form-control' name='icon' value='{$icon}' /></div>
                             <div class='form-group'><label></label>{$btn}</div>
@@ -973,14 +973,14 @@ class warehouses
         if ($group) {
             $i = $group['id'];
             $btn = "<input type='hidden' name='warehouse-group-id' value='{$group['id']}' /><input type='submit' class='btn' name='warehouse-group-edit' value='" . l('Редактировать') . "' />";
-            $accordion_title = 'Редактировать группу склада "' . htmlspecialchars($group['name']) . '"';
+            $accordion_title = l('Редактировать группу склада') . ' "' . htmlspecialchars($group['name']) . '"';
             $name = htmlspecialchars($group['name']);
             $color = htmlspecialchars($group['color']);
             $address = htmlspecialchars($group['address']);
         } else {
             $i = 0;
             $btn = "<input type='submit' class='btn' name='warehouse-group-add' value='" . l('Создать') . "' />";
-            $accordion_title = 'Создать  сервисный центр (группу складов)';
+            $accordion_title = l('Создать  сервисный центр') . ' (' . l('группу складов') . ')';
             $name = $color = $address = '';
         }
 
@@ -992,12 +992,12 @@ class warehouses
                 <div id='collapse_warehouse_group_{$i}' class='panel-collapse collapse'>
                     <div class='panel-body'>
                         <form method='POST'>
-                            <div class='form-group'><label>Название: </label>
-                                <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
-                            <div class='form-group'><label>Цвет (#000000): </label>
-                                <input placeholder='введите цвет' class='colorpicker form-control' name='color' value='{$color}' /></div>
-                            <div class='form-group'><label>Адрес: </label>
-                                <input placeholder='введите адрес' class='form-control' name='address' value='{$address}' /></div>
+                            <div class='form-group'><label>" . l('Название') . ": </label>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
+                            <div class='form-group'><label>" . l('Цвет') . " (#000000): </label>
+                                <input placeholder='" . l('введите цвет') . "' class='colorpicker form-control' name='color' value='{$color}' /></div>
+                            <div class='form-group'><label>" . l('Адрес') . ": </label>
+                                <input placeholder='" . l('введите адрес') . "' class='form-control' name='address' value='{$address}' /></div>
                             <div class='form-group'><label></label>{$btn}</div>
                         </form>
                     </div>
@@ -1048,7 +1048,7 @@ class warehouses
                 $wh_users = $this->all_configs['db']->query(
                     'SELECT u.user_id, GROUP_CONCAT(u.wh_id) FROM {warehouses_users} as u GROUP BY u.user_id')->vars();
 
-                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>Сотрудник</td><td>Укажите склады <br>к которым сотрудник имеет доступ</td><td>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</td></tr></thead><tbody>';
+                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>' . l('Сотрудник') . '</td><td>Укажите склады <br>к которым сотрудник имеет доступ</td><td>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</td></tr></thead><tbody>';
                 foreach ($users as $user_id=>$user) {
                     $admin_out .= '<tr><td>' . get_user_name($user) . '</td>';
                     $admin_out .= '<td><select class="multiselect" name="warehouses_users[' . $user_id . '][]" multiple="multiple">';
@@ -1172,7 +1172,7 @@ class warehouses
         $html = '<div class="input-append scan-serial-block">';
         $html .= '<div class="scan-serial-error"></div>';
         $html .= '<input id="scan-serial-' . $id . '" onkeyup="is_enter($(\'.btn-scan_serial\'), event, ' . $id . ', \'scan_serial\')" class="scan-serial focusin"';
-        $html .= ' type="text" placeholder="Серийный номер">';
+        $html .= ' type="text" placeholder="' . l('Серийный номер') . '">';
         $html .= '<button class="btn-scan_serial btn" onclick="scan_serial(this, \'' . $id . '\')" type="button">';
         $html .= '"'.l('Добавить').'"</button>';
         $html .= '</div>';
@@ -1795,7 +1795,7 @@ class warehouses
                                         FROM {warehouses_goods_items} as i
                                         WHERE i.goods_id=?i AND i.wh_id IN (?li)',
                             array($product['goods_id'], explode(',', $_GET['whs'])))->row();
-                        $out .= '<p>Всего отфильтровано: ' . ($items ? 1 * $items['count'] : 0) . ' шт.</p>';
+                        $out .= '<p>Всего отфильтровано: ' . ($items ? 1 * $items['count'] : 0) . ' ' . l('шт.') . '</p>';
                         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                             $out .= '<p>На сумму: ' . show_price($items['sum']) . ' ';
                             $currency_suppliers_orders = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
@@ -1840,7 +1840,7 @@ class warehouses
             }
 
             $btn = "<input type='submit' class='btn' name='warehouse-add' value='" . l('Создать') . "' />";
-            $accordion_title = 'Создать склад';
+            $accordion_title = l('Создать склад');
             $consider_store = 'checked';
             $consider_all = 'checked';
             $title = '';
@@ -1901,26 +1901,26 @@ class warehouses
                 <div id='collapse_warehouse_{$i}' class='panel-body collapse {$in}'>
                     <div class='panel-body'>
                         <form method='POST'>
-                            <div class='form-group'><label>Название: </label>
-                                <input placeholder='введите название' class='form-control' name='title' value='{$title}' /></div>
+                            <div class='form-group'><label>" . l('Название') . ": </label>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='title' value='{$title}' /></div>
                             <!--<div class='form-group'><label>Код 1с: </label>
                                 <input placeholder='введите код 1с' class='form-control' name='code_1c' value='{$code_1c}' /></div>
                             --><div class='form-group'>
-                                <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' /> Учитывать в свободном остатке</label></div>
-                                <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' /> Учитывать в общем остатке</label></div>
+                                <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' />" . l('Учитывать в свободном остатке') . "</label></div>
+                                <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' />" . l('Учитывать в общем остатке') . "</label></div>
                             </div>
-                            <div class='form-group'><label >Тип склада: </label>
+                            <div class='form-group'><label >" . l('Тип склада') . ": </label>
                                 {$warehouses_type}</div>
-                            <div class='form-group'><label>Принадлежность к Сервисному центру: </label>
+                            <div class='form-group'><label>" . l('Принадлежность к Сервисному центру') . ": </label>
                                 {$warehouses_groups}</div>
                             <div class='form-group'><label>" . l('Категория') . ": </label>
                                 {$warehouses_types}</div>
                             <div class='form-group'><label>
-                                Адрес для квитанции: </label>
+                                " . l('Адрес для квитанции') . ": </label>
                                 <input class='form-control' name='print_address' value='{$print_address}' />
                             </div>
                             <div class='form-group'><label>
-                                Телефон для квитанции: </label>
+                                " . l('Телефон для квитанции') . ": </label>
                                 <input class='form-control' name='print_phone' value='{$print_phone}' />
                             </div>
                             <div class='form-group'><label>" . l('Локации') . ": </label>
@@ -2201,7 +2201,7 @@ class warehouses
             $data['content'] = '<form method="POST" id="debit-so-form">';
             $data['content'] .= '<input type="hidden" value="' . $order_id . '" name="order_id" />';
 
-            $data['content'] .= '<div class="form-group"><label class="control-label"><center><b>Серийный номер</b><br>';
+            $data['content'] .= '<div class="form-group"><label class="control-label"><center><b>' . l('Серийный номер') . '</b><br>';
             if ($order) {
                 $data['content'] .= htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['location']);
             }
