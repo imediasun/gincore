@@ -124,7 +124,7 @@ class settings{
                             <textarea  class="form-control" name="title"></textarea>
                         </div>
                         <div class="form-group">
-                            <label>Описание: </label> 
+                            <label>' . l('Описание') . ': </label> 
                             <textarea  class="form-control" name="description"></textarea>
                         </div>
                         <div class="form-group">

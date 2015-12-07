@@ -981,7 +981,7 @@ class orders
                                                 <div id="client_requests">
                                                     '.($order_data ? 
                                                         get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request']) 
-                                                            : '<span class="muted">выберите клиента или устройство чтобы увидеть заявки</span>').'
+                                                            : '<span class="muted">' . l('выберите клиента или устройство чтобы увидеть заявки') . '</span>').'
                                                 </div>
                                             </div><br>
                                         </fieldset>

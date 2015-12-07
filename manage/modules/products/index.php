@@ -613,7 +613,7 @@ class products
                             <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="введите цену" class="form-control" name="price" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('price', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
         }
         $goods_html .= '<div class="form-group"><div class="checkbox">
-                        <label class=""><input name="avail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('avail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Активность</label></div></div>';
+                        <label class=""><input name="avail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('avail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">' . l('Активность') . '</label></div></div>';
 //        $goods_html .= '<div class="form-group"><div class="checkbox">
 //                        <label class=""><input name="mail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('mail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Требуется обработать товарную позицию</label></div></div>';
         $goods_html .= '<div class="form-group"><label class="control-label">' . l('Категории') . ': </label><div class="controls">';
@@ -1000,7 +1000,7 @@ class products
             }
         }
 
-        $filters_html = '<p class="label label-info">Отобразить</p>';
+        $filters_html = '<p class="label label-info">' . l('Отобразить') . '</p>';
         $filters_html .= '<div class="well"><ul style="padding-left:25px"><li><label class="checkbox"><input type="checkbox" ';
         $filters_html .= $this->click_filters('show', 'my') . '>' . l('Мои товары') . '</label></li>';
         $filters_html .= '<li><label class="checkbox"><input type="checkbox" ' . $this->click_filters('show', 'empty');
@@ -1008,7 +1008,7 @@ class products
         $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'noimage');
         $filters_html .= '>' . l('Без картинок') . '</label></li></ul></div>';
 
-        $filters_html .= '<p class="label label-info">По складам</p>';
+        $filters_html .= '<p class="label label-info">' . l('По складам') . '</p>';
         $filters_html .= '<div class="well"><ul style="padding-left:25px">';//<label class="checkbox"><input type="checkbox" id="my_checkbox" value="my" name="my" ' . $this->my_checked . ' onclick="checkbox_select(this, \'' . $a . '\')">' . l('Мои товары') . '</label></li>';
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
         if ($warehouses) {
@@ -1292,9 +1292,9 @@ class products
             //$sort = '';
             $sort_id = '<a href="?sort=rid">ID';
             $sort_title = '<a href="?sort=title">' . l('Название продукта') . '';
-            $sort_price = '<a href="?sort=price">Цена';
+            $sort_price = '<a href="?sort=price">' . l('Цена');
             $sort_date = '<a href="?sort=date">'.l('Дата').'';
-            $sort_avail = '<a href="?sort=avail">Вкл.';
+            $sort_avail = '<a href="?sort=avail">' . l('Вкл.');
             if (isset($_GET['sort'])) {
                 //$sort = '&sort=' . $_GET['sort'];
                 switch ($_GET['sort']) {
@@ -1323,7 +1323,7 @@ class products
                         $sort_date = '<a href="?sort=date">'.l('Дата').'<i class="glyphicon glyphicon-chevron-up"></i>';
                         break;
                     case 'avail':
-                        $sort_avail = '<a href="?sort=ravail">Вкл.<i class="glyphicon glyphicon-chevron-down"></i>';
+                        $sort_avail = '<a href="?sort=ravail">' . l('Вкл.') . '<i class="glyphicon glyphicon-chevron-down"></i>';
                         break;
                     case 'ravail':
                         $sort_avail = '<a href="?sort=avail">Вкл.<i class="glyphicon glyphicon-chevron-up"></i>';
@@ -1362,7 +1362,7 @@ class products
             $goods_html .= '<td>' . $sort_avail . '</a></td>';
             $goods_html .= '<td>' . $sort_price . '</a></td>';
             $goods_html .= '<td>' . $sort_date . '</a></td>';
-            $goods_html .= '<td title="Общий остаток">Общ</td><td title="Свободный остаток">Своб</td>';
+            $goods_html .= '<td title="' . l('Общий остаток') . '">' . l('Общ') . '</td><td title="' . l('Свободный остаток') . '">' . l('Своб') . '</td>';
             $goods_html .= '</tr></thead><tbody>';
 
             $serials = array();
@@ -2203,7 +2203,7 @@ class products
 //                $goods_html .= '<input class="form-control" placeholder="введите url" name="url" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('url', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['url']) : htmlspecialchars($product['url'])) . '" /></div>';
                 $goods_html .= '<div class="form-group"><label>Штрих код: </label>
                             <input placeholder="штрих код" class="form-control" name="barcode" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['barcode']) : $product['barcode']) . '" /></div>';
-                $goods_html .= '<div class="form-group"><label>Приоритет: </label>
+                $goods_html .= '<div class="form-group"><label>' . l('Приоритет') . ': </label>
                             <input onkeydown="return isNumberKey(event)" class="form-control" name="prio" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('prio', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['prio']) : $product['prio']) . '" /></div>';
                 //use-inec $goods_html .= '<input type="button" class="btn export_product" value="Создать выгрузку в 1с" data="' . $product['id'] . '" />';
                 $goods_html .= '<div class="form-group"><label>Розничная цена ('.viewCurrencySuppliers('shortName').'): </label>
@@ -2256,7 +2256,7 @@ class products
                     $checked = 'checked';
                 $goods_html .= '<form method="post" style="max-width:300px">';
                 $goods_html .= '<div class="form-group"><div class="checkbox">';
-                $goods_html .= '<label><input name="avail" ' . $checked . ' type="checkbox">Активность</label></div></div>';
+                $goods_html .= '<label><input name="avail" ' . $checked . ' type="checkbox">' . l('Активность') . '</label></div></div>';
                 $checked = '';
                 if ($product['type'] == 1)
                     $checked = 'checked';

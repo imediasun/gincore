@@ -144,7 +144,7 @@ class wrapper{
 
         $conf = $this->genconfig();
 
-        $out = '<h4>Доступные таблицы</h4>';
+        $out = '<h4>' . l('Доступные таблицы') . '</h4>';
 
         $sql = $this->all_configs['db']->query("SHOW TABLES FROM ?q", array($dbcfg['dbname']))->assoc();
 
@@ -197,7 +197,7 @@ class wrapper{
         $out = '';
 
         if(!isset($this->all_configs['arrequest'][1])){
-            $out = '<h3>Редактор таблиц сайтa</h3><br>';
+            $out = '<h3>' . l('Редактор таблиц сайтa') . '</h3><br>';
             if($ifauth['is_adm'] != 1){
                 $out.='<br>Недостаточно прав для изменения!<br><br>';
             }

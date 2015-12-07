@@ -454,7 +454,7 @@ class tasks
                         . '<label>Обновлена:</label>'. $date_update
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="taskTitle">Тема</label>'
+                        . '<label for="taskTitle">' . l('Тема') . '</label>'
                         . '<input ' . $disable_state_change . $disable_tag . ' type="text" value="' . htmlspecialchars($task['title']) . '" name="task_title" id="taskTitle" class="form-control" >'
                     . '</div>'
                     . '<div class="form-group">'
@@ -462,15 +462,15 @@ class tasks
                         . '<textarea ' . $disable_state_change . $disable_tag . ' type="text" name="task_text" id="task_text" placeholder="" class="form-control" rows="3" >' . htmlspecialchars($task['body']) . '</textarea>'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="task_deadline">Дата исполнения</label>'
+                        . '<label for="task_deadline">' . l('Дата исполнения') . '</label>'
                         . '<input ' . $disable_tag . ' value="' . $date_deadline . '" class="form-control" data-provide="datepicker" data-date-format="dd.mm.yyyy" name="task_deadline" id="task_deadline" >'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="taskWorker">Исполнитель&nbsp;</label><br>'
+                        . '<label for="taskWorker">' . l('Исполнитель') . '&nbsp;</label><br>'
                         . $this->worker_selector($task['worker_id'], $disable_tag)
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="task_price">Цена задачи</label>'
+                        . '<label for="task_price">' . l('Цена задачи') . '</label>'
                         . '<input ' . $disable_tag . ' value="' . $task['price'] . '" class="form-control" name="task_price" id="task_price"  >'
                     . '</div>'
                     . '<div class="form-group">'
@@ -478,7 +478,7 @@ class tasks
                         . $this->get_state_selector($task['state'], $disable_tag)
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label>Файл</label>';
+                        . '<label>' . l('Файл') . '</label>';
             if ($task['filename']) {
                 $out .= '<a class="file_link" href="' . $this->all_configs['prefix'] . 'tasks_files/' . $task['filename'] . '" target="_blank">посмотреть</a>';
             } else {
@@ -537,7 +537,7 @@ class tasks
             $out .= build_array_tree($managers, ((isset($_GET['mg'])) ? explode(',', $_GET['mg']) : array()));
             $out .= '</select></div>';
         }
-        $out .= '<div class="form-group"><label>Даты:</label>';
+        $out .= '<div class="form-group"><label>' . l('Даты') . ':</label>';
         $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
         $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="' . l('Фильтровать') . '" />'
                 . '</form>';
@@ -603,15 +603,15 @@ class tasks
                 . '<thead><tr>'
                 . '<td>№</td>'
                 . '<td>'.l('Статус').'</td>'
-                . '<td>Тема</td>'
+                . '<td>' . l('Тема') . '</td>'
                 . '<td>' . l('Автор') . '</td>'
-                . '<td>Исполнитель</td>'
-                . '<td>Создана</td>'
-                . '<td>Дедлайн</td>'
+                . '<td>' . l('Исполнитель') . '</td>'
+                . '<td>' . l('Создана') . '</td>'
+                . '<td>' . l('Дедлайн') . '</td>'
                 //. '<td>Выполнена</td>'
                 //. '<td>Текст</td>'
                 //. '<td> </td>'
-                . '<td>Стоимость</td>'
+                . '<td>' . l('Стоимость') . '</td>'
                 . '<td></td>'
                 . '</tr></thead>'
                 . '<tbody>';
@@ -653,7 +653,7 @@ class tasks
                     . '<td>' . do_nice_date($task['date_deadline'], true, false) . '</td>'
                     //. '<td>' . do_nice_date($task['date_done']) . '</td>'
                     //. '<td>' . htmlspecialchars($task['body']) . '</td>'
-                    //. '<td>' . ($task['filename'] ? '<a class="file_link" href="' . $this->all_configs['prefix'] . 'tasks_files/' . $task['filename'] . '" target="_blank">Файл</a>' : '') . '</td>'
+                    //. '<td>' . ($task['filename'] ? '<a class="file_link" href="' . $this->all_configs['prefix'] . 'tasks_files/' . $task['filename'] . '" target="_blank">' . l('Файл') . '</a>' : '') . '</td>'
                     . '<td>' . $task['price'] . '</td>'
                     . '<td> <i class="'.$task_ontime_class.'"></i> </td>'
                     . '</tr>';
@@ -674,12 +674,12 @@ class tasks
         // eanufriev - смысл проверки ? если активных действий никаких- а при вставке будет проверка .
         // form data 
         $out = '<form id="new_task_form" method="POST" enctype="multipart/form-data">';
-        $out .= '<div class="form-group"><input type="text" name="task_title" id="task_title" placeholder="О чём задача" class="form-control"></div>';
-        $out .= '<div class="form-group"><textarea type="text" name="task_text" id="task_text" placeholder="Опишите задачу" class="form-control" rows="3" ></textarea></div>';
-        $out .= '<div class="form-group"><label>Дата исполнения</label><input class="form-control" data-provide="datepicker" data-date-format="dd.mm.yyyy" name="task_deadline" id="task_deadline" value="'.date('d.m.Y', time()).'"></div>';
-        $out .= '<div class="form-group"><label>Цена задачи</label><input class="form-control" name="task_price" id="task_price" value="0"></div>';
-        $out .= '<div class="form-group"><label>Файл</label><br><input name="file" type="file"></div>';
-        $out .= '<div class="form-group">' . $this->worker_selector() . '</div><input type="button" id="new_task_button" value="создать новую задачу"  class="btn btn-success" onclick="task_create(this);">';
+        $out .= '<div class="form-group"><input type="text" name="task_title" id="task_title" placeholder="' . l('О чём задача') . '" class="form-control"></div>';
+        $out .= '<div class="form-group"><textarea type="text" name="task_text" id="task_text" placeholder="' . l('Опишите задачу') . '" class="form-control" rows="3" ></textarea></div>';
+        $out .= '<div class="form-group"><label>' . l('Дата исполнения') . '</label><input class="form-control" data-provide="datepicker" data-date-format="dd.mm.yyyy" name="task_deadline" id="task_deadline" value="'.date('d.m.Y', time()).'"></div>';
+        $out .= '<div class="form-group"><label>' . l('Цена задачи') . '</label><input class="form-control" name="task_price" id="task_price" value="0"></div>';
+        $out .= '<div class="form-group"><label>' . l('Файл') . '</label><br><input name="file" type="file"></div>';
+        $out .= '<div class="form-group">' . $this->worker_selector() . '</div><input type="button" id="new_task_button" value="' . l('создать новую задачу') . '"  class="btn btn-success" onclick="task_create(this);">';
         $out .= '</form>';
 
         return array(

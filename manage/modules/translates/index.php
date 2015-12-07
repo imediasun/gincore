@@ -91,7 +91,7 @@ class translates{
         }
     }
     protected function genmenu(){
-        $out = '<h4>Таблицы</h4><ul>';
+        $out = '<h4>' . l('Таблицы') . '</h4><ul>';
         foreach($this->config as $table => $conf){
             $out .= '
                 <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == $table ? ' class="active"' : '').
@@ -120,7 +120,7 @@ class translates{
         $languages = $this->langs;
         $def_lang = $this->def_lang;
         
-        $out = 'Выберите таблицу слева.';
+        $out = l('Выберите таблицу слева.');
         if(isset($this->all_configs['arrequest'][1])){
             
             if(isset($this->config[$this->all_configs['arrequest'][1]])){
@@ -454,7 +454,7 @@ class translates{
                                         <td>'.$change['lang'].'</td>
                                         <td>'.$change['id'].'</td>
                                         <td>'.$data.'</td>
-                                        <td><a href="'.$this->all_configs['prefix'].$link.'" target="_blank">Редактировать</a></td>
+                                        <td><a href="'.$this->all_configs['prefix'].$link.'" target="_blank">' . l('Редактировать') . '</a></td>
                                      </tr>';
                         }
                         $out .= '</tbody></table>';

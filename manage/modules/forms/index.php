@@ -158,7 +158,7 @@ class forms{
                 <input class="form-control" type="text" name="name" value="'.($field ? htmlspecialchars($field['name']) : '').'">
             </div>
             <div class="form-group">
-                <label>Приоритет</label>
+                <label>' . l('Приоритет') . ':</label>
                 <input type="text" class="form-control" name="prio" value="'.($field ? $field['prio'] : '0').'">
             </div>
         ';

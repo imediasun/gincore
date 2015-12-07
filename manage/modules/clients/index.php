@@ -831,7 +831,7 @@ class clients
             <div class="controls"><textarea class="span5" name="advantages">' . htmlspecialchars($review['advantages']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Минусы: </label>
             <div class="controls"><textarea class="span5" name="disadvantages">' . htmlspecialchars($review['disadvantages']) . '</textarea></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Рейтинг: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Рейтинг') . ': </label>
             <div class="controls"><select name="rating" class="span5">';
         for ( $i=1; $i<=5; $i++ ) {
             if ( $review['rating'] == $i )
@@ -999,7 +999,7 @@ class clients
             <div class="controls"><textarea class="span5" name="advantages">' . htmlspecialchars($review['advantages']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Минусы: </label>
             <div class="controls"><textarea class="span5" name="disadvantages">' . htmlspecialchars($review['disadvantages']) . '</textarea></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Рейтинг: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Рейтинг') . ': </label>
             <div class="controls"><select name="rating" class="span5">';
         for ( $i=1; $i<=5; $i++ ) {
             if ( $review['rating'] == $i )
@@ -1090,7 +1090,7 @@ class clients
 
         $out = '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/create">Создать новый</a>';
         if ( $reviews ) {
-            $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>'.l('Дата').'</td><td>Рейтинг</td><td>Полезный</td><td>Бесполезный</td><td>Одобрен</td></tr></thead><tbody><tr>';
+            $out .= '<table class="table table-striped"><thead><td>Клиент</td><td>Комментарий</td><td>'.l('Дата').'</td><td>' . l('Рейтинг') . '</td><td>Полезный</td><td>Бесполезный</td><td>Одобрен</td></tr></thead><tbody><tr>';
             foreach ( $reviews as $comment ) {
                 $out .= '<tr>
                     <td>' . (($comment['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $comment['user_id'] . '">' . htmlspecialchars($comment['email']) . ', ' . htmlspecialchars($comment['phone']) . ', ' . htmlspecialchars($comment['fio']) . '</a>' : htmlspecialchars($comment['fio'])) . '</td>
@@ -1153,7 +1153,7 @@ class clients
 
         $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text"></textarea></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Рейтинг: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Рейтинг') . ': </label>
             <div class="controls"><select name="rating" class="span5">';
         for ( $i=1; $i<=5; $i++ ) {
             $out .= '<option value="' . $i . '">' . $i . '</option>';
@@ -1207,7 +1207,7 @@ class clients
                     $comment['usefulness_no'], $comment['rating'], $comment['advantages'], $comment['disadvantages'], $comment['fio']), 'id');
 
             header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Успешно', 'response' => '<a href="' . $this->all_configs['prefix'] . 'clients/goods-reviews/create/' . $id . '">Редактировать</a>'));
+            echo json_encode(array('message' => 'Успешно', 'response' => '<a href="' . $this->all_configs['prefix'] . 'clients/goods-reviews/create/' . $id . '">' . l('Редактировать') . '</a>'));
             exit;
         }
 

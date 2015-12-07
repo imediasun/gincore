@@ -909,7 +909,7 @@ class accountings
             }
             $out .= '</select></div></div>';
             $out .= '<div class="form-group"><label>' . l('ФИО') . ': </label>';
-            $out .= '<input placeholder="введите ФИО контрагента" class="input-contractor form-control" name="title" value="' . $name . '" />';
+            $out .= '<input placeholder="' . l('введите ФИО контрагента') . '" class="input-contractor form-control" name="title" value="' . $name . '" />';
             $out .= '</div><div class="form-group"><label>' . l('Комментарий') . ': </label>';
             $out .= '<textarea class="form-control" name="comment" placeholder="введите комментарий к контрагенту">' . $comment . '</textarea>';
             $out .= '';
@@ -2240,7 +2240,7 @@ class accountings
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="headingOne">
                           <h4 class="panel-title">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#transaction_filters" href="#transaction_filters_collapse">Фильтры</a>
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#transaction_filters" href="#transaction_filters_collapse">' . l('Фильтры') . '</a>
                           </h4>
                         </div>
                         <div id="transaction_filters_collapse" class="panel-collapse collapse ' . $in . '">

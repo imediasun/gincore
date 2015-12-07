@@ -48,22 +48,22 @@ class statistics
                     <tr>
                         <th class="{ sorter: false }"></th>
                         <th>'.l('Дата').'</th>
-                        <th class="{ sorter: false }">Показы</th>
-                        <th class="{ sorter: false }">Клики</th>
-                        <th class="{ sorter: false }">CTR</th>
-                        <th class="{ sorter: false }">Просмотры</th>
-                        <th class="{ sorter: false }">Новые пользователи</th>
-                        <th class="{ sorter: false }">Новые пользователи %</th>
-                        <th class="{ sorter: false }">% отказа н.п.</th>
-                        <th class="{ sorter: false }">Звонки.</th>
-                        <th class="{ sorter: false }">Заявки</th>
-                        <th class="{ sorter: false }">Заказы по заявкам</th>
-                        <th class="{ sorter: false }">Заказы без заявок</th>
-                        <th class="{ sorter: false }">Общее кол-во заказов</th>
-                        <th class="{ sorter: false }">Кол-во оплат</th>
-                        <th class="{ sorter: false }">Создано на сумму</th>
-                        <th class="{ sorter: false }">Сумма</th>
-                        <th class="{ sorter: false }">Ср. чек</th>
+                        <th class="{ sorter: false }">' . l('Показы') . '</th>
+                        <th class="{ sorter: false }">' . l('Клики') . '</th>
+                        <th class="{ sorter: false }">' . l('CTR') . '</th>
+                        <th class="{ sorter: false }">' . l('Просмотры') . '</th>
+                        <th class="{ sorter: false }">' . l('Новые пользователи') . '</th>
+                        <th class="{ sorter: false }">' . l('Новые пользователи %') . '</th>
+                        <th class="{ sorter: false }">' . l('% отказа н.п.') . '</th>
+                        <th class="{ sorter: false }">' . l('Звонки.') . '</th>
+                        <th class="{ sorter: false }">' . l('Заявки') . '</th>
+                        <th class="{ sorter: false }">' . l('Заказы по заявкам') . '</th>
+                        <th class="{ sorter: false }">' . l('Заказы без заявок') . '</th>
+                        <th class="{ sorter: false }">' . l('Общее кол-во заказов') . '</th>
+                        <th class="{ sorter: false }">' . l('Кол-во оплат') . '</th>
+                        <th class="{ sorter: false }">' . l('Создано на сумму') . '</th>
+                        <th class="{ sorter: false }">' . l('Сумма') . '</th>
+                        <th class="{ sorter: false }">' . l('Ср. чек') . '</th>
                         <th class="{ sorter: false }">CPO</th>
                         <th class="{ sorter: false }">ROI</th>
                     </tr>
@@ -81,7 +81,7 @@ class statistics
                             <div class="message">
                                 <div class="alert alert-block">
                                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                    <h4>Пусто!</h4>
+                                    <h4>' . l('Пусто') . '!</h4>
                                 </div>
                             </div>
                         </td>

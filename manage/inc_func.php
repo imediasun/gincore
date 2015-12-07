@@ -687,15 +687,15 @@ function page_block($count_page, $hash = '', $a_url = null)
             }
         }
         if ( (isset($_GET['p']) && $_GET['p']==1) || !isset($_GET['p']) ) {
-            $page = '<li class="disabled"><a href="?p=1' . $url .'">« Предыдущая</a></li>' . $page .
-                '<li><a href="?p=2' . $url . '">Следующая »</a></li>';
+            $page = '<li class="disabled"><a href="?p=1' . $url .'">« ' . l('Предыдущая') . '</a></li>' . $page .
+                '<li><a href="?p=2' . $url . '">' . l('Следующая') . ' »</a></li>';
         } else {
             if ( $count_page == $_GET['p'] ) {
-                $page = '<li><a href="?p=' . ($_GET['p']-1) . $url . '">« Предыдущая</a></li>' . $page .
-                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">Следующая »</a></li>';
+                $page = '<li><a href="?p=' . ($_GET['p']-1) . $url . '">« ' . l('Предыдущая') . '</a></li>' . $page .
+                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">' . l('Следующая') . ' »</a></li>';
             } else {
-                $page = '<li><a href="?p='.($_GET['p']-1).'">« Предыдущая</a></li>' . $page .
-                    '<li><a href="?p=' . ($_GET['p']+1) . $url . '">Следующая »</a></li>';
+                $page = '<li><a href="?p='.($_GET['p']-1).'">« ' . l('Предыдущая') . '</a></li>' . $page .
+                    '<li><a href="?p=' . ($_GET['p']+1) . $url . '">' . l('Следующая') . ' »</a></li>';
             }
         }
     }
