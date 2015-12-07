@@ -663,7 +663,7 @@ class Suppliers
             if ($order) {
                 $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="'.l('Сохранить').'" />';
 
-                $data['content'] = '<h6>Ремонты ожидающие данную запчасть</h6>';
+                $data['content'] = '<h6>' . l('Ремонты ожидающие данную запчасть') . '</h6>';
                 $data['content'] .= '<form id="form-orders-links" method="post">';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
 
@@ -680,7 +680,7 @@ class Suppliers
                             <input class="clone_clear_val form-control" type="text" value="' . $co_id . '" name="so_co[]">
                             '.($co_id ? '
                                 <span class="input-group-addon">
-                                    <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">перейти в заказ клиента</a>
+                                    <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">' . l('перейти в заказ клиента') . '</a>
                                 </span>' 
                               : '').'
                         </div>
@@ -1019,7 +1019,7 @@ class Suppliers
                 $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>';
             }
         } else {
-            $goods_html .= '<p  class="text-danger">Нет поставщиков</p>';
+            $goods_html .= '<p  class="text-danger">' . l('Нет поставщиков') . '</p>';
         }
 
         $goods_html .= '
@@ -2892,7 +2892,7 @@ class Suppliers
             $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/ array_fill_keys(array_keys($currencies), '');
             foreach ($transactions as $transaction_id=>$transaction) {
                 //$sum = 'Неизвестный перевод';
-                $cashbox_info = 'Неизвестная операция';
+                $cashbox_info = l('Неизвестная операция');
                 $exp = $inc = 0;
 
                 // без группировки

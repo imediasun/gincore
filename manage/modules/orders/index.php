@@ -668,13 +668,13 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>Стоимость</td><td>' . l('Оплачено') . '</td>';
+                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
             }
-            $orders_html .= '<td>Клиент</td><td>Контактный тел</td>';
-            $orders_html .= '<td>Сроки</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
+            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
+            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
 
             foreach ($orders as $order) {
                 $orders_html .= display_client_order($order);
@@ -711,10 +711,10 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>Стоимость</td><td>' . l('Оплачено') . '</td>';
+                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
             }
             $orders_html .= '<td>Клиент</td><td>Контактный тел</td>';
             $orders_html .= '<td>Сроки</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
@@ -755,13 +755,13 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>Стоимость</td><td>' . l('Оплачено') . '</td>';
+                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
             }
-            $orders_html .= '<td>Клиент</td><td>Контактный тел</td>';
-            $orders_html .= '<td>Сроки</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
+            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
+            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
 
             foreach ($orders as $order) {
                 $orders_html .= display_client_order($order);
@@ -930,7 +930,7 @@ class orders
                                             </div>
                                             <!--<div class="form-group">
                                                 <label>Партнерская программа: </label>
-                                                <select class="form-control" name="partner"><option value="0">Выберите</option>
+                                                <select class="form-control" name="partner"><option value="0">' . l('Выберите') . '</option>
                                                 </select>
                                             </div>-->
                                             <div class="form-group">
@@ -1563,9 +1563,9 @@ class orders
                     }
                 }
 
-                $orders_html .= '<table class="table" id="tablesorter"><thead><tr><th>Наименование</th><th>Общ.ост.</th><th>Своб.ост.</th>';
-                $orders_html .= '<th>Ожид.пост.(общ.)</th><th>Ожид.пост.(своб.)</th><th>Расход (шт/мес)</th>';
-                $orders_html .= '<th>Спрос (шт/мес)</th><th>Прогноз</th><th>Рекомендовано еще к заказу</th></tr></thead><tbody>';
+                $orders_html .= '<table class="table" id="tablesorter"><thead><tr><th>Наименование</th><th>Общ.ост.</th><th>' . l('Своб.ост.') . '</th>';
+                $orders_html .= '<th>' . l('Ожид.пост.(общ.)') . '</th><th>' . l('Ожид.пост.(своб.)') . '</th><th>' . l('Расход (шт/мес)') . '</th>';
+                $orders_html .= '<th>' . l('Спрос (шт/мес)') . '</th><th>' . l('Прогноз') . '</th><th>' . l('Рекомендовано еще к заказу') . '</th></tr></thead><tbody>';
                 $href = $cfg['prefix'] . 'products/create/';
                 foreach ($amounts as $p_id=>$amount) {
                     $orders_html .= '<tr><td><a href="' . $href . $p_id . '">' . htmlspecialchars($amount['title']) . '</a></td>';
@@ -1769,13 +1769,13 @@ class orders
                     $days_stats = $all_stats_html = '(нет статистики за выбранный период)';
                 }
                 $filter_stats = '
-                    Средняя статистика за период '.$get_date.'. <br>
-                    Cуммируются проценты по дням и делятся на количество дней у которых есть статистика, по каждому статусу отдельно.<br>
+                    ' . l('Средняя статистика за период') . ' '.$get_date.'. <br>
+                    ' . l('Cуммируются проценты по дням и делятся на количество дней у которых есть статистика, по каждому статусу отдельно.') . '<br>
                     <div style="margin-top:5px">
                         '.$all_stats_html.'
                     </div>
                     <br>
-                    Статистика по дням:<br>
+                    ' . l('Статистика по дням') . ':<br>
                     '.$days_stats.'
                 ';
                 $orders = null;
@@ -1802,7 +1802,7 @@ class orders
                     }
                     $filter_stats = $this->gen_orders_manager_stats($colors_count).' <br>';
                 }else{
-                    $manager_block = '<p>Заказов нет</p>';
+                    $manager_block = '<p>' . l('Заказов нет') . '</p>';
                 }
             }
             // -- фильтры
@@ -1892,12 +1892,12 @@ class orders
                 $accept_data = '';
                 
                 if ($product['unavailable'] == 1) {
-                    $msg = 'Запчасть не доступна к заказу ' . $muted . '';
+                    $msg =  l('Запчасть не доступна к заказу') . ' ' . $muted . '';
                 }elseif($product['count_debit'] > 0) {
                     $avail_bind = true;
                     $bind_action = 'bind_product(this,'.$product['goods_id'].')';
-                    $msg = 'Ожидание отгрузки запчасти
-                            <span title="' . do_nice_date($product['date_debit'], false) . '">' . 
+                    $msg = l('Ожидание отгрузки запчасти') . 
+                    '<span title="' . do_nice_date($product['date_debit'], false) . '">' . 
                             do_nice_date($product['date_debit']) . '</span> ' . 
                             $muted . '';
                 }elseif($product['count_come'] > 0) {
@@ -1951,17 +1951,17 @@ class orders
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
                                         <a data-alert_box_not_disabled="true" class="'.(!$avail_create || !$create_role ? 'text-muted' : '').'" onclick="'.($create_role ? $create_action : $role_alert).';return false;">
-                                            <i class="fa fa-pencil"></i> Создать заказ поставщику
+                                            <i class="fa fa-pencil"></i> ' . l('Создать заказ поставщику') . '
                                         </a>
                                     </li>
                                     <li>
                                         <a data-alert_box_not_disabled="true" '.$accept_data.' class="'.(!$avail_accept || !$accept_role ? 'text-muted' : '').'" onclick="'.($accept_role ? $accept_action : $role_alert).';return false;">
-                                            <i class="fa fa-wrench"></i> Принять и оприходовать заказ
+                                            <i class="fa fa-wrench"></i> ' . l('Принять и оприходовать заказ') . '
                                         </a>
                                     </li>
                                     <li>
                                         <a data-alert_box_not_disabled="true" class="'.(!$avail_bind || !$bind_role ? 'text-muted' : '').'" onclick="'.($bind_role ? $bind_action : $role_alert).';return false;">
-                                            <i class="fa fa-random"></i> Отгрузить деталь под ремонт
+                                            <i class="fa fa-random"></i> ' . l('Отгрузить деталь под ремонт') . '
                                         </a>
                                     </li>
                                 </ul>
@@ -2044,7 +2044,7 @@ class orders
             $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
             $accepted .= $order['np_accept'] == 1 ? 
                             '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
-                            '<i style="color:' . $color . ';" title="Принято в сервисном центре" class="' . htmlspecialchars($order['icon']) . '"></i> ';
+                            '<i style="color:' . $color . ';" title="' . l('Принято в сервисном центре') . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
             $accepted .= $order['aw_title'].' ';
             
             $order_html .= '
@@ -2370,7 +2370,7 @@ class orders
             $order_html .= $public_html . $private_html;
             $order_html .= '</div>';
 
-            $order_html .= '<div class="well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>Стоимость</td>
+            $order_html .= '<div class="well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>' . l('Стоимость') . '</td>
             $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
             $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>' . l('Наименование') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
@@ -2483,7 +2483,7 @@ class orders
         $btn = '';
         if($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')){
             $btn = '
-                <input class="btn btn-xs" type="button" value="Отвязать" onclick="alert_box(this,null,\'bind-move-item-form\',{object_id:'.$item_id.'},null,\'warehouses/ajax/\')">
+                <input class="btn btn-xs" type="button" value="' . l('Отвязать') . '" onclick="alert_box(this,null,\'bind-move-item-form\',{object_id:'.$item_id.'},null,\'warehouses/ajax/\')">
             ';
         }
         return $btn;
@@ -2541,7 +2541,7 @@ class orders
         // история статусов заказа
         if ($act == 'order-statuses') {
             $data['state'] = true;
-            $data['content'] = 'Истоия изменения статусов не найдена';
+            $data['content'] = l('История изменения статусов не найдена');
             $statuses = $this->all_configs['db']->query('SELECT s.status, s.date, u.* FROM {order_status} as s
                 LEFT JOIN {users} as u ON u.id=s.user_id WHERE s.order_id=?i ORDER BY `date` DESC',
                 array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
@@ -2669,7 +2669,7 @@ class orders
                 $data['content'] .= '<div class="form-group"><label>' . l('Номер телефона') . ': </label><div class="controls">';
                 $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
                 $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Текст') . ': </label><div class="controls">';
-                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' готов. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '.viewCurrency().'</textarea></div></div>';
+                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' готов. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '. l(viewCurrency()) .'</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';
@@ -2963,12 +2963,12 @@ class orders
             $orders_html .= typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'input-xlarge', 'input-medium') . '</div></div>';
            */
             $data['content'] = '<form id="form-create-client" method="post">';
-            $data['content'] .= '<div class="form-group"><label>Электронная почта: </label>';
-            $data['content'] .= '<input type="text" class="form-control" name="email" value="" placeholder="Электронная почта" /></div>';
-            $data['content'] .= '<div class="form-group"><label class="control-label">Ф.И.О: </label>';
-            $data['content'] .= '<input class="form-control" type="text" name="fio" value="" placeholder="Ф.И.О" /></div>';
+            $data['content'] .= '<div class="form-group"><label>' . l('Электронная почта') . ': </label>';
+            $data['content'] .= '<input type="text" class="form-control" name="email" value="" placeholder="' . l('Электронная почта') . '" /></div>';
+            $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Ф.И.О') . ': </label>';
+            $data['content'] .= '<input class="form-control" type="text" name="fio" value="" placeholder="' . l('Ф.И.О') . '" /></div>';
             $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Телефон') . ': </label>';
-            $data['content'] .= '<input class="form-control" type="text" name="phone" value="" placeholder="Телефон" /></div>';
+            $data['content'] .= '<input class="form-control" type="text" name="phone" value="" placeholder="' . l('Телефон') . '" /></div>';
             $data['content'] .= '</form>';
             $data['btns'] = '<input class="btn btn-success" onclick="create_client(this)" type="button" value="' . l('Создать') . '" />';
         }
@@ -2977,7 +2977,7 @@ class orders
         if ($act =='add_user') {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
+                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
                 exit;
             }
 
@@ -2995,7 +2995,7 @@ class orders
         // важная информация при добавлении устройства в новый заказ на ремонт
         if ($act == 'service-information') {
             $data['state'] = true;
-            $data['title'] = 'Важная информация';
+            $data['title'] = l('Важная информация');
 //            $data['content'] = trim($this->all_configs['settings']['service-page-information']);
             $data['content'] = '';
 
@@ -3016,7 +3016,7 @@ class orders
                 $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET date_checked=NOW() WHERE id=?i',
                     array(intval($_POST['item_id'])));
             } else {
-                $data['msg'] = 'Изделие не найдено';
+                $data['msg'] = l('Изделие не найдено');
             }
         }
 
@@ -3073,12 +3073,12 @@ class orders
 
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
+                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
                 exit;
             }
             if ( !isset($_POST['user_id']) || $_POST['user_id'] < 1 || !isset($_POST['order_id']) || $_POST['order_id'] < 1 ) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Такого клиента не существует', 'error'=>true));
+                echo json_encode(array('message' => l('Такого клиента не существует'), 'error'=>true));
                 exit;
             }
 
@@ -3090,7 +3090,7 @@ class orders
 
             if ( !$u || !$o || $u['email'] != $o['email'] ) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Такого клиента не существует', 'error'=>true));
+                echo json_encode(array('message' => l('Такого клиента не существует'), 'error'=>true));
                 exit;
             }
             $this->all_configs['db']->query('UPDATE {orders} SET user_id=?i WHERE id=?i', array($_POST['user_id'], $_POST['order_id']));

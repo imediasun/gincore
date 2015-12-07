@@ -82,7 +82,7 @@ class forms{
         $content = file_get_contents($this->all_configs['sitepath'] . 'ajax_forms.php');
         preg_match_all("/function {1,}ajax_forms_([a-zA-z0-9]+)/", $content, $matches);// {1,}\(.*\)
         if (count($matches) == 2 && isset($matches[1])) {
-            $html .= '<div class="form-group"><label>Функция:</label><select name="function" class="form-control"><option value="">Выберите</option>';
+            $html .= '<div class="form-group"><label>Функция:</label><select name="function" class="form-control"><option value="">' . l('Выберите') . '</option>';
             foreach ($matches[1] as $func) {
                 $checked = ($form && $form['function'] == 'ajax_forms_' . trim($func) ? 'selected' : '');
                 $html .= '<option ' . $checked . ' value="ajax_forms_' . trim($func) . '">' . $func . '</option>';

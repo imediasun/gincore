@@ -36,12 +36,12 @@ class sms extends \service{
     }
     public function get_form($type){
         $templates = $this->get_templates($this->sms_types[$type]);
-        $templates_options = '<option disabled selected>Выберите</option>';
+        $templates_options = '<option disabled selected>' . l('Выберите') . '</option>';
         foreach($templates as $template){
             $templates_options .= '<option data-body="'.htmlspecialchars($template['body']).'" value="'.$template['id'].'">'.htmlspecialchars($template['body']).' ('.$template['lang'].')</option>';
         }
         $senders = $this->get_seneders($this->sms_types[$type]);
-        $senders_options = '<option disabled selected>Выберите</option>';
+        $senders_options = '<option disabled selected>' . l('Выберите') . '</option>';
         foreach($senders as $sender){
             $senders_options .= '<option value="'.$sender['id'].'">'.htmlspecialchars($sender['sender']).'</option>';
         }
@@ -66,11 +66,11 @@ class sms extends \service{
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Телефон</label>
+                                    <label>' . l('Телефон') . '</label>
                                     <input id="sms_phone" type="text" class="form-control" name="phone">
                                 </div>
                                 <div class="form-group">
-                                    <label>Шаблон</label>
+                                    <label>' . l('Шаблон') . '</label>
                                     <select class="form-control" id="sms_template_select" name="template_id">
                                         '.$templates_options.'
                                     </select>
@@ -78,7 +78,7 @@ class sms extends \service{
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Отправить</button>
+                                <button type="submit" class="btn btn-primary">' . l('Отправить') . '</button>
                             </div>
                         </form>
                     </div>

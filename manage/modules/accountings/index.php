@@ -911,7 +911,7 @@ class accountings
             $out .= '<div class="form-group"><label>' . l('ФИО') . ': </label>';
             $out .= '<input placeholder="' . l('введите ФИО контрагента') . '" class="input-contractor form-control" name="title" value="' . $name . '" />';
             $out .= '</div><div class="form-group"><label>' . l('Комментарий') . ': </label>';
-            $out .= '<textarea class="form-control" name="comment" placeholder="введите комментарий к контрагенту">' . $comment . '</textarea>';
+            $out .= '<textarea class="form-control" name="comment" placeholder="' . l('введите комментарий к контрагенту') . '">' . $comment . '</textarea>';
             $out .= '';
             if ($contractor) {
                 if($contractor['comment'] == 'system'){
@@ -948,11 +948,11 @@ class accountings
             }else{
                 $out .= '
                     <div class="form-group">
-                        <label>Телефон</label>
+                        <label>' . l('Телефон') . '</label>
                         <input type="text" name="phone" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Эл. адрес</label>
+                        <label>' . l('Эл. адрес') . '</label>
                         <input type="text" name="email" class="form-control">
                     </div>
                 ';
@@ -990,7 +990,7 @@ class accountings
         if ($contractor_category) {
             $code_1c = htmlspecialchars($contractor_category['code_1c']);
             $name = htmlspecialchars($contractor_category['name']);
-            $category_html = "<select class='multiselect' name='parent_id'><option value=''>Высшая</option>";
+            $category_html = "<select class='multiselect' name='parent_id'><option value=''>" . l('Высшая') . "</option>";
             $categories = $this->get_contractors_categories($type);
             $category_html .= build_array_tree($categories, $contractor_category['parent_id']) . "</select>";
             /*if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -1006,7 +1006,7 @@ class accountings
             $id_html .= "<input type='hidden' name='contractor_category-id' value='{$contractor_category['id']}' />";
 
         } else {
-            $category_html = "<select class='multiselect' name='parent_id'><option value=''>Высшая</option>";
+            $category_html = "<select class='multiselect' name='parent_id'><option value=''>" . l('Высшая') . "</option>";
             $categories = $this->get_contractors_categories($type);
             $category_html .= build_array_tree($categories) . "</select>";
             $name = '';
@@ -1024,17 +1024,17 @@ class accountings
 
                 {$id_html}
 
-                <div class='form-group'><label>Статья: </label>
-                    <input class='form-control' placeholder='введите название статьи' name='title' value='{$name}' /></div></div>
-                <div class='form-group'><label>Родительская статья: </label>
+                <div class='form-group'><label>" . l('Статья') . ": </label>
+                    <input class='form-control' placeholder='" . l('введите название статьи') . "' name='title' value='{$name}' /></div></div>
+                <div class='form-group'><label>" . l('Родительская статья') . ": </label>
                     {$category_html}</div></div>
                 <!--<div class='form-group'><label>Код 1с: </label>
                     <input class='form-control' placeholder='введите код 1с статьи' name='code_1c' value='{$code_1c}' /></div></div>
                 -->
-                <div class='form-group'><label>' . l('Комментарий') . ': </label><div class='controls'>
-                    <textarea class='form-control' name='comment' placeholder='введите комментарий к статье'>{$comment}</textarea></div></div>
+                <div class='form-group'><label>" . l('Комментарий') . ": </label><div class='controls'>
+                    <textarea class='form-control' name='comment' placeholder='" . l('введите комментарий к статье') . "'>{$comment}</textarea></div></div>
                 <div class='form-group'>
-                    <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />Отображать</label></div></div>
+                    <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />" . l('Отображать') . "</label></div></div>
 
             </form>";
 
@@ -1312,7 +1312,7 @@ class accountings
         if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3'
             || $act == 'begin-transaction-1-co' || $act == 'begin-transaction-2-co'
             || $act == 'begin-transaction-1-so' || $act == 'begin-transaction-2-so') {
-            $btn = 'Сохранить';
+            $btn = l('Сохранить');
             // тип транзакции
             $tt = intval(preg_replace("/[^0-9]/", "", $act));
             // сегодня
@@ -1437,9 +1437,9 @@ class accountings
 
             // категории для транзакции
             $categories = $this->get_contractors_categories(1);
-            $select_contractors_categories_to = "<option value=''>Выберите</option>" . build_array_tree($categories, $ccg_id) . "</select>";
+            $select_contractors_categories_to = "<option value=''>" . l('Выберите') . "</option>" . build_array_tree($categories, $ccg_id) . "</select>";
             $categories = $this->get_contractors_categories(2);
-            $select_contractors_categories_from = "<option value=''>Выберите</option>" . build_array_tree($categories, $ccg_id) . "</select>";
+            $select_contractors_categories_from = "<option value=''>" . l('Выберите') . "</option>" . build_array_tree($categories, $ccg_id) . "</select>";
 
             $cashbox_id = array_key_exists('object_id', $_POST) && $_POST['object_id'] > 0 ? $_POST['object_id'] : $selected_cashbox;
             // валюта
@@ -1458,10 +1458,10 @@ class accountings
             //$data['content'] .= '<button class="btn ' . ($tt == 3 ? 'active' : '') . '">' . l('Перемещение') .'</button></div>';
 
             $data['content'] .= '<div id="transaction_form_body" class="hide-conversion-3 transaction_type-' . $tt . ' ' . $fc . '">';
-            $data['content'] .= '<table><thead><tr><td></td><td></td><td>' . l('Сумма') . '</td><td>Валюта</td>';
+            $data['content'] .= '<table><thead><tr><td></td><td></td><td>' . l('Сумма') . '</td><td>' . l('Валюта') . '</td>';
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span>Курс</span></td><td class="hide-not-tt-1 hide-not-tt-2"></td></tr></thead><tbody>';
             //* С кассы 1 3
-            $data['content'] .= '<tr class="hide-not-tt-2"><td>*&nbsp;С&nbsp;кассы</td>';
+            $data['content'] .= '<tr class="hide-not-tt-2"><td>* ' . l('С кассы') . '</td>';
             $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control input-sm cashbox-1">' . $select_cashbox . '</select></td>';
             $data['content'] .= '<td><input ' . $daf . ' class="form-control input-sm" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
             $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
@@ -1474,7 +1474,7 @@ class accountings
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-1" style="width:80px" onchange="' . $onchange . '" class="form-control input-mini" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_from"/></span></td>';
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>Прямой</small><br /><small id="conversion-course-db-1">1.0000</small></span></td></tr>';
             //* В кассу 2 3
-            $data['content'] .= '<tr class="hide-not-tt-1"><td>* В кассу</td>';
+            $data['content'] .= '<tr class="hide-not-tt-1"><td>* ' . l('В кассу') . '</td>';
             $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="form-control input-sm cashbox-2">' . $select_cashbox . '</select></td>';
             $onchange = '
                 if ($(\'#amount-1\').val() > 0 && $(\'#amount-2\').val() > 0) {
@@ -1499,19 +1499,19 @@ class accountings
             $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>Обратный</small><br /><small id="conversion-course-db-2">1.0000</small></span></td></tr>';
             if ($co_id == 0) {
                 //* Статья 1
-                $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* Статья</td>';
+                $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
                 $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
                 $data['content'] .= $select_contractors_categories_to . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
                 $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
                 //* Статья 2
-                $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* Статья</td>';
+                $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
                 $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
                 $data['content'] .= $select_contractors_categories_from . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
                 $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
                 //* Контрагент 1 2
-                $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;Контрагент</td>';
+                $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
                 $data['content'] .= '<td><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id">' . $select_contractors . '</select>';
                 $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
                 $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
@@ -1529,13 +1529,13 @@ class accountings
                             this.checked=false;
                         }
                     }';
-                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>Без внесения на баланс</label></div></td></tr>';
+                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>' . l('Без внесения на баланс') . '</label></div></td></tr>';
                 // Без списания c баланса 2
                 $content = '(Птичку ставим - когда поступление денежных средств не связано с приобретением или возвратом оборотных активов)';
                 $js = 'if (this.checked) { if (!confirm(\'Не списывать у контрагента с баланса?\')) { this.checked=false; } }';
                 $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td colspan="2">';
                 $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
-                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>Без списания с баланса</label></div></td></tr>';
+                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>' . l('Без списания с баланса') . '</label></div></td></tr>';
             }
             // Списать с баланса контрагента (заказ клиента)
             if ($co_id > 0 && ($tt == 1 || $tt == 2) && $client_contractor > 0) {//TODO have contractor
@@ -1555,7 +1555,7 @@ class accountings
             // только обычные транзакции или выдача за заказ клиента
             if ($act == 'begin-transaction-1-co' || $act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
                 // Примечание 1 2 3
-                $data['content'] .= '<tr><td colspan="2"><textarea class="form-control input-sm" name="comment" placeholder="примечание"></textarea></td>';
+                $data['content'] .= '<tr><td colspan="2"><textarea class="form-control input-sm" name="comment" placeholder="' . l('примечание') .'"></textarea></td>';
                 // только обычные транзакции
                 if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
                     //$data['content'] .= '<td colspan="4" class="center"><input type="text" name="date_transaction" class="input-small date-pickmeup" data-pmu-format="d.m.Y" value="' . $today .'" /></td>';

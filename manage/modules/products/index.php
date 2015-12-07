@@ -91,7 +91,7 @@ class products
             $select_group = '';
             if ($this->all_configs['configs']['group-goods']) {
                 $select_group = '<select class="input-small" name="image_group_id[' . $image['id'] . ']">';
-                $select_group .= '<option value="">Выберите</option>';
+                $select_group .= '<option value="">' . l('Выберите') . '</option>';
                 $select_group .= '</select>';
             }
             $path_parts = full_pathinfo($image['image']);
@@ -572,7 +572,7 @@ class products
         //$categories = $this->get_categories();
         // строим форму добавления нового товара
         // основные описания
-        $goods_html = '<'.$attr.' class="backgroud-white p-sm"><fieldset><legend>Добавление нового товара/услуги:</legend>';
+        $goods_html = '<'.$attr.' class="backgroud-white p-sm"><fieldset><legend>' . l('Добавление нового товара/услуги') . ':</legend>';
         if (is_array($this->errors) && array_key_exists('error', $this->errors)) {
             $goods_html .= '<div class="alert alert-danger fade in">';
             $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>';
@@ -610,7 +610,7 @@ class products
 
         if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
             $goods_html .= '<div class="form-group"><label class="control-label">Цена ('.viewCurrencySuppliers('shortName').'): </label>
-                            <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="введите цену" class="form-control" name="price" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('price', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
+                            <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="' . l('введите цену') . '" class="form-control" name="price" value="' . ((array_key_exists('post', $this->errors) && array_key_exists('price', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
         }
         $goods_html .= '<div class="form-group"><div class="checkbox">
                         <label class=""><input name="avail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('avail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">' . l('Активность') . '</label></div></div>';
@@ -643,7 +643,7 @@ class products
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input name="type" value="1" type="checkbox"> Услуга
+                        <input name="type" value="1" type="checkbox"> ' . l('Услуга') . '
                     </label>
                 </div>
             </div>';
@@ -1648,7 +1648,7 @@ class products
                         WHERE category_id IN (?li) GROUP BY name', array(array_keys($product_categories)))->assoc();
                 }
 
-                $data['content'] .= '<select id="goods_section_name"><option value="">Выберите</option>';
+                $data['content'] .= '<select id="goods_section_name"><option value="">' . l('Выберите') . '</option>';
                 if (is_array($sections)) {
                     foreach ($sections as $section) {
                         $data['content'] .= '<option value="' . htmlspecialchars($section['name']) . '">' . htmlspecialchars($section['name']) . '</option>';
@@ -2261,7 +2261,7 @@ class products
                 if ($product['type'] == 1)
                     $checked = 'checked';
                 $goods_html .= '<div class="form-group"><div class="checkbox">';
-                $goods_html .= '<label><input name="type" ' . $checked . ' type="checkbox">Услуга</label></div></div>';
+                $goods_html .= '<label><input name="type" ' . $checked . ' type="checkbox">' . l('Услуга') . '</label></div></div>';
                 $goods_html .= '<div class="form-group"><label>' . l('Категории') . ': </label>';
                 $goods_html .= '';
                 $goods_html .= '<select class="multiselect form-control" multiple="multiple" name="categories[]">';
@@ -2527,7 +2527,7 @@ class products
 
             $goods_html .= '<ul class="nav nav-pills">';
             $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_notices" onclick="click_tab(this, event)" href="#omt-notices" title="Уведомления">Уведомления</a></li>';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_procurement" onclick="click_tab(this, event)" href="#omt-procurement" title="Управление закупками">Упр. закупками</a></li>';
+            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_procurement" onclick="click_tab(this, event)" href="#omt-procurement" title="' . l('Управление закупками') . '">Упр. закупками</a></li>';
             $goods_html .= '</ul><div class="pill-content">';
 
             $goods_html .= '<div id="omt-notices" class="pill-pane">';
@@ -2563,7 +2563,7 @@ class products
             $balance = '';
             if ($user && $user['balance'] > 0) $balance = $user['balance'];
             $goods_html .= '<div class="form-group"><label class="checkbox-inline"><input ' . $checked . ' type="checkbox" name="by_balance" /> уведомлять меня об остатке</label>
-                        <div class="input-group"><input placeholder="количество товаров" value="' . $balance . '" type="text" class="form-control" onkeydown="return isNumberKey(event)" name="balance" /><div class="input-group-addon">или менее единиц.</div></div>';
+                        <div class="input-group"><input placeholder="' . l('количество товаров') . '" value="' . $balance . '" type="text" class="form-control" onkeydown="return isNumberKey(event)" name="balance" /><div class="input-group-addon">' . l('или менее единиц.') . '</div></div>';
             //$checked = '';
             //if ($user && $user['by_critical_balance'] == 1) $checked = 'checked';
             //$critical_balance = '';
@@ -2646,11 +2646,11 @@ class products
                         }
                     }
                     $goods_html .= '</select>';
-                    $goods_html .= '<input type="button" onclick="add_cat(this, \'' . $m_id . '\')" class="btn add-cat" value="Добавить категорию +" /></div></div><br><br><br>';
+                    $goods_html .= '<input type="button" onclick="add_cat(this, \'' . $m_id . '\')" class="btn add-cat" value="' . l('Добавить категорию') . ' +" /></div></div><br><br><br>';
                 }
 
             } else {
-                $goods_html .= '<p class="text-error">Нет ни одного магазина в базе данных</p>';
+                $goods_html .= '<p class="text-error">' . l('Нет ни одного магазина в базе данных') . '</p>';
             }
             $goods_html .= $this->btn_save_product('omt_aggregators');
         }
@@ -2677,20 +2677,20 @@ class products
 
                 $goods_html .= '<form method="post">';
                 $goods_html .= '<div class="form-group"><label>Розничная цена ('.viewCurrencySuppliers('shortName').'): </label>';
-                $goods_html .= '<input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="цена" class="form-control" name="price" value="' . number_format($product['price'] / 100, 2, '.', '') . '" /></div>';
+                $goods_html .= '<input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="' . l('цена') . '" class="form-control" name="price" value="' . number_format($product['price'] / 100, 2, '.', '') . '" /></div>';
                 $disabled_row = '';
                 if (!$this->all_configs['oRole']->hasPrivilege('external-marketing') || $this->all_configs['configs']['onec-use'] == true || $this->all_configs['configs']['erp-use'] == true)
                     $disabled_row = 'disabled';
 
                 if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
                     && $this->all_configs['configs']['use-goods-old-price'] == true) {
-                    $goods_html .= '<div class="form-group"><label>Старая цена ('.viewCurrencySuppliers('shortName').'): </label>';
+                    $goods_html .= '<div class="form-group"><label>' . l('Старая цена') . ' ('.viewCurrencySuppliers('shortName').'): </label>';
                     $goods_html .= '<input placeholder="старая цена" ' . $disabled_row;
                     $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="old_price" value="';
                     $goods_html .= number_format($product['old_price'] / 100, 2, '.', '') . '" /></div>';
                 }
-                $goods_html .= '<div class="form-group"><label>Закупочная цена последней партии ('.viewCurrencySuppliers('shortName').'): </label>';
-                $goods_html .= '<input placeholder="закупочная цена" ' . $disabled_row;
+                $goods_html .= '<div class="form-group"><label>' . l('Закупочная цена последней партии') . ' ('.viewCurrencySuppliers('shortName').'): </label>';
+                $goods_html .= '<input placeholder="' . l('закупочная цена') . '" ' . $disabled_row;
                 $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_purchase" value="';
                 $goods_html .= number_format($product['price_purchase'] / 100, 2, '.', '') . '" /></div>';
                 $goods_html .= '<div class="form-group"><label>Оптовая цена ('.viewCurrencySuppliers('shortName').'): </label>';
