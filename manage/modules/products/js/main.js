@@ -25,11 +25,11 @@ function init_mce() {
         theme_advanced_statusbar_location: "bottom",
         theme_advanced_resizing: true,
 
-        table_styles: 'Огромная таблица(по ширине)=table_break_words',
+        table_styles: L['huge-table'] +'(' + L['width'] + ')=table_break_words',
 
         extended_valid_elements: "object[width|height|param|embed],param[name|value],embed[src|type|width|height|allowscriptaccess|allowfullscreen],li[class|rel|id],div[class|rel|id|style],nobr", setup: function (ed) {
             ed.addButton('mybutton', {
-                title: 'Вставить галерею',
+                title: L['insert-gallery'],
                 image: prefix + 'modules/map/img/dnld.png',
                 onclick: function () {
                     ed.focus();
@@ -63,8 +63,8 @@ function createCookie(name, value, days) {
 
 function tiny_mce() {
     var checkbox = $('.toggle_mce').iphoneStyle({
-        checkedLabel: 'Вкл.',
-        uncheckedLabel: 'Выкл.',
+        checkedLabel: L['on'],
+        uncheckedLabel: L['off'],
         onChange: function (checkbox, state) {
             if (state) {
                 createCookie('mce_on', 1, 300);
@@ -248,8 +248,8 @@ if ($("#file-uploader")[0]) {
                 document.getElementById('goods_images').innerHTML += '<p><img class="img-polaroid" width="50px" title="" ' +
                     'src="' + siteprefix + 'shop/images/' + pid + '/' + responseJSON.filename + '" /> ' +
                     '<input class="span4 " placeholder="title" value="" name="images_title[' + responseJSON.img_id + ']" /> ' +
-                    '<input class="span2" onkeydown="return isNumberKey(event)" placeholder="приоритет " name="image_prio[' + responseJSON.img_id + ']" value="" />' +
-                    ' <input type="checkbox" name="images_del[' + responseJSON.img_id + ']" value="' + responseJSON.filename + '" /> удалить</p>';
+                    '<input class="span2" onkeydown="return isNumberKey(event)" placeholder="' + L['priority'] + '" name="image_prio[' + responseJSON.img_id + ']" value="" />' +
+                    ' <input type="checkbox" name="images_del[' + responseJSON.img_id + ']" value="' + responseJSON.filename + '" /> ' + L['delete'] + '</p>';
                 //$("#picture").val(fileName).change();
                 //$("#current_picture").attr('src', siteprefix+'images/'+$("#sel_gallery").val()+'/'+fileName);
             }
@@ -440,8 +440,8 @@ function goods_section(_this, del) {
 function checkLength( o, n, min, max ) {
     if ( o.val().length > max || o.val().length < min ) {
         o.addClass( "ui-state-error" );
-        updateTips( "Длина \"" + n + "\" должно быть не менее " +
-            min + " и не более " + max + " символов." );
+        updateTips( L['length'] +  " \"" + n + "\"  " + L['should-be-at-least'] +
+            min + L["and-no-more-than"] + max + " " + L['characters'] + "." );
         return false;
     } else {
         return true;
