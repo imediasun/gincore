@@ -28,55 +28,55 @@ class wrapper{
         global $dbcfg;
         $conf = array(
             $dbcfg['_prefix'].'reviews' => array(
-                'settings' => array('name' => 'Отзывы'),
+                'settings' => array('name' => l('Отзывы')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'uxt' => array('0', '1', 'Дата поста', ''),
-                    'user' => array('0', '0', 'Автор', ''),
+                    'uxt' => array('0', '1', l('Дата поста'), ''),
+                    'user' => array('0', '0', l('Автор'), ''),
                     'email' => array('0', '0', 'email', ''),
-                    'comment' => array('0', '0', 'Отзыв', ''),
-                    'mark' => array('0', '0', '"Оценка" (1&nbsp;отлично - 5&nbsp;ужасно)', '1'),
+                    'comment' => array('0', '0', l('Отзыв'), ''),
+                    'mark' => array('0', '0', '"' . l('Оценка') .'" (1&nbsp;' . l('отлично') .' - 5&nbsp;' . l('ужасно') .')', '1'),
                     'ip' => array('1', '1', 'ip', ''),
-                    'service_id' => array('0', '0', 'id сервиса', '')
+                    'service_id' => array('0', '0', 'id ' . l('сервиса') .'', '')
                 )//columns
             ),
             $dbcfg['_prefix'].'sources' => array(
-                'settings' => array('name' => 'Источники рекламы и телефоны'),
+                'settings' => array('name' => l('Источники рекламы и телефоны')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'source' => array('0', '0', 'Источник(city,adw)', ''),
-                    'phone_mobile' => array('0', '0', 'Телефон мобильный', ''),
-                    'phone_static' => array('0', '0', 'Телефон стационарный', '')
+                    'source' => array('0', '0', '' . l('Источник') .'(city,adw)', ''),
+                    'phone_mobile' => array('0', '0', l('Телефон мобильный'), ''),
+                    'phone_static' => array('0', '0', l('Телефон стационарный'), '')
                 )//columns
             ),
             $dbcfg['_prefix'].'page_types' => array(
-                'settings' => array('name' => 'Типы страниц'),
+                'settings' => array('name' => l('Типы страниц')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'name' => array('0', '0', 'Название', '')
+                    'name' => array('0', '0', l('Название'), '')
                 )
             ),
             $dbcfg['_prefix'].'map_prices' => array(
-                'settings' => array('name' => 'Все цены'),
+                'settings' => array('name' => l('Все цены')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'map_id' => array('0', '0', 'id карты сайта', ''),
+                    'map_id' => array('0', '0', 'id ' . l('карты сайта'), ''),
                     'table_type' => array('0', '0', '№ табл.', ''),
-                    'name' => array('0', '0', 'Название', ''),
-                    'price_copy_mark' => array('0', '0', 'Префикс копии', ''),
-                    'price_copy' => array('0', '0', 'Цена копии', ''),
-                    'price_mark' => array('0', '0', 'Префикс ориг', ''),
-                    'price' => array('0', '0', 'Цена ориг', ''),
-                    'time_required' => array('0', '0', 'Время', ''),
-                    'prio' => array('0', '0', 'Приоритет', ''),
+                    'name' => array('0', '0', l('Название'), ''),
+                    'price_copy_mark' => array('0', '0', l('Префикс копии'), ''),
+                    'price_copy' => array('0', '0', l('Цена копии'), ''),
+                    'price_mark' => array('0', '0', l('Префикс ориг'), ''),
+                    'price' => array('0', '0', l('Цена ориг'), ''),
+                    'time_required' => array('0', '0', l('Время'), ''),
+                    'prio' => array('0', '0', l('Приоритет'), ''),
                 )
             ),
             $dbcfg['_prefix'].'visitors' => array(
-                'settings' => array('name' => 'посетители'),
+                'settings' => array('name' => l('посетители')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
@@ -89,45 +89,45 @@ class wrapper{
                 )
             ),
             $dbcfg['_prefix'].'crm_referers' => array(
-                'settings' => array('name' => 'Список каналов (источники продаж)'),
+                'settings' => array('name' => l('Список каналов (источники продаж)')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'name' => array('0', '0', 'Название', ''),
-                    'group_id' => array('0', '0', 'Группа (0-Затраты, 1-Context, 2-Remarketing, 3-Search)', ''),
+                    'name' => array('0', '0', l('Название'), ''),
+                    'group_id' => array('0', '0', l('Группа') . ' (0-' . l('Затраты') .', 1-Context, 2-Remarketing, 3-Search)', ''),
                 )
             ),
             $dbcfg['_prefix'].'visitors_system_codes' => array(
-                'settings' => array('name' => 'Системные коды на скидку'),
+                'settings' => array('name' => l('Системные коды на скидку')),
                 'columns' => array(
                     //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
-                    'code' => array('0', '0', 'Код', ''),
-                    'created_at' => array('0', '0', 'Добавлен', date('Y-m-d H:i:s')),
-                    'referer_id' => array('0', '0', 'id источника', ''),
-                    'description' => array('0', '0', 'описание', '')
+                    'code' => array('0', '0', l('Код'), ''),
+                    'created_at' => array('0', '0', l('Добавлен'), date('Y-m-d H:i:s')),
+                    'referer_id' => array('0', '0', l('id источника'), ''),
+                    'description' => array('0', '0', l('описание'), '')
                 )
             ),
             $dbcfg['_prefix'].'crm_expenses' => array(
-                'settings' => array('name' => 'Список затрат'),
+                'settings' => array('name' => l('Список затрат')),
                 'columns' => array(
                     //hide, ro, realname, default, class, foreignkey to {table}.id
                     'id' => array('0', '1', 'ID', ''),
-                    'sum_uah' => array('0', '0', 'Сумма '.viewCurrency().'', ''),
-                    'referer_id' => array('0', '0', 'Канал', '', '', 'crm_referers'),
+                    'sum_uah' => array('0', '0', l('Сумма') .' '.l(viewCurrency()).'', ''),
+                    'referer_id' => array('0', '0', l('Канал'), '', '', 'crm_referers'),
                     'date_add' => array('0', '0', ''.l('Дата').'', date("Y-m-d"), 'datepicker'),
-                    'comment' => array('0', '0', 'Коментарий', ''),
-                    'visits' => array('0', '0', 'Показы', '0'),
-                    'clicks' => array('0', '0', 'Клики', '0'),
+                    'comment' => array('0', '0', l('Коментарий'), ''),
+                    'visits' => array('0', '0', l('Показы'), '0'),
+                    'clicks' => array('0', '0', l('Клики'), '0'),
                 )
             ),
             $dbcfg['_prefix'].'sms_senders' => array(
-                'settings' => array('name' => 'СМС: отправители'),
+                'settings' => array('name' => '' . l('СМС') .': ' . l('отправители') .''),
                 'columns' => array(
                     //hide, ro, realname, default, class, foreignkey to {table}.id
                     'id' => array('0', '1', 'ID', ''),
                     'sender' => array('0', '0', 'Sender', ''),
-                    'type' => array('0', '0', 'Тип', '0'),
+                    'type' => array('0', '0', l('Тип'), '0'),
                 )
             ),
         );
@@ -149,7 +149,7 @@ class wrapper{
         $sql = $this->all_configs['db']->query("SHOW TABLES FROM ?q", array($dbcfg['dbname']))->assoc();
 
         if(!$sql){
-            $out.='Ошибка получения списка таблиц';
+            $out.= l('Ошибка получения списка таблиц');
         }
 
 
@@ -162,7 +162,7 @@ class wrapper{
         }
         $out.='</ul>';
         if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1]){
-            $out.='<br><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/add">Добавить в текущую таблицу</a><br>';
+            $out.='<br><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/add">' . l('Добавить в текущую таблицу') .'</a><br>';
         }
 
         $out.='<br>';
@@ -199,13 +199,13 @@ class wrapper{
         if(!isset($this->all_configs['arrequest'][1])){
             $out = '<h3>' . l('Редактор таблиц сайтa') . '</h3><br>';
             if($ifauth['is_adm'] != 1){
-                $out.='<br>Недостаточно прав для изменения!<br><br>';
+                $out.='<br>' . l('Недостаточно прав для изменения') .'!<br><br>';
             }
             $out.='';
         }
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && $this->table_exists($this->all_configs['arrequest'][1]) && !isset($this->all_configs['arrequest'][2])){
-            $out.='<h3>Таблицa «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
+            $out.='<h3>' . l('Таблицa') .' «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
 
             $sql = $this->all_configs['db']->query("SHOW COLUMNS FROM ".$this->all_configs['arrequest'][1])->assoc();
             $cols = array();
@@ -234,7 +234,7 @@ class wrapper{
                 $table.='
                     <tr>
                         <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/edit/'.$mm[0].'" class="glyphicon glyphicon-pencil"></a></td>
-                        <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/del/'.$mm[0].'" class="glyphicon glyphicon-remove" onclick="return confirm(\'Удалить?\');"></a></td>';
+                        <td><a href="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/del/'.$mm[0].'" class="glyphicon glyphicon-remove" onclick="return confirm(\'' . l('Удалить') .'?\');"></a></td>';
                 
                 for($i = 0; $i < count($cols); $i++){
                     if(isset($conf[$this->all_configs['arrequest'][1]]['columns'][$cols[$i]][0]) && $conf[$this->all_configs['arrequest'][1]]['columns'][$cols[$i]][0] == 1){
@@ -255,7 +255,7 @@ class wrapper{
         }
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && isset($this->all_configs['arrequest'][2]) && $this->table_exists($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][2] == 'add'){
-            $out.='<h3>Таблица «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
+            $out.='<h3>' . l('Таблица') .' «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
 
             $sql = $this->all_configs['db']->query("SHOW COLUMNS FROM ".$this->all_configs['arrequest'][1])->assoc();
             $cols = array();
@@ -291,7 +291,7 @@ class wrapper{
         }
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && isset($this->all_configs['arrequest'][2]) && $this->table_exists($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][2] == 'insert'){
-            $out.='<h3>Таблица «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
+            $out.='<h3>' . l('Таблица') .' «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
 
             $sql = $this->all_configs['db']->query("SHOW COLUMNS FROM ".$this->all_configs['arrequest'][1])->assoc();
             $sql_cols = array();
@@ -319,7 +319,7 @@ class wrapper{
         }
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && isset($this->all_configs['arrequest'][2]) && $this->table_exists($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][2] == 'edit' && is_numeric($this->all_configs['arrequest'][3])){
-            $out.='<h3>Таблица «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
+            $out.='<h3>' . l('Таблица') .' «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
 
             $sql = $this->all_configs['db']->query("SHOW COLUMNS FROM ".$this->all_configs['arrequest'][1]);
             $cols = array();
@@ -362,7 +362,7 @@ class wrapper{
         }
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && isset($this->all_configs['arrequest'][2]) && $this->table_exists($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][2] == 'update' && is_numeric($this->all_configs['arrequest'][3])){
-            $out.='<h3>Таблиця «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
+            $out.='<h3>' . l('Таблиця') .' «'.$this->genconfig_tablename($this->all_configs['arrequest'][1]).'»</h3>';
 
             $sql = $this->all_configs['db']->query("SHOW COLUMNS FROM ".$this->all_configs['arrequest'][1])->assoc();
             $sql_value = array();

@@ -91,16 +91,16 @@ class langs{
         }
         
         $out.='
-            <h3>Управелние городами</h3>
+            <h3>' . l('Управелние городами') .'</h3>
             <form action="'.$this->all_configs['prefix'].'langs/save" method="post">
                 <table class="table table-hover table-bordered" cellspacing="0" cellpadding="0">
                     <thead>
                         <tr>
-                            <th>Язык</th>
+                            <th>' . l('Язык') .'</th>
                             <th>url</th>
-                            <th>приоритет</th>
-                            <th>Включен</th>
-                            <th>По умолчанию</th>
+                            <th>' . l('приоритет') .'</th>
+                            <th>' . l('Включен') .'</th>
+                            <th>' . l('По умолчанию') .'</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -111,11 +111,11 @@ class langs{
             </form>
             
             <br>
-            <h3>Добавить новый:</h3>
+            <h3>' . l('Добавить новый') .':</h3>
             <br>
             <form style="max-width:300px" action="'.$this->all_configs['prefix'].'langs/add_new" method="post">
                 <div class="form-group">
-                    <label>Название города:</label>
+                    <label>' . l('Название города') .':</label>
                     <input type="text" name="name" class="form-control">
                 </div>
                 <div class="form-group">

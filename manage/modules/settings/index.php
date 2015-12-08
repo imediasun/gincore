@@ -109,7 +109,7 @@ class settings{
                 exit;
             }else{
                 $out = '
-                    <h3>Добавление нового параметра</h3>
+                    <h3>' . l('Добавление нового параметра') .'</h3>
                     <form action="'.$this->all_configs['prefix'].'settings/add/ok" method="post">
                         <div class="form-group">
                             <label>'.l('sets_param').':</label> 

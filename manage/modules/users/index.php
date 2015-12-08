@@ -18,7 +18,7 @@ class users
 
         if ( !$this->all_configs['oRole']->hasPrivilege('edit-users') ) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">У Вас нет прав для просмотра пользователей</p></div>';
+                <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра пользователей') .'</p></div>';
         }
         
         if($ifauth['is_2']) return false;
@@ -167,7 +167,7 @@ class users
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Нет прав', 'state' => false));
+            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
             exit;
         }
         
@@ -332,16 +332,16 @@ class users
 
         // проверка на сортировку
         $sort = '';
-        $sort_position = '<a href="?sort=position">Должность';
+        $sort_position = '<a href="?sort=position">' . l('Должность');
         if ( isset($_GET['sort']) ) {
             switch ($_GET['sort']) {
                 case 'position':
                     $sort = 'u.position,';
-                    $sort_position = '<a href="?sort=rposition">Должность<i class="glyphicon glyphicon-chevron-down"></i>';
+                    $sort_position = '<a href="?sort=rposition">' . l('Должность') .'<i class="glyphicon glyphicon-chevron-down"></i>';
                     break;
                 case 'rposition':
                     $sort = 'u.position DESC,';
-                    $sort_position = '<a href="?sort=position">Должность<i class="glyphicon glyphicon-chevron-up"></i>';
+                    $sort_position = '<a href="?sort=position">' . l('Должность') .'<i class="glyphicon glyphicon-chevron-up"></i>';
                     break;
             }
         }
@@ -506,7 +506,7 @@ class users
                 $checked = 'checked';
             $users_html .=  '<ul class="nav nav-list pull-left" style="width:33%;padding:0 10px">
                 <li class="nav-header"><br><h4 class="text-info">' . htmlspecialchars($v['name']) . '</h4>
-                <div class="checkbox"><label><input type="checkbox" '.$checked.' name="active['.$rid.']" />активность</label></div></li>';
+                <div class="checkbox"><label><input type="checkbox" '.$checked.' name="active['.$rid.']" />' . l('активность') .'</label></div></li>';
             $users_html .=  '<li>Дата конца активности группы</li>';
             $users_html .=  '<li><input class="form-control input-sm datepicker" name="date_end[' . $rid . ']" type="text" value="' . $v['date_end'] . '" ></li>';
             $group_html = array();
@@ -637,7 +637,7 @@ class users
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</label>
+                        <label>' . l('Укажите склад и локацию, на которую по умолчанию перемещается устройство принятое на ремонт данным сотрудником') .'</label>
                         <div class="clearfix">
                             <div class="pull-left m-r-lg">
                                 <label>' . l('Склад') . ':</label><br>
@@ -653,7 +653,7 @@ class users
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Укажите склады <br>к которым сотрудник имеет доступ</label><br>
+                        <label>' . l('Укажите склады к которым сотрудник имеет доступ') .'</label><br>
                         <select class="multiselect" name="warehouses[]" multiple="multiple">
                             '.$warehouses.'
                         </select>

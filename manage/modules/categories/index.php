@@ -30,7 +30,7 @@ class categories
 
         if ($this->can_show_module() == false) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">У Вас нет прав для просмотра категорий</p></div>';
+                <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра категорий') . '</p></div>';
         }
 
         // если отправлена форма изменения продукта
@@ -70,7 +70,7 @@ class categories
                         . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2] . '/?error=url');
                     exit;
                 }else{
-                    return array('error' => 'Категория с таким названием уже существует.');
+                    return array('error' => l('Категория с таким названием уже существует.'));
                 }
             }
 
@@ -258,7 +258,7 @@ class categories
     private function gencreate($name = '', $ajax = false)
     {
         if ( !$this->all_configs['oRole']->hasPrivilege('create-filters-categories') )
-            return '<p  class="text-error">У Вас нет прав для создания новой категории</p>';
+            return '<p  class="text-error">' . l('У Вас нет прав для создания новой категории') . '</p>';
 
         $attr = 'form method="post"';
         $form_close = 'form';
@@ -269,18 +269,18 @@ class categories
         }
         
         // строим форму добавления категории
-        $category_html = '<'.$attr.'><fieldset><legend>Добавление новой категории (название устройства)</legend>';
+        $category_html = '<'.$attr.'><fieldset><legend>' . l('Добавление новой категории') . ' (' . l('название устройства') . ')</legend>';
         if ( isset($_GET['error']) && $_GET['error'] == 'url')
-            $category_html .= '<p class="text-error">Категория с таким названием уже существует</p>';
+            $category_html .= '<p class="text-error">' . l('Категория с таким названием уже существует') . '</p>';
         $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
-            <input autocomplete="off" placeholder="Укажите название устройства или категории. Пример: IPhone 5" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="'.($name ? htmlspecialchars($name) : '').'" /></div>';
+            <input autocomplete="off" placeholder="' . l('Укажите название устройства или категории. Пример: IPhone 5') . '" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="'.($name ? htmlspecialchars($name) : '').'" /></div>';
         $category_html .= '<div class="form-group"><div class="checkbox"><label>
             <input name="avail" type="checkbox">' . l('Активность') . '</label></div></div>';
-        $category_html .= '<div class="form-group"><label>Высшая (родительская) категория:</label>
+        $category_html .= '<div class="form-group"><label>' . l('Высшая (родительская) категория') . ':</label>
             ' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large','', '', 
-                          false, false, '', false, 'Укажите название высшей категории или оставьте пустым. Пример: Iphone') . '</div>';
+                          false, false, '', false, l('Укажите название высшей категории или оставьте пустым. Пример: Iphone')) . '</div>';
         $category_html .= '<div class="form-group"><label>' . l('Описание') . ':</label>
-            <textarea placeholder="краткое описание" name="content" class="form-control" rows="3"></textarea></div>';
+            <textarea placeholder="' . l('краткое описание') . '" name="content" class="form-control" rows="3"></textarea></div>';
 
         $category_html .= '
             <div class="form-group">
@@ -310,7 +310,7 @@ class categories
                                     build_array_tree($categories, array(), 2) . 
                                 '</div>';
         } else {
-            $categories_html .= '<p  class="text-error">Не существует ниодной категории</p>';
+            $categories_html .= '<p  class="text-error">' . l('Не существует ниодной категории') . '</p>';
         }
 
         return $categories_html;
@@ -481,7 +481,7 @@ class categories
             $category_html .= '<form method="post" enctype="multipart/form-data"><fieldset>
                 <legend>' . $thumbs . ' ' . l('Редактирование категории') . ' ID: ' . $cur_category['id'] . '. ' . $cur_category['title'] . '</legend>';
             if ( isset($_GET['error']) && $_GET['error'] == 'url')
-                $category_html .= '<p  class="text-error">Категория с таким названием уже существует</p>';
+                $category_html .= '<p  class="text-error">' . l('Категория с таким названием уже существует') . '</p>';
             $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
                 <input class="form-control" name="title" value="' . $cur_category['title'] . '" /></div>';
             $category_html .= '<input type="hidden" class="span5" name="id" value="' . $cur_category['id'] . '" />';
@@ -518,9 +518,9 @@ class categories
                 <textarea name="information" class="form-control" rows="3">' . $cur_category['information'] . '</textarea></div>';
 
             $category_html .= '<div class="form-group"><label>' . l('Рейтинг') . ': </label>
-                        <input class="form-control" type=text" onkeydown="return isNumberKey(event, this)" placeholder="рейтинг" value="' . $cur_category['rating'] . '" name="rating" /></div>';
+                        <input class="form-control" type=text" onkeydown="return isNumberKey(event, this)" placeholder="' . l('рейтинг') . '" value="' . $cur_category['rating'] . '" name="rating" /></div>';
             $category_html .= '<div class="form-group"><label>' . l('Количество голосов') . ': </label>
-                        <input class="form-control" onkeydown="return isNumberKey(event)" type=text" placeholder="голоса" value="' . $cur_category['votes'] . '" name="votes" /></div>';
+                        <input class="form-control" onkeydown="return isNumberKey(event)" type=text" placeholder="' . l('голоса') . '" value="' . $cur_category['votes'] . '" name="votes" /></div>';
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
                 $category_html .= '<div class="form-group"><div class="controls">
@@ -530,7 +530,7 @@ class categories
             }
             $category_html .= '</fieldset></form>';
         } else {
-            $category_html .= '<p  class="text-error">У Вас нет прав для просмотра категорий</p>';
+            $category_html .= '<p  class="text-error">' . l('У Вас нет прав для просмотра категорий') .'</p>';
         }
 
         return array(
@@ -552,7 +552,7 @@ class categories
             $sort_title = '<a href="?sort=title">' . l('Название продукта');
             $sort_price = '<a href="?sort=price">' . l('Цена');
             $sort_date = '<a href="?sort=date">'.l('Дата').'';
-            $sort_avail = '<a href="?sort=avail">Вкл';
+            $sort_avail = '<a href="?sort=avail">' . l('Вкл');
             if ( isset($_GET['sort']) ) {
                 $sort = '&sort='.$_GET['sort'];
                 switch ( $_GET['sort'] ) {
@@ -625,7 +625,7 @@ class categories
                         <td>'. $sort_price . '</a></td>
                         <td>' . $sort_date . '</a></td>
                         <td title="' . l('Общий остаток') . '">' . l('Общий') . '</td>
-                        <td title="Свободный остаток">Свободный</td>
+                        <td title="' . l('Свободный остаток') . '">' . l('Свободный') . '</td>
                     </td></tr></thead><tbody>';
                 $count_on_page = $this->count_on_page;//20; // количество товаров на страничке
 
@@ -659,7 +659,7 @@ class categories
                 $category_html .= '<p  class="text-error">' . l('В выбранной Вами категории нет ни одного товара') . '</p>';
             }
         } else {
-            $category_html .= '<p  class="text-error">У Вас нет прав для просмотра товаров</p>';
+            $category_html .= '<p  class="text-error">' . l('У Вас нет прав для просмотра товаров') . '</p>';
         }
 
         return array(
@@ -675,16 +675,16 @@ class categories
         if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
             $cur_category = $this->get_cur_category();
             $category_html .= '<form method="post"><input type="hidden" value="'.$this->cat_id.'" name="category_id" />';
-            $category_html .= '<div class="form-group"><label>Заголовок страницы: </label>
+            $category_html .= '<div class="form-group"><label>' . l('Заголовок страницы') . ': </label>
                         <input class="form-control" data-symbol_counter="70" type="text" value="' . $cur_category['page_title'] . '" name="page_title"  /></div>';
-            $category_html .= '<div class="form-group"><label>Описание страницы: </label>
+            $category_html .= '<div class="form-group"><label>' . l('Описание страницы') . ': </label>
                         <input class="form-control seo_description" data-symbol_counter="150" type="text" value="' . $cur_category['page_description'] . '" name="page_description"  /></div>';
-            $category_html .= '<div class="form-group"><label>Ключевые слова: </label>
+            $category_html .= '<div class="form-group"><label>' . l('Ключевые слова') . ': </label>
                         <input class="form-control seo_keywords" data-symbol_counter="150" type="text" value="' . $cur_category['page_keywords'] . '" name="page_keywords"  /></div>';
             /*$category_html .= '<div class="control-group"><label class="control-label">Описание страницы: </label>
                 <div class="controls"><textarea name="page_content" class="span5" rows="3">' . $cur_category['page_content'] . '</textarea></div></div>';*/
             $category_html .= '<div class="form-group">
-                <label style="float: left; margin: 4px 10px 0 0">Редактор:</label>
+                <label style="float: left; margin: 4px 10px 0 0">' . l('Редактор') . ':</label>
                 <input type="checkbox" id="toggle_mce"'.((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '').'>
                 <textarea id="page_content" name="page_content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">' . $cur_category['page_content'] . '</textarea></div>';
             $category_html .= '<div class="form-group">
@@ -707,7 +707,7 @@ class categories
 
             // проверяем на наличие категории
             if( empty($cur_category) )
-                return '<p  class="text-error">Не существует такой категории</p>';
+                return '<p  class="text-error">' . l('Не существует такой категории') . '</p>';
         } else {
             return $this->gencreate();
         }
@@ -796,7 +796,7 @@ class categories
                     );
                     echo json_encode(array('html' =>  $function['html'], 'state' => true, 'functions' => $function['functions']));
                 } else {
-                    echo json_encode(array('message' => 'Не найдено', 'state' => false));
+                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
                 }
                 exit;
             }

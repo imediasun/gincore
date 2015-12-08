@@ -49,9 +49,9 @@ class translates{
         //            'var' => 'url',
                     'key' => 'map_id',
                     'fields' => array(
-                        'name' => 'Название',
-                        'fullname' => 'Заголовок',
-                        'content' => 'Контент'
+                        'name' => l('Название'),
+                        'fullname' => l('Заголовок'),
+                        'content' => l('Контент')
                     )
                 ),
                 $this->tbl_prefix.'forms' => array(
@@ -59,9 +59,9 @@ class translates{
         //            'var' => 'url',
                     'key' => 'forms_id',
                     'fields' => array(
-                        'name' => 'Название',
-                        'user_result_text' => 'Текст письма пользователю',
-                        'user_result_title' => 'Заголовок письма пользователю'
+                        'name' => l('Название'),
+                        'user_result_text' => l('Текст письма пользователю'),
+                        'user_result_title' => l('Заголовок письма пользователю')
                     )
                 ),
                 $this->tbl_prefix.'reviews_marks' => array(
@@ -69,7 +69,7 @@ class translates{
         //            'var' => 'url',
                     'key' => 'mark_id',
                     'fields' => array(
-                        'name' => 'Название'
+                        'name' => l('Название')
                     )
                 ),
                 $this->tbl_prefix.'template_vars' => array(
@@ -77,14 +77,14 @@ class translates{
                     'var' => 'var',
                     'key' => 'var_id',
                     'fields' => array(
-                        'text' => 'Значение'
+                        'text' => l('Значение')
                     )
                 ),
                 $this->tbl_prefix.'sms_templates' => array(
                     'name' => l('Шаблоны смс'),
                     'key' => 'sms_templates_id',
                     'fields' => array(
-                        'body' => 'Текст'
+                        'body' => l('Текст')
                     )
                 ),
             );
@@ -178,7 +178,7 @@ class translates{
                                             'fields' => implode(',', $tbl_fields),
                                             'update' => implode(',', $update)
                                         ));
-                                $out = '<h2>Копирование языка '.$from.' в '.$to.'</h2>';
+                                $out = '<h2>' . l('Копирование языка') .' '.$from.' в '.$to.'</h2>';
                                 $out .= l('Скопировано успешно') . '. '.
                                         '<a href="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy">Вернуться назад</a>'; 
                             }else{
@@ -186,16 +186,16 @@ class translates{
                                 exit;
                             }
                         }else{
-                            $out = '<h2>Скопировать язык в пустые ячеки другого языка</h2>';
+                            $out = '<h2>' . l('Скопировать язык в пустые ячеки другого языка') .'</h2>';
                             $options = '<option value=""> --- </option>';
                             foreach($languages as $l => $lng){
                                 $options .= '<option value="'.$l.'">'.$lng['name'].'</option>';
                             }
                             $out .= '
-                                <form onSubmit="return confirm(\'Вы абсолютно уверены в том что хотите скопировать?\')" '.
+                                <form onSubmit="return confirm(\'' . l('Вы абсолютно уверены в том что хотите скопировать') .'?\')" '.
                                 'action="'.$this->all_configs['prefix'].''.$this->url.'/'.$this->all_configs['arrequest'][1].'/copy/make_magic" method="post">
                                     <div class="form-group">
-                                        <label>Копировать</label>
+                                        <label>' . l('Копировать') .'</label>
                                         <select name="from" class="form-control">
                                             '.$options.'
                                         </select>
@@ -206,7 +206,7 @@ class translates{
                                             '.$options.'
                                         </select>
                                     </div>
-                                    <input class="btn btn-primary" type="submit" value="Копировать">
+                                    <input class="btn btn-primary" type="submit" value="' . l('Копировать') .'">
                                 </form>
                             ';
                         }

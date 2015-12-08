@@ -38,7 +38,7 @@ class tasks
 
         if ($this->can_show_module() == false) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">У Вас не достаточно прав</p></div>';
+                <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') .'</p></div>';
         }
 
         // если отправлена форма
@@ -257,7 +257,7 @@ class tasks
                     );
                     echo json_encode(array('html' => $function['html'], 'state' => true, 'functions' => $function['functions']));
                 } else {
-                    echo json_encode(array('message' => 'Не найдено', 'state' => false));
+                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
                 }
                 exit;
             }
@@ -278,19 +278,19 @@ class tasks
             // task title
             if ($data['state'] == true && !isset($_POST['task_title']) || mb_strlen(trim($_POST['task_title']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Введите заголовок';
+                $data['message'] = l('Введите заголовок');
             }
 
             // task text
             if ($data['state'] == true && !isset($_POST['task_text']) || mb_strlen(trim($_POST['task_text']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Введите описания задачи';
+                $data['message'] = l('Введите описания задачи');
             }
 
             $upload_file = $this->upload_file();
             if($upload_file === false){
                 $data['state'] = false;
-                $data['message'] = 'Загружайте только изображения';
+                $data['message'] = l('Загружайте только изображения');
             }else{
                 $file_uploaded = $upload_file['file_uploaded'];
                 $folder_path = $upload_file['folder_path'];
@@ -330,7 +330,7 @@ class tasks
             }
             if (!$task_id) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Не указан номер задачи';
+                $data['message'] = l('Не указан номер задачи');
                 $task_id = null;
             }
 
@@ -341,24 +341,24 @@ class tasks
             // task title
             if ($data['state'] == true && !isset($_POST['task_title']) || mb_strlen(trim($_POST['task_title']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Нет описания задачи';
+                $data['message'] = l('Нет описания задачи');
             }
 
             // task text
             if ($data['state'] == true && !isset($_POST['task_text']) || mb_strlen(trim($_POST['task_text']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Нет описания задачи';
+                $data['message'] = l('Нет описания задачи');
             }
 
             // access to close task as "done" - only for admin
             if ($task_state == 2 && !$this->all_configs['oRole']->hasPrivilege('create-task')) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Нет прав закрыть задачу';
+                $data['message'] = l('Нет прав закрыть задачу');
             }
 
             if (!$this->all_configs['oRole']->hasPrivilege('create-task') && $current_task_state == 2) {
                 $data['state'] = false;
-                $data['message'] = 'Изменения невозможны . Обратитесь к руководителю';
+                $data['message'] = l('Изменения невозможны . Обратитесь к руководителю');
             }
             
             $current_filename = $this->all_configs['db']->query("SELECT filename FROM {tasks} "
@@ -368,7 +368,7 @@ class tasks
                 $file_upload = $this->upload_file($task_id);
                 if($file_upload === false){
                     $data['state'] = false;
-                    $data['message'] = 'Файл не изображение';
+                    $data['message'] = l('Файл не изображение');
                 }else{
                     $filename = $file_upload;
                 }
@@ -444,21 +444,21 @@ class tasks
             }
             
             //modal
-            $out = "<h3>Задача #" . $task_id . "</h3> " . $close_day;
+            $out = "<h3>" . l('Задача') ." #" . $task_id . "</h3> " . $close_day;
             $out .= '<form id="edit_task_form">'
                     . '<input type="hidden" value="' . $task_id . '" name="task_id" >'
                     . '<div class="form-group">'
-                        . '<label>Открыта:</label>'.$date_add.''
+                        . '<label>' . l('Открыта') .':</label>'.$date_add.''
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label>Обновлена:</label>'. $date_update
+                        . '<label>' . l('Обновлена') .':</label>'. $date_update
                     . '</div>'
                     . '<div class="form-group">'
                         . '<label for="taskTitle">' . l('Тема') . '</label>'
                         . '<input ' . $disable_state_change . $disable_tag . ' type="text" value="' . htmlspecialchars($task['title']) . '" name="task_title" id="taskTitle" class="form-control" >'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="task_text">Сообщение</label>'
+                        . '<label for="task_text">' . l('Сообщение') .'</label>'
                         . '<textarea ' . $disable_state_change . $disable_tag . ' type="text" name="task_text" id="task_text" placeholder="" class="form-control" rows="3" >' . htmlspecialchars($task['body']) . '</textarea>'
                     . '</div>'
                     . '<div class="form-group">'

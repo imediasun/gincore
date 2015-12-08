@@ -267,7 +267,7 @@ class Suppliers
 
     function show_filter_service_center(){
         $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id', array())->assoc();
-        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> ';
+        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> '; 
         $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
         $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) : 
                   (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());

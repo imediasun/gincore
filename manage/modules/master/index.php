@@ -53,7 +53,7 @@ class master{
                         </label>
                     </div>
                     <div class="col-xs-3">
-                        <input class="hidden form-control currencies-courses" type="text" name="currencies_courses['.$cid.']" placeholder="Укажите курс для '.$currency['name'].'">
+                        <input class="hidden form-control currencies-courses" type="text" name="currencies_courses['.$cid.']" placeholder="' . l('Укажите курс для') .' '.$currency['name'].'">
                     </div>
                 </div>
             ';
@@ -94,13 +94,13 @@ class master{
         
         // проверка на ошибки
         if(!isset($this->all_configs['configs']['countries'][$country])){
-            return array('state' => false, 'msg' => 'Выберите страну');
+            return array('state' => false, 'msg' => l('Выберите страну'));
         }
         if(empty($site_name)){
-            return array('state' => false, 'msg' => 'Укажите название сервисного центра');
+            return array('state' => false, 'msg' => l('Укажите название сервисного центра'));
         }
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-            return array('state' => false, 'msg' => 'Эл. адрес указан неверно');
+            return array('state' => false, 'msg' => l('Эл. адрес указан неверно'));
         }
         
         if(!$orders_currency || !isset($this->all_configs['configs']['currencies'][$orders_currency])){
@@ -108,36 +108,36 @@ class master{
         }
         
         if(!$contractors_currency || !isset($this->all_configs['configs']['currencies'][$contractors_currency])){
-            return array('state' => false, 'msg' => 'Выберите валюту расчетов за заказы поставщикам');
+            return array('state' => false, 'msg' => l('Выберите валюту расчетов за заказы поставщикам'));
         }
         $added_services = 0;
         $added_services_names = array();
         $added_services_colors = array();
         foreach($services as $i => $service){
             if(!trim($service['name'])){
-                return array('state' => false, 'msg' => 'Не указано название отделения');
+                return array('state' => false, 'msg' => l('Не указано название отделения'));
             }
             if(!$service['color']){
-                return array('state' => false, 'msg' => 'Не выбран цвет отделения '.htmlspecialchars($service['name']));
+                return array('state' => false, 'msg' => l('Не выбран цвет отделения ') . htmlspecialchars($service['name']));
             }
             if(!$service['address']){
-                return array('state' => false, 'msg' => 'Не выбран адрес отделения '.htmlspecialchars($service['name']));
+                return array('state' => false, 'msg' => l('Не выбран адрес отделения ') . htmlspecialchars($service['name']));
             }
             if(!$service['phone']){
-                return array('state' => false, 'msg' => 'Не выбран телефон отделения '.htmlspecialchars($service['name']));
+                return array('state' => false, 'msg' => l('Не выбран телефон отделения ') . htmlspecialchars($service['name']));
             }
             if(in_array($service['name'], $added_services_names)){
-                return array('state' => false, 'msg' => 'У отделений не могут быть одинаковые названия');
+                return array('state' => false, 'msg' => l('У отделений не могут быть одинаковые названия'));
             }
             if(in_array($service['color'], $added_services_colors)){
-                return array('state' => false, 'msg' => 'У отделений не могут быть одинаковые цвета');
+                return array('state' => false, 'msg' => l('У отделений не могут быть одинаковые цвета'));
             }
             $added_services_names[] = trim($service['name']);
             $added_services_colors[] = trim($service['color']);
             $added_services ++;
         }
         if(!$added_services){
-            return array('state' => false, 'msg' => 'Добавьте отделения');
+            return array('state' => false, 'msg' => l('Добавьте отделения'));
         }
         $users_added = 0;
         $users_logins = array();
@@ -146,24 +146,24 @@ class master{
         if(count($users) > 1 || $users[0]['fio'] || $users[0]['login'] || $users[0]['password']){
             foreach($users as $i => $user){
                 if(!isset($user['login']) || !$user['login']){
-                    return array('state' => false, 'msg' => 'Укажите логин пользователя ');
+                    return array('state' => false, 'msg' => l('Укажите логин пользователя'));
                 }
                 if(!isset($user['fio']) || !$user['fio']){
-                    return array('state' => false, 'msg' => 'Укажите ФИО пользователя ');
+                    return array('state' => false, 'msg' => l('Укажите ФИО пользователя '));
                 }
                 if(!isset($user['position']) || !$user['position']){
-                    return array('state' => false, 'msg' => 'Укажите должность пользователя '.htmlspecialchars($user['fio']));
+                    return array('state' => false, 'msg' => l('Укажите должность пользователя ') . htmlspecialchars($user['fio']));
                 }
                 if(!isset($user['service'])){
-                    return array('state' => false, 'msg' => 'Укажите отделение пользователя '.htmlspecialchars($user['fio']));
+                    return array('state' => false, 'msg' => l('Укажите отделение пользователя ') . htmlspecialchars($user['fio']));
                 }
                 if($user['password']){
                     $users_added ++;
                 }else{
-                    return array('state' => false, 'msg' => 'Укажите пароль для пользователя '.htmlspecialchars($user['fio']));
+                    return array('state' => false, 'msg' => l('Укажите пароль для пользователя ') . htmlspecialchars($user['fio']));
                 }
                 if(in_array($user['login'], $users_logins)){
-                    return array('state' => false, 'msg' => 'У пользователей не могут быть одинаковые логины');
+                    return array('state' => false, 'msg' => l('У пользователей не могут быть одинаковые логины'));
                 }
                 $users_logins[] = trim($user['login']);
             }

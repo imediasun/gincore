@@ -686,10 +686,10 @@ class Chains
         if ($operations && count($operations) > 0) {
             $out .= '<table class="table table-compact"><thead><tr><td>' . l('Заказ') . '</td><td>'.l('Дата').'</td><td>' . l('Наименование') . '</td>';//<td>' . l('Склад') . '</td>
             if ($type == 1)
-                $out .= '<td>Сроки</td>';
+                $out .= '<td>' . l('Сроки') . '</td>';
             if ($type == 2)
                 $out .= '<td>Куда</td>';
-            $out .= '<td>Сер.номер</td><td>' . l('Управление') . '</td><td>Сервисный центр</td>';//<td>' . l('ФИО клиента') . '</td><td>' . l('Управление') . '</td><td>' . l('Автор') . ' заказа</td>
+            $out .= '<td>' . l('Сер.номер') . '</td><td>' . l('Управление') . '</td><td>' . l('Сервисный центр') . '</td>';//<td>' . l('ФИО клиента') . '</td><td>' . l('Управление') . '</td><td>' . l('Автор') . ' заказа</td>
             $out .= '</tr></thead><tbody>';//<td>Сроки</td><td>Комментарий</td>
 
             foreach($operations as $op) {
