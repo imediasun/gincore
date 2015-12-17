@@ -85,6 +85,84 @@
     </div>
     
     <div class="row row-15">
+        <div class="col-lg-3">
+            <div class="hpanel">
+                <div class="panel-body text-center h-200">
+                    <i class="fa fa-line-chart fa-4x"></i>
+                    <h1 class="m-xs">{-txt-currency} {-txt-avg_check}</h1>
+                    <h3 class="font-extra-bold no-margins text-success">
+                        {-txt-dashboard_avg_check}
+                    </h3>
+                    <small class="m-t-md inline-block">{-txt-dashboard_avg_check_desc}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hpanel stats">
+                <div class="panel-body h-200">
+                    <div class="clearfix">
+                        <div class="stats-title pull-left">
+                            <h4>{-txt-dashboard_workshops_works}</h4>
+                        </div>
+                        <div class="stats-icon pull-right">
+                            <i class="fa fa-cubes fa-2x"></i>
+                        </div>
+                    </div>
+                    {-txt-workshops_stats}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hpanel stats">
+                <div class="panel-body h-200">
+                    <div class="clearfix"> 
+                        <div class="stats-title pull-left">
+                            <h4>{-txt-dashboard_engenieers_works}</h4>
+                        </div>
+                        <div class="stats-icon pull-right">
+                            <i class="fa fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                    {-txt-engineers_stats}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hpanel stats">
+                <div class="panel-body h-200">
+                    <div class="stats-title pull-left">
+                        <h4>{-txt-dashboard_company_profit}</h4>
+                    </div>
+                    <div class="stats-icon pull-right">
+                        <i class="fa fa-money fa-2x"></i>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="flot-chart">
+                        <script>
+                            $(function(){
+                                init_cash_chart(
+                                    [{-txt-cash_chart}]
+                                );
+                            });
+                        </script>
+                        <div class="flot-chart-content" id="flot-cash-chart"></div>
+                    </div>
+                    <div class="row-fluid m-t-sm">
+                        <div class="col-xs-6 no-padding">
+                            <small class="stat-label">{-txt-dashboard_company_profit_day}</small>
+                            <h4>{-txt-currency} {-txt-today_cash} </h4>
+                        </div>
+                        <div class="col-xs-6 no-padding">
+                            <small class="stat-label">{-txt-dashboard_company_profit_period}</small>
+                            <h4>{-txt-currency} {-txt-period_cash}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row row-15">
         <div class="text-center">
             <i class="fa fa-laptop"></i> {-txt-dashboard_ads_conversion_title}
         </div>
@@ -352,89 +430,6 @@
                         {-txt-temp_dashboard_managers_3}
                     </ul>
                     <p class="m-b-none text-center">{-txt-dashboard_expand} <i class="fa fa-caret-down"></i></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row row-15 m-t-md">
-        <div class="text-center">
-            <i class="fa fa-laptop"></i> {-txt-dashboard_basic_company_stats_title}
-        </div>
-    </div>
-    <div class="row row-15 m-t-sm">
-        <div class="col-lg-3">
-            <div class="hpanel">
-                <div class="panel-body text-center h-200">
-                    <i class="fa fa-line-chart fa-4x"></i>
-                    <h1 class="m-xs">{-txt-currency} {-txt-avg_check}</h1>
-                    <h3 class="font-extra-bold no-margins text-success">
-                        {-txt-dashboard_avg_check}
-                    </h3>
-                    <small class="m-t-md inline-block">{-txt-dashboard_avg_check_desc}</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3">
-            <div class="hpanel stats">
-                <div class="panel-body h-200">
-                    <div class="clearfix">
-                        <div class="stats-title pull-left">
-                            <h4>{-txt-dashboard_workshops_works}</h4>
-                        </div>
-                        <div class="stats-icon pull-right">
-                            <i class="fa fa-cubes fa-2x"></i>
-                        </div>
-                    </div>
-                    {-txt-workshops_stats}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3">
-            <div class="hpanel stats">
-                <div class="panel-body h-200">
-                    <div class="clearfix"> 
-                        <div class="stats-title pull-left">
-                            <h4>{-txt-dashboard_engenieers_works}</h4>
-                        </div>
-                        <div class="stats-icon pull-right">
-                            <i class="fa fa-users fa-2x"></i>
-                        </div>
-                    </div>
-                    {-txt-engineers_stats}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3">
-            <div class="hpanel stats">
-                <div class="panel-body h-200">
-                    <div class="stats-title pull-left">
-                        <h4>{-txt-dashboard_company_profit}</h4>
-                    </div>
-                    <div class="stats-icon pull-right">
-                        <i class="fa fa-money fa-2x"></i>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="flot-chart">
-                        <script>
-                            $(function(){
-                                init_cash_chart(
-                                    [{-txt-cash_chart}]
-                                );
-                            });
-                        </script>
-                        <div class="flot-chart-content" id="flot-cash-chart"></div>
-                    </div>
-                    <div class="row-fluid m-t-sm">
-                        <div class="col-xs-6 no-padding">
-                            <small class="stat-label">{-txt-dashboard_company_profit_day}</small>
-                            <h4>{-txt-currency} {-txt-today_cash} </h4>
-                        </div>
-                        <div class="col-xs-6 no-padding">
-                            <small class="stat-label">{-txt-dashboard_company_profit_period}</small>
-                            <h4>{-txt-currency} {-txt-period_cash}</h4>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
