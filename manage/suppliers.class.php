@@ -267,7 +267,7 @@ class Suppliers
 
     function show_filter_service_center(){
         $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id', array())->assoc();
-        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> ';
+        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> '; 
         $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
         $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) : 
                   (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());
@@ -449,10 +449,10 @@ class Suppliers
                 $buttons = '<div class="btn-group"><a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="">';
                 $buttons .= '<span class="caret"></span></a><ul class="dropdown-menu pull-right">';
                 // редактировать
-                $buttons .= '<li>' . $this->supplier_order_number($order, '<i class="glyphicon glyphicon-pencil"></i> Редактировать') . '</li>';
+                $buttons .= '<li>' . $this->supplier_order_number($order, '<i class="glyphicon glyphicon-pencil"></i> ' . l('Редактировать')) . '</li>';
                 // ремонты
                 if ($order['avail'] == 1) {
-                    $buttons .= '<li><a onclick="return alert_box(this, false, \'so-operations\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-random"></i> Ремонты</a></li>';
+                    $buttons .= '<li><a onclick="return alert_box(this, false, \'so-operations\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-random"></i> ' . l('Ремонты') . '</a></li>';
                 }
                 // отправить кладовщику и бухгалтеру
                 if ($order['confirm'] <> 1 && $order['avail'] == 1 && $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['count_come'] == 0 && $only_debit == false) {
@@ -465,7 +465,7 @@ class Suppliers
                 // приходование
                 if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                     if ($order['confirm'] <> 1 && $order['avail'] == 1 && $order['count_debit'] != $order['count_come'] && $order['wh_id'] > 0 && $only_debit == true) {
-                        $buttons .= '<li><a onclick="return alert_box(this, false, \'form-debit-so\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-wrench"></i> Приходовать</a></li>';
+                        $buttons .= '<li><a onclick="return alert_box(this, false, \'form-debit-so\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-wrench"></i> ' . l('Приходовать') . '</a></li>';
                     }
                     if (count($order['items']) > 0) {
                         $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . implode(',', array_keys($order['items']));
@@ -475,7 +475,7 @@ class Suppliers
                 if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/* $order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
                     //$buttons .= '<li><a onclick="return close_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-remove"></i> Закрыть</a></li>';
                     if ($order['unavailable'] == 0) {
-                        $buttons .= '<li><a onclick="return end_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-ban-circle"></i> Запчасть не доступна к заказу</a></li>';
+                        $buttons .= '<li><a onclick="return end_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-ban-circle"></i>' . l('Запчасть не доступна к заказу') . '</a></li>';
                     }
                 }
                 // удаление
@@ -663,7 +663,7 @@ class Suppliers
             if ($order) {
                 $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="'.l('Сохранить').'" />';
 
-                $data['content'] = '<h6>Ремонты ожидающие данную запчасть</h6>';
+                $data['content'] = '<h6>' . l('Ремонты ожидающие данную запчасть') . '</h6>';
                 $data['content'] .= '<form id="form-orders-links" method="post">';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
 
@@ -680,7 +680,7 @@ class Suppliers
                             <input class="clone_clear_val form-control" type="text" value="' . $co_id . '" name="so_co[]">
                             '.($co_id ? '
                                 <span class="input-group-addon">
-                                    <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">перейти в заказ клиента</a>
+                                    <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">' . l('перейти в заказ клиента') . '</a>
                                 </span>' 
                               : '').'
                         </div>
@@ -1019,7 +1019,7 @@ class Suppliers
                 $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>';
             }
         } else {
-            $goods_html .= '<p  class="text-danger">Нет поставщиков</p>';
+            $goods_html .= '<p  class="text-danger">' . l('Нет поставщиков') . '</p>';
         }
 
         $goods_html .= '
@@ -2892,7 +2892,7 @@ class Suppliers
             $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/ array_fill_keys(array_keys($currencies), '');
             foreach ($transactions as $transaction_id=>$transaction) {
                 //$sum = 'Неизвестный перевод';
-                $cashbox_info = 'Неизвестная операция';
+                $cashbox_info = l('Неизвестная операция');
                 $exp = $inc = 0;
 
                 // без группировки

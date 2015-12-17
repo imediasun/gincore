@@ -138,7 +138,7 @@ function display_service_information(_this) {
 
 function issue_order(_this) {
     if ($('[name="is_replacement_fund"]').prop('checked')) {
-        alert('Не забудьте забрать у клиента подменный фонд');
+        alert(L['do-not-forget-to-pick-up-a-client-replacement-fund']);
     }
     //$(_this).button('loading');
     var status = $(_this).data('status');
@@ -438,7 +438,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
 
     var close_supplier_order = '';
     if(remove && show_confirm_for_remove){
-        if(confirm('Отменить заказ поставщику на эту запчасть?')){
+        if(confirm( L['cancel-order-this-spare-part-supplier'] +'?')){
             close_supplier_order = '&close_supplier_order=1';
         }
     }
@@ -516,7 +516,7 @@ function show_fio_prompt(add_to_input, check_input){
     if(check_input && $client_input.val() && $('#client_fio_hidden').val()){
         return false;
     }
-    if(new_fio = prompt("Укажите ФИО клиента:")){
+    if(new_fio = prompt(L['specify-the-name-of-the-client'] + ":")){
         $('#client_fio_hidden').val(new_fio);
         if(add_to_input){
             $client_input.val($client_input.val()+' '+new_fio);

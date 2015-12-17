@@ -38,7 +38,7 @@ class tasks
 
         if ($this->can_show_module() == false) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">У Вас не достаточно прав</p></div>';
+                <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') .'</p></div>';
         }
 
         // если отправлена форма
@@ -257,7 +257,7 @@ class tasks
                     );
                     echo json_encode(array('html' => $function['html'], 'state' => true, 'functions' => $function['functions']));
                 } else {
-                    echo json_encode(array('message' => 'Не найдено', 'state' => false));
+                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
                 }
                 exit;
             }
@@ -278,19 +278,19 @@ class tasks
             // task title
             if ($data['state'] == true && !isset($_POST['task_title']) || mb_strlen(trim($_POST['task_title']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Введите заголовок';
+                $data['message'] = l('Введите заголовок');
             }
 
             // task text
             if ($data['state'] == true && !isset($_POST['task_text']) || mb_strlen(trim($_POST['task_text']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Введите описания задачи';
+                $data['message'] = l('Введите описания задачи');
             }
 
             $upload_file = $this->upload_file();
             if($upload_file === false){
                 $data['state'] = false;
-                $data['message'] = 'Загружайте только изображения';
+                $data['message'] = l('Загружайте только изображения');
             }else{
                 $file_uploaded = $upload_file['file_uploaded'];
                 $folder_path = $upload_file['folder_path'];
@@ -330,7 +330,7 @@ class tasks
             }
             if (!$task_id) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Не указан номер задачи';
+                $data['message'] = l('Не указан номер задачи');
                 $task_id = null;
             }
 
@@ -341,24 +341,24 @@ class tasks
             // task title
             if ($data['state'] == true && !isset($_POST['task_title']) || mb_strlen(trim($_POST['task_title']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Нет описания задачи';
+                $data['message'] = l('Нет описания задачи');
             }
 
             // task text
             if ($data['state'] == true && !isset($_POST['task_text']) || mb_strlen(trim($_POST['task_text']), 'UTF-8') == 0) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Нет описания задачи';
+                $data['message'] = l('Нет описания задачи');
             }
 
             // access to close task as "done" - only for admin
             if ($task_state == 2 && !$this->all_configs['oRole']->hasPrivilege('create-task')) {
                 $data['state'] = false; //success trigger to false
-                $data['message'] = 'Нет прав закрыть задачу';
+                $data['message'] = l('Нет прав закрыть задачу');
             }
 
             if (!$this->all_configs['oRole']->hasPrivilege('create-task') && $current_task_state == 2) {
                 $data['state'] = false;
-                $data['message'] = 'Изменения невозможны . Обратитесь к руководителю';
+                $data['message'] = l('Изменения невозможны . Обратитесь к руководителю');
             }
             
             $current_filename = $this->all_configs['db']->query("SELECT filename FROM {tasks} "
@@ -368,7 +368,7 @@ class tasks
                 $file_upload = $this->upload_file($task_id);
                 if($file_upload === false){
                     $data['state'] = false;
-                    $data['message'] = 'Файл не изображение';
+                    $data['message'] = l('Файл не изображение');
                 }else{
                     $filename = $file_upload;
                 }
@@ -444,33 +444,33 @@ class tasks
             }
             
             //modal
-            $out = "<h3>Задача #" . $task_id . "</h3> " . $close_day;
+            $out = "<h3>" . l('Задача') ." #" . $task_id . "</h3> " . $close_day;
             $out .= '<form id="edit_task_form">'
                     . '<input type="hidden" value="' . $task_id . '" name="task_id" >'
                     . '<div class="form-group">'
-                        . '<label>Открыта:</label>'.$date_add.''
+                        . '<label>' . l('Открыта') .':</label>'.$date_add.''
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label>Обновлена:</label>'. $date_update
+                        . '<label>' . l('Обновлена') .':</label>'. $date_update
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="taskTitle">Тема</label>'
+                        . '<label for="taskTitle">' . l('Тема') . '</label>'
                         . '<input ' . $disable_state_change . $disable_tag . ' type="text" value="' . htmlspecialchars($task['title']) . '" name="task_title" id="taskTitle" class="form-control" >'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="task_text">Сообщение</label>'
+                        . '<label for="task_text">' . l('Сообщение') .'</label>'
                         . '<textarea ' . $disable_state_change . $disable_tag . ' type="text" name="task_text" id="task_text" placeholder="" class="form-control" rows="3" >' . htmlspecialchars($task['body']) . '</textarea>'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="task_deadline">Дата исполнения</label>'
+                        . '<label for="task_deadline">' . l('Дата исполнения') . '</label>'
                         . '<input ' . $disable_tag . ' value="' . $date_deadline . '" class="form-control" data-provide="datepicker" data-date-format="dd.mm.yyyy" name="task_deadline" id="task_deadline" >'
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="taskWorker">Исполнитель&nbsp;</label><br>'
+                        . '<label for="taskWorker">' . l('Исполнитель') . '&nbsp;</label><br>'
                         . $this->worker_selector($task['worker_id'], $disable_tag)
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label for="task_price">Цена задачи</label>'
+                        . '<label for="task_price">' . l('Цена задачи') . '</label>'
                         . '<input ' . $disable_tag . ' value="' . $task['price'] . '" class="form-control" name="task_price" id="task_price"  >'
                     . '</div>'
                     . '<div class="form-group">'
@@ -478,7 +478,7 @@ class tasks
                         . $this->get_state_selector($task['state'], $disable_tag)
                     . '</div>'
                     . '<div class="form-group">'
-                        . '<label>Файл</label>';
+                        . '<label>' . l('Файл') . '</label>';
             if ($task['filename']) {
                 $out .= '<a class="file_link" href="' . $this->all_configs['prefix'] . 'tasks_files/' . $task['filename'] . '" target="_blank">посмотреть</a>';
             } else {
@@ -537,7 +537,7 @@ class tasks
             $out .= build_array_tree($managers, ((isset($_GET['mg'])) ? explode(',', $_GET['mg']) : array()));
             $out .= '</select></div>';
         }
-        $out .= '<div class="form-group"><label>Даты:</label>';
+        $out .= '<div class="form-group"><label>' . l('Даты') . ':</label>';
         $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
         $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="' . l('Фильтровать') . '" />'
                 . '</form>';
@@ -603,15 +603,15 @@ class tasks
                 . '<thead><tr>'
                 . '<td>№</td>'
                 . '<td>'.l('Статус').'</td>'
-                . '<td>Тема</td>'
+                . '<td>' . l('Тема') . '</td>'
                 . '<td>' . l('Автор') . '</td>'
-                . '<td>Исполнитель</td>'
-                . '<td>Создана</td>'
-                . '<td>Дедлайн</td>'
+                . '<td>' . l('Исполнитель') . '</td>'
+                . '<td>' . l('Создана') . '</td>'
+                . '<td>' . l('Дедлайн') . '</td>'
                 //. '<td>Выполнена</td>'
                 //. '<td>Текст</td>'
                 //. '<td> </td>'
-                . '<td>Стоимость</td>'
+                . '<td>' . l('Стоимость') . '</td>'
                 . '<td></td>'
                 . '</tr></thead>'
                 . '<tbody>';
@@ -653,7 +653,7 @@ class tasks
                     . '<td>' . do_nice_date($task['date_deadline'], true, false) . '</td>'
                     //. '<td>' . do_nice_date($task['date_done']) . '</td>'
                     //. '<td>' . htmlspecialchars($task['body']) . '</td>'
-                    //. '<td>' . ($task['filename'] ? '<a class="file_link" href="' . $this->all_configs['prefix'] . 'tasks_files/' . $task['filename'] . '" target="_blank">Файл</a>' : '') . '</td>'
+                    //. '<td>' . ($task['filename'] ? '<a class="file_link" href="' . $this->all_configs['prefix'] . 'tasks_files/' . $task['filename'] . '" target="_blank">' . l('Файл') . '</a>' : '') . '</td>'
                     . '<td>' . $task['price'] . '</td>'
                     . '<td> <i class="'.$task_ontime_class.'"></i> </td>'
                     . '</tr>';
@@ -674,12 +674,12 @@ class tasks
         // eanufriev - смысл проверки ? если активных действий никаких- а при вставке будет проверка .
         // form data 
         $out = '<form id="new_task_form" method="POST" enctype="multipart/form-data">';
-        $out .= '<div class="form-group"><input type="text" name="task_title" id="task_title" placeholder="О чём задача" class="form-control"></div>';
-        $out .= '<div class="form-group"><textarea type="text" name="task_text" id="task_text" placeholder="Опишите задачу" class="form-control" rows="3" ></textarea></div>';
-        $out .= '<div class="form-group"><label>Дата исполнения</label><input class="form-control" data-provide="datepicker" data-date-format="dd.mm.yyyy" name="task_deadline" id="task_deadline" value="'.date('d.m.Y', time()).'"></div>';
-        $out .= '<div class="form-group"><label>Цена задачи</label><input class="form-control" name="task_price" id="task_price" value="0"></div>';
-        $out .= '<div class="form-group"><label>Файл</label><br><input name="file" type="file"></div>';
-        $out .= '<div class="form-group">' . $this->worker_selector() . '</div><input type="button" id="new_task_button" value="создать новую задачу"  class="btn btn-success" onclick="task_create(this);">';
+        $out .= '<div class="form-group"><input type="text" name="task_title" id="task_title" placeholder="' . l('О чём задача') . '" class="form-control"></div>';
+        $out .= '<div class="form-group"><textarea type="text" name="task_text" id="task_text" placeholder="' . l('Опишите задачу') . '" class="form-control" rows="3" ></textarea></div>';
+        $out .= '<div class="form-group"><label>' . l('Дата исполнения') . '</label><input class="form-control" data-provide="datepicker" data-date-format="dd.mm.yyyy" name="task_deadline" id="task_deadline" value="'.date('d.m.Y', time()).'"></div>';
+        $out .= '<div class="form-group"><label>' . l('Цена задачи') . '</label><input class="form-control" name="task_price" id="task_price" value="0"></div>';
+        $out .= '<div class="form-group"><label>' . l('Файл') . '</label><br><input name="file" type="file"></div>';
+        $out .= '<div class="form-group">' . $this->worker_selector() . '</div><input type="button" id="new_task_button" value="' . l('создать новую задачу') . '"  class="btn btn-success" onclick="task_create(this);">';
         $out .= '</form>';
 
         return array(

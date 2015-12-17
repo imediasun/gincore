@@ -55,7 +55,7 @@ $(function(){
         html:'<a>sss</a>',
         placement:'right',
         toggle:'popover',
-        title:'Создать сообщение <i class="icon-remove close-popover" onclick="javascript:$(\'.send-mess\').popover(\'hide\');"></i>',
+        title: L['create-message'] + ' <i class="icon-remove close-popover" onclick="javascript:$(\'.send-mess\').popover(\'hide\');"></i>',
         content:'' +
             '<p><input class="na-mess  form-control" /></p>' +
             '<p><textarea class="ta-mess form-control" rows="3"></textarea></p>' +

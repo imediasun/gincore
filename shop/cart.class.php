@@ -1539,7 +1539,7 @@ class Cart
                         <div class="buy-installment sm_content">
                             <div class="top">
                                 <div class="sm_close"></div>
-                                <h2>Купить в рассрочку <span style="color:#DEA84E; font-size:14px; margin-left: 30px;">Услуга временно не доступна</span></h2>
+                                <h2>Купить в рассрочку <span style="color:#DEA84E; font-size:14px; margin-left: 30px;">' . l('Услуга временно не доступна') . '</span></h2>
                             </div>
                             <div class="bottom" id="display-installment-form">'
                                 //. $this->installment_form($order['id'])
@@ -1670,7 +1670,7 @@ class Cart
 
             }
         } else {
-            $orders_html .= '<h3>Такой заказ не существует</h3>';
+            $orders_html .= '<h3>' . l('Такой заказ не существует') . '</h3>';
         }
 
         return $orders_html . $event_for_installment;
@@ -1683,16 +1683,16 @@ class Cart
 
         $orders_html .= '<h2 class="account_title">Заказ №'.$order['id'].' <span>от '.date('d.m.Y H:i:s', strtotime($order['date_add'])).'</span></h2>';
 
-        $orders_html .= '<h3>Данные заказа</h3>';
+        $orders_html .= '<h3>' . l('Данные заказа') . '</h3>';
         $orders_html .= '<table class="account_table">';
 
         //if (array_key_exists($order['status'],  $this->configs['order-status']))
         //    $orders_html .= '<tr><td class="td_name">'.l('Статус').'</td><td>' . $this->configs['order-status'][$order['status']]['name'] . '</td></tr>';
 
-        $orders_html .= '<tr><td class="td_name">Стоимость товара</td><td>' . $model->show_price($order['gsum'], null, null, true) . '</td></tr>';
-        $orders_html .= '<tr><td class="td_name">Стоимость доставки</td><td>' . $model->show_price($order['delivery_cost'], null, null, true) . '</td></tr>';
-        $orders_html .= '<tr><td class="td_name">Комиссия банка</td><td>' . $model->show_price($order['payment_cost'], null, null, true) . '</td></tr>';
-        $orders_html .= '<tr><td class="td_name">Итого</td><td>' . $model->show_price($order['sum'], null, null, true) . '</td></tr>';
+        $orders_html .= '<tr><td class="td_name">' . l('Стоимость товара') . '</td><td>' . $model->show_price($order['gsum'], null, null, true) . '</td></tr>';
+        $orders_html .= '<tr><td class="td_name">' . l('Стоимость доставки') . '</td><td>' . $model->show_price($order['delivery_cost'], null, null, true) . '</td></tr>';
+        $orders_html .= '<tr><td class="td_name">' . l('Комиссия банка') . '</td><td>' . $model->show_price($order['payment_cost'], null, null, true) . '</td></tr>';
+        $orders_html .= '<tr><td class="td_name">' . l('Итого') . '</td><td>' . $model->show_price($order['sum'], null, null, true) . '</td></tr>';
 
         if ( isset($this->configs['payment-msg'][$order['payment']]) ) {
             $orders_html .=
@@ -1849,7 +1849,7 @@ class Cart
                             ($oRole && $oRole->hasPrivilege('client-order-discount') ? '<td class="td-sc-discount">Скидка</td>' : '')
                             : '' ) .
                         '<td>Количество</td>' .
-                        '<td>Стоимость</td>' .
+                        '<td>' . l('Стоимость') . '</td>' .
                         (( $admin_panel > 0) ?
                             ($edit == true ? '<td>' . l('Удалить') . '</td>' : '')
                             : '' ) .
@@ -2181,7 +2181,7 @@ class Cart
         $installment_form = '';
 
         $credits_packages = $this->configs['credits_package'];
-        $select_cp = '<select ' . $d . ' class="input-small" data-required="true" name="i_credits_package"><option value="">Выберите</option>';
+        $select_cp = '<select ' . $d . ' class="input-small" data-required="true" name="i_credits_package"><option value="">' . l('Выберите') . '</option>';
         foreach ( $credits_packages as $credits_package=>$overpaid ) {
             $select_cp .= '<option value="' . $credits_package . '">' . $credits_package . '</option>';
         }
@@ -2219,7 +2219,7 @@ class Cart
                 FROM {clients} WHERE id=?i', array($_SESSION['user_id']))->row();
 
             if ( $user ) {
-                $select_cp = '<select ' . $d . ' class="input-small" data-required="true" name="i_credits_package"><option value="">Выберите</option>';
+                $select_cp = '<select ' . $d . ' class="input-small" data-required="true" name="i_credits_package"><option value="">' . l('Выберите') . '</option>';
                 foreach ( $credits_packages as $credits_package=>$overpaid ) {
                     if ( $credits_package == $user['credits_package'])
                         $select_cp .= '<option selected value="' . $credits_package . '">' . $credits_package . '</option>';
@@ -2285,7 +2285,7 @@ class Cart
                 $residential_address = $model->urlsafe_b64decode(trim($order['residential_address']));
                 $comment = trim($order['comment']);
                 $works_address = trim($order['works_address']);
-                $select_cp = '<select ' . $d . ' class="input-small" data-required="true" name="i_credits_package"><option value="">Выберите</option>';
+                $select_cp = '<select ' . $d . ' class="input-small" data-required="true" name="i_credits_package"><option value="">' . l('Выберите') . '</option>';
                 foreach ( $credits_packages as $credits_package=>$overpaid ) {
                     if ( $credits_package == $order['credits_package'])
                         $select_cp .= '<option selected value="' . $credits_package . '">' . $credits_package . '</option>';
@@ -2716,7 +2716,7 @@ class Cart
 
         $d = $edit == true ? '' : 'disabled';
 
-        $np_html = '<select ' . $d . ' class="input" name="np_office"><option value="">Выберите</option>';
+        $np_html = '<select ' . $d . ' class="input" name="np_office"><option value="">' . l('Выберите') . '</option>';
         foreach ($np as $v) {
             if ( //($order && $order['shipping'] && ($order['shipping'] == 'novaposhta_cash' || $order['shipping'] == 'novaposhta') && isset($order['np_office']) && $v['office'] == $order['np_office'] && !isset($_POST['np_office'])) ||
                 //(isset($_POST['np_office']) && $_POST['np_office'] == $v['id'])

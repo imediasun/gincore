@@ -169,7 +169,7 @@ class calls extends \service{
         $list_items = $this->calls_list($client_id, function($call) use ($call_id){
             return '<option'.($call_id == $call['id'] ? ' selected' : '').' value="'.$call['id'].'">id '.$call['id'].', '.$call['date'].'</option>';
         });
-        return '<select name="call_id"><option value="0">Выберите</option>'.$list_items.'</select>';
+        return '<select name="call_id"><option value="0">' . l('Выберите') . '</option>'.$list_items.'</select>';
     }
 
     // массив данных о звонке

@@ -16,7 +16,7 @@ class dashboard{
             $this->gen_content();
         }else{
             $input['dashboard_class'] = 'hidden';
-            $input['mcontent'] = '<p class="text-center m-t-lg">Администрирование</p>';
+            $input['mcontent'] = '<p class="text-center m-t-lg">' . l('Администрирование') . '</p>';
         }
     }
     

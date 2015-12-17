@@ -21,7 +21,7 @@ class debug{
 
         if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">У Вас нет прав</p></div>';
+                <div class="span9"><p  class="text-error">' . l('У Вас нет прав') .'</p></div>';
         }
 
         if(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax'){
@@ -33,22 +33,22 @@ class debug{
         $this->debuggers = array(
             array(
                 'url' => 'visit-high-price',
-                    'title' => 'Повышенные цены для посетителей',
+                    'title' => l('Повышенные цены для посетителей'),
             ),
             array(
                 'url' => 'price_parser',
-                'title' => 'Парсер цен со страниц оборудования ',
+                'title' => l('Парсер цен со страниц оборудования '),
             ),
             array(
                 'url' => 'show_price_tables',
-                'title' => 'Показать таблички с ценами',
+                'title' => l('Показать таблички с ценами'),
             ),
         );
         // доступ к сбросу
         if($this->all_configs['configs']['manage-reset-access']){
             $this->debuggers[] = array(
                 'url' => 'reset',
-                'title' => 'Сброс',
+                'title' => l('Сброс'),
             );
         }
 
@@ -135,17 +135,17 @@ class debug{
                 $visitors = Visitors::getInstance();
                 $visitors->allow_reset();
                 $visitors->init_visitors();
-                $out = '<div class="alert alert-success">'
-                    .'Вы успешно обновили информацию<br>'
+                $out = '<div class="alert alert-success">' .
+                    l('Вы успешно обновили информацию') .'<br>'
                     .'Ваших визитов: '.$visitors->get_visit().'<br>'
-                    .'<a class="alert-link" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'">Вернуться к отладчику</a>'
+                    .'<a class="alert-link" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'">' . l('Вернуться к отладчику') .'</a>'
                     .'</div>';
             }
             
             $out .= 
-                '<a class="btn btn-success" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'?reset">Отметить мое посещение как новое</a><br><br>'
-                .'<a class="btn btn-success" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'?set">Отметить мое посещение как повторное</a><br><br>'
-                .'<a class="btn btn-success" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'?reset">Обычный режим</a><br><br>'
+                '<a class="btn btn-success" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'?reset">' . l('Отметить мое посещение как новое') .'</a><br><br>'
+                .'<a class="btn btn-success" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'?set">' . l('Отметить мое посещение как повторное') .'</a><br><br>'
+                .'<a class="btn btn-success" href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/'.$this->all_configs['arrequest'][1].'?reset">' . l('Обычный режим') .'</a><br><br>'
                 ;
             
 
@@ -361,12 +361,12 @@ class debug{
                 // чистим кеш складов
                 get_service('wh_helper')->clear_cache();
                 
-                $out = '<div class="alert alert-success">'
-                    .'Вы успешно обновили информацию<br>'
-                    .'<a class="alert-link" href="' . $href . '">Вернуться к отладчику</a>'
+                $out = '<div class="alert alert-success">' .
+                    l('Вы успешно обновили информацию') .'<br>'
+                    .'<a class="alert-link" href="' . $href . '">' . l('Вернуться к отладчику') .'</a>'
                     .'</div>';
             }
-            $out .= '<a class="btn btn-success" href="' . $href . '?reset">Сброс</a>';
+            $out .= '<a class="btn btn-success" href="' . $href . '?reset">' . l('Сброс') .'</a>';
         }
 		
 	
@@ -641,9 +641,9 @@ class debug{
 	<table>
 	<tbody>
 		<tr>
-			<td>Вид предоставляемых работ</td>
-			<td>Стоимость</td>
-			<td>Время</td>
+			<td>" . l('Вид предоставляемых работ') ."</td>
+			<td>" . l('Стоимость') . "</td>
+			<td>" . l('Время') ."</td>
 		</tr>
 	" .$rows.
 	"</tbody></table>"; 
@@ -684,10 +684,10 @@ class debug{
 	<table>
 	<tbody>
 		<tr>
-<td>Вид предоставляемых работ</td>
-<td>Копия</td>
-<td>Оригинал</td>
-<td>Время</td>
+<td>" . l('Вид предоставляемых работ') ."</td>
+<td>" . l('Копия') . "</td>
+<td>" . l('Оригинал') . "</td>
+<td>" . l('Время') . "</td>
 </tr>
 	" .$rows.
 	"</tbody></table>"; 

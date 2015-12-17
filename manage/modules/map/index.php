@@ -299,7 +299,7 @@ class map{
             
             $choose_picture2 = '
                 <fieldset>
-                    <legend> Шапка бренду </legend> 
+                    <legend> ' . l('Шапка бренду') .' </legend> 
                     <div class="input-append">
                         <input id="appendedInputButtons" class="span3 Ppicture"  type="text" size="30" name="picture2" value="'.$pp['picture2'].'" class="" id="picture2">
                         <input class="btn bt_page_photo_choose" type="button" data-file="picture2" value="'.l('select').'" id="bt_page_photo_choose2"  />
@@ -509,7 +509,7 @@ class map{
                 $pages .= '</ul>';
                 
                 $results .= '
-                    '.($p ? $pages : 'Не знайдено.').'
+                    '.($p ? $pages : l('Не знайдено.')).'
                 ';
                 
             }
@@ -555,15 +555,15 @@ class map{
 			
 			
 			$prices = '
-			<h3>Экспорт таблиц</h3>
+			<h3>' . l('Экспорт таблиц') .'</h3>
 			<a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-small-csv/#prices" >'.l('map_export_price_table_button').'</a>
 			<a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-full-csv#prices" >'.l('map_export_price_full_table_button').'</a>
-			<h3>Импорт таблиц</h3>
+			<h3>' . l('Импорт таблиц') .'</h3>
 			<form action="'.$this->all_configs['prefix'].'map/upload-prices#prices" method=post enctype=multipart/form-data>
 			<input name="import_prices"  id="import_prices"  type="file">
 			<input type = "submit" class="btn btn-primary" value="Upload" id="upload_prices" >
 			</form>
-			<span class="label label-info">При редактировании в Excell сохранять как CSV(MS-DOS) разделители - точка с запятой</span>
+			<span class="label label-info">' . l('При редактировании в Excell сохранять как CSV(MS-DOS) разделители - точка с запятой') .'</span>
 			';
 			
 			
@@ -714,9 +714,9 @@ class map{
                                         <input type="text" size="50" name="description_name" value="'.$pp['description_name'].'" class="form-control" >
                                     </div>
                                     <div class="form-group">
-                                        <label>Заголовок для консультанта</label>
+                                        <label>' . l('Заголовок для консультанта') .'</label>
                                         <input style="margin-bottom:0" type="text" size="50" name="chat_caption" value="'.$pp['chat_caption'].'" class="form-control" >
-                                        <small class="help-block" style="display:block;margin-top:-4px">проконсультирую по ремонту ......</small>
+                                        <small class="help-block" style="display:block;margin-top:-4px">' . l('проконсультирую по ремонту') .' ......</small>
                                     </div>
                                     <div class="form-group">
                                         <label>'.l('map_product_category').'</label>
@@ -724,13 +724,13 @@ class map{
                                     </div>
                                     <div class="form-group">
                                         <div style="margin: 0 0 5px 5px;">
-                                            <div style="float: left; margin: 4px 10px 0 0">Редактор:</div>
+                                            <div style="float: left; margin: 4px 10px 0 0">' . l('Редактор') .':</div>
                                             <input type="checkbox" id="toggle_mce"'.((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '').'>
                                         </div>
                                         <textarea id="page_content" name="content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">'.$pp['content'].'</textarea>
                                     </div>
                                     <div class="form-group">
-                                        <label>Видео ютуб. Вставлять <i>код</i> видео. Пример: T9z1P8srdQM</label>
+                                        <label>' . l('Видео ютуб. Вставлять код видео. Пример') .': T9z1P8srdQM</label>
                                         <textarea class="form-control" id="youtube_videos" name="youtube_videos" rows="3" cols="300"  style="width:650px;">'.$pp['youtube_videos'].'</textarea>
                                     </div>
                                     '.$this->out_choose_picture($pp).'
@@ -883,12 +883,12 @@ class map{
                        </div>
 <!-- Цены -->
                         <div class="tab-pane" id="prices">
-                            <h4>Экспорт таблиц</h4>
+                            <h4>' . l('Экспорт таблиц') .'</h4>
                                 <a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-small-csv/'.$pp['id'].'#prices" >'.l('map_export_price_table_button').'</a>
                                 <a class="btn btn-default" href="'.$this->all_configs['prefix'].'map/export-map-price-full-csv/'.$pp['id'].'#prices" >'.l('map_export_price_full_table_button').'</a>
-                            <h4>Услуги</h4>
+                            <h4>' . l('Услуги') .'</h4>
                                 '.  Inc_helper_map_price::show_tables_by_type($pp['id'], 1, $this->lang == $this->def_lang).'
-                            <h4>Ремонт</h4>
+                            <h4>' . l('Ремонт') .'</h4>
                                 '.  Inc_helper_map_price::show_tables_by_type($pp['id'], 2, $this->lang == $this->def_lang).'
                        </div>
                        
@@ -1087,7 +1087,7 @@ class map{
             }
             $sel_section.='</select>';
             if(isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'copy'){
-                $out = '<h3>Копирование страницы</h3><br>';
+                $out = '<h3>' . l('Копирование страницы') .'</h3><br>';
                 
                 $copy_page = $this->all_configs['db']->query("SELECT id, url FROM {map} WHERE id = ?i", array($this->all_configs['arrequest'][3]), 'row');
                 $langss = $this->all_configs['db']->query("SELECT name, lang FROM {map_strings} 
@@ -1315,16 +1315,16 @@ class map{
                         $rows = null;
 
                         if( $file_ext != 'csv' ){
-                                $error = 'необходим формат CSV';	
+                                $error = l('необходим формат CSV');
                         }
                         if( $file_size > 20971520 ){
-                                $error = 'максимальный размер 20МБ';	
+                                $error = l('максимальный размер 20МБ');
                         }
 
                         if ( !$error ){
                                 $contents = file_get_contents($_FILES['import_prices']['tmp_name']);
                                 $rows .= $this->parse_prices_to_db( $contents );
-                                $msg .= '<span class="label label-success"> обновлено '.$rows.' записей из файла ' .$file_name .'</span>';  
+                                $msg .= '<span class="label label-success"> ' . l('обновлено') .' '.$rows.' ' . l('записей из файла') .' ' .$file_name .'</span>';  
                         }
                         else {
                                 $msg .= '<span class="label label-warning">'.$error.'</span>';
@@ -1662,7 +1662,7 @@ class map{
                 echo 'удалено '.htmlspecialchars($del).'<br>';
                 unlink($this->all_configs['sitepath'].'images/'.$gallery.'/'.$del);
             }else{
-                echo 'Не удаляется '.$del.'<br>';
+                echo l('Не удаляется') . ' '.$del.'<br>';
             }
         }
 
@@ -1730,12 +1730,12 @@ class map{
                                 $x, $y, 
                                 $tmp_img[0], $tmp_img[1], 
                                 $w, $h);
-                    echo 'Миниатюра создана '.$file.'<br>';
+                    echo l('Миниатюра создана') .  ' '.$file.'<br>';
                 }else {
-                    echo 'Ошибка ресемплинга файла '.$file.'<br>';
+                    echo l('Ошибка ресемплинга файла') . ' '.$file.'<br>';
                 }
             }else{
-                echo 'Нет файла '.$file1.'<br>';
+                echo l('Нет файла') .  ' '.$file1.'<br>';
             }
         } else {
             $path_parts = pathinfo($file);
@@ -1951,7 +1951,7 @@ class map{
                 $out['state'] = true;
             }else{
                 $out['state'] = false;
-                $out['msg'] = 'Введите id страницы источника';
+                $out['msg'] = l('Введите id страницы источника');
             }
         }
         

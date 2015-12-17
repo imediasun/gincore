@@ -580,7 +580,7 @@ class requests extends \service{
                             </td>
                             <!--<td>Звонок</td>-->
                             <td>Клиент</td>
-                            <td>Устройство</td>
+                            <td>' . l('Устройство') . '</td>
                             <td>Оператор</td>
                             <td>Комментарий</td>
                         </tr></thead><tbody>';

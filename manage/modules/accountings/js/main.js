@@ -136,7 +136,7 @@ function create_transaction(_this, conf) {
 function accounting_credit_approved(_this) {
     var order_id = $(_this).data('id');
 
-    if (confirm("Документы готовы?")) {
+    if (confirm(L['Documents ready'] + "?")) {
         $.ajax({
             url: prefix + module + '/ajax/?act=accounting-credit-approved',
             type: 'POST',
@@ -164,7 +164,7 @@ function accounting_credit_approved(_this) {
 function accounting_credit_denied(_this) {
     var order_id = $(_this).data('id');
 
-    if (confirm("Отказать в кредите?")) {
+    if (confirm(L['denied-credit'] + "?")) {
         $.ajax({
             url: prefix + module + '/ajax/?act=accounting-credit-denied',
             type: 'POST',
@@ -190,7 +190,7 @@ function accounting_credit_denied(_this) {
 }
 
 function contractor_remove(_this, contractor_id) {
-    if (confirm("Вы действительно хотите удалить этого контрагента?")) {
+    if (confirm(L['are-you-sure-you-want-to-delete-this-listing'] + "?")) {
         //var contractor_id = $(_this).data('contractor_id');
 
         $.ajax({
@@ -218,7 +218,7 @@ function contractor_remove(_this, contractor_id) {
 function contractor_category_remove(_this, category_id) {
     $(_this).button('loading');
 
-    if (confirm("Вы действительно хотите удалить эту категорию?")) {
+    if (confirm(L['are_you-sure-you-want-to-delete-this-category'] +"?")) {
         //var category_id = $(_this).data('category_id');
 
         $.ajax({

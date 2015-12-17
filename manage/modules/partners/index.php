@@ -2,7 +2,7 @@
 
 
 $modulename[200] = 'partners';
-$modulemenu[200] = 'Партнеры';
+$modulemenu[200] = l('Партнеры');
 $moduleactive[200] = !$ifauth['is_2'];
 
 class partners

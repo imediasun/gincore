@@ -112,7 +112,7 @@ function multiselect_goods(tab) {
     $('.multiselect-goods-tab-' + tab).multiselect({
         buttonText: function(options) {
             if (options.length == 0) {
-                return 'Наименование <b class="caret"></b>';
+                return L['name']  + ' <b class="caret"></b>';
             } else {
                 return options.length + ' selected  <b class="caret"></b>';
             }
@@ -262,7 +262,7 @@ function scan_serial(_this, id) {
 }
 
 function close_inventory(_this, inv_id) {
-    if (confirm('Закрыть инвентаризацию?')) {
+    if (confirm(L['close-inventory'] +  '?')) {
         $.ajax({
             url: prefix + module + '/ajax/' + /*arrequest()[2] +*/ '?act=close-inventory',
             type: 'POST',

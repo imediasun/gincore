@@ -26,13 +26,13 @@ function init_mce() {
         theme_advanced_statusbar_location : "bottom",
         theme_advanced_resizing : true,
 
-        table_styles: 'Огромная таблица(по ширине)=table_break_words',
+        table_styles: L['huge-table']  + '(' + L['width'] +')=table_break_words',
 
         extended_valid_elements : "object[width|height|param|embed],param[name|value],embed[src|type|width|height|allowscriptaccess|allowfullscreen],li[class|rel|id],div[class|rel|id|style],nobr"
 
         ,setup : function(ed) {
             ed.addButton('mybutton', {
-                title : 'Вставить галерею',
+                title : L['paste-gallery'],
                 image : prefix+'modules/map/img/dnld.png',
                 onclick : function() {
                     ed.focus();
@@ -64,8 +64,8 @@ function createCookie(name,value,days) {
 
 function tiny_mce() {
     var checkbox = $('#toggle_mce').iphoneStyle({
-        checkedLabel: 'Вкл.',
-        uncheckedLabel: 'Выкл.',
+        checkedLabel: L['on'],
+        uncheckedLabel: L['off'],
         onChange: function(checkbox, state){
             if (state) {
                 createCookie('mce_on', 1, 300);
@@ -100,7 +100,7 @@ $(function(){
                     search_pos = text.indexOf(query),
                     li = $this.parents('li'),
                     id = li.attr('id'),
-                    goto_el = '<span class="goto_level" data-id="'+id+'">меню</span>';
+                    goto_el = '<span class="goto_level" data-id="'+id+'">' + L['menu'] + '</span>';
                 if(search_pos >= 0){
                     els.push('<li><span title="'+li.parents('li').attr('title')+'">'+$this[0].outerHTML+'</span>, '+/*goto_el+*/'</li>');
                 }
