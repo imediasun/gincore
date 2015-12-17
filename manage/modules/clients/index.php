@@ -422,12 +422,12 @@ class clients
             }
         }
         return '
-            <a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">Создать клиента</a>
+            <a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create">' . l('Создать клиента') . '</a>
             <form class="form-horizontal" method="post" style="margin-bottom:0;float:left;max-width:300px">
                 <div class="input-group">
                     <input class="form-control" type="text" value="' . (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') . '" name="text">
                     <div class="input-group-btn">
-                        <input class="btn btn-default" type="submit" value="Поиск" name="search">
+                        <input class="btn btn-default" type="submit" value="' . l('Поиск') . '" name="search">
                     </div>
                 </div>
             </form>
@@ -458,14 +458,14 @@ class clients
                После этого клиент 2 будет удален.</p><br>
         ';
         
-        $out .= '<div class="control-group"><label class="control-label">Клиент 1: </label><div class="controls">';
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ' 1: </label><div class="controls">';
 //        $out .= '<input value="' . (isset($_GET['client_1']) ? $_GET['client_1'] : '') . '" name="client_1" /></div></div>';
         $out .= '' . typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_1']) ? $_GET['client_1'] : 0, 1, 'input-medium', 'input-small', '', true, false, '1') . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Клиент 2: </label><div class="controls">';
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ' 2: </label><div class="controls">';
 //        $out .= '<input value="' . (isset($_GET['client_2']) ? $_GET['client_2'] : '') . '" name="client_2" /></div></div>';
         $out .= '' . typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_2']) ? $_GET['client_2'] : 0, 2, 'input-medium', 'input-small', '', true, false, '2') . '</div></div>';
         $out .= '<div class="control-group"><label class="control-label"></label><div class="controls">';
-        $out .= '<input type="button" value="Склеить" onclick="group_clients(this)" class="btn btn-default" /></div></div>';
+        $out .= '<input type="button" value="' . l('Склеить') . '" onclick="group_clients(this)" class="btn btn-default" /></div></div>';
         $out .= '</form>';
 
         return $out;
@@ -501,7 +501,7 @@ class clients
         $out = '';
         if ($clients && count($clients) > 0) {
             $out .= '<table class="table table-striped"><thead><tr>';
-            $out .= "<td>ID</td><td>Эл.почта</td><td>Ф.И.О.</td><td>Телефон</td><td>Дата регистрации</td></tr><tbody>";
+            $out .= "<td>ID</td><td>" . l('Эл.почта') . "</td><td>" . l('Ф.И.О.') . "</td><td>" . l('Телефон') . "</td><td>" . l('Дата регистрации') . "</td></tr><tbody>";
             foreach ($clients as $client) {
                 // клиенты которые используются системой
                 if (array_key_exists('manage-system-clients', $this->all_configs['configs'])
@@ -547,20 +547,20 @@ class clients
         $out  = '<form class="form-horizontal" method="post"><fieldset><legend>Добавление клиента</legend>';
         $out .= '<div class="control-group"><label class="control-label">Электронная почта: </label>
             <div class="controls"><input value="'.(isset($_POST['email'])?htmlspecialchars($_POST['email']):'').'" name="email" class="form-control" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Телефон: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Телефон') . ': </label>
             <div class="controls"><input value="'.(isset($_POST['phone']) ? htmlspecialchars($_POST['phone']):'').'" name="phone" class="form-control" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Ф.И.О.: </label>
             <div class="controls"><input value="'.(isset($_POST['fio'])?htmlspecialchars($_POST['fio']):'').'" name="fio" class="form-control" /></div></div>';
         $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
         if ($contractors) {
             $out .= '<div class="control-group"><label class="control-label">Контрагент: </label><div class="controls">';
-            $out .= '<select name="contractor_id" class="multiselect"><option value="">Не выбран</option>';
+            $out .= '<select name="contractor_id" class="multiselect"><option value="">' . l('Не выбран') . '</option>';
             foreach ($contractors as $contractor) {
                 $out .= '<option value="' . $contractor['id'] . '">' . htmlspecialchars($contractor['title']) . '</option>';
             }
             $out .= '</select></div></div>';
         }
-        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-client"></div></div>';
+        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-client"></div></div>';
         $out .= '</div>';
         $out .= '</form>';
         return $out;
@@ -659,7 +659,7 @@ class clients
                             <input type="hidden" name="call_id" value="'.$new_call_id.'">
                             <div class="row-fluid">
                                 <div class="span4">
-                                    Заказчик: <br>
+                                   ' . l('Заказчик') . ': <br>
                                     <input class="form-control" type="text" value="' . htmlspecialchars($client['fio']) . '" name="fio" /><br>
                                 </div>
                                 <div class="span4">
@@ -684,7 +684,7 @@ class clients
                                     </div>
                                 </div>
                                 <div class="span4">
-                                    Источник: <br>
+                                    ' . l('Источник') . ': <br>
                                     '.get_service('crm/calls')->get_referers_list(isset($calldata['referer_id']) ? $calldata['referer_id'] : null).'<br>
                                 </div>
                                 <div class="span4">
@@ -706,7 +706,7 @@ class clients
                 <div class="controls"><input value="' . htmlspecialchars($client['email']) . '" name="email" class="form-control " /></div></div>';
 
 
-            $out .= '<div class="form-group"><label class="control-label">Телефон: </label><div class="relative">';
+            $out .= '<div class="form-group"><label class="control-label">' . l('Телефон') . ': </label><div class="relative">';
             $out .= ''.$this->phones($client['id']) . ' <i class="cloneAndClear glyphicon glyphicon-plus"></i></div></div>';
             //    <input value="' . htmlspecialchars($client['phone']) . '" name="phone" class="span5" />';*/
             $out .= '<div class="form-group"><label class="control-label">Дата регистрации: </label>
@@ -716,7 +716,7 @@ class clients
             $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
             if ($contractors) {
                 $out .= '<div class="form-group"><label class="control-label">Контрагент: </label><div class="controls">';
-                $out .= '<select name="contractor_id" class="multiselect form-control "><option value="">Не выбран</option>';
+                $out .= '<select name="contractor_id" class="multiselect form-control "><option value="">' . l('Не выбран') . '</option>';
                 foreach ($contractors as $contractor) {
                     if ($contractor['id'] == $client['contractor_id'])
                         $out .= '<option selected value="' . $contractor['id'] . '">' . htmlspecialchars($contractor['title']) . '</option>';
@@ -737,7 +737,7 @@ class clients
         $out .= '
             <div class="form-group">
                     <div class="controls">
-                    <input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-client">
+                    <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-client">
                     </div>
                 </div>
             </form>
@@ -775,9 +775,9 @@ class clients
             $model = new Model($this->all_configs['db'], $this->all_configs['configs']);
 
             $out .= '<table class="table table-compact"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td><td>'.l('Приемщик').'</td>';
-            $out .= '<td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td><td>Стоимость</td><td>Оплачено</td>';
+            $out .= '<td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td><td>Стоимость</td><td>' . l('Оплачено') . '</td>';
             $out .= '<td>Клиент</td><td>Контактный тел.</td><td>Сроки</td>';
-            $out .= '<td>Склад</td></tr></thead><tbody id="table_clients_orders">';
+            $out .= '<td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
             foreach ( $orders as $order ) {
                 $out .= display_client_order($order, $model);
             }
@@ -788,7 +788,7 @@ class clients
             // строим блок страниц
             $out .= page_block($count_page);
         } else {
-            $out .= '<div class="span9"><p  class="text-error">Заказов не найдено</p></div>';
+            $out .= '<div class="span9"><p  class="text-error">' . l('Заказов не найдено') . '</p></div>';
         }
         $out .= '
             </div>
@@ -821,11 +821,11 @@ class clients
             <li><a href="#comments" data-toggle="tab">Комментарии</a></li></ul>';
 
         $out .= '<div class="tab-content"><div id="review" class="tab-pane active">';
-        $out .= '<div class="control-group"><label class="control-label">Клиент: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ': </label>
             <div class="controls">' . (($review['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $review['user_id'] . '/">' . htmlspecialchars($review['email']) . '</a>' : htmlspecialchars($review['fio'])) . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Товар: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Товар') . ': </label>
             <div class="controls"><a href="' . $this->all_configs['prefix'] . 'products/create/' . $review['goods_id'] . '/#imt-comments">' . htmlspecialchars($review['title']) . '</a></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text">' . htmlspecialchars($review['text']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Плюсы: </label>
             <div class="controls"><textarea class="span5" name="advantages">' . htmlspecialchars($review['advantages']) . '</textarea></div></div>';
@@ -878,7 +878,7 @@ class clients
 
         $out .= '</div></div>';
 
-        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-goods-reviews"></div></div>';
+        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-goods-reviews"></div></div>';
         $out .= '</fieldset></form>';
 
         return $out;
@@ -887,7 +887,7 @@ class clients
     private function add_shop_reviews()
     {
         $out = '<form class="form-horizontal" method="post"><fieldset><legend>Новый отзыв о магазине</legend>';
-        $out .= '<div class="control-group"><label class="control-label">Клиент: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ': </label>
             <div class="controls">' . typeahead($this->all_configs['db'], 'clients', false, 0, 2) . '</div></div>';
         $out .= '<div class="control-group"><div class="controls"><label class="radio"><input type="radio" name="status" value="1" />' . $this->all_configs['configs']['reviews-shop-status'][1] . ',</label>';
         $out .= '<label class="radio"><input type="radio" name="status" value="2" />' . $this->all_configs['configs']['reviews-shop-status'][2] . ',</label>';
@@ -895,7 +895,7 @@ class clients
         $out .= '<div class="control-group"><div class="controls"><label class="radio"><input type="radio" name="become_status" value="1" />' .$this->all_configs['configs']['reviews-shop-become_status'][1] . ',</label>';
         $out .= '<label class="radio"><input type="radio" name="become_status" value="2" />' . $this->all_configs['configs']['reviews-shop-become_status'][2] . ',</label>';
         $out .= '<label class="radio"><input type="radio" name="become_status" value="3" />' . $this->all_configs['configs']['reviews-shop-become_status'][3] . '</label></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text"></textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Одобрен: </label>
             <div class="controls"><input type="checkbox" name="avail" /></div></div>';
@@ -956,10 +956,10 @@ class clients
                                 <!--<div class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Настройки<b class="caret"></b></a>-->
                                     <ul class="<!--dropdown-menu--> sett-dd-btns">
-                                        <li><input onclick="window.location.href=\'' . $this->all_configs['prefix'] . 'clients/approve-reviews/create/' . $comment['id'] . '\'" class="btn btn-info btn-mini" type="button" value="Редактировать" /></li>
+                                        <li><input onclick="window.location.href=\'' . $this->all_configs['prefix'] . 'clients/approve-reviews/create/' . $comment['id'] . '\'" class="btn btn-info btn-mini" type="button" value="' . l('Редактировать') . '" /></li>
                                         <li><input onclick="confirm_parse_comment(' . $comment['id'] . ', 0)" class="btn btn-success btn-mini" type="button" value="Подтвердить (откл)" /></li>
                                         <li><input onclick="confirm_parse_comment(' . $comment['id'] . ', 1)" class="btn btn-success btn-mini" type="button" value="Подтвердить (вкл)" /></li>
-                                        <li><input onclick="refute_parse_comment(' . $comment['id'] . ')" class="btn btn-danger btn-mini" type="button" value="Удалить" /></li>
+                                        <li><input onclick="refute_parse_comment(' . $comment['id'] . ')" class="btn btn-danger btn-mini" type="button" value="' . l('Удалить') . '" /></li>
                                     </ul>
                                 <!--</div>-->
                             </td>
@@ -989,11 +989,11 @@ class clients
             return '<p  class="text-error">Нет такого отзыва</p>';
 
         $out = '<form class="form-horizontal" method="post"><fieldset><legend>Редактирование не подтвержденного отзыва о товаре ID: ' . $review['id'] . '.</legend>';
-        $out .= '<div class="control-group"><label class="control-label">Клиент: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ': </label>
             <div class="controls"><input type="text" value="' . htmlspecialchars($review['fio']) . '" class="span5" name="fio" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Товар: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Товар') . ': </label>
             <div class="controls"><a href="' . $this->all_configs['prefix'] . 'products/create/' . $review['goods_id'] . '/">' . htmlspecialchars($review['title']) . '</a></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text">' . htmlspecialchars($review['content']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Плюсы: </label>
             <div class="controls"><textarea class="span5" name="advantages">' . htmlspecialchars($review['advantages']) . '</textarea></div></div>';
@@ -1014,7 +1014,7 @@ class clients
             <div class="controls"><input type="text" class="span5" onkeydown="return isNumberKey(event)" name="usefulness_no" value="' . (1*$review['usefulness_no']) .'" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">'.l('Дата').': </label>
             <div class="controls"><input type="text" value="' . date("d.m.Y", strtotime($review['date_add'])) . '" class="span5 edit_date" name="date_add" /></div></div>';
-        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-approve-reviews"></div></div>';
+        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-approve-reviews"></div></div>';
         $out .= '</fieldset></form>';
 
         return $out;
@@ -1033,9 +1033,9 @@ class clients
             return '<p  class="text-error">Нет такого отзыва</p>';
 
         $out = '<form class="form-horizontal"  method="post"><fieldset><legend>Редактирование комментария о магазине ID: ' . $review['id'] . '.</legend>';
-        $out .= '<div class="control-group"><label class="control-label">Клиент: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ': </label>
             <div class="controls">' . (($review['user_id']>0) ? '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $review['user_id'] . '/">' . htmlspecialchars($review['email']) . '</a>' : htmlspecialchars($review['fio'])) . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text">' . htmlspecialchars($review['text']) . '</textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Оценка: </label>';
         $checked = ''; if ( $review['status'] == 1 ) $checked = 'checked'; $out .= '<div class="controls"><input type="radio" name="status" value="1" ' . $checked . ' /> ' . $this->all_configs['configs']['reviews-shop-status'][1] . '</div>';
@@ -1050,7 +1050,7 @@ class clients
             <div class="controls"><input type="checkbox" ' . $checked .' name="avail" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">'.l('Дата').': </label>
             <div class="controls"><span title="' . do_nice_date($review['date'], false) . '">' . do_nice_date($review['date']) . '</span></div></div>';
-        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="Сохранить изменения" name="edit-shop-reviews"></div></div>';
+        $out .= '<div class="control-group"><div class="controls"><input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-shop-reviews"></div></div>';
         $out .= '</fieldset></form>';
 
 
@@ -1144,14 +1144,14 @@ class clients
     private function add_goods_reviews()
     {
         $out = '<form class="form-horizontal" method="post"><fieldset><legend>Новый отзыв</legend>';
-        $out .= '<div class="control-group"><label class="control-label">Клиент: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ': </label>
             <div class="controls">' . typeahead($this->all_configs['db'], 'clients', false, 0, 3) . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">Товар: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Товар') . ': </label>
             <div class="controls">';
 
         $out .= typeahead($this->all_configs['db'], 'goods', true) . '</div></div>';
 
-        $out .= '<div class="control-group"><label class="control-label">Комментарий: </label>
+        $out .= '<div class="control-group"><label class="control-label">' . l('Комментарий') . ': </label>
             <div class="controls"><textarea class="span5" name="text"></textarea></div></div>';
         $out .= '<div class="control-group"><label class="control-label">Рейтинг: </label>
             <div class="controls"><select name="rating" class="span5">';

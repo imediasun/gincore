@@ -48,27 +48,27 @@ class statistics extends \service{
             <form class="form-inline" method="get" action="'.$this->all_configs['prefix'].'clients">
                 <input type="hidden" name="tab" value="statistics">
                 <div class="form-group">
-                    Оператор:
+                    ' . l('Оператор') . ':
                     '.get_service('crm/requests')->get_operators().'
                 </div>
                 <div class="form-group">
-                    Период: 
+                    ' . l('Период') . ': 
                     <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '') . '" />
                 </div>
                 <div class="form-group">
-                    Устройство: 
+                    ' . l('Устройство') . ': 
                     '.typeahead($this->all_configs['db'], 'categories-goods', false, isset($_GET['categories-goods'])?(int)$_GET['categories-goods']:0, '', 'input-xlarge', '', '', false, false, '').'
                 </div>
-                <input type="submit" class="btn btn-primary btn-sm" value="Применить">
+                <input type="submit" class="btn btn-primary btn-sm" value="'. l('Применить') . '">
             </form>
             <br>
-            Всего заявок: '.$all_requests_qty.' <br><br>
+            ' .  l('Всего заявок') . ': '.$all_requests_qty.' <br><br>
             <table class="table table-bordered table-striped table-hover" style="max-width:600px">
                 <thead>
                     <tr>
                         <th>'.l('Статус').'</th>
-                        <th>Клиенты</th>
-                        <th>Конверсия</th>
+                        <th>' . l('Клиенты') .'</th>
+                        <th>' . l('Конверсия') . '</th>
                     </tr>
                 </thead>
                 <tbody>

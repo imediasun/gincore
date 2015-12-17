@@ -528,7 +528,7 @@ class tasks
         }
         $out .= '</select></div>';
         if ($this->all_configs['oRole']->hasPrivilege('create-task')) {
-            $out .= '<div class="form-group"><label>Автор:</label>';
+            $out .= '<div class="form-group"><label>' . l('Автор') . ':</label>';
             $out .= '<select class="multiselect form-control report-filter" name="authors[]" multiple="multiple">';
             $out .= build_array_tree($authors, ((isset($_GET['ath'])) ? explode(',', $_GET['ath']) : array()));
             $out .= '</select></div>';
@@ -539,7 +539,7 @@ class tasks
         }
         $out .= '<div class="form-group"><label>Даты:</label>';
         $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" /></div>';
-        $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="Фильтровать" />'
+        $out .= '<input class="btn btn-primary" type="submit" name="filter-all-tasks" value="' . l('Фильтровать') . '" />'
                 . '</form>';
         $out .= '</div>'; //row-2, end filers
         
@@ -604,7 +604,7 @@ class tasks
                 . '<td>№</td>'
                 . '<td>'.l('Статус').'</td>'
                 . '<td>Тема</td>'
-                . '<td>Автор</td>'
+                . '<td>' . l('Автор') . '</td>'
                 . '<td>Исполнитель</td>'
                 . '<td>Создана</td>'
                 . '<td>Дедлайн</td>'

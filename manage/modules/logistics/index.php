@@ -90,19 +90,19 @@ class logistics
         $out = '
             <form>
                 <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="'.(isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '').'" />
-                <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="form-control" placeholder="№ заказа">
-                <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="form-control" placeholder="№ изделия">
-                <label>Откуда: <br>
+                <input name="o_id" value="'.(isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '').'" type="text" class="form-control" placeholder="' . l('номер заказа') . '">
+                <input name="i_id" value="'.(isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '').'" type="text" class="form-control" placeholder="' . l('номер изделия') . '">
+                <label>' . l('Откуда') . ': <br>
                 <select class="multiselect form-control" name="whfrom[]" multiple="multiple">'.$warehouses_select.'</select></label>
-                <label>Куда: <br>
+                <label>' . l('Куда') . ': <br>
                 <select class="multiselect form-control" name="whto[]" multiple="multiple">'.$warehouses_select_to.'</select></label>
                 <div class="checkbox">
                     <label>
                         <input'.(isset($_GET['serials_in_orders']) ? ' checked' : '').' value="1" type="checkbox" name="serials_in_orders"> 
-                            разгрупировать
+                            ' . l('разгрупировать') . '
                     </label>
                 </div>
-                <input type="button" onclick="send_get_form(this)" value="Фильтровать" class="btn btn-primary" />
+                <input type="button" onclick="send_get_form(this)" value="' . l('Фильтровать') . '" class="btn btn-primary" />
             </form>
         ';
         return $out;
@@ -264,7 +264,7 @@ class logistics
             $count_page = ceil($chains_moves_count_all / $this->count_on_page);
             $pages = page_block($count_page, '#motions');
         }else{
-            $rows = 'Нет цепочек';
+            $rows = l('Нет цепочек');
             $pages = '';
         }
         
@@ -330,7 +330,7 @@ class logistics
                 '<div class="panel-group" id="accordion-logistics">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-logistics" href="#collapseLogistics-0">Добавить логистическую цепочку</a>
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-logistics" href="#collapseLogistics-0">' . l('Добавить логистическую цепочку') . '</a>
                         </div>
                         <div id="collapseLogistics-0" class="panel-collapse collapse">
                             <div class="panel-body">
@@ -339,20 +339,20 @@ class logistics
                                         <div class="col-sm-4">
                                             <p>Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка</p>
                                             <div class="form-group">
-                                                <label>Склад:</label>
+                                                <label>' . l('Склад') . ':</label>
                                                 <select data-multi="0" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[0]">
                                                     '.$warehouses_select.'
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Локация:</label>
+                                                <label>' . l('Локация') . ':</label>
                                                 <select class="multiselect form-control select-location0" name="location[0]"></select>
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
                                             <p>Укажите склад логистики</p>
                                             <div class="form-group">
-                                                <label>Склад:</label>
+                                                <label>' . l('Склад') . ':</label>
                                                 <select data-multi="1" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[1]">
                                                     '.$warehouses_select.'
                                                 </select>
@@ -361,13 +361,13 @@ class logistics
                                         <div class="col-sm-4">
                                             <p>Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка</p>
                                             <div class="form-group">
-                                                <label>Склад:</label>
+                                                <label>' . l('Склад') . ':</label>
                                                 <select data-multi="2" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[2]">
                                                     '.$warehouses_select.'
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label class="control-label">Локация:</label>
+                                                <label class="control-label">' . l('Локация') . ':</label>
                                                 <select class="multiselect form-control select-location2" name="location[2]"></select>
                                             </div>
                                         </div>

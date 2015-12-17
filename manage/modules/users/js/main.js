@@ -59,7 +59,7 @@ $(function(){
         content:'' +
             '<p><input class="na-mess  form-control" /></p>' +
             '<p><textarea class="ta-mess form-control" rows="3"></textarea></p>' +
-            '<p><input type="button" class="btn" onclick="send_mess()" value="Отправить" /></p>',
+            '<p><input type="button" class="btn" onclick="send_mess()" value="' + L['send'] +'" /></p>',
     });
     
     create_avatar_uploader();

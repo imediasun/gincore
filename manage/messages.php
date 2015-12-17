@@ -333,7 +333,7 @@ if ($act == 'alarm-clock') {
         <div class="panel panel-default">
             <div class="panel-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms" href="#accordion-alarm-add">
-                    Добавить напоминание
+                    ' . l('Добавить напоминание') . '
                 </a>
             </div>
             <div id="accordion-alarm-add" class="panel-collapse collapse">
@@ -366,7 +366,7 @@ if ($act == 'alarm-clock') {
         <div class="panel-default panel">
             <div class="panel-heading">
             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms-history" href="#accordion-alarm-show">
-                История
+                ' . l('История') . '
             </a>
         </div>
         <div id="accordion-alarm-show" class="panel-collapse collapse">
@@ -387,7 +387,7 @@ function show_alarms($all_configs, $user_id, $old = false)
 {
     $html =
         '<table class="table">
-            <thead><tr><td>Дата создания</td><td>Дата напоминания</td><td>Автор</td><td>№ заказа</td><td>Текст</td><td></td></tr></thead>
+            <thead><tr><td>' . l('Дата создания') . '</td><td>' . l('Дата напоминания') . '</td><td>' . l('Автор') . '</td><td>' . l('номер заказа') . '</td><td>' . l('Текст') . '</td><td></td></tr></thead>
             <tbody>';
 
     $alarms = $all_configs['db']->query('SELECT a.*, u.fio, u.phone, u.login, u.email FROM {alarm_clock} as a
@@ -407,7 +407,7 @@ function show_alarms($all_configs, $user_id, $old = false)
             $html .= '<td><i onclick="remove_alarm(this, ' . $alarm['id'] . ')" class="glyphicon glyphicon-remove cursor-pointer"></i></td></tr>';
         }
     } else {
-        $html .= '<tr><td colspan="5">Напоминаний нет</td></tr>';
+        $html .= '<tr><td colspan="5">' . l('Напоминаний нет') . '</td></tr>';
     }
     $html .= '</tbody></table>';
 
@@ -656,7 +656,7 @@ function get_messages($type = null)
           FROM {messages} WHERE user_id_destination=?i AND remove=0 ?query ORDER BY `date_add` DESC',
         array($_SESSION['id'], $query))->assoc();
 
-    $html = 'Сообщений нет';
+    $html = l('Сообщений нет');
     if ($messages) {
         $html = '<br/><div class="accordion-group" id="accordion-messages">';
         foreach ($messages as $message) {
@@ -692,7 +692,7 @@ if ($act == 'get-messages') {
     $type = isset($_POST['object_id']) ? intval($_POST['object_id']) : null;
     $data['content'] = get_messages($type);
     $onclick = 'onclick="remove_message(this, \'all\'' . ($type === null ? '' : ', ' . $type) . ')"';
-    $data['btns'] = '<input ' . $onclick . ' type="button" class="btn btn-danger" value="Удалить все" />';
+    $data['btns'] = '<input ' . $onclick . ' type="button" class="btn btn-danger" value="' . l('Удалить все') .'" />';
 
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);

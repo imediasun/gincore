@@ -271,7 +271,7 @@ class wrapper{
                     if (isset($conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][5])) {
                         $vars = $this->all_configs['db']->query('SELECT id, name FROM {?query}',
                             array($conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][5]))->vars();
-                        $form .= '<select class="form-group" name="'.$pp[0].'"><option value="0">не выбрано</option>';
+                        $form .= '<select class="form-group" name="'.$pp[0].'"><option value="0">' . l('не выбрано') . '</option>';
                         foreach ($vars as $var_id=>$var_value) {
                             $form .= '<option'.($var_id == $pp ? ' selected' : '').' value="' . intval($var_id) . '">' . htmlspecialchars($var_value) . '</option>';
                         }
@@ -337,7 +337,7 @@ class wrapper{
                     if (isset($conf[$this->all_configs['arrequest'][1]]['columns'][$k][5])) {
                         $vars = $this->all_configs['db']->query('SELECT id, name FROM {?query}',
                             array($conf[$this->all_configs['arrequest'][1]]['columns'][$k][5]))->vars();
-                        $form.='<select class="form-control" name="'.$k.'"><option value="0">не выбрано</option>';
+                        $form.='<select class="form-control" name="'.$k.'"><option value="0">' . l('не выбрано') . '</option>';
                         foreach ($vars as $var_id=>$var_value) {
                             $form.='<option'.($var_id == $pp ? ' selected' : '').' value="' . intval($var_id) . '">' . htmlspecialchars($var_value) . '</option>';
                         }

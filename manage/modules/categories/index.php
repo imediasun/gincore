@@ -272,7 +272,7 @@ class categories
         $category_html = '<'.$attr.'><fieldset><legend>Добавление новой категории (название устройства)</legend>';
         if ( isset($_GET['error']) && $_GET['error'] == 'url')
             $category_html .= '<p class="text-error">Категория с таким названием уже существует</p>';
-        $category_html .= '<div class="form-group"><label>Название:</label>
+        $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
             <input autocomplete="off" placeholder="Укажите название устройства или категории. Пример: IPhone 5" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="'.($name ? htmlspecialchars($name) : '').'" /></div>';
         $category_html .= '<div class="form-group"><div class="checkbox"><label>
             <input name="avail" type="checkbox">Активность</label></div></div>';
@@ -284,8 +284,8 @@ class categories
 
         $category_html .= '
             <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="создать" name="create-category" />
-                '.($ajax ? '<button type="button" class="btn btn-default hide_typeahead_add_form">Отмена</button>' : '').'
+                <input class="btn btn-primary" type="submit" value="' . l('Создать') . '" name="create-category" />
+                '.($ajax ? '<button type="button" class="btn btn-default hide_typeahead_add_form">' . l('Отмена') . '</button>' : '').'
             </div>';
 
         $category_html .= '</fieldset></'.$form_close.'>';
@@ -299,7 +299,7 @@ class categories
         $categories_html = '';
 
         if ( $this->all_configs['oRole']->hasPrivilege('create-filters-categories') ) {
-            $categories_html .= '<p><a href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/create" class="btn btn-success">Создать категорию</a>
+            $categories_html .= '<p><a href="'.$this->all_configs['prefix'].$this->all_configs['arrequest'][0].'/create" class="btn btn-success">' . l('Создать категорию') . '</a>
                 </p>';//<a href="" class="btn btn-danger">Удалить</a>
         }
         if ( count($categories) > 0 ) {
@@ -482,7 +482,7 @@ class categories
                 <legend>' . $thumbs . ' Редактирование категории ID: ' . $cur_category['id'] . '. ' . $cur_category['title'] . '</legend>';
             if ( isset($_GET['error']) && $_GET['error'] == 'url')
                 $category_html .= '<p  class="text-error">Категория с таким названием уже существует</p>';
-            $category_html .= '<div class="form-group"><label>Название:</label>
+            $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
                 <input class="form-control" name="title" value="' . $cur_category['title'] . '" /></div>';
             $category_html .= '<input type="hidden" class="span5" name="id" value="' . $cur_category['id'] . '" />';
 //            $category_html .= '<div class="form-group"><label class="control-label">url:</label>
@@ -549,8 +549,8 @@ class categories
 
             $sort = '';
             $sort_id = '<a href="?sort=rid">ID';
-            $sort_title = '<a href="?sort=title">Название продукта';
-            $sort_price = '<a href="?sort=price">Цена';
+            $sort_title = '<a href="?sort=title">' . l('Название продукта');
+            $sort_price = '<a href="?sort=price">' . l('Цена');
             $sort_date = '<a href="?sort=date">'.l('Дата').'';
             $sort_avail = '<a href="?sort=avail">Вкл';
             if ( isset($_GET['sort']) ) {
@@ -564,19 +564,19 @@ class categories
                         $sorting = ' ORDER BY {goods}.id DESC';
                         break;
                     case 'title':
-                        $sort_title = '<a href="?sort=rtitle">Название продукта<i class="glyphicon glyphicon-chevron-down"></i>';
+                        $sort_title = '<a href="?sort=rtitle">' . l('Название продукта') . '<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.title';
                         break;
                     case 'rtitle':
-                        $sort_title = '<a href="?sort=title">Название продукта<i class="glyphicon glyphicon-chevron-up"></i>';
+                        $sort_title = '<a href="?sort=title">' . l('Название продукта') . '<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.title DESC';
                         break;
                     case 'price':
-                        $sort_price = '<a href="?sort=rprice">Цена<i class="glyphicon glyphicon-chevron-down"></i>';
+                        $sort_price = '<a href="?sort=rprice">' . l('Цена') . '<i class="glyphicon glyphicon-chevron-down"></i>';
                         $sorting = ' ORDER BY {goods}.price';
                         break;
                     case 'rprice':
-                        $sort_price = '<a href="?sort=price">Цена<i class="glyphicon glyphicon-chevron-up"></i>';
+                        $sort_price = '<a href="?sort=price">' . l('Цена') . '<i class="glyphicon glyphicon-chevron-up"></i>';
                         $sorting = ' ORDER BY {goods}.id DESC';
                         break;
                     case 'date':
@@ -610,11 +610,11 @@ class categories
             // строим таблицу товаров
 
 
-            //$category_html .= '<h4>Товары</h4>';
+            //$category_html .= '<h4>' . l('Товары') . '</h4>';
 
             if ( $this->all_configs['oRole']->hasPrivilege('create-goods') ) {
                 $category_html .= '<a class="btn btn-primary" href="' . $this->all_configs['prefix'] . 'products/create?cat_id=';
-                $category_html .= $this->cat_id . '">Добавить товар</a><br /><br />';
+                $category_html .= $this->cat_id . '">' . l('Добавить товар') . '</a><br /><br />';
             }
 
             if (count($goods) > 0) {
@@ -715,7 +715,7 @@ class categories
         $category_html = '';
         $category_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
         $category_html .= '<li><a class="click_tab default" data-open_tab="categories_edit_tab_category" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_category">Категория</a></li>';
-        $category_html .= '<li><a class="click_tab" data-open_tab="categories_edit_tab_goods" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_goods">Товары</a></li>';
+        $category_html .= '<li><a class="click_tab" data-open_tab="categories_edit_tab_goods" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_goods">' . l('Товары') . '</a></li>';
 //        if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories'))
 //            $category_html .= '<li><a class="click_tab" data-open_tab="categories_edit_tab_seo" onclick="click_tab(this, event)" data-toggle="tab" href="#edit_tab_seo">SEO</a></li>';
         $category_html .= '</ul>';

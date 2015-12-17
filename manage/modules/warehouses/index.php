@@ -493,7 +493,7 @@ class warehouses
             $out .= '<div id="scanner-moves-alert" class="alert fade"><button type="button" class="close" data-dismiss="alert">&times;</button><div id="scanner-moves-alert-body"></div></div>';
             $out .= '
                 <label>Укажите номер заказа, изделия или локации. После чего нажмите Enter. Или используйте сканер.</label>
-                <input value="" id="scanner-moves" type="text" placeholder="заказ, изделие или локация" class="form-control" />';
+                <input value="" id="scanner-moves" type="text" placeholder="' . l('заказ, изделие или локация') . '" class="form-control" />';
             $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="заказ или локация" class="form-control" />';
         }
 
@@ -507,11 +507,11 @@ class warehouses
     {
         // всего денег по кассам которые consider_all == 1
         $cost_of = cost_of($this->warehouses,  $this->all_configs['settings'], $this->all_configs['suppliers_orders']);
-        $out = '<div class="well">Всего: ';
+        $out = '<div class="well">' . l('Всего') . ': ';
         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
             $out .= $cost_of['cur_price'] . ' (' . $cost_of['html'] .  '), ';
         }
-        $out .= $cost_of['count'] . ' шт.</div>';
+        $out .= $cost_of['count'] . ' ' . l('шт.') . '</div>';
         $wh = $this->get_warehouses_options();
         $warehouses_options = $wh['wo'];
         // фильтрация
@@ -525,9 +525,9 @@ class warehouses
                 $out .= '<div class="show_warehouse">';
                 $print_link = print_link(array_keys($warehouse['locations']), 'location');
                 $out .= '<h5><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $warehouse['id'] . '#show_items">' . $warehouse['title'] . '</a> ' . $print_link . '</h5>';
-                $out .= '<div>Общий остаток: ' . intval($warehouse['sum_qty']) . ' шт.</div>';
+                $out .= '<div>' . l('Общий остаток') . ': ' . intval($warehouse['sum_qty']) . ' ' . l('шт.') . '</div>';
                 if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                    $out .= '<div>Общая сумма: ';
+                    $out .= '<div>' . l('Общая сумма') . ': ';
                     $out .= $this->show_price($warehouse['all_amount'], 2, getCourse($this->all_configs['settings']['currency_suppliers_orders']));
                     $out .= ' '.viewCurrency().' (' . $this->show_price($warehouse['all_amount']) .viewCurrencySuppliers() .' )</div>';
                 }
@@ -636,7 +636,7 @@ class warehouses
                 || (isset($_GET['so_id']) && $_GET['so_id'] > 0)) || $show_item_type == 2) {
             $out .= $this->show_goods($goods, $query_for_noadmin, $show_item_type, $count_page);
         } else {
-            $out .= '<p class="text-error">Выберите склад</p>';
+            $out .= '<p class="text-error">' . l('Выберите склад') . '</p>';
         }
 
         $out .= '</div>';
@@ -719,16 +719,16 @@ class warehouses
 
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<li><a class="click_tab btn btn-success" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_bind"';
-                $out .= ' title="Привязать серийный номер к заказу" href="#orders-clients_bind">Привязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
+                $out .= ' title="' . l('Привязать серийный номер к заказу') .'" href="#orders-clients_bind">' . l('Привязать сер.номер') . '<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
 
                 $out .= '<li><a class="click_tab btn btn-danger" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_unbind"';
-                $out .= ' title="Отвязать серийный номер от заказа" href="#orders-clients_unbind">Отвязать сер.номер<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
+                $out .= ' title="' . l('Отвязать серийный номер от заказа') .'" href="#orders-clients_unbind">' . l('Отвязать сер.номер') . '<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
             }
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<li><a class="click_tab  btn btn-warning" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_suppliers"';
-                $out .= ' title="Заказы поставщику которые ждут приходования" href="#orders-suppliers">Заказы поставщику<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
+                $out .= ' title="' . l('Заказы поставщику которые ждут приходования') . '" href="#orders-suppliers">' . l('Заказы поставщику') . '<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
             }
-            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> Фильтровать <i class="fa fa-caret-down"></i></button></li>';
+            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li>';
             $out .= '</ul><div class="clearfix hidden theme_bg filters-box p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
             if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $out .= '<div id="orders-suppliers" class="pill-pane">';
@@ -851,10 +851,10 @@ class warehouses
 //            $admin_out .= '<div id="settings" class="tab-pane">';
 
             $admin_out .= '<ul class="nav nav-pills">';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="Создать/редактировать группу склада">Сервисные центры</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">Склады</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="Создать/редактировать категорию склада">Категории</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="Закрепить администратора за кассой">Администраторы</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="' . l('Создать') . '/' . l('редактировать группу склада') . '">' . l('Сервисные центры') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="' . l('Создать') . '/' . l('редактировать категорию склада') . '">' . l('Категории') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="' . l('Закрепить администратора за кассой') . '">' . l('Администраторы') . '</a></li>';
             $admin_out .= '</ul>';
             $admin_out .= '<div class="pill-content">';
 
@@ -917,14 +917,14 @@ class warehouses
     {
         if ($type) {
             $i = $type['id'];
-            $btn = "<input type='hidden' name='warehouse-type-id' value='{$type['id']}' /><input type='submit' class='btn' name='warehouse-type-edit' value='Редактировать' />";
-            $accordion_title = 'Редактировать категорию склада "' . htmlspecialchars($type['name']) . '"';
+            $btn = "<input type='hidden' name='warehouse-type-id' value='{$type['id']}' /><input type='submit' class='btn' name='warehouse-type-edit' value='" . l('Редактировать') . "' />";
+            $accordion_title = l('Редактировать категорию склада') .  ' "' . htmlspecialchars($type['name']) . '"';
             $name = htmlspecialchars($type['name']);
             $icon = htmlspecialchars($type['icon']);
         } else {
             $i = 0;
-            $btn = "<input type='submit' class='btn' name='warehouse-type-add' value='Создать' />";
-            $accordion_title = 'Создать категорию склада';
+            $btn = "<input type='submit' class='btn' name='warehouse-type-add' value='" . l('Создать') . "' />";
+            $accordion_title = l('Создать категорию склада');
             $name = $icon = '';
         }
 
@@ -936,8 +936,8 @@ class warehouses
                 <div id='collapse_warehouse_type_{$i}' class='panel-collapse collapse'>
                     <div class='panel-body'>
                         <form method='POST'>
-                            <div class='form-group'><label>Название: </label>
-                                <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
+                            <div class='form-group'><label>" . l('Название') . ": </label>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
                             <div class='form-group'><label'>Иконка (fa fa-home): </label>
                                 <input placeholder='введите иконку' class='form-control' name='icon' value='{$icon}' /></div>
                             <div class='form-group'><label></label>{$btn}</div>
@@ -972,15 +972,15 @@ class warehouses
     {
         if ($group) {
             $i = $group['id'];
-            $btn = "<input type='hidden' name='warehouse-group-id' value='{$group['id']}' /><input type='submit' class='btn' name='warehouse-group-edit' value='Редактировать' />";
-            $accordion_title = 'Редактировать группу склада "' . htmlspecialchars($group['name']) . '"';
+            $btn = "<input type='hidden' name='warehouse-group-id' value='{$group['id']}' /><input type='submit' class='btn' name='warehouse-group-edit' value='" . l('Редактировать') . "' />";
+            $accordion_title = l('Редактировать группу склада') . ' "' . htmlspecialchars($group['name']) . '"';
             $name = htmlspecialchars($group['name']);
             $color = htmlspecialchars($group['color']);
             $address = htmlspecialchars($group['address']);
         } else {
             $i = 0;
-            $btn = "<input type='submit' class='btn' name='warehouse-group-add' value='Создать' />";
-            $accordion_title = 'Создать  сервисный центр (группу складов)';
+            $btn = "<input type='submit' class='btn' name='warehouse-group-add' value='" . l('Создать') . "' />";
+            $accordion_title = l('Создать  сервисный центр') . ' (' . l('группу складов') . ')';
             $name = $color = $address = '';
         }
 
@@ -992,12 +992,12 @@ class warehouses
                 <div id='collapse_warehouse_group_{$i}' class='panel-collapse collapse'>
                     <div class='panel-body'>
                         <form method='POST'>
-                            <div class='form-group'><label>Название: </label>
-                                <input placeholder='введите название' class='form-control' name='name' value='{$name}' /></div>
-                            <div class='form-group'><label>Цвет (#000000): </label>
-                                <input placeholder='введите цвет' class='colorpicker form-control' name='color' value='{$color}' /></div>
-                            <div class='form-group'><label>Адрес: </label>
-                                <input placeholder='введите адрес' class='form-control' name='address' value='{$address}' /></div>
+                            <div class='form-group'><label>" . l('Название') . ": </label>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
+                            <div class='form-group'><label>" . l('Цвет') . " (#000000): </label>
+                                <input placeholder='" . l('введите цвет') . "' class='colorpicker form-control' name='color' value='{$color}' /></div>
+                            <div class='form-group'><label>" . l('Адрес') . ": </label>
+                                <input placeholder='" . l('введите адрес') . "' class='form-control' name='address' value='{$address}' /></div>
                             <div class='form-group'><label></label>{$btn}</div>
                         </form>
                     </div>
@@ -1048,7 +1048,7 @@ class warehouses
                 $wh_users = $this->all_configs['db']->query(
                     'SELECT u.user_id, GROUP_CONCAT(u.wh_id) FROM {warehouses_users} as u GROUP BY u.user_id')->vars();
 
-                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>Сотрудник</td><td>Укажите склады <br>к которым сотрудник имеет доступ</td><td>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</td></tr></thead><tbody>';
+                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>' . l('Сотрудник') . '</td><td>Укажите склады <br>к которым сотрудник имеет доступ</td><td>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</td></tr></thead><tbody>';
                 foreach ($users as $user_id=>$user) {
                     $admin_out .= '<tr><td>' . get_user_name($user) . '</td>';
                     $admin_out .= '<td><select class="multiselect" name="warehouses_users[' . $user_id . '][]" multiple="multiple">';
@@ -1139,7 +1139,7 @@ class warehouses
                 WHERE inv.id IN (?li) AND i.wh_id=inv.wh_id AND i.id=invj.item_id AND inv.id=invj.inv_id GROUP BY inv.id',
                 array(array_keys($list)))->vars();
 
-            $out .= '<table class="table table-hover"><thead><tr><td></td><td>Дата начала</td><td>Склад</td>';
+            $out .= '<table class="table table-hover"><thead><tr><td></td><td>Дата начала</td><td>' . l('Склад') . '</td>';
             $out .= '<td>Кладовщик (создатель)</td><td>Дата завершения</td><td>Кол-во на складе</td>';
             $out .= '<td>Кол-во проинвентаризовано</td><td>Недостача</td></tr></thead><tbody>';
             foreach ($list as $l) {
@@ -1172,7 +1172,7 @@ class warehouses
         $html = '<div class="input-append scan-serial-block">';
         $html .= '<div class="scan-serial-error"></div>';
         $html .= '<input id="scan-serial-' . $id . '" onkeyup="is_enter($(\'.btn-scan_serial\'), event, ' . $id . ', \'scan_serial\')" class="scan-serial focusin"';
-        $html .= ' type="text" placeholder="Серийный номер">';
+        $html .= ' type="text" placeholder="' . l('Серийный номер') . '">';
         $html .= '<button class="btn-scan_serial btn" onclick="scan_serial(this, \'' . $id . '\')" type="button">';
         $html .= '"'.l('Добавить').'"</button>';
         $html .= '</div>';
@@ -1203,7 +1203,7 @@ class warehouses
                 array($this->all_configs['arrequest'][2]))->assoc();
 
             $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
-            $right_html .= '<td>Наименование</td><td>Кладовщик</td><td>Склад</td></tr></thead><tbody>';
+            $right_html .= '<td>' . l('Наименование') . '</td><td>Кладовщик</td><td>' . l('Склад') . '</td></tr></thead><tbody>';
             if ($inventories) {
                 $i = 1;
                 foreach ($inventories as $inv) {
@@ -1259,7 +1259,7 @@ class warehouses
                   FROM {goods} as g, {inventories_goods} as invg WHERE invg.goods_id=g.id AND invg.inv_id=?i',
                 array($this->all_configs['arrequest'][2]))->assoc('id');
 
-            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Наименование</td>';
+            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>' . l('Наименование') . '</td>';
             $right_html .= '<td>Кол-во на складе</td><td>Кол-во проинвентаризовано</td><td>Недостача</td></tr></thead><tbody>';
             if ($inventories) {
 
@@ -1300,7 +1300,7 @@ class warehouses
                         $not_on_this_stock = '';
                         if ($_inventories) {
                             $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
-                            $right_html .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
+                            $right_html .= '<td>Кладовщик</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td><td>Цена, ';
                             $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                             $right_html .= '</td><td></td></tr></thead><tbody>';
                             $i = 1;$j = 1;
@@ -1317,7 +1317,7 @@ class warehouses
                             $right_html .= '</tbody></table>';
                             if (!empty($not_on_this_stock)) {
                                 $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
-                                $right_html .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
+                                $right_html .= '<td>Кладовщик</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td><td>Цена, ';
                                 $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                                 $right_html .= '</td></tr></thead><tbody>';
                                 $right_html .= $not_on_this_stock;
@@ -1361,7 +1361,7 @@ class warehouses
                 array($this->all_configs['arrequest'][2]))->assoc();
 
             $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td>';
-            $right_html .= '<td>Наименование</td><td>Склад</td><td>Цена, ';
+            $right_html .= '<td>' . l('Наименование') . '</td><td>' . l('Склад') . '</td><td>' . l('Цена') . ', ';
             $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
             $right_html .= '</td><td><input type="checkbox" class="checked_all_writeoff" onchange="checked_all_writeoff(this)" /></td></tr></thead><tbody>';
 
@@ -1442,7 +1442,7 @@ class warehouses
             if ($inventory) {
                 $left_html .= '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#inventories-list">&#8592; к списку</a>';
                 $left_html .= '<p>Инвентаризация №' . $inventory['id'] . '</p>';
-                $left_html .= '<p>Склад: <a href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $inventory['wh_id'] . '#show_items">';
+                $left_html .= '<p>' . l('Склад') . ': <a href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $inventory['wh_id'] . '#show_items">';
                 $left_html .= htmlspecialchars($inventory['title']) . '</a></p>';
                 $left_html .= '<p>Дата открытия: <span title="' . do_nice_date($inventory['date_start'], false) . '">' . do_nice_date($inventory['date_start']) . '</span></p>';
                 if ($inventory['date_stop'] > 0) {
@@ -1482,7 +1482,7 @@ class warehouses
                         <div class="row row-15">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label>Склад:</label><br>
+                                    <label>' . l('Склад') . ':</label><br>
                                     <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]" multiple="multiple">
                                         '.$warehouses_options.'
                                     </select>
@@ -1490,7 +1490,7 @@ class warehouses
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label>Локация:</label><br>
+                                    <label>' . l('Локация') . ':</label><br>
                                     <select class="multiselect form-control select-location" name="locations[]" multiple="multiple">
                                         '.$wh_select.'
                                     </select>
@@ -1498,41 +1498,41 @@ class warehouses
                             </div>
                         </div>
                         <div class="form-group" style="max-width:400px">
-                            <label>Товар: </label>
+                            <label>' . l('Товар') . ': </label>
                             '.typeahead($this->all_configs['db'], 'goods', true, isset($_GET['pid']) && $_GET['pid'] > 0 ? intval($_GET['pid']): 0, $i).'
                         </div>
                         <div class="form-group">
-                            <input class="btn btn-info" type="submit" name="filter-warehouses" value="Применить" />
+                            <input class="btn btn-info" type="submit" name="filter-warehouses" value="' . l('Применить') .'" />
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group">
-                            <label>Тип вывода:</label>
+                            <label>' . l('Тип вывода') . ':</label>
                             <div class="radio">
-                                <label><input checked type="radio" value="item" name="display" /> по изделию</label>
+                                <label><input checked type="radio" value="item" name="display" />' . l('по изделию') . '</label>
                             </div>
                             <div class="radio">
-                                <label><input  ' . ((isset($_GET['d']) && $_GET['d'] == 'a') ? 'checked' : '') . ' type="radio" value="amount" name="display" /> по наименованию</label>
+                                <label><input  ' . ((isset($_GET['d']) && $_GET['d'] == 'a') ? 'checked' : '') . ' type="radio" value="amount" name="display" />' . l('по наименованию') . '</label>
                             </div>
                         </div>
                     </div>
                 </form>
                 <div class="col-sm-6">
                     <form class="form-horizontal" method="POST">
-                        <label class="col-sm-6 control-label">Серийный номер:&nbsp;</label>
+                        <label class="col-sm-6 control-label">' . l('Серийный номер') . ':&nbsp;</label>
                         <div class="input-group col-sm-6">
-                            <input class="form-control" name="serial" placeholder="серийный номер" value="' . ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') . '" />
+                            <input class="form-control" name="serial" placeholder="' . l('серийный номер') .'" value="' . ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') . '" />
                             <div class="input-group-btn">
-                                <input class="btn" type="submit" name="filter-warehouses" value="Поиск" />
+                                <input class="btn" type="submit" name="filter-warehouses" value="' . l('Поиск') . '" />
                             </div>
                         </div>
                     </form>
                     <form class="form-horizontal m-t-sm" method="POST">
-                        <label class="col-sm-6 control-label">Номер заказа поставщику:&nbsp;</label>
+                        <label class="col-sm-6 control-label">' . l('Номер заказа поставщику') . ':&nbsp;</label>
                         <div class="input-group col-sm-6">
-                            <input class="form-control" name="so_id" placeholder="номер заказа поставщику" value="' . ((isset($_GET['so_id']) && $_GET['so_id']>0) ? intval($_GET['so_id']) : '') . '" />
+                            <input class="form-control" name="so_id" placeholder="' . l('номер заказа поставщику') . '" value="' . ((isset($_GET['so_id']) && $_GET['so_id']>0) ? intval($_GET['so_id']) : '') . '" />
                             <div class="input-group-btn">
-                                <input class="btn" type="submit" name="filter-warehouses" value="Поиск" />
+                                <input class="btn" type="submit" name="filter-warehouses" value="' . l('Поиск') . '" />
                             </div>
                         </div>
                     </form>
@@ -1556,8 +1556,8 @@ class warehouses
 
                 case (1):
 
-                    $out .= '<table class="table table-striped"><thead><tr><td>Серийный номер</td><td>Наименование</td><td>'.l('Дата').'</td>';
-                    $out .= '<td>Склад</td><td>Локация</td><td>Заказ клиента</td><td>Заказ поставщику</td><td>Цена</td><td>Поставщик</td></tr></thead><tbody>';
+                    $out .= '<table class="table table-striped"><thead><tr><td>' . l('Серийный номер') . '</td><td>' . l('Наименование') . '</td><td>'.l('Дата').'</td>';
+                    $out .= '<td>' . l('Склад') . '</td><td>' . l('Локация') . '</td><td>' . l('Заказ клиента') . '</td><td>' . l('Заказ поставщику') . '</td><td>' . l('Цена') . '</td><td>' . l('Поставщик') . '</td></tr></thead><tbody>';
 
                     foreach ($goods as $product) {
                         $out .= '<tr>' .
@@ -1585,7 +1585,7 @@ class warehouses
                         $out .= '<input name="pid" value="' . $_GET['pid'] . '" type="hidden" />';
                     if (isset($_GET['d']))
                         $out .= '<input name="d" value="' . $_GET['d'] . '" type="hidden" />';
-                    $out .= '<input type="submit" value="Выгрузить данные" class="btn btn-small btn-primary"></form>';
+                    $out .= '<input type="submit" value="' . l('Выгрузить данные') . '" class="btn btn-small btn-primary"></form>';
                     $out .= '</td></tr>';
                     $out .= '</tbody></table>';
 
@@ -1596,39 +1596,39 @@ class warehouses
 
                     foreach ($goods as $product) {
 
-                        $out .= '<h4>Наименование</h4>';
+                        $out .= '<h4>' . l('Наименование') .'</h4>';
                         $out .= '<table class="table table-striped"><tbody>';
-                        $out .= '<tr><td><b>Серийный номер</b> ';
+                        $out .= '<tr><td><b>' . l('Серийный номер') .'</b> ';
                         if ($this->all_configs['oRole']->hasPrivilege('site-administration') && mb_strlen($product['serial'], 'UTF-8') > 0
                                 && $product['id'] == $this->all_configs['configs']['erp-warehouse-type-mir']) {
-                            $out .= '<input class="btn btn-small btn-danger" onclick="clear_serial(this, ' . $product['item_id'] . ')" type="button" value="Удалить серийник" />';
+                            $out .= '<input class="btn btn-small btn-danger" onclick="clear_serial(this, ' . $product['item_id'] . ')" type="button" value="' . l('Удалить серийник') . '" />';
                         }
                         $out .= '</td><td>' . suppliers_order_generate_serial($product);
                         $out .= print_link($product['item_id'], 'label') . '</td></tr>';
                         if (mb_strlen(trim($product['serial_old']), 'utf-8') > 0) {
-                            $out .= '<tr><td><b>Серийный номер (старый)</b></td><td>' . htmlspecialchars($product['serial_old']) . '</td></tr>';
+                            $out .= '<tr><td><b>' . l('Серийный номер') .' (' . l('старый') . ')</b></td><td>' . htmlspecialchars($product['serial_old']) . '</td></tr>';
                         }
-                        $out .= '<tr><td><b>Наименование</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">';
+                        $out .= '<tr><td><b>' . l('Наименование') . '</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">';
                         $out .= htmlspecialchars($product['product_title']) . '</a></td></tr>';
-                        $out .= '<tr><td><b>Поставщик</b></td><td>' . htmlspecialchars($product['contractor_title']) . '</td></tr>';
-                        $out .= '<tr><td><b>Заказ поставщика</b></td><td>';
+                        $out .= '<tr><td><b>' . l('Поставщик') .'</b></td><td>' . htmlspecialchars($product['contractor_title']) . '</td></tr>';
+                        $out .= '<tr><td><b>' . l('Заказ поставщика') . '</b></td><td>';
                         $out .= (($product['supplier_order_id'] > 0) ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/edit/' . $product['supplier_order_id'] . '#create_supplier_order">'
                                 . $this->all_configs['suppliers_orders']->supplier_order_number(array('id' => $product['supplier_order_id'])) . '</a>' : '') . '</td></tr>';
-                        $out .= '<tr><td><b>Дата приходования</b></td><td><span title="' . do_nice_date($product['date_add'], false) . '">' . do_nice_date($product['date_add']) . '</span></td></tr>';
-                        $out .= '<tr><td><b>Цена</b></td><td>' . $this->show_price($product['price']) . '</td></tr>';
-                        $out .= '<tr><td><b>Склад</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'];
+                        $out .= '<tr><td><b>' . l('Дата приходования') . '</b></td><td><span title="' . do_nice_date($product['date_add'], false) . '">' . do_nice_date($product['date_add']) . '</span></td></tr>';
+                        $out .= '<tr><td><b>' . l('Цена') . '</b></td><td>' . $this->show_price($product['price']) . '</td></tr>';
+                        $out .= '<tr><td><b>' . l('Склад') . '</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'];
                         $out .= $this->all_configs['arrequest'][0] . '?whs=' . $product['id'] . '#show_items">' . htmlspecialchars($product['title']) . '</td></tr>';
 
-                        $out .= '<tr><td><b>Локация</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'];
+                        $out .= '<tr><td><b>' . l('Локация') . '</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'];
                         $out .= $this->all_configs['arrequest'][0] . '?whs=' . $product['id'] . '&lcs=' . $product['location_id'] . '#show_items">' . htmlspecialchars($product['location']) . '</td></tr>';
 
-                        $out .= '<tr><td><b>Заказ</b></td><td>' . (($product['order_id']) > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $product['order_id'] . '">' . $product['order_id'] . '</a>' : '') . '</td></tr>';
-                        $out .= '<tr><td><b>Дата продажи</b></td><td><span title="' . do_nice_date($product['date_sold'], false) . '">' . do_nice_date($product['date_sold']) . '</span></td>';
+                        $out .= '<tr><td><b>' . l('Заказ') . '</b></td><td>' . (($product['order_id']) > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $product['order_id'] . '">' . $product['order_id'] . '</a>' : '') . '</td></tr>';
+                        $out .= '<tr><td><b>' . l('Дата продажи') . '</b></td><td><span title="' . do_nice_date($product['date_sold'], false) . '">' . do_nice_date($product['date_sold']) . '</span></td>';
                         $out .= '</tbody></table>';
 
                         $out .= '<div class="span12"><div class="span4 well">';
                         // форма перемещения изделий на склад
-                        $out .= '<h4>Запрос на перемещение</h4>';
+                        $out .= '<h4>' . l('Запрос на перемещение') . '</h4>';
                         $out .= $this->all_configs['chains']->moving_item_form($product['item_id']/*, null, $product['id']*/);
                         $out .= '</div><div class="span4">';
                         // форма продажи
@@ -1639,7 +1639,7 @@ class warehouses
                         // форма возврата изделия поставщику
                         $out .= $this->all_configs['chains']->return_supplier_order_form($product['item_id']);
                         $out .= '</div></div>';
-                        $out .= '<h4>История перемещений</h4>';
+                        $out .= '<h4>' . l('История перемещений') . '</h4>';
 
                         $item_history = $this->all_configs['db']->query('SELECT m.item_id, m.date_move, m.user_id, m.wh_id,
                               m.comment, w.title, u.fio, u.email, m.order_id, l.location
@@ -1649,8 +1649,8 @@ class warehouses
                         array($product['item_id'], $query_for_noadmin))->assoc();
 
                         if (count($item_history) > 0) {
-                            $out .= '<table class="table"><thead><tr><td>Склад</td><td>Локация</td><td>Ответственный</td><td>'.l('Дата').'</td>';
-                            $out .= '<td>Операция</td><td>На основании (№ заказа)</td></tr></thead><tbody>';
+                            $out .= '<table class="table"><thead><tr><td>' . l('Склад') . '</td><td>' . l('Локация') . '</td><td>' . l('Ответственный') . '</td><td>'.l('Дата').'</td>';
+                            $out .= '<td>' . l('Операция') . '</td><td>' . l('На основании') . ' (' . l('номер заказа') . ')</td></tr></thead><tbody>';
                             foreach ($item_history as $history) {
                                 $out .= '<tr><td><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $history['wh_id'] . '#show_items">' . htmlspecialchars($history['title'])  . '</a></td>';
                                 $out .= '<td>' . htmlspecialchars($history['location']) . '</td>';
@@ -1667,7 +1667,7 @@ class warehouses
                             }
                             $out .= '</tbody></table>';
                         } else {
-                            $out .= 'История перемещений не найдена';
+                            $out .= '' . l('История перемещений') . ' не найдена';
                         }
                         $out .= '</td></tr>';
 
@@ -1682,7 +1682,7 @@ class warehouses
                             array($product['item_id']))->assoc();
 
                         $out .= '<table class="table table-striped"><thead><tr><td></td><td>'.l('Дата').'</td>';
-                        $out .= '<td>Кладовщик</td><td>Склад</td></tr></thead><tbody">';
+                        $out .= '<td>Кладовщик</td><td>' . l('Склад') . '</td></tr></thead><tbody">';
                         if ($inventories) {
                             $i = 1;
                             foreach ($inventories as $inv) {
@@ -1699,10 +1699,10 @@ class warehouses
 
                         $out .= '<h4>Бизнес цепочки</h4>';
                         if (count($chains) > 0) {
-                            $out .= '<table class="table table-bordered"><thead><tr><td></td><td>'.l('Дата').'</td><td>Наименование</td>';
+                            $out .= '<table class="table table-bordered"><thead><tr><td></td><td>'.l('Дата').'</td><td>' . l('Наименование') . '</td>';
                             //if (array_key_exists('order_id', $chains[key($chains)]))
-                            //    $out .= '<td>Заказ</td>';
-                            $out .= '<td>Заказ</td><td>Склад куда</td><td>Серийник</td><td>Продажа</td><td></td></tr></thead><tbody>';
+                            //    $out .= '<td>' . l('Заказ') . '</td>';
+                            $out .= '<td>' . l('Заказ') . '</td><td>Склад куда</td><td>Серийник</td><td>Продажа</td><td></td></tr></thead><tbody>';
                             foreach ($chains as $h_id => $chain) {
                                 $out .= $this->all_configs['chains']->show_chain($chain, false);
                             }
@@ -1717,12 +1717,12 @@ class warehouses
 
                     default:
 
-                        $out .= '<table class="table table-hover table-medium"><thead><tr><td></td><td>Серийный номер</td>';
-                        $out .= '<td>Наименование</td><td>'.l('Дата').'</td><td>Склад</td><td>Заказ</td>';
+                        $out .= '<table class="table table-hover table-medium"><thead><tr><td></td><td>' . l('Серийный номер') . '</td>';
+                        $out .= '<td>' . l('Наименование') . '</td><td>'.l('Дата').'</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td>';
                         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                            $out .= '<td>Цена</td>';
+                            $out .= '<td>' . l('Цена') . '</td>';
                         }
-                        $out .= '<td>Кол-во</td><td>Поставщик</td></tr></thead><tbody>';
+                        $out .= '<td>Кол-во</td><td>' . l('Поставщик') . '</td></tr></thead><tbody>';
 
                         $queryString = array();
                         foreach ($_GET as $key => $value) {
@@ -1795,7 +1795,7 @@ class warehouses
                                         FROM {warehouses_goods_items} as i
                                         WHERE i.goods_id=?i AND i.wh_id IN (?li)',
                             array($product['goods_id'], explode(',', $_GET['whs'])))->row();
-                        $out .= '<p>Всего отфильтровано: ' . ($items ? 1 * $items['count'] : 0) . ' шт.</p>';
+                        $out .= '<p>Всего отфильтровано: ' . ($items ? 1 * $items['count'] : 0) . ' ' . l('шт.') . '</p>';
                         if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                             $out .= '<p>На сумму: ' . show_price($items['sum']) . ' ';
                             $currency_suppliers_orders = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
@@ -1839,8 +1839,8 @@ class warehouses
                 $warehouses_groups .= '<option value="' . $group['id'] . '">' . $group['name'] . '</option>';
             }
 
-            $btn = "<input type='submit' class='btn' name='warehouse-add' value='Создать' />";
-            $accordion_title = 'Создать склад';
+            $btn = "<input type='submit' class='btn' name='warehouse-add' value='" . l('Создать') . "' />";
+            $accordion_title = l('Создать склад');
             $consider_store = 'checked';
             $consider_all = 'checked';
             $title = '';
@@ -1863,7 +1863,7 @@ class warehouses
                 $warehouses_groups .= '<option ' . $selected . ' value="' . $group['id'] . '">' . $group['name'] . '</option>';
             }
 
-            $btn = "<input type='hidden' name='warehouse-id' value='{$warehouse['id']}' /><input type='submit' class='btn' name='warehouse-edit' value='Редактировать' />";
+            $btn = "<input type='hidden' name='warehouse-id' value='{$warehouse['id']}' /><input type='submit' class='btn' name='warehouse-edit' value='" . l('Редактировать') . "' />";
             $accordion_title = 'Редактировать склад "' . $warehouse['title'] . '"';
             $title = htmlspecialchars($warehouse['title']);
             $code_1c = htmlspecialchars($warehouse['code_1c']);
@@ -1901,29 +1901,29 @@ class warehouses
                 <div id='collapse_warehouse_{$i}' class='panel-body collapse {$in}'>
                     <div class='panel-body'>
                         <form method='POST'>
-                            <div class='form-group'><label>Название: </label>
-                                <input placeholder='введите название' class='form-control' name='title' value='{$title}' /></div>
+                            <div class='form-group'><label>" . l('Название') . ": </label>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='title' value='{$title}' /></div>
                             <!--<div class='form-group'><label>Код 1с: </label>
                                 <input placeholder='введите код 1с' class='form-control' name='code_1c' value='{$code_1c}' /></div>
                             --><div class='form-group'>
-                                <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' /> Учитывать в свободном остатке</label></div>
-                                <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' /> Учитывать в общем остатке</label></div>
+                                <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' />" . l('Учитывать в свободном остатке') . "</label></div>
+                                <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' />" . l('Учитывать в общем остатке') . "</label></div>
                             </div>
-                            <div class='form-group'><label >Тип склада: </label>
+                            <div class='form-group'><label >" . l('Тип склада') . ": </label>
                                 {$warehouses_type}</div>
-                            <div class='form-group'><label>Принадлежность к Сервисному центру: </label>
+                            <div class='form-group'><label>" . l('Принадлежность к Сервисному центру') . ": </label>
                                 {$warehouses_groups}</div>
-                            <div class='form-group'><label>Категория: </label>
+                            <div class='form-group'><label>" . l('Категория') . ": </label>
                                 {$warehouses_types}</div>
                             <div class='form-group'><label>
-                                Адрес для квитанции: </label>
+                                " . l('Адрес для квитанции') . ": </label>
                                 <input class='form-control' name='print_address' value='{$print_address}' />
                             </div>
                             <div class='form-group'><label>
-                                Телефон для квитанции: </label>
+                                " . l('Телефон для квитанции') . ": </label>
                                 <input class='form-control' name='print_phone' value='{$print_phone}' />
                             </div>
-                            <div class='form-group'><label>Локации: </label>
+                            <div class='form-group'><label>" . l('Локации') . ": </label>
                                 {$warehouses_locations}</div>
                             <div class='form-group'>{$btn}</div>
                         </form>
@@ -2201,7 +2201,7 @@ class warehouses
             $data['content'] = '<form method="POST" id="debit-so-form">';
             $data['content'] .= '<input type="hidden" value="' . $order_id . '" name="order_id" />';
 
-            $data['content'] .= '<div class="form-group"><label class="control-label"><center><b>Серийный номер</b><br>';
+            $data['content'] .= '<div class="form-group"><label class="control-label"><center><b>' . l('Серийный номер') . '</b><br>';
             if ($order) {
                 $data['content'] .= htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['location']);
             }
@@ -2218,7 +2218,7 @@ class warehouses
                 for ($i = 1; $i <= $count; $i++) {
                     $data['content'] .= '<div class="form-group" id="dso-group-' . $i . '">';
                     $onkeyup = 'if(this.value.trim()== \'\'){$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', true);}else{$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', false);}';
-                    $data['content'] .= '<input onkeyup="' . $onkeyup . '" type="text" class="form-control input-large dso_serial" placeholder="серийный номер" name="serial[' . $i . ']" />';
+                    $data['content'] .= '<input onkeyup="' . $onkeyup . '" type="text" class="form-control input-large dso_serial" placeholder="' . l('серийный номер') .'" name="serial[' . $i . ']" />';
                     $onchange = '$(\'#dso_auto_serial_all\').prop(\'checked\', false);$(\'#dso-group-' . $i . ' input.dso_serial\').val(\'\');this.checked=true;';
                     $data['content'] .= '<div class="checkbox"><label class=""><input checked onchange="' . $onchange . '" type="checkbox" class="dso_auto_serial" name="auto[' . $i . ']" /> Сгенерировать серийник</label>';
                     $onchange = '$(\'#dso_print_all\').prop(\'checked\', false);';
@@ -2303,7 +2303,7 @@ class warehouses
                 $not_on_this_stock = '';
                 if ($inventories) {
                     $data['out'] = '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
-                    $data['out'] .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
+                    $data['out'] .= '<td>Кладовщик</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td><td>Цена, ';
                     $data['out'] .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                     $data['out'] .= '</td><td></td></tr></thead><tbody>';
                     $i = 1;$j = 1;
@@ -2320,7 +2320,7 @@ class warehouses
                     $data['out'] .= '</tbody></table>';
                     if (!empty($not_on_this_stock)) {
                         $data['out'] .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>'.l('Дата').'</td>';
-                        $data['out'] .= '<td>Кладовщик</td><td>Склад</td><td>Заказ</td><td>Цена, ';
+                        $data['out'] .= '<td>Кладовщик</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td><td>Цена, ';
                         $data['out'] .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
                         $data['out'] .= '</td></tr></thead><tbody>';
                         $data['out'] .= $not_on_this_stock;
@@ -2434,7 +2434,7 @@ class warehouses
                     $data['message'] = 'Вы не привязаны к этому складу';
                 }
             } else {
-                $data['message'] = 'Выберите склад';
+                $data['message'] = l('Выберите склад');
             }
         }
 
@@ -2529,7 +2529,7 @@ class warehouses
 
         $categories_html = '<select class="input-small searchselect" id="searchselect-'.$num.'"';
         $categories_html .= ' onchange="javascript:$(\'#goods-'.$num.'\').attr(\'data-cat\', this.value);"';
-        $categories_html .= '><option value="0">Все разделы</option>';
+        $categories_html .= '><option value="0">' . l('Все разделы') . '</option>';
         foreach ( $categories as $category ) {
             $categories_html .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
         }

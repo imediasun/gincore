@@ -545,8 +545,8 @@ class users
                 <fieldset>
                     <legend>Добавление новой роли</legend>
                     <div class="form-group">
-                        <label>Название:</label>
-                        <input class="form-control" value="" name="name" placeholder="введите название">
+                        <label>' . l('Название') . ':</label>
+                        <input class="form-control" value="" name="name" placeholder="' . l('введите название') . '">
                     </div>
                     <div class="form-group">
                         <label>Права доступа:</label>
@@ -581,7 +581,7 @@ class users
             }
         }
         $users_html .= '<div class="control-group"><div class="controls">
-            <input class="btn btn-primary" type="submit" name="add-role" value="создать"></div></div>';
+            <input class="btn btn-primary" type="submit" name="add-role" value="' . l('Создать') . '"></div></div>';
         $users_html .= '</fieldset></form>';
         $users_html .= '</div>';
 
@@ -620,7 +620,7 @@ class users
                         <input class="form-control" value="" name="pass" placeholder="введите пароль">
                     </div>
                     <div class="form-group">
-                        <label>ФИО:</label>
+                        <label>' . l('ФИО') . ':</label>
                         <input class="form-control" value="" name="fio" placeholder="введите фио">
                     </div>
                     <div class="form-group">
@@ -640,13 +640,13 @@ class users
                         <label>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</label>
                         <div class="clearfix">
                             <div class="pull-left m-r-lg">
-                                <label>Склад:</label><br>
+                                <label>' . l('Склад') . ':</label><br>
                                 <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouse">
                                     '.$warehouses_options.'
                                 </select>
                             </div>
                             <div class="pull-left">
-                                <label>Локация:</label><br>
+                                <label>' . l('Локация') . ':</label><br>
                                 <select class="multiselect form-control select-location" name="location">
                                 </select>
                             </div>
@@ -669,7 +669,7 @@ class users
 
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
             $users_html .= '<div class="control-group"><div class="controls">
-                    <input class="btn btn-primary" type="submit" name="create-user" onclick="return add_user_validation();" value="создать"></div></div>';
+                    <input class="btn btn-primary" type="submit" name="create-user" onclick="return add_user_validation();" value="' . l('Создать') . '"></div></div>';
         //}
         $users_html .= '</fieldset></form>';
         $users_html .= '</div>';

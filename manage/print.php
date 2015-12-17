@@ -182,7 +182,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
                     'date' => array('value' => date("d/m/Y", strtotime($order['date_add'])), 'name' => 'Дата создания заказа на ремонт'),
                     'now' => array('value' => date("d/m/Y", time()), 'name' => 'Текущая дата'),
-                    'warranty' => array('value' => $order['warranty'] > 0 ? $order['warranty'] . ' мес.' : 'Без гарантии', 'name' => 'Гарантия'),
+                    'warranty' => array('value' => $order['warranty'] > 0 ? $order['warranty'] . ' '. l('мес') . '' : 'Без гарантии', 'name' => 'Гарантия'),
                     'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
                     'defect' => array('value' => htmlspecialchars($order['defect']), 'name' => 'Неисправность'),
@@ -379,10 +379,10 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 2 ? 'Доработка' : $arr['repair']['value'];
 
-                $arr['complect']['value'] .= $order['battery'] == 1 ? 'Аккумулятор<br />' : '';
-                $arr['complect']['value'] .= $order['charger'] == 1 ? 'Зарядное устройство/кабель<br />' : '';
-                $arr['complect']['value'] .= $order['cover'] == 1 ? 'Задняя крышка<br />' : '';
-                $arr['complect']['value'] .= $order['box'] == 1 ? ' Коробка' : '';
+                $arr['complect']['value'] .= $order['battery'] == 1 ? l('Аккумулятор') . '<br />' : '';
+                $arr['complect']['value'] .= $order['charger'] == 1 ? l('Зарядное устройств кабель') . '<br />' : '';
+                $arr['complect']['value'] .= $order['cover'] == 1 ? l('Задняя крышка') . '<br />' : '';
+                $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка') : '';
 
                 $print_html = generate_template($arr, 'check');
             }

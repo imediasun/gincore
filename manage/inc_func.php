@@ -552,8 +552,12 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, 
                    $class = 'input-medium',$class_select = 'input-small', $function = '', 
                    $multi = false, $anyway = false, $m = '', $no_clear_if_null = false,
-                   $placeholder = 'Введите', $add_btn = array())
+                   $placeholder = '', $add_btn = array())
 {
+
+    if(empty($placeholder)) {
+        $placeholder = l('Введите');
+    }
     //static $iterator = 0; $iterator++;
     //$iterator += $i;
     $iterator = $i;
@@ -575,7 +579,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
     }
     if ($show_categories == true) {
-        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">Все разделы</option>';
+        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">' . l('Все разделы') . '</option>';
         $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         foreach ( $categories as $category ) {
@@ -650,7 +654,7 @@ function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 
         $return = number_format($p, $zero, $delimiter, $space);
         $price_html .= str_replace(array(' ', '\xA0'), '&nbsp;', trim($return));
         $price_html .= array_key_exists($c, $currencies) && array_key_exists('shortName', $currencies[$c])
-            ? '&nbsp;' . htmlspecialchars($currencies[$c]['shortName']) : '';
+            ? '&nbsp;' . htmlspecialchars(($currencies[$c]['shortName'])) : '';
         $price_html .= count($price) > 1 && $p != $last ? '; ' : '';
     }
 
@@ -1001,7 +1005,7 @@ function display_client_order($order)
     if (array_key_exists($order['status'], $all_configs['configs']['order-status'])) {
         $status_name = $all_configs['configs']['order-status'][$order['status']]['name'];
         $status_color = $all_configs['configs']['order-status'][$order['status']]['color'];
-        $status = '<span style="color:#' . $status_color . '">' . $status_name . '</span>';
+        $status = '<span style="color:#' . $status_color . '">' . l($status_name) . '</span>';
     }
 
     $ordered = '';
@@ -1046,7 +1050,7 @@ function display_client_order($order)
         
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
     . '<td>' . $order['o_phone'] . '</td>'
-    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">Срочно' : '>' . l('Не срочно')) . '</td>'
+    . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">' . l('Срочно') . ' ' : '>' . l('Не срочно')) . '</td>'
     . '<td>' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']) . '</td></tr>';
 }
 

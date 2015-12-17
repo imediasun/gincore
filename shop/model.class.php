@@ -409,7 +409,7 @@ class Model
                             $warranties_html .= '
                                 <li '.$data.' data-in_sc="'.($already_in_shopping_cart ? 1 : 0).'" id="warranty-' . $warranty . '" class="text-left warranties center ' . $class . '">
                                     <div class="warranty_ico"><span>' . $warranty .  '</span></div>
-                                    '.(!$in_cart ? '<div class="warranty_value">Гарантия ' . $warranty . ' мес.</div>' : '').'
+                                    '.(!$in_cart ? '<div class="warranty_value">Гарантия ' . $warranty . ' '. l('мес') . '</div>' : '').'
                                     <div class="warranty_price red-title">' . $this->cur_currency($p) . '</div>
                                 </li>';
 
@@ -593,16 +593,16 @@ class Model
     function currency_view($data){
         return
             '<span class="for-currency-hide dollar"><span data="dollar" ' . $data['for_sum'] . '>' .            number_format($data['price'], 0, ',', ' ') .        '</span> $ </span>'.
-            '<span class="for-currency-hide grn-cash"><span data="grn-cash" ' . $data['for_sum'] . '>' .        number_format($data['grn-cash'], 0, ',', ' ') .     '</span> грн. </span>'.
-            '<span class="for-currency-hide grn-vat"><span data="grn-vat" ' . $data['for_sum'] . '>' .          number_format($data['grn-vat'], 0, ',', ' ') .      '</span> грн. </span>'.
-            '<span class="for-currency-hide grn-noncash"><span data="grn-noncash" ' . $data['for_sum'] . '>' .  number_format($data['grn-noncash'], 0, ',', ' ') .  '</span> грн. </span>';
+            '<span class="for-currency-hide grn-cash"><span data="grn-cash" ' . $data['for_sum'] . '>' .        number_format($data['grn-cash'], 0, ',', ' ') .     '</span> ' . l('грн') .'. </span>'.
+            '<span class="for-currency-hide grn-vat"><span data="grn-vat" ' . $data['for_sum'] . '>' .          number_format($data['grn-vat'], 0, ',', ' ') .      '</span> ' . l('грн') .'. </span>'.
+            '<span class="for-currency-hide grn-noncash"><span data="grn-noncash" ' . $data['for_sum'] . '>' .  number_format($data['grn-noncash'], 0, ',', ' ') .  '</span> ' . l('грн') .'. </span>';
     }
 
     function show_price ($price, $course_value, $course_key)
     {
         $price = $this->get_prices($price, $course_key, $course_value);
 
-        return number_format($price, 0, ',', ' ') . ' грн.';
+        return number_format($price, 0, ',', ' ') . ' ' . l('грн.');
     }
 
     function cur_currency($price, $sum = '', $count = 1, $prices = null)
@@ -652,7 +652,7 @@ class Model
 
         if ( intval($exist) > 0 ) {
             $count = '';
-            $selected_count = '1 шт.';
+            $selected_count = '1 ' . l('шт.') . '';
             if ( $count_goods > $exist )
                 $count_goods = 1;
             for ($i=1; $i<=$exist; $i++) {
@@ -662,11 +662,11 @@ class Model
                     if(!$view){
                         $count .= '<option selected value="' . $i . '">' . $i . '</option>';
                     }else{
-                        $selected_count = $i . ' шт.';
+                        $selected_count = $i . ' ' . l('шт.') . '';
                         if (!$onclick){
-                            $count .= '<li class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' шт.</span></li>';
+                            $count .= '<li class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' ' . l('шт.') . '</span></li>';
                         }else{
-                            $count .= '<li onclick="sc_change_goods_count(' . $i . ', ' . $gid . ')" class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' шт.</span></li>';
+                            $count .= '<li onclick="sc_change_goods_count(' . $i . ', ' . $gid . ')" class="msm_hidden" data-value="' . $i . '"><span>' . $i . ' ' . l('шт.') . '</span></li>';
                         }
                     }
                 } else {
@@ -674,10 +674,10 @@ class Model
                         $count .= '<option value="' . $i . '">' . $i . '</option>';
                     }else{
                         if ( $onclick == false )
-                            $count .= '<li data-value="' . $i . '"><span>' . $i . ' шт.</span></li>';
+                            $count .= '<li data-value="' . $i . '"><span>' . $i . ' ' . l('шт.') . '</span></li>';
                         else
                             $count .= '<li onclick="sc_change_goods_count(' . $i . ', ' . $gid . ')" data-value="' . $i . '">
-                                <span>' . $i . ' шт.</span></li>';
+                                <span>' . $i . ' ' . l('шт.') . '</span></li>';
                     }
                 }
             }

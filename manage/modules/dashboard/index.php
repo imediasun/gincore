@@ -160,6 +160,9 @@ class dashboard{
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
                                       ."WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
         foreach($statuses as $status => $name){
+            
+            $name = l($name);
+            
             $orders = $this->db->query("SELECT count(*) "
                                       ."FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;

@@ -175,7 +175,7 @@ class flayers{
                 </div>
             </div>
             <div class="form-group">
-                <label>Название:</label>
+                <label>' . l('Название') . ':</label>
                 <input type="text" class="form-control" name="name" value="'.($flayer && $flayer['name'] ? $flayer['name'] : '').'">
             </div>
             <div class="form-group">
