@@ -317,6 +317,7 @@ $input['main'] = l('main');
 $input['exit'] = l('exit');
 $input['sign_in'] = l('sign_in');
 $input['txtemail'] = l('email');
+$input['txtlogin'] = l('login');
 $input['password'] = l('password');
 
 ################################################################################

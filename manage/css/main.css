@@ -5,9 +5,8 @@
     display: block;
 }
 #logo_gincore img{
-    margin-left: -81px;
-    width: 250px !important;
-    margin-top: -7px;
+    width: 150px !important;
+    margin-top: 7px;
 }
 
 @media all and (max-width: 768px){
