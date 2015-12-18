@@ -542,3 +542,15 @@ td.td-sc-count {
     cursor: default;
     background: none !important;
 }
+
+.specify_order_id{
+    border-bottom: 1px dashed;
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 10px;
+    color: #5b5b5b;
+}
+.order_id_input{
+    padding-bottom: 10px;
+    display: none;
+}

@@ -3,7 +3,7 @@
 $dbcfg = array(
     'host'     => '192.168.1.2',
     'username' => 'root',
-    'password' => 'rootFB1root',
+    'password' => 'FB19root',
 //    'dbname'   => 'u_restore',
     'dbname'   => 'u_restore_saas',
     'charset'  => 'utf8',

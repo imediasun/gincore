@@ -826,6 +826,10 @@ class orders
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-sm-6">
+                                        <span class="specify_order_id">'.l('Указать номер заказа').'</span>
+                                        <div class="order_id_input">
+                                            <input style="max-width:200px" placeholder="'.l('введите номер заказа').'" type="text" class="form-control" name="id">
+                                        </div>
                                         <fieldset>
                                             <legend>' . l('Клиент') . '</legend>
                                             <div class="form-group">

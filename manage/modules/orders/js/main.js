@@ -221,7 +221,15 @@ $(function() {
         return false;
     });
     
-    
+    $(document).on('click', '.specify_order_id', function(){
+        var $this = $(this),
+            $input = $this.siblings('.order_id_input');
+        $input.stop(true).slideToggle(200, function(){
+            if(!$input.is(':visible')){
+                $input.find('input').val('');
+            }
+        });
+    });
 });
 
 
