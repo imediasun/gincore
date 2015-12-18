@@ -668,13 +668,13 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>Стоимость</td><td>' . l('Оплачено') . '</td>';
+                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
             }
-            $orders_html .= '<td>Клиент</td><td>Контактный тел</td>';
-            $orders_html .= '<td>Сроки</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
+            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
+            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
 
             foreach ($orders as $order) {
                 $orders_html .= display_client_order($order);
@@ -711,13 +711,13 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>Стоимость</td><td>' . l('Оплачено') . '</td>';
+                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
             }
-            $orders_html .= '<td>Клиент</td><td>Контактный тел</td>';
-            $orders_html .= '<td>Сроки</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
+            $orders_html .= '<td>' . l('Клиент') . '</td><td>Контактный тел</td>';
+            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
 
             foreach ($orders as $order) {
                 $orders_html .= display_client_order($order);
@@ -755,13 +755,13 @@ class orders
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
 
         if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>№ заказа</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>Устройство</td>';
+            $orders_html .= '<table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
+            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>Стоимость</td><td>' . l('Оплачено') . '</td>';
+                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
             }
-            $orders_html .= '<td>Клиент</td><td>Контактный тел</td>';
-            $orders_html .= '<td>Сроки</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
+            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
+            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
 
             foreach ($orders as $order) {
                 $orders_html .= display_client_order($order);
@@ -826,6 +826,10 @@ class orders
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-sm-6">
+                                        <span class="specify_order_id">'.l('Указать номер заказа').'</span>
+                                        <div class="order_id_input">
+                                            <input style="max-width:200px" placeholder="'.l('введите номер заказа').'" type="text" class="form-control" name="id">
+                                        </div>
                                         <fieldset>
                                             <legend>' . l('Клиент') . '</legend>
                                             <div class="form-group">
@@ -874,7 +878,7 @@ class orders
                                                 <select class="form-control" name="color">'. $colors_select.'</select>
                                             </div>
                                             <!--<div class="form-group">
-                                                <label class="control-label">Серийный номер запчасти: </label>
+                                                <label class="control-label">' . l('Серийный номер запчасти') .': </label>
                                                 '.typeahead($this->all_configs['db'], 'serials', false, '', 3, 'input-medium clone_clear_val', '', 'display_serial_product', false, true)
                                                 .'<small class="clone_clear_html product-title"></small>
                                             </div>-->
@@ -906,9 +910,9 @@ class orders
                                                     <div class="col-sm-6">
                                                         <label>' . l('Качество детали') . ':</label> 
                                                         <select class="form-control" name="repair_part_quality">
-                                                            <option value="Не согласовано">' . l('Не согласовано') . '</option>
-                                                            <option value="Оригинал">' . l('Оригинал') . '</option>
-                                                            <option value="Копия">' . l('Копия') . '</option>
+                                                            <option value="' . l('Не согласовано') .'">' . l('Не согласовано') . '</option>
+                                                            <option value="' . l('Оригинал') .'">' . l('Оригинал') . '</option>
+                                                            <option value="' . l('Копия') .'">' . l('Копия') . '</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -916,7 +920,7 @@ class orders
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">' . l('Внешний вид') . ': </label>
-                                                <textarea class="form-control" name="comment">Потертости, царапины</textarea>
+                                                <textarea class="form-control" name="comment">' . l('Потертости, царапины') .'</textarea>
                                             </div>
                                         </fieldset>
                                         <fieldset>
@@ -929,8 +933,8 @@ class orders
                                                 </div>
                                             </div>
                                             <!--<div class="form-group">
-                                                <label>Партнерская программа: </label>
-                                                <select class="form-control" name="partner"><option value="0">Выберите</option>
+                                                <label>' . l('Партнерская программа') .': </label>
+                                                <select class="form-control" name="partner"><option value="0">' . l('Выберите') . '</option>
                                                 </select>
                                             </div>-->
                                             <div class="form-group">
@@ -962,12 +966,12 @@ class orders
                                                         <div class="checkbox"><label>
                                                             <input onclick="if ($(this).prop(\'checked\')){$(\'.courier_address\').show();}else{$(\'.courier_address\').hide();}" type="checkbox" value="1" name="is_courier" />
                                                             ' . l('Клиент готов ждать 2-3 недели запчасть') . '
-                                                            <input type="text" style="display:none;" placeholder="по адресу" class="form-control courier_address" value="" name="courier" />
+                                                            <input type="text" style="display:none;" placeholder="' . l('по адресу') .'" class="form-control courier_address" value="" name="courier" />
                                                         </label></div>
                                                         <div class="checkbox"><label>
                                                             <input onclick="if ($(this).prop(\'checked\')){$(\'.replacement_fund\').show();}else{$(\'.replacement_fund\').hide();}" type="checkbox" value="1" name="is_replacement_fund" />
                                                             ' . l('Выдан подменный фонд') . '
-                                                            <input type="text" style="display:none;" placeholder="Модель, серийный номер" class="form-control replacement_fund" value="" name="replacement_fund" />
+                                                            <input type="text" style="display:none;" placeholder="' . l('Модель, серийный номер') .'" class="form-control replacement_fund" value="" name="replacement_fund" />
                                                         </label></div>
                                                     </div>
                                                 </div>
@@ -981,7 +985,7 @@ class orders
                                                 <div id="client_requests">
                                                     '.($order_data ? 
                                                         get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request']) 
-                                                            : '<span class="muted">выберите клиента или устройство чтобы увидеть заявки</span>').'
+                                                            : '<span class="muted">' . l('выберите клиента или устройство чтобы увидеть заявки') . '</span>').'
                                                 </div>
                                             </div><br>
                                         </fieldset>
@@ -1195,7 +1199,7 @@ class orders
                     $print_btn = $items = '';
                     if (count($order['items']) > 0) {
                         $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . implode(',', array_keys($order['items']));
-                        $print_btn = '<a target="_blank" title="Печать" href="' . $url . '"><i class="fa fa-print"></i></a>';
+                        $print_btn = '<a target="_blank" title="' . l('Печать') .'" href="' . $url . '"><i class="fa fa-print"></i></a>';
                         foreach ($order['items'] as $item) {
                             if (strtotime($item['date_checked']) > 0) {
                                 //
@@ -1217,7 +1221,7 @@ class orders
                         <td>' . (($order['wh_id'] > 0) ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $order['wh_id'] . '&lcs=' . $order['location_id'] . '#show_items">' . htmlspecialchars($order['location']) . '</a>' : '') . '</td>
                         <td>
                             <div class="input-group" style="width: 150px">
-                                <input class="datetimepicker form-control input-xs" placeholder="Дата проверки" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value="' . $order['date_check'] . '" />
+                                <input class="datetimepicker form-control input-xs" placeholder="' . l('Дата проверки') .'" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value="' . $order['date_check'] . '" />
                                 <span class="input-group-btn">
                                     <button onclick="edit_so_date_check(this, event, ' . $order['id'] . ')" class="btn btn-info btn-xs" type="button"><i class="glyphicon glyphicon-ok"></i></button>
                                 </span>
@@ -1259,13 +1263,13 @@ class orders
         $categories = $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
         $out .= build_array_tree($categories, isset($_GET['ctg']) ? explode(',', $_GET['ctg']) : null);
         $out .= '</select></div>';
-        $out .= '<div class="form-group"><label>Сроки доставки</label>';
+        $out .= '<div class="form-group"><label>' . l('Сроки доставки') .'</label>';
         $s = isset($_GET['tso']) ? intval($_GET['tso']) : 0;
         $out .= '<select class="form-control" name="tso"><option ' . ($s == 4 ? 'selected' : '') . ' value="4">4</option>';
         $out .= '<option ' . ($s == 3 ? 'selected' : '') . ' value="3">3</option>';
         $out .= '<option ' . ($s == 2 ? 'selected' : '') . ' value="2">2</option>';
         $out .= '<option ' . ($s == 1 ? 'selected' : '') . ' value="1">1</option></select></div>';
-        $out .= '<div class="form-group"><label>Дата от:</label>';
+        $out .= '<div class="form-group"><label>' . l('Дата от') .':</label>';
         $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />';
         $out .= '</div><input type="submit" class="btn btn-primary" value="' . l('Применить') .'" name="procurement-filter" />';
         $out .= '</div></form>';
@@ -1442,11 +1446,11 @@ class orders
                             //вывод расхода
                             $str = $amounts[$p_id]['qty_consumption'] . ' / ' . count($consumption[$p_id]) . ' * ' . 4;
                             $amounts[$p_id]['qty_consumption'] = count($consumption[$p_id]) > 0 ? round($amounts[$p_id]['qty_consumption'] / count($consumption[$p_id]) * 4, 2) : 0;
-                            $amounts[$p_id]['qty_consumption'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="шт / к-во недель * 4">' . $amounts[$p_id]['qty_consumption'] . '</span>';
+                            $amounts[$p_id]['qty_consumption'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="' . l('шт / к-во недель') .' * 4">' . $amounts[$p_id]['qty_consumption'] . '</span>';
                             
                             $str = $amounts[$p_id]['qty_demand'] . ' / ' . count($demand[$p_id]) . ' * ' . 4;
                             $amounts[$p_id]['qty_demand'] = count($demand[$p_id]) > 0 ? round($amounts[$p_id]['qty_demand'] / count($demand[$p_id]) * 4, 2) : 0;
-                            $amounts[$p_id]['qty_demand'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="шт / к-во недель * 4">' . $amounts[$p_id]['qty_demand'] . '</span>';
+                            $amounts[$p_id]['qty_demand'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="' . l('шт / к-во недель') .' * 4">' . $amounts[$p_id]['qty_demand'] . '</span>';
 
                             
                             //$debug = print_r($matrix, true);
@@ -1557,15 +1561,15 @@ class orders
                                 $amounts[$p_id]['qty_forecast'] = $percent == 0 ? '&ndash;' : round($amounts[$p_id]['qty_forecast'], 1);
                                 //$amounts[$p_id]['qty_forecast'] = array_sum($matrix) == 1 ? '&ndash;' : ($amounts[$p_id]['qty_forecast'] > 0 ? round($amounts[$p_id]['qty_forecast'], 2) : 0);
 
-                                $amounts[$p_id]['qty_forecast'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="Среднее значение * %">' . $amounts[$p_id]['qty_forecast'] . '</span>';
+                                $amounts[$p_id]['qty_forecast'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="' . l('Среднее значение') .' * %">' . $amounts[$p_id]['qty_forecast'] . '</span>';
                             }
                         }
                     }
                 }
 
-                $orders_html .= '<table class="table" id="tablesorter"><thead><tr><th>Наименование</th><th>Общ.ост.</th><th>Своб.ост.</th>';
-                $orders_html .= '<th>Ожид.пост.(общ.)</th><th>Ожид.пост.(своб.)</th><th>Расход (шт/мес)</th>';
-                $orders_html .= '<th>Спрос (шт/мес)</th><th>Прогноз</th><th>Рекомендовано еще к заказу</th></tr></thead><tbody>';
+                $orders_html .= '<table class="table" id="tablesorter"><thead><tr><th>' . l('Наименование') .'</th><th>' . l('Общ.ост.') .'</th><th>' . l('Своб.ост.') . '</th>';
+                $orders_html .= '<th>' . l('Ожид.пост.(общ.)') . '</th><th>' . l('Ожид.пост.(своб.)') . '</th><th>' . l('Расход (шт/мес)') . '</th>';
+                $orders_html .= '<th>' . l('Спрос (шт/мес)') . '</th><th>' . l('Прогноз') . '</th><th>' . l('Рекомендовано еще к заказу') . '</th></tr></thead><tbody>';
                 $href = $cfg['prefix'] . 'products/create/';
                 foreach ($amounts as $p_id=>$amount) {
                     $orders_html .= '<tr><td><a href="' . $href . $p_id . '">' . htmlspecialchars($amount['title']) . '</a></td>';
@@ -1686,8 +1690,9 @@ class orders
                 $data[$color] = $p;
             }
         }else{
-            $colors_percents = '(статистика отсутствует)';
+            $colors_percents = '(' . l('статистика отсутствует') .')';
         }
+
         if($as_array){
             return array(
                 'html' => $colors_percents,
@@ -1766,16 +1771,16 @@ class orders
                     }
                     $all_stats_html = $this->gen_orders_manager_stats($all_stats_results, 100);
                 }else{
-                    $days_stats = $all_stats_html = '(нет статистики за выбранный период)';
+                    $days_stats = $all_stats_html = '(' . l('нет статистики за выбранный период') .')';
                 }
                 $filter_stats = '
-                    Средняя статистика за период '.$get_date.'. <br>
-                    Cуммируются проценты по дням и делятся на количество дней у которых есть статистика, по каждому статусу отдельно.<br>
+                    ' . l('Средняя статистика за период') . ' '.$get_date.'. <br>
+                    ' . l('Cуммируются проценты по дням и делятся на количество дней у которых есть статистика, по каждому статусу отдельно.') . '<br>
                     <div style="margin-top:5px">
                         '.$all_stats_html.'
                     </div>
                     <br>
-                    Статистика по дням:<br>
+                    ' . l('Статистика по дням') . ':<br>
                     '.$days_stats.'
                 ';
                 $orders = null;
@@ -1800,9 +1805,10 @@ class orders
                         $manager_block .= '<b>'. $order['id'] . '</b>';
                         $manager_block .= '<br /><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></div>';
                     }
+
                     $filter_stats = $this->gen_orders_manager_stats($colors_count).' <br>';
                 }else{
-                    $manager_block = '<p>Заказов нет</p>';
+                    $manager_block = '<p>' . l('Заказов нет') . '</p>';
                 }
             }
             // -- фильтры
@@ -1862,7 +1868,7 @@ class orders
         //$order_html .= '<td>' . $count . '</td>';
         //$order_html .= '<td><span id="product_sum-' . $product['id'] . '">' . ($product['price'] * $qty / 100) . '</span></td>';
         if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-            $order_html .= '<i title="удалить" class="glyphicon glyphicon-remove remove-product" onclick="order_products(this, ' . $product['goods_id'] . ', ' . $product['id'] . ', 1, 1'.$confirm_remove_supplier_order.')"></i>';
+            $order_html .= '<i title="' . l('удалить') .'" class="glyphicon glyphicon-remove remove-product" onclick="order_products(this, ' . $product['goods_id'] . ', ' . $product['id'] . ', 1, 1'.$confirm_remove_supplier_order.')"></i>';
         }
         $order_html .= '</td>';
         if ($product['type'] == 0) {
@@ -1876,7 +1882,7 @@ class orders
             if ($product['item_id'] > 0) {
                 $msg = '<td>' . suppliers_order_generate_serial($product, true, true) . ' ' . $muted . '</td><td>';
                 if (!strtotime($product['unbind_request']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $msg .= '<i title="отвязать" class="glyphicon glyphicon-minus cursor-pointer" onclick="btn_unbind_request_item_serial(this, \'' . $product['item_id'] . '\')"></i>';
+                    $msg .= '<i title="' . l('отвязать') .'" class="glyphicon glyphicon-minus cursor-pointer" onclick="btn_unbind_request_item_serial(this, \'' . $product['item_id'] . '\')"></i>';
                 }else{
                     $msg .= $this->get_unbind_order_product_btn($product['item_id']);
                 }
@@ -1885,26 +1891,26 @@ class orders
                 $create_role = $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders');
                 $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                 $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
-                $role_alert = "alert('У Вас недостаточно прав для этой операции')";
+                $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')";
                 
                 $avail_create = $avail_accept = $avail_bind = false;
                 $accept_action = $bind_action = $create_action = '';
                 $accept_data = '';
                 
                 if ($product['unavailable'] == 1) {
-                    $msg = 'Запчасть не доступна к заказу ' . $muted . '';
+                    $msg =  l('Запчасть не доступна к заказу') . ' ' . $muted . '';
                 }elseif($product['count_debit'] > 0) {
                     $avail_bind = true;
                     $bind_action = 'bind_product(this,'.$product['goods_id'].')';
-                    $msg = 'Ожидание отгрузки запчасти
-                            <span title="' . do_nice_date($product['date_debit'], false) . '">' . 
+                    $msg = l('Ожидание отгрузки запчасти') . 
+                    '<span title="' . do_nice_date($product['date_debit'], false) . '">' . 
                             do_nice_date($product['date_debit']) . '</span> ' . 
                             $muted . '';
                 }elseif($product['count_come'] > 0) {
                     $avail_accept = true;
                     $accept_action = "alert_box(this,false,'form-debit-so',{},null,'warehouses/ajax/')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
-                    $msg = 'Запчасть была принята
+                    $msg =  l('Запчасть была принята') . '
                             <span title="' . do_nice_date($product['date_come'], false) . '">' . 
                             do_nice_date($product['date_come']) . '</span> ' . 
                             $muted . '';
@@ -1912,8 +1918,8 @@ class orders
                     $avail_accept = true;
                     $accept_action = "alert_box(this, false, 'form-accept-so-and-debit')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
-                    $msg = 'Запчасть заказана (заказ поставщику №' . $product['so_id'] . ').
-                            Дата поставки <span title="' . do_nice_date($product['date_wait'], false) . '">' . 
+                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' №' . $product['so_id'] . ').
+                            ' . l('Дата поставки') .' <span title="' . do_nice_date($product['date_wait'], false) . '">' . 
                             do_nice_date($product['date_wait']) . '';
                 }elseif($product['count_order'] > 0) {
                     $date_attach = $this->all_configs['db']->query(
@@ -1930,7 +1936,7 @@ class orders
                         <span title="'.do_nice_date($date_attach, false).'">'.
                             do_nice_date($date_attach).
                         '</span> '.
-                        'Отправлен запрос на закупку '.$muted.' от '. 
+                        l('Отправлен запрос на закупку') . ' ' . $muted.' от '. 
                         '<span title="'.do_nice_date($product['date_add'], false).'">'.
                             do_nice_date($product['date_add']).
                         '</span>
@@ -1951,17 +1957,17 @@ class orders
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
                                         <a data-alert_box_not_disabled="true" class="'.(!$avail_create || !$create_role ? 'text-muted' : '').'" onclick="'.($create_role ? $create_action : $role_alert).';return false;">
-                                            <i class="fa fa-pencil"></i> Создать заказ поставщику
+                                            <i class="fa fa-pencil"></i> ' . l('Создать заказ поставщику') . '
                                         </a>
                                     </li>
                                     <li>
                                         <a data-alert_box_not_disabled="true" '.$accept_data.' class="'.(!$avail_accept || !$accept_role ? 'text-muted' : '').'" onclick="'.($accept_role ? $accept_action : $role_alert).';return false;">
-                                            <i class="fa fa-wrench"></i> Принять и оприходовать заказ
+                                            <i class="fa fa-wrench"></i> ' . l('Принять и оприходовать заказ') . '
                                         </a>
                                     </li>
                                     <li>
                                         <a data-alert_box_not_disabled="true" class="'.(!$avail_bind || !$bind_role ? 'text-muted' : '').'" onclick="'.($bind_role ? $bind_action : $role_alert).';return false;">
-                                            <i class="fa fa-random"></i> Отгрузить деталь под ремонт
+                                            <i class="fa fa-random"></i> ' . l('Отгрузить деталь под ремонт') . '
                                         </a>
                                     </li>
                                 </ul>
@@ -2041,10 +2047,10 @@ class orders
             //$order_html .= '</label>';
             
             $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
-            $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
+            $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="' . l('Курьер забрал устройство у клиента') .'" class="fa fa-truck"></i> ' : '';
             $accepted .= $order['np_accept'] == 1 ? 
-                            '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
-                            '<i style="color:' . $color . ';" title="Принято в сервисном центре" class="' . htmlspecialchars($order['icon']) . '"></i> ';
+                            '<i title="' . l('Принято через почту') .'" class="fa fa-suitcase text-danger"></i> ' :
+                            '<i style="color:' . $color . ';" title="' . l('Принято в сервисном центре') . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
             $accepted .= $order['aw_title'].' ';
             
             $order_html .= '
@@ -2168,7 +2174,7 @@ class orders
             
             $order_html .= '<div class="form-group"><label><span onclick="alert_box(this, false, \'stock_moves-order\')" data-o_id="' . $order['id'] . '" class="cursor-pointer glyphicon glyphicon-list" title="' . l('История перемещений') . '"></span>';
             $order_html .= ' ' . l('Локации') . ': </label> ' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']);
-            $order_html .= ' <i title="Переместить заказ" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" data-o_id="' . $order['id'] . '" class="glyphicon glyphicon-move cursor-pointer"></i></div>';
+            $order_html .= ' <i title="' . l('Переместить заказ') .'" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" data-o_id="' . $order['id'] . '" class="glyphicon glyphicon-move cursor-pointer"></i></div>';
 
             $order_html .= '<div class="form-group"><label>'.l('Приемщик').':</label> ' . get_user_name($order, 'a_') . '</div>';
             // не продажа
@@ -2214,7 +2220,7 @@ class orders
                                       .'<input onclick="' . $onclick . '" type="checkbox" value="1" ' . ($order['is_replacement_fund'] == 1 ? 'checked' : '') . ' name="is_replacement_fund" />'
                                       . l('Подменный фонд')
                                   .'</label> '
-                                  .'<input ' . ($order['is_replacement_fund'] == 1 ? 'disabled' : 'style="display:none;"') . ' type="text" placeholder="Модель, серийный номер" class="form-control replacement_fund" value="' . htmlspecialchars($order['replacement_fund']) . '" name="replacement_fund" />'
+                                  .'<input ' . ($order['is_replacement_fund'] == 1 ? 'disabled' : 'style="display:none;"') . ' type="text" placeholder="' . l('Модель, серийный номер') .'" class="form-control replacement_fund" value="' . htmlspecialchars($order['replacement_fund']) . '" name="replacement_fund" />'
                               .'</div>';
                 //$order_html .= '<label><span class="muted">Уведомлять клиента по смс о статусе ремонта: </span> ';
                 //$order_html .= '<input type="checkbox" value="1" ' . ($order['notify'] == 1 ? 'checked' : '') . ' name="notify" /></label>';
@@ -2370,7 +2376,7 @@ class orders
             $order_html .= $public_html . $private_html;
             $order_html .= '</div>';
 
-            $order_html .= '<div class="well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>Стоимость</td>
+            $order_html .= '<div class="well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>' . l('Стоимость') . '</td>
             $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
             $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>' . l('Наименование') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
@@ -2416,7 +2422,7 @@ class orders
             $order_html .= '</form>';
 
         } else {
-            $order_html .= '<div class="span3"></div><div class="span9"><p class="text-danger">Заказ №' . $this->all_configs['arrequest'][2] . ' не найден</p></div>';
+            $order_html .= '<div class="span3"></div><div class="span9"><p class="text-danger">' . l('Заказ') .' №' . $this->all_configs['arrequest'][2] . ' ' . l('не найден') .'</p></div>';
         }
         $order_html .= $this->all_configs['chains']->append_js();
         $order_html .= $this->all_configs['suppliers_orders']->append_js();
@@ -2483,7 +2489,7 @@ class orders
         $btn = '';
         if($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')){
             $btn = '
-                <input class="btn btn-xs" type="button" value="Отвязать" onclick="alert_box(this,null,\'bind-move-item-form\',{object_id:'.$item_id.'},null,\'warehouses/ajax/\')">
+                <input class="btn btn-xs" type="button" value="' . l('Отвязать') . '" onclick="alert_box(this,null,\'bind-move-item-form\',{object_id:'.$item_id.'},null,\'warehouses/ajax/\')">
             ';
         }
         return $btn;
@@ -2499,7 +2505,7 @@ class orders
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Нет прав', 'state' => false));
+            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
             exit;
         }
 
@@ -2525,7 +2531,7 @@ class orders
                     }
                     echo json_encode($return);
                 } else {
-                    echo json_encode(array('message' => 'Не найдено', 'state' => false));
+                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
                 }
                 exit;
             }
@@ -2541,7 +2547,7 @@ class orders
         // история статусов заказа
         if ($act == 'order-statuses') {
             $data['state'] = true;
-            $data['content'] = 'Истоия изменения статусов не найдена';
+            $data['content'] = l('История изменения статусов не найдена');
             $statuses = $this->all_configs['db']->query('SELECT s.status, s.date, u.* FROM {order_status} as s
                 LEFT JOIN {users} as u ON u.id=s.user_id WHERE s.order_id=?i ORDER BY `date` DESC',
                 array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
@@ -2591,8 +2597,8 @@ class orders
 
             //if ($this->all_configs['oRole']->hasPrivilege('client-order-photo')) {
                 $data['btns'] = '<input type="button" class="btn btn-info btn-show-webcam" value="' . l('Открыть вебкамеру') . '">';
-                $data['btns'] .= '<input type="button" style="display: none;" class="btn btn-info btn-capture" value="Сфотографировать" data-loading-text="Фотографирование...">';
-                $data['btns'] .= '<input data-order_id="' . $order_id . '" type="button" style="display: none;" class="btn btn-success" id="btn-upload-and-crop" value="Загрузить и прикрепить">';
+                $data['btns'] .= '<input type="button" style="display: none;" class="btn btn-info btn-capture" value="' . l('Сфотографировать') .'" data-loading-text="' . l('Фотографирование') .'...">';
+                $data['btns'] .= '<input data-order_id="' . $order_id . '" type="button" style="display: none;" class="btn btn-success" id="btn-upload-and-crop" value="' . l('Загрузить и прикрепить') .'">';
             //}
         }
 
@@ -2616,7 +2622,7 @@ class orders
                     if ($data && isset($data['state']) && $data['state'] == true && isset($data['imgname'])) {
                         $data['imgid'] = $this->insert_image_to_order($data['imgname'], $order_id);
                     } else {
-                        $data['msg'] = isset($data['msg']) ? $data['msg'] : 'Произошла ошибка при сохранении';
+                        $data['msg'] = isset($data['msg']) ? $data['msg'] : l('Произошла ошибка при сохранении');
                     }
                 } else {
                     $data['msg'] = 'Заказ не найден';
@@ -2669,7 +2675,7 @@ class orders
                 $data['content'] .= '<div class="form-group"><label>' . l('Номер телефона') . ': </label><div class="controls">';
                 $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
                 $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Текст') . ': </label><div class="controls">';
-                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' готов. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '.viewCurrency().'</textarea></div></div>';
+                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' ' . l('готов') .'. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '. l(viewCurrency()) .'</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';
@@ -2698,10 +2704,10 @@ class orders
                         array($_POST['date_check'], $_POST['order_id']));
                     $data['state'] = true;
                 } else {
-                    $data['msg'] = 'Укажите дату';
+                    $data['msg'] = l('Укажите дату');
                 }
             } else {
-                $data['msg'] = 'Нет прав';
+                $data['msg'] = l('Нет прав');
             }
         }
 
@@ -2726,19 +2732,19 @@ class orders
 
             if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order/* || $order['manager'] != $_SESSION['id']*/)) {
                 //$data['msg'] = 'Вы не являетесь менеджером этого заказа';
-                $data['msg'] = 'У Вас нет прав';
+                $data['msg'] = l('У Вас нет прав');
                 $data['state'] = false;
             }
             if ($data['state'] == true && !$order) {
-                $data['msg'] = 'Заказ не найден';
+                $data['msg'] = l('Заказ не найден');
                 $data['state'] = false;
             }
             if ($data['state'] == true && isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && mb_strlen(trim($_POST['replacement_fund']), 'utf-8') == 0) {
-                $data['msg'] = 'Укажите подменный фонд';
+                $data['msg'] = l('Укажите подменный фонд');
                 $data['state'] = false;
             }
             if ($data['state'] == true && isset($_POST['categories-goods']) && intval($_POST['categories-goods']) == 0) {
-                $data['msg'] = 'Укажите устройство';
+                $data['msg'] = l('Укажите устройство');
                 $data['state'] = false;
             }
             
@@ -2748,7 +2754,7 @@ class orders
                 if (!isset($response['state']) || $response['state'] == false) {
                     $data['state'] = false;
                     $_POST['status'] = $order['status'];
-                    $data['msg'] = isset($response['msg']) ? $response['msg'] : 'Статус не изменился';
+                    $data['msg'] = isset($response['msg']) ? $response['msg'] : l('Статус не изменился');
                 }
 
                 // подменный фонд
@@ -2763,7 +2769,7 @@ class orders
                 // устройство у клиента
                 if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                        array($user_id, 'update-order-client_took', $mod_id, $this->all_configs['arrequest'][2], isset($_POST['client_took']) ? 'Устройство у клиента' : 'Устройство на складе', isset($_POST['client_took']) ? 1 : 0));
+                        array($user_id, 'update-order-client_took', $mod_id, $this->all_configs['arrequest'][2], isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'), isset($_POST['client_took']) ? 1 : 0));
                 }
 
                 // смена инженера
@@ -2963,12 +2969,12 @@ class orders
             $orders_html .= typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'input-xlarge', 'input-medium') . '</div></div>';
            */
             $data['content'] = '<form id="form-create-client" method="post">';
-            $data['content'] .= '<div class="form-group"><label>Электронная почта: </label>';
-            $data['content'] .= '<input type="text" class="form-control" name="email" value="" placeholder="Электронная почта" /></div>';
-            $data['content'] .= '<div class="form-group"><label class="control-label">Ф.И.О: </label>';
-            $data['content'] .= '<input class="form-control" type="text" name="fio" value="" placeholder="Ф.И.О" /></div>';
+            $data['content'] .= '<div class="form-group"><label>' . l('Электронная почта') . ': </label>';
+            $data['content'] .= '<input type="text" class="form-control" name="email" value="" placeholder="' . l('Электронная почта') . '" /></div>';
+            $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Ф.И.О') . ': </label>';
+            $data['content'] .= '<input class="form-control" type="text" name="fio" value="" placeholder="' . l('Ф.И.О') . '" /></div>';
             $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Телефон') . ': </label>';
-            $data['content'] .= '<input class="form-control" type="text" name="phone" value="" placeholder="Телефон" /></div>';
+            $data['content'] .= '<input class="form-control" type="text" name="phone" value="" placeholder="' . l('Телефон') . '" /></div>';
             $data['content'] .= '</form>';
             $data['btns'] = '<input class="btn btn-success" onclick="create_client(this)" type="button" value="' . l('Создать') . '" />';
         }
@@ -2977,7 +2983,7 @@ class orders
         if ($act =='add_user') {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
+                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
                 exit;
             }
 
@@ -2995,7 +3001,7 @@ class orders
         // важная информация при добавлении устройства в новый заказ на ремонт
         if ($act == 'service-information') {
             $data['state'] = true;
-            $data['title'] = 'Важная информация';
+            $data['title'] = l('Важная информация');
 //            $data['content'] = trim($this->all_configs['settings']['service-page-information']);
             $data['content'] = '';
 
@@ -3016,7 +3022,7 @@ class orders
                 $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET date_checked=NOW() WHERE id=?i',
                     array(intval($_POST['item_id'])));
             } else {
-                $data['msg'] = 'Изделие не найдено';
+                $data['msg'] = l('Изделие не найдено');
             }
         }
 
@@ -3073,12 +3079,12 @@ class orders
 
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
+                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
                 exit;
             }
             if ( !isset($_POST['user_id']) || $_POST['user_id'] < 1 || !isset($_POST['order_id']) || $_POST['order_id'] < 1 ) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Такого клиента не существует', 'error'=>true));
+                echo json_encode(array('message' => l('Такого клиента не существует'), 'error'=>true));
                 exit;
             }
 
@@ -3090,11 +3096,11 @@ class orders
 
             if ( !$u || !$o || $u['email'] != $o['email'] ) {
                 header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Такого клиента не существует', 'error'=>true));
+                echo json_encode(array('message' => l('Такого клиента не существует'), 'error'=>true));
                 exit;
             }
             $this->all_configs['db']->query('UPDATE {orders} SET user_id=?i WHERE id=?i', array($_POST['user_id'], $_POST['order_id']));
-            $data['message'] = 'Заказ успешно привязан';
+            $data['message'] = l('Заказ успешно привязан');
         }
 
         /*// выгрузка заказа

@@ -39,8 +39,8 @@ class flayers{
             'banner_id', 
             $this->all_configs['db']->makeQuery("banner_id IN (?q)", array(implode(',', array_keys($flayers_arr))))
         );
-        $flayers = '<h3>Баннера</h3><ul>'
-            .'<li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'add_new' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/add_new">Добавить баннер</a></li>
+        $flayers = '<h3>' . l('Баннера') .'</h3><ul>'
+            .'<li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'add_new' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/add_new">' . l('Добавить баннер') .'</a></li>
             ';
         
         $flayer_type = '';
@@ -51,16 +51,16 @@ class flayers{
                 $flayers .= '</ul><h5>';
                 switch ($flayer_type) {
                     case 0:
-                        $flayers .= 'Левые баннеры';
+                        $flayers .= l('Левые баннеры');
                         break;
                     case 1:
-                        $flayers .= 'Нижние баннеры';
+                        $flayers .= l('Нижние баннеры');
                         break;
                     case 2:
-                        $flayers .= 'Главные баннеры';
+                        $flayers .= l('Главные баннеры');
                         break;
                     case 3:
-                        $flayers .= 'Сервисные баннеры';
+                        $flayers .= l('Сервисные баннеры');
                         break;
                     default:
                         break;
@@ -79,11 +79,11 @@ class flayers{
         $out = $flayers
             .'
 
-            <h3>Расстановка</h3>
+            <h3>' . l('Расстановка') .'</h3>
             <ul>
-                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sorting' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/sorting/3">Главных баннеров</a></li>
-                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sorting' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/sorting/2">Нижних баннеров</a></li>
-                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sorting' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/sorting/1">Левых баннеров</a></li>
+                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sorting' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/sorting/3">' . l('Главных баннеров') .'</a></li>
+                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sorting' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/sorting/2">' . l('Нижних баннеров') .'</a></li>
+                <li><a'.(isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sorting' ? ' style="font-weight: bold"' : '').'  href="'.$this->all_configs['prefix'].'flayers/sorting/1">' . l('Левых баннеров') .'</a></li>
             </ul>
         ';
         
@@ -110,7 +110,7 @@ class flayers{
                     $status = false;
                 }
             }else{
-                $message = 'Недопустимый формат файла';
+                $message = l('Недопустимый формат файла');
                 $status = false;
             }
         }
@@ -128,7 +128,7 @@ class flayers{
             'map_id', 
             $this->all_configs['db']->makeQuery("map_id IN (?q)", array(implode(',', array_keys($categories))))
         );
-        $category_select = '<select name="category" class="form-control"><option value="0">Нет разделов</option>';
+        $category_select = '<select name="category" class="form-control"><option value="0">' . l('Нет разделов') .'</option>';
         foreach ( $categories as $category ) {
             $category = translates_for_page($this->lang, $this->def_lang, $translates[$category['id']], $category, true);
             if (isset($flayer['page_id']) && $flayer['page_id'] == $category['id'])
@@ -143,12 +143,12 @@ class flayers{
                 <div class="checkbox">
                     <label class="checkbox">
                         <input type="checkbox" name="active" value="1"'.
-                            (($flayer && $flayer['active']) || !$flayer ? ' checked="checked"' : '').'> отображается
+                            (($flayer && $flayer['active']) || !$flayer ? ' checked="checked"' : '').'> ' . l('отображается') .'
                     </label>
                 </div>
             </div>
             <div class="form-group">
-                <label>Тип </label>
+                <label>' . l('Тип') .' </label>
                 <select name="is_double" class="form-control">
                     <option value="0">'.l('flayers_simple').'</option>
                     <option value="1" '.($flayer && $flayer['is_double']==1 ? ' selected="selected"' : '').'>'.l('flayers_double').'</option>
@@ -158,7 +158,7 @@ class flayers{
             </div>
             <div class="form-group">
                 <div id="categories_box">
-                    <label>Сервис:</label>
+                    <label>' . l('Сервис') .':</label>
                     ' . $category_select . '
                 </div>
             </div>
@@ -170,7 +170,7 @@ class flayers{
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="hidden_link" value="1"'.
-                            (($flayer && $flayer['hidden_link']) ? ' checked="checked"' : '').'> эмулировать ссылку 
+                            (($flayer && $flayer['hidden_link']) ? ' checked="checked"' : '').'> ' . l('эмулировать ссылку') .' 
                     </label>
                 </div>
             </div>
@@ -179,11 +179,11 @@ class flayers{
                 <input type="text" class="form-control" name="name" value="'.($flayer && $flayer['name'] ? $flayer['name'] : '').'">
             </div>
             <div class="form-group">
-                <label>Изображение:</label>
+                <label>' . l('Изображение') .':</label>
                 '.($flayer && $flayer['image'] ? '<img src="'.$this->all_configs['siteprefix'].'flayers/'.$flayer['image'].'"><br>' : '').'
                 <strong>'.l('flayers_simple').'</strong> - 350 х (175, 560) px <br>
-                <strong>'.l('flayers_double').'</strong> - рабочее пространство (970х200) общее (1920х240) px <br>
-                <strong>'.l('flayers_main').'</strong> - рабочее пространство (970х400) общее (1920х400) px <br>
+                <strong>'.l('flayers_double').'</strong> - ' . l('рабочее пространство') .' (970х200) ' . l('общее') .' (1920х240) px <br>
+                <strong>'.l('flayers_main').'</strong> - ' . l('рабочее пространство') .' (970х400) ' . l('общее') .' (1920х400) px <br>
                 <input type="file" name="image">
             </div>
         ';
@@ -193,7 +193,7 @@ class flayers{
     
     private function gencontent(){
         
-        $out = '<h3>Модуль управления баннерами</h3>';
+        $out = '<h3>' . l('Модуль управления баннерами') .'</h3>';
         
         if(isset($this->all_configs['arrequest'][1])){
             
@@ -232,7 +232,7 @@ class flayers{
                     }
 
                     $out = '
-                        <h3>Сортировка</h3>
+                        <h3>' . l('Сортировка') .'</h3>
                         <form action="'.$this->all_configs['prefix'].'flayers/sorting/save" method="post">
                             <ul id="sortable">
                                 '.$html.'
@@ -269,7 +269,7 @@ class flayers{
                 if(!isset($this->all_configs['arrequest'][2])){
 
                     $out = '
-                        <h3>Баннер «'.$flayer['name'].'»</h3>
+                        <h3>' . l('Баннер') .' «'.$flayer['name'].'»</h3>
                         <form action="'.$this->all_configs['prefix'].'flayers/'.$this->all_configs['arrequest'][1].'/save" method="post" enctype="multipart/form-data">
                             '.$this->form($flayer).'
                             <div class="form-goup">
@@ -328,7 +328,7 @@ class flayers{
 
                     $out = '
                         <form action="'.$this->all_configs['prefix'].'flayers/add_new/save" method="post" enctype="multipart/form-data">
-                            <h3>Добавление нового баннера</h3>
+                            <h3>' . l('Добавление нового баннера') .'</h3>
                             '.$this->form().'
                             <div class="form-goup">
                                 <input type="submit" class="btn btn-primary" value="'.l('save').'">

@@ -37,13 +37,13 @@ class seo {
     private function genmenu() {
         global $db, $prefix, $arrequest;
 
-        $out = '<h4>Инструменты</h4>' .
+        $out = '<h4>' . l('Инструменты') .'</h4>' .
                 '<ul>' .
 //                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'images' ? ' style="font-weight:bold"' : '') . ' href="' . $prefix . 'seo/images">Изображения</a></li>' .
 //                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'robots' ? ' style="font-weight:bold"' : '') . ' href="' . $prefix . 'seo/robots">robots.txt</a></li>' .
-                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'glue' ? ' style="font-weight:bold"' : '') . ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/glue">Склейка</a></li>' .
+                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'glue' ? ' style="font-weight:bold"' : '') . ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/glue">' . l('Склейка') .'</a></li>' .
 //                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'notifications' ? ' style="font-weight:bold"' : '') . ' href="' . $prefix . 'seo/notifications">Уведомления</a></li>' .
-                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'map' ? ' style="font-weight:bold"' : '') . ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/map">Страницы</a></li>' .
+                '<li><a' . (isset($arrequest[1]) && $arrequest[1] == 'map' ? ' style="font-weight:bold"' : '') . ' href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/map">' . l('Страницы') .'</a></li>' .
                 '</ul>'
         ;
         
@@ -56,7 +56,7 @@ class seo {
     private function gencontent() {
         global $arrequest;
         if (!isset($this->all_configs['arrequest'][1])) {
-            $out = '<h2>Модуль СЕО для сайта</h2>';
+            $out = '<h2>' . l('Модуль СЕО для сайта') .'</h2>';
         } else {
             switch ($this->all_configs['arrequest'][1]) {
                 // уведомления
@@ -155,10 +155,10 @@ class seo {
         } else {
             
 
-            $out = "<h3>Уже выполняется переадресация</h3>";
+            $out = "<h3>" . l('Уже выполняется переадресация') ."</h3>";
             $out.= $this->makeTable();
-            $out.= "<a href='" . $this->all_configs['prefix'] . "seo/glue/del/all' onclick='return confirm(\"Удалить все записи?\")'>Удалить все</a>";
-            $out.='<h3>Добавление ссылок для переадресации</h3>';
+            $out.= "<a href='" . $this->all_configs['prefix'] . "seo/glue/del/all' onclick='return confirm(\"" . l('Удалить все записи') ."?\")'>" . l('Удалить все') ."</a>";
+            $out.='<h3>' . l('Добавление ссылок для переадресации') .'</h3>';
             $out.= "<form action = '" .  $this->all_configs['prefix'] . "seo/glue/add' method='POST'>
                             <div class='form-group-row'>
                                 <div class='col-sm-6'>
@@ -168,7 +168,7 @@ class seo {
                                     <textarea class='form-control' rows='10' name='linkto'></textarea>
                                 </div>
                             </div>
-                            <p><input type='submit' value='Добавить' class='btn btn-default'></p>
+                            <p><input type='submit' value='" . l('Добавить') ."' class='btn btn-default'></p>
                             </form>";
         }
         return $out;
@@ -346,8 +346,8 @@ class seo {
         $links = $this->db->query('SELECT * FROM {map_glue}')->assoc();
         if ($links) {
             $out = "<table class='table table-bordered table-hover'>\n";
-            $out .= "<tr><td><b>Откуда</b></td>" .
-                    "<td><b>Куда</b></td>" .
+            $out .= "<tr><td><b>" . l('Откуда') ."</b></td>" .
+                    "<td><b>" . l('Куда') . "</b></td>" .
                     "<td></td></tr>";
 
             foreach ($links as $link) {
@@ -355,14 +355,14 @@ class seo {
                 $out .= '<td>' . $link['link_from'] . '</td>';
                 $out .= '<td>' . $link['link_to'] . '</td>';
                 $out .= '<td>' .
-                        '<a onClick="return confirm(\'Удалить?\');" href="' . $this->all_configs['prefix'] . 'seo/glue/del/' . $link['id'] . '">Удалить</a>' .
+                        '<a onClick="return confirm(\'' . l('Удалить?') .'\');" href="' . $this->all_configs['prefix'] . 'seo/glue/del/' . $link['id'] . '">' . l('Удалить') .'</a>' .
                         '</td>';
                 $out .= "</tr>";
             }
 
             $out .= '</table>';
         } else {
-            $out = '<p style="padding:20px;">Текущих переадресаций нет.</p>';
+            $out = '<p style="padding:20px;">' . l('Текущих переадресаций нет.') .'</p>';
         }
         return $out;
     }
@@ -428,7 +428,7 @@ class seo {
             }
         } else {
             $out = '
-                <h2>Метаданные страниц сайта</h2>
+                <h2>' . l('Метаданные страниц сайта') .'</h2>
                 <!--<p>Отображаются только опубликованные страницы, <br>
                    которые не являются "составной частью страницы" и "ошибка 404", а также страницы, <br>
                    которые есть потомками главной страницы. Не выводятся страницы чьи разделы не опубликованы.</p>
@@ -454,7 +454,7 @@ class seo {
                     <thead>
                         <tr>
                             <th>id</th>
-                            <th>Страница</th>
+                            <th>' . l('Страница') .'</th>
                             <th>url</th>
                             <th>title</th>
                             <th>keywords</th>
@@ -472,7 +472,7 @@ class seo {
                         <td>' . $page['id'] . '</td>
                         <td style="width:150px">
                             <a href="' . $this->all_configs['prefix'] . 'map/' . $page['id'] . '" target="_blank"><i class="glyphicon glyphicon-pencil"></i></a> ' . $page['name'] . '<br>
-                            <!--<a title="' . $this->all_configs['prefix'] . '" href="' . $link . '" target="_blank">ссылка на сайт</a>-->
+                            <!--<a title="' . $this->all_configs['prefix'] . '" href="' . $link . '" target="_blank">' . l('ссылка на сайт') .'</a>-->
                         </td>
                         <td><input class="form-control" type="text" name="page[' . $page['id'] . '][url]" value="' . htmlspecialchars($page['url']) . '"></td>
                         <td><textarea class="form-control" rows="3" name="page[' . $page['id'] . '][fullname]">' . htmlspecialchars($page['fullname']) . '</textarea></td>

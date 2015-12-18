@@ -78,7 +78,7 @@ class marketing{
     
     private function monitoring(){
         if ( !$this->all_configs['oRole']->hasPrivilege('monitoring') ) {
-            return '<p class="text-error">У Вас нет прав для мониторинга</p></div>';
+            return '<p class="text-error">' . l('У Вас нет прав для мониторинга') .'</p></div>';
         }
         
         if(isset($this->arrequest[1])){
@@ -129,10 +129,10 @@ class marketing{
             $events_date = ($site['last_scan_date'] != '0000-00-00 00:00:00' ? do_nice_date($site['last_scan_date']).' - ' : '');
             if($site['events']){
                 $events_link = ' <a data-toggle="modal" class="load_events" data-site="'.$site['id'].'" href="#history'.$site['id'].'">'.
-                                    '('.$events_date.'cобытий: '.$site['events'].')'.
+                                    '('.$events_date. l('cобытий') .': '.$site['events'].')'.
                                 '</a>';
             }else{
-                $events_link = ' ('.$events_date.'cобытий: '.$site['events'].')';
+                $events_link = ' ('.$events_date. l('cобытий') .': '.$site['events'].')';
             }
             $out .= '
                 <tr>
@@ -142,15 +142,15 @@ class marketing{
                         $events_link.
                     '</td>
                     <td>
-                        <a href="#links'.$site['id'].'" class="load_links" data-site="'.$site['id'].'" data-toggle="modal">Ссылки ('.$links_count.')</a> | '
+                        <a href="#links'.$site['id'].'" class="load_links" data-site="'.$site['id'].'" data-toggle="modal">' . l('Ссылки') .' ('.$links_count.')</a> | '
                       .'<a href="'.$this->all_configs['siteprefix'].'monitoring_service.php?act=monitoring_get_links&site_id='.$site['id'].'" '
-                    . '         onclick="return confirm(\'Запустить сканирование сайта '.$site['site'].'?\')">
-                            Загрузить ссылки (crawler)
+                    . '         onclick="return confirm(\'' . l('Запустить сканирование сайта') .' '.$site['site'].'?\')">
+                            ' . l('Загрузить ссылки') .' (crawler)
                         </a>
                         <form action="'.$this->prefix.'marketing/add_link_to_site" method="post" class="mb0 form-inline">
                             <input type="hidden" name="site" value="'.$site['id'].'">
                             <div class="form-group">
-                                <label>Добавить ссылку:</label>
+                                <label>' . l('Добавить ссылку') .':</label>
                                 <div class="input-group">
                                     <input type="text" name="link" class="form-control"> 
                                     <span class="input-group-btn">
@@ -161,9 +161,9 @@ class marketing{
                         </form>
                     </td>
                     <td>
-                        <form onsubmit="return confirm(\'Удалить конкурента '.$site['site'].' и все данные?\')" action="'.$this->prefix.'marketing/del_site" method="post" class="mb0 form-inline">
+                        <form onsubmit="return confirm(\'' . l('Удалить конкурента') .' '.$site['site'].' ' . l('и все данные') .'?\')" action="'.$this->prefix.'marketing/del_site" method="post" class="mb0 form-inline">
                             <input type="hidden" name="site" value="'.$site['id'].'">
-                            <button type="submit" class="btn btn-sm btn-default">Удалить сайт и все данные</button>
+                            <button type="submit" class="btn btn-sm btn-default">' . l('Удалить сайт и все данные') .'</button>
                         </form>
                     </td>
                 </tr>
@@ -174,7 +174,7 @@ class marketing{
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4>Изменения на сайте '.$site['site'].'</h4>
+                                <h4>' . l('Изменения на сайте') .' '.$site['site'].'</h4>
                             </div>
                             <div class="modal-body" id="site_events_'.$site['id'].'"></div>
                         </div>
@@ -185,7 +185,7 @@ class marketing{
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4>Ссылки на сайте '.$site['site'].'</h4>
+                                <h4>' . l('Ссылки на сайте') .' '.$site['site'].'</h4>
                             </div>
                             <div class="modal-body" id="site_links_'.$site['id'].'"></div>
                         </div>
@@ -243,7 +243,7 @@ class marketing{
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
                                       <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordionlinks'.$site.'" href="#collapselinks'.$site.'">
-                                        Новые ссылки ('.count($new_links).')
+                                        ' . l('Новые ссылки') .' ('.count($new_links).')
                                       </a>
                                     </div>
                                 
@@ -280,9 +280,9 @@ class marketing{
                                             . 'style="color: #111;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;display:block;">'.
                                         htmlspecialchars($h['link']).
                                     '</a> '
-                                    .'<span style="font-size:12px">(сравнение '.
+                                    .'<span style="font-size:12px">(' . l('сравнение') .
                                         date('Y-m-d', strtotime($h['prev_ldate'])).
-                                    ' и '.
+                                    ' ' . l('и') .' '.
                                         date('Y-m-d', strtotime($h['last_ldate'])).
                                     ')</span>
                                 </div>

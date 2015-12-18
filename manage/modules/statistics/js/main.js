@@ -276,7 +276,7 @@ $(document).ready(function () {
                     }
                     
                     html = '<tr class="expand-child" data-date_start="'+getGet('ds')+'" data-date_end="'+getGet('de')+'">';
-                    html += '<td class="collapsible"></td><td>Итог:</td>';
+                    html += '<td class="collapsible"></td><td>' + L['total'] +  ':</td>';
                     html += '<td>' + visits + '</td>';
                     html += '<td>' + clicks + '</td>';
                     html += '<td>' + (visits > 0 ? clicks / visits * 100 : 0).toFixed(2) + '</td>';

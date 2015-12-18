@@ -18,7 +18,7 @@ class users
 
         if ( !$this->all_configs['oRole']->hasPrivilege('edit-users') ) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">У Вас нет прав для просмотра пользователей</p></div>';
+                <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра пользователей') .'</p></div>';
         }
         
         if($ifauth['is_2']) return false;
@@ -167,7 +167,7 @@ class users
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Нет прав', 'state' => false));
+            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
             exit;
         }
         
@@ -332,16 +332,16 @@ class users
 
         // проверка на сортировку
         $sort = '';
-        $sort_position = '<a href="?sort=position">Должность';
+        $sort_position = '<a href="?sort=position">' . l('Должность');
         if ( isset($_GET['sort']) ) {
             switch ($_GET['sort']) {
                 case 'position':
                     $sort = 'u.position,';
-                    $sort_position = '<a href="?sort=rposition">Должность<i class="glyphicon glyphicon-chevron-down"></i>';
+                    $sort_position = '<a href="?sort=rposition">' . l('Должность') .'<i class="glyphicon glyphicon-chevron-down"></i>';
                     break;
                 case 'rposition':
                     $sort = 'u.position DESC,';
-                    $sort_position = '<a href="?sort=position">Должность<i class="glyphicon glyphicon-chevron-up"></i>';
+                    $sort_position = '<a href="?sort=position">' . l('Должность') .'<i class="glyphicon glyphicon-chevron-up"></i>';
                     break;
             }
         }
@@ -365,17 +365,17 @@ class users
         $users_html .= '<div id="edit_tab_users" class="tab-pane active"><form enctype="multipart/form-data" method="post" id="users-form">';
         $users_html .= '<table class="table table-striped"><thead><tr>'
                 . '<td>ID</td>'
-                . '<td>Фото</td>'
+                . '<td>' . l('Фото') . '</td>'
                 . '<td><i class="glyphicon glyphicon-envelope"></i></td>'
-                . '<td>Логин</td>'
+                . '<td>' . l('Логин') . '</td>'
                 . '<td><i class="glyphicon glyphicon-off"></i></td>'
-                . '<td>Пароль</td>'
-                . '<td>Роль</td>'
-                . '<td>ФИО</td><td>' . $sort_position . '</a></td>'
-                . '<td>Телефон</td>'
-                . '<td>Эл. почта</td>'
-                . '<td title="Серийный номер сертификата">Номер<br>сертиф.</td>'
-                . '<td title="Вход только по сертификату">Вход по<br>сертиф.</td>'
+                . '<td>' . l('Пароль') . '</td>'
+                . '<td>' . l('Роль') . '</td>'
+                . '<td>' . l('ФИО') . '</td><td>' . l($sort_position) . '</a></td>'
+                . '<td>' . l('Телефон') . '</td>'
+                . '<td>' . l('Эл. почта') . '</td>'
+                . '<td title="' . l('Серийный номер сертификата') . '">' . l('Номер сертиф.') . '</td>'
+                . '<td title="' . l('Вход только по сертификату') . '">' . l('Вход по сертиф.') . '</td>'
             . '</tr></thead><tbody>';
 
         // строим блок списка пользователей с ролями
@@ -425,11 +425,11 @@ class users
                     
 
                     $users_html .= '</select></td>'
-                        . '<td><input placeholder="введите ФИО" class="form-control input-sm" '
+                        . '<td><input placeholder="' . l('введите ФИО') . '" class="form-control input-sm" '
                             .'name="fio[' . $user['id'] . ']" value="' . htmlspecialchars($user['fio']) . '" /></td>'
-                        . '<td><input placeholder="введите должность" class="form-control input-sm" name="position[' . $user['id'] . ']" value="' . htmlspecialchars($user['position']) . '" /></td>'
-                        . '<td><input placeholder="введите телефон" onkeydown="return isNumberKey(event)" class="form-control input-sm" name="phone[' . $user['id'] . ']" value="' . $user['phone'] . '" /></td>'
-                        . '<td><input placeholder="введите email" class="form-control input-sm" name="email[' . $user['id'] . ']" value="' . $user['email'] . '" /></td>
+                        . '<td><input placeholder="' . l('введите должность') . '" class="form-control input-sm" name="position[' . $user['id'] . ']" value="' . htmlspecialchars($user['position']) . '" /></td>'
+                        . '<td><input placeholder="' . l('введите телефон') . '" onkeydown="return isNumberKey(event)" class="form-control input-sm" name="phone[' . $user['id'] . ']" value="' . $user['phone'] . '" /></td>'
+                        . '<td><input placeholder="' . l('введите email') . '" class="form-control input-sm" name="email[' . $user['id'] . ']" value="' . $user['email'] . '" /></td>
                         <td><input placeholder="" class="form-control input-sm" name="auth_cert_serial[' . $user['id'] . ']" value="' . $user['auth_cert_serial'] . '" /></td>
                         <td><input ' . $cert_checked . ' type="checkbox" name="auth_cert_only[' . $user['id'] . ']" /></td>
   
@@ -439,7 +439,7 @@ class users
             }
         }
 
-        $users_html .= '<a class="btn btn-success send-mess" href="#" >Отправить сообщение</a>';
+        $users_html .= '<a class="btn btn-success send-mess" href="#" >' . l('Отправить сообщениe') . '</a>';
 
         $users_html .= '</tbody></table>';
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
@@ -451,7 +451,7 @@ class users
                 <div class="modal-content">
                     <div class="modal-header">
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                      <h4 class="modal-title">Аватар</h4>
+                      <h4 class="modal-title">' . l('Аватар') . '</h4>
                     </div>
                     <div class="modal-body">
                         <div id="fileuploader"></div>
@@ -506,7 +506,7 @@ class users
                 $checked = 'checked';
             $users_html .=  '<ul class="nav nav-list pull-left" style="width:33%;padding:0 10px">
                 <li class="nav-header"><br><h4 class="text-info">' . htmlspecialchars($v['name']) . '</h4>
-                <div class="checkbox"><label><input type="checkbox" '.$checked.' name="active['.$rid.']" />активность</label></div></li>';
+                <div class="checkbox"><label><input type="checkbox" '.$checked.' name="active['.$rid.']" />' . l('активность') .'</label></div></li>';
             $users_html .=  '<li>Дата конца активности группы</li>';
             $users_html .=  '<li><input class="form-control input-sm datepicker" name="date_end[' . $rid . ']" type="text" value="' . $v['date_end'] . '" ></li>';
             $group_html = array();
@@ -543,14 +543,14 @@ class users
         $users_html .= '
             <form  method="post">
                 <fieldset>
-                    <legend>Добавление новой роли</legend>
+                    <legend>' . l('Добавление новой роли') . '</legend>
                     <div class="form-group">
                         <label>' . l('Название') . ':</label>
                         <input class="form-control" value="" name="name" placeholder="' . l('введите название') . '">
                     </div>
                     <div class="form-group">
-                        <label>Права доступа:</label>
-                        отметьте нужные
+                        <label>' . l('Права доступа') . ':</label>
+                        ' . l('отметьте нужные') . '
                     </div>';
         $yet = 0;
         $roles = array();
@@ -606,38 +606,38 @@ class users
         $users_html .= '
             <form method="post">
                 <fieldset>
-                    <legend>Добавление нового пользователя</legend>
+                    <legend>' . l('Добавление нового пользователя') . '</legend>
                     <div class="form-group">
-                        <label>Логин <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="login" placeholder="введите логин">
+                        <label>' . l('Логин') . ' <b class="text-danger">*</b>:</label>
+                        <input class="form-control" value="" name="login" placeholder="' . l('введите логин') . '">
                     </div>
                     <div class="form-group">
-                        <label>E-mail:</label>
-                        <input class="form-control" value="" name="email" placeholder="введите e-mail">
+                        <label>' . l('E-mail') . ':</label>
+                        <input class="form-control" value="" name="email" placeholder="' . l('введите e-mail') . '">
                     </div>
                     <div class="form-group">
-                        <label>Пароль <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="pass" placeholder="введите пароль">
+                        <label>' . l('Пароль') . ' <b class="text-danger">*</b>:</label>
+                        <input class="form-control" value="" name="pass" placeholder="' . l('введите пароль') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('ФИО') . ':</label>
-                        <input class="form-control" value="" name="fio" placeholder="введите фио">
+                        <input class="form-control" value="" name="fio" placeholder="' . l('введите фио') . '">
                     </div>
                     <div class="form-group">
-                        <label>Должность</label>
-                        <input class="form-control" value="" name="position" placeholder="введите должность">
+                        <label>' . l('Должность') . '</label>
+                        <input class="form-control" value="" name="position" placeholder="' . l('введите должность') . '">
                     </div>
                     <div class="form-group">
-                        <label>Телефон</label>
-                        <input onkeydown="return isNumberKey(event)" class="form-control" value="" name="phone" placeholder="введите телефон">
+                        <label>' . l('Телефон') . '</label>
+                        <input onkeydown="return isNumberKey(event)" class="form-control" value="" name="phone" placeholder="' . l('введите телефон') . '">
                     </div>
                     <div class="form-group">
                         <div class="checkbox">
-                            <label><input type="checkbox" name="avail" />Активность</label>
+                            <label><input type="checkbox" name="avail" />' . l('Активность') . '</label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Укажите склад и локацию, на которую по умолчанию перемещается <br>устройство принятое на ремонт данным сотрудником</label>
+                        <label>' . l('Укажите склад и локацию, на которую по умолчанию перемещается устройство принятое на ремонт данным сотрудником') .'</label>
                         <div class="clearfix">
                             <div class="pull-left m-r-lg">
                                 <label>' . l('Склад') . ':</label><br>
@@ -653,15 +653,15 @@ class users
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Укажите склады <br>к которым сотрудник имеет доступ</label><br>
+                        <label>' . l('Укажите склады к которым сотрудник имеет доступ') .'</label><br>
                         <select class="multiselect" name="warehouses[]" multiple="multiple">
                             '.$warehouses.'
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Роль</label>
+                        <label>' . l('Роль') . '</label>
                         <select name="role" class="form-control">
-                            <option value="">выберите роль</option>
+                            <option value="">' . l('выберите роль') . '</option>
                             ' . $role_html . '
                         </select>
                     </div>';

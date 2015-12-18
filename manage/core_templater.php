@@ -111,7 +111,7 @@ if($curmod){
         $css_files = scandir($mod_path.'css/');
         foreach($css_files as $file){
             if($file != '.' && $file != '..'){
-                $css .= '<link type="text/css" rel="stylesheet" href="'.$mod_prefix.'css/'.$file.'?16">';
+                $css .= '<link type="text/css" rel="stylesheet" href="'.$mod_prefix.'css/'.$file.'?17">';
             }
         }
     }
@@ -123,7 +123,7 @@ if($curmod){
         $main_js = '';
         foreach($js_files as $file){
             if($file != '.' && $file != '..'){
-                $link = '<script type="text/javascript" src="'.$mod_prefix.'js/'.$file.'?30"></script>';
+                $link = '<script type="text/javascript" src="'.$mod_prefix.'js/'.$file.'?31"></script>';
                 if($file == 'main.js'){
                     $main_js = $link;
                     continue;

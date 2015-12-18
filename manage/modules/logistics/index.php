@@ -312,7 +312,7 @@ class logistics
                         <td class="chain-body-arrow"></td>
                         <td>'.$warehouses[$chain['to_wh_id']]['title'].' ('.$warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'].')'.'</td>
                         <td class="chain-body-arrow"></td>
-                        <td>'.($chain['avail'] ? '<i class="glyphicon glyphicon-remove cursor-pointer" title="Удалить цепочку" onclick="remove_chain(this, '.$chain['id'].')"></i>' : '').'</td>
+                        <td>'.($chain['avail'] ? '<i class="glyphicon glyphicon-remove cursor-pointer" title="' . l('Удалить цепочку') .'" onclick="remove_chain(this, '.$chain['id'].')"></i>' : '').'</td>
                     </tr>
                     <tr><td colspan="7"></td></tr>
                 ';
@@ -321,7 +321,7 @@ class logistics
             
             // форма добавления 
             
-            $warehouses_select = '<option value=""> -- выбирите -- </option>';
+            $warehouses_select = '<option value=""> -- ' . l('выбирите') .' -- </option>';
             foreach($warehouses as $wh){
                 $warehouses_select .= '<option value="'.$wh['id'].'">'.$wh['title'].'</option>';
             }
@@ -337,7 +337,7 @@ class logistics
                                 <form class="container-fluid">
                                     <div class="row">
                                         <div class="col-sm-4">
-                                            <p>Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка</p>
+                                            <p>' . l('Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка') .'</p>
                                             <div class="form-group">
                                                 <label>' . l('Склад') . ':</label>
                                                 <select data-multi="0" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[0]">
@@ -350,7 +350,7 @@ class logistics
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
-                                            <p>Укажите склад логистики</p>
+                                            <p>' . l('Укажите склад логистики') .'</p>
                                             <div class="form-group">
                                                 <label>' . l('Склад') . ':</label>
                                                 <select data-multi="1" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[1]">
@@ -359,7 +359,7 @@ class logistics
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
-                                            <p>Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка</p>
+                                            <p>' . l('Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка') .'</p>
                                             <div class="form-group">
                                                 <label>' . l('Склад') . ':</label>
                                                 <select data-multi="2" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[2]">
@@ -405,7 +405,7 @@ class logistics
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: applicpreloadation/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Нет прав', 'state' => false));
+            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
             exit;
         }
 
@@ -421,7 +421,7 @@ class logistics
                     );
                     echo json_encode(array('html' =>  $function['html'], 'state' => true, 'functions' => $function['functions']));
                 } else {
-                    echo json_encode(array('message' => 'Не найдено', 'state' => false));
+                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
                 }
                 exit;
             }
@@ -434,7 +434,7 @@ class logistics
                     array(0, intval($_POST['chain_id'])));
                 $data['state'] = true;
             } else {
-                $data['msg'] = 'Цепочка не найдена';
+                $data['msg'] = l('Цепочка не найдена');
             }
         }
 
@@ -456,27 +456,27 @@ class logistics
 
             if ($data['state'] == true && $wh_from_id == 0) {
                 $data['state'] = false;
-                $data['msg'] = 'Укажите склад откуда';
+                $data['msg'] = l('Укажите склад откуда');
             }
             if ($data['state'] == true && $location_from_id == 0) {
                 $data['state'] = false;
-                $data['msg'] = 'Укажите локацию откуда';
+                $data['msg'] = l('Укажите локацию откуда');
             }
             if ($data['state'] == true && $wh_to_id == 0) {
                 $data['state'] = false;
-                $data['msg'] = 'Укажите склад куда';
+                $data['msg'] = l('(Укажите склад куда');
             }
             if ($data['state'] == true && $location_to_id == 0) {
                 $data['state'] = false;
-                $data['msg'] = 'Укажите локацию куда';
+                $data['msg'] = l('Укажите локацию куда');
             }
             if ($data['state'] == true && $logistic == 0) {
                 $data['state'] = false;
-                $data['msg'] = 'Укажите логистику';
+                $data['msg'] = l('Укажите логистику');
             }
             if ($data['state'] == true && $location_to_id == $location_from_id) {
                 $data['state'] = false;
-                $data['msg'] = 'Локация откуда не может совпадать с локацией куда';
+                $data['msg'] = l('Локация откуда не может совпадать с локацией куда');
             }
             if ($data['state'] == true) {
                 $isset = $this->db->query('SELECT id FROM {chains} '
@@ -484,7 +484,7 @@ class logistics
                                     array($wh_from_id, $location_from_id))->el();
                 if ($isset) {
                     $data['state'] = false;
-                    $data['msg'] = 'Такая локация уже существует';
+                    $data['msg'] = l('Такая локация уже существует');
                 }
             }
             if ($data['state'] == true) {

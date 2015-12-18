@@ -687,15 +687,15 @@ function page_block($count_page, $hash = '', $a_url = null)
             }
         }
         if ( (isset($_GET['p']) && $_GET['p']==1) || !isset($_GET['p']) ) {
-            $page = '<li class="disabled"><a href="?p=1' . $url .'">« Предыдущая</a></li>' . $page .
-                '<li><a href="?p=2' . $url . '">Следующая »</a></li>';
+            $page = '<li class="disabled"><a href="?p=1' . $url .'">« ' . l('Предыдущая') . '</a></li>' . $page .
+                '<li><a href="?p=2' . $url . '">' . l('Следующая') . ' »</a></li>';
         } else {
             if ( $count_page == $_GET['p'] ) {
-                $page = '<li><a href="?p=' . ($_GET['p']-1) . $url . '">« Предыдущая</a></li>' . $page .
-                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">Следующая »</a></li>';
+                $page = '<li><a href="?p=' . ($_GET['p']-1) . $url . '">« ' . l('Предыдущая') . '</a></li>' . $page .
+                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">' . l('Следующая') . ' »</a></li>';
             } else {
-                $page = '<li><a href="?p='.($_GET['p']-1).'">« Предыдущая</a></li>' . $page .
-                    '<li><a href="?p=' . ($_GET['p']+1) . $url . '">Следующая »</a></li>';
+                $page = '<li><a href="?p='.($_GET['p']-1).'">« ' . l('Предыдущая') . '</a></li>' . $page .
+                    '<li><a href="?p=' . ($_GET['p']+1) . $url . '">' . l('Следующая') . ' »</a></li>';
             }
         }
     }
@@ -1001,7 +1001,7 @@ function display_client_order($order)
 {
     global $all_configs;
 
-    $status = '<span class="muted">Сообщите менеджеру</span>';
+    $status = '<span class="muted">' . l('Сообщите менеджеру') .'</span>';
     if (array_key_exists($order['status'], $all_configs['configs']['order-status'])) {
         $status_name = $all_configs['configs']['order-status'][$order['status']]['name'];
         $status_color = $all_configs['configs']['order-status'][$order['status']]['color'];
@@ -1017,9 +1017,9 @@ function display_client_order($order)
     }
 
     $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
-    $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="Курьер забрал устройство у клиента" class="fa fa-truck"></i> ' : '';
-    $accepted .= $order['np_accept'] == 1 ? '<i title="Принято через почту" class="fa fa-suitcase text-danger"></i> ' :
-        '<i style="color:' . $color . ';" title="Принято в ' . htmlspecialchars($order['aw_wh_title']) . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
+    $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="' . l('Курьер забрал устройство у клиента') .'" class="fa fa-truck"></i> ' : '';
+    $accepted .= $order['np_accept'] == 1 ? '<i title="' . l('Принято через почту') .'" class="fa fa-suitcase text-danger"></i> ' :
+        '<i style="color:' . $color . ';" title="' . l('Принято в') .' ' . htmlspecialchars($order['aw_wh_title']) . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
 
     $get = '?' . get_to_string($_GET);
 
@@ -1030,7 +1030,7 @@ function display_client_order($order)
         '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
         : '')
     . show_marked($order['order_id'], 'co', $order['m_id'])
-    . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="Переместить заказ"></i></td>'
+    . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="' . l('Переместить заказ') .'"></i></td>'
     . '<td>' /* . $order['order_id'] */ .  timerout($order['order_id']) . '</td>'
     . '<td><span title="' . do_nice_date($order['date'], false) . '">' . do_nice_date($order['date']) . '</span></td>'
     . '<td>' . get_user_name($order, 'a_') . '</td>'
@@ -1335,7 +1335,7 @@ function update_order_status($order, $new_status)
                 array($order['id'], 0))->el();
             if ($qty > 0) {
                 $return['state'] = false;
-                $return['msg'] = 'Отвяжите неиспользуемые запчасти';
+                $return['msg'] = l('Отвяжите неиспользуемые запчасти');
             }
         }
         
@@ -1344,7 +1344,7 @@ function update_order_status($order, $new_status)
                 array($order['id'], 0))->el();
             if ($qty > 0) {
                 $return['state'] = false;
-                $return['msg'] = 'Сначала отвяжите все запчасти';
+                $return['msg'] = l('Сначала отвяжите все запчасти');
             }
         }
 
@@ -1366,7 +1366,7 @@ function update_order_status($order, $new_status)
             // смс
             if (isset($order['phone']) && isset($order['notify']) && $order['notify'] == 1) {
                 $name = htmlspecialchars($all_configs['configs']['order-status'][$new_status]['name']);
-                $result = send_sms($order['phone'], 'Статус Вашего заказа №' . $order['id'] . ' изменился на "' . $name . '"');
+                $result = send_sms($order['phone'], l('Статус Вашего заказа') . ' №' . $order['id'] . ' изменился на "' . $name . '"');
                 $return['msg'] = $result['msg'];
             }
             // готов в комментарий
@@ -1454,13 +1454,13 @@ function get_service($service){
                     $inst->set_all_configs($all_configs);
                     return $inst;
                 }else{
-                    throw new Exception('Сервис '.$class_name.' не унаследует класс service');
+                    throw new Exception(l('Сервис') . ' '.$class_name.' ' . l('не унаследует класс') .' service');
                 }
             }else{
-                throw new Exception('Сервис '.$class_name.' не найден');
+                throw new Exception(l('Сервис') . ' '.$class_name.' ' . l('не найден'));
             }
         }else{
-            throw new Exception('Файл сервиса '.$class_name.' не найден ('.$all_path.')');
+            throw new Exception(l('Файл сервиса') . ' '.$class_name.' ' . l('не найден') .' ('.$all_path.')');
         }
     }else{
         return $class_name::getInstanse();
