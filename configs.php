@@ -46,7 +46,8 @@ class Configs {
             0 => array(
                 'name' => 'Украина', 
                 'phone' => array(
-                    'code' => 380,
+                    'code' => 380,  // 380631112233
+                    'short_code' => 0, // 0631112233
                     'length' => 9 // длинна без +380
                 )
             ),
@@ -54,6 +55,7 @@ class Configs {
                 'name' => 'Россия', 
                 'phone' => array(
                     'code' => 7,
+                    'short_code' => 8,
                     'length' => 10 
                 )
             ),
@@ -61,6 +63,7 @@ class Configs {
                 'name' => 'Казахстан', 
                 'phone' => array(
                     'code' => 7,
+                    'short_code' => 7,
                     'length' => 10 
                 )
             ),
@@ -68,6 +71,7 @@ class Configs {
                 'name' => 'Беларусь', 
                 'phone' => array(
                     'code' => 375,
+                    'short_code' => 375,
                     'length' => 9 
                 )
             ),
@@ -75,12 +79,20 @@ class Configs {
                 'name' => 'Молдавия', 
                 'phone' => array(
                     'code' => 373,
+                    'short_code' => 373,
                     'length' => 8 
                 )
             ),
+            5 => array(
+                'name' => 'USA',
+                'phone' => array(
+                    'code' => 1,
+                    'short_code' => 1,
+                    'length' => 10
+                )
+            ),
         ),
-        
-            'manage-langs' => array(
+        'manage-langs' => array(
                 'current' => 'ru',
                 'default' => 'ru',
                 'list' => array(

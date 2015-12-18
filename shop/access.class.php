@@ -837,18 +837,22 @@ class access
         $phones = is_array($value) ? array_filter($value) : explode(',', $value);
         $phone_conf = $this->all_configs['configs']['countries'][$this->all_configs['settings']['country']]['phone'];
         $phone_length = $phone_conf['length'];
-        $phone_code_length = strlen($phone_conf['code']);
         $code = $phone_conf['code'];
+        $code_length = strlen($code);
+        $short_code = $phone_conf['short_code'];
+        $short_code_length = strlen($short_code);
         foreach ($phones as $phone) {
             $phone = preg_replace("/[^0-9]/", "", $phone);
-            if(1*$this->all_configs['settings']['country'] === 0){
-                // для Украины вырезаем первый ноль если указн короткий номер
-                $phone *= 1;
-            }
             $length = mb_strlen('' . $phone, 'UTF-8');
             if ($length == $phone_length) {
+                // без кода
                 $return[] = $code.$phone;
-            }elseif($length == ($phone_length+$phone_code_length) && strpos(''.$phone, ''.$code) === 0){
+            }elseif($length == $phone_length+$short_code_length && strpos(''.$phone, ''.$short_code) === 0){
+                // с коротким кодом - замена короткого на обычный
+                $phone_wo_short_code = substr($phone, $short_code_length);
+                $return[] = $code.$phone_wo_short_code;
+            }elseif($length == $phone_length+$code_length && strpos(''.$phone, ''.$code) === 0){
+                // с обычным кодом
                 $return[] = $phone;
             }
         }
