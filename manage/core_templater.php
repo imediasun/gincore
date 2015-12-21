@@ -143,4 +143,4 @@ if($curmod){
 
 $pattern = "/\{\-(txt|js|css|html)\-([a-zA-Z0-9_]{1,120})\}/";
 $html = preg_replace_callback($pattern, "replace_pattern", $html);
- 
+

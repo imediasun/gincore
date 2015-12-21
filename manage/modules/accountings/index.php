@@ -3408,7 +3408,7 @@ class accountings
         $out .= '<td ' . $class . '>';
         if ($chain['return'] == 1 && $chain['paid'] > 0 && $type == 0) {
             $onclick = 'pay_client_order(this, 1, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ')';
-            $out .= '<input type="button" class="btn btn-mini" value="' . l('Выдать оплату') . '" onclick="' . $onclick . '" />';
+            $out .= '<input type="button" class="btn btn-xs" value="' . l('Выдать оплату') . '" onclick="' . $onclick . '" />';
         }
         if ($chain['return'] == 0 && $chain['price'] > $chain['paid'] && $type == 0) {
             $onclick = 'pay_client_order(this, 2, ' . $chain['order_id'] . ', ' . $chain['b_id'] . ')';
@@ -3565,7 +3565,7 @@ class accountings
 
                     if (intval($order['sum']) < intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 1, ' . $order['id'] . ')';
-                        $out .= '<input type="button" class="btn btn-mini" value="' . l('Выдать оплату') . '" onclick="' . $onclick . '" />';
+                        $out .= '<input type="button" class="btn btn-xs" value="' . l('Выдать оплату') . '" onclick="' . $onclick . '" />';
                     }
                     if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
                         $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';

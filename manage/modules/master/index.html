@@ -1,50 +1,50 @@
 <div id="middle">
-    <h1 class="text-center">Благодарим за регистрацию в системе!</h1>
-    <p class="text-center m-b-xl">Для начала пользования рекомендуем указать данные о вашей компании:</p>
+    <h1 class="text-center">{-txt-master_head_title}</h1>
+    <p class="text-center m-b-xl">{-txt-master_sub_title}</p>
     <form method="post" class="form-horizontal ajax_form" action="{-txt-prefix}master/ajax/">
         <input type="hidden" name="act" value="save_data">
         <div class="form-group">
             <label class="col-sm-3 control-label">
-                Ваш бизнес
+                {-txt-master_field_business}
             </label>
             <div class="col-sm-5">
                 <select class="form-control" name="business">
-                    <option value="0">Ремонт портативной электроники, бытовой техники</option>
+                    <option value="0">{-txt-master_field_business_option_1}</option>
                 </select>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">
-                Страна
+                {-txt-master_field_country}
             </label>
             <div class="col-sm-5">
                 <select class="form-control" name="country">
-                    <option value="-1">Выберите страну</option>
+                    <option value="-1">{-txt-master_field_country_option_default}</option>
                     {-html-country_select}
                 </select>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">Название сервисного центра</label>
+            <label class="col-sm-3 control-label">{-txt-master_field_service_name}</label>
             <div class="col-sm-5">
                 <input type="tel" name="site_name" class="form-control">
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">Ваш телефон</label>
+            <label class="col-sm-3 control-label">{-txt-master_field_phone}</label>
             <div class="col-sm-5">
                 <input type="tel" name="phone" class="form-control">
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">Эл. адрес</label>
+            <label class="col-sm-3 control-label">{-txt-master_field_email}</label>
             <div class="col-sm-5">
                 <input type="email" name="email" class="form-control">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">
-                Укажите отделения (филиалы) вашей компании
+                {-txt-master_field_service_centers}
             </label>
             <div class="col-sm-5">
                 <div class="services-row m-b-xs" data-id="0">
@@ -53,31 +53,31 @@
                         <div class="col-xs-12">
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <input class="form-control fill-select" data-select=".services-select" type="text" name="services[0][name]" placeholder="Название">
+                                    <input class="form-control fill-select" data-select=".services-select" type="text" name="services[0][name]" placeholder="{-txt-master_field_service_centers_name}">
                                 </div>
                                 <div class="col-xs-6">
-                                    <input class="form-control" type="text" name="services[0][address]" placeholder="Адрес">
+                                    <input class="form-control" type="text" name="services[0][address]" placeholder="{-txt-master_field_service_centers_address}">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <input class="form-control" type="text" name="services[0][phone]" placeholder="Телефон">
+                                    <input class="form-control" type="text" name="services[0][phone]" placeholder="{-txt-master_field_service_centers_phone}">
                                 </div>
                                 <div class="col-xs-6">
-                                    <input class="form-control colorpicker" type="text" name="services[0][color]" placeholder="Цвет">
+                                    <input class="form-control colorpicker" type="text" name="services[0][color]" placeholder="{-txt-master_field_service_centers_color}">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <button type="button" data-clone=".services-row" class="clone-elements btn btn-info btn-xs">
-                    <i class="fa fa-plus"></i> добавить
+                    <i class="fa fa-plus"></i> {-txt-master_field_service_centers_add}
                 </button>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">
-                Добавьте сотрудников в систему
+                {-txt-master_field_add_users}
             </label>
             <div class="col-sm-5">
                 <div class="client-row m-b-xs" data-id="0">
@@ -85,60 +85,60 @@
                         <div class="number">1.</div>
                         <div class="col-xs-6">
                             <select class="form-control" name="users[0][position]">
-                                <option selected disabled>Должность</option>
+                                <option selected disabled>{-txt-master_field_add_users_position}</option>
                                 {-html-roles}
                             </select>
                         </div>
                         <div class="col-xs-6">
-                            <input class="form-control" type="text" name="users[0][fio]" placeholder="ФИО">
+                            <input class="form-control" type="text" name="users[0][fio]" placeholder="{-txt-master_field_add_users_fio}">
                         </div>
                     </div>
                     <div class="row m-t-xs">
                         <div class="col-xs-6">
-                            <input class="form-control" type="text" name="users[0][login]" placeholder="Логин">
+                            <input class="form-control" type="text" name="users[0][login]" placeholder="{-txt-master_field_add_users_login}">
                         </div>
                         <div class="col-xs-6">
-                            <input class="form-control" type="text" name="users[0][password]" placeholder="Пароль">
+                            <input class="form-control" type="text" name="users[0][password]" placeholder="{-txt-master_field_add_users_password}">
                         </div>
                     </div>
                     <div class="row m-t-xs">
                         <div class="col-xs-12">
                             <select class="form-control services-select" name="users[0][service]">
-                                <option selected disabled>Отделение, на котором будет работать сотрудник</option>
+                                <option selected disabled>{-txt-master_field_add_users_service}</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <button type="button" data-clone=".client-row" class="clone-elements btn btn-info btn-xs">
-                    <i class="fa fa-plus"></i> добавить
+                    <i class="fa fa-plus"></i> {-txt-master_field_add_users_add}
                 </button>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">
-                Укажите валюту, в которой клиенты рассчитываются с вами *:
+                {-txt-master_field_currency_orders}
             </label>
             <div class="col-xs-4">
                 <select class="form-control check-checkboxes" data-main="1" name="orders_currency">
-                    <option disabled selected>Выберите валюту</option>
+                    <option disabled selected>{-txt-master_field_currency_orders_select}</option>
                     {-html-currencies_select}
                 </select>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">
-                Укажите валюту, в которой вы ведете взаиморассчеты с поставщиками *:
+                {-txt-master_field_currency_suppliers}
             </label>
             <div class="col-xs-4">
                 <p>
                     <select class="form-control check-checkboxes" name="contractors_currency">
-                        <option disabled selected>Выберите валюту</option>
+                        <option disabled selected>{-txt-master_field_currency_suppliers_select}</option>
                         {-html-currencies_select}
                     </select>
                 </p>
                 <div id="course_input" class="hidden">
                     <p>
-                        Укажите расчетный курс:
+                        {-txt-master_field_currency_rate}
                     </p>
                     <div class="input-group">
                         <input value="1" type="text" name="course" id="course" class="form-control" />
@@ -153,7 +153,7 @@
         <div class="form-group">
             <label class="col-sm-3 control-label"></label>
             <div class="col-xs-4">
-                <p class="text-info">* изменение валюты после регистрации недоступно</p>
+                <p class="text-info">{-txt-master_field_currency_hint}</p>
             </div>
         </div>
 <!--        <div class="form-group">
@@ -168,7 +168,7 @@
             <div class="row">
                 <div class="col-xs-3">&nbsp;</div>
                 <div class="col-xs-9">
-                    <input type="submit" class="btn btn-primary" value="Продолжить работу в системе">
+                    <input type="submit" class="btn btn-primary" value="{-txt-master_submit_btn}">
                 </div>
             </div>
         </div>
