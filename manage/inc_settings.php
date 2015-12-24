@@ -20,6 +20,14 @@ $all_configs['arrequest'] = clear_empty_inarray(explode('/', $request));
 
 $all_configs['configs'] = Configs::get();
 $all_configs['settings'] = $all_configs['db']->query("SELECT name, value FROM {settings}")->vars();
+
+/* определяем языки админки */
+require_once 'core_langs.php';
+
+// переводим конфиг на язык
+Configs::getInstance()->set_configs();
+$all_configs['configs'] = Configs::get();
+
 $all_configs['oRole'] = new Role($all_configs, $dbcfg['_prefix']);
 
 $all_configs['manageModel'] = new manageModel($all_configs);
@@ -28,30 +36,3 @@ $all_configs['suppliers_orders']->suppliers_orders = $all_configs['settings']['c
 $all_configs['suppliers_orders']->currency_clients_orders = $all_configs['settings']['currency_orders'];
 
 $all_configs['chains'] = new Chains($all_configs);
-
-/* определяем языки админки */
-
-// массив языков админки
-$manage_langs = $all_configs['configs']['manage-langs']['list'];
-// дефолтный язык админки
-$manage_def_lang = $all_configs['configs']['manage-langs']['default'];
-
-// текущий язык админки
-$cookie_lang = isset($_COOKIE['manage_lang']) && isset($manage_langs[$_COOKIE['manage_lang']]) ? $_COOKIE['manage_lang'] : '';
-$manage_lang = $cookie_lang ?: $all_configs['configs']['manage-langs']['current'];
-
-$manage_translates = array();
-$vars = $db->query("SELECT id, var FROM {admin_translates}")->vars();
-$translates = $db->query("SELECT CONCAT(var_id, '_', lang) as id, var_id, text, lang "
-                        ."FROM {admin_translates_strings} "
-                        ."WHERE lang IN (?,?)", array($manage_lang, $manage_def_lang), 'assoc:id');
-$manage_translates_js = array();
-foreach($vars as $var_id => $var){
-    $k_cur = $var_id.'_'.$manage_lang;
-    $k_def = $var_id.'_'.$manage_def_lang;
-    $manage_translates[$var] = !empty($translates[$k_cur]['text']) ? $translates[$k_cur]['text'] : $translates[$k_def]['text'];
-    if(strpos($var, 'js_') === 0){
-        $manage_translates_js[substr($var,3)] = $manage_translates[$var];
-    }
-}
-$input['manage_translates_js'] = json_encode($manage_translates_js);

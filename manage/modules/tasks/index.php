@@ -21,7 +21,7 @@ class tasks
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
         //$this->tasks_filer_statuses = array(0 => 'Откр.', 1 => 'Реш.', 2 => 'Выполн.');
-        $this->tasks_filer_statuses = array(0 => 'Открыта', 2 => 'Выполн.');
+        $this->tasks_filer_statuses = array(0 => l('Открыта'), 2 => l('Выполн.'));
 
         //print_r($this->all_configs[oRole]->ifadmin[id]);
 

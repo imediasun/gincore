@@ -2104,7 +2104,7 @@ class orders
                     $colors_select .= '<option value="-1" selected disabled>' . l('Не выбран') . '</option>';
                 }
                 foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
-                    $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'. l($c) .'</option>';
+                    $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'. $c .'</option>';
                 }
                 $order_html .= 
                     '<div class="form-group">
@@ -2675,7 +2675,7 @@ class orders
                 $data['content'] .= '<div class="form-group"><label>' . l('Номер телефона') . ': </label><div class="controls">';
                 $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
                 $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Текст') . ': </label><div class="controls">';
-                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">Ваш заказ №'.$order['id'].' ' . l('готов') .'. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '. l(viewCurrency()) .'</textarea></div></div>';
+                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">'.l('Ваш заказ').' №'.$order['id'].' ' . l('готов') .'. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '. l(viewCurrency()) .'</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';

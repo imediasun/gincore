@@ -507,7 +507,7 @@ class users
             $users_html .=  '<ul class="nav nav-list pull-left" style="width:33%;padding:0 10px">
                 <li class="nav-header"><br><h4 class="text-info">' . htmlspecialchars($v['name']) . '</h4>
                 <div class="checkbox"><label><input type="checkbox" '.$checked.' name="active['.$rid.']" />' . l('активность') .'</label></div></li>';
-            $users_html .=  '<li>Дата конца активности группы</li>';
+            $users_html .=  '<li>'.l('Дата конца активности группы').'</li>';
             $users_html .=  '<li><input class="form-control input-sm datepicker" name="date_end[' . $rid . ']" type="text" value="' . $v['date_end'] . '" ></li>';
             $group_html = array();
             foreach ( $v['children'] as $pid=>$sv ) {

@@ -1,5 +1,7 @@
 <?php
 
+include_once 'inc_func_lang.php';
+
 function avatar($avatar_img){
     global $all_configs;
     $avatar_path = $all_configs['configs']['users-avatars-path'];
@@ -65,28 +67,7 @@ function get_langs(){
 //    return $text;
 //}
 
-/**
- * https://php.net/manual/ru/function.printf.php#51763
- */
-function sprintf_array($format, $arr) 
-{ 
-    return call_user_func_array('sprintf', array_merge((array)$format, $arr)); 
-} 
 
-function l($param, $placeholders = array())
-{
-    global $manage_translates;
-    if (!empty($manage_translates[$param])) {
-        $text = $manage_translates[$param];
-    }else{
-        $text = '{'.$param.'}';
-    }
-    
-    if (count($placeholders)) {
-        return sprintf_array($text, $placeholders);
-    }
-    return $text;
-}
 
 function clear_empty_inarray($array)
 {

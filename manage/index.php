@@ -19,30 +19,32 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
     exit;
 }
 
-// генерим переключалку языков админки
-$active_lang_name = '';
-$langs_switch = '';
-foreach($manage_langs as $lang_key => $lang){
-    if($lang_key == $manage_lang){
-        $active_lang_name = $lang['name'];
+if(empty($all_configs['configs']['settings-system-lang-select-enabled'])){
+    // генерим переключалку языков админки
+    $active_lang_name = '';
+    $langs_switch = '';
+    foreach($manage_langs as $lang_key => $lang){
+        if($lang_key == $manage_lang){
+            $active_lang_name = $lang['name'];
+        }
+        $langs_switch .= '
+            <li data-lang="'.$lang_key.'" class="set_manage_lang">
+                '.$lang['name'].'
+            </li>
+        ';
     }
-    $langs_switch .= '
-        <li data-lang="'.$lang_key.'" class="set_manage_lang">
-            '.$lang['name'].'
+    $input['manage_langs'] = '
+        <li class="btn-group dropdown manage_langs">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                '.$active_lang_name.'
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu hdropdown animated flipInX">
+                '.$langs_switch.'
+            </ul>
         </li>
     ';
 }
-$input['manage_langs'] = '
-    <li class="btn-group dropdown manage_langs">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            '.$active_lang_name.'
-            <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu hdropdown animated flipInX">
-            '.$langs_switch.'
-        </ul>
-    </li>
-';
 // добавляем переводы в шаблон
 $input = array_merge($input, $manage_translates);
 
@@ -110,15 +112,20 @@ if(isset($all_configs['arrequest'][0])){
 }
 
 if($ifauth && $all_configs['configs']['settings-master-enabled']){
-    if(!$all_configs['settings']['complete-master'] && 
+    if(!empty($all_configs['configs']['settings-system-lang-select-enabled']) && 
+            empty($all_configs['settings']['lang'])){
+        include_once $all_configs['path'].'modules/setup/index.php';
+        $curmod = 'setup';
+        $html_header = 'html_header_setup.html';
+        $html_template = 'html_template_setup.html';
+    }elseif(!$all_configs['settings']['complete-master'] && 
             (!isset($all_configs['arrequest'][0]) || ($all_configs['arrequest'][0] != 'master' 
                                                       && $all_configs['arrequest'][0] != 'debug'
                                                       && $all_configs['arrequest'][0] != 'logout'))
     ){
         header('Location: '.$all_configs['prefix'].'master');
         exit;
-    }
-    if($all_configs['settings']['complete-master'] && isset($all_configs['arrequest'][0]) 
+    }elseif($all_configs['settings']['complete-master'] && isset($all_configs['arrequest'][0]) 
                                                    && $all_configs['arrequest'][0] == 'master'){
         header('Location: '.$all_configs['prefix']);
         exit;
@@ -169,112 +176,114 @@ $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ?
 $input['homepage'] = l('Главная');
 $modules = scandir('./modules/');
 
-foreach($modules as $mod_folder){
-    if($all_configs['configs']['manage-active-modules'][0] != '*' 
-            && (strpos($mod_folder, 'dis_') === 0 
-                    || !in_array($mod_folder,$all_configs['configs']['manage-active-modules']))
-            || (!$all_configs['configs']['settings-master-enabled'] && $mod_folder == 'master')){ 
-        continue; 
+if(empty($curmod)){
+    foreach($modules as $mod_folder){
+        if($all_configs['configs']['manage-active-modules'][0] != '*' 
+                && (strpos($mod_folder, 'dis_') === 0 
+                        || !in_array($mod_folder,$all_configs['configs']['manage-active-modules']))
+                || (!$all_configs['configs']['settings-master-enabled'] && $mod_folder == 'master')){ 
+            continue; 
+        }
+        $module = $all_configs['path'].'/modules/'.$mod_folder.'/index.php';
+        if(file_exists($module)){
+            require_once $module;
+        }
     }
-    $module = $all_configs['path'].'/modules/'.$mod_folder.'/index.php';
-    if(file_exists($module)){
-        require_once $module;
-    }
-}
 
-$additionally = '';
-if($modulename){
-    ksort($modulename);
-    foreach($modulename as $k => $v){
-        $active_mod = false;
-        if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == $v){
-            $active_mod = true;
-            $curmod = $v;
-            $pre_title = strip_tags($modulemenu[$k]);
-        }
-        if ($moduleactive[$k] == true) {
-            $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() : 
-                                 (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
-            if($hassubmenu){
-                $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
-                foreach($hassubmenu as $sm){
-                    if($active_mod && isset($sm['click_tab']) && $sm['click_tab']){
-                        $data = ' class="module_submenu_click_tab_event" data-href="'.$sm['url'].'"';
-                    }else{
-                        $data = '';
+    $additionally = '';
+    if($modulename){
+        ksort($modulename);
+        foreach($modulename as $k => $v){
+            $active_mod = false;
+            if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == $v){
+                $active_mod = true;
+                $curmod = $v;
+                $pre_title = strip_tags($modulemenu[$k]);
+            }
+            if ($moduleactive[$k] == true) {
+                $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() : 
+                                     (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
+                if($hassubmenu){
+                    $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
+                    foreach($hassubmenu as $sm){
+                        if($active_mod && isset($sm['click_tab']) && $sm['click_tab']){
+                            $data = ' class="module_submenu_click_tab_event" data-href="'.$sm['url'].'"';
+                        }else{
+                            $data = '';
+                        }
+                        $submenu .= '<li><a'.$data.' href="'.$all_configs['prefix'].$v.$sm['url'].'">'.$sm['name'].'</a></li>';
                     }
-                    $submenu .= '<li><a'.$data.' href="'.$all_configs['prefix'].$v.$sm['url'].'">'.$sm['name'].'</a></li>';
+                    $submenu .= '</ul>';
+                }else{
+                    $submenu = '';
                 }
-                $submenu .= '</ul>';
-            }else{
-                $submenu = '';
-            }
-            if (($v == 'marketing' && $all_configs['oRole']->hasPrivilege('monitoring')) ||
-                ($v == 'products' && $all_configs['oRole']->hasPrivilege('show-goods'))
-                || ($v == 'categories' && $all_configs['oRole']->hasPrivilege('show-categories-filters'))
-                || ($v == 'users' && $all_configs['oRole']->hasPrivilege('edit-users'))
-                || ($v == 'map' && $all_configs['oRole']->hasPrivilege('edit-map'))
-                || ($v == 'langs' && $all_configs['oRole']->hasPrivilege('edit-map'))
-                || ($v == 'translates' && $all_configs['oRole']->hasPrivilege('edit-map'))
-                || ($v == 'admin_translates' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'flayers' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'settings' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'wrapper' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'offices' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'debug' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'subdomains' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'forms' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'banners' && $all_configs['oRole']->hasPrivilege('site-administration'))
-                || ($v == 'imports' && $all_configs['oRole']->hasPrivilege('site-administration')
-                    && $all_configs['configs']['manage-show-imports'] == true)
-                || ($v == 'orders' && ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('show-clients-orders')
-                        || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $all_configs['oRole']->hasPrivilege('edit-tradein-orders') || $all_configs['oRole']->hasPrivilege('orders-manager')))
-                || ($v == 'clients' && $all_configs['oRole']->hasPrivilege('edit-goods'))
-                || ($v == 'chat' && $all_configs['oRole']->hasPrivilege('chat'))
-                || ($v == 'accountings' && ($all_configs['oRole']->hasPrivilege('accounting') || $all_configs['oRole']->hasPrivilege('accounting-contractors')
-                        || $all_configs['oRole']->hasPrivilege('accounting-reports-turnover') || $all_configs['oRole']->hasPrivilege('partner') || $all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')))
-                || ($v == 'warehouses' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
-                        || /*$all_configs['oRole']->hasPrivilege('logistics') || */$all_configs['oRole']->hasPrivilege('scanner-moves')))
-                || ($v == 'logistics' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('logistics')
-                        /*|| $all_configs['oRole']->hasPrivilege('edit-clients-orders')*/))
-                || ($v == 'logistics_old' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('logistics')
-                        /*|| $all_configs['oRole']->hasPrivilege('edit-clients-orders')*/))
-                || ($v == 'tasks')
-                || ($v == 'statistics')
-                || ($v == 'seo' && $all_configs['oRole']->hasPrivilege('edit-map'))
-                    
-            ) {
-                if ($v == 'map' || $v == 'langs' || $v == 'translates' || $v == 'admin_translates' || $v == 'chat'
-                    || $v == 'settings' || $v == 'users' || $v == 'offices' || $v == 'wrapper'
-                    || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains' 
-                    || $v == 'debug'  || $v == 'tasks' || $v == 'flayers' || $v == 'statistics' 
-                    || $v == 'seo') {
-                    
-                    $additionally .= '
-                        <li '.($curmod == $v ? 'class="active"' : '').'>
-                            <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
-                            '.$submenu.'
-                        </li>
-                    ';
-                } else {
-                    $mainmenu .= '
-                        <li '.($curmod == $v ? 'class="active"' : '').'>
-                            <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
-                            '.$submenu.'
-                        </li>
-                    ';
+                if (($v == 'marketing' && $all_configs['oRole']->hasPrivilege('monitoring')) ||
+                    ($v == 'products' && $all_configs['oRole']->hasPrivilege('show-goods'))
+                    || ($v == 'categories' && $all_configs['oRole']->hasPrivilege('show-categories-filters'))
+                    || ($v == 'users' && $all_configs['oRole']->hasPrivilege('edit-users'))
+                    || ($v == 'map' && $all_configs['oRole']->hasPrivilege('edit-map'))
+                    || ($v == 'langs' && $all_configs['oRole']->hasPrivilege('edit-map'))
+                    || ($v == 'translates' && $all_configs['oRole']->hasPrivilege('edit-map'))
+                    || ($v == 'admin_translates' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'flayers' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'settings' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'wrapper' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'offices' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'debug' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'subdomains' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'forms' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'banners' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                    || ($v == 'imports' && $all_configs['oRole']->hasPrivilege('site-administration')
+                        && $all_configs['configs']['manage-show-imports'] == true)
+                    || ($v == 'orders' && ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('show-clients-orders')
+                            || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $all_configs['oRole']->hasPrivilege('edit-tradein-orders') || $all_configs['oRole']->hasPrivilege('orders-manager')))
+                    || ($v == 'clients' && $all_configs['oRole']->hasPrivilege('edit-goods'))
+                    || ($v == 'chat' && $all_configs['oRole']->hasPrivilege('chat'))
+                    || ($v == 'accountings' && ($all_configs['oRole']->hasPrivilege('accounting') || $all_configs['oRole']->hasPrivilege('accounting-contractors')
+                            || $all_configs['oRole']->hasPrivilege('accounting-reports-turnover') || $all_configs['oRole']->hasPrivilege('partner') || $all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')))
+                    || ($v == 'warehouses' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
+                            || /*$all_configs['oRole']->hasPrivilege('logistics') || */$all_configs['oRole']->hasPrivilege('scanner-moves')))
+                    || ($v == 'logistics' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('logistics')
+                            /*|| $all_configs['oRole']->hasPrivilege('edit-clients-orders')*/))
+                    || ($v == 'logistics_old' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('logistics')
+                            /*|| $all_configs['oRole']->hasPrivilege('edit-clients-orders')*/))
+                    || ($v == 'tasks')
+                    || ($v == 'statistics')
+                    || ($v == 'seo' && $all_configs['oRole']->hasPrivilege('edit-map'))
+
+                ) {
+                    if ($v == 'map' || $v == 'langs' || $v == 'translates' || $v == 'admin_translates' || $v == 'chat'
+                        || $v == 'settings' || $v == 'users' || $v == 'offices' || $v == 'wrapper'
+                        || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains' 
+                        || $v == 'debug'  || $v == 'tasks' || $v == 'flayers' || $v == 'statistics' 
+                        || $v == 'seo') {
+
+                        $additionally .= '
+                            <li '.($curmod == $v ? 'class="active"' : '').'>
+                                <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
+                                '.$submenu.'
+                            </li>
+                        ';
+                    } else {
+                        $mainmenu .= '
+                            <li '.($curmod == $v ? 'class="active"' : '').'>
+                                <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
+                                '.$submenu.'
+                            </li>
+                        ';
+                    }
                 }
             }
         }
-    }
-    if(!empty($additionally)){
-        $mainmenu .= '
-            <li>
-                <a href="#"><span class="nav-label">' . l('еще') . '</span><span class="fa arrow"></span> </a>
-                <ul class="nav nav-second-level collapse">
-                    '.$additionally.'
-                </ul>
-            </li>';
+        if(!empty($additionally)){
+            $mainmenu .= '
+                <li>
+                    <a href="#"><span class="nav-label">' . l('еще') . '</span><span class="fa arrow"></span> </a>
+                    <ul class="nav nav-second-level collapse">
+                        '.$additionally.'
+                    </ul>
+                </li>';
+        }
     }
 }
 ################################################################################

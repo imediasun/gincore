@@ -20,6 +20,9 @@ include 'inc_config.php';
 include 'inc_func.php';
 include 'mail.php';
 include 'configs.php';
+include 'manage/inc_func_lang.php';
+$all_configs = all_configs();
+require_once 'manage/core_langs.php';
 
 set_time_limit(14400); // 4 часа
 
@@ -354,6 +357,10 @@ function all_configs()
     global $db, $prefix, $path;
 
     $configs = Configs::get();
+    // обновляем для языка
+    Configs::getInstance()->set_configs();
+    $configs = Configs::get();
+    
     $settings = $db->query("SELECT name, value FROM {settings}", array())->vars();
 
     return array(

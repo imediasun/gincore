@@ -171,13 +171,13 @@ class master{
         // ------- проверка на ошибки
         
         // сохраняем страну
-        $this->db->query("INSERT INTO {settings}(name,value,title,ro) "
-                        ."VALUES('country',?,'Страна',1) "
-                        ."ON DUPLICATE KEY UPDATE value = ?", array($country,$country));
+        $this->db->query("UPDATE {settings} SET value = ? "
+                        ."WHERE name = 'country'", array($country));
         // сохраняем бизнес и телефон юзера
-        $this->db->query("INSERT IGNORE INTO {settings}(name,value,title,ro) "
-                        ."VALUES('account_phone',?,'Ваш телефон',1),"
-                              ."('account_business',?,'Ваш бизнес',1)", array($phone,$business));
+        $this->db->query("UPDATE {settings} SET value = ? "
+                        ."WHERE name = 'account_phone'", array($phone));
+        $this->db->query("UPDATE {settings} SET value = ? "
+                        ."WHERE name = 'account_business'", array($business));
         
         // вписываем мыло
         $this->db->query("UPDATE {settings} SET value = ? "
@@ -187,26 +187,24 @@ class master{
         $this->db->query("UPDATE {settings} SET value = ? "
                         ."WHERE name = 'site_name'", array($site_name));
         
-        $this->db->query("INSERT INTO {settings}(section, name, value, title) "
-                        ."VALUES(1,'currency_orders',?i,'Валюта заказов') "
-                        ."ON DUPLICATE KEY UPDATE value = VALUES(value)", array($orders_currency));
+        $this->db->query("UPDATE {settings} SET value = ? "
+                        ."WHERE name = 'currency_orders'", array($orders_currency));
         
         // создаем кассу основную
         $cashbox_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
                                                               ."avail_in_balance,avail_in_orders,name) "
-                                      ."VALUES(1,1,1,1,1,'Основная')")->id();
+                                      ."VALUES(1,1,1,1,1,'".lq('Основная')."')")->id();
         // создаем кассу на которой будет происходить переводы валюты для контрагентов
         $cashbox_c_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
                                                                 ."avail_in_balance,avail_in_orders,name) "
-                                      ."VALUES(2,1,1,1,1,'Транзитная')")->id();
+                                      ."VALUES(2,1,1,1,1,'".lq('Транзитная')."')")->id();
         // создаем кассу терминал
         $cashbox_t_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
                                                                 ."avail_in_balance,avail_in_orders,name) "
-                                      ."VALUES(3,1,1,1,1,'Терминал')")->id();
+                                      ."VALUES(3,1,1,1,1,'".lq('Терминал')."')")->id();
         
-        $this->db->query("INSERT INTO {settings}(section, name, value, title) "
-                        ."VALUES(1,'currency_suppliers_orders',?i,'Валюта заказов поставщикам') "
-                        ."ON DUPLICATE KEY UPDATE value = VALUES(value)", array($contractors_currency));
+        $this->db->query("UPDATE {settings} SET value = ? "
+                        ."WHERE name = 'currency_suppliers_orders'", array($contractors_currency));
         
         // добавляем валюты
 //        $currencies[$orders_currency] = $orders_currency;
@@ -250,9 +248,9 @@ class master{
                                       $main_wh['loc_id'],
                                       $_SESSION['id']));
                     // брак
-                    $this->create_warehouse('Брак '.$service['name'], '', '', 1, $id);
+                    $this->create_warehouse(lq('Брак').' '.$service['name'], '', '', 1, $id);
                     // клиент
-                    $this->create_warehouse('Клиент '.$service['name'], '', '', 4, $id);
+                    $this->create_warehouse(lq('Клиент').' '.$service['name'], '', '', 4, $id);
                     $added_services[$i] = array(
                         'id' => $id
                     ) + $main_wh;
@@ -260,9 +258,9 @@ class master{
             }
         }
         // склад логистика без группы
-        $this->create_warehouse('Логистика', '', '', 3, 0);
+        $this->create_warehouse(lq('Логистика'), '', '', 3, 0);
         // недостача без группы
-        $this->create_warehouse('Недостача', '', '', 2, 0);
+        $this->create_warehouse(lq('Недостача'), '', '', 2, 0);
         
         // добавляем юзеров
         foreach($users as $i => $user){
@@ -283,37 +281,6 @@ class master{
                 }
             }
         }
-        
-        // создаем системных контрагентов
-        // покупатель
-        $this->db->query('INSERT IGNORE INTO {contractors}
-                                        (title, type, comment) VALUES (?, ?i, ?)',
-                                    array('Покупатель', 3, 'system'));
-        // покупатель списания
-        $this->db->query('INSERT IGNORE INTO {contractors}
-                                        (title, type, comment) VALUES (?, ?i, ?)',
-                                    array('Покупатель списания', 3, 'system'));
-        // ввод денежных остатков
-        $id = $this->db->query('INSERT IGNORE INTO {contractors}
-                                        (title, type, comment) VALUES (?, ?i, ?)',
-                                    array('Ввод денежных остатков', 1, 'system'), 'id');
-        $this->db->query('INSERT IGNORE INTO {contractors_categories_links}
-                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                                array(32, $id));
-        // поставщик
-        $pid = $this->db->query('INSERT IGNORE INTO {contractors}
-                                        (title, type, comment) VALUES (?, ?i, ?)',
-                                    array('Поставщик', 2, ''), 'id');
-        $s_values = array();
-        foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
-            $s_values[] = $this->all_configs['db']->makeQuery("(?i, ?i)", array($sid,$pid));
-        }
-        foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][2] as $sid){
-            $s_values[] = $this->all_configs['db']->makeQuery("(?i, ?i)", array($sid,$pid));
-        }
-        $this->db->query('INSERT IGNORE INTO {contractors_categories_links}
-                                (contractors_categories_id, contractors_id) VALUES ?q',
-                                array(implode(',',$s_values)));
         
         // ставим отметку что мастер настройки закончен
         $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");

@@ -73,93 +73,93 @@ class access
         return $this->create_new();
     }
 
-    function OFF_set_region()
-    {
-        // страны
-        $countries = array('UA' => 'UA');
-        // город по умолчанию
-        $city = isset($this->all_configs['configs']['default-city']) ? $this->all_configs['configs']['default-city'] : 13;
-        // регион по умолчанию
-        $region = isset($this->all_configs['configs']['default-region']) ? $this->all_configs['configs']['default-region'] : 12;
-        // определенный регион по умолчанию
-        $geo_region = 0;
-
-        //определяем координаты
-        if (@geoip_record_by_name(get_ip())) {
-            $geo = geoip_record_by_name(get_ip());
-
-            // если Киев, временное решение
-            if ($geo && isset($geo['region']) && $geo['region'] == 13) {
-                $geo['region'] = 12;
-            }
-
-            // найденна область
-            if ($geo && array_key_exists('country_code', $geo) && array_key_exists('region', $geo) &&
-                array_key_exists($geo['country_code'], $countries) &&
-                array_key_exists($geo['region'], $this->all_configs['configs']['regions']) &&
-                array_key_exists($geo['region'], $this->all_configs['configs']['cities'])) {
-
-                $_SESSION['region'] = $geo['region'];
-                $_SESSION['geo-region'] = $geo['region'];
-                $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], $geo['region']);
-
-                $city = $geo['region'] == 12 ? 13 : 30;
-            }
-        }
-
-        // есть в куках регион
-        if (isset($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']]) &&
-            array_key_exists($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']], $this->all_configs['configs']['regions']) &&
-            array_key_exists($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']], $this->all_configs['configs']['cities'])) {
-
-            $_SESSION['region'] = $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']];
-            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']]);
-
-            $city = $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']] == 12 ? 13 : 30;
-        }
-
-        // сессия региона не установленна
-        if (!isset($_SESSION['region']) ||
-            !array_key_exists($_SESSION['region'], $this->all_configs['configs']['regions']) &&
-            !array_key_exists($_SESSION['region'], $this->all_configs['configs']['cities'])) {
-
-            $_SESSION['region'] = 12;
-            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], 12);
-
-            $city = 13;
-        }
-
-        // регион не определен
-        if (!isset($_SESSION['geo-region']) ||
-            !array_key_exists($_SESSION['geo-region'], $this->all_configs['configs']['regions']) &&
-            !array_key_exists($_SESSION['geo-region'], $this->all_configs['configs']['cities'])) {
-
-            $_SESSION['geo-region'] = $geo_region;
-        }
-
-        // есть в куках город
-        if (isset($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']]) &&
-            array_key_exists($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']],
-                $this->all_configs['configs']['cities'][$_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']]])) {
-
-            $_SESSION['city'] = $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']];
-            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['city'], $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']]);
-        }
-
-        // сессия региона не установленна
-        if (!isset($_SESSION['region'])) {
-
-            $_SESSION['region'] = $region;
-            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], $region);
-        }
-
-        // сессия города не установленна
-        if (!isset($_SESSION['city'])) {
-
-            $_SESSION['city'] = $city;
-            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['city'], $city);
-        }
-    }
+//    function OFF_set_region()
+//    {
+//        // страны
+//        $countries = array('UA' => 'UA');
+//        // город по умолчанию
+//        $city = isset($this->all_configs['configs']['default-city']) ? $this->all_configs['configs']['default-city'] : 13;
+//        // регион по умолчанию
+//        $region = isset($this->all_configs['configs']['default-region']) ? $this->all_configs['configs']['default-region'] : 12;
+//        // определенный регион по умолчанию
+//        $geo_region = 0;
+//
+//        //определяем координаты
+//        if (@geoip_record_by_name(get_ip())) {
+//            $geo = geoip_record_by_name(get_ip());
+//
+//            // если Киев, временное решение
+//            if ($geo && isset($geo['region']) && $geo['region'] == 13) {
+//                $geo['region'] = 12;
+//            }
+//
+//            // найденна область
+//            if ($geo && array_key_exists('country_code', $geo) && array_key_exists('region', $geo) &&
+//                array_key_exists($geo['country_code'], $countries) &&
+//                array_key_exists($geo['region'], $this->all_configs['configs']['regions']) &&
+//                array_key_exists($geo['region'], $this->all_configs['configs']['cities'])) {
+//
+//                $_SESSION['region'] = $geo['region'];
+//                $_SESSION['geo-region'] = $geo['region'];
+//                $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], $geo['region']);
+//
+//                $city = $geo['region'] == 12 ? 13 : 30;
+//            }
+//        }
+//
+//        // есть в куках регион
+//        if (isset($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']]) &&
+//            array_key_exists($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']], $this->all_configs['configs']['regions']) &&
+//            array_key_exists($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']], $this->all_configs['configs']['cities'])) {
+//
+//            $_SESSION['region'] = $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']];
+//            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']]);
+//
+//            $city = $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']] == 12 ? 13 : 30;
+//        }
+//
+//        // сессия региона не установленна
+//        if (!isset($_SESSION['region']) ||
+//            !array_key_exists($_SESSION['region'], $this->all_configs['configs']['regions']) &&
+//            !array_key_exists($_SESSION['region'], $this->all_configs['configs']['cities'])) {
+//
+//            $_SESSION['region'] = 12;
+//            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], 12);
+//
+//            $city = 13;
+//        }
+//
+//        // регион не определен
+//        if (!isset($_SESSION['geo-region']) ||
+//            !array_key_exists($_SESSION['geo-region'], $this->all_configs['configs']['regions']) &&
+//            !array_key_exists($_SESSION['geo-region'], $this->all_configs['configs']['cities'])) {
+//
+//            $_SESSION['geo-region'] = $geo_region;
+//        }
+//
+//        // есть в куках город
+//        if (isset($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']]) &&
+//            array_key_exists($_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']],
+//                $this->all_configs['configs']['cities'][$_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['region']]])) {
+//
+//            $_SESSION['city'] = $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']];
+//            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['city'], $_COOKIE[$this->all_configs['db_prefix'] . $this->all_configs['configs']['city']]);
+//        }
+//
+//        // сессия региона не установленна
+//        if (!isset($_SESSION['region'])) {
+//
+//            $_SESSION['region'] = $region;
+//            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['region'], $region);
+//        }
+//
+//        // сессия города не установленна
+//        if (!isset($_SESSION['city'])) {
+//
+//            $_SESSION['city'] = $city;
+//            $this->setcookie($this->all_configs['db_prefix'] . $this->all_configs['configs']['city'], $city);
+//        }
+//    }
 
     function is_logged_in()
     {
@@ -670,12 +670,12 @@ class access
 
         if ($result['id'] > 0) {
 
-            if (isset($post['delivery']) && !empty($post['delivery']) && trim($post['delivery']) > 0
-                    && isset($post['city']) && isset($post['region']) && array_key_exists($post['region'], $this->all_configs['configs']['regions'])
-                    && array_key_exists($post['city'], $this->all_configs['configs']['cities'][$post['region']])) {
-                $this->all_configs['db']->query('INSERT IGNORE INTO {clients_delivery_addresses} (user_id, content, region, city) VALUES (?i, ?, ?i, ?i)',
-                    array($result['id'], $post['delivery'], $post['region'], $post['city']));
-            }
+//            if (isset($post['delivery']) && !empty($post['delivery']) && trim($post['delivery']) > 0
+//                    && isset($post['city']) && isset($post['region']) && array_key_exists($post['region'], $this->all_configs['configs']['regions'])
+//                    && array_key_exists($post['city'], $this->all_configs['configs']['cities'][$post['region']])) {
+//                $this->all_configs['db']->query('INSERT IGNORE INTO {clients_delivery_addresses} (user_id, content, region, city) VALUES (?i, ?, ?i, ?i)',
+//                    array($result['id'], $post['delivery'], $post['region'], $post['city']));
+//            }
             $this->update_phones($phone, $result['id']);
             $this->update_email($email, $result['id']);
 

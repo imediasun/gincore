@@ -1,0 +1,22 @@
+html,
+body,
+.table{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+.table td.select{
+    vertical-align: middle;
+    text-align: center;
+}
+.table td.select h2{
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-weight: normal;
+    font-size: 22px;
+}
+.table td.select a{
+    font-size: 22px;
+    margin: 5px 15px;
+}

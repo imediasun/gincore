@@ -3113,7 +3113,7 @@ class Chains
             $selected = $k === $active ? 'selected' : '';
             $style = 'style="color:#' . htmlspecialchars($status['color']) . '"';
             $name = htmlspecialchars($status['name']);
-            $order_html .= '<option ' . $selected . ' ' . $style . 'value="' . $k . '">' . l($name) . '</option>';
+            $order_html .= '<option ' . $selected . ' ' . $style . 'value="' . $k . '">' . $name . '</option>';
         }
         $order_html .= '</select>';
 

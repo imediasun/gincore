@@ -54,6 +54,10 @@ function clear_empty_inarray($array) {
     return $ret_arr;
 }
 
+function db(){
+    global $all_configs;
+    return $all_configs['db'];
+}
 
 /**
  *
