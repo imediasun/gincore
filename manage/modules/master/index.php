@@ -118,13 +118,13 @@ class master{
                 return array('state' => false, 'msg' => l('Не указано название отделения'));
             }
             if(!$service['color']){
-                return array('state' => false, 'msg' => l('Не выбран цвет отделения ') . htmlspecialchars($service['name']));
+                return array('state' => false, 'msg' => l('Не выбран цвет отделения') . ' ' . htmlspecialchars($service['name']));
             }
             if(!$service['address']){
-                return array('state' => false, 'msg' => l('Не выбран адрес отделения ') . htmlspecialchars($service['name']));
+                return array('state' => false, 'msg' => l('Не выбран адрес отделения') . ' ' . htmlspecialchars($service['name']));
             }
             if(!$service['phone']){
-                return array('state' => false, 'msg' => l('Не выбран телефон отделения ') . htmlspecialchars($service['name']));
+                return array('state' => false, 'msg' => l('Не выбран телефон отделения') . ' ' . htmlspecialchars($service['name']));
             }
             if(in_array($service['name'], $added_services_names)){
                 return array('state' => false, 'msg' => l('У отделений не могут быть одинаковые названия'));

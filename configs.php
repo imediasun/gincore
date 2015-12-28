@@ -7,9 +7,9 @@ class Configs {
     
     public function set_configs(){
         $this->configs = array(
-            'host'                      =>  'restore.kiev.ua',
-            'canonical-host'            =>  'http://restore.kiev.ua',
-            'shop-name'                 =>  'Яблоко',
+            'host'                      =>  'gincore.net',
+            'canonical-host'            =>  'https://gincore.net',
+            'shop-name'                 =>  'Gincore',
 
             /*
              * блок конфига для саас
@@ -122,12 +122,12 @@ class Configs {
                 'settings-system-lang-select-enabled' =>  true, // выбор языка системы (+ отрубает переключалку языка в шапке и грузит выбранный язык - из настройки)
                 'settings-master-enabled'   =>  true, // мастер настрйоки при регистрации новой админки
                   'currencies'                => array(
-                          1 => array('rutils' => array('words' => array(l('гривна'), l('гривны'), l('гривен')), 'gender' => 'female'), 'name' => l('Гривна'), 'shortName' => 'UAH', 'viewName' => l('грн.'), 'symbol' => '₴', 'currency-name' => 'grn-cash'),
+                          1 => array('rutils' => array('words' => array(l('доллар'), l('доллара'), l('долларов')), 'gender' => 'male'), 'name' => l('Доллар США'), 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
                           2 => array('rutils' => array('words' => array(l('евро'), l('евро'), l('евро')), 'gender' => 'male'), 'name' => l('ЕВРО'), 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
-                          3 => array('rutils' => array('words' => array(l('доллар'), l('доллара'), l('долларов')), 'gender' => 'male'), 'name' => l('Доллар США'), 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
                           4 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Российский рубль'), 'shortName' => 'RUB', 'viewName' => l('руб.'), 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
+                          3 => array('rutils' => array('words' => array(l('гривна'), l('гривны'), l('гривен')), 'gender' => 'female'), 'name' => l('Гривна'), 'shortName' => 'UAH', 'viewName' => l('грн.'), 'symbol' => '₴', 'currency-name' => 'grn-cash'),
                           5 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Белорусский рубль'), 'shortName' => 'BYR', 'viewName' => l('бр.'), 'symbol' => 'Br', 'currency-name' => ''),
-                          6 => array('rutils' => array('words' => array(l('тунге'), l('тунге'), l('тунге')), 'gender' => 'male'), 'name' => l('Тенге'), 'shortName' => 'KZT', 'viewName' => l('тнг.'), 'symbol' => '₸', 'currency-name' => ''),
+                          6 => array('rutils' => array('words' => array(l('тенге'), l('тенге'), l('тенге')), 'gender' => 'male'), 'name' => l('Казахстанский тенге'), 'shortName' => 'KZT', 'viewName' => l('тнг.'), 'symbol' => '₸', 'currency-name' => ''),
                    ),
 
             /*
@@ -150,7 +150,7 @@ class Configs {
              *  --------------------------------
              */
 
-            'manage-redirect-to-https'  =>  false,
+            'manage-redirect-to-https'  =>  true,
             'manage-use-memcached'      =>  true,
             'site-use-memcached'        =>  false,
 
