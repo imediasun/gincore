@@ -554,3 +554,10 @@ td.td-sc-count {
     padding-bottom: 10px;
     display: none;
 }
+.order_new_work_form,
+.order_new_device_form{
+    z-index: 10;
+    padding: 10px 20px;
+    margin: 10px;
+    box-shadow: 0 0 2px rgba(0,0,0,.2);
+}

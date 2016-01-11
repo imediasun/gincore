@@ -560,7 +560,7 @@ class products
 
     }
 
-    function create_product_form($ajax_quick_create = false)
+    function create_product_form($ajax_quick_create = false, $service = false)
     {
         $attr = 'form method="post"';
         $form_close = 'form';
@@ -643,7 +643,7 @@ class products
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input name="type" value="1" type="checkbox"> ' . l('Услуга') . '
+                        <input name="type"'.($service ? ' checked' : '').' value="1" type="checkbox"> ' . l('Услуга') . '
                     </label>
                 </div>
             </div>';
@@ -1541,7 +1541,7 @@ class products
         }
 
         if($act == 'create_form'){
-            $form = $this->create_product_form(true);
+            $form = $this->create_product_form(true, isset($_GET['service']) ? true : false);
             echo json_encode(array('state' => true, 'html' => $form));
             exit;
         }

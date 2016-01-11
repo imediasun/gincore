@@ -2376,7 +2376,7 @@ class orders
             $order_html .= $public_html . $private_html;
             $order_html .= '</div>';
 
-            $order_html .= '<div class="well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>' . l('Стоимость') . '</td>
+            $order_html .= '<div class="relative well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>' . l('Стоимость') . '</td>
             $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
             $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>' . l('Наименование') . '</td>';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
@@ -2394,7 +2394,18 @@ class orders
             if ($order['type'] != 3) {
                 if (!$only_engineer) {
                     $order_html .= '<div class="form-group"><label>' . l('Выберите запчасть') . '</label>';
-                    $order_html .= typeahead($this->all_configs['db'], 'goods-goods', true, 0, 6, 'input-xlarge', 'input-medium', 'order_products', false, false, '', false, l('Введите текст')).'</div>';
+//                    $order_html .= typeahead($this->all_configs['db'], 'goods-goods', true, 0, 6, 
+//                                             'input-xlarge', 'input-medium', 'order_products', 
+//                                             false, false, '', false, l('Введите текст')).'</div>';
+                    $order_html .= 
+                        typeahead($this->all_configs['db'], 'goods-goods', false, 0, 6, 
+                                  'input-medium popover-info', '','order_products', 
+                                   false, false, '', false, l('Введите'), 
+                                   array('name' => l('Добавить новую'), 
+                                       'action' => 'products/ajax/?act=create_form', 
+                                       'form_id' => 'order_new_device_form'))
+                        .'</div>'
+                        .'<div id="order_new_device_form" class="typeahead_add_form_box theme_bg order_new_device_form"></div>';
                 }
                 $order_html .= '<hr/><h4>' . l('Работы') . '</h4>';
                 $goods = $this->all_configs['manageModel']->order_goods($order['id'], 1);
@@ -2411,7 +2422,18 @@ class orders
                 }
                 $order_html .= '</tbody></table>';
                 $order_html .= '<div class="form-group"><label>' . l('Укажите работу') . '</label>';
-                $order_html .= typeahead($this->all_configs['db'], 'goods-service', true, 0, 7, 'input-xlarge', 'input-medium', 'order_products', false, false, '', false, l('Введите текст')).'</div>';
+//                $order_html .= typeahead($this->all_configs['db'], 'goods-service', true, 0, 7, 
+//                               'input-xlarge', 'input-medium', 'order_products', 
+//                                false, false, '', false, l('Введите текст')).'</div>';
+                $order_html .= 
+                    typeahead($this->all_configs['db'], 'goods-service', false, 0, 7, 
+                              'input-medium popover-info', '','order_products', 
+                               false, false, '', false, l('Введите'), 
+                               array('name' => l('Добавить новую'), 
+                                   'action' => 'products/ajax/?act=create_form&service=1', 
+                                   'form_id' => 'order_new_work_form'))
+                    .'</div>'
+                    .'<div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form"></div>';
             }
             $order_html .= '</div>';
 

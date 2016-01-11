@@ -586,8 +586,24 @@ function select_typeahead_device(data, $form){
         var id = $form.parent().attr('data-id'),
             $f = $('[data-id="source-'+id.replace('form-','')+'"]').closest('.input-group');
         $f.find(':hidden').val(data.id);
-        $f.find('input.form-control').val(data.name);
+        var $input = $f.find('input.form-control');
+        $input.val(data.name);
         $form.closest('.typeahead_add_form_box').hide().empty().removeClass('loaded');
+        if($input.data('function')){
+            var call_function = $input.data('function');
+            if(call_function.indexOf(',') > 0){
+                var functions = call_function.split(',');
+                $.each(functions, function(k,v){
+                    if (typeof window[v] == 'function') {
+                         window[v]($input, data.id);
+                    }
+                });
+            }else{
+                if (typeof window[call_function] == 'function') {
+                     window[call_function]($input, data.id);
+                }
+            }
+        }
     }
 }
 
