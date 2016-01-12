@@ -332,7 +332,7 @@ function debit_supplier_order(_this) {
                         msg['html'] + '</div>');
                 }
                 if (msg['print_link']) {
-                    window.open(msg['print_link']);
+                    window_open(msg['print_link']);
                 }
                 if (reload == true) {
                     click_tab_hash();

@@ -698,7 +698,7 @@ class Suppliers
 
     function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?3'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?4'></script>";
     }
 
     function exportProduct($product)

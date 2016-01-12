@@ -230,6 +230,11 @@ $(function() {
             }
         });
     });
+    
+    $(document).on('submit', '#order-form', function(e){
+        $(this).find('#update-order').click();
+        e.preventDefault();
+    });
 });
 
 
@@ -400,7 +405,7 @@ function add_new_order(_this, next, from) {
                     }
                 }
                 if(msg['open_window']) {
-                    window.open(msg['open_window']);
+                    window_open(msg['open_window']);
                 }
                 if(msg['location']) {
                     var cur_loc = window.location.pathname+window.location.search+window.location.hash;
@@ -605,7 +610,7 @@ $(function(){
     $('#print_now').click(function(){
         var $checks = $(this).closest('ul').find(':checked');
         $checks.each(function(){
-            window.open($(this).val());
+            window_open($(this).val());
         });
     });
 });

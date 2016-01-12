@@ -3508,7 +3508,7 @@ class Chains
 
     public function append_js()
     {
-        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js?2'></script>";
+        return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js?3'></script>";
     }
 
 }

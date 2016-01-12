@@ -293,7 +293,7 @@ function global_print_labels() {
         return value.value;
     }).get();
 
-    window.open(prefix + 'print.php?act=label&object_id=' + items)
+    window_open(prefix + 'print.php?act=label&object_id=' + items)
 }
 
 function checked_item() {

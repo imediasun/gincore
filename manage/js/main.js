@@ -1605,13 +1605,24 @@ $(function(){
         }
     });
     
+    var $glossary = $('#glossary');
     $('#show_glossary').click(function(){
-        var $glossary = $('#glossary');
         if(!$glossary.hasClass('loaded')){
             $glossary.html('<iframe src="'+$glossary.data('url')+'"></iframe>');
             $glossary.addClass('loaded');
         }
         $glossary.toggle();
+    });
+    
+    $(document).on('click', function(e){
+        if(!$glossary.is(':visible')) return;
+        var $this = $(e.target);
+        if(!$this.closest('#glossary').length 
+        && $this.attr('id') != 'glossary'
+        && $this.attr('id') != 'show_glossary'
+        && !$this.closest('#show_glossary').length){
+            $glossary.hide();
+        }
     });
     
     $('.set_manage_lang').click(function(){
@@ -1636,6 +1647,21 @@ function toogle_siblings(_this, btn_children)
             children.attr('class', 'fa fa-caret-square-o-down');
         } else {
             children.attr('class', 'fa fa-keyboard-o');
+        }
+    }
+}
+
+var window_open_msgs_timeout;
+var window_open_msg_lock = false;
+function window_open(url){
+    if(!window.open(url) && typeof L.window_open_error_msg != 'undefined'){
+        if(!window_open_msg_lock){
+            alert(L.window_open_error_msg);
+            window_open_msg_lock = true;
+            clearTimeout(window_open_msgs_timeout);
+            window_open_msgs_timeout = setTimeout(function(){
+                window_open_msg_lock = false;
+            }, 100);
         }
     }
 }

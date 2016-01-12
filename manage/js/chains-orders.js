@@ -90,7 +90,7 @@ function return_item(_this, items, conf) {
                             alert(msg['message']);
                         }
                         if (msg['location']) {
-                            window.open(msg['location']);
+                            window_open(msg['location']);
                         }
                     }
                     if (msg['state'] == true) {
@@ -136,7 +136,7 @@ function sold_item(_this, item) {
                             alert(msg['message']);
                         }
                         if (msg['location']) {
-                            window.open(msg['location']);
+                            window_open(msg['location']);
                         }
                     }
                     if (msg['state'] == true) {
@@ -177,7 +177,7 @@ function write_off_item(_this, items) {
                             alert(msg['message']);
                         }
                         if (msg['location']) {
-                            window.open(msg['location']);
+                            window_open(msg['location']);
                         }
                     }
                     if (msg['state'] == true) {
