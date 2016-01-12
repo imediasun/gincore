@@ -1412,12 +1412,20 @@ function change_warehouse(_this) {
 
 function icons_marked(_this, object_id, type) {
 
-    var icons_class = 'star-marked-unactive';
-    var icons_class_active = 'star-marked-active';
+    if(type == 'oi'){
+        var icon_active = 'fa fa-bookmark';
+        var icon = 'fa fa-bookmark-o';
+    }else{
+        var icon_active = 'star-marked-active';
+        var icon = 'star-marked-unactive';
+    }
 
-    if ($(_this).hasClass('star-marked-active') == true) {
-        icons_class = 'star-marked-active';
-        icons_class_active = 'star-marked-unactive';
+    var icons_class = icon;
+    var icons_class_active = icon_active;
+
+    if ($(_this).hasClass(icon_active) == true) {
+        icons_class = icon_active;
+        icons_class_active = icon;
     }
 
     if (object_id && type) {
@@ -1431,7 +1439,7 @@ function icons_marked(_this, object_id, type) {
                 if (msg['error']) {
                     alert(msg['message']);
                 } else {
-                    if ($(_this).hasClass('star-remove-icons') == true && $(_this).hasClass('star-marked-active'))
+                    if ($(_this).hasClass('star-remove-icons') == true && $(_this).hasClass(icon_active))
                         $(_this).parents('.remove-marked-object').remove();
 
                     $(_this).removeClass(icons_class);

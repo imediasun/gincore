@@ -336,7 +336,7 @@ class manageModel
 
         if ($ids) {
             $orders_goods = $this->all_configs['db']->query('SELECT o.id as order_id, o.status, o.title as product,
-                  o.date_add, o.user_id, m.id as m_id, o.date_add as date, o.manager, o.sum_paid, o.sum, o.comment,
+                  o.date_add, o.user_id, m.id as m_id, mi.id as mi_id, o.date_add as date, o.manager, o.sum_paid, o.sum, o.comment,
                   o.np_accept, og.goods_id, og.title, og.id as order_goods_id, og.count, o.note, l.location, o.courier,
                   o.discount, u.fio as h_fio, u.login as h_login, o.urgent, o.wh_id, w.title as wh_title, aw.title as aw_wh_title, og.type,
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
@@ -349,6 +349,7 @@ class manageModel
                 LEFT JOIN {users} as u ON u.id=o.manager
                 LEFT JOIN {users} as a ON a.id=o.accepter
                 LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
+                LEFT JOIN {users_marked} as mi ON mi.object_id=o.id AND mi.type="oi"
                 LEFT JOIN {warehouses} as w ON w.id=o.wh_id
                 LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
                 LEFT JOIN {warehouses} as aw ON aw.id=o.accept_wh_id

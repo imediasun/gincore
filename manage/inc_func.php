@@ -1006,12 +1006,13 @@ function display_client_order($order)
 
     return '<tr class="remove-marked-object">'
     . '<td class="floatleft">' .
-    ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('show-clients-orders') ?
-        '<a href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '">&nbsp;' . $order['order_id'] . '</a> ' .
-        '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
+        ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('show-clients-orders') ?
+            '<a href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '">&nbsp;' . $order['order_id'] . '</a> ' .
+            '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
         : '')
-    . show_marked($order['order_id'], 'co', $order['m_id'])
-    . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="' . l('Переместить заказ') .'"></i></td>'
+        . show_marked($order['order_id'], 'oi', $order['mi_id'])
+        . show_marked($order['order_id'], 'co', $order['m_id'])
+        . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="' . l('Переместить заказ') .'"></i></td>'
     . '<td>' /* . $order['order_id'] */ .  timerout($order['order_id']) . '</td>'
     . '<td><span title="' . do_nice_date($order['date'], false) . '">' . do_nice_date($order['date']) . '</span></td>'
     . '<td>' . get_user_name($order, 'a_') . '</td>'
@@ -1202,9 +1203,15 @@ function link_to_logistic($order, $shipping_tabs = null, $only_bool = false)
 
 function show_marked($object_id, $type, $marked = 0)
 {
-    $active = 'star-marked-unactive';
-    if ($marked > 0)
-        $active = 'star-marked-active';
+    if($type == 'oi'){
+        $active = 'fa fa-bookmark-o';
+        if ($marked > 0)
+            $active = 'fa fa-bookmark';
+    }else{
+        $active = 'star-marked-unactive';
+        if ($marked > 0)
+            $active = 'star-marked-active';
+    }
 
     $remove = '';
     if (isset($_GET['marked']) && $_GET['marked'] == $type)

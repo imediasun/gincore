@@ -528,6 +528,15 @@ ul.inline > li, ol.inline > li {
     width: 19px;
 }
 
+.icons-marked.fa{
+    color: #afafaf;
+    font-size: 16px;
+    padding: 2px 0 0 3px;
+}
+.icons-marked.fa.fa-bookmark{
+    color: #F3CC65;
+}
+
 .star-marked-unactive {
     background: url("../img/star.png") no-repeat scroll 0 0 transparent;
 }
