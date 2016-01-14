@@ -8,7 +8,7 @@ class Products
 
     function __construct ()
     {
-        require_once('configs.php');
+        require_once('manage/configs.php');
         $this->configs = Configs::get();
 
         require_once('shop/model.class.php');

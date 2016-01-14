@@ -373,6 +373,10 @@ class access
             $set['fio'] = trim($data['fio']);
         }
 
+        if ($result['state'] == true && !empty($data['legal_address'])) {
+            $set['legal_address'] = trim($data['legal_address']);
+        }
+
         if ($result['state'] == true && isset($data['phone']) && mb_strlen(trim($data['phone']), 'UTF-8') > 0) {
             $result_phone = $this->update_phones($data['phone']);
             if ($result_phone !== true) {
@@ -520,14 +524,15 @@ class access
             $result['msg'] = 'Укажите телефон или эл.почту.';
         }
         $fio = isset($post['fio']) ? trim($post['fio']) : '';
+        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : '';
         $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
 
         if ($result['state'] == true) {
             $this->update_phones($post['phone'], $post['id']);
             $this->update_email($post['email'], $post['id']);
 
-            $this->all_configs['db']->query('UPDATE {clients} SET fio=?, contractor_id=?i WHERE id=?i',
-                array($fio, $contractor_id, $post['id']));
+            $this->all_configs['db']->query('UPDATE {clients} SET fio=?, legal_address=?, contractor_id=?i WHERE id=?i',
+                array($fio, $legal_address, $contractor_id, $post['id']));
         }
 
         return $result;
@@ -582,8 +587,8 @@ class access
         $inn = isset($post['inn']) ? trim($post['inn']) : null;
         $kpp = isset($post['kpp']) ? trim($post['kpp']) : null;
         $fax = isset($post['fax']) ? trim($post['fax']) : null;
-        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : null;
         $mobile = isset($post['mobile']) ? trim($post['mobile']) : null;*/
+        $address = isset($post['legal_address']) ? trim($post['legal_address']) : null;
 
         if ($result['state'] == true && $pass != $rpass) {
             $result['state'] = false;
@@ -647,8 +652,9 @@ class access
         if ($result['state'] == true) {
             try {
                 $result['id'] = $this->all_configs['db']->query('INSERT INTO {clients}
-                    (`email`, `confirm`, `pass`, `fio`, `person`, contractor_id) VALUES (?n, ?n, ?, ?, ?, ?i)',
-                    array($email, $confirm, $this->wrap_pass($pass), $fio, $person, $contractor_id), 'id');
+                    (`email`, legal_address, `confirm`, `pass`, `fio`, `person`, contractor_id) 
+                    VALUES (?n, ?n, ?n, ?, ?, ?, ?i)',
+                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $contractor_id), 'id');
                 /*$result['id'] = $this->all_configs['db']->query('
                     INSERT INTO {clients} (`email`, `confirm`, `pass`, `fio`, `institution`, `birthday`, `job`, `identification_code`,
                         `works_phone`, `passport`, `issued_passport`, `position`, `when_passport_issued`, `relationship`, `registered_address`,

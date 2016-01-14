@@ -286,6 +286,7 @@ class master{
         $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
         
         global $prefix;
+        setcookie('show_intro', 1, time() + 600, $prefix);
         return array('state' => true, 'redirect' => $prefix.'orders');
     }
     

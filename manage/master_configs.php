@@ -5,6 +5,8 @@ class Configs {
     private static $instance = null;
     protected $configs = null;
     
+    public static $configs_extend_function = null;
+    
     public function set_configs(){
         $this->configs = array(
             'host'                      =>  'gincore.net',
@@ -129,22 +131,6 @@ class Configs {
                           5 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Белорусский рубль'), 'shortName' => 'BYR', 'viewName' => l('бр.'), 'symbol' => 'Br', 'currency-name' => ''),
                           6 => array('rutils' => array('words' => array(l('тенге'), l('тенге'), l('тенге')), 'gender' => 'male'), 'name' => l('Казахстанский тенге'), 'shortName' => 'KZT', 'viewName' => l('тнг.'), 'symbol' => '₸', 'currency-name' => ''),
                    ),
-
-            /*
-             * блок конфига для админки рестора
-             */
-    //            'manage-print-default-service-restore' => true,
-    //            'manage-show-terminal-cashbox'    => true, // показать или скрыть кассу терминал
-    //            'manage-show-phones-btn'    => true, // показать или скрыть кнопку смены аварийных телефонов
-    //            'manage-active-modules'     => array('*'), // активные модуле в админке
-    //            'manage-reset-access'       =>  false, // доступен ли сброс в модуле дебаг
-    //            'settings-master-enabled'   =>  false, // мастер настрйоки при регистрации новой админки
-    //            'currencies'                => array(
-    //                      1 => array('rutils' => array('words' => array(l('гривна'), l('гривны'), l('гривен'), 'gender' => 'female'), 'name' => l('Гривна'), 'shortName' => 'UAH', 'viewName' => l('грн.'), 'symbol' => '₴', 'currency-name' => 'grn-cash'),
-    //                      2 => array('rutils' => array('words' => array(l('евро'), l('евро'), l('евро'), 'gender' => 'male'), 'name' => l('ЕВРО'), 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
-    //                      3 => array('rutils' => array('words' => array(l('доллар'), l('доллара'), l('долларов'), 'gender' => 'male'), 'name' => l('Доллар США'), 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
-    //                      4 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей'), 'gender' => 'male'), 'name' => l('Российский рубль'), 'shortName' => 'RUB', 'viewName' => l('руб.'), 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
-    //            ),
 
             /**
              *  --------------------------------
@@ -636,10 +622,21 @@ class Configs {
             )
 
         );  // object instance
+        
+        if(is_callable(self::$configs_extend_function)){
+            $f = self::$configs_extend_function;
+            $f($this->configs);
+        }
     }
 
     public static function getInstance(){
         return self::$instance;
+    }
+    
+    public function set($key, $value){
+        if(isset(self::$instance->configs[$key])){
+            self::$instance->configs[$key] = $value;
+        }
     }
     
     public static function get(){  

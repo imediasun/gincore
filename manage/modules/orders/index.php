@@ -850,6 +850,21 @@ class orders
                                                     </span>
                                                 </div>-->
                                             </div>
+                                            <span class="toggle_btn" data-id="user_more_data">'.l('Указать дополнительные данные клиента').'</span>
+                                            <div class="row row-15 toggle_box'.(!empty($_COOKIE['user_more_data'])?' in':'').'" id="user_more_data">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>'.l('Укажите email').':</label>
+                                                        <input placeholder="'.l('email').'" type="text" name="email" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>'.l('Укажите адрес').':</label>
+                                                        <input placeholder="'.l('адрес').'" type="text" name="address" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
                                             '.get_service('crm/calls')->assets().'
                                             <div class="form-group">
                                                 <label style="padding-top:0">' . l('Код на скидку') . ': </label>

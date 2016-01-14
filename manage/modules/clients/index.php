@@ -22,7 +22,7 @@ class clients
 
         if ( !$this->all_configs['oRole']->hasPrivilege('edit-goods') ) {
             return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра клиентов') . '</p></div>';
+                <div class="span9"><p class="alert alert-danger">' . l('У Вас нет прав для просмотра клиентов') . '</p></div>';
         }
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax'){
@@ -32,7 +32,7 @@ class clients
         if ( isset($_POST) && !empty($_POST) )
             $this->check_post($_POST);
 
-        $error = ($this->error ? '<p  class="text-error">'.$this->error.'</p>' : '');
+        $error = ($this->error ? '<p class="alert alert-danger">'.$this->error.'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></p>' : '');
 
         //if($ifauth['is_2']) return false;
 
@@ -395,6 +395,9 @@ class clients
     }
 
     private function main_page(){
+        if(!empty($_GET['export'])){
+            $this->export();
+        }
         $tab = isset($_GET['tab']) ? $_GET['tab'] : '';
         if(!$tab){
             header('Location: '.$this->all_configs['prefix'].'clients?tab=clients'.(isset($_GET['s']) ? '&s='.$_GET['s'] : ''));
@@ -432,14 +435,20 @@ class clients
                 </div>
             </form>
                 <br><br>
-            <div class="tabbable">
-                <ul class="nav nav-tabs">
+            <div class="tabbable clearfix">
+                <ul class="nav nav-tabs pull-left">
                     <li'.($_GET['tab'] == 'clients' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>
                     <li'.($_GET['tab'] == 'calls' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>
                     <li'.($_GET['tab'] == 'requests' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li> 
                     <li'.($_GET['tab'] == 'statistics' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'</a></li> 
                     <li'.($_GET['tab'] == 'group_clients' ? ' class="active"' : '').'><a href="'.$this->all_configs['prefix'].'clients'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a></li> 
                 </ul>
+                <div class="pull-right">
+                    <form style="margin-right:30px" action="'.$this->all_configs['prefix'].'clients" method="get">
+                        <input type="hidden" name="export" value="1">
+                        <input type="submit" class="btn btn-info" value="'.l('Экспорт').'">
+                    </form>
+                </div>
             </div>
             <div class="tab-content">
                 <div class="tab-pane active">
@@ -447,6 +456,39 @@ class clients
                 </div>
             </div>
         ';
+    }
+    
+    private function export(){
+        $export_fields = array(
+            // id and phones exports by default
+            'email', 'fio', 'legal_address', 'date_add'
+        );
+        $clients = db()->query("SELECT id,".implode(',', $export_fields).", "
+                                    ."(SELECT GROUP_CONCAT(phone) "
+                                     ."FROM {clients_phones} WHERE client_id = c.id) as phones "
+                              ."FROM {clients} as c "
+                              ."WHERE id > 1 ORDER BY c.id")->assoc();
+        $data = array();
+        $data[] = array_merge(array(
+            'id', 'phones'
+        ), $export_fields);
+        foreach($clients as $client){
+            $client_data = array();
+            $client_data[] = $client['id'];
+            $client_data[] = $client['phones'];
+            foreach($export_fields as $exf){
+                $client_data[] = $client[$exf];
+            }
+            $data[] = $client_data;
+        }
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename=clients.csv');
+        $out = fopen('php://output', 'w');
+        foreach($data as $row){
+            fputcsv($out, $row);
+        }
+        fclose($out);
+        exit;
     }
     
     private function group_clients()
@@ -501,7 +543,7 @@ class clients
         $out = '';
         if ($clients && count($clients) > 0) {
             $out .= '<table class="table table-striped"><thead><tr>';
-            $out .= "<td>ID</td><td>" . l('Эл.почта') . "</td><td>" . l('Ф.И.О.') . "</td><td>" . l('Телефон') . "</td><td>" . l('Дата регистрации') . "</td></tr><tbody>";
+            $out .= "<td>ID</td><td>" . l('Эл.почта') . "</td><td>" . l('Адрес') . "</td><td>" . l('Ф.И.О.') . "</td><td>" . l('Телефон') . "</td><td>" . l('Дата регистрации') . "</td></tr><tbody>";
             foreach ($clients as $client) {
                 // клиенты которые используются системой
                 if (array_key_exists('manage-system-clients', $this->all_configs['configs'])
@@ -514,6 +556,7 @@ class clients
                 $out .= '<tr>
                     <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $client['id'] . '">' . $client['id'] . '</a></td>
                     <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $client['id'] . '">' . htmlspecialchars($client['email']) . '</a></td>
+                    <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $client['id'] . '">' . htmlspecialchars($client['legal_address']) . '</a></td>
                     <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $client['id'] . '">' . htmlspecialchars($client['fio']) . '</a></td>
                     <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $client['id'] . '">' . htmlspecialchars($client['phone']) . '</a></td>
                     <td><span title="' . do_nice_date($client['date_add'], false) . '">' . do_nice_date($client['date_add']) . '</span></td></tr>';
@@ -713,6 +756,8 @@ class clients
                 <div class="controls"><span title="' . do_nice_date($client['date_add'], false) . '">' . do_nice_date($client['date_add']) . '</span></div></div>';
             $out .= '<div class="form-group"><label class="control-label">' . l('Ф.И.О.') . ': </label>
                 <div class="controls"><input value="' . htmlspecialchars($client['fio']) . '" name="fio" class="form-control" /></div></div>';
+            $out .= '<div class="form-group"><label class="control-label">' . l('Адрес') . ': </label>
+                <div class="controls"><input value="' . htmlspecialchars($client['legal_address']) . '" name="legal_address" class="form-control" /></div></div>';
             $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
             if ($contractors) {
                 $out .= '<div class="form-group"><label class="control-label">' . l('Контрагент') . ': </label><div class="controls">';
@@ -1273,6 +1318,9 @@ class clients
                     }
                     if(!$client_1['email'] && $client_2['email']){
                         $personal_data[] = $this->all_configs['db']->makeQuery(" email = ? ", array($client_2['email']));
+                    }
+                    if(!$client_1['legal_address'] && $client_2['legal_address']){
+                        $personal_data[] = $this->all_configs['db']->makeQuery(" legal_address = ? ", array($client_2['legal_address']));
                     }
                     if(!$client_1['contractor_id'] && $client_2['contractor_id']){
                         $personal_data[] = $this->all_configs['db']->makeQuery(" contractor_id = ?i ", array($client_2['contractor_id']));

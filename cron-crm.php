@@ -29,7 +29,7 @@ $timezone_set_off = true;
 include 'inc_config.php';
 include 'inc_func.php';
 include 'mail.php';
-include 'configs.php';
+include 'manage/configs.php';
 include 'manage/inc_func_lang.php';
 $all_configs = all_configs();
 require_once 'manage/core_langs.php';

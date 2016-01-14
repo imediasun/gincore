@@ -7,7 +7,7 @@ include_once 'chains.class.php';
 include_once 'class_auth.php';
 
 require_once $all_configs['sitepath'] . 'shop/access_system.class.php';
-require_once $all_configs['sitepath'] . 'configs.php';
+require_once 'configs.php';
 
 #parse url
 if($all_configs['prefix'] != '/') {

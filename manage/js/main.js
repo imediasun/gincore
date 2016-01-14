@@ -866,7 +866,7 @@ $(document).ready(function () {
         });
     });
     
-    introJs().start();
+//    introJs().start();
     
 });
 
@@ -1614,13 +1614,36 @@ $(function(){
     });
     
     var $glossary = $('#glossary');
+    var $glossary_alpha = $('#glossary_alpha');
+    var $glossary_content = $('#glossary_content');
     $('#show_glossary').click(function(){
         if(!$glossary.hasClass('loaded')){
-            $glossary.html('<iframe src="'+$glossary.data('url')+'"></iframe>');
+            $glossary_content.html('<iframe src="'+$glossary.data('url')+'"></iframe>');
             $glossary.addClass('loaded');
         }
+        $glossary_alpha.toggle();
         $glossary.toggle();
+        if($glossary.is(':hidden') && $.cookie('show_intro')){
+            $.removeCookie('show_intro', {path: prefix});
+            $('#show_glossary').tooltip({
+                placement: 'left',
+                trigger: 'click'
+            }).tooltip('show');
+            $(window).scroll(function(){
+                $('#show_glossary').tooltip('destroy');
+            });
+        }
+    }).mouseenter(function(){
+        $('#show_glossary').tooltip('destroy');
+    }).mousedown(function(){
+        $('#show_glossary').tooltip('destroy');
     });
+    $('#glossary_close').click(function(){
+        $('#show_glossary').click();
+    });
+    if($.cookie('show_intro')){
+        $('#show_glossary').click();
+    }
     
     $(document).on('click', function(e){
         if(!$glossary.is(':visible')) return;
@@ -1629,13 +1652,25 @@ $(function(){
         && $this.attr('id') != 'glossary'
         && $this.attr('id') != 'show_glossary'
         && !$this.closest('#show_glossary').length){
-            $glossary.hide();
+            $('#show_glossary').click();
         }
     });
     
     $('.set_manage_lang').click(function(){
         $.cookie('manage_lang', $(this).data('lang'), {expires: 365});
         window.location.reload(true);
+    });
+    
+    $(document).on('click', '.toggle_btn', function(){
+        var id = $(this).data('id'),
+            $id = $('#' + id);
+        $id.stop(true).slideToggle(200, function(){
+            if($id.is(':visible')){
+                $.cookie(id, 1, {expires: 365, path: prefix});
+            }else{
+                $.removeCookie(id, {path: prefix});
+            }
+        });
     });
 });
 

@@ -3,10 +3,12 @@
 class wh_helper extends \service{
    
     private static $instance = null;
+    private $cache_folder = 'cache/';
     private $cache_warehouses = 'cache/warehouses.json';
     
     public function set_all_configs($all_configs){
         parent::set_all_configs($all_configs);
+        $this->cache_folder = $this->all_configs['path'].'services/wh_helper/'.$this->cache_folder;
         $this->cache_warehouses = $this->all_configs['path'].'services/wh_helper/'.$this->cache_warehouses;
     }
     
@@ -36,6 +38,9 @@ class wh_helper extends \service{
                 );
             }
             
+            if(!is_dir($this->cache_folder)){
+                mkdir($this->cache_folder, 0775);
+            }
             file_put_contents($this->cache_warehouses, json_encode($warehouses));
             return $warehouses;
         }

@@ -23,10 +23,16 @@ class Infoblock
         if(isset($this->all_configs['configs']['manage-show-glossary']) && $this->all_configs['configs']['manage-show-glossary'] 
                 && isset($this->all_configs['configs']['manage-glossary-url'])){
             $info_block = '
-                <button id="show_glossary" type="button" class="show_glossary btn btn-info" style="padding: 5px 10px">
+                <button data-title="'.l('intro_glossary_btn_hint').'" id="show_glossary" type="button" class="show_glossary btn btn-info" style="padding: 5px 10px">
                     <i class="fa fa-info"></i>
                 </button>
-                <div class="glossary" id="glossary" data-url="'.$this->all_configs['configs']['manage-glossary-url'].($this->all_configs['curmod'] ? '&mod='.$this->all_configs['curmod'] : '').'"></div>
+                <div class="glossary" id="glossary" data-url="'.$this->all_configs['configs']['manage-glossary-url'].($this->all_configs['curmod'] ? '&mod='.$this->all_configs['curmod'] : '').'">
+                    <div class="glossary_close">
+                        <button id="glossary_close" type="button" class="close">×</button>
+                    </div>
+                    <div id="glossary_content" class="glossary_content"></div>
+                </div>
+                <div id="glossary_alpha" class="glossary_alpha"></div>
             ';
         }else{
             $info = $this->getinfo($this->all_configs['curmod'] . (isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : ''));

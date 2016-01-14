@@ -1163,13 +1163,15 @@ class Chains
             $access = new \access($this->all_configs, false);
             if($access->is_phone($_POST['client_phone'])){
                 $u = $access->registration(array('phone' => $_POST['client_phone'],
+                                                 'legal_address' => $_POST['address'],
+                                                 'email' => $_POST['email'],
                                                  'fio' => $_POST['client_fio']));
                 if($u['id'] > 0){
                     $client_id = $u['id'];
                     $client = array(
                         'id' =>  $client_id,
                         'phone' => $_POST['client_phone'],
-                        'fio' => $_POST['client_fio']
+                        'fio' => $_POST['client_fio'],
                     );
                     $data['new_client_id'] = $client_id;
                 }else{
