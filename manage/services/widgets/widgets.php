@@ -14,7 +14,7 @@ class widgets extends \service{
     public function attach_js($file){
         $script = $this->get_encoded_file($file);
         return 
-            '(function () {'.
+            '(function(){'.
                 'var s = document.createElement("script");'.
                     's.type = "text/javascript";'.
                     's.innerHTML = decodeURIComponent("'.$script.'");'.
@@ -26,7 +26,7 @@ class widgets extends \service{
     public function attach_css($file){
         $style = $this->get_encoded_file($file);
         return 
-            '(function () {'.
+            '(function(){'.
                 'var s = document.createElement("style");'.
                     's.rel = "stylesheet";'.
                     's.innerHTML = decodeURIComponent("'.$style.'");'.
@@ -36,13 +36,20 @@ class widgets extends \service{
     }
     
     public function add_html($html){
-        return 'document.body.innerHTML += decodeURIComponent("'.rawUrlEncode($html).'");';
+        return 'document.body.innerHTML+=decodeURIComponent("'.rawUrlEncode($html).'");';
     }
     
-    public function load_widget_service(){
+    public function load_widget_service($has_jquery){
         $core_scripts = '';
-        $core_scripts .= $this->attach_js('assets/jquery-1.10.2.min.js');
+        if(!$has_jquery){
+            $core_scripts .= $this->attach_js('assets/jquery-1.10.2.min.js');
+        }
+        $core_scripts .= $this->attach_js('assets/jquery.xdomainrequest.min.js');
         return $core_scripts;
+    }
+    
+    public function get_requests_url(){
+        return '//'.$_SERVER['HTTP_HOST'].$this->all_configs['siteprefix'].'widget.php?ajax';
     }
     
     public static function getInstanse(){

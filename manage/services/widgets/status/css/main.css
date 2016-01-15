@@ -1,22 +1,57 @@
 .gcw{
+    box-shadow: 0 0 3px rgba(0,0,0,.4);
     position: fixed;
     left: 0;
     bottom: 0;
     z-index: 200;
+    border-top-right-radius: 3px;
+}
+.gcw, .gcw_modal_box{
+    font-family: Arial, Verdana;
+    font-size: 14px;
+    color: #3e3e3e;
+}
+.gcw p, 
+.gcw_modal_box p{
+    margin: 0 0 10px 0;
+}
+.gcw h2, 
+.gcw_modal_box h2{
+    margin-top: 0;
 }
 .gcw_title{
-    padding: 5px 10px;
-    background-color: #FFC90E;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
+    padding: 10px 15px;
+    background-color: #e4e4e4;
+    text-shadow: 0 1px 1px #fff;
+    cursor: pointer;
+    transition: background-color .1s linear;
+    -moz-transition: background-color 1s3s linear;
+    -o-transition: background-color .1s linear;
+    -ms-transition: background-color .1s linear;
+    -webkit-transition: background-color .1s linear;
+    /*border-top-left-radius: 3px;*/
+}
+.gcw_title:hover{
+    background-color: #ECECEC;
 }
 .gcw_body{
     border-left: 1px solid #eeeeee;
     border-right: 1px solid #eeeeee;
     padding: 5px 10px;
 }
+.gcw_form{
+    margin: 0;
+}
+.gcw_form_error{
+    display: inline-block;
+    margin-left: 10px;
+}
 .gcw_form_group label{
+    margin-bottom: 5px;
     display: block;
+}
+.gcw_form_group{
+    margin-bottom: 15px;
 }
 .gcw_form_control{
     display: block;
@@ -34,4 +69,120 @@
     -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
     -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+.gcw_btn{
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 7px 10px;
+    background-color: hsl(0, 0%, 16%) !important;
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#5b5b5b", endColorstr="#282828");
+    background-image: -khtml-gradient(linear, left top, left bottom, from(#5b5b5b), to(#282828));
+    background-image: -moz-linear-gradient(top, #5b5b5b, #282828);
+    background-image: -ms-linear-gradient(top, #5b5b5b, #282828);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5b5b5b), color-stop(100%, #282828));
+    background-image: -webkit-linear-gradient(top, #5b5b5b, #282828);
+    background-image: -o-linear-gradient(top, #5b5b5b, #282828);
+    background-image: linear-gradient(#5b5b5b, #282828);
+    border-color: #282828 #282828 hsl(0, 0%, 11%);
+    color: #fff !important;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.33);
+    -webkit-font-smoothing: antialiased;
+}
+.gcw_btn.active, .gcw_btn:active {
+    background-image: none;
+    outline: 0;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+}
+
+.gcw_modal_box{
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 201;
+}
+.gcw_modal{
+    box-shadow: 0 0 4px rgba(0,0,0,.4);
+    position: absolute;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-radius: 5px 5px 5px 5px;
+    color: #474747;
+    height: auto;
+    left: 50%;
+    max-width: 600px;
+    width: 95%;
+    top: 50%;
+    z-index: 2;
+}
+.gcw_modal_blackout{
+    background-color: rgba(0,0,0,.2);
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.gcw_modal_close{
+    margin-top: -5px;
+    margin-right: -5px;
+    width: 25px;
+    height: 25px;
+    float: right;
+    background: url("data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAQAAADheaTUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjVFNzNCNUVBQ0Y2MTExRTJCQzdBRjdBOEQwNUU4RDY4IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjVFNzNCNUVCQ0Y2MTExRTJCQzdBRjdBOEQwNUU4RDY4Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NUU3M0I1RThDRjYxMTFFMkJDN0FGN0E4RDA1RThENjgiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NUU3M0I1RTlDRjYxMTFFMkJDN0FGN0E4RDA1RThENjgiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7RomPcAAAApUlEQVQYGQXBMS6DAQBA4RcSJ2jCSGPWwcDgDg7wjywGoytI3mYzlB6gm0PoJKkT2PyJyShp6PN9RDi4FxERHnkZhA/mc0SEE9/dBOGtW3PubnjgyvwIIhzcmguPXZujsyAivPLP/Da/PI0gIsI7M3+8iAgiwn1fzcy5OxFEOPHN/PTezKcIwkNX5uhZeO2v+RiES3P0JCIczIJw6ovnERHhjYv4B5jvkZleBJ3qAAAAAElFTkSuQmCC") center center no-repeat;
+}
+.gcw_modal_close:hover{
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: #eeeeee;
+}
+.gcw_modal_title, 
+.gcw_modal_body{
+    padding: 20px;
+}
+.gcw_modal_title{
+    border-bottom: 1px solid #e4e4e4;
+}
+.gcw_modal_body{
+    max-height: 400px;
+    overflow: auto;
+}
+.gcw_modal_title{
+    font-size: 18px;
+}
+.gcw_table{
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border-spacing: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+.gcw_table thead td{
+    border-bottom: 1px solid #e4e4e4;
+}
+.gcw_table td{
+    padding: 8px;
+}
+.gcw_table_stripped > tbody > tr:nth-of-type(odd){
+    background-color: #f9f9f9;
+}
+.gcw_status_order{
+    margin-bottom: 20px;
 }
