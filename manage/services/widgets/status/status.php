@@ -17,13 +17,13 @@ class status extends \service{
     private function widget_html(){
         return '
             <div class="gcw">
-                <div class="gcw_title gcw_show_modal" data-id="gcw_status_modal">Cтатус ремонта</div>
+                <div class="gcw_title gcw_show_modal" data-id="gcw_status_modal">'.l('Cтатус ремонта').'</div>
             </div>
             <div class="gcw_modal_box" id="gcw_status_modal">
                 <div class="gcw_modal_blackout"></div>
                 <div class="gcw_modal">
                     <div class="gcw_modal_title">
-                        Узнать статус ремонта
+                        '.l('Узнать статус ремонта').'
                         <span class="gcw_modal_close"></span>
                     </div>
                     <div class="gcw_modal_body">
@@ -31,10 +31,10 @@ class status extends \service{
                             <input type="hidden" name="widget" value="status">
                             <input type="hidden" name="action" value="status_by_phone">
                             <div class="gcw_form_group">
-                                <label>Номер мобильного телефона</label>
+                                <label>'.l('Номер мобильного телефона').'</label>
                                 <input class="gcw_form_control" type="text" name="phone">
                             </div>
-                            <input type="submit" value="Отправить" class="gcw_btn"><span class="gcw_form_error"></span>
+                            <input type="submit" value="'.l('Отправить').'" class="gcw_btn"><span class="gcw_form_error"></span>
                         </form>
                         <div id="gcw_form_html"></div>
                     </div>
@@ -57,10 +57,10 @@ class status extends \service{
                         $response['state'] = true;
                         $response['html'] = $html;
                     }else{
-                        $response['msg'] = 'Ремонты не найдены';
+                        $response['msg'] = l('Ремонты не найдены');
                     }
                 }else{
-                    $response['msg'] = 'Укажите номер телефона';
+                    $response['msg'] = l('Укажите номер телефона');
                 }
             break;
         }
@@ -84,18 +84,18 @@ class status extends \service{
                                 ? htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['name']) 
                                     : '';
                     $html .= '<div class="gcw_status_order">';
-                    $html .= '<h2>Ремонт №' . $order['id'] . '</h2>';
-                    $html .= '<p><b>Дата</b>: ' . date("d/m/Y", strtotime($order['date_add'])) . '</p>';
-                    $html .= '<p><b>Статус</b>: ' . $status . '</p>';
-                    $html .= '<p><b>Устройство</b>: ' . htmlspecialchars($order['title']) . '</p>';
-                    $html .= '<p><b>Серийный номер</b>: ' . htmlspecialchars($order['serial']) . '</p>';
+                    $html .= '<h2>'.l('Ремонт').' №' . $order['id'] . '</h2>';
+                    $html .= '<p><b>'.l('Дата').'</b>: ' . date("d/m/Y", strtotime($order['date_add'])) . '</p>';
+                    $html .= '<p><b>'.l('Статус').'</b>: ' . $status . '</p>';
+                    $html .= '<p><b>'.l('Устройство').'</b>: ' . htmlspecialchars($order['title']) . '</p>';
+                    $html .= '<p><b>'.l('Серийный номер').'</b>: ' . htmlspecialchars($order['serial']) . '</p>';
 
                     $comments = db()->query('SELECT * FROM {orders_comments} WHERE order_id=?i AND private=0 ORDER BY date_add DESC',
                         array($order['id']))->assoc();
                     if ($comments) {
                         $html .= '<table class="gcw_table gcw_table_stripped">'
-                                .'<thead><tr><td><center>Дата</center></td>'
-                                .'<td>Текущий статус ремонта</td></tr></thead><tbody>';
+                                .'<thead><tr><td><center>'.l('Дата').'</center></td>'
+                                .'<td>'.l('Текущий статус ремонта').'</td></tr></thead><tbody>';
                         foreach ($comments as $comment) {
                             $html .= '<tr><td><center>' . date("d.m.Y<b\\r/>H:i", strtotime($comment['date_add'])) . '</center></td>';
                             $html .= '<td>' . htmlspecialchars(wordwrap($comment['text'], 25, " ", true)) . '</td></tr>';
