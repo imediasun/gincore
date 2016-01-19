@@ -54,6 +54,7 @@
     margin-bottom: 15px;
 }
 .gcw_form_control{
+    box-sizing: border-box;
     display: block;
     width: 100%;
     padding: 6px 12px;
@@ -109,6 +110,7 @@
 }
 
 .gcw_modal_box{
+    text-align: left;
     display: none;
     position: fixed;
     width: 100%;

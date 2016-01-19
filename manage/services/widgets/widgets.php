@@ -49,7 +49,8 @@ class widgets extends \service{
     }
     
     public function get_requests_url(){
-        return '//'.$_SERVER['HTTP_HOST'].$this->all_configs['siteprefix'].'widget.php?ajax';
+        // TODO: detect protocol 
+        return 'https://'.$_SERVER['HTTP_HOST'].$this->all_configs['siteprefix'].'widget.php?ajax';
     }
     
     public static function getInstanse(){

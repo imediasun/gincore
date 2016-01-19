@@ -1,5 +1,5 @@
 var gcw_status_widget = (function($){
-    
+
     function resize(){
         var $modal = $('.gcw_modal');
         if($modal.is(':visible')){
@@ -27,25 +27,24 @@ var gcw_status_widget = (function($){
     return {
         init: function(){
             
-            $('.gcw_show_modal').click(function(){
+            $(document).on('click', '.gcw_show_modal', function(){
                 var $this = $(this),
                     id = $this.data('id');
                 $('#'+id).show();
                 resize();
             });
-            $('.gcw_modal_close').click(function(){
+            $(document).on('click', '.gcw_modal_close', function(){
                 $(this).parents('.gcw_modal_box').hide();
                 modal_on_close();
             });
             $(window).resize(resize).resize();
             
             var form_msg_timeout;
-            $('.gcw_form').submit(function(e){
+            $(document).on('submit', '.gcw_form', function(e){
                 var $this = $(this),
                     $error_msg = $this.find('.gcw_form_error'),
-                    method = $this.find('input[name=action]').val();
+                    method = $this.find('input[name=action]').val(),
                     action = $this.attr('action');
-                e.preventDefault();
                 var contentType = "application/x-www-form-urlencoded;charset=utf-8";
                 if (window.XDomainRequest){
                     contentType = "text/plain";
@@ -61,7 +60,7 @@ var gcw_status_widget = (function($){
                             callbacks[method]($this, data);
                         }else{
                             clearTimeout(form_msg_timeout);
-                            $error_msg.text(data.msg);
+                            $('.gcw_form_error').text(data.msg);
                             form_msg_timeout = setTimeout(function(){
                                 $error_msg.empty();
                             }, 7000);
@@ -71,6 +70,7 @@ var gcw_status_widget = (function($){
                         console.log(errorThrown);
                     }
                 });
+                e.preventDefault();
             });
         }
     };
