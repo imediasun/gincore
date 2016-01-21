@@ -1412,7 +1412,7 @@ function change_warehouse(_this) {
 
 function icons_marked(_this, object_id, type) {
 
-    if(type == 'oi'){
+    if(type == 'oi' || type == 'woi'){
         var icon_active = 'fa fa-bookmark';
         var icon = 'fa fa-bookmark-o';
     }else{

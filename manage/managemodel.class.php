@@ -597,7 +597,7 @@ class manageModel
             
             if ($orders_ids) {
                 $data = $this->all_configs['db']->query('SELECT o.id, o.goods_id, o.date_add, o.date_wait, o.count,
-                          o.count_come, o.price, o.comment, o.sum_paid, o.number, o.date_come, o.parent_id, o.confirm,
+                          o.count_come, mi.id as mi_id, o.price, o.comment, o.sum_paid, o.number, o.date_come, o.parent_id, o.confirm,
                           g.title as goods_title, o.user_id, g.secret_title, o.count_debit, o.wh_id, o.user_id_accept,
                           u.fio, u.email, u.login, o.wh_id, w.title as wh_title, o.supplier, s.title as stitle, o.num,
                           ac.fio as accept_fio, ac.email as accept_email, ac.login as accept_login, i.id as item_id,
@@ -613,6 +613,7 @@ class manageModel
                         LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
                         LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
                         LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
+                        LEFT JOIN {users_marked} as mi ON mi.object_id=o.id AND mi.type="woi"
                         WHERE o.id IN (?li) ORDER BY o.date_add DESC',//o.parent_id DESC,
                     array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']),
                         $icon_type, $_SESSION['id'], array_keys($orders_ids)))->assoc();

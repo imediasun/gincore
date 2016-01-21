@@ -488,7 +488,10 @@ class Suppliers
                 $edit_comment = '<i class="glyphicon glyphicon-pencil editable-click pull-right" data-placement="left" data-display="false" data-title="Редактировать комментарий" data-url="messages.php?act=edit-supplier-order-comment" data-pk="' . $order['id'] . '" data-type="textarea" data-value="' . htmlspecialchars($order['comment']) . '"></i>';
 
                 $goods_html .= '<tr title="'.$status_txt.'" class=" ' . $class . '" id="supplier-order_id-' . $order['id'] . '">
-                    <td>' . show_marked($order['id'], 'so', $order['m_id']) . '</td>
+                    <td>
+                        ' . show_marked($order['id'], 'so', $order['m_id']) . '
+                        '.show_marked($order['id'], 'woi', $order['mi_id']).'
+                    </td>
                     <td><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></td>
                     <td>' . $icon . get_user_name($order) . '</td>
                     <td>' . $this->supplier_order_number($order) . '</td>

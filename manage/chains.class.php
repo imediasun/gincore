@@ -736,7 +736,14 @@ class Chains
                     'SELECT COUNT(id) FROM {users_marked}
                       WHERE user_id = ?i AND type = ? AND object_id = ?i',
                     array($_SESSION['id'], 'wso'.$type, $op['order_id']))->el();
-            $out .= '</a>'.show_marked($op['order_id'], 'wso'.$type, $selected).'</td><td><span title="' . do_nice_date($op['date_add'], false) . '"> ' . do_nice_date($op['date_add']) . '</span></td>';
+            $selected_oi = $this->all_configs['db']->query(
+                    'SELECT COUNT(id) FROM {users_marked}
+                      WHERE type = ? AND object_id = ?i',
+                    array('woi', $op['order_id']))->el();
+            $out .= '</a>'
+                    .show_marked($op['order_id'], 'wso'.$type, $selected)
+                    .show_marked($op['order_id'], 'woi', $selected_oi)
+                    .'</td><td><span title="' . do_nice_date($op['date_add'], false) . '"> ' . do_nice_date($op['date_add']) . '</span></td>';
             $out .= '<td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $op['goods_id'] . '">';
             $content = 'Нет на складе';
 

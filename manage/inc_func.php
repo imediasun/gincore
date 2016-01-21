@@ -1203,7 +1203,7 @@ function link_to_logistic($order, $shipping_tabs = null, $only_bool = false)
 
 function show_marked($object_id, $type, $marked = 0)
 {
-    if($type == 'oi'){
+    if($type == 'oi' || $type == 'woi'){
         $active = 'fa fa-bookmark-o';
         if ($marked > 0)
             $active = 'fa fa-bookmark';
