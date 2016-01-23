@@ -249,6 +249,7 @@ if(empty($curmod)){
                             /*|| $all_configs['oRole']->hasPrivilege('edit-clients-orders')*/))
                     || ($v == 'tasks')
                     || ($v == 'statistics')
+                    || ($v == 'widgets')
                     || ($v == 'seo' && $all_configs['oRole']->hasPrivilege('edit-map'))
 
                 ) {
@@ -256,7 +257,7 @@ if(empty($curmod)){
                         || $v == 'settings' || $v == 'users' || $v == 'offices' || $v == 'wrapper'
                         || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains' 
                         || $v == 'debug'  || $v == 'tasks' || $v == 'flayers' || $v == 'statistics' 
-                        || $v == 'seo') {
+                        || $v == 'seo' || $v == 'widgets') {
 
                         $additionally .= '
                             <li '.($curmod == $v ? 'class="active"' : '').'>

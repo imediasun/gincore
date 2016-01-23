@@ -123,7 +123,7 @@ if($curmod){
         $main_js = '';
         foreach($js_files as $file){
             if($file != '.' && $file != '..'){
-                $link = '<script type="text/javascript" src="'.$mod_prefix.'js/'.$file.'?33"></script>';
+                $link = '<script type="text/javascript" src="'.$mod_prefix.'js/'.$file.'?34"></script>';
                 if($file == 'main.js'){
                     $main_js = $link;
                     continue;

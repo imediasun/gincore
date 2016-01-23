@@ -67,14 +67,6 @@ class orders
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
 
-        // комментарии к заказам
-        if ((isset($post['add_public_comment']) || isset($post['add_private_comment'])) && isset($this->all_configs['arrequest'][2])) {
-            if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
-                $type = isset($post['add_private_comment']) ? 1 : 0;
-                $text = isset($post['add_private_comment']) ? trim($post['private_comment']) : trim($post['public_comment']);
-                $this->all_configs['suppliers_orders']->add_client_order_comment($this->all_configs['arrequest'][2], $text, $type);
-            }
-        }
 
         // фильтруем заказы клиентов
         if (isset($post['filter-orders'])) {
@@ -2786,6 +2778,19 @@ class orders
             }
             
             if ($data['state'] == true) {
+                
+                // комментарии к заказам
+                if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
+                    if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
+                        $private = !empty($_POST['private_comment']) ? trim($_POST['private_comment']) : '';
+                        $public = !empty($_POST['public_comment']) ? trim($_POST['public_comment']) : '';
+                        $type = $private ? 1 : 0;
+                        $text = $private ?: $public;
+                        $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
+                        $data['reload'] = true;
+                    }
+                }
+                
                 // меняем статус
                 $response = update_order_status($order, $_POST['status']);
                 if (!isset($response['state']) || $response['state'] == false) {

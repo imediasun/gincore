@@ -205,7 +205,7 @@ $(function() {
             dataType: "json",
 
             data: '&user_id='+user_id+'&order_id='+order_id,
-            type:'POST',
+            type: 'POST',
             success: function(msg) {
                 if ( msg['error'] ) {
                     alert(msg['message']);
