@@ -467,13 +467,31 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
                 array($query, array_filter(explode(',', $filters['mg']))));
         }
+        if (!empty($filters['manager'])) {
+            $query = $this->all_configs['db']->makeQuery('
+                LEFT JOIN {users} as man ON man.id = o.manager
+                ?query AND man.fio LIKE "%?e%"',
+                array($query, $filters['manager']));
+        }
         if (isset($filters['eng']) && count(array_filter(explode(',', $filters['eng']))) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
                 array($query, array_filter(explode(',', $filters['eng']))));
         }
+        if (!empty($filters['engineer'])) {
+            $query = $this->all_configs['db']->makeQuery('
+                LEFT JOIN {users} as eng ON eng.id = o.engineer
+                ?query AND eng.fio LIKE "%?e%"',
+                array($query, $filters['engineer']));
+        }
         if (isset($filters['acp']) && count(array_filter(explode(',', $filters['acp']))) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
                 array($query, array_filter(explode(',', $filters['acp']))));
+        }
+        if (!empty($filters['accepter'])) {
+            $query = $this->all_configs['db']->makeQuery('
+                LEFT JOIN {users} as acp ON acp.id = o.accepter
+                ?query AND acp.fio LIKE "%?e%"',
+                array($query, $filters['accepter']));
         }
         if (isset($filters['st']) && count(explode(',', $filters['st'])) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
@@ -493,6 +511,12 @@ class manageModel
         if (isset($filters['dev']) && $filters['dev'] > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.category_id=?i',
                 array($query, $filters['dev']));
+        }
+        if (!empty($filters['device'])) {
+            $query = $this->all_configs['db']->makeQuery('
+                LEFT JOIN {categories} as cats ON cats.id = o.category_id
+                ?query AND cats.title LIKE "%?e%"',
+                array($query, $filters['device']));
         }
 
         if (isset($filters['serial']) && $filters['serial']) {

@@ -329,9 +329,12 @@ form.small-product-filter > span.ui-combobox > a.ui-button {
     float: left;
 }
 
+.order-form-edit-nav {
+    margin: 35px 35px 0 35px;
+}
 .order-form-edit {
     border: 1px solid #e4e5e7;
-    margin: 35px;
+    margin: 20px 35px 35px 35px;
 }
 .order-form-edit .well > h5 {
     margin-top: 0px;

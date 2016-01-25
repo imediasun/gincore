@@ -26,6 +26,13 @@ function gen_tree() {
     });
 }*/
 
+function orders_quick_search(_this, param){
+    var query = $.trim($('#orders_quick_search_query').val());
+    if(query){
+        window.location = prefix+'orders?'+param+'='+encodeURI(query)+'&qsq='+encodeURI(query)+'#show_orders-orders'
+    }
+}
+
 function create_transaction(_this, conf) {
 
     $(_this).button('loading');
@@ -173,6 +180,14 @@ function location_menu(_this, e) {
 }
 
 $(function() {
+
+    $(document).on('click', '.drop-quick-orders-serach', function(){
+        var $this = $(this),
+            href = $this.attr('href');
+        if(href.indexOf('#') === -1){
+            $this.attr('href', href + window.location.hash);
+        }
+    });
 
     $('.export_order').click(function() {
         var order_id = $(this).attr('data');

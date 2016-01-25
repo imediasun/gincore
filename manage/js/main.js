@@ -1591,7 +1591,8 @@ $(function(){
     
     $(document).on('click', '.toggle-hidden', function(){
         var $this = $(this),
-            $context = $this.closest('.tab-pane'),
+            $context_pane = $this.closest('.tab-pane'),
+            $context = $context_pane.length ? $context_pane : $this.closest('.toggle-hidden-box'),
             $toggle = $('#'+$this.attr('data-toggle'), $context);
         if(!$toggle.length){
             $toggle = $('#'+$this.attr('data-toggle'), $context.find('.pill-pane.active'));

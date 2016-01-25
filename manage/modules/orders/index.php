@@ -335,8 +335,13 @@ class orders
         return $out;
     }
     
-    function clients_orders_menu()
+    function clients_orders_menu($full_link = false)
     {
+        if($full_link){
+            $link = $this->all_configs['prefix'].'orders';
+        }else{
+            $link = '';
+        }
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
@@ -376,7 +381,7 @@ class orders
             $status_options .= ' value="' . $os_id . '">' . htmlspecialchars($os_v['name']) . '</option>';
         }
         $out .= '
-        <form method="post" class="">
+        <form method="post" action="'.$link.'" class="">
         <div class="clearfix theme_bg filters-box p-sm m-b-md">
             <div class="row row-15">
                 <div class="col-sm-2 b-r">
@@ -559,6 +564,52 @@ class orders
         return $orders_html;
     }
 
+    function clients_orders_navigation($full_link = false){
+        if($full_link){
+            $link = $this->all_configs['prefix'].'orders';
+        }else{
+            $link = '';
+        }
+        $orders_html = '';
+        $orders_html .= '<ul class="list-unstyled inline clearfix m-b-md">';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="'.$link.'#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-wrench"></i> ' . l('РЕМОНТЫ') . '</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="'.$link.'#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-money"></i> ' . l('ПРОДАЖИ') . '</a></li>';
+        $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="'.$link.'#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i> ' . l('СПИСАНИЯ') . '</a></li>';
+        $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i>' . l('Фильтровать') . '<i class="fa fa-caret-down"></i></button></li>';
+        $orders_html .= '<li style="max-width:280px"><div style="margin-bottom:-14px" class="input-group">
+                            <span class="input-group-btn">
+                                <a href="'.$this->all_configs['prefix'].'orders" class="btn btn-default drop-quick-orders-serach" type="button">
+                                    <i class="glyphicon glyphicon-remove-circle"></i>
+                                </a>
+                              </span>
+                            <input type="text" value="'.(isset($_GET['qsq'])?htmlspecialchars($_GET['qsq']):'').'" name="search" class="form-control" id="orders_quick_search_query">
+                            <div class="input-group-btn">
+                                <div class="btn-group orders_quick_search_dropdown dropdown">
+                                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    '.l('Искать').'
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle</span>
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li><a href="#" onclick="orders_quick_search(this, \'co_id\')">'.l('По номеру заказа').'</a></li>
+                                    <li><a href="#" onclick="orders_quick_search(this, \'cl\')">'.l('По клиенту').'</a></li>
+                                    <li><a href="#" onclick="orders_quick_search(this, \'device\')">'.l('По устройству').'</a></li>
+                                    <li><a href="#" onclick="orders_quick_search(this, \'serial\')">'.l('По сер. номеру').'</a></li>
+                                    <li><a href="#" onclick="orders_quick_search(this, \'manager\')">'.l('По менеджеру').'</a></li>
+                                    <li><a href="#" onclick="orders_quick_search(this, \'accepter\')">'.l('По приемщику').'</a></li>
+                                    <li><a href="#" onclick="orders_quick_search(this, \'engineer\')">'.l('По инженеру').'</a></li>
+                                  </ul>
+                                </div>
+                            </div>
+                        </div></li>';
+        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
+            $orders_html .= '<li class="pull-right"><a href="' . $this->all_configs['prefix'] . 'orders/#create_order" class="btn btn-success hash_link">' . l('Создать заказ') . '</a></li>';
+        }
+        $orders_html .= '</ul>
+            <div class="hidden" id="filters">'.$this->clients_orders_menu($full_link).'</div>';
+        return $orders_html;
+    }
+    
     function orders_show_orders($hash = '#show_orders-orders')
     {
         if (trim($hash) == '#show_orders' || (trim($hash) != '#show_orders-orders' && trim($hash) != '#show_orders-sold'
@@ -569,17 +620,9 @@ class orders
         if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
             $orders_html .= '<div class="span12">';
 
-            $orders_html .= '<ul class="list-unstyled inline clearfix m-b-md">';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-wrench"></i> ' . l('РЕМОНТЫ') . '</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-money"></i> ' . l('ПРОДАЖИ') . '</a></li>';
-            $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i> ' . l('СПИСАНИЯ') . '</a></li>';
-            $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i>' . l('Фильтровать') . '<i class="fa fa-caret-down"></i></button></li>';
-            if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-                $orders_html .= '<li class="pull-right"><a href="' . $this->all_configs['prefix'] . 'orders/#create_order" class="btn btn-success hash_link">' . l('Создать заказ') . '</a></li>';
-            }
-            $orders_html .= '</ul>
-                <div class="hidden" id="filters">'.$this->clients_orders_menu().'</div>
-                <div class="pill-content">';
+            $orders_html .= $this->clients_orders_navigation();
+            
+            $orders_html .= '<div class="pill-content">';
             $orders_html .= '<div id="show_orders-orders" class="pill-pane active">';
             $orders_html .= '</div>';
 
@@ -2021,9 +2064,21 @@ class orders
             $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
                 !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ? true : false;
 
-            $order_html .= '<form method="post" id="order-form" class="order-form-edit backgroud-white p-lg">';
-
+            
             $order_html .= '<div class="row-fluid">';
+            
+            $order_html .= '
+                <div class="order-form-edit-nav toggle-hidden-box">
+                    '.$this->clients_orders_navigation(true).'
+                    <script type="text/javascript">
+                        $(function(){
+                            gen_tree();
+                        });
+                    </script>
+                </div>
+            ';
+
+            $order_html .= '<form method="post" id="order-form" class="clearfix order-form-edit backgroud-white p-lg">';
 
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $print_warranty = print_link($order['id'], 'warranty', '', true);
@@ -2446,9 +2501,9 @@ class orders
 
             $order_html .= '</div>';
 
-            $order_html .= '</div>';
-
             $order_html .= '</form>';
+
+            $order_html .= '</div>';
 
         } else {
             $order_html .= '<div class="span3"></div><div class="span9"><p class="text-danger">' . l('Заказ') .' №' . $this->all_configs['arrequest'][2] . ' ' . l('не найден') .'</p></div>';
