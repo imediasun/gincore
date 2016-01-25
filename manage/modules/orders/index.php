@@ -979,7 +979,7 @@ class orders
                                                 <label>' . l('Ориентировочная стоимость') . ': </label>
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" value="" name="approximate_cost" />
-                                                    <span class="input-group-addon">'. l(viewCurrency()) .'</span>
+                                                    <span class="input-group-addon">'. viewCurrency() .'</span>
                                                 </div>
                                             </div>
                                             <!--<div class="form-group">
@@ -991,7 +991,7 @@ class orders
                                                 <label>' . l('Предоплата') . ': </label>
                                                 <div class="input-group">
                                                     <input type="text" placeholder="' . l('Введите сумму') . '" class="form-control" value="" name="sum_paid" />  
-                                                    <span class="input-group-addon">'. l(viewCurrency()).'</span>
+                                                    <span class="input-group-addon">'. viewCurrency().'</span>
                                                     <input type="text" placeholder="' . l('Комментарий к предоплате') . '" class="form-control" value="" name="prepay_comment" /> 
                                                 </div>
                                             </div>
@@ -1015,7 +1015,7 @@ class orders
                                                     <div class="col-sm-6">
                                                         <div class="checkbox"><label>
                                                             <input onclick="if ($(this).prop(\'checked\')){$(\'.courier_address\').show();}else{$(\'.courier_address\').hide();}" type="checkbox" value="1" name="is_courier" />
-                                                            ' . l('Клиент готов ждать 2-3 недели запчасть') . '
+                                                            ' . l('Курьер забрал устройство у клиента') . '
                                                             <input type="text" style="display:none;" placeholder="' . l('по адресу') .'" class="form-control courier_address" value="" name="courier" />
                                                         </label></div>
                                                         <div class="checkbox"><label>
@@ -1115,7 +1115,7 @@ class orders
                         <label>' . l('Цена продажи') . ' <b class="text-danger">*</b>: </label>
                         <div class="input-group">
                             <input type="text" required id="sale_poduct_cost" class="form-control" value="" name="price" />
-                            <span class="input-group-addon">'. l(viewCurrency()) .'</span>
+                            <span class="input-group-addon">'. viewCurrency() .'</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -2228,7 +2228,7 @@ class orders
                 $order_html .= '<div class="form-group"><label>' . l('Ориентировочная дата готовности') . ': </label> ';
                 $order_html .= '<span title="' . do_nice_date($order['date_readiness'], false) . '">' . do_nice_date($order['date_readiness']) . '</span></div>';
                 if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $order_html .= '<div class="form-group"><label>' . l('Ориентировочная стоимость') . ': </label> ' . ($order['approximate_cost'] / 100) . ' '. l(viewCurrency()) .'</div>';
+                    $order_html .= '<div class="form-group"><label>' . l('Ориентировочная стоимость') . ': </label> ' . ($order['approximate_cost'] / 100) . ' '. viewCurrency() .'</div>';
                 }
             }
             $order_html .= '</div><div class="span6">';
@@ -2371,10 +2371,10 @@ class orders
                     <label>' . l('Стоимость ремонта') . ': </label>
                     <div class="input-group input-group-sm">
                         <input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" />
-                        <div class="input-group-addon">'. l(viewCurrency()) .'</div>
+                        <div class="input-group-addon">'. viewCurrency() .'</div>
                         <div class="input-group-btn">'.$pay_btn.'</div>
                     </div>';
-                $order_html .= '<span class="text-success">' . l('Оплачено') . ': ' . ($order['sum_paid'] / 100) . ' '. l(viewCurrency()).' (' . l('из них предоплата') . ' ' . ($order['prepay'] / 100) . ' ' . l(viewCurrency()) . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
+                $order_html .= '<span class="text-success">' . l('Оплачено') . ': ' . ($order['sum_paid'] / 100) . ' '. viewCurrency().' (' . l('из них предоплата') . ' ' . ($order['prepay'] / 100) . ' ' . viewCurrency() . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
                 $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
                 $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
                 $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';
@@ -2759,7 +2759,7 @@ class orders
                 $data['content'] .= '<div class="form-group"><label>' . l('Номер телефона') . ': </label><div class="controls">';
                 $data['content'] .= '<input class="form-control" name="phone" type="text" value="' . htmlspecialchars($order['phone']) . '" /></div></div>';
                 $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Текст') . ': </label><div class="controls">';
-                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">'.l('Ваш заказ').' №'.$order['id'].' ' . l('готов') .'. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '. l(viewCurrency()) .'</textarea></div></div>';
+                $data['content'] .= '<textarea class="form-control show-length" maxlength="69" name="text">'.l('Ваш заказ').' №'.$order['id'].' ' . l('готов') .'. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' '. viewCurrency() .'</textarea></div></div>';
                 $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '</form>';
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';
