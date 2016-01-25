@@ -314,7 +314,7 @@ $(document).ready(function () {
                     _this = this;
                 $('.typeahead-value-' + input_selector).attr('value', item.id);
                 //auto_typeahead = true;
-                if(call_function.indexOf(',') > 0){
+                if(typeof call_function != 'undefined' && call_function.indexOf(',') > 0){
                     var functions = call_function.split(',');
                     $.each(functions, function(k,v){
                         if (typeof window[v] == 'function') {
