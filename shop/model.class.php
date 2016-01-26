@@ -11,7 +11,7 @@ class Model
         global $db, $sitepath;
         $this->db = $db;
 
-        require_once(__DIR__.'/../manage/configs.php');
+//        require_once(__DIR__.'/../manage/configs.php');
         $this->configs = Configs::get();
 
     }
