@@ -594,32 +594,32 @@ if ($print_html) {?>
 
 function barcode_generate($barcode, $type)
 {
-    require_once('BCG/BCGFontFile.php');
-    require_once('BCG/BCGColor.php');
-    require_once('BCG/BCGDrawing.php');
+    require_once('classes/BCG/BCGFontFile.php');
+    require_once('classes/BCG/BCGColor.php');
+    require_once('classes/BCG/BCGDrawing.php');
 
-    $font = new BCGFontFile('BCG/font/Arial.ttf', 10);
+    $font = new BCGFontFile('classes/BCG/font/Arial.ttf', 10);
     $color_black = new BCGColor(0, 0, 0);
     $color_white = new BCGColor(255, 255, 255);
 
 
     // Barcode Part
     if ($type == 'sn') {
-        require_once('BCG/BCGcode128.barcode.php');
+        require_once('classes/BCG/BCGcode128.barcode.php');
         $code = new BCGcode128();
 
         $code->setScale(1);
         $code->setThickness(35);
 
     } elseif ($type == 'ean') {
-        require_once('BCG/BCGean13.barcode.php');
+        require_once('classes/BCG/BCGean13.barcode.php');
         $code = new BCGean13();
 
         $code->setScale(1.5);
         $code->setThickness(35);
 
     } else {
-        require_once('BCG/BCGcodabar.barcode.php');
+        require_once('classes/BCG/BCGcodabar.barcode.php');
         $code = new BCGcodabar();
     }
 

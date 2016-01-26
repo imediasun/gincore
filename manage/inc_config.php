@@ -28,4 +28,5 @@ if ($debug) {
 
 include $all_configs['sitepath'].'db_config.php';
 $all_configs['db'] = $db;
+$all_configs['dbcfg'] = $dbcfg;
 

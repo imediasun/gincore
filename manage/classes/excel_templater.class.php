@@ -31,7 +31,7 @@ class ExcelTemplater {
     function __construct($configs)
     {
         global $sitepath;
-        require_once $sitepath . 'manage/PHPExcel.php'; // Подключаем библиотеку PHPExcel
+        require_once $sitepath . 'manage/classes/PHPExcel.php'; // Подключаем библиотеку PHPExcel
         $this->configs = $configs;
         
         $this->setCache('1');
