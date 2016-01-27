@@ -103,7 +103,7 @@ class calls extends \service{
                                 ' <span title="Кол-во открытых заявок на звонок №'.$call['id'].'"> '.$call['open_requests'].'</span>'.
                                 '</a>'
                                 : '').'</td>
-                    <td><a href="'.$this->all_configs['prefix'].'clients/create/'.$call['client_id'].'#calls">'.$call['client_id'].'</a></td>
+                    <td><a href="'.$this->all_configs['prefix'].'clients/create/'.$call['client_id'].'#calls">'.htmlspecialchars($call['client_fio']?:'id '.$call['client_id']).'</a></td>
                     <td>'.$call['operator_fio'].'</td>
                     <td>'.$this->call_types[$call['type']].'</td>
                     <td>
@@ -131,7 +131,7 @@ class calls extends \service{
                         <th>id</th>
                         <th>' . l('Телефон') . '</th>
                         <th>' . l('Заявок') . '</th>
-                        <th>client id</th>
+                        <th>'.l('Клиент').'</th>
                         <th>' . l('Оператор') . '</th>
                         <th>'.l('Статус').'</th>
                         <th>' . l('Канал') . '</th>
@@ -195,7 +195,7 @@ class calls extends \service{
         if(!is_null($client_id)){
             $client_id_q = $this->all_configs['db']->makeQuery("WHERE client_id = ?i ORDER BY date DESC ", array($client_id));
         }
-        $items = $this->all_configs['db']->query("SELECT c.*, IF(c.phone = '' OR c.phone IS NULL, cp.phone, c.phone) as phone, vc.visitor_id, "
+        $items = $this->all_configs['db']->query("SELECT c.*, cp.fio as client_fio, cp.phone, IF(c.phone = '' OR c.phone IS NULL, cp.phone, c.phone) as phone, vc.visitor_id, "
                                                     . "IF(u.fio = '',u.email,u.fio) as operator_fio "
                                                     . ", (SELECT COUNT(*) FROM {crm_requests} WHERE call_id = c.id AND active = 1) as open_requests "
                                               ."FROM {crm_calls} as c "
