@@ -1704,7 +1704,7 @@ class orders
         return false;
     }
     function get_orders_for_orders_manager($filters_query = ''){
-        $orders = $this->all_configs['db']->query(
+        $orders = db()->query(
                 'SELECT o.status, o.date_add, o.id, s.date, o.accept_wh_id, o.manager, w.group_id, SUM(IF ((
                     (l.id IS NOT NULL AND g.item_id IS NULL AND so.count_debit>0 AND DATE_ADD(l.date_add, INTERVAL 2 day)<NOW()) ||
                     (so.id IS NOT NULL AND so.date_wait<NOW() AND g.id IS NOT NULL AND g.item_id IS NULL AND so.supplier>0 AND so.count_debit=0) ||
@@ -1721,6 +1721,24 @@ class orders
                 array($this->all_configs['configs']['order-status-waits'], $filters_query, array(1),
                     $this->all_configs['configs']['order-statuses-manager'], (time() - 60*60*24*90)))->assoc();
         return $orders;
+    }
+    function get_orders_manager_fail_percent(){
+        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $orders = $this->get_orders_manager_stats($user_id);
+        $qty_fail = 0;
+        foreach ($orders as $order) {
+            if($this->check_if_order_fail_in_orders_manager($order)){
+                $qty_fail ++;
+            }
+        }
+        return round($qty_fail / count($orders) * 100, 2);
+    }
+    function get_orders_manager_stats($manager){
+        $q = $this->get_orders_manager_filter_by_manager_query(array($manager));
+        return $this->get_orders_for_orders_manager($q);
+    }
+    function get_orders_manager_filter_by_manager_query($mg){
+        return db()->makeQuery(' (o.manager IN (?li) OR ((o.manager IS NULL OR o.manager = 0) AND o.date_add <= DATE_ADD(NOW(), INTERVAL -24 HOUR))) AND ', array($mg));
     }
     function gen_orders_manager_stats($colors_count, $orders_summ = null, $as_array = false){
         $colors_percents = '';
@@ -1768,7 +1786,7 @@ class orders
             $mg = isset($_GET['managers']) ? $_GET['managers'] : array();
             if ($mg) {
                 // манагер или заказ который был принят 24 часа назад и никто не взял его
-                $query .= $this->all_configs['db']->makeQuery(' (o.manager IN (?li) OR ((o.manager IS NULL OR o.manager = 0) AND o.date_add <= DATE_ADD(NOW(), INTERVAL -24 HOUR))) AND ', array($mg));
+                $query .= $this->get_orders_manager_filter_by_manager_query($mg);
             }
             // фильтр статистики по дате
             $get_date = isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '';

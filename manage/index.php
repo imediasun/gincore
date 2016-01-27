@@ -171,6 +171,24 @@ if(isset($all_configs['arrequest'][0]) && in_array($all_configs['arrequest'][0],
 
 $input['avatar'] = avatar($ifauth['avatar']);
 $input['current_admin'] = ($ifauth['fio'] ?: $ifauth['login']);
+
+if($all_configs['oRole']->hasPrivilege('edit-clients-orders')){
+    $profile_color = '';
+    require_once __DIR__.'/modules/orders/index.php';
+    $orders_module = new orders($all_configs, false);
+    $orders_fail_percent = $orders_module->get_orders_manager_fail_percent();
+    if($orders_fail_percent >= 30){
+        $profile_color = '#FF5757';
+    }
+    if($orders_fail_percent >= 40){
+        $profile_color = '#FF0000';
+    }
+    if($profile_color){
+        $input['profile_color'] = 'color: #fff; background:'.$profile_color;
+        $input['profile_color_percent'] = $orders_fail_percent.'% <br><br>';
+    }
+}
+
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
 $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
 $input['homepage'] = l('Главная');
