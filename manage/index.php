@@ -211,7 +211,7 @@ if(empty($curmod)){
             require_once $module;
         }
     }
-
+    
     $additionally = '';
     if($modulename){
         ksort($modulename);
@@ -233,7 +233,10 @@ if(empty($curmod)){
                         }else{
                             $data = '';
                         }
-                        $submenu .= '<li><a'.$data.' href="'.$all_configs['prefix'].$v.$sm['url'].'">'.$sm['name'].'</a></li>';
+                        $name = mb_strtolower($sm['name'], 'UTF-8');
+                        $name = mb_strtoupper(mb_substr($name, 0, 1, 'UTF-8'), 'UTF-8'). 
+                                mb_substr($name, 1, mb_strlen($name, 'UTF-8'), 'UTF-8');
+                        $submenu .= '<li><a'.$data.' href="'.$all_configs['prefix'].$v.$sm['url'].'">'.$name.'</a></li>';
                     }
                     $submenu .= '</ul>';
                 }else{
