@@ -599,9 +599,26 @@ class users
             $warehouses .= '<option value="'.$warehouse['id'].'">'.htmlspecialchars($warehouse['title']).'</option>';
         }
         $warehouses_options = '';
-        $whs = $this->all_configs['chains']->warehouses();
+//        $whs = $this->all_configs['chains']->warehouses();
+        $whs = get_service('wh_helper')->get_warehouses();
+        $whs_first = 0;
+        $i = 0;
         foreach($whs as $warehouse){
+            if(!$i){
+                $whs_first = $warehouse['id'];
+            }
             $warehouses_options .= '<option value="'.$warehouse['id'].'">'.$warehouse['title'].'</option>';
+            $i ++;
+        }
+        $warehouses_options_locations = '';
+        if(isset($whs[$whs_first]['locations'])){
+            foreach ($whs[$whs_first]['locations'] as $id=>$location) {
+                if(trim($location['name'])){
+                    $warehouses_options_locations .= '<option'.(!$i ? ' selected="selected"' : '').' value="' . $id . '">' . 
+                                htmlspecialchars($location['name']) . 
+                            '</option>';
+                }
+            }
         }
         $users_html .= '
             <form method="post">
@@ -648,6 +665,7 @@ class users
                             <div class="pull-left">
                                 <label>' . l('Локация') . ':</label><br>
                                 <select class="multiselect form-control select-location" name="location">
+                                    '.$warehouses_options_locations.'
                                 </select>
                             </div>
                         </div>
