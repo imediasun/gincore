@@ -1207,11 +1207,12 @@ class Chains
 
         if ($data['state'] == true && !$wh) {
             $data['state'] = false;
-            $data['msg'] = 'Вы не закрепленны не за одним складом';
+            $data['msg'] = l('Вы не закрепленны не за одним складом')."\n\n" 
+                    . l('В разделе Склады, Настройки, Администраторы укажите склад и локацию по умолчанию для сотрудника');
         }
         if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
             $data['state'] = false;
-            $data['msg'] = 'У Вас нет прав';
+            $data['msg'] = l('У Вас нет прав');
         }
         // сделали не обязательными кароч
 //        if (!isset($post['returnings']) && $type !== 3 && $data['state'] == true && !$crm_request && !$code && !$referer_id) {

@@ -131,6 +131,7 @@ class Configs {
                           3 => array('rutils' => array('words' => array(l('гривна'), l('гривны'), l('гривен')), 'gender' => 'female'), 'name' => l('Гривна'), 'shortName' => 'UAH', 'viewName' => l('грн.'), 'symbol' => '₴', 'currency-name' => 'grn-cash'),
                           5 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Белорусский рубль'), 'shortName' => 'BYR', 'viewName' => l('бр.'), 'symbol' => 'Br', 'currency-name' => ''),
                           6 => array('rutils' => array('words' => array(l('тенге'), l('тенге'), l('тенге')), 'gender' => 'male'), 'name' => l('Казахстанский тенге'), 'shortName' => 'KZT', 'viewName' => l('тнг.'), 'symbol' => '₸', 'currency-name' => ''),
+                          7 => array('rutils' => array('words' => array(l('лей'), l('лея'), l('леев')), 'gender' => 'male'), 'name' => l('Молдавский лей'), 'shortName' => 'MDL', 'viewName' => l('леи'), 'symbol' => 'L', 'currency-name' => ''),
                    ),
 
             /**
