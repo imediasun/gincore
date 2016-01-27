@@ -2251,8 +2251,8 @@ class orders
             // не продажа
             if ($order['type'] != 3) {
                 if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $manager = '<input type="submit" name="accept-manager" class="btn btn-default btn-xs" value="' . l('Взять заказ') . '" />'
-                              .'<input type="hidden" name="id" value="' . $order['id'] . '" />';
+                    $manager = '<input type="submit" name="accept-manager" class="accept-manager btn btn-default btn-xs" value="' . l('Взять заказ') . '" />'
+                              .'<input type="hidden" name="accept-manager" value="" />';
                 } else {
                     $manager = get_user_name($order, 'm_');
                 }
@@ -2853,6 +2853,15 @@ class orders
                         $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
                         $data['reload'] = true;
                     }
+                }
+                
+                // принимаем заказ
+                if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+                    $order['manager'] = $user_id;
+//                    $this->all_configs['db']->query('UPDATE {orders} SET manager=?i WHERE id=?i AND (manager IS NULL OR manager=0 OR manager="")',
+//                        array($user_id, $order_id));
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                        array($user_id, 'manager-accepted-order', $mod_id, $order_id));
                 }
                 
                 // меняем статус

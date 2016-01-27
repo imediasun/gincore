@@ -181,6 +181,10 @@ function location_menu(_this, e) {
 
 $(function() {
 
+    $(document).on('click', '.accept-manager', function(){
+        $(this).siblings('[name=accept-manager]').val(1);
+    });
+    
     $(document).on('click', '.drop-quick-orders-serach', function(){
         var $this = $(this),
             href = $this.attr('href');
