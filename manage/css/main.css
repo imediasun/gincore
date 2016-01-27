@@ -853,3 +853,12 @@ input.row-input {
 .toggle_box{
     display: none;
 }
+
+.manager_fail_percent{
+    display: inline-block;
+    padding: 5px 15px;
+    color: #fff !important;
+}
+.manager_fail_percent:hover{
+    text-decoration: underline;
+}

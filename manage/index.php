@@ -177,15 +177,19 @@ if($all_configs['oRole']->hasPrivilege('edit-clients-orders')){
     require_once __DIR__.'/modules/orders/index.php';
     $orders_module = new orders($all_configs, false);
     $orders_fail_percent = $orders_module->get_orders_manager_fail_percent();
-    if($orders_fail_percent >= 30){
-        $profile_color = '#FF5757';
-    }
-    if($orders_fail_percent >= 40){
-        $profile_color = '#FF0000';
-    }
-    if($profile_color){
-        $input['profile_color'] = 'color: #fff; background:'.$profile_color;
-        $input['profile_color_percent'] = $orders_fail_percent.'% <br><br>';
+    if($orders_fail_percent < 100){
+        if($orders_fail_percent >= 30){
+            $profile_color = '#FF5757';
+        }
+        if($orders_fail_percent >= 40){
+            $profile_color = '#FF0000';
+        }
+        if($profile_color){
+            $input['profile_color'] = 'color: #fff; background:'.$profile_color;
+            $input['profile_color_percent'] = 
+                '<a class="manager_fail_percent module_submenu_click_tab_event" data-href="#orders_manager" '
+                  .'href="'.$all_configs['prefix'].'orders?managers[]='.$_SESSION['id'].'#orders_manager">'.$orders_fail_percent.'%</a><br><br>';
+        }
     }
 }
 
