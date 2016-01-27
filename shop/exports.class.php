@@ -32,7 +32,7 @@ class Exports
         //PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
 
         /** PHPExcel */
-        include __DIR__ . '/../manage/PHPExcel.php';
+        include __DIR__ . '/../manage/classes/PHPExcel.php';
 
         // Create new PHPExcel object
         $this->objPHPExcel = new PHPExcel();
