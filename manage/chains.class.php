@@ -89,7 +89,7 @@ class Chains
         if (isset($post['wh_id_destination']) && (!isset($post['logistic']) || $post['logistic'] != 1)) {
             if (!isset($post['item_id']) && !isset($post['order_id'])) {
                 if (!isset($post['item_id'])) {
-                    $data['message'] = 'Укажите номер изделия или ремонта';
+                    $data['message'] = l('Укажите номер изделия или ремонта');
                 }
             } else {
                 // использовать логистику
@@ -1207,7 +1207,7 @@ class Chains
 
         if ($data['state'] == true && !$wh) {
             $data['state'] = false;
-            $data['msg'] = l('Вы не закрепленны не за одним складом')."\n\n" 
+            $data['msg'] = l('Вы не закреплены ни за одним складом')."\n\n" 
                     . l('В разделе Склады, Настройки, Администраторы укажите склад и локацию по умолчанию для сотрудника');
         }
         if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
@@ -1232,7 +1232,7 @@ class Chains
             }
             if ($data['state'] == true && (!isset($post['serial']) || mb_strlen(trim($post['serial']), 'UTF-8') == 0)) {
                 $data['state'] = false;
-                $data['msg'] = 'Укажите серийный номер';
+                $data['msg'] = l('Укажите серийный номер');
             }
             if ($data['state'] == true && !$order) {
                 $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE serial=?',
@@ -1256,18 +1256,18 @@ class Chains
                     $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $order['id'];
                 } else {
                     $data['state'] = false;
-                    $data['msg'] = 'Заказ не найден';
+                    $data['msg'] = l('Заказ не найден');
                 }
             }
         }
 
         if ($data['state'] == true && !$category && !$order) {
             $data['state'] = false;
-            $data['msg'] = 'Выберите устройство';
+            $data['msg'] = l('Выберите устройство');
         }
         if ($data['state'] == true && isset($post['is_replacement_fund']) && (!isset($post['replacement_fund']) || mb_strlen(trim($post['replacement_fund']), 'utf-8') == 0)) {
             $data['state'] = false;
-            $data['msg'] = 'Укажите подменный фонд';
+            $data['msg'] = l('Укажите подменный фонд');
         }
         if ($data['state'] == true && $category['id'] == $this->all_configs['configs']['erp-co-category-return'] && !isset($post['returnings'])) {
             // возврат поставщику
@@ -1280,7 +1280,7 @@ class Chains
         }
         if ($data['state'] == true && (!isset($client) || !$client) && !$order) {
             $data['state'] = false;
-            $data['msg'] = 'Выберите клиента';
+            $data['msg'] = l('Выберите клиента');
         }
         $serial = null;
         if ($data['state'] == true && $category['id'] == $this->all_configs['configs']['erp-co-category-sold'] && !isset($post['soldings'])) {
@@ -1305,7 +1305,7 @@ class Chains
 
         if ($data['state'] == true && isset($post['is_courier']) && (!isset($post['courier']) || mb_strlen($post['courier'], 'UTF-8') == 0)) {
             $data['state'] = false;
-            $data['msg'] = 'Введите адрес где курьер забрал устройство';
+            $data['msg'] = l('Введите адрес где курьер забрал устройство');
         }
 
         if ($data['state'] == true && $category && $client && $wh && !$order) {
@@ -1380,7 +1380,7 @@ class Chains
                 $data['id'] = $post['id'];
             } catch (Exception $e) {
                 $data['state'] = false;
-                $data['msg'] = 'Заказ с таким номером уже существует';
+                $data['msg'] = l('Заказ с таким номером уже существует');
             }
 
             if ($data['state'] == true && $data['id'] > 0) {
@@ -1402,8 +1402,8 @@ class Chains
                     include_once $this->all_configs['sitepath'] . 'mail.php';
                     $messages = new Mailer($this->all_configs);
                     $href = $this->all_configs['prefix'] . 'accountings?co_id=' . $data['id'] . '#a_orders-clients';
-                    $content = 'Необходимо принять предоплату ' . ( $sum_paid / 100) . ' '.viewCurrency().' по заказу <a href="' . $href . '">№' . $data['id'] . '</a>';
-                    $messages->send_message($content, 'Необходимо принять предоплату', 'mess-accountings-clients-orders', 1);
+                    $content = l('Необходимо принять предоплату') . ' ' . ( $sum_paid / 100) . ' '.viewCurrency().' '. l('по заказу') .' <a href="' . $href . '">№' . $data['id'] . '</a>';
+                    $messages->send_message($content, l('Необходимо принять предоплату'), 'mess-accountings-clients-orders', 1);
                 }
                 // подменный фонд
                 if (isset($post['is_replacement_fund'])) {
@@ -1412,12 +1412,12 @@ class Chains
                 }
                 // адрес в скрытый комментарий
                 if (isset($post['is_courier']) && isset($post['courier'])) {
-                    $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], 'Курьер забрал устройство у клиента по адресу: ' . trim($post['courier']), 1);
+                    $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], l('Курьер забрал устройство у клиента по адресу') . ': ' . trim($post['courier']), 1);
                 }
                 // устройство у клиента
                 if (isset($post['client_took'])) {
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, `work`=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                        array($user_id, 'update-order-client_took', $mod_id, $data['id'], 'Устройство у клиента', 1));
+                        array($user_id, 'update-order-client_took', $mod_id, $data['id'], l('Устройство у клиента'), 1));
                 }
                 // Неисправность со слов клиента
                 if (isset($post['defect']) && mb_strlen(trim($post['defect']), 'UTF-8') > 0) {
@@ -1487,9 +1487,9 @@ class Chains
                         // уведомление автору приходования запчасти
                         include_once $this->all_configs['sitepath'] . 'mail.php';
                         $messages = new Mailer($this->all_configs);
-                        $content = 'Можно проверить запчасти: <a href="' . $this->all_configs['prefix'] . 'orders#show_suppliers_orders-wait">' . (implode(', ', $serial['serials'])) . '</a>';
-                        $content .= ' в заказе на ремонт <a href="' . $this->all_configs['prefix'] . 'orders/create/' . $data['id'] . '">№' . $data['id'] . '</a>';
-                        $messages->send_message($content, 'Можно проверить запчасть', $user_id, 1);
+                        $content = l('Можно проверить запчасти') . ': <a href="' . $this->all_configs['prefix'] . 'orders#show_suppliers_orders-wait">' . (implode(', ', $serial['serials'])) . '</a>';
+                        $content .= ' ' . l('в заказе на ремонт') . ' <a href="' . $this->all_configs['prefix'] . 'orders/create/' . $data['id'] . '">№' . $data['id'] . '</a>';
+                        $messages->send_message($content, l('Можно проверить запчасти'), $user_id, 1);
                     }
                 }
                 
@@ -1539,7 +1539,7 @@ class Chains
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('return-items-suppliers')) {
             $data['state'] = false;
-            $data['message'] = 'У Вас нет прав';
+            $data['message'] = l('У Вас нет прав');
         }
         // изделий не найдено
         if ($data['state'] == true && !$items) {
