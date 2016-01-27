@@ -93,7 +93,7 @@ class settings{
             if(isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'update'){
 
                 $sql = $this->all_configs['db']->query("UPDATE {settings} SET value=?
-                             WHERE id=?i LIMIT 1", array($value, $this->all_configs['arrequest'][1]), 'ar');
+                             WHERE id=?i AND ro=0 LIMIT 1", array($value, $this->all_configs['arrequest'][1]), 'ar');
 
                 header('Location: '.$this->all_configs['prefix'].'settings/save/'.$this->all_configs['arrequest'][1]);
                 exit;
