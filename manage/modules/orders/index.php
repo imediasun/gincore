@@ -1768,7 +1768,7 @@ class orders
             $mg = isset($_GET['managers']) ? $_GET['managers'] : array();
             if ($mg) {
                 // манагер или заказ который был принят 24 часа назад и никто не взял его
-                $query .= $this->all_configs['db']->makeQuery(' (o.manager IN (?li) OR (o.manager IS NULL AND o.date_add <= DATE_ADD(NOW(), INTERVAL -24 HOUR))) AND ', array($mg));
+                $query .= $this->all_configs['db']->makeQuery(' (o.manager IN (?li) OR ((o.manager IS NULL OR o.manager = 0) AND o.date_add <= DATE_ADD(NOW(), INTERVAL -24 HOUR))) AND ', array($mg));
             }
             // фильтр статистики по дате
             $get_date = isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '';
@@ -1779,9 +1779,18 @@ class orders
                 $date_between = date('Y-m-d', strtotime($date[1]));
                 $date_diff = date_diff(date_create($date_from), date_create($date_between));
                 $date_query = $this->all_configs['db']->makeQuery(" date BETWEEN ? AND ? ", array($date_from, $date_between));
-                $stats = $this->all_configs['db']->query("SELECT id, status, date, count(id) as qty_by_status "
-                                                        ."FROM {orders_manager_history} "
-                                                        ."WHERE ?q ?q GROUP BY date, status", array(str_replace(array('w.','o.'),'',$query), $date_query), 'assoc');
+//                echo db()->makeQuery("SELECT id, status, date, count(id) as qty_by_status "
+//                                    ."FROM {orders_manager_history} "
+//                                    ."WHERE ?q ?q GROUP BY date, status", 
+//                                            array(str_replace(array('w.','o.'),'',$query), $date_query), 'assoc');
+                $squery = str_replace(array('w.','o.'),'',$query);
+                $squery = str_replace('date_add','o.date_add',$squery);
+                $squery = str_replace('manager','h.manager',$squery);
+                $stats = db()->query("SELECT h.id, h.status, h.date, count(h.id) as qty_by_status "
+                                    ."FROM {orders_manager_history} as h "
+                                    ."LEFT JOIN {orders} as o ON h.order = o.id "
+                                    ."WHERE ?q ?q GROUP BY h.date, h.status", 
+                                            array($squery, $date_query), 'assoc');
                 $colors_count = array();
                 if($stats){
                     $stats_by_dates = array();
