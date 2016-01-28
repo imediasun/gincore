@@ -285,9 +285,8 @@ class master{
         // ставим отметку что мастер настройки закончен
         $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
         
-        global $prefix;
-        setcookie('show_intro', 1, time() + 600, $prefix);
-        return array('state' => true, 'redirect' => $prefix.'orders');
+        setcookie('show_intro', 1, time() + 600, $this->all_configs['prefix']);
+        return array('state' => true, 'redirect' => $this->all_configs['prefix'].'orders');
     }
     
     private function create_warehouse($name, $address, $phone, $type, $group_id, $consider_all = 0, $consider_store = 1){

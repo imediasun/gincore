@@ -1725,13 +1725,17 @@ class orders
     function get_orders_manager_fail_percent(){
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $orders = $this->get_orders_manager_stats($user_id);
-        $qty_fail = 0;
-        foreach ($orders as $order) {
-            if($this->check_if_order_fail_in_orders_manager($order)){
-                $qty_fail ++;
+        if($orders){
+            $qty_fail = 0;
+            foreach ($orders as $order) {
+                if($this->check_if_order_fail_in_orders_manager($order)){
+                    $qty_fail ++;
+                }
             }
+            return round($qty_fail / count($orders) * 100, 2);
+        }else{
+            return 0;
         }
-        return round($qty_fail / count($orders) * 100, 2);
     }
     function get_orders_manager_stats($manager){
         $q = $this->get_orders_manager_filter_by_manager_query(array($manager));
