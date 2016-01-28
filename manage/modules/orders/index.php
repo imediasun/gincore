@@ -1942,7 +1942,7 @@ class orders
         $url = $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'];
 
         $order_html = '<tr><td><a href="' . $url . '">' . htmlspecialchars($product['title']) . '</a></td>';
-        if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') && $product['type'] == 0) {
+        if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')/* && $product['type'] == 0*/) {
             $order_html .= '<td>' . ($product['price'] / 100) . '</td>';
         }
         $order_html .= '<td>';
@@ -2503,9 +2503,9 @@ class orders
                 $order_html .= '<hr/><h4>' . l('Работы') . '</h4>';
                 $goods = $this->all_configs['manageModel']->order_goods($order['id'], 1);
                 $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>' . l('Наименование') . '</td>';
-                /*if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+                if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $order_html .= '<td>' . l('Цена') . '</td>';
-                }*/
+                }
                 $order_html .= '<td></td><td></td></tr></thead><tbody id="service-table">';
                 if ($goods) {
                     foreach ($goods as $product) {
