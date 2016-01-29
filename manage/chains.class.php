@@ -982,7 +982,7 @@ class Chains
                 array($post['product_id'], 1))->row();
         }
         if ($data['state'] == true && !$product && !isset($post['remove'])) {
-            $data['msg'] = 'Товар не активен';
+            $data['msg'] = l('Товар не активен.') .' '. l('Зайдите в товар и поставьте галочку "активность"');
             $data['state'] = false;
         }
         if ($data['state'] == true && !isset($post['confirm']) && $product['type'] == 0 && $product['qty_store'] == 0

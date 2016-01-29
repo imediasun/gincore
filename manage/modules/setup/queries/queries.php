@@ -40,30 +40,38 @@ db()->query("
     (35, 34, b'1', 1, '".lq('Мебель')."', '', NOW(), ''),
     (36, 34, b'1', 1, '".lq('Оргтехника')."', '', NOW(), '')
 ");
+
 // настройки
-db()->query('TRUNCATE TABLE {settings}');
-db()->query('
-    INSERT INTO `restore4_settings` (`id`, `section`, `description`, `name`, `value`, `title`, `ro`) VALUES
-    (1,  1, "", \'content_email\', \'\', \''.lq('Эл. адрес').'\', 0),
-    (2,  1, "", \'site_name\', \'Сервисный центр\', \''.lq('Название сайта').'\', 0),
-    (34, 1, "", \'turbosms-from\', \'\', \''.lq('Турбосмс от кого').'\', 0),
-    (35, 1, "", \'turbosms-login\', \'\', \''.lq('Турбосмс логин').'\', 0),
-    (36, 1, "", \'turbosms-password\', \'\', \''.lq('Турбосмс пароль').'\', 0),
-    (37, 1, "", \'orders_comments_days\', \'3\', \''.lq('Количество дней для уведомления менеджера об отсутствии новых записей в статусе заказа').'\', 0),
-    (38, 1, "", \'warranties_left_days\', \'1,3,7\', \''.lq('Дни, для уведомлений менеджеру до конца 14ти дневного срока гарантийного обслуживания').'\', 0),
-    (39, 1, "", \'unsold_items_days\', \'10\', \''.lq('Количество дней для уведомления менеджера о нарушении оборачиваемости').'\', 0),
-    (42, 1, "", \'cat-non-all-ext\', \'2, 7, 8, 6, 5\', \''.lq('Статьи не используемые в выдачах').'\', 0),
-    (43, 1, "'.lq('Укажите номер статьи').'", \'cat-non-current-assets\', \'34\', \''.lq('Статьи используемые для вычисления необоротных активов').'\', 0),
-    (48, 1, "'.lq('Укажите доступные сроки гарантии через запятую').'", \'order_warranties\', \'1,3,6,12\', \''.lq('Гарантии в заказ на ремонт').'\', 0),
-    (52, 1, "", \'demand-factor\', \'0.33\', \''.lq('Коэффициент спроса').'\', 0),
-    (70, 1, "", \'currency_suppliers_orders\', \'3\', \''.lq('Валюта заказов поставщикам').'\', 0),
-    (71, 1, "", \'currency_orders\', \'1\', \''.lq('Валюта заказов').'\', 0),
-    (82, 1, "", \'complete-master\', \'0\', \''.lq('Пройден мастер настройки').'\', 1),
-    (84, 1, "", \'country\', \'\', \''.lq('Страна').'\', 1),
-    (85, 1, "", \'account_phone\', \'\', \''.lq('Ваш телефон').'\', 1),
-    (86, 1, "", \'account_business\', \'\', \''.lq('Ваш бизнес').'\', 1),
-    (87, 1, "", \'lang\', \'\', \''.lq('Язык системы').'\', 1)
-');
+//db()->query('TRUNCATE TABLE {settings}');
+$settingsArr = array();
+$settingsArr[]=array('content_email', '', lq('Эл. адрес'), 0, '');
+$settingsArr[]=array('site_name', lq('Сервисный центр'), lq('Название сайта'), 0, '');
+$settingsArr[]=array('turbosms-from', '', lq('Турбосмс от кого'), 0, '');
+$settingsArr[]=array('turbosms-login', '', lq('Турбосмс логин'), 0, '');
+$settingsArr[]=array('turbosms-password', '', lq('Турбосмс пароль'), 0, '');
+$settingsArr[]=array('orders_comments_days', '3', lq('Количество дней для уведомления менеджера об отсутствии новых записей в статусе заказа'), 0, '');
+$settingsArr[]=array('warranties_left_days', '1,3,7', lq('Дни, для уведомлений менеджеру до конца 14ти дневного срока гарантийного обслуживания'), 0);
+$settingsArr[]=array('unsold_items_days', '10', lq('Количество дней для уведомления менеджера о нарушении оборачиваемости'), 0, '');
+$settingsArr[]=array('cat-non-all-ext', '2, 7, 8, 6, 5', lq('Статьи не используемые в выдачах'), 0, '');
+$settingsArr[]=array('cat-non-current-assets', '34', lq('Статьи используемые для вычисления необоротных активов'), 0, lq('Укажите номер статьи'));
+$settingsArr[]=array('order_warranties', '1,3,6,12', lq('Гарантии в заказ на ремонт'), 0, lq('Укажите доступные сроки гарантии через запятую'));
+$settingsArr[]=array('demand-factor', '0.33', lq('Коэффициент спроса'), 0, '');
+$settingsArr[]=array('currency_suppliers_orders', '1', lq('Валюта заказов поставщикам'), 1, '');
+$settingsArr[]=array('currency_orders', '1', lq('Валюта заказов'), 1, '');
+$settingsArr[]=array('complete-master', '0', lq('Пройден мастер настройки'), 1, '');
+$settingsArr[]=array('country', '', lq('Страна'), 1, '');
+$settingsArr[]=array('account_phone', '', lq('Ваш телефон'), 1, '');
+$settingsArr[]=array('account_business', '', lq('Ваш бизнес'), 1, '');
+$settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
+
+foreach ($settingsArr as $ar) {
+    db()->query("INSERT INTO `restore4_settings` (`name`, `value`, `ro`, `title`, `description`) 
+            VALUES ('$ar[0]', '$ar[1]', '$ar[3]', '$ar[2]', '$ar[4]')
+            ON DUPLICATE KEY UPDATE `name` = '$ar[0]', `value` = '$ar[1]', "
+                    . "`ro` = '$ar[3]', `title` = '$ar[2]', "
+            . "`description` = '$ar[4]'; ");
+}
+
 
 db()->query("UPDATE {goods} SET date_add = NOW()");
 db()->query(
