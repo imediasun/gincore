@@ -68,12 +68,12 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             }
             if ($_POST['table'] == 'categories-last') {
                 $_POST['table'] = 'categories';
-                $query = $all_configs['db']->makeQuery('?query AND scg.id IS NULL', array($query));
+                $query = $all_configs['db']->makeQuery('?query AND scg.id IS NULL AND cg.avail=1', array($query));
                 $join = $all_configs['db']->makeQuery('LEFT JOIN {categories} as scg ON scg.parent_id=cg.id', array());
             }
             if ($_POST['table'] == 'categories-goods') {
                 $_POST['table'] = 'categories';
-                $query = $all_configs['db']->makeQuery('?query AND scg.id IS NULL AND cg.id NOT IN (?li)', array($query, array(
+                $query = $all_configs['db']->makeQuery('?query AND scg.id IS NULL AND cg.id NOT IN (?li) AND cg.avail=1', array($query, array(
                     $all_configs['configs']['erp-co-category-write-off'],
                     $all_configs['configs']['erp-co-category-return'],
                     $all_configs['configs']['erp-co-category-sold'])));

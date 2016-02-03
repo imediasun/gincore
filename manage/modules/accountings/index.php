@@ -388,21 +388,22 @@ class accountings
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
+            if(trim($post['title'])){
+                $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
+                    VALUES (?i, ?n, ?n, ?n, ?)',
+                    array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, trim($post['title'])), 'id');
 
-            $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
-                VALUES (?i, ?n, ?n, ?n, ?)',
-                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, trim($post['title'])), 'id');
-
-            if (isset($post['cashbox_currency'])) {
-                foreach ($post['cashbox_currency'] as $cashbox_currency) {
-                    if ($cashbox_currency > 0 && array_key_exists($cashbox_currency, $currencies)) {
-                        $this->all_configs['db']->query('INSERT IGNORE INTO {cashboxes_currencies} (cashbox_id, currency, amount) VALUES (?i, ?i, ?i)',
-                            array($cashbox_id, $cashbox_currency, 0));
+                if (isset($post['cashbox_currency'])) {
+                    foreach ($post['cashbox_currency'] as $cashbox_currency) {
+                        if ($cashbox_currency > 0 && array_key_exists($cashbox_currency, $currencies)) {
+                            $this->all_configs['db']->query('INSERT IGNORE INTO {cashboxes_currencies} (cashbox_id, currency, amount) VALUES (?i, ?i, ?i)',
+                                array($cashbox_id, $cashbox_currency, 0));
+                        }
                     }
                 }
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                    array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
             }
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
@@ -854,7 +855,7 @@ class accountings
         ";
     }
 
-    function form_contractor($contractor = null, $opened = null)
+    function form_contractor($contractor = null, $opened = null, $wrap_form = false)
     {
         $categories = $this->get_contractors_categories();
         if (count($categories) == 0) {
@@ -874,7 +875,7 @@ class accountings
             $out .= '"><div class="panel-body">';
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
-            $out .= '<form method="POST" class="form_contractor "><div class="form-group">';
+            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '').'<div class="form-group">';
             $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': </label>';
             $out .= '<select id="contractor_type_select" class="form-control" name="type"><option value=""></option>';
             foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
@@ -957,7 +958,9 @@ class accountings
                     </div>
                 ';
             }
-            $out .= '</form>';
+            if(!$wrap_form){
+                $out .= '</form>';
+            }
         }
         if ($contractor) {
             $out .= '</div></div></div>';
@@ -1609,6 +1612,15 @@ class accountings
             $data['functions'] = array('reset_multiselect()');
             $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this".(isset($_POST['callback']) ? ', '.htmlspecialchars($_POST['callback']): '').")' value='" . l('Создать') . "' />";
         }
+        
+        if ($act == 'create-contractor-form-no-modal' ) {
+            $data['state'] = true;
+            $data['html'] = 
+                $this->form_contractor(null,null,true)
+                ."<input type='button' class='btn btn-success' onclick='contractor_create(this,new_quick_create_supplier_callback)' value='" . l('Создать') . "' />"
+                .'&nbsp;<button type="button" class="btn btn-default hide_typeahead_add_form">'.l('Отмена').'</button>'
+            ;
+        }
 
         // Кредит Отказ
         if ($act == 'accounting-credit-denied') {
@@ -2068,8 +2080,8 @@ class accountings
                                                    && !$this->all_configs['configs']['manage-show-terminal-cashbox']))
                         continue;
 
-                    $out_cashbox_name .= '<td><h4 class="center">' . $cashbox['name'] . '</h4></td>';
-
+                    $out_cashbox_name .= '<td><h4 class="center" style="max-width:150px">' . $cashbox['name'] . '</h4></td>';
+                    $cashboxes_cur[$cashbox['id']] = array();
                     if (array_key_exists('currencies', $cashbox)) {
                         ksort($cashbox['currencies']);
                         foreach ($cashbox['currencies'] as $cur_id => $currency) {
@@ -2088,10 +2100,15 @@ class accountings
                     $out_cashbox_btns .= '?cb=' . $cashbox['id'] . '#transactions\'" class="btn btn-cashboxes">' . l('Отчеты') .'</button></div></div></td>';
                 }
                 $out .= '<tr>' . $out_cashbox_name . '</tr>';
+                
                 foreach ($currencies as $cur_id=>$currency) {
                     $out .= '<tr>';
-                    foreach ($cashboxes_cur as $cashbox_cur) {
-                        $out .= '<td class="text-success center">' . (array_key_exists($cur_id, $cashbox_cur) ? $cashbox_cur[$cur_id] : '') . '</td>';
+                    if($cashboxes_cur){
+                        foreach ($cashboxes_cur as $cashbox_cur) {
+                            $out .= '<td class="text-success center">' . (array_key_exists($cur_id, $cashbox_cur) ? $cashbox_cur[$cur_id] : '') . '</td>';
+                        }
+                    }else{
+                        $out .= '<td></td>';
                     }
                     $out .= '</tr>';
                 }

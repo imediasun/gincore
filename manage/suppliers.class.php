@@ -823,6 +823,8 @@ class Suppliers
 
     function create_order_block($goods = null, $order_id = null, $all = true, $typeahead = 0, $is_modal = false)
     {
+        $new_device_form = '<div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>';
+        $new_supplier_form = '<div id="new_supplier_form" class="typeahead_add_form_box theme_bg new_supplier_form p-md"></div>';
         $suppliers = null;
         if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
                 && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0) {
@@ -845,10 +847,11 @@ class Suppliers
         }else{
             $goods_html .= '<h3>' . l('Создание нового заказа поставщику') . '</h3>';
         }
-        $goods_html .= '<br><form data-validate="parsley" id="suppliers-order-form" method="post"><div class="row row-15"><div class="col-sm-'.($is_modal ? '12' : '6').'">';
+        $goods_html .= '<br><div class="row row-15"><div class="col-sm-'.($is_modal ? '12' : '6').'"><form data-validate="parsley" id="suppliers-order-form" method="post">';
         $disabled = '';
         $info_html = '';
         $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div>';
+        $has_orders = false;
         if ($suppliers) {
             $order = array(
                 'price'     =>  '',
@@ -882,7 +885,9 @@ class Suppliers
                     $so_co = '';
                     $cos = (array)$this->all_configs['db']->query('SELECT id, client_order_id FROM {orders_suppliers_clients}
                         WHERE supplier_order_id=?i', array($order_id))->vars();
-
+                    if($cos){
+                        $has_orders = true;
+                    }
                     for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
                         $co = current($cos);
                         $so_co .= '<input type="text" name="so_co[]" class="form-control" value="' . $co . '" />';
@@ -972,7 +977,7 @@ class Suppliers
 
             if ($all == true) {
                 $goods_html .= '
-                    <div class="form-group">
+                    <div class="form-group relative">
                         <label>' . l('Поставщик') . '<b class="text-danger">*</b>: </label>
                         <div class="input-group">
                             <select class="form-control" data-required="true" name="warehouse-supplier" ' . $disabled . '><option value=""></option>';
@@ -982,12 +987,14 @@ class Suppliers
                                 else
                                     $goods_html .= '<option value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
                             }
+//                                <button type="button" onclick="alert_box(this, false, \'create-contractor-form\',{callback: \'quick_create_supplier_callback\'},null,\'accountings/ajax\')" class="btn btn-info">'.l('Добавить').'</button>
                 $goods_html .= '
                             </select>
                             <div class="input-group-btn">
-                                <button type="button" onclick="alert_box(this, false, \'create-contractor-form\',{callback: \'quick_create_supplier_callback\'},null,\'accountings/ajax\')" class="btn btn-info">'.l('Добавить').'</button>
+                                <button type="button" data-form_id="new_supplier_form" data-action="accountings/ajax?act=create-contractor-form-no-modal" class="typeahead_add_form btn btn-info" data-id="supplier_creator">'.l('Добавить').'</button>
                             </div>
                         </div>
+                        '.($is_modal ? $new_supplier_form : '').'
                     </div>
                 ';
                 $goods_html .= '<div class="form-group"><label>' . l('Дата поставки') . '<b class="text-danger">*</b>: </label>
@@ -996,12 +1003,13 @@ class Suppliers
             }
             if ($goods) {
                 //$categories_html = $this->gen_categories_selector('5', $disabled);
-                $goods_html .= '<div class="form-group"><label>' . l('Запчасть') . '<b class="text-danger">*</b>: </label>'
+                $goods_html .= '<div class="form-group relative"'.($has_orders ? ' onclick="alert(\''.l('Данный заказ поставщику создан на основании заказа клиенту. Вы не можете изменить запчасть в данном заказе.').'\');return false;"' : '').'><label>' . l('Запчасть') . '<b class="text-danger">*</b>: </label>'
                     .typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], 
                                (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, l('Введите'), 
-                               array('name' => '"'.l('Добавить').'"', 
+                               array('name' => l('Добавить'), 
                                      'action' => 'products/ajax/?act=create_form', 
-                                     'form_id' => 'new_device_form')) . '</div>';
+                                     'form_id' => 'new_device_form'), $has_orders) 
+                    .($is_modal ? $new_device_form : '') . '</div>';
             }
             $goods_html .= '<div class="form-group"><label>' . l('Тип поставки') . '<b class="text-danger">*</b>: </label>'
                 . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' />' . l('Локально') . '</label></div>'
@@ -1026,13 +1034,15 @@ class Suppliers
         }
 
         $goods_html .= '
+                    </form>
                 </div>
                 <div class="col-sm-6 relative">
-                    <div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
+                    '.(!$is_modal ? $new_supplier_form : '').'
+                    '.(!$is_modal ? $new_device_form : '').'
                 </div>
             </div>
             '.$info_html.'
-        </form>';
+        ';
         $goods_html .= $this->append_js();
 
         return $goods_html;

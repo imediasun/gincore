@@ -99,13 +99,14 @@ $(document).ready(function() {
 
 
 function multiselect() { 
-    $('.multiselect').multiselect({
-        buttonContainer: '<span class="dropdown" />',
-        nonSelectedText: L['choose'],
-        enableFiltering: true,
-        numberDisplayed: 1,
-        maxHeight: 200
-    });
+    init_multiselect();
+//    $('.multiselect').multiselect({
+//        buttonContainer: '<span class="dropdown" />',
+//        nonSelectedText: L['choose'],
+//        enableFiltering: true,
+//        numberDisplayed: 1,
+//        maxHeight: 200
+//    });
 }
 
 function multiselect_goods(tab) {

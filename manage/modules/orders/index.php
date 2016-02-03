@@ -1953,11 +1953,12 @@ class orders
         }
         $order_html .= '</td>';
         if ($product['type'] == 0) {
-            $msg = '<td colspan="2">';
+            $msg = '';
+//            $msg = '<td colspan="2">';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $msg .= '<input type="button" data-order_product_id="' . $product['id'] . '" class="btn btn-small" onclick="order_item(this)" value="' . l('Заказать') . '" />';
+                $msg .= '<input style="width:100%" type="button" data-order_product_id="' . $product['id'] . '" class="btn btn-small" onclick="order_item(this)" value="' . l('Заказать') . '" />';
             }
-            $msg .= '<td colspan="2"></td>';
+//            $msg .= '<td colspan="2"></td>';
             $href = $this->all_configs['prefix'] . 'orders/edit/' . $product['so_id'] . '#create_supplier_order';
             $muted = $product['so_id'] > 0 ? ' <a href="' . $href . '"><small class="muted">№' . $product['so_id'] . '</small></a> ' : '';
             if ($product['item_id'] > 0) {
@@ -1968,7 +1969,7 @@ class orders
                     $msg .= $this->get_unbind_order_product_btn($product['item_id']);
                 }
                 $msg .= '</td>';
-            } else {
+            } else{
                 $create_role = $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders');
                 $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                 $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
@@ -2031,7 +2032,7 @@ class orders
                                 '.$msg.'
                             </div>
                             <div class="order_product_menu">
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button style="min-width:30px" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
