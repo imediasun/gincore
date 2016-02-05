@@ -325,7 +325,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
                         'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
                         'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
-                        'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
+                        'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                         'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                         'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     );
@@ -389,7 +389,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
                     'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
                     'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
-                    'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
+                    'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
@@ -448,7 +448,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $arr['complect']['value'] .= $order['battery'] == 1 ? l('Аккумулятор') . '<br />' : '';
                 $arr['complect']['value'] .= $order['charger'] == 1 ? l('Зарядное устройств кабель') . '<br />' : '';
                 $arr['complect']['value'] .= $order['cover'] == 1 ? l('Задняя крышка') . '<br />' : '';
-                $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка') : '';
+                $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка').'</br>' : '';
+                $arr['complect']['value'] .= $order['equipment'] ? $order['equipment'] : '';
 
                 $print_html = generate_template($arr, 'check');
             }

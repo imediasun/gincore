@@ -1141,6 +1141,7 @@ class Chains
         $crm_request = !empty($post['crm_request']) ? $post['crm_request'] : null;
         $repair_part = !empty($post['repair_part']) ? trim($post['repair_part']) : '';
         $repair_part_quality = !empty($post['repair_part_quality']) ? $post['repair_part_quality'] : lq('Не согласовано');
+        $equipment = isset($post['equipment']) ? trim($post['equipment']) : '';
         
         $next = isset($post['next']) ? trim($post['next']) : '';
         
@@ -1189,12 +1190,12 @@ class Chains
         }
 
         // создание заказа с модуля заказы - таб создать заказ
-        if($from == 'create_order'){
-            if($color < 0){
-                $data['state'] = false;
-                $data['msg'] = l('Выберите цвет устройства');
-            }
-        }
+//        if($from == 'create_order'){
+//            if($color < 0){
+//                $data['state'] = false;
+//                $data['msg'] = l('Выберите цвет устройства');
+//            }
+//        }
         
         // достаем категорию
         $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
@@ -1364,7 +1365,8 @@ class Chains
                 $wh['wh_id'],
                 $code ? $this->all_configs['db']->makeQuery(" ? ", array($code)) : 'null',
                 $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
-                array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null'
+                array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
+                $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null'
             );
 
             // создаем заказ
@@ -1373,9 +1375,9 @@ class Chains
                     'INSERT INTO {orders} (id, user_id, fio, email, phone, comment, category_id, accepter, title, note,
                       serial, battery, charger, cover, box, repair, urgent, np_accept, notify, partner, approximate_cost,
                       `sum`, defect, client_took, date_readiness, course_key, course_value, `type`, prepay, is_replacement_fund,
-                      replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id, accept_wh_id,code,referer_id,color) VALUES
+                      replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id, accept_wh_id,code,referer_id,color,equipment) VALUES
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
-                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q)',
+                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q)',
                     $params, 'id');
                 $data['id'] = $post['id'];
             } catch (Exception $e) {

@@ -924,7 +924,7 @@ class orders
                                                 .'
                                             </div>
                                             <div class="form-group">
-                                                <label class="control-label">' . l('Цвет') . ' <b class="text-danger">*</b>: </label>
+                                                <label class="control-label">' . l('Цвет') . ' <!-- <b class="text-danger">*</b> -->: </label>
                                                 <select class="form-control" name="color">'. $colors_select.'</select>
                                             </div>
                                             <!--<div class="form-group">
@@ -943,6 +943,7 @@ class orders
                                                 <label class="checkbox-inline"><input type="checkbox" value="1" name="charger" /> ' . l('Зарядное устройство') . '/' . l('кабель') . ' </label>
                                                 <label class="checkbox-inline"><input type="checkbox" value="1" name="cover" />' . l('Задняя крышка') . '</label>
                                                 <label class="checkbox-inline"><input type="checkbox" value="1" name="box" />' . l('Коробка') . '</label>
+                                                <input type="text" class="m-t-xs form-control" name="equipment" placeholder="'.l('укажите свой вариант').'">
                                             </div>
                                             <div class="form-group">
                                                 <label>' . l('Вид ремонта') . ': </label><br>
@@ -2228,6 +2229,9 @@ class orders
                 }
                 if($order['box']){
                     $parts[] = l('Коробка');
+                }
+                if($order['equipment']){
+                    $parts[] = htmlspecialchars($order['equipment']);
                 }
                 $order_html .= 
                     '<div class="form-group"><label>' . l('Комлектация') . ':</label><br>'.

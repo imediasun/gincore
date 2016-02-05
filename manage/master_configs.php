@@ -120,7 +120,7 @@ class Configs {
                                                     'debug','logistics','master','orders',
                                                     'partners','products','settings','statistics',
                                                     'tasks','users','warehouses','wrapper','admin_translates',
-                                                    'widgets'
+                                                    'widgets', 'import'
                                                ),
                 'manage-reset-access'       =>  true, // доступен ли сброс в модуле дебаг
                 'settings-system-lang-select-enabled' =>  true, // выбор языка системы (+ отрубает переключалку языка в шапке и грузит выбранный язык - из настройки)
