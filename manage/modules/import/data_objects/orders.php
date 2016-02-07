@@ -26,6 +26,12 @@ class order{
     }
     
     public function set_message($message){
-        $this->messages[] = $message;
+        $this->messages['info'] = $message;
+    }
+    public function set_error($message){
+        $this->messages['error'] = $message;
+    }
+    public function has_errors(){
+        return isset($this->messages['error']);
     }
 }

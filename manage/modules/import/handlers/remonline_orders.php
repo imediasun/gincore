@@ -38,6 +38,20 @@ class remonline_orders{
         32 => 'Доставить клиенту',
     );
     
+    private $statuses = array(
+        'Новый' => 'order-status-new',
+        'Согласовано, передано в работу' => 'order-status-work',
+        'Мастер назначен' => 'order-status-wait',
+        'Клиент отказался' => 'order-status-refused',
+        'Не починится' => 'order-status-unrepairable',
+//        'order-status-nowork',
+//        'order-status-issued',
+//        'order-status-rework',
+        'На выдачу' => 'order-status-ready',
+//        'order-status-service',
+        'Согласовать с клиентом' => 'order-status-agreement'
+    );
+    
     function __construct($all_configs){
         $this->all_configs = $all_configs;
     }
@@ -46,6 +60,15 @@ class remonline_orders{
         preg_match_all('/A([0-9]+)\/?[0-9]*/', $data[2], $ids);
         $id = $ids[1][0];
         return $id;
+    }
+    
+    function get_status_id($data){
+        $status_id = $this->all_configs['configs'][$this->statuses[$data[4]]];
+        return $status_id;
+    }
+    
+    function get_date_add($data){
+        return $data[0];
     }
     
     function get_accepter($data){
