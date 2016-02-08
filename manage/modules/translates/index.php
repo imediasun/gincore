@@ -5,7 +5,7 @@ ini_set('memory_limit','512M');
 $modulename[140] = 'translates';
 $modulemenu[140] = l('trans_modulemenu');  //карта сайта
 
-$moduleactive[140] = !$ifauth['is_2'];
+$moduleactive[140] = $ifauth['is_1'];
 
 class translates{
     
@@ -33,7 +33,7 @@ class translates{
             $this->ajax();
         }
         
-        if($ifauth['is_2']) return false;
+        if(!$ifauth['is_1']) return false;
 
         $input_html['mmenu'] = $this->genmenu();
 

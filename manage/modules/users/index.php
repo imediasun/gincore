@@ -371,7 +371,7 @@ class users
                 . '<td><i class="glyphicon glyphicon-off"></i></td>'
                 . '<td>' . l('Пароль') . '</td>'
                 . '<td>' . l('Роль') . '</td>'
-                . '<td>' . l('ФИО') . '</td><td>' . l($sort_position) . '</a></td>'
+                . '<td>' . l('ФИО') . '</td><td>' . $sort_position . '</a></td>'
                 . '<td>' . l('Телефон') . '</td>'
                 . '<td>' . l('Эл. почта') . '</td>'
                 . '<td title="' . l('Серийный номер сертификата') . '">' . l('Номер сертиф.') . '</td>'
@@ -439,7 +439,7 @@ class users
             }
         }
 
-        $users_html .= '<a class="btn btn-success send-mess" href="#" >' . l('Отправить сообщениe') . '</a>';
+        $users_html .= '<a class="btn btn-success send-mess" href="#" >' . l('Отправить сообщение') . '</a>';
 
         $users_html .= '</tbody></table>';
         //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
