@@ -94,19 +94,22 @@ if ($data->act == 'runManualSQLQuery') {
 
 
 
-#### first setup. Not used already.
-//if ($data->act == 'setApiKeyAndCreateRemoteFirstUsername') {
-//    //Если пустой ключ в БД и нет юзеров, значит это первоначальная установка.
-//    //Устанавливаем ключ и юзера
-//    
-//    //echo $_POST['key'];
-//    print_r($data);
-//    print_r($all_configs['settings']);
-//    
-//    echo $data->firstUsername;
-//    echo $data->firstPass;
-//    exit;
-//}
+#Ручной апдейт файлов
+if ($data->act == 'runManualUpdateFiles') {
+    if (!file_exists($all_configs['sitepath'] . 'update/gincore.zip') 
+            || !file_exists($all_configs['sitepath'] . 'update/updatesources.php')) {
+        returnError(array('message' => 'Uploaded files not found.'));
+    }
+
+    require_once $all_configs['sitepath'] . 'update/updatesources.php';
+    
+    $res = unpackFiles();
+    
+    returnSuccess(array('message' => $res));
+    
+}
+
+
 
 
 ### return
@@ -116,7 +119,6 @@ function returnSuccess($data) {
     $data['status'] = '1';
     
     echo json_encode($data);
-    return true;
     
 }
 
@@ -126,7 +128,6 @@ function returnError($data) {
     $data['status'] = '0';
     
     echo json_encode($data);
-    return true;
     
 }
 

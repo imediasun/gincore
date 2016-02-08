@@ -1456,7 +1456,7 @@ class Chains
 
                 switch($next){
                     case 'print':
-                        $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                        $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                         $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
                     break;
                     case 'new_order':
@@ -1464,7 +1464,7 @@ class Chains
                     break;
                     case 'print_and_new_order':
                         $data['location'] = $this->all_configs['prefix'].'orders?c='.$client['id'].'#create_order';
-                        $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                        $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                     break;
                     default:
                         $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
