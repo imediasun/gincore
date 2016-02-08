@@ -774,6 +774,7 @@ input.row-input {
     position: absolute;
     border: 1px solid #d9d9d9;
     right:0;
+    z-index: 10;
 }
 .multiselect-sm .multiselect-selected-text{
     margin-right: 5px;
@@ -861,4 +862,8 @@ input.row-input {
 }
 .manager_fail_percent:hover{
     text-decoration: underline;
+}
+
+.modal-open #menu{
+    overflow: hidden;
 }

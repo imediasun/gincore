@@ -546,19 +546,29 @@ $(document).ready(function () {
 
 function contractor_create(_this, callback) {
     var form_data = $('.bootbox form.form_contractor');
+    var hide_modal = true;
+    if(form_data.length){
+        var data = form_data.serialize();
+    }else{
+        hide_modal = false;
+        var form = $('.new_supplier_form.loaded');
+        var data = form.find('input[name],select[name],textarea[name]').serialize();
+    }
     $(_this).button('loading');
 
     $.ajax({
         url: prefix + 'accountings/ajax/?act=contractor-create',
         dataType: "json",
-        data: form_data.serialize(),
+        data: data,
         type: 'POST',
         success: function (data) {
             if (data) {
                 if (data['state'] == true){
-                    $(_this).closest('.modal').modal('hide');
+                    if(hide_modal){
+                        $(_this).closest('.modal').modal('hide');
+                    }
                     if(typeof callback == 'function'){
-                        callback(data);
+                        callback(data,_this);
                     }else{
                         click_tab_hash();
                     }
@@ -577,8 +587,12 @@ function contractor_create(_this, callback) {
 }
 
 function quick_create_supplier_callback(data){
-    console.log(data);
     $('select[name="warehouse-supplier"]').append('<option selected value="'+data.id+'">'+data.name+'</option>');
+}
+
+function new_quick_create_supplier_callback(data, _this){
+    $('select[name="warehouse-supplier"]').append('<option selected value="'+data.id+'">'+data.name+'</option>');
+    $(_this).closest('.new_supplier_form.loaded').hide().removeClass('loaded');
 }
 
 function select_typeahead_device(data, $form){
@@ -1257,6 +1271,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
                 if (msg) {
                     if (msg['state'] == true && msg['content']) {
                         bootbox.alert(msg['content']);
+                        
                         if (msg['btns']) {
                             $('.bootbox-alert .modal-footer').prepend(msg['btns']);
                         }

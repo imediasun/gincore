@@ -533,7 +533,7 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, 
                    $class = 'input-medium',$class_select = 'input-small', $function = '', 
                    $multi = false, $anyway = false, $m = '', $no_clear_if_null = false,
-                   $placeholder = '', $add_btn = array())
+                   $placeholder = '', $add_btn = array(), $disabled = false)
 {
 
     if(empty($placeholder)) {
@@ -551,8 +551,18 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
                 FROM {warehouses_locations} as l, {warehouses} as w
                 WHERE l.id=?i AND w.id=l.wh_id', array(intval($object_id)))->row();
         } else {
-            $object = $db->query('SELECT * FROM {' . ($table == 'goods-goods' || $table == 'goods-service' ? 'goods' : ($table == 'categories-last' || $table == 'categories-goods' ? 'categories' : $table)) . '}
-                WHERE id=?i', array(intval($object_id)))->row();
+            $tbl = $table;
+            $tbl_where = '';
+            if($table == 'goods-goods' || $table == 'goods-service'){
+                $tbl_where = ' AND avail = 1';
+                $tbl = 'goods';
+            }
+            if($table == 'categories-last' || $table == 'categories-goods'){
+                $tbl_where = ' AND avail = 1';
+                $tbl = 'categories';
+            }
+            $object = $db->query('SELECT * FROM {'.$tbl.'}
+                                  WHERE id = ?i ?q', array(intval($object_id), $tbl_where))->row();
         }
         if ($object) {
             $object_name = array_key_exists('title', $object) ? htmlspecialchars($object['title']) :
@@ -560,7 +570,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         }
     }
     if ($show_categories == true) {
-        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">' . l('Все разделы') . '</option>';
+        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select'.($disabled ? ' disabled' : '').' class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">' . l('Все разделы') . '</option>';
         $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         foreach ( $categories as $category ) {
@@ -571,7 +581,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
     $out .= '
         <input type="hidden" value="'.$object_id.'" name="'.$table.($multi ? '['.$m.']' : '').'" class="typeahead-value-'.$table.$iterator.'">
         <input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" 
-            name="'.$table.'-value'.($multi ? '['.$m.']' : '').'" type="text" value="'.$object_name.'" data-input="'.$table.$iterator.'" 
+            name="'.$table.'-value'.($multi ? '['.$m.']' : '').'"'.($disabled ? ' disabled' : '').' type="text" value="'.$object_name.'" data-input="'.$table.$iterator.'" 
             data-function="'.$function.'" data-select="'.$iterator.'" data-table="'.$table.'" '.
             ($anyway == true ? 'data-anyway="1"' : '').' autocomplete="off" class="form-control global-typeahead '.$class.'" placeholder="'.$placeholder.'">
     ';
@@ -584,7 +594,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
             <div class="input-group">
                 '.$out.'
                 <div class="input-group-btn">
-                    <button type="button" 
+                    <button'.($disabled ? ' disabled' : '').' type="button" 
                             data-form_id="'.$add_btn['form_id'].'" 
                             data-action="'.$add_btn['action'].'" 
                             class="typeahead_add_form btn btn-info">'.$add_btn['name'].'</button>
@@ -986,7 +996,7 @@ function display_client_order($order)
     if (array_key_exists($order['status'], $all_configs['configs']['order-status'])) {
         $status_name = $all_configs['configs']['order-status'][$order['status']]['name'];
         $status_color = $all_configs['configs']['order-status'][$order['status']]['color'];
-        $status = '<span style="color:#' . $status_color . '">' . l($status_name) . '</span>';
+        $status = '<span style="color:#' . $status_color . '">' . $status_name . '</span>';
     }
 
     $ordered = '';
@@ -1010,7 +1020,7 @@ function display_client_order($order)
             '<a href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '">&nbsp;' . $order['order_id'] . '</a> ' .
             '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
         : '')
-        . show_marked($order['order_id'], 'oi', $order['mi_id'])
+//        . show_marked($order['order_id'], 'oi', $order['mi_id'])
         . show_marked($order['order_id'], 'co', $order['m_id'])
         . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="' . l('Переместить заказ') .'"></i></td>'
     . '<td>' /* . $order['order_id'] */ .  timerout($order['order_id']) . '</td>'

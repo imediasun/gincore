@@ -1140,15 +1140,16 @@ class Chains
         $referer_id = !empty($post['referer_id']) ? $post['referer_id'] : null;
         $crm_request = !empty($post['crm_request']) ? $post['crm_request'] : null;
         $repair_part = !empty($post['repair_part']) ? trim($post['repair_part']) : '';
-        $repair_part_quality = !empty($post['repair_part_quality']) ? $post['repair_part_quality'] : 'Не согласовано';
+        $repair_part_quality = !empty($post['repair_part_quality']) ? $post['repair_part_quality'] : lq('Не согласовано');
+        $equipment = isset($post['equipment']) ? trim($post['equipment']) : '';
         
         $next = isset($post['next']) ? trim($post['next']) : '';
         
         $part_quality_comment = '';
         if($repair_part){
-            $part_quality_comment .= 'Замена '.htmlspecialchars($repair_part).'. ';
+            $part_quality_comment .= lq('Замена').' '.htmlspecialchars($repair_part).'. ';
+            $part_quality_comment .= lq('Качество').' '.htmlspecialchars($repair_part_quality).'. ';
         }
-        $part_quality_comment .= 'Качество '.htmlspecialchars($repair_part_quality).'. ';
         
         $private_comment = $part_quality_comment.(isset($post['private_comment']) ? trim($post['private_comment']) : '');
         
@@ -1159,11 +1160,11 @@ class Chains
         }else{
             if(empty($post['client_fio'])){
                 $data['state'] = false;
-                $data['msg'] = 'Укажите ФИО клиента';
+                $data['msg'] = l('Укажите ФИО клиента');
             }
             if(empty($post['client_phone'])){
                 $data['state'] = false;
-                $data['msg'] = 'Укажите телефон клиента';
+                $data['msg'] = l('Укажите телефон клиента');
             }
             // создать клиента
             require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
@@ -1183,18 +1184,18 @@ class Chains
                     $data['new_client_id'] = $client_id;
                 }else{
                     $data['state'] = false;
-                    $data['msg'] = isset($u['msg']) ? $u['msg'] : 'Ошибка создания клиента';
+                    $data['msg'] = isset($u['msg']) ? $u['msg'] : l('Ошибка создания клиента');
                 }
             }
         }
 
         // создание заказа с модуля заказы - таб создать заказ
-        if($from == 'create_order'){
-            if($color < 0){
-                $data['state'] = false;
-                $data['msg'] = 'Выберите цвет устройства';
-            }
-        }
+//        if($from == 'create_order'){
+//            if($color < 0){
+//                $data['state'] = false;
+//                $data['msg'] = l('Выберите цвет устройства');
+//            }
+//        }
         
         // достаем категорию
         $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
@@ -1244,8 +1245,8 @@ class Chains
                 
                 if ($data['state'] == true && !$order) {
                     $data['state'] = false;
-                    $data['msg'] = '<p>Не найдено совпадений, укажите номер ремонта, по которому принимается доработка</p>';
-                    $data['msg'] .= '<p><input type="text" id="serial-order_id" value="" placeholder="Номер заказа на ремонт" /></p>';
+                    $data['msg'] = '<p>'.l('Не найдено совпадений, укажите номер ремонта, по которому принимается доработка').'</p>';
+                    $data['msg'] .= '<p><input type="text" id="serial-order_id" value="" placeholder="'.l('Номер заказа на ремонт').'" /></p>';
                     $onclick = '$(this).button(\'loading\');$(\'input#serial-id\').val($(\'input#serial-order_id\').val());$(\'input#add-client-order\').click();';
                     $data['btn'] = '<input onclick="' . $onclick . '" value="'.l('Сохранить').'" type="button" class="btn" />';
                     $data['prompt'] = true;
@@ -1364,7 +1365,8 @@ class Chains
                 $wh['wh_id'],
                 $code ? $this->all_configs['db']->makeQuery(" ? ", array($code)) : 'null',
                 $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
-                array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null'
+                array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
+                $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null'
             );
 
             // создаем заказ
@@ -1373,9 +1375,9 @@ class Chains
                     'INSERT INTO {orders} (id, user_id, fio, email, phone, comment, category_id, accepter, title, note,
                       serial, battery, charger, cover, box, repair, urgent, np_accept, notify, partner, approximate_cost,
                       `sum`, defect, client_took, date_readiness, course_key, course_value, `type`, prepay, is_replacement_fund,
-                      replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id, accept_wh_id,code,referer_id,color) VALUES
+                      replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id, accept_wh_id,code,referer_id,color,equipment) VALUES
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
-                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q)',
+                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q)',
                     $params, 'id');
                 $data['id'] = $post['id'];
             } catch (Exception $e) {
@@ -1752,7 +1754,7 @@ class Chains
         // изделия
         $items = isset($post['items']) && count(array_filter(explode(',', $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
         if ($items) {
-            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id
+            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price
                     FROM {warehouses} as w, {warehouses_goods_items} as i
                     LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
                     WHERE i.id IN (?li) AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id',
@@ -1847,7 +1849,7 @@ class Chains
                         'confirm' => 0,
                         'order_id' => isset($order['id']) ? $order['id'] : 0,
                         'product_id' => $item['goods_id'],
-                        'price' => 0,
+                        'price' => $item['price'],
                     );
                     $product = $this->add_product_order($arr, $mod_id);
                     // ошибка при добавлении запчасти

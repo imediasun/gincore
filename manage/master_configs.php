@@ -111,6 +111,7 @@ class Configs {
 
                 'manage-show-glossary' => true,
                 'manage-glossary-url'  => 'https://gincore.net/embedded-faq?iframe=1',
+                'manage-print-city-select' => false, // переключалка города в печатных документах
                 'manage-print-default-service-restore' => false, // адрес и телефон рестора по умолчанию в печати если не указаны в отделении
                 'manage-show-terminal-cashbox'  => false, // показать или скрыть кассу терминал
                 'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов
@@ -119,7 +120,7 @@ class Configs {
                                                     'debug','logistics','master','orders',
                                                     'partners','products','settings','statistics',
                                                     'tasks','users','warehouses','wrapper','admin_translates',
-                                                    'widgets'
+                                                    'widgets', 'import'
                                                ),
                 'manage-reset-access'       =>  true, // доступен ли сброс в модуле дебаг
                 'settings-system-lang-select-enabled' =>  true, // выбор языка системы (+ отрубает переключалку языка в шапке и грузит выбранный язык - из настройки)

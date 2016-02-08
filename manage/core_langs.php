@@ -17,4 +17,6 @@ if(isset($_GET['l']) && isset($all_configs['configs']['manage-langs']['list'][$_
     }
 }
 
+$input_html['manage_lang'] = $manage_lang;
+
 $manage_translates = get_manage_translates();

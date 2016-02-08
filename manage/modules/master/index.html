@@ -1,13 +1,15 @@
-<div id="middle">
-    <h1 class="text-center">{-txt-master_head_title}</h1>
-    <p class="text-center m-b-xl">{-txt-master_sub_title}</p>
+<div id="middle" class="master-box">
     <form method="post" class="form-horizontal ajax_form" action="{-txt-prefix}master/ajax/">
         <input type="hidden" name="act" value="save_data">
         <div class="form-group">
             <label class="col-sm-3 control-label">
                 {-txt-master_field_business}
             </label>
-            <div class="col-sm-5">
+            <div class="col-sm-5 relative">
+                <div class="main-titles">
+                    <h1 class="text-center">{-txt-master_head_title}</h1>
+                    <p class="text-center m-b-xl">{-txt-master_sub_title}</p>
+                </div>
                 <select class="form-control" name="business">
                     <option value="0">{-txt-master_field_business_option_1}</option>
                 </select>

@@ -8,6 +8,7 @@ require_once 'master_configs.php';
 //    /*
 //     * блок конфига для админки рестора
 //     */
+//    $config['manage-print-city-select'] = true;
 //    $config['manage-print-default-service-restore'] = true;
 //    $config['manage-show-terminal-cashbox'] = true; // показать или скрыть кассу терминал
 //    $config['manage-show-phones-btn'] = true; // показать или скрыть кнопку смены аварийных телефонов

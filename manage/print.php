@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Че вообще происходит:
+ * 
+ * шаблоны печатных документов берутся из таблицы core_template_vars
+ *   - для рестора в ней шаблоны разделены по городам (есть переключалка городов)
+ *   - для жинкора шаблоны тянутся с города kiev (без переключалки по городам)
+ * 
+ * при распаковке новой системы жинкор в core_template_vars город kiev прописываются шаблоны 
+ * согласно выбранного языка с таблицы core_admin_translates
+ * 
+ * итого: если менять чето в шаблонах, нужно менять в core_template_vars для всех городов - это для рестора
+ *                                      плюс менять в core_admin_translates - для распаковщика жинкора   
+ */
+
 include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
@@ -39,14 +53,18 @@ if (isset($_GET['ajax']) && $all_configs['oRole']->hasPrivilege('site-administra
     exit;
 }
 
+function get_template($act){
+    global $all_configs, $cur_lang;
+    return $all_configs['db']->query("SELECT text FROM {template_vars_strings} as s "
+                                    ."LEFT JOIN {template_vars} as t ON t.id = s.var_id "
+                                    ."WHERE s.lang = ? AND t.var = ?", 
+                               array($cur_lang, 'print_template_'.$act), 'el');
+}
+
 function generate_template($arr, $act)
 {
-    global $all_configs, $cur_lang, $variables;
-    
-    $print_html = $all_configs['db']->query("SELECT text FROM {template_vars_strings} as s "
-                                           ."LEFT JOIN {template_vars} as t ON t.id = s.var_id "
-                                           ."WHERE s.lang = ? AND t.var = ?", 
-                                        array($cur_lang, 'print_template_'.$act), 'el');
+    global $all_configs, $cur_lang, $manage_lang, $variables;
+    $print_html = get_template($act);
     
 //    $print_html = isset($all_configs['settings']['print_template_' . $act]) ? $all_configs['settings']['print_template_' . $act] : '<br>';
 
@@ -155,9 +173,10 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 array($object))->row();
 
             if ($order) {
-                $products = $products_cost = $services = $services_cost = '';
+                $products = $products_cost = $services = '';
+                $services_cost = array();
 
-                $services_cost = $order['sum'] / 100;
+//                $services_cost = $order['sum'] / 100;
 
                 // товары и услуги
                 $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
@@ -168,11 +187,11 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         if ($product['type'] == 0) {
                             $products .= htmlspecialchars($product['title']) . '<br/>';
                             $products_cost .= ($product['price'] / 100) . ' '.viewCurrency().'<br />';
-                            $services_cost -= ($product['price'] / 100);
+//                            $services_cost .= ($product['price'] / 100) . ' '.viewCurrency().'<br />';
                         }
                         if ($product['type'] == 1) {
                             $services .= htmlspecialchars($product['title']) . '<br/>';
-                            //$services_cost .= ($product['price'] / 100) . ''.viewCurrency().'<br />';
+                            $services_cost[] = ($product['price'] / 100);
                         }
                     }
                 }
@@ -193,7 +212,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'products' => array('value' => $products, 'name' => 'Установленные запчасти'),
                     'products_cost' => array('value' => $products_cost, 'name' => 'Установленные запчасти'),
                     'services' => array('value' => $services, 'name' => 'Услуги'),
-                    'services_cost' => array('value' => $services_cost, 'name' => 'Стоимость услуг'),
+                    'services_cost' => array('value' => implode(' '.viewCurrency().'<br />', $services_cost), 'name' => 'Стоимость услуг'),
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
                     'warehouse' =>  array('value' => htmlspecialchars($order['wh_title']), 'name' => 'Название склада'),
@@ -208,19 +227,21 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             }
         }
 
-        // квитанция
+        // чек
         if ($act == 'invoice') {
             $type = $all_configs['db']->query("SELECT type FROM {orders} WHERE id = ?i", array($object), 'el');
+            $products_rows = array();
+            $summ = 0;
             if($type == 0) {
-            $order = $all_configs['db']->query(
-                'SELECT o.*, a.fio as a_fio, w.title as wh_title, wa.print_address, wa.title as wa_title,
-                        wa.print_phone, wa.title as wa_title, wag.address as accept_address
-                FROM {orders} as o
-                LEFT JOIN {users} as a ON a.id=o.accepter
-                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
-                LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
-                LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
-                WHERE o.id=?i', array($object))->row();
+                $order = $all_configs['db']->query(
+                    'SELECT o.*, a.fio as a_fio, w.title as wh_title, wa.print_address, wa.title as wa_title,
+                            wa.print_phone, wa.title as wa_title, wag.address as accept_address
+                    FROM {orders} as o
+                    LEFT JOIN {users} as a ON a.id=o.accepter
+                    LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                    LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
+                    LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
+                    WHERE o.id=?i', array($object))->row();
             }
 
             if($type == 3) {
@@ -234,57 +255,99 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             }
 
 
-
             if ($order) {
 
+                // товары и услуги
+                $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
+                      FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
+                    array($object))->assoc();
+                if ($goods) {
+                    foreach ($goods as $product) {
+                        $products_rows[] = array(
+                            'title' => htmlspecialchars($product['title']),
+                            'price_view' => ($product['price'] / 100).' '.viewCurrency()
+                        );
+//                        $summ += $product['price'];
+                    }
+                }
+                $summ = $order['sum'];
+                
+                $products_html_parts = array();
+                $num = 1;
+                foreach($products_rows as $prod){
+                    $products_html_parts[] = '
+                        '.$num.'</td>
+                        <td>'.$prod['title'].'</td>
+                        <td>1</td>
+                        <td>'.$prod['price_view'].'</td>
+                        <td>'.$prod['price_view'].'
+                    ';
+                    $num ++;
+                }
+                $qty_all = $num-1;
+                $products_html = implode('</td></tr><tr><td>', $products_html_parts);
 
                 $editor = true;
-                include './classes/php_rutils/struct/TimeParams.php';
-                include './classes/php_rutils/Dt.php';
-                include './classes/php_rutils/Numeral.php';
-                include './classes/php_rutils/RUtils.php';
-                $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false, 
-                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
-                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
-                $params = new \php_rutils\struct\TimeParams();
-                $params->date = null; //default value, 'now'
-                $params->format = 'd F Y';
-                $params->monthInflected = true;
+//                switch($manage_lang){
+//                    case 'ru':
+                        include './classes/php_rutils/struct/TimeParams.php';
+                        include './classes/php_rutils/Dt.php';
+                        include './classes/php_rutils/Numeral.php';
+                        include './classes/php_rutils/RUtils.php';
+                        $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($summ / 100, false, 
+                                                                                 $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
+                                                                                 $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
+                        $params = new \php_rutils\struct\TimeParams();
+                        $params->date = null; //default value, 'now'
+                        $params->format = 'd F Y';
+                        $params->monthInflected = true;
+                        $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
+//                    break;
+//                    default:
+//                        include __DIR__.'/classes/Numbers/Words.php';
+//                        $str_date = date("F j, Y");
+//                        $sum_in_words = Numbers_Words::toWords($summ / 100);
+//                    break;
+//                }
+                
+                
+                if($order['type'] == 0) {
+                    $arr = array(
+                        'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                        'sum' => array('value' => $summ / 100, 'name' => 'Сумма за ремонт'),
+                        'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
+                        'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
+                        'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
+                        'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
+                        'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                        'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                        'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
+                        'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
+                        'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
+                        'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
+                        'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
+                        'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                        'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                    );
+                }
 
+                if($order['type'] == 3) {
 
-            if($order['type'] == 0) {
-                $arr = array(
-                    'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                    'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
-                    'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
-                    'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
-                    'now' => array('value' => \php_rutils\RUtils::dt()->ruStrFTime($params), 'name' => 'Текущая дата'),
-                    'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
-                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
-                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
-                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
-                    'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
-                    'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
-                    'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
-                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
-                );
-            }
-
-            if($order['type'] == 3) {
-
-                $arr = array(
-                    'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                    'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
-                    'product' => array('value' => htmlspecialchars($order['g_title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
-                    'serial' => array('value' => suppliers_order_generate_serial($order), 'name' => 'Серийный номер'),
-                    'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
-                    'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
-                    'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
-                    'now' => array('value' => \php_rutils\RUtils::dt()->ruStrFTime($params), 'name' => 'Текущая дата'),
-                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
-                    'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
-                );
-            }
+                    $arr = array(
+                        'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                        'sum' => array('value' => $summ / 100, 'name' => 'Сумма за ремонт'),
+                        'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
+                        'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
+                        'product' => array('value' => htmlspecialchars($order['g_title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
+                        'serial' => array('value' => suppliers_order_generate_serial($order), 'name' => 'Серийный номер'),
+                        'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                        'address' =>  array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
+                        'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                        'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
+                        'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                        'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
+                    );
+                }
 
 
                 $print_html = generate_template($arr, 'invoice');
@@ -304,6 +367,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 WHERE o.id=?i', array($object))->row();
             if ($order) {
                 $editor = true;
+                
                 include './classes/php_rutils/struct/TimeParams.php';
                 include './classes/php_rutils/Dt.php';
                 include './classes/php_rutils/Numeral.php';
@@ -315,15 +379,17 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $params->date = null; //default value, 'now'
                 $params->format = 'd F Y';
                 $params->monthInflected = true;
+                $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
+                
                 $arr = array(
                     'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                    'now' => array('value' => \php_rutils\RUtils::dt()->ruStrFTime($params), 'name' => 'Текущая дата'),
+                    'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
                     'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
                     'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
                     'product' => array('value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']), 'name' => 'Устройство'),
-                    'color' => array('value' => htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]), 'name' => 'Устройство'),
+                    'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
@@ -332,7 +398,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             }
         }
         
-        // чек
+        // квитанция
         if ($act == 'check') {
 
             $order = $all_configs['db']->query(
@@ -382,24 +448,28 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $arr['complect']['value'] .= $order['battery'] == 1 ? l('Аккумулятор') . '<br />' : '';
                 $arr['complect']['value'] .= $order['charger'] == 1 ? l('Зарядное устройств кабель') . '<br />' : '';
                 $arr['complect']['value'] .= $order['cover'] == 1 ? l('Задняя крышка') . '<br />' : '';
-                $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка') : '';
+                $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка').'</br>' : '';
+                $arr['complect']['value'] .= $order['equipment'] ? $order['equipment'] : '';
 
                 $print_html = generate_template($arr, 'check');
             }
         }
     }
     if ($print_html && $editor == true && $all_configs['oRole']->hasPrivilege('site-administration')) {
-        $print_html = '<div class="well unprint">' .
+        $tpl = get_template($act);
+        $print_html = 
+                      '<div class="well unprint">' .
                       '<button class="btn btn-small btn-primary" id="editRedactor"><i class="icon-edit"></i> Редактировать</button> ' .
                       '<button class="btn btn-small btn-success" id="saveRedactor"><i class="icon-ok"></i> Сохранить</button> ' .
                       '<button class="btn btn-small btn-" id="print"><i class="icon-print"></i> Печать</button>' .
                       '<br><br><h4><p class="text-success">Допустимые переменные</p></h4>' .
                       $variables . '</div>' .
+                      '<div style="display:none" id="print_tempalte">'.$tpl.'</div>'.
                       '<div id="redactor">' . $print_html . '</div>';
     }
     if($print_html){
         $l_sel = '';
-        if(in_array($act, array('check', 'warranty'))){
+        if(!empty($all_configs['configs']['manage-print-city-select']) && in_array($act, array('check', 'warranty', 'act', 'invoice'))){
             $langs_select = '';
             foreach($langs['langs'] as $l){
                 $langs_select .= '<option'.($cur_lang == $l['url'] ? ' selected' : '').' value="'.$l['url'].'">'.$l['name'].'</option>';
@@ -534,15 +604,16 @@ if ($print_html) {?>
                 $('#saveRedactor').prop('disabled', true);
                 $('#editRedactor').click(function() {
                     $(this).prop('disabled', true);
-                    $('#redactor').summernote({
+                    $('#redactor').hide();
+                    $('#print_tempalte').show().summernote({
                         focus: true,
                         lang: 'ru-RU',
                         oninit: function(a) {
                             $('#saveRedactor').prop('disabled', false);
                             $('#print').prop('disabled', true);
-                            $('.note-editor .note-editable').find('.template').replaceWith(function () {
-                                return '{{' + $(this).data('key') + '}}';
-                            });
+//                            $('.note-editor .note-editable').find('.template').replaceWith(function () {
+//                                return '{{' + $(this).data('key') + '}}';
+//                            });
                         }
                     });
                 });
@@ -554,7 +625,7 @@ if ($print_html) {?>
                     $.ajax({
                         type: 'POST',
                         url: window.location.search + '&ajax=editor',
-                        data: {html: $('#redactor').code()},
+                        data: {html: $('#print_tempalte').code()},
                         cache: false,
                         success: function(msg) {
                             if (msg) {
