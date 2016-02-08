@@ -271,6 +271,7 @@ class import_orders extends import_helper{
                 // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
                 $a_id = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ?", array($accepter), 'el');
                 if(!$a_id){
+                    echo $accepter;
                     $not_found_accepters[] = $accepter;
                 }
                 $this->accepters[$accepter] = $a_id;
@@ -299,6 +300,10 @@ class import_orders extends import_helper{
         }else{
             return array('state' => true);
         }
+    }
+    
+    private function remove_whitespace($string){
+        return trim(preg_replace('/\s+/', ' ', $string));
     }
     
 }
