@@ -27,7 +27,8 @@ function upload_file(_this) {
 }
 function start_import(_this) {
     var form_data = new FormData($('#import_form')[0]);
-//    $(_this).button('loading');
+    $(_this).button('loading');
+    $('#upload_messages').empty();
     $.ajax({
         url: prefix + module + '/ajax/?act=import',
         dataType: "json",
@@ -39,7 +40,8 @@ function start_import(_this) {
         success: function (data) {
             if(data.state){
                 
-            }else{
+            }
+            if(data.message){
                 $('#upload_messages').html(data.message);
             }
             $(_this).button('reset');
