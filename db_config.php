@@ -1,11 +1,11 @@
 <?php
 
 $dbcfg = array(
-//    'host'     => '192.168.1.2',
-    'host'     => 'localhost',
+    'host'     => '192.168.1.2',
+//    'host'     => 'localhost',
     'username' => 'root',
-    'password' => 'root',
-//    'password' => 'FB19root',
+//    'password' => 'root',
+    'password' => 'FB19root',
 //    'dbname'   => 'u_restore',
     'dbname'   => 'u_restore_saas',
     'charset'  => 'utf8',

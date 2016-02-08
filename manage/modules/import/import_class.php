@@ -12,7 +12,7 @@ class import_class{
         $this->source_file = $source_file;
         $this->type = $type;
         $this->provider = $provider;
-        
+        set_time_limit(0);
     }
     
     public function run(){
@@ -31,6 +31,9 @@ class import_class{
             if($counter > 0){
                 $rows[] = $row;
             }
+//            if($counter>10){
+//                break;
+//            }
             $counter ++;
         }
         $result = $this->import_handler->run($rows);
@@ -59,6 +62,7 @@ class import_class{
     private function set_import_handler(){
         $import_handler_name = 'import_'.$this->type;
         if(file_exists($this->include_path.$import_handler_name.'.php')){
+            require $this->include_path.'import_helper.php';
             require $this->include_path.$import_handler_name.'.php';
             $this->import_handler = new $import_handler_name($this->all_configs, $this->get_import_provider_handler());
         }else{
