@@ -4,6 +4,7 @@ class import_helper{
     
     // форматируем дату
     protected function format_date($date){
+        $date = str_replace('/', '-', $date);
         return date('Y-m-d H:i:s', strtotime($date));
     }
     

@@ -41,11 +41,7 @@ class remonline_orders extends import_helper{
     private $statuses = array(
         'Новый' => 'order-status-new',
         'Согласовано, передано в работу' => 'order-status-work',
-<<<<<<< HEAD
         'Мастер назначен' => 'order-status-waits',
-=======
-        'Мастер назначен' => 'order-status-wait',
->>>>>>> 795d70facdfa34c61ee139f827b0bd474b2fe0bc
         'Клиент отказался' => 'order-status-refused',
         'Не починится' => 'order-status-unrepairable',
 //        'order-status-nowork',
@@ -66,7 +62,6 @@ class remonline_orders extends import_helper{
         return $id;
     }
     
-<<<<<<< HEAD
     function get_client_fio($data){
         return $data[5];
     }
@@ -77,10 +72,6 @@ class remonline_orders extends import_helper{
     
     function get_status_id($data){
         $status_id = $this->all_configs['configs'][$this->statuses[$this->remove_whitespace($data[4])]];
-=======
-    function get_status_id($data){
-        $status_id = $this->all_configs['configs'][$this->statuses[$data[4]]];
->>>>>>> 795d70facdfa34c61ee139f827b0bd474b2fe0bc
         return $status_id;
     }
     
@@ -94,6 +85,10 @@ class remonline_orders extends import_helper{
     
     function get_engineer($data){
         return $data[21];
+    }
+    
+    function get_manager(){
+        return '';
     }
     
     function get_address($data){

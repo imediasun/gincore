@@ -9,10 +9,12 @@ class import{
     protected $all_configs;
     private $upload_path;
     private $upload_types = array(
-        'orders' => 'Заказы' // l() placeholders
-    );
-    private $handlers = array(
-        'remonline' => 'Remonline' 
+        'orders' => array(
+            'name' => 'Заказы', // l() placeholders
+            'handlers' => array(
+                'remonline' => 'Remonline' 
+            )
+        )
     );
     
     function __construct(&$all_configs){
@@ -116,14 +118,14 @@ class import{
     private function gen_types_select_options($selected = ''){
         $types = '';
         foreach($this->upload_types as $k => $v){
-            $types .= '<option'.($selected == $k ? ' selected' : '').' value="'.$k.'">'.l($v).'</option>';
+            $types .= '<option'.($selected == $k ? ' selected' : '').' value="'.$k.'">'.l($v['name']).'</option>';
         }
-        return '<option>'.l('Выберите').'</option>'.$types;
+        return '<option value="">'.l('Выберите').'</option>'.$types;
     }
     
-    private function gen_handlers_select_options($selected = ''){
+    private function gen_handlers_select_options($type, $selected = ''){
         $types = '';
-        foreach($this->handlers as $k => $v){
+        foreach($this->upload_types[$type]['handlers'] as $k => $v){
             $types .= '<option'.($selected == $k ? ' selected' : '').' value="'.$k.'">'.$v.'</option>';
         }
         return '<option>'.l('Выберите').'</option>'.$types;
@@ -172,25 +174,53 @@ class import{
                                     '.$this->gen_types_select_options($import).'
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label>'.l('Провайдер').'</label>
-                                <select class="form-control" name="handler">
-                                    '.$this->gen_handlers_select_options().'
-                                </select>
-                            </div>
+                            <div id="import_form_part">'.$this->get_import_form($import).'</div>
                             <div class="form-group">
                                 <button class="btn btn-success" type="button" onclick="start_import(this)">'.l('Запустить').'</button>
                             </div>
                         </form>
                     </div>
                 </div>
-                <div id="upload_messages"></div>
+                <div class="row row-15" id="upload_messages"></div>
             </div>
         ';
         
         return array(
             'html' => $html
         );
+    }
+    
+    function get_import_form($type){
+        $form = '';
+        switch($type){
+            case 'orders':
+                $form = '
+                    <div class="form-group">
+                        <label>'.l('Провайдер').'</label>
+                        <select class="form-control" name="handler">
+                            '.$this->gen_handlers_select_options($type).'
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input'.($this->has_orders() ? ' disabled' : '').' type="checkbox" name="clear_categories" value="1">
+                                '.l('очистить категории (и товары) и заменить категориями с импорта').'
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="accepter_as_manager" value="1">
+                                '.l('назначить приемщика менеджером, если последний не указан').'
+                            </label>
+                        </div>
+                    </div>
+                ';
+            break;
+        }
+        return $form;
     }
     
     private function upload(){
@@ -214,15 +244,28 @@ class import{
         return $data;
     }
     
+    private function has_orders(){
+        return db()->query("SELECT count(*) FROM {orders}")->el();
+    }
+    
     private function import(){
         $import_type = isset($_POST['import_type']) ? trim($_POST['import_type']) : '';
         $handler = isset($_POST['handler']) ? trim($_POST['handler']) : '';
         if(isset($this->upload_types[$import_type])){
-            if(isset($this->handlers[$handler])){
+            if(isset($this->upload_types[$import_type]['handlers'][$handler])){
                 $source = $this->upload_path.$import_type.'.csv';
                 if(file_exists($source)){
+                    $import_settings = array();
+                    switch($import_type){
+                        case 'orders':
+                            if(!$this->has_orders()){ // если есть заказы в системе то низя
+                                $import_settings['clear_categories'] = isset($_POST['clear_categories']) ? true : false;
+                            }
+                            $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']) ? true : false;
+                        break;
+                    }
                     require $this->all_configs['path'].'modules/import/import_class.php';
-                    $import = new import_class($this->all_configs, $source, $import_type, $handler);
+                    $import = new import_class($this->all_configs, $source, $import_type, $handler, $import_settings);
                     $data = $import->run();
                 }else{
                     $data['state'] = false;
@@ -235,6 +278,14 @@ class import{
         }else{
             $data['state'] = false;
             $data['message'] = l('Не указан или не найден тип импорта');
+        }
+        if(!$data['state']){
+            $data['message'] = '
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  '.$data['message'].'
+                </div>
+            ';
         }
         return $data;
     }
@@ -252,6 +303,11 @@ class import{
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
         switch($act){
+            case 'get_form':
+                $type = isset($_POST['type']) ? $_POST['type'] : '';
+                $data['state'] = true;
+                $data['form'] = $this->get_import_form($type);
+            break;
             case 'upload':
                 $data = $this->upload();
             break;

@@ -5,14 +5,16 @@ class import_orders extends import_helper{
     private $orders_objects = array();
     private $provider; // 
     
-    function __construct($all_configs, $provider){
+    function __construct($all_configs, $provider, $import_settings){
         $this->all_configs = $all_configs;
         $this->provider = $provider;
+        $this->import_settings = $import_settings;
     }
     
     function run($rows){
         $this->rows = $rows;
         $this->accepters = array();
+        $this->accepters_wh = array();
         $this->engineers = array();
         $this->clients = array();
         $this->categories = array();
@@ -21,6 +23,10 @@ class import_orders extends import_helper{
         $scan = $this->scan_accepters_and_engineers();
         if(!$scan['state']){
             return $scan;
+        }
+        
+        if(!empty($this->import_settings['clear_categories'])){
+            $this->clear_and_add_categories();
         }
         
         $results = array();
@@ -41,6 +47,7 @@ class import_orders extends import_helper{
                 if($accepter){
                     $accepter_id = $this->accepters[$accepter];
                 }else{
+                    $accepter_id = 0;
     //                $order->set_error(l('Не указан приемщик'));
                     $errors[] = l('Не указан приемщик');
                 }
@@ -49,7 +56,13 @@ class import_orders extends import_helper{
                     $engineer_id = $this->engineers[$engineer];
                 }else{
     //                $order->set_error(l('Не указан инженер'));
-                    $errors[] = l('Не указан инженер');
+//                    $errors[] = l('Не указан инженер');
+                    $engineer_id = 0;
+                }
+                $manager = $this->remove_whitespace($this->provider->get_manager($row));
+                $manager_id = 0;
+                if(!$manager && !empty($this->import_settings['accepter_as_manager'])){
+                    $manager_id = $accepter_id;
                 }
                 $status_id = $this->provider->get_status_id($row);
                 $client_fio = $this->remove_whitespace($this->provider->get_client_fio($row));
@@ -101,14 +114,16 @@ class import_orders extends import_helper{
                                        ."(id,date_add,accepter,status,user_id,fio,"
                                        ." phone,courier,category_id,serial,equipment,"
                                        ." comment, date_readiness, approximate_cost, "
-                                       ." prepay, defect, engineer) "
+                                       ." prepay, defect, engineer, manager, title, wh_id, location_id) "
                                        ." VALUES "
                                        ." (?i, ?, ?i, ?i, ?i, ?,"
                                        ."  ?, ?, ?i, ?, ?, "
-                                       ."  ?, ?, ?, ?, ?, ?i)", array(
+                                       ."  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i)", array(
                                            $id, $date_add, $accepter_id, $status_id, $client_id, $client_fio,
                                            $client_phone, $address, $device_id, $serial, $equipment, 
-                                           $appearance, $date_end, $summ*100, $summ_prepaid*100, $defect, $engineer_id
+                                           $appearance, $date_end, $summ*100, $summ_prepaid*100, $defect, 
+                                           $engineer_id, $manager_id, $device, 
+                                           $this->accepters_wh[$accepter]['wh_id'], $this->accepters_wh[$accepter]['location_id']
                                        ));
                             if($comments){
                                 $comments_query = array();
@@ -158,6 +173,24 @@ class import_orders extends import_helper{
         );
     }
     
+    private function clear_and_add_categories(){
+        db()->query("SET FOREIGN_KEY_CHECKS=0;");
+        db()->query("TRUNCATE TABLE {goods}");
+        db()->query("TRUNCATE TABLE {category_goods}");
+        db()->query("TRUNCATE TABLE {categories}");
+        db()->query("SET FOREIGN_KEY_CHECKS=1;");
+        foreach($this->rows as $row){
+            $category = $this->remove_whitespace($this->provider->get_category($row));
+            $device = $this->remove_whitespace($this->provider->get_device($row));
+            $create_category = $this->get_category_id($category);
+            $category_id = 0;
+            if($create_category['state']){
+                $category_id = $create_category['id'];
+            }
+            $this->get_device_id($device, $category_id);
+        }
+    }
+    
     private function gen_result_table($results){
         $rows = '';
         foreach($results as $row_result){
@@ -175,16 +208,18 @@ class import_orders extends import_helper{
                 </tr>
             ';
         }
-        return '<table class="table table-stripped table-hover">'.$rows.'</table>';
+        return '
+            <h3>'.l('Результат импорта:').'</h3>
+            <table class="table table-stripped table-hover">'.$rows.'</table>';
     }
     
     private function get_device_id($device, $category_id){
         if($device){
             if(!isset($this->devices[$device])){
+                $url = transliturl($device);
                 $find_category = db()->query("SELECT id FROM {categories} "
-                                            ."WHERE title = ?", array($device), 'el');
+                                            ."WHERE title = ? OR url = ? LIMIT 1", array($device, $url), 'el');
                 if(!$find_category){
-                    $url = transliturl($device);
                     $id = db()->query("INSERT INTO {categories} (title,parent_id,url,content,avail) "
                                ."VALUE (?,?i,?,'',1)", array($device,$category_id,$url), 'id');
                 }else{
@@ -207,10 +242,10 @@ class import_orders extends import_helper{
     private function get_category_id($category){
         if($category){
             if(!isset($this->categories[$category])){
+                $url = transliturl($category);
                 $find_category = db()->query("SELECT id FROM {categories} "
-                                            ."WHERE title = ?", array($category), 'el');
+                                            ."WHERE title = ? OR url = ? LIMIT 1", array($category, $url), 'el');
                 if(!$find_category){
-                    $url = transliturl($category);
                     $id = db()->query("INSERT INTO {categories} (title,parent_id,url,content,avail) "
                                ."VALUE (?,0,?,'',1)", array($category,$url), 'id');
                 }else{
@@ -271,10 +306,13 @@ class import_orders extends import_helper{
                 // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
                 $a_id = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ?", array($accepter), 'el');
                 if(!$a_id){
-                    echo $accepter;
                     $not_found_accepters[] = $accepter;
+                }else{
+                    $a_whs = $this->all_configs['db']->query("SELECT wh_id,location_id FROM {warehouses_users} "
+                                                            ."WHERE user_id = ?i AND main = 1", array($a_id), 'row');
+                    $this->accepters[$accepter] = $a_id;
+                    $this->accepters_wh[$accepter] = $a_whs;
                 }
-                $this->accepters[$accepter] = $a_id;
             }
             $engineer = $this->remove_whitespace($this->provider->get_engineer($row));
             if($engineer && !array_key_exists($engineer, $this->engineers)){
@@ -300,10 +338,6 @@ class import_orders extends import_helper{
         }else{
             return array('state' => true);
         }
-    }
-    
-    private function remove_whitespace($string){
-        return trim(preg_replace('/\s+/', ' ', $string));
     }
     
 }
