@@ -18,7 +18,7 @@ class import_class{
     
     public function run(){
         $this->set_import_handler();
-        $this->load_data_object();
+//        $this->load_data_object();
         return $this->execute_import();
     }
     
@@ -32,9 +32,9 @@ class import_class{
             if($counter > 0){
                 $rows[] = $row;
             }
-//            if($counter>10){
-//                break;
-//            }
+            if($counter>1500){
+                break;
+            }
             $counter ++;
         }
         $result = $this->import_handler->run($rows);

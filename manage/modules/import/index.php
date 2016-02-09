@@ -14,6 +14,13 @@ class import{
             'handlers' => array(
                 'remonline' => 'Remonline' 
             )
+        ),
+        'clients' => array(
+            'name' => 'Клиенты', 
+            'handlers' => array(
+//                'default' => 'Gincore', 
+                'remonline' => 'Remonline' 
+            )
         )
     );
     
@@ -191,16 +198,17 @@ class import{
     }
     
     function get_import_form($type){
-        $form = '';
+        $form = '
+            <div class="form-group">
+                <label>'.l('Провайдер').'</label>
+                <select class="form-control" name="handler">
+                    '.$this->gen_handlers_select_options($type).'
+                </select>
+            </div>
+        ';
         switch($type){
             case 'orders':
-                $form = '
-                    <div class="form-group">
-                        <label>'.l('Провайдер').'</label>
-                        <select class="form-control" name="handler">
-                            '.$this->gen_handlers_select_options($type).'
-                        </select>
-                    </div>
+                $form .= '
                     <div class="form-group">
                         <div class="checkbox">
                             <label>
@@ -235,7 +243,7 @@ class import{
                 $data['message'] = l('Только Excel файлы');
             }else{
                 $data['state'] = true;
-                $data['location'] = $this->all_configs['prefix'].'import/?i=orders&'.microtime(true).'#import';
+                $data['location'] = $this->all_configs['prefix'].'import/?i='.$import_type.'&'.microtime(true).'#import';
             }
         }else{
             $data['state'] = false;
