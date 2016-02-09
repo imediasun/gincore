@@ -310,9 +310,9 @@ class import_orders extends import_helper{
                 }else{
                     $a_whs = $this->all_configs['db']->query("SELECT wh_id,location_id FROM {warehouses_users} "
                                                             ."WHERE user_id = ?i AND main = 1", array($a_id), 'row');
-                    $this->accepters[$accepter] = $a_id;
                     $this->accepters_wh[$accepter] = $a_whs;
                 }
+                $this->accepters[$accepter] = $a_id;
             }
             $engineer = $this->remove_whitespace($this->provider->get_engineer($row));
             if($engineer && !array_key_exists($engineer, $this->engineers)){
