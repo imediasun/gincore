@@ -292,34 +292,48 @@ class users
             }
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
-        } else
-        if ( isset($post['create-user']) ) { // добавление нового пользователя
+        } elseif ( isset($post['create-user']) ) { // добавление нового пользователя
             $avail = 0;
-            if ( isset($post['avail']) )
+            if ( isset($post['avail']) ){
                 $avail = 1;
-            $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
-                array($post['login'], $post['pass'], $post['fio'], $post['position'], $post['phone'], $avail, $post['role'], $post['email']), 'id');
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-user', $mod_id, intval($id)));
-            // добавляем локацию и склад для перемещения заказа при приемке
-            if(!empty($post['location']) && !empty($post['warehouse'])){
-                $wh_id = $post['warehouse'];
-                $location_id = $post['location'];
-                $this->all_configs['db']->query(
-                        'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
-                       .'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
             }
-            // добавляем склады
-            if(!empty($post['warehouses'])){
-                foreach($post['warehouses'] as $wh){
-                    $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
-                           .'VALUES (?i,?i,?i)', array($wh, $id, 0));
+            if(empty($post['login']) || empty($post['pass']) || empty($post['email'])){
+                $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
+                $_SESSION['create-user-post'] = $post;
+            }else{
+                $email_or_login_exists = 
+                    $this->all_configs['db']->query("SELECT 1 FROM {users} "
+                                                   ."WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
+                if($email_or_login_exists){
+                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
+                    $_SESSION['create-user-post'] = $post;
+                }else{
+                    $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
+                        array($post['login'], $post['pass'], $post['fio'], $post['position'], $post['phone'], $avail, $post['role'], $post['email']), 'id');
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                        array($user_id, 'add-user', $mod_id, intval($id)));
+                    // добавляем локацию и склад для перемещения заказа при приемке
+                    if(!empty($post['location']) && !empty($post['warehouse'])){
+                        $wh_id = $post['warehouse'];
+                        $location_id = $post['location'];
+                        $this->all_configs['db']->query(
+                                'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
+                               .'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
+                    }
+                    // добавляем склады
+                    if(!empty($post['warehouses'])){
+                        foreach($post['warehouses'] as $wh){
+                            $this->all_configs['db']->query(
+                                    'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
+                                   .'VALUES (?i,?i,?i)', array($wh, $id, 0));
+                        }
+                    }
                 }
             }
         }
 
         header("Location:". $_SERVER['REQUEST_URI']);
+        exit;
     }
 
     function avatar($avatar_img){
@@ -584,11 +598,27 @@ class users
             <input class="btn btn-primary" type="submit" name="add-role" value="' . l('Создать') . '"></div></div>';
         $users_html .= '</fieldset></form>';
         $users_html .= '</div>';
+        
+        $form_data = array();
+        $msg = '';
+        if(!empty($_SESSION['create-user-error'])){
+            $msg = '
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  '.$_SESSION['create-user-error'].'
+                </div>
+            ';
+            $form_data = $_SESSION['create-user-post'];
+            unset($_SESSION['create-user-error']);
+            unset($_SESSION['create-user-post']);
+        }
 
         $role_html = '';
         foreach ( $roles as $role_id=>$role_name ) {
-            $role_html .= '<option value="' . $role_id . '">' . htmlspecialchars($role_name) . '</option>';
+            $sel = !empty($form_data['role']) && $role_id == $form_data['role'] ? ' selected' : '';
+            $role_html .= '<option'.$sel.' value="' . $role_id . '">' . htmlspecialchars($role_name) . '</option>';
         }
+        
         // добавление нового пользователя
         $users_html .= '<div id="create_tab_user" class="tab-pane">';
         $warehouses = '';
@@ -596,7 +626,8 @@ class users
         // списсок складов с общим количеством товаров
         $warehouses_arr = $this->all_configs['chains']->warehouses($q['query_for_noadmin_w']);
         foreach ($warehouses_arr as $warehouse) {
-            $warehouses .= '<option value="'.$warehouse['id'].'">'.htmlspecialchars($warehouse['title']).'</option>';
+            $sel = !empty($form_data['warehouses']) && in_array($warehouse['id'], $form_data['warehouses']) ? ' selected' : '';
+            $warehouses .= '<option'.$sel.' value="'.$warehouse['id'].'">'.htmlspecialchars($warehouse['title']).'</option>';
         }
         $warehouses_options = '';
 //        $whs = $this->all_configs['chains']->warehouses();
@@ -604,33 +635,37 @@ class users
         $whs_first = 0;
         $i = 0;
         foreach($whs as $warehouse){
+            $sel = !empty($form_data['warehouse']) && $form_data['warehouse'] == $warehouse['id'] ? ' selected' : '';
             if(!$i){
                 $whs_first = $warehouse['id'];
             }
-            $warehouses_options .= '<option value="'.$warehouse['id'].'">'.$warehouse['title'].'</option>';
+            $warehouses_options .= '<option'.$sel.' value="'.$warehouse['id'].'">'.$warehouse['title'].'</option>';
             $i ++;
         }
         $warehouses_options_locations = '';
         if(isset($whs[$whs_first]['locations'])){
             foreach ($whs[$whs_first]['locations'] as $id=>$location) {
                 if(trim($location['name'])){
-                    $warehouses_options_locations .= '<option'.(!$i ? ' selected="selected"' : '').' value="' . $id . '">' . 
-                                htmlspecialchars($location['name']) . 
-                            '</option>';
+                    $sel = !empty($form_data['location']) && $form_data['location'] == $id ? ' selected' : '';
+                    $warehouses_options_locations .= 
+                        '<option'.$sel.(!$i ? ' selected="selected"' : '').' value="' . $id . '">' . 
+                            htmlspecialchars($location['name']) . 
+                        '</option>';
                 }
             }
         }
         $users_html .= '
             <form method="post">
+                '.$msg.'
                 <fieldset>
                     <legend>' . l('Добавление нового пользователя') . '</legend>
                     <div class="form-group">
                         <label>' . l('Логин') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="login" placeholder="' . l('введите логин') . '">
+                        <input class="form-control" value="'.(isset($form_data['login']) ? htmlspecialchars($form_data['login']) : '').'" name="login" placeholder="' . l('введите логин') . '">
                     </div>
                     <div class="form-group">
-                        <label>' . l('E-mail') . ':</label>
-                        <input class="form-control" value="" name="email" placeholder="' . l('введите e-mail') . '">
+                        <label>' . l('E-mail') . ' <b class="text-danger">*</b>:</label>
+                        <input class="form-control" value="'.(isset($form_data['email']) ? htmlspecialchars($form_data['email']) : '').'" name="email" placeholder="' . l('введите e-mail') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('Пароль') . ' <b class="text-danger">*</b>:</label>
@@ -638,19 +673,19 @@ class users
                     </div>
                     <div class="form-group">
                         <label>' . l('ФИО') . ':</label>
-                        <input class="form-control" value="" name="fio" placeholder="' . l('введите фио') . '">
+                        <input class="form-control" value="'.(isset($form_data['fio']) ? htmlspecialchars($form_data['fio']) : '').'" name="fio" placeholder="' . l('введите фио') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('Должность') . '</label>
-                        <input class="form-control" value="" name="position" placeholder="' . l('введите должность') . '">
+                        <input class="form-control" value="'.(isset($form_data['position']) ? htmlspecialchars($form_data['position']) : '').'" name="position" placeholder="' . l('введите должность') . '">
                     </div>
                     <div class="form-group">
                         <label>' . l('Телефон') . '</label>
-                        <input onkeydown="return isNumberKey(event)" class="form-control" value="" name="phone" placeholder="' . l('введите телефон') . '">
+                        <input onkeydown="return isNumberKey(event)" class="form-control" value="'.(isset($form_data['phone']) ? htmlspecialchars($form_data['phone']) : '').'" name="phone" placeholder="' . l('введите телефон') . '">
                     </div>
                     <div class="form-group">
                         <div class="checkbox">
-                            <label><input type="checkbox" name="avail" />' . l('Активность') . '</label>
+                            <label><input '.(!empty($form_data['avail']) || !$form_data ? 'checked' : '').' type="checkbox" name="avail" />' . l('Активность') . '</label>
                         </div>
                     </div>
                     <div class="form-group">

@@ -28,20 +28,27 @@ function create_avatar_uploader(){
 function add_user_validation() {
     loginInput = document.querySelector('input[name="login"]');
     passwordInput = document.querySelector('input[name="pass"]');
+    emailInput = document.querySelector('input[name="email"]');
 
-    if(loginInput.value == '') {
+    if($.trim(loginInput.value) == '') {
         loginInput.style.background = '#F2DEDE';
     } else {
         loginInput.style.background = 'white';
     }
 
-    if(passwordInput.value == '') {
+    if($.trim(emailInput.value) == '') {
+        emailInput.style.background = '#F2DEDE';
+    } else {
+        emailInput.style.background = 'white';
+    }
+
+    if($.trim(passwordInput.value) == '') {
         passwordInput.style.background = '#F2DEDE';
     } else {
         passwordInput.style.background = 'white';
     }
 
-    if(loginInput.value == '' || passwordInput.value == '') {
+    if($.trim(loginInput.value) == '' || $.trim(passwordInput.value) == '' || $.trim(emailInput.value) == '') {
         document.documentElement.scrollTop = 0;
         return false;
     }
