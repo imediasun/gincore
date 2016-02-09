@@ -181,6 +181,11 @@ foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] a
 foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][2] as $sid){
     $s_values[] = db()->makeQuery("(?i, ?i)", array($sid,$pid));
 }
+//привязываем Клиента к возврату за заказ #683
+db()->query('INSERT IGNORE INTO {contractors_categories_links}
+                        (contractors_categories_id, contractors_id) VALUES (2, 1)',
+                        array());
+        
 db()->query('INSERT IGNORE INTO {contractors_categories_links}
                         (contractors_categories_id, contractors_id) VALUES ?q',
                         array(implode(',',$s_values)));

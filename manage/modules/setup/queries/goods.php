@@ -5825,3 +5825,5 @@ db()->query("INSERT INTO {goods} (`id`, `action`, `material`, `weight`, `size`, 
 (5760, b'0', '', 0, '', 0, 0, 0, '".lq('Сенсорное стекло Samsung P3100 white (wifi)')."', '', '', b'1', '2015-10-07 10:25:40', 'sensornoe-steklo-samsung-p3100-white-wifi', 0, '', NULL, 'a:0:{}', 0, 1, 1, '33', NULL, NULL, 0.00, 0, NULL, '', 1500, 0, b'0', b'0', '', '', '', '', b'0', '', '', NULL, 0),
 (5763, b'0', '', 0, '', 1000, 0, 0, '".lq('Дисплейный модуль Nokia 1100')."', '', '', b'1', '2015-11-10 18:06:47', 'displeynyiy-modul-nokia-1100', NULL, '', 0, 'a:0:{}', 0, 0, NULL, '18', NULL, NULL, 0.00, 0, NULL, '', 0, 0, b'0', b'0', '', '', '', '', b'0', '', '', NULL, 0),
 (5764, b'0', '', 0, '', 700, 0, 0, '".lq('Замена сенсорного стекла (Планшет)')."', '', '', b'1', '2015-11-20 13:17:13', 'zamena-sensornogo-stekla-planshet', NULL, '', 1, 'a:0:{}', 0, 0, NULL, '18', NULL, NULL, 0.00, 0, NULL, '', 0, 0, b'0', b'0', '', '', '', '', b'0', '', '', NULL, 0)");
+
+db()->query("UPDATE {goods} SET price=0, old_price=0, author=0, qty_store = 0, qty_wh=0, article=0, barcode='', price_purchase=0");

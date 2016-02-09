@@ -1169,6 +1169,12 @@ class Chains
             // создать клиента
             require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
             $access = new \access($this->all_configs, false);
+            
+            if (!$access->is_phone($_POST['client_phone'])) {
+                $data['state'] = false;
+                $data['msg'] = l('Введите номер телефона в формате вашей страны');
+            }
+            
             if($access->is_phone($_POST['client_phone'])){
                 $u = $access->registration(array('phone' => $_POST['client_phone'],
                                                  'legal_address' => $_POST['address'],
