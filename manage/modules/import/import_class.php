@@ -6,12 +6,13 @@ class import_class{
     private $type; // тип импорта
     private $provider; // провайдер
     
-    function __construct($all_configs, $source_file, $type, $provider){
+    function __construct($all_configs, $source_file, $type, $provider, $import_settings = array()){
         $this->all_configs = $all_configs;
         $this->include_path = $this->all_configs['path'].'modules/import/';
         $this->source_file = $source_file;
         $this->type = $type;
         $this->provider = $provider;
+        $this->import_settings = $import_settings;
         set_time_limit(0);
     }
     
@@ -64,7 +65,7 @@ class import_class{
         if(file_exists($this->include_path.$import_handler_name.'.php')){
             require $this->include_path.'import_helper.php';
             require $this->include_path.$import_handler_name.'.php';
-            $this->import_handler = new $import_handler_name($this->all_configs, $this->get_import_provider_handler());
+            $this->import_handler = new $import_handler_name($this->all_configs, $this->get_import_provider_handler(), $this->import_settings);
         }else{
             throw new Exception('import handler '.$import_handler_name.' not found');
         }

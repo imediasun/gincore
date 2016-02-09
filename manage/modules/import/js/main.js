@@ -52,3 +52,23 @@ function start_import(_this) {
     });
     return false;
 }
+
+$(function(){
+    $(document).on('change', '#import_type', function(){
+        var type = $(this).val();
+        $('#import_form_part').empty();
+        if(type){
+            $.ajax({
+                url: prefix + module + '/ajax/?act=get_form',
+                data: 'type='+type,
+                type: 'POST',
+                cache: false,
+                success: function (data) {
+                    if(data.state){
+                        $('#import_form_part').html(data.form);
+                    }
+                }
+            });
+        }
+    });
+});
