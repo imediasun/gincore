@@ -2,7 +2,7 @@
 
 $modulename[130] = 'wrapper';
 $modulemenu[130] = l('Таблицы');
-$moduleactive[130] = !$ifauth['is_2'];
+$moduleactive[130] = $ifauth['is_1'];
 
 class wrapper{
 
@@ -17,7 +17,7 @@ class wrapper{
             $this->ajax();
         }
         
-        if($ifauth['is_2']) return false;
+        if(!$ifauth['is_1']) return false;
 
         $input_html['mmenu'] = $this->genmenu();
 

@@ -1198,6 +1198,18 @@ class accountings
                 $data['state'] = false;
                 $data['message'] = l('Введите ФИО');
             }
+            
+            $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            $access = new access($this->all_configs, false);
+            $phone = $access->is_phone($phone);
+            // телефон
+            if ($data['state'] == true && !$phone) {
+                $data['state'] = false;
+                $data['message'] = l('Введите номер телефона в формате вашей страны');
+            }
+            
+            
             if ($data['state'] == true) {
                 // создаем
                 $contractor_id = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors}
@@ -1216,12 +1228,10 @@ class accountings
                     }
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                         array($user_id, 'add-contractor', $mod_id, $contractor_id));
+                    
                     // создаем клиента для контрагента
-                    $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
+                    //email проверяется чуть выше
                     $email = isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
-                    require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                    $access = new access($this->all_configs, false);
-                    $phone = $access->is_phone($phone);
                     if($phone || $email){
                         $exists_client = $access->get_client($email, $phone, true);
                         if($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i", array($exists_client['id']), 'el')){

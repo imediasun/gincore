@@ -117,11 +117,11 @@ class Configs {
                 'manage-show-phones-btn'    => false, // показать или скрыть кнопку смены аварийных телефонов
                 'manage-active-modules'     => array( // активные модуле в админке
                                                     'accountings','categories','clients',
-                                                    'debug','logistics','master','orders',
+                                                    'logistics','master','orders',
                                                     'partners','products','settings','statistics',
-                                                    'tasks','users','warehouses','wrapper','admin_translates',
+                                                    'tasks','users','warehouses',
                                                     'widgets', 'import'
-                                               ),
+                                               ),  //'wrapper', 'debug', 'admin_translates'
                 'manage-reset-access'       =>  true, // доступен ли сброс в модуле дебаг
                 'settings-system-lang-select-enabled' =>  true, // выбор языка системы (+ отрубает переключалку языка в шапке и грузит выбранный язык - из настройки)
                 'settings-master-enabled'   =>  true, // мастер настрйоки при регистрации новой админки

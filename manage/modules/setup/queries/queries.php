@@ -8,7 +8,7 @@ db()->query("
     INSERT INTO `restore4_contractors_categories` 
     (`id`, `parent_id`, `avail`, `transaction_type`, `name`, `code_1c`, `date_add`, `comment`) VALUES
     (1, 0, b'1', 2, '".lq('Оплаты за заказы с сайта')."', '', NOW(), ''),
-    (2, 0, b'1', 1, '".lq('Возврат денег за заказ с сайта')."', '', NOW(), ''),
+    (2, 0, b'1', 1, '".lq('Возврат денег за заказ')."', '', NOW(), ''),
     (3, 0, b'1', 1, '".lq('Контрагент')."', '', NOW(), ''),
     (4, 0, b'1', 1, '".lq('Списание')."', '', NOW(), ''),
     (5, 0, b'1', 2, '".lq('Списание с баланса за возврат поставщику')."', '', NOW(), ''),
@@ -158,7 +158,7 @@ db()->query("
 // покупатель
 db()->query('INSERT IGNORE INTO {contractors}
                     (title, type, comment) VALUES (?, ?i, ?)',
-                array(lq('Покупатель'), 3, 'system'));
+                array(lq('Клиент'), 3, 'system'));
 // покупатель списания
 db()->query('INSERT IGNORE INTO {contractors}
                     (title, type, comment) VALUES (?, ?i, ?)',
