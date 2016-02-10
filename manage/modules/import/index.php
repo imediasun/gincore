@@ -52,15 +52,11 @@ class import{
         $out = '
             <div class="tabbable">
                 <ul class="nav nav-tabs">
-                    <li><a class="click_tab default" data-open_tab="import_upload" 
-                           onclick="click_tab(this, event)" data-toggle="tab" href="#upload">
-                                '.l('Загрузить файл').'</a></li>
                     <li><a class="click_tab default" data-open_tab="import_import" 
                            onclick="click_tab(this, event)" data-toggle="tab" href="#import">
                                 '.l('Импортировать данные').'</a></li>
                 </ul>
                 <div class="tab-content">
-                    <div id="upload" class="content_tab tab-pane"></div>
                     <div id="import" class="content_tab tab-pane"></div>
                 </div>
             </div>
@@ -141,35 +137,6 @@ class import{
         return '<option>'.l('Выберите').'</option>'.$types;
     }
     
-    private function import_upload(){
-        $html = '
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <form id="import_upload" enctype="multipart/form-data" method="POST">
-                            <div class="form-group">
-                                <label>'.l('Тип импорта').'</label>
-                                <select class="form-control" name="import_type" id="import_type">
-                                    '.$this->gen_types_select_options().'
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <input type="file" name="file">
-                            </div>
-                            <div class="form-group">
-                                <input type="button" id="upload_file_btn" value="'.l('Загрузить').'" class="btn btn-success" onclick="upload_file(this);">
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        ';
-        
-        return array(
-            'html' => $html
-        );
-    }
-    
     private function import_import(){
         $import = isset($_GET['i']) && isset($this->upload_types[$_GET['i']]) ? $_GET['i'] : '';
         
@@ -185,6 +152,9 @@ class import{
                                 </select>
                             </div>
                             <div id="import_form_part">'.$this->get_import_form($import).'</div>
+                            <div class="form-group">
+                                <input type="file" name="file">
+                            </div>
                             <div class="form-group">
                                 <button class="btn btn-success" type="button" onclick="start_import(this)">'.l('Запустить').'</button>
                             </div>
@@ -237,27 +207,6 @@ class import{
         return $form;
     }
     
-    private function upload(){
-        $data = array();
-        
-        $import_type = isset($_POST['import_type']) ? trim($_POST['import_type']) : '';
-        
-        if(isset($this->upload_types[$import_type])){
-            $upload_file = $this->upload_file($import_type);
-            if($upload_file === false){
-                $data['state'] = false;
-                $data['message'] = l('Только Excel или CSV файлы');
-            }else{
-                $data['state'] = true;
-                $data['location'] = $this->all_configs['prefix'].'import/?i='.$import_type.'&'.microtime(true).'#import';
-            }
-        }else{
-            $data['state'] = false;
-            $data['message'] = l('Не указан или не найден тип импорта');
-        }
-        return $data;
-    }
-    
     private function has_orders(){
         return db()->query("SELECT count(*) FROM {orders}")->el();
     }
@@ -265,26 +214,33 @@ class import{
     private function import(){
         $import_type = isset($_POST['import_type']) ? trim($_POST['import_type']) : '';
         $handler = isset($_POST['handler']) ? trim($_POST['handler']) : '';
+        
         if(isset($this->upload_types[$import_type])){
             if(isset($this->upload_types[$import_type]['handlers'][$handler])){
-                $source = $this->upload_path.$import_type.'.csv';
-                if(file_exists($source)){
-                    $import_settings = array();
-                    switch($import_type){
-                        case 'orders':
-                            if(!$this->has_orders()){ // если есть заказы в системе то низя
-                                $import_settings['clear_categories'] = isset($_POST['clear_categories']) ? true : false;
-                            }
-                            $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']) ? true : false;
-                        break;
-                    }
-                    require $this->all_configs['path'].'modules/import/import_helper.php';
-                    require $this->all_configs['path'].'modules/import/import_class.php';
-                    $import = new import_class($this->all_configs, $source, $import_type, $handler, $import_settings);
-                    $data = $import->run();
-                }else{
+                $upload_file = $this->upload_file($import_type);
+                if($upload_file === false){
                     $data['state'] = false;
-                    $data['message'] = l('Не найден файл импорта. Сначала загрузите файл.');
+                    $data['message'] = l('Не выбран файл импорта или он имеет неверный формат. Только Excel или CSV файлы');
+                }else{
+                    $source = $this->upload_path.$import_type.'.csv';
+                    if(file_exists($source)){
+                        $import_settings = array();
+                        switch($import_type){
+                            case 'orders':
+                                if(!$this->has_orders()){ // если есть заказы в системе то низя
+                                    $import_settings['clear_categories'] = isset($_POST['clear_categories']) ? true : false;
+                                }
+                                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']) ? true : false;
+                            break;
+                        }
+                        require $this->all_configs['path'].'modules/import/import_helper.php';
+                        require $this->all_configs['path'].'modules/import/import_class.php';
+                        $import = new import_class($this->all_configs, $source, $import_type, $handler, $import_settings);
+                        $data = $import->run();
+                    }else{
+                        $data['state'] = false;
+                        $data['message'] = l('Не найден файл импорта. Сначала загрузите файл.');
+                    }
                 }
             }else{
                 $data['state'] = false;
