@@ -18,7 +18,7 @@ class import{
         'clients' => array(
             'name' => 'Клиенты', 
             'handlers' => array(
-//                'default' => 'Gincore', 
+                'gincore' => 'Gincore', 
                 'remonline' => 'Remonline' 
             )
         )
@@ -74,8 +74,9 @@ class import{
         $file_uploaded = false;
         $filename = '';
         if(isset($_FILES['file']['name']) && trim($_FILES['file']['name'])){
-            if($_FILES['file']['type'] != 'application/vnd.ms-excel'){
-                return false;
+            if($_FILES['file']['type'] != 'application/vnd.ms-excel' && 
+               $_FILES['file']['type'] != 'text/csv'){
+                    return false;
             }else{
                 if(!is_dir($this->upload_path)){
                     mkdir($this->upload_path, 0777);
@@ -92,7 +93,9 @@ class import{
                     }
                 }
                 if (move_uploaded_file($_FILES['file']['tmp_name'], $target)) {
-                    $this->convert_xls_to_csv($target, $type);
+                    if($_FILES['file']['type'] == 'application/vnd.ms-excel'){
+                        $this->convert_xls_to_csv($target, $type);
+                    }
                     $file_uploaded = true;
                 }else{
                     $filename = '';
@@ -198,14 +201,17 @@ class import{
     }
     
     function get_import_form($type){
-        $form = '
-            <div class="form-group">
-                <label>'.l('Провайдер').'</label>
-                <select class="form-control" name="handler">
-                    '.$this->gen_handlers_select_options($type).'
-                </select>
-            </div>
-        ';
+        $form = '';
+        if($type){
+            $form = '
+                <div class="form-group">
+                    <label>'.l('Провайдер').'</label>
+                    <select class="form-control" name="handler">
+                        '.$this->gen_handlers_select_options($type).'
+                    </select>
+                </div>
+            ';
+        }
         switch($type){
             case 'orders':
                 $form .= '
@@ -240,7 +246,7 @@ class import{
             $upload_file = $this->upload_file($import_type);
             if($upload_file === false){
                 $data['state'] = false;
-                $data['message'] = l('Только Excel файлы');
+                $data['message'] = l('Только Excel или CSV файлы');
             }else{
                 $data['state'] = true;
                 $data['location'] = $this->all_configs['prefix'].'import/?i='.$import_type.'&'.microtime(true).'#import';
@@ -272,6 +278,7 @@ class import{
                             $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']) ? true : false;
                         break;
                     }
+                    require $this->all_configs['path'].'modules/import/import_helper.php';
                     require $this->all_configs['path'].'modules/import/import_class.php';
                     $import = new import_class($this->all_configs, $source, $import_type, $handler, $import_settings);
                     $data = $import->run();

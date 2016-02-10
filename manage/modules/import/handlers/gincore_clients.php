@@ -1,12 +1,14 @@
 <?php
 
-class remonline_clients extends import_helper{
+class gincore_clients extends import_helper{
     
     private $cols = array(
-        0 => 'Имя',
-        1 => 'Телефон',
-        2 => 'Адрес',
-        3 => 'Email',
+        0 => 'id',
+        1 => 'phones',
+        2 => 'email',
+        3 => 'fio',
+        4 => 'legal_address',
+        5 => 'date_add',
     );
     
     function get_cols(){
@@ -18,15 +20,15 @@ class remonline_clients extends import_helper{
     }
     
     function get_fio($data){
-        return $data[0];
-    }
-    
-    function get_email($data){
         return $data[3];
     }
     
-    function get_address($data){
+    function get_email($data){
         return $data[2];
+    }
+    
+    function get_address($data){
+        return $data[4];
     }
     
 }

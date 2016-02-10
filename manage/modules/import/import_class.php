@@ -1,6 +1,6 @@
 <?php
 
-class import_class{
+class import_class extends import_helper{
     
     private $source_file; // файл импорта (полный путь)
     private $type; // тип импорта
@@ -28,17 +28,34 @@ class import_class{
         $counter = 0;
         $rows = array();
         while(($row = fgetcsv($file, 1000, $this->scv_delimeter($filename))) !== FALSE){
-            // пропускаем первую строку ??
-            if($counter > 0){
+            if(!$counter){
+                if(!$this->check_format($row)){
+                    return array(
+                        'state' => false,
+                        'message' => l('Неправильный формат файла')
+                    );
+                }
+            }else{
                 $rows[] = $row;
             }
-            if($counter>1500){
-                break;
-            }
+//            if($counter>5){
+//                break;
+//            }
             $counter ++;
         }
         $result = $this->import_handler->run($rows);
         return $result;
+    }
+    
+    private function check_format($header_row){
+        $cols = $this->import_provider->get_cols();
+        foreach($header_row as $col => $name){
+            if(!isset($cols[$col]) 
+                    || $this->remove_whitespace($cols[$col]) != $this->remove_whitespace($name)){
+                return false;
+            }
+        }
+        return true;
     }
     
     private function load_data_object(){
@@ -54,7 +71,8 @@ class import_class{
         $provider_handler_name = $this->provider.'_'.$this->type;
         if(file_exists($this->include_path.'handlers/'.$provider_handler_name.'.php')){
             require $this->include_path.'handlers/'.$provider_handler_name.'.php';
-            return new $provider_handler_name($this->all_configs);
+            $this->import_provider = new $provider_handler_name($this->all_configs);
+            return $this->import_provider;
         }else{
             throw new Exception('import provider handler '.$provider_handler_name.' not found');
         }
@@ -63,7 +81,6 @@ class import_class{
     private function set_import_handler(){
         $import_handler_name = 'import_'.$this->type;
         if(file_exists($this->include_path.$import_handler_name.'.php')){
-            require $this->include_path.'import_helper.php';
             require $this->include_path.$import_handler_name.'.php';
             $this->import_handler = new $import_handler_name($this->all_configs, $this->get_import_provider_handler(), $this->import_settings);
         }else{

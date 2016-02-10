@@ -56,6 +56,10 @@ class remonline_orders extends import_helper{
         $this->all_configs = $all_configs;
     }
     
+    function get_cols(){
+        return $this->cols;
+    }
+    
     function get_id($data){
         preg_match_all('/A([0-9]+)\/?[0-9]*/', $data[2], $ids);
         $id = $ids[1][0];
