@@ -254,6 +254,11 @@ $(function() {
         $(this).find('#update-order').click();
         e.preventDefault();
     });
+    
+    $(document).on('click', 'input[name=add_private_comment],input[name=add_public_comment]', function(e){
+        update_order(this);
+        e.preventDefault();
+    });
 });
 
 

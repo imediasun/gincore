@@ -2850,37 +2850,37 @@ class orders
             $order = $_order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?',
                 array($order_id))->row();
 
-            if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order/* || $order['manager'] != $_SESSION['id']*/)) {
-                //$data['msg'] = 'Вы не являетесь менеджером этого заказа';
-                $data['msg'] = l('У Вас нет прав');
-                $data['state'] = false;
-            }
-            if ($data['state'] == true && !$order) {
-                $data['msg'] = l('Заказ не найден');
-                $data['state'] = false;
-            }
-            if ($data['state'] == true && isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && mb_strlen(trim($_POST['replacement_fund']), 'utf-8') == 0) {
-                $data['msg'] = l('Укажите подменный фонд');
-                $data['state'] = false;
-            }
-            if ($data['state'] == true && isset($_POST['categories-goods']) && intval($_POST['categories-goods']) == 0) {
-                $data['msg'] = l('Укажите устройство');
-                $data['state'] = false;
-            }
-            
-            if ($data['state'] == true) {
-                
-                // комментарии к заказам
-                if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
-                    if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
-                        $private = !empty($_POST['private_comment']) ? trim($_POST['private_comment']) : '';
-                        $public = !empty($_POST['public_comment']) ? trim($_POST['public_comment']) : '';
-                        $type = $private ? 1 : 0;
-                        $text = $private ?: $public;
-                        $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
-                        $data['reload'] = true;
-                    }
+            // комментарии к заказам
+            if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
+                if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
+                    $private = !empty($_POST['private_comment']) ? trim($_POST['private_comment']) : '';
+                    $public = !empty($_POST['public_comment']) ? trim($_POST['public_comment']) : '';
+                    $type = $private ? 1 : 0;
+                    $text = $private ?: $public;
+                    $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
+                    $data['reload'] = true;
                 }
+            }else{
+            
+                if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order/* || $order['manager'] != $_SESSION['id']*/)) {
+                    //$data['msg'] = 'Вы не являетесь менеджером этого заказа';
+                    $data['msg'] = l('У Вас нет прав');
+                    $data['state'] = false;
+                }
+                if ($data['state'] == true && !$order) {
+                    $data['msg'] = l('Заказ не найден');
+                    $data['state'] = false;
+                }
+                if ($data['state'] == true && isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && mb_strlen(trim($_POST['replacement_fund']), 'utf-8') == 0) {
+                    $data['msg'] = l('Укажите подменный фонд');
+                    $data['state'] = false;
+                }
+                if ($data['state'] == true && isset($_POST['categories-goods']) && intval($_POST['categories-goods']) == 0) {
+                    $data['msg'] = l('Укажите устройство');
+                    $data['state'] = false;
+                }
+
+                if ($data['state'] == true) {
                 
                 // принимаем заказ
                 if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
@@ -3053,6 +3053,8 @@ class orders
                 if ($_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
                     $data['sms'] = true;
                 }
+            }
+            
             }
         }
 
