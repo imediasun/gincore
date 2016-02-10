@@ -1071,6 +1071,7 @@ class orders
     }
     
     function order_for_sale_form(){
+        global $all_configs;
         $client_fields_for_sale = client_double_typeahead();
         $form = '
             <form method="post" id="sale-form" parsley-validate>
@@ -1118,8 +1119,19 @@ class orders
                             <input type="text" required id="sale_poduct_cost" class="form-control" value="" name="price" />
                             <span class="input-group-addon">'. viewCurrency() .'</span>
                         </div>
-                    </div>
-                    <div class="form-group">
+                    </div>';
+
+            $form .= '<div class="form-group">'
+                      .'<label>' . l('Гарантия') . ': </label> '
+                      .'<div class="input-group"> '
+                      .'<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
+            $order_warranties = isset($all_configs['settings']['order_warranties']) ? explode(',', $all_configs['settings']['order_warranties']) : array();
+            foreach ($order_warranties as $warranty) {
+                $form .= '<option value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
+            }
+            $form .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
+
+             $form .= '<div class="form-group">
                         <label>' . l('Скрытый комментарий к заказу') . ': </label>
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
                     </div>
@@ -1675,6 +1687,7 @@ class orders
         //2 Заказ клиента подвязан к заказу поставщику, а указанная в заказе поставщику дата поставки просрочена.
         //3 По нормативу с момента создания заказа на закупку (пустышки) и создания заказа поставщику не должно пройти больше 3х дней.
         //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
+        //5 На диагностику не более 2-х дней
         if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
             return true;
         }
@@ -1684,6 +1697,10 @@ class orders
         }
         // Принят в ремонт > 3 дней
         if ($order['status'] == $this->all_configs['configs']['order-status-new'] && strtotime($order['date']) + $day * 3 < time()) {
+            return true;
+        }
+        // На диагностике > 2 дней
+        if ($order['status'] == $this->all_configs['configs']['order-status-diagnosis'] && strtotime($order['date']) + $day * 2 < time()) {
             return true;
         }
         // В процессе ремонта > 3 дней
@@ -2345,18 +2362,20 @@ class orders
                     }
                     $order_html .= '</div>';
                 }
-                $order_html .= '<div class="form-group">'
-                                  .'<span class="cursor-pointer glyphicon glyphicon-list muted" onclick="alert_box(this, false, \'changes:update-order-warranty\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span> '
-                                  .'<label>' . l('Гарантия') . ': </label> '
-                                  .'<div class="input-group"> '
-                                  .'<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
-                $order_warranties = isset($this->all_configs['settings']['order_warranties']) ? explode(',', $this->all_configs['settings']['order_warranties']) : array();
-                foreach ($order_warranties as $warranty) {
-                    $order_html .= '<option ' . ($order['warranty'] == intval($warranty) ? 'selected' : '') . ' value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
-                }
-                $order_html .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
+                //гарантия только в ремонте
             }
-            
+            //либо гарантия и в продаже тоже
+            $order_html .= '<div class="form-group">'
+                              .'<span class="cursor-pointer glyphicon glyphicon-list muted" onclick="alert_box(this, false, \'changes:update-order-warranty\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span> '
+                              .'<label>' . l('Гарантия') . ': </label> '
+                              .'<div class="input-group"> '
+                              .'<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
+            $order_warranties = isset($this->all_configs['settings']['order_warranties']) ? explode(',', $this->all_configs['settings']['order_warranties']) : array();
+            foreach ($order_warranties as $warranty) {
+                $order_html .= '<option ' . ($order['warranty'] == intval($warranty) ? 'selected' : '') . ' value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
+            }
+            $order_html .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
+
             // заказ на основе заявки
             $request = get_service('crm/requests')->get_request_by_order($order['id']);
             if($request){
