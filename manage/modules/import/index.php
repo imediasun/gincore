@@ -19,7 +19,8 @@ class import{
             'name' => 'Клиенты', 
             'handlers' => array(
                 'gincore' => 'Gincore', 
-                'remonline' => 'Remonline' 
+                'remonline' => 'Remonline', 
+                'onec' => '1C' 
             )
         )
     );
@@ -71,6 +72,7 @@ class import{
         $filename = '';
         if(isset($_FILES['file']['name']) && trim($_FILES['file']['name'])){
             if($_FILES['file']['type'] != 'application/vnd.ms-excel' && 
+               $_FILES['file']['type'] != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' &&
                $_FILES['file']['type'] != 'text/csv'){
                     return false;
             }else{
@@ -89,7 +91,8 @@ class import{
                     }
                 }
                 if (move_uploaded_file($_FILES['file']['tmp_name'], $target)) {
-                    if($_FILES['file']['type'] == 'application/vnd.ms-excel'){
+                    if($_FILES['file']['type'] == 'application/vnd.ms-excel' ||
+                       $_FILES['file']['type'] == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
                         $this->convert_xls_to_csv($target, $type);
                     }
                     $file_uploaded = true;

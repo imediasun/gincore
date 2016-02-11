@@ -18,52 +18,69 @@ class import_clients extends import_helper{
         require_once $this->all_configs['sitepath'] . 'shop/access.class.php';
         $this->access = new access($this->all_configs, false);
         
-        foreach($this->rows as $row){
-            $errors = array();
-            $error_type = 0;
-            $phones = $this->provider->get_phones($row);
-            $fio = $this->remove_whitespace($this->provider->get_fio($row));
-            $email = $this->remove_whitespace($this->provider->get_email($row));
-            $address = $this->remove_whitespace($this->provider->get_address($row));
-            if(!$phones){
-                $errors[] = l('Не указан телефон');
+        if(!empty($this->provider->has_custom_data_handler)){
+            $data = $this->provider->get_data($this->rows);
+            foreach($data as $client_data){
+                $phones = $client_data['phones'];
+                $fio = $client_data['fio'];
+                $email = $client_data['email'];
+                $address = $client_data['address'];
+                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num);
+                $num ++;
             }
-            if(!$email){
-                $email = null;
+        }else{
+            foreach($this->rows as $row){
+                $phones = $this->provider->get_phones($row);
+                $fio = $this->remove_whitespace($this->provider->get_fio($row));
+                $email = $this->remove_whitespace($this->provider->get_email($row));
+                $address = $this->remove_whitespace($this->provider->get_address($row));
+                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num);
+                $num ++;
             }
-            if(!$errors){
-                // берем первый телефон как основной
-                $phone = $phones[0];
-                $create = $this->create_client($phone, $fio, $email, $address);
-                if(!$create['state']){
-                    $errors[] = $create['message'];
-                }else{
-                    if(count($phones) > 1){
-                        // добавляем доп телефоны
-                        foreach($phones as $i => $tel){
-                            if(!$i) continue;
-                            $tel = $this->access->is_phone($this->clear_phone($tel));
-                            if($tel !== false){
-                                $this->all_configs['db']->query('INSERT IGNORE INTO {clients_phones} (phone, client_id) '
-                                                               .'VALUES (?, ?i)',
-                                        array($tel[0], $create['id']));
-                            }
-                        }
-                    }
-                }
-                $error_type = $create['state_type'];
-            }
-            $results[] = array(
-                'num' => $num,
-                'state_type' => $error_type,
-                'state' => !$errors,
-                'message' => !$errors ? l('Добавлен') : implode('<br>', $errors)
-            );
-            $num ++;
         }
         return array(
             'state' => true,
             'message' => $this->gen_result_table($results)
+        );
+    }
+    
+    private function process_client_data($phones, $fio, $email, $address, $num){
+        $errors = array();
+        $error_type = 0;
+        if(!$phones){
+            $errors[] = l('Не указан телефон');
+        }
+        if(!$email){
+            $email = null;
+        }
+        if(!$errors){
+            // берем первый телефон как основной
+            $phone = $phones[0];
+            $create = $this->create_client($phone, $fio, $email, $address);
+            if(!$create['state']){
+                $errors[] = $create['message'];
+            }else{
+                if(count($phones) > 1){
+                    // добавляем доп телефоны
+                    foreach($phones as $i => $tel){
+                        if(!$i) continue;
+                        $tel = $this->access->is_phone($this->clear_phone($tel));
+                        if($tel !== false){
+                            $this->all_configs['db']->query('INSERT IGNORE INTO {clients_phones} (phone, client_id) '
+                                                           .'VALUES (?, ?i)',
+                                    array($tel[0], $create['id']));
+                        }
+                    }
+                }
+            }
+            $error_type = $create['state_type'];
+        }
+        return array(
+            'num' => $num,
+            'fio' => $fio,
+            'state_type' => $error_type,
+            'state' => !$errors,
+            'message' => !$errors ? l('Добавлен') : implode('<br>', $errors)
         );
     }
     
@@ -111,7 +128,8 @@ class import_clients extends import_helper{
             }
             $rows .= '
                 <tr class="'.$type.'">
-                    <td># '.$row_result['num'].'</td>
+                    <td># '.$row_result['num'].' '
+                           .(!empty($row_result['fio']) ? '('.htmlspecialchars($row_result['fio']).')' : '').'</td>
                     <td>'.$row_result['message'].'</td>
                 </tr>
             ';

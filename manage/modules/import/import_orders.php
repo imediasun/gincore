@@ -306,7 +306,7 @@ class import_orders extends import_helper{
                 // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
                 $a_id = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ?", array($accepter), 'el');
                 if(!$a_id){
-                    $not_found_accepters[] = $accepter;
+                    $not_found_accepters[] = htmlspecialchars($accepter);
                 }else{
                     $a_whs = $this->all_configs['db']->query("SELECT wh_id,location_id FROM {warehouses_users} "
                                                             ."WHERE user_id = ?i AND main = 1", array($a_id), 'row');
@@ -319,7 +319,7 @@ class import_orders extends import_helper{
                 // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
                 $e_id = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ?", array($engineer), 'el');
                 if(!$e_id){
-                    $not_found_engineers[] = $engineer;
+                    $not_found_engineers[] = htmlspecialchars($engineer);
                 }
                 $this->engineers[$engineer] = $e_id;
             }

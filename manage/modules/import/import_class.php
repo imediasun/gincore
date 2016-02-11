@@ -38,7 +38,7 @@ class import_class extends import_helper{
             }else{
                 $rows[] = $row;
             }
-//            if($counter>5){
+//            if($counter>10){
 //                break;
 //            }
             $counter ++;
