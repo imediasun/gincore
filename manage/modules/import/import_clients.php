@@ -86,7 +86,7 @@ class import_clients extends import_helper{
     
     private function create_client($client_phone, $client_fio, $client_email, $client_address){
         $state_type = 0;
-        $phone_part = substr($this->clear_phone($client_phone), -7);
+        $phone_part = substr($this->clear_phone($client_phone), -9);
         $find_client = db()->query("SELECT client_id FROM {clients_phones} "
                                   ."WHERE phone LIKE '%?e'", array($phone_part), 'el');
         if(!$find_client){

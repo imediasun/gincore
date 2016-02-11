@@ -20,7 +20,7 @@ class import{
             'handlers' => array(
                 'gincore' => 'Gincore', 
                 'remonline' => 'Remonline', 
-                'onec' => '1C' 
+                'onec' => '1C (формат A)' 
             )
         )
     );
@@ -135,7 +135,7 @@ class import{
     private function gen_handlers_select_options($type, $selected = ''){
         $types = '';
         foreach($this->upload_types[$type]['handlers'] as $k => $v){
-            $types .= '<option'.($selected == $k ? ' selected' : '').' value="'.$k.'">'.$v.'</option>';
+            $types .= '<option'.($selected == $k ? ' selected' : '').' value="'.$k.'">'.l($v).'</option>';
         }
         return '<option>'.l('Выберите').'</option>'.$types;
     }
