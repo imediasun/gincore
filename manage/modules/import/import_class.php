@@ -32,13 +32,13 @@ class import_class extends import_helper{
                 if(!$this->check_format($row)){
                     return array(
                         'state' => false,
-                        'message' => l('Неправильный формат файла')
+                        'message' => l('Неправильная структура файла для типа импорта и провайдера')
                     );
                 }
             }else{
                 $rows[] = $row;
             }
-//            if($counter>5){
+//            if($counter>10){
 //                break;
 //            }
             $counter ++;

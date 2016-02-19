@@ -1545,8 +1545,8 @@ class Chains
                     LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
                     LEFT JOIN {clients} as cl ON cl.contractor_id=i.supplier_id
                     LEFT JOIN {contractors} as ct ON ct.id=i.supplier_id
-                    WHERE i.id IN (?li) AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id',
-                array($items, 1))->assoc();
+                    WHERE i.id IN (?li) AND w.id=i.wh_id AND i.order_id IS NULL GROUP BY i.id',
+                array($items/*, 1*/))->assoc(); // AND w.consider_all=?i 
         }
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('return-items-suppliers')) {
@@ -1556,7 +1556,7 @@ class Chains
         // изделий не найдено
         if ($data['state'] == true && !$items) {
             $data['state'] = false;
-            $data['message'] = 'Свободные изделия для возврата не найдены или они находятся не в общем остатке (на складе у которого не включена опция учета в свободном остатке)';
+            $data['message'] = l('Свободные изделия для возврата не найдены или они находятся не в общем остатке (на складе у которого не включена опция учета в свободном остатке)');
         }
         /*// клиент
         $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
