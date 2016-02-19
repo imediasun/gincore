@@ -103,7 +103,7 @@ class Products_webcam
 
         if (!is_dir($new_img_path)) {
             if (@mkdir($new_img_path)) {
-                chmod($new_img_path, 0777);
+                chmod($new_img_path, 0770);
             } else {
                 $error = error_get_last();
                 return array('state' => false, 'msg' => 'Нет доступа к директории', 'error' => $error['message']);

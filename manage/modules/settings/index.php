@@ -29,7 +29,7 @@ class settings{
     private function genmenu(){
         $out = '<h4>'.l('sets_list').' <a style="text-decoration:none" href="'.$this->all_configs['prefix'].'settings/add">+</a></h4>';
 
-        $sqls = $this->all_configs['db']->query("SELECT * FROM {settings} ORDER BY `title`")->assoc();
+        $sqls = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE `ro` = 0 ORDER BY `title`")->assoc();
 
         $out .= '<ul>';
         foreach($sqls as $pps){
@@ -57,7 +57,7 @@ class settings{
 
 ###############################################################################
         if(isset($this->all_configs['arrequest'][1]) && is_numeric($this->all_configs['arrequest'][1])){
-            $pp = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE id = ?i", array($this->all_configs['arrequest'][1]), 'row');
+            $pp = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE id = ?i AND `ro` = 0", array($this->all_configs['arrequest'][1]), 'row');
             $out = '<ul>';
 
             $out = '<h3>«'.$pp['title'].'»</h3>';
