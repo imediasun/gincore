@@ -95,6 +95,87 @@ class Configs {
                         'length' => 10
                     )
                 ),
+                6 => array(
+                    'name' => l('Азербайджан'),
+                    'phone' => array(
+                        'code' => 994,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                7 => array(
+                    'name' => l('Армения'),
+                    'phone' => array(
+                        'code' => 374,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                8 => array(
+                    'name' => l('Киргизия'),
+                    'phone' => array(
+                        'code' => 996,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                9 => array(
+                    'name' => l('Таджикистан'),
+                    'phone' => array(
+                        'code' => 992,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                10 => array(
+                    'name' => l('Туркмения'),
+                    'phone' => array(
+                        'code' => 993,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                11 => array(
+                    'name' => l('Узбекистан'),
+                    'phone' => array(
+                        'code' => 998,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                12 => array(
+                    'name' => l('Грузия'),
+                    'phone' => array(
+                        'code' => 995,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                13 => array(
+                    'name' => l('Литва'),
+                    'phone' => array(
+                        'code' => 370,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                14 => array(
+                    'name' => l('Латвия'),
+                    'phone' => array(
+                        'code' => 371,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                15 => array(
+                    'name' => l('Эстония'),
+                    'phone' => array(
+                        'code' => 372,
+                        'short_code' => 0,
+                        'length' => 9
+                    )
+                ),
+                
             ),
             'manage-langs' => array(
                 'current' => 'ru',
@@ -126,13 +207,21 @@ class Configs {
                 'settings-system-lang-select-enabled' =>  true, // выбор языка системы (+ отрубает переключалку языка в шапке и грузит выбранный язык - из настройки)
                 'settings-master-enabled'   =>  true, // мастер настрйоки при регистрации новой админки
                   'currencies'                => array(
-                          1 => array('rutils' => array('words' => array(l('доллар'), l('доллара'), l('долларов')), 'gender' => 'male'), 'name' => l('Доллар США'), 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
-                          2 => array('rutils' => array('words' => array(l('евро'), l('евро'), l('евро')), 'gender' => 'male'), 'name' => l('ЕВРО'), 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
-                          4 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Российский рубль'), 'shortName' => 'RUB', 'viewName' => l('руб.'), 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
-                          3 => array('rutils' => array('words' => array(l('гривна'), l('гривны'), l('гривен')), 'gender' => 'female'), 'name' => l('Гривна'), 'shortName' => 'UAH', 'viewName' => l('грн.'), 'symbol' => '₴', 'currency-name' => 'grn-cash'),
-                          5 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Белорусский рубль'), 'shortName' => 'BYR', 'viewName' => l('бр.'), 'symbol' => 'Br', 'currency-name' => ''),
-                          6 => array('rutils' => array('words' => array(l('тенге'), l('тенге'), l('тенге')), 'gender' => 'male'), 'name' => l('Казахстанский тенге'), 'shortName' => 'KZT', 'viewName' => l('тнг.'), 'symbol' => '₸', 'currency-name' => ''),
-                          7 => array('rutils' => array('words' => array(l('лей'), l('лея'), l('леев')), 'gender' => 'male'), 'name' => l('Молдавский лей'), 'shortName' => 'MDL', 'viewName' => l('леи'), 'symbol' => 'L', 'currency-name' => ''),
+                        1 => array('rutils' => array('words' => array(l('доллар'), l('доллара'), l('долларов')), 'gender' => 'male'), 'name' => l('Доллар США'), 'shortName' => 'USD', 'viewName' => '$', 'symbol' => '$', 'currency-name' => 'price'),
+                        2 => array('rutils' => array('words' => array(l('евро'), l('евро'), l('евро')), 'gender' => 'male'), 'name' => l('ЕВРО'), 'shortName' => 'EUR', 'viewName' => '€', 'symbol' => '€', 'currency-name' => ''),
+                        4 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Российский рубль'), 'shortName' => 'RUB', 'viewName' => l('руб.'), 'symbol' => '<i class="fa fa-rub"></i>', 'currency-name' => ''),
+                        3 => array('rutils' => array('words' => array(l('гривна'), l('гривны'), l('гривен')), 'gender' => 'female'), 'name' => l('Гривна'), 'shortName' => 'UAH', 'viewName' => l('грн.'), 'symbol' => '₴', 'currency-name' => 'grn-cash'),
+                        5 => array('rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'), 'name' => l('Белорусский рубль'), 'shortName' => 'BYR', 'viewName' => l('бр.'), 'symbol' => 'Br', 'currency-name' => ''),
+                        6 => array('rutils' => array('words' => array(l('тенге'), l('тенге'), l('тенге')), 'gender' => 'male'), 'name' => l('Казахстанский тенге'), 'shortName' => 'KZT', 'viewName' => l('тнг.'), 'symbol' => '₸', 'currency-name' => ''),
+                        7 => array('rutils' => array('words' => array(l('лей'), l('лея'), l('леев')), 'gender' => 'male'), 'name' => l('Молдавский лей'), 'shortName' => 'MDL', 'viewName' => l('леи'), 'symbol' => 'L', 'currency-name' => ''),
+                        8 => array('rutils' => array('words' => array(l('манат'), l('маната'), l('манатов')), 'gender' => 'male'), 'name' => l('Азербайджанский манат'), 'shortName' => 'AZN', 'viewName' => l('ман.'), 'symbol' => '₼', 'currency-name' => ''),
+
+                        9 => array('rutils' => array('words' => array(l('драм'), l('драма'), l('драмов')), 'gender' => 'male'), 'name' => l('Армянский драм'), 'shortName' => 'AMD', 'viewName' => l('драмы'), 'symbol' => '֏', 'currency-name' => ''),
+                        10 => array('rutils' => array('words' => array(l('сом'), l('сома'), l('сомов')), 'gender' => 'male'), 'name' => l('Киргизский сом'), 'shortName' => 'KGS', 'viewName' => l('сом'), 'symbol' => 'с', 'currency-name' => ''),
+                        11 => array('rutils' => array('words' => array(l('сомони'), l('сомони'), l('сомони')), 'gender' => 'male'), 'name' => l('Таджикский сомони'), 'shortName' => 'TJS', 'viewName' => l('смн.'), 'symbol' => 'с.', 'currency-name' => ''),
+                        12 => array('rutils' => array('words' => array(l('манат'), l('маната'), l('манатов')), 'gender' => 'male'), 'name' => l('Туркменский манат'), 'shortName' => 'TMT', 'viewName' => l('ман.'), 'symbol' => 'm', 'currency-name' => ''),
+                        13 => array('rutils' => array('words' => array(l('сум'), l('сума'), l('сумов')), 'gender' => 'male'), 'name' => l('Узбекский сум'), 'shortName' => 'UZS', 'viewName' => l('сумы'), 'symbol' => 'UZS', 'currency-name' => ''),
+                        14 => array('rutils' => array('words' => array(l('лари'), l('лари'), l('лари')), 'gender' => 'male'), 'name' => l('Грузинский лари'), 'shortName' => 'GEL', 'viewName' => l('лари'), 'symbol' => '₾', 'currency-name' => ''),
                    ),
 
             /**

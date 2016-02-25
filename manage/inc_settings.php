@@ -21,6 +21,9 @@ $all_configs['arrequest'] = clear_empty_inarray(explode('/', $request));
 $all_configs['configs'] = Configs::get();
 $all_configs['settings'] = $all_configs['db']->query("SELECT name, value FROM {settings}")->vars();
 
+$all_configs['db']->query('SET @@session.time_zone = ?;', array($all_configs['settings']['time_zone']))->ar();
+
+
 /* определяем языки админки */
 require_once 'core_langs.php';
 

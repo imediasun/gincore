@@ -2135,6 +2135,7 @@ class orders
                 $print_check    = print_link($order['id'], 'invoice', '', true);
                 $print_kvit     = print_link($order['id'], 'check', '', true);
                 $print_act      = print_link($order['id'], 'act', '', true);
+                $print_invoicing= print_link($order['id'], 'invoicing', '', true);
                 $print_btns = '
                     <div class="btn-group">
                       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -2145,6 +2146,7 @@ class orders
                         <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">' . l('Чек') . '</label/></li>
                         <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">' . l('Гарантия') . '</label/></li>
                         <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">' . l('Акт выполненых работ') . '</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_invoicing.'">' . l('Счет на оплату') . '</label/></li>
                         <li role="separator" class="divider"></li>
                         <li class="text-center">
                             <button class="btn btn-sm btn-info" type="button" id="print_now">' . l('Распечатать') . '</button>
