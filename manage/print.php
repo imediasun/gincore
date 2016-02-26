@@ -368,13 +368,45 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             if ($order) {
                 $editor = true;
                 
+                 // товары и услуги
+                $products_rows = array();
+                $summ = 0;
+                $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
+                      FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
+                    array($object))->assoc();
+                if ($goods) {
+                    foreach ($goods as $product) {
+                        $products_rows[] = array(
+                            'title' => htmlspecialchars($product['title']),
+                            'price_view' => ($product['price'] / 100).' '.viewCurrency()
+                        );
+//                        $summ += $product['price'];
+                    }
+                }
+                $summ = $order['sum'];
+                
+                $products_html_parts = array();
+                $num = 1;
+                foreach($products_rows as $prod){
+                    $products_html_parts[] = '
+                        '.$num.'</td>
+                        <td>'.$prod['title'].'</td>
+                        <td>1</td>
+                        <td>'.$prod['price_view'].'</td>
+                        <td>'.$prod['price_view'].'
+                    ';
+                    $num ++;
+                }
+                $qty_all = $num-1;
+                $products_html = implode('</td></tr><tr><td>', $products_html_parts);
+                
                 include './classes/php_rutils/struct/TimeParams.php';
                 include './classes/php_rutils/Dt.php';
                 include './classes/php_rutils/Numeral.php';
                 include './classes/php_rutils/RUtils.php';
                 $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false, 
-                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
-                                                                         $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
+                                                                 $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
+                                                                 $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
                 $params = new \php_rutils\struct\TimeParams();
                 $params->date = null; //default value, 'now'
                 $params->format = 'd F Y';
@@ -393,6 +425,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги (вставляется внутрь таблицы)'),
                 );
                 $print_html = generate_template($arr, 'act');
             }

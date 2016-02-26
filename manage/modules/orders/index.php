@@ -1192,7 +1192,7 @@ class orders
         $orders_html = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('edit-map')? false : true;
+            $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('read-other-suppliers-orders')? false : true;
             $_GET['my'] = $my || (isset($_GET['my']) && $_GET['my'] == 1) ? true : false;
             $queries = $this->all_configs['manageModel']->suppliers_orders_query($_GET);
             $query = $queries['query'];
@@ -1228,7 +1228,7 @@ class orders
         $orders_html = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('edit-map')? false : true;
+            $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('read-other-suppliers-orders')? false : true;
             $_GET['my'] = $my || (isset($_GET['my']) && $_GET['my'] == 1) ? true : false;
 
             // заказы клиентов на которых можно проверить изделия
