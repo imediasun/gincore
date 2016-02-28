@@ -18,7 +18,7 @@ if($all_configs['prefix'] != '/') {
 
 $all_configs['arrequest'] = clear_empty_inarray(explode('/', $request));
 
-$all_configs['configs'] = Configs::get();
+$all_configs['configs'] = Configs::getInstance()->get();
 $all_configs['settings'] = $all_configs['db']->query("SELECT name, value FROM {settings}")->vars();
 
 $all_configs['db']->query('SET @@session.time_zone = ?;', array($all_configs['settings']['time_zone']))->ar();
@@ -29,7 +29,7 @@ require_once 'core_langs.php';
 
 // переводим конфиг на язык
 Configs::getInstance()->set_configs();
-$all_configs['configs'] = Configs::get();
+$all_configs['configs'] = Configs::getInstance()->get();
 
 $all_configs['oRole'] = new Role($all_configs, $dbcfg['_prefix']);
 
