@@ -1560,10 +1560,11 @@ $(function(){
             $form = $this.hasClass('ajax_form') ? $this : $this.closest('.ajax_form');
         $form.find(':submit').attr('disabled', true);
         if($form.hasClass('emulate_form')){
-            var data = $form.clone().wrap('<form></form>').parent().serialize();
+            var data = $form.parent().serialize();
         }else{
             var data = $form.serialize();
         }
+        console.log(data);
         $.ajax({
             url: $form.attr('action') || $form.attr('data-action'),
             type: $form.attr('method') || $form.attr('data-method'),
