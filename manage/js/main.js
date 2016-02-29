@@ -1565,7 +1565,6 @@ $(function(){
         }else{
             var data = $form.serialize();
         }
-        console.log(data);
         $.ajax({
             url: $form.attr('action') || $form.attr('data-action'),
             type: $form.attr('method') || $form.attr('data-method'),
