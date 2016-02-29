@@ -1,8 +1,17 @@
 <?php
 
-class dashboard{
+class dashboard
+{
+    const PREPAYMENT_TRANSACTION_TYPE = 10;
 
-    function __construct($all_configs, $lang, $def_lang){
+    /**
+     * dashboard constructor.
+     * @param $all_configs
+     * @param $lang
+     * @param $def_lang
+     */
+    function __construct($all_configs, $lang, $def_lang)
+    {
         global $input;
         $this->def_lang = $def_lang;
         $this->lang = $lang;
@@ -10,19 +19,24 @@ class dashboard{
         $this->db = $this->all_configs['db'];
         $this->arrequest = $this->all_configs['arrequest'];
         $this->prefix = $this->all_configs['prefix'];
-        
-        if ($this->all_configs['oRole']->hasPrivilege('dashboard') ) {
+
+        if ($this->all_configs['oRole']->hasPrivilege('dashboard')) {
             $this->gen_filter_block();
             $this->gen_content();
-        }else{
+        } else {
             $input['dashboard_class'] = 'hidden';
             $input['mcontent'] = '<p class="text-center m-t-lg">' . l('Администрирование') . '</p>';
         }
     }
-    
-    private function gen_filter_block(){
+
+    /**
+     *
+     */
+    private function gen_filter_block()
+    {
         global $input;
-        $start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? date("j/n/y", strtotime($_GET['ds'])) : date("1/n/y");
+        $start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? date("j/n/y",
+            strtotime($_GET['ds'])) : date("1/n/y");
         $end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? date("j/n/y", strtotime($_GET['de'])) : date("j/n/y");
         $input['filter'] =
             '<div id="daterange" class="btn btn-info">
@@ -30,31 +44,44 @@ class dashboard{
             </div>';
     }
 
-    private function get_filters(){
+    /**
+     * @return array
+     */
+    private function get_filters()
+    {
         $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
         $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
         return array(
-            'date_start' => $date_start, 
+            'date_start' => $date_start,
             'date_end' => $date_end
         );
     }
-    
-    private function make_filters($date_field){
+
+    /**
+     * @param $date_field
+     * @return string
+     */
+    private function make_filters($date_field)
+    {
         $filters = $this->get_filters();
         $query = '';
         if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT('.$date_field.', "%Y-%m-%d")>=?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")>=?',
                 array($query, $filters['date_start']));
         }
 
         if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT('.$date_field.', "%Y-%m-%d")<=?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")<=?',
                 array($query, $filters['date_end']));
         }
-        return ' 1=1 '.$query;
+        return ' 1=1 ' . $query;
     }
-    
-    private function gen_content(){
+
+    /**
+     *
+     */
+    private function gen_content()
+    {
         global $input;
         $conversion = $this->get_conversion();
         $input['conversion_1'] = $conversion[0];
@@ -74,39 +101,47 @@ class dashboard{
         $input['period_cash'] = $cash['period'];
         $input['cash_chart'] = $cash['cash_chart'];
     }
-    
-    private function get_date_period(){
+
+    /**
+     * @return DatePeriod
+     */
+    private function get_date_period()
+    {
         $filters = $this->get_filters();
         $a = new DateTime($filters['date_start']);
         $b = new DateTime($filters['date_end']);
-        $b->modify( '+1 day' );
+        $b->modify('+1 day');
         $period = new DatePeriod($a, new DateInterval('P1D'), $b);
         return $period;
     }
-    
-    private function get_conv_chart(){
+
+    /**
+     * @return array
+     */
+    private function get_conv_chart()
+    {
         $calls = $this->db->query("SELECT DATE_FORMAT(date, '%Y-%m-%d') as d, count(*) as c "
-                                 ."FROM {crm_calls} "
-                                 ."WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
+            . "FROM {crm_calls} "
+            . "WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
         $visitors = $this->db->query("SELECT date as d, SUM(users) as c FROM {crm_analytics} "
-                                    ."WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
+            . "WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
         $orders = $this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c "
-                                  ."FROM {orders} "
-                                  ."WHERE ?q AND type = 0 GROUP BY d", array($this->make_filters('date_add')))->vars();
+            . "FROM {orders} "
+            . "WHERE ?q AND type = 0 GROUP BY d", array($this->make_filters('date_add')))->vars();
         $calls_js = array();
         $orders_js = array();
         $visitors_js = array();
         $period = $this->get_date_period();
         $init_visitors = false;
-        foreach($period as $dt) {
+        foreach ($period as $dt) {
             $date = $dt->format('Y-m-d');
-            if(!empty($visitors[$date])){
+            if (!empty($visitors[$date])) {
                 $init_visitors = true;
             }
-            $d_js = 'gd('.$dt->format('Y').','.$dt->format('n').','.$dt->format('j').')';
-            $calls_js[$date] = '['.$d_js.','.(isset($calls[$date]) ? $calls[$date] : 0).']';
-            $orders_js[$date] = '['.$d_js.','.(isset($orders[$date]) ? $orders[$date] : 0).']';
-            $visitors_js[$date] = '['.$d_js.','.(isset($visitors[$date]) ? $visitors[$date] : 0).']';
+            $d_js = 'gd(' . $dt->format('Y') . ',' . $dt->format('n') . ',' . $dt->format('j') . ')';
+            $calls_js[$date] = '[' . $d_js . ',' . (isset($calls[$date]) ? $calls[$date] : 0) . ']';
+            $orders_js[$date] = '[' . $d_js . ',' . (isset($orders[$date]) ? $orders[$date] : 0) . ']';
+            $visitors_js[$date] = '[' . $d_js . ',' . (isset($visitors[$date]) ? $visitors[$date] : 0) . ']';
         }
         return array(
             'calls' => implode(',', $calls_js),
@@ -115,18 +150,22 @@ class dashboard{
             'init_visitors' => $init_visitors
         );
     }
-    
-    private function get_conversion(){
+
+    /**
+     * @return array
+     */
+    private function get_conversion()
+    {
         $calls = $this->db->query("SELECT count(*) FROM {crm_calls} "
-                                 ."WHERE ?q", array($this->make_filters('date')))->el();
+            . "WHERE ?q", array($this->make_filters('date')))->el();
         $visitors = $this->db->query("SELECT SUM(users) FROM {crm_analytics} "
-                                    ."WHERE ?q", array($this->make_filters('date')))->el();
+            . "WHERE ?q", array($this->make_filters('date')))->el();
         $orders = $this->db->query("SELECT count(*) FROM {orders} "
-                                  ."WHERE ?q", array($this->make_filters('date_add')))->el();
+            . "WHERE ?q", array($this->make_filters('date_add')))->el();
         // посетители / звонки
-        $conv_1 = $visitors ? $calls / $visitors : 0; 
+        $conv_1 = $visitors ? $calls / $visitors : 0;
         // звонки / заказы 
-        $conv_2 = $calls ? $orders / $calls : 0; 
+        $conv_2 = $calls ? $orders / $calls : 0;
         // посетители / заказы 
         $conv_3 = $visitors ? $orders / $visitors : 0;
         return array(
@@ -135,8 +174,12 @@ class dashboard{
             $this->percent_format($conv_3 * 100)
         );
     }
-    
-    private function get_avg_check(){
+
+    /**
+     * @return mixed
+     */
+    private function get_avg_check()
+    {
         $query_filter = $this->make_filters('o.date_add');
         $avg_check = $this->db->query("
             SELECT 
@@ -147,8 +190,12 @@ class dashboard{
         $avg_check = $this->price_format($avg_check);
         return $avg_check;
     }
-    
-    private function get_workshops_stats(){
+
+    /**
+     * @return string
+     */
+    private function get_workshops_stats()
+    {
         $stats = '';
         $statuses = array(
             40 => $this->all_configs['configs']['order-status'][40]['name'], // выдан
@@ -158,99 +205,117 @@ class dashboard{
         );
         $query_filter = $this->make_filters('date_add');
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
-                                      ."WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
-        foreach($statuses as $status => $name){
-            
+            . "WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
+        foreach ($statuses as $status => $name) {
+
             $name = l($name);
-            
+
             $orders = $this->db->query("SELECT count(*) "
-                                      ."FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
+                . "FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
             $stats .= '
                 <div class="m-t-xs">
                     <span class="font-bold no-margins">
-                        '.$name.' <span class="pull-right">'.$orders.' ('.$p.'%)</span>
+                        ' . $name . ' <span class="pull-right">' . $orders . ' (' . $p . '%)</span>
                     </span>
                     <div class="progress m-t-xs full progress-small">
-                        <div style="width:'.$p.'%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="55" role="progressbar" class="'.(!$orders ? 'hidden ' : '').'progress-bar progress-bar-success">
+                        <div style="width:' . $p . '%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="55" role="progressbar" class="' . (!$orders ? 'hidden ' : '') . 'progress-bar progress-bar-success">
                             <span class="sr-only"></span>
                         </div>
                     </div>
                 </div>
             ';
         }
-        return $stats; 
+        return $stats;
     }
-    
-    private function get_engineer_stats(){
+
+    /**
+     * @return mixed|string
+     */
+    private function get_engineer_stats()
+    {
         $query_filter = $this->make_filters('o.date_add');
         $orders = $this->db->query("SELECT engineer, IF(u.fio!='',u.fio,u.login) as fio, "
-                                         ."count(o.id) as orders "
-                                  ."FROM {orders} as o "
-                                  ."LEFT JOIN {users} as u ON u.id = o.engineer "
-                                  ."WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY engineer "
-                                  ."ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']), 'assoc');
+            . "count(o.id) as orders "
+            . "FROM {orders} as o "
+            . "LEFT JOIN {users} as u ON u.id = o.engineer "
+            . "WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY engineer "
+            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']),
+            'assoc');
         $all_orders = 0;
-        foreach($orders as $ord){
+        foreach ($orders as $ord) {
             $all_orders += $ord['orders'];
         }
         $stats = '';
-        foreach($orders as $i => $o){
+        foreach ($orders as $i => $o) {
             $p = $this->percent_format($o['orders'] / $all_orders * 100);
             $stats .= '
                 <div class="clearfix m-t-sm">
                     <span class="font-bold no-margins">
-                        '.($o['fio'] ?: ('id '.$o['engineer'])).'<span class="pull-right text-success">'.$o['orders'].' ('.$p.'%)</span>
+                        ' . ($o['fio'] ?: ('id ' . $o['engineer'])) . '<span class="pull-right text-success">' . $o['orders'] . ' (' . $p . '%)</span>
                     </span>
                 </div>
             ';
         }
         return $stats ?: l('dashboard_no_stats');
     }
-    
-    private function get_cash(){
+
+    /**
+     * @return array
+     */
+    private function get_cash()
+    {
         $query_filter = $this->make_filters('date_transaction');
         $today_date = date('Y-m-d 00:00:00');
         $today_date_to = date('Y-m-d 23:59:59');
-//        $today_date = '2015-04-01 00:00:00';
-//        $today_date_to = '2015-04-01 23:59:59';
         $today_cash = $this->db->query("SELECT SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
-                                      ."FROM {cashboxes_transactions} "
-                                      ."WHERE date_transaction BETWEEN ? AND ? "
-                                        ."AND transaction_type = 2 "
-                                        ."AND type NOT IN (1, 2, 3, 4, 6, 10) "
-                                        ."AND client_order_id > 0 ",
-                                        array($today_date, $today_date_to), 'el');
+            . "FROM {cashboxes_transactions} "
+            . "WHERE date_transaction BETWEEN ? AND ? "
+            . "AND transaction_type = 2 "
+            . "AND type NOT IN (1, 2, 3, 4, 6) "
+            . "AND client_order_id > 0 ",
+            array($today_date, $today_date_to), 'el');
         $chart_cash = $this->db->query("SELECT "
-                                        ."DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, "
-                                        ."SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
-                                      ."FROM {cashboxes_transactions} "
-                                      ."WHERE ?q AND transaction_type = 2 "
-                                        ."AND type NOT IN (1, 2, 3, 4, 6, 10) "
-                                        ."AND client_order_id > 0 "
-                                      ."GROUP BY d", array($query_filter))->vars();
+            . "DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, "
+            . "SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
+            . "FROM {cashboxes_transactions} "
+            . "WHERE ?q AND transaction_type = 2 "
+            . "AND type NOT IN (1, 2, 3, 4, 6) "
+            . "AND client_order_id > 0 "
+            . "GROUP BY d", array($query_filter))->vars();
         $cash_chart_js = array();
         $period = $this->get_date_period();
         $period_cash = 0;
-        foreach($period as $dt) {
+        foreach ($period as $dt) {
             $date = $dt->format('Y-m-d');
-            $d_js = 'gd('.$dt->format('Y').','.$dt->format('n').','.$dt->format('j').')';
-            $cash = isset($chart_cash[$date]) ? number_format($chart_cash[$date],2,'.','') : 0;
+            $d_js = 'gd(' . $dt->format('Y') . ',' . $dt->format('n') . ',' . $dt->format('j') . ')';
+            $cash = isset($chart_cash[$date]) ? number_format($chart_cash[$date], 2, '.', '') : 0;
             $period_cash += $cash;
-            $cash_chart_js[] = '['.$d_js.','.$cash.']';
+            $cash_chart_js[] = '[' . $d_js . ',' . $cash . ']';
         }
         return array(
             'today' => $this->price_format($today_cash),
-            'period' => $this->price_format($period_cash,false),
+            'period' => $this->price_format($period_cash, false),
             'cash_chart' => implode(',', $cash_chart_js)
         );
     }
-    
-    private function price_format($price, $show_dec = true){
-        return str_replace('.00', '', number_format($price,$show_dec?2:0,'.',' '));
+
+    /**
+     * @param      $price
+     * @param bool $show_dec
+     * @return mixed
+     */
+    private function price_format($price, $show_dec = true)
+    {
+        return str_replace('.00', '', number_format($price, $show_dec ? 2 : 0, '.', ' '));
     }
-    
-    private function percent_format($p){
+
+    /**
+     * @param $p
+     * @return mixed
+     */
+    private function percent_format($p)
+    {
         return str_replace('.0', '', number_format($p, 1, '.', ''));
     }
 }
