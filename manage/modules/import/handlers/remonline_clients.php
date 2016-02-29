@@ -1,32 +1,58 @@
 <?php
 
-class remonline_clients extends import_helper{
-    
+require_once __DIR__.'/abstract_import_provider.php';
+
+class remonline_clients extends abstract_import_provider
+{
     private $cols = array(
         0 => 'Имя',
         1 => 'Телефон',
         2 => 'Адрес',
         3 => 'Email',
     );
-    
-    function get_cols(){
+
+    /**
+     * @return array
+     */
+    function get_cols()
+    {
         return $this->cols;
     }
-    
-    function get_phones($data){
+
+    /**
+     * @param $data
+     * @return array
+     */
+    function get_phones($data)
+    {
         return explode(',', $data[1]);
     }
-    
-    function get_fio($data){
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function get_fio($data)
+    {
         return $data[0];
     }
-    
-    function get_email($data){
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function get_email($data)
+    {
         return $data[3];
     }
-    
-    function get_address($data){
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function get_address($data)
+    {
         return $data[2];
     }
-    
+
 }

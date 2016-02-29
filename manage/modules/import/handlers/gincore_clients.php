@@ -1,7 +1,9 @@
 <?php
 
-class gincore_clients extends import_helper{
-    
+require_once __DIR__.'/abstract_import_provider.php';
+
+class gincore_clients extends abstract_import_provider
+{
     private $cols = array(
         0 => 'id',
         1 => 'phones',
@@ -10,25 +12,48 @@ class gincore_clients extends import_helper{
         4 => 'legal_address',
         5 => 'date_add',
     );
-    
-    function get_cols(){
+
+    /**
+     * @return array
+     */
+    function get_cols()
+    {
         return $this->cols;
     }
-    
-    function get_phones($data){
+
+    /**
+     * @param $data
+     * @return array
+     */
+    function get_phones($data)
+    {
         return explode(',', $data[1]);
     }
-    
-    function get_fio($data){
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function get_fio($data)
+    {
         return $data[3];
     }
-    
-    function get_email($data){
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function get_email($data)
+    {
         return $data[2];
     }
-    
-    function get_address($data){
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function get_address($data)
+    {
         return $data[4];
     }
-    
 }

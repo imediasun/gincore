@@ -1,94 +1,105 @@
 <?php
 
-class import_class extends import_helper{
-    
+class import_class
+{
     private $source_file; // файл импорта (полный путь)
     private $type; // тип импорта
     private $provider; // провайдер
-    
-    function __construct($all_configs, $source_file, $type, $provider, $import_settings = array()){
+
+    /** @var abstract_import_handler */
+    private $import_handler = null;
+
+    /**
+     * import_class constructor.
+     * @param       $all_configs
+     * @param       $source_file
+     * @param       $type
+     * @param       $provider
+     * @param array $import_settings
+     */
+    function __construct($all_configs, $source_file, $type, $provider, $import_settings = array())
+    {
         $this->all_configs = $all_configs;
-        $this->include_path = $this->all_configs['path'].'modules/import/';
+        $this->include_path = $this->all_configs['path'] . 'modules/import/';
         $this->source_file = $source_file;
         $this->type = $type;
         $this->provider = $provider;
         $this->import_settings = $import_settings;
         set_time_limit(0);
     }
-    
-    public function run(){
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function run()
+    {
         $this->set_import_handler();
-//        $this->load_data_object();
         return $this->execute_import();
     }
-    
-    private function execute_import(){
-        $filename = $this->include_path.'files/'.$this->type.'.csv';
+
+    /**
+     * @return array
+     */
+    private function execute_import()
+    {
+        $filename = $this->include_path . 'files/' . $this->type . '.csv';
         $file = fopen($filename, "r");
         $counter = 0;
         $rows = array();
-        while(($row = fgetcsv($file, 1000, $this->scv_delimeter($filename))) !== FALSE){
-            if(!$counter){
-                if(!$this->check_format($row)){
+        while (($row = fgetcsv($file, 1000, $this->csv_delimeter($filename))) !== false) {
+            if (!$counter) {
+                if (!$this->import_handler->check_format($row)) {
                     return array(
                         'state' => false,
                         'message' => l('Неправильная структура файла для типа импорта и провайдера')
                     );
                 }
-            }else{
+            } else {
                 $rows[] = $row;
             }
-//            if($counter>10){
-//                break;
-//            }
-            $counter ++;
+            $counter++;
         }
-        $result = $this->import_handler->run($rows);
-        return $result;
+        return $this->import_handler->run($rows);
     }
-    
-    private function check_format($header_row){
-        $cols = $this->import_provider->get_cols();
-        foreach($header_row as $col => $name){
-            if(!isset($cols[$col]) 
-                    || $this->remove_whitespace($cols[$col]) != $this->remove_whitespace($name)){
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    private function load_data_object(){
-        $provider_handler_name = $this->type.'.php';
-        if(file_exists($this->include_path.'data_objects/'.$provider_handler_name)){
-            require $this->include_path.'data_objects/'.$provider_handler_name;
-        }else{
-            throw new Exception('import provider handler '.$provider_handler_name.' not found');
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    private function get_import_provider_handler()
+    {
+        $provider_handler_name = $this->provider . '_' . $this->type;
+        if (file_exists($this->include_path . 'handlers/' . $provider_handler_name . '.php')) {
+            require $this->include_path . 'handlers/' . $provider_handler_name . '.php';
+            return new $provider_handler_name($this->all_configs);
+        } else {
+            throw new Exception('import provider handler ' . $provider_handler_name . ' not found');
         }
     }
-    
-    private function get_import_provider_handler(){
-        $provider_handler_name = $this->provider.'_'.$this->type;
-        if(file_exists($this->include_path.'handlers/'.$provider_handler_name.'.php')){
-            require $this->include_path.'handlers/'.$provider_handler_name.'.php';
-            $this->import_provider = new $provider_handler_name($this->all_configs);
-            return $this->import_provider;
-        }else{
-            throw new Exception('import provider handler '.$provider_handler_name.' not found');
+
+    /**
+     * @throws Exception
+     */
+    private function set_import_handler()
+    {
+        $import_handler_name = 'import_' . $this->type;
+        if (file_exists($this->include_path . $import_handler_name . '.php')) {
+            require $this->include_path . $import_handler_name . '.php';
+            $this->import_handler = new $import_handler_name($this->all_configs, $this->get_import_provider_handler(),
+                $this->import_settings);
+        } else {
+            throw new Exception('import handler ' . $import_handler_name . ' not found');
         }
     }
-    
-    private function set_import_handler(){
-        $import_handler_name = 'import_'.$this->type;
-        if(file_exists($this->include_path.$import_handler_name.'.php')){
-            require $this->include_path.$import_handler_name.'.php';
-            $this->import_handler = new $import_handler_name($this->all_configs, $this->get_import_provider_handler(), $this->import_settings);
-        }else{
-            throw new Exception('import handler '.$import_handler_name.' not found');
-        }
-    }
-    
-    function scv_delimeter($file, $capture_limit_in_kb = 10){
+
+    /**
+     * @param     $file
+     * @param int $capture_limit_in_kb
+     * @return mixed
+     */
+    public function csv_delimeter($file, $capture_limit_in_kb = 10)
+    {
         // capture starting memory usage
         $output['peak_mem']['start'] = memory_get_peak_usage(true);
 
@@ -118,7 +129,7 @@ class import_class extends import_helper{
         );
 
         // loop and count each line ending instance
-        foreach($line_endings as $key => $value){
+        foreach ($line_endings as $key => $value) {
             $line_result[$key] = substr_count($contents, $value);
         }
 
@@ -143,7 +154,7 @@ class import_class extends import_helper{
         $output['lines']['length'] = strlen($complete_lines);
 
         // loop and count each delimiter instance
-        foreach($delimiters as $delimiter_key => $delimiter){
+        foreach ($delimiters as $delimiter_key => $delimiter) {
             $delimiter_result[$delimiter_key] = substr_count($complete_lines, $delimiter);
         }
 
@@ -161,5 +172,4 @@ class import_class extends import_helper{
 
         return $output['delimiter']['value'];
     }
-
 }
