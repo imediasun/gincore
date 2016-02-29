@@ -245,7 +245,7 @@ $(document).ready(function () {
         //var auto_typeahead = false;
         var input_selector = $(this).data('input');
         var call_function = $(this).data('function');
-        
+
         $('.global-typeahead').typeahead({
             items: 50,
             minLength: 1,
@@ -361,7 +361,7 @@ $(document).ready(function () {
                 data: '&name='+$this.closest('.form-group').find('input.form-control').val(),
                 type:'POST',
                 success: function(msg) {
-                    $form.addClass('loaded').html(msg.html);
+                    $form.addClass('loaded').append('<form>' + msg.html + '</form>');
                     $form.show();
                     reset_multiselect();
                     $this.button('reset');
@@ -377,7 +377,7 @@ $(document).ready(function () {
     $(document).on('click', '.hide_typeahead_add_form', function(){
         $(this).closest('.typeahead_add_form_box').hide();
     });
-    
+
     $(document).on('focusin', '.typeahead-double', function(e) {
         var $this = $(this),
             id = $this.data('id'),
@@ -399,7 +399,7 @@ $(document).ready(function () {
                 return $.ajax({
                     url: prefix + 'messages.php',
                     type: 'POST',
-                    data: {act: 'global-typeahead', fields: fields.join(','), 
+                    data: {act: 'global-typeahead', fields: fields.join(','),
                            double: true, query: query, table: table, fix: fix,
                            limit: this.options.items, object: arrequest()[2]},
                     dataType: 'json',
@@ -530,11 +530,11 @@ $(document).ready(function () {
         pk: {act: "infobox", do: "set", hash: module+(arrequest_for_editable()[1] || '')}, //
         emptytext:'Нет данных, нажмите чтобы добавить.'
     });
-    
+
     $('.header-link.hide-menu').click(function(){
         $.cookie('hide_menu', $('body').hasClass('hide-sidebar') ? 1 : 0);
     });
-    
+
     $(document).on('change', '#contractor_type_select', function(){
         var $this = $(this).find(':selected');
         $('.multiselect[data-type="categories_1"]').multiselect('deselectAll', false)
@@ -595,9 +595,10 @@ function new_quick_create_supplier_callback(data, _this){
     $(_this).closest('.new_supplier_form.loaded').hide().removeClass('loaded');
 }
 
+// call as callback in categories/index.php:gencreate and products/index.php:create_product_form
 function select_typeahead_device(data, $form){
     if(data.state && data.id){
-        var id = $form.parent().attr('data-id'),
+        var id = $form.parent().parent().attr('data-id'),
             $f = $('[data-id="source-'+id.replace('form-','')+'"]').closest('.input-group');
         $f.find(':hidden').val(data.id);
         var $input = $f.find('input.form-control');
@@ -879,9 +880,9 @@ $(document).ready(function () {
             }
         });
     });
-    
+
 //    introJs().start();
-    
+
 });
 
 function parseDate(value) {
@@ -1144,7 +1145,7 @@ function is_enter(_this, e, id, func) {
     }
 }
 
-function init_multiselect(){ 
+function init_multiselect(){
     $('.multiselect').each(function(){
         var $this = $(this),
             opts = multiselect_options;
@@ -1175,10 +1176,10 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         e.stopPropagation();
     }
 
-    if (($(_this).hasClass('disabled') || $(_this).prop('disabled')) && 
+    if (($(_this).hasClass('disabled') || $(_this).prop('disabled')) &&
             !$(_this).data('alert_box_not_disabled'))
         return false;
-    
+
     if ($(_this).is('input') || $(_this).is('button'))
         $(_this).button('loading');
     else
@@ -1271,7 +1272,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
                 if (msg) {
                     if (msg['state'] == true && msg['content']) {
                         bootbox.alert(msg['content']);
-                        
+
                         if (msg['btns']) {
                             $('.bootbox-alert .modal-footer').prepend(msg['btns']);
                         }
@@ -1604,7 +1605,7 @@ $(function(){
     $('.ajax_form.emulate_form :submit').live('click', function(e){
         return ajax_form_event(this, e);
     });
-    
+
     $(document).on('click', '.toggle-hidden', function(){
         var $this = $(this),
             $context_pane = $this.closest('.tab-pane'),
@@ -1621,7 +1622,7 @@ $(function(){
             $toggle.addClass('hidden');
         }
     });
-    
+
     $('.module_submenu_click_tab_event').click(function(e){
         var $menu = $('a[href="'+$(this).data('href')+'"]');
         if($menu.length){
@@ -1629,7 +1630,7 @@ $(function(){
             $menu.click();
         }
     });
-    
+
     var $glossary = $('#glossary');
     var $glossary_alpha = $('#glossary_alpha');
     var $glossary_content = $('#glossary_content');
@@ -1661,23 +1662,23 @@ $(function(){
     if($.cookie('show_intro')){
         $('#show_glossary').click();
     }
-    
+
     $(document).on('click', function(e){
         if(!$glossary.is(':visible')) return;
         var $this = $(e.target);
-        if(!$this.closest('#glossary').length 
+        if(!$this.closest('#glossary').length
         && $this.attr('id') != 'glossary'
         && $this.attr('id') != 'show_glossary'
         && !$this.closest('#show_glossary').length){
             $('#show_glossary').click();
         }
     });
-    
+
     $('.set_manage_lang').click(function(){
         $.cookie('manage_lang', $(this).data('lang'), {expires: 365});
         window.location.reload(true);
     });
-    
+
     $(document).on('click', '.toggle_btn', function(){
         var id = $(this).data('id'),
             $id = $('#' + id);

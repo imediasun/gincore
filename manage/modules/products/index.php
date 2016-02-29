@@ -565,19 +565,23 @@ class products
 
     }
 
+    /**
+     * @param bool $ajax_quick_create
+     * @param bool $service
+     * @return string
+     */
     function create_product_form($ajax_quick_create = false, $service = false)
     {
-        $attr = 'form method="post"';
-        $form_close = 'form';
+        $attr = '<form method="post"';
+        $form_close = '</form>';
         if ($ajax_quick_create) {
             $attr .= '><div class="emulate_form ajax_form" data-callback="select_typeahead_device" data-method="post" '
                 . 'data-action="' . $this->all_configs['prefix'] . 'products/ajax/?act=create_new"';
-            $form_close = 'div></form';
+            $form_close = '</div>' . $form_close;
         }
-        //$categories = $this->get_categories();
         // строим форму добавления нового товара
         // основные описания
-        $goods_html = '<' . $attr . ' class="backgroud-white p-sm"><fieldset><legend>' . l('Добавление нового товара/услуги') . ':</legend>';
+        $goods_html = $attr . ' class="backgroud-white p-sm"><fieldset><legend>' . l('Добавление нового товара/услуги') . ':</legend>';
         if (is_array($this->errors) && array_key_exists('error', $this->errors)) {
             $goods_html .= '<div class="alert alert-danger fade in">';
             $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>';
@@ -628,7 +632,7 @@ class products
 //        $goods_html .= '<div class="form-group"><div class="checkbox">
 //                        <label class=""><input name="mail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('mail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Требуется обработать товарную позицию</label></div></div>';
         $goods_html .= '<div class="form-group"><label class="control-label">' . l('Категории') . ': </label><div class="controls">';
-        $goods_html .= '<select class="multiselect input-small form-control" multiple="multiple" name="category[]">';
+        $goods_html .= '<select class="multiselect input-small form-control" multiple="multiple" name="categories[]">';
         $categories = $this->get_categories();
         $goods_html .= build_array_tree($categories, isset($_GET['cat_id']) ? $_GET['cat_id'] : '');
         $goods_html .= '</select></div></div>';
@@ -662,7 +666,7 @@ class products
         if ($ajax_quick_create) {
             $goods_html .= ' <button type="button" class="btn btn-default hide_typeahead_add_form">' . l('Отмена') . '</button>';
         }
-        $goods_html .= '</fieldset></' . $form_close . '>';
+        $goods_html .= '</fieldset>' . $form_close;
 
         return $goods_html;
     }
