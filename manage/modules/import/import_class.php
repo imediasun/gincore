@@ -2,6 +2,7 @@
 
 class import_class
 {
+    protected $import_settings;
     private $source_file; // файл импорта (полный путь)
     private $type; // тип импорта
     private $provider; // провайдер

@@ -234,6 +234,18 @@ class import
             ';
         }
         switch ($type) {
+            case 'items':
+                $form .= '
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="accepter_as_manager" value="1">
+                                ' . l('назначить приемщика менеджером, если последний не указан') . '
+                            </label>
+                        </div>
+                    </div>
+                ';
+                break;
             case 'orders':
                 $form .= '
                     <div class="form-group">
@@ -285,6 +297,9 @@ class import
                     if (file_exists($source)) {
                         $import_settings = array();
                         switch ($import_type) {
+                            case 'items':
+                                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                                break;
                             case 'orders':
                                 if (!$this->has_orders()) { // если есть заказы в системе то низя
                                     $import_settings['clear_categories'] = isset($_POST['clear_categories']);

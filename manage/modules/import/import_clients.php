@@ -26,7 +26,7 @@ class import_clients extends abstract_import_handler
         $num = 2;
 
         if (!empty($this->provider->has_custom_data_handler)) {
-            $data = $this->provider->get_data($this->rows);
+            $data = $this->provider->get_data($rows);
             foreach ($data as $client_data) {
                 $phones = $client_data['phones'];
                 $fio = $client_data['fio'];

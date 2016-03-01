@@ -120,36 +120,25 @@ class products
         return $image_html;
     }
 
-    function transliturl($str)
+    /**
+     * @todo moved to utils::translate::toURL
+     *
+     * @param $str
+     * @return mixed|string
+     */
+    public function transliturl($str)
     {
-        $tr = array(
-            "Ё" => "e", "ё" => "e", "А" => "a", "Б" => "b", "В" => "v", "Г" => "g",
-            "Д" => "d", "Е" => "e", "Ж" => "zh", "З" => "z", "И" => "i",
-            "Й" => "y", "К" => "k", "Л" => "l", "М" => "m", "Н" => "n",
-            "О" => "o", "П" => "p", "Р" => "r", "С" => "s", "Т" => "t",
-            "У" => "u", "Ф" => "f", "Х" => "h", "Ц" => "ts", "Ч" => "ch",
-            "Ш" => "sh", "Щ" => "sch", "Ъ" => "", "Ы" => "yi", "Ь" => "",
-            "Э" => "e", "Ю" => "yu", "Я" => "ya", "а" => "a", "б" => "b",
-            "в" => "v", "г" => "g", "д" => "d", "е" => "e", "ж" => "zh",
-            "з" => "z", "и" => "i", "й" => "y", "к" => "k", "л" => "l",
-            "м" => "m", "н" => "n", "о" => "o", "п" => "p", "р" => "r",
-            "с" => "s", "т" => "t", "у" => "u", "ф" => "f", "х" => "h",
-            "ц" => "ts", "ч" => "ch", "ш" => "sh", "щ" => "sch", "ъ" => "",
-            "ы" => "yi", "ь" => "", "э" => "e", "ю" => "yu", "я" => "ya",
-            " " => "-", "." => "", "/" => "-", "(" => "", ")" => ""
-        );
-        $str = trim($str);
-        $str = strtolower($str);
-        $str = strtr($str, $tr);
-        $str = preg_replace("/[^a-z0-9-+_\s]/", "", $str);
-        $str = preg_replace('/-{2,}/', '-', $str);
-        $str = preg_replace('/_{2,}/', '_', $str);
-
-        return $str;
-        //$url = preg_replace('/[^0-9a-z-A-Z-_?]/', '', transliturl($title));
+        require_once __DIR__.'/../utils/translate.php';
+        return translate::toURL($str);
     }
 
-    function build_releted_array($array, $array2, $array3)
+    /**
+     * @param $array
+     * @param $array2
+     * @param $array3
+     * @return array
+     */
+    public function build_releted_array($array, $array2, $array3)
     {
         asort($array2);
         $ordered = array();
@@ -164,11 +153,14 @@ class products
 
         $return = array();
         foreach ($array as $k => $v) {
-            if ($v == 0) continue;
-            if (array_key_exists($k, $array3))
+            if ($v == 0) {
+                continue;
+            }
+            if (array_key_exists($k, $array3)) {
                 $return[$v] = $array3[$k];
-            else
+            } else {
                 $return[$v] = 0;
+            }
         }
 
         return $return;
@@ -1039,9 +1031,7 @@ class products
 
     private function get_categories()
     {
-        $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
-
-        return $categories;
+        return $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
     }
 
     function categories_tree_menu($categories_tree)
@@ -1529,13 +1519,12 @@ class products
         return $goods_html;
     }
 
+    /**
+     * @return mixed
+     */
     private function can_show_module()
     {
-        if ($this->all_configs['oRole']->hasPrivilege('show-goods')) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->all_configs['oRole']->hasPrivilege('show-goods');
     }
 
     private function ajax()
