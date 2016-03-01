@@ -606,9 +606,7 @@ class products
                         $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
         }
         $goods_html .= '<div class="form-group"><div class="checkbox">
-                        <label class=""><input name="avail" ' . ((array_key_exists('post',
-                    $this->errors) && array_key_exists('avail',
-                    $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">' . l('Активность') . '</label></div></div>';
+                        <label class=""><input name="avail" checked="checked"' . ' type="checkbox">' . l('Активность') . '</label></div></div>';
 //        $goods_html .= '<div class="form-group"><div class="checkbox">
 //                        <label class=""><input name="mail" ' . ((array_key_exists('post', $this->errors) && array_key_exists('mail', $this->errors['post'])) ? 'checked' : '') . ' type="checkbox">Требуется обработать товарную позицию</label></div></div>';
         $goods_html .= '<div class="form-group"><label class="control-label">' . l('Категории') . ': </label><div class="controls">';

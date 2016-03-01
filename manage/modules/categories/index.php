@@ -281,7 +281,7 @@ class categories
         $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
             <input autocomplete="off" placeholder="' . l('Укажите название устройства или категории. Пример: IPhone 5') . '" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="'.($name ? htmlspecialchars($name) : '').'" /></div>';
         $category_html .= '<div class="form-group"><div class="checkbox"><label>
-            <input name="avail" type="checkbox">' . l('Активность') . '</label></div></div>';
+            <input name="avail" type="checkbox" checked="checked">' . l('Активность') . '</label></div></div>';
         $category_html .= '<div class="form-group"><label>' . l('Высшая (родительская) категория') . ':</label>
             ' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large','', '', 
                           false, false, '', false, l('Укажите название высшей категории или оставьте пустым. Пример: Iphone')) . '</div>';
