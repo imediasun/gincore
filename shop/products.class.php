@@ -9,7 +9,7 @@ class Products
     function __construct ()
     {
         require_once('manage/configs.php');
-        $this->configs = Configs::get();
+        $this->configs = Configs::getInstance()->get();
 
         require_once('shop/model.class.php');
         $this->model = new Model;

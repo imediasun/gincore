@@ -12,7 +12,7 @@ class Model
         $this->db = $db;
 
 //        require_once(__DIR__.'/../manage/configs.php');
-        $this->configs = Configs::get();
+        $this->configs = Configs::getInstance()->get();
 
     }
 

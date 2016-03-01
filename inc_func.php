@@ -611,7 +611,7 @@ function gen_content_array($content){
 
 function gen_advantages_block($pos='vertical'){
     global $db, $lang, $def_lang;
-    $configs = Configs::get();
+    $configs = Configs::getInstance()->get();
     $id = $configs['advantages-page'];//adv id in sitemap
     $out = '';
     $translates = $db->query("SELECT content, lang 

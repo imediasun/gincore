@@ -3224,7 +3224,7 @@ class Suppliers
     $order['goods_code_1c'] = trim($code_1c);
 
     require_once($sitepath . 'configs.php');
-    $configs = Configs::get();
+    $configs = Configs::getInstance()->get();
 
     //$suppliers = new Suppliers($this->all_configs['db'], $this->all_configs['prefix'], $oRole);
     //$suppliers->exportSupplierOrder($sitepath, $order, $configs);

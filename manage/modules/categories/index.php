@@ -255,6 +255,12 @@ class categories
         }
         return substr($url, 0, strlen($url)-1);
     }*/
+
+    /**
+     * @param string $name
+     * @param bool   $ajax
+     * @return string
+     */
     private function gencreate($name = '', $ajax = false)
     {
         if ( !$this->all_configs['oRole']->hasPrivilege('create-filters-categories') )

@@ -356,10 +356,9 @@ function all_configs()
 {
     global $db, $prefix, $path;
 
-    $configs = Configs::get();
     // обновляем для языка
     Configs::getInstance()->set_configs();
-    $configs = Configs::get();
+    $configs = Configs::getInstance()->get();
     
     $settings = $db->query("SELECT name, value FROM {settings}", array())->vars();
 

@@ -24,7 +24,7 @@ class Cart
 
         $this->cfg = $cfg;
 
-        $this->configs = Configs::get();
+        $this->configs = Configs::getInstance()->get();
 
         $this->db= $db;
 
