@@ -793,19 +793,6 @@ class products
                     ?query AND cg.category_id IN (?li) AND g.id=cg.goods_id',
                 array($goods_query, array_values($categories)));
         }
-        /*// фильтрация по цене
-        if (array_key_exists('price', $filters) && is_array($filters['price']) && count($filters['price']) > 0) {
-            // от
-            if (array_key_exists(0, $filters['price'])) {
-                $goods_query = $this->all_configs['db']->makeQuery('?query AND g.price>=?i',
-                    array($goods_query, $filters['price'][0]));
-            }
-            // до
-            if (array_key_exists(1, $filters['price'])) {
-                $goods_query = $this->all_configs['db']->makeQuery('?query AND g.price<=?i',
-                    array($goods_query, $filters['price'][1]));
-            }
-        }*/
 
         // Отобразить
         if (isset($_GET['show'])) {
@@ -824,6 +811,16 @@ class products
             if (array_search('noimage', $show) !== false) {
                 $goods_query = $this->all_configs['db']->makeQuery('?query
                     AND (g.image_set IS NULL OR g.image_set=0)', array($goods_query));
+            }
+            // Услуги
+            if (array_search('services', $show) !== false) {
+                $goods_query = $this->all_configs['db']->makeQuery('?query
+                    AND (g.type=1)', array($goods_query));
+            }
+            // Товары
+            if (array_search('items', $show) !== false) {
+                $goods_query = $this->all_configs['db']->makeQuery('?query
+                    AND (g.type IS NULL OR g.type=0)', array($goods_query));
             }
         }
         // По складам
@@ -955,7 +952,7 @@ class products
             array($goods_query, $sorting))->vars();
     }
 
-    private function genfilter()
+    private function getGoods()
     {
         // текущая страничка
         $current_page = isset($_GET['p']) ? $_GET['p'] - 1 : 0;
@@ -993,13 +990,22 @@ class products
             }
         }
 
+    }
+
+    private function genfilter()
+    {
+        $this->getGoods();
         $filters_html = '<p class="label label-info">' . l('Отобразить') . '</p>';
         $filters_html .= '<div class="well"><ul style="padding-left:25px"><li><label class="checkbox"><input type="checkbox" ';
         $filters_html .= $this->click_filters('show', 'my') . '>' . l('Мои товары') . '</label></li>';
         $filters_html .= '<li><label class="checkbox"><input type="checkbox" ' . $this->click_filters('show', 'empty');
         $filters_html .= '>' . l('Не заполненные') . '</label></li>';
         $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'noimage');
-        $filters_html .= '>' . l('Без картинок') . '</label></li></ul></div>';
+        $filters_html .= '>' . l('Без картинок') . '</label></li>';
+        $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'services');
+        $filters_html .= '>' . l('Услуги') . '</label></li>';
+        $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'items');
+        $filters_html .= '>' . l('Товары') . '</label></li></ul></div>';
 
         $filters_html .= '<p class="label label-info">' . l('По складам') . '</p>';
         $filters_html .= '<div class="well"><ul style="padding-left:25px">';//<label class="checkbox"><input type="checkbox" id="my_checkbox" value="my" name="my" ' . $this->my_checked . ' onclick="checkbox_select(this, \'' . $a . '\')">' . l('Мои товары') . '</label></li>';
