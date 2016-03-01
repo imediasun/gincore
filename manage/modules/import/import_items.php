@@ -20,7 +20,7 @@ class import_items extends abstract_import_handler
     public function __construct($all_configs, $provider, $import_settings)
     {
         parent::__construct($all_configs, $provider, $import_settings);
-        $this->categories = array_flip($this->getCategories());
+        $this->categories = $this->getCategories();
         $this->availableItems = array_flip($this->getAvailableItems());
         $this->userId = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $this->userAsManager = isset($this->import_settings['accepter_as_manager']) && $this->import_settings['accepter_as_manager'];
@@ -54,7 +54,14 @@ class import_items extends abstract_import_handler
      */
     public function getCategoryId($category, $categories)
     {
-        return isset($categories[$category]) ? $categories[$category] : null;
+        list($parent, $subcategory) = explode('>>', $category);
+        $categoryId = null;
+        if (isset($categories[$parent])) {
+            if (isset($categories[$parent]['subcategories'][$subcategory])) {
+                $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
+            }
+        }
+        return $categoryId;
     }
 
     /**
@@ -68,8 +75,6 @@ class import_items extends abstract_import_handler
     }
 
     /**
-     * @todo Implement get_result_row() method.
-     *
      * @param $row
      * @return string
      */
@@ -87,7 +92,9 @@ class import_items extends abstract_import_handler
         $result = array();
         if (!empty($array)) {
             foreach ($array as $item) {
-                $result[$item['id']] = $item['title'];
+                $result[$item['title']] = array(
+                    'id' => $item['id']
+                );
             }
         }
         return $result;
@@ -98,8 +105,15 @@ class import_items extends abstract_import_handler
      */
     public function getCategories()
     {
-        $categories = $this->all_configs['db']->query('SELECT {categories}.id, {categories}.title FROM {categories}')->assoc();
-        return $this->toFlatArray($categories);
+        $categories = $this->toFlatArray($this->all_configs['db']->query('SELECT {categories}.id, {categories}.title FROM {categories} WHERE parent_id=0')->assoc());
+        if (!empty($categories)) {
+            foreach ($categories as &$category) {
+                $subcategories = $this->toFlatArray($this->all_configs['db']->query('SELECT {categories}.id, {categories}.title FROM {categories} WHERE parent_id=?',
+                    array($category['id']))->assoc());
+                $category['subcategories'] = $subcategories;
+            }
+        }
+        return $categories;
     }
 
     /**

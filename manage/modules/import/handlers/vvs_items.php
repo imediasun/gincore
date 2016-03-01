@@ -24,7 +24,7 @@ class vvs_items extends abstract_import_provider
      */
     function get_category($data)
     {
-        return iconv('cp1251', 'utf8', trim($data[3]));
+        return trim(iconv('cp1251', 'utf8', trim($data[3])), '[]');
     }
 
     /**
