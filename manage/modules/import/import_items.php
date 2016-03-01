@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/abstract_import_handler.php';
-require_once __DIR__ . '/../utils/translate.php';
 require_once $this->all_configs['sitepath'] . 'mail.php';
 
 class import_items extends abstract_import_handler
@@ -144,7 +143,7 @@ class import_items extends abstract_import_handler
     {
         return $this->all_configs['db']
             ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
-                array($title, '', translate::toURL(trim($title)), 1, 100, '', $userId, 1), 'id');
+                array($title, '', transliturl($title), 1, 100, '', $userId, 1), 'id');
     }
 
     /**

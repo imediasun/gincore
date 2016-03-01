@@ -121,18 +121,6 @@ class products
     }
 
     /**
-     * @todo moved to utils::translate::toURL
-     *
-     * @param $str
-     * @return mixed|string
-     */
-    public function transliturl($str)
-    {
-        require_once __DIR__.'/../utils/translate.php';
-        return translate::toURL($str);
-    }
-
-    /**
      * @param $array
      * @param $array2
      * @param $array3
@@ -181,7 +169,7 @@ class products
         // создание продукта
         if (isset($post['create-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
 
-            $url = $this->transliturl(trim($post['title']));
+            $url = transliturl(trim($post['title']));
 
             /*$product_url = $this->all_configs['db']->query('SELECT id FROM {goods} WHERE url=?',
                 array($url))->el();*/
@@ -359,7 +347,7 @@ class products
                 $url = (isset($post['url']) && !empty($post['url'])) ? trim($post['url']) : trim($post['title']);
 
                 /*$product_url = $this->all_configs['db']->query('SELECT id FROM {goods} WHERE url=? AND id<>?i',
-                    array($this->transliturl($url), $product_id))->el();*/
+                    array(>transliturl($url), $product_id))->el();*/
 
                 if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
                     return array('error' => l('Заполните название'), 'post' => $post);
@@ -370,7 +358,7 @@ class products
 
                 $ar = $this->all_configs['db']->query('UPDATE {goods}
                     SET title=?, secret_title=?, url=?n, prio=?i, article=?n, barcode=? WHERE id=?i',
-                    array(trim($post['title']), trim($post['secret_title']), $this->transliturl($url),
+                    array(trim($post['title']), trim($post['secret_title']), transliturl($url),
                         intval($post['prio']), empty($post['article']) ? null : trim($post['article']),
                         trim($post['barcode']), $product_id))->ar();
 

@@ -11,7 +11,7 @@
 * @license    Fon
 * @version    2011.05.31
 * @author     Anatoliy Khutornoy <ragenoir@gmail.com>
-* 
+*
 */
 
 
@@ -33,7 +33,7 @@ function parse_slashed_url() {
 }
 
 /**
- * Чистит пустышки в масиве. А также пропускает только [^0-9a-z-A-Z-_], 
+ * Чистит пустышки в масиве. А также пропускает только [^0-9a-z-A-Z-_],
  * проверка перенесена из core_sitemap.php
  * Используется только в parse_slashed_url()
  *
@@ -73,7 +73,7 @@ function set_default_file($prefix, $root){
     $file=$prefix.$root.'.html';
     if (file_exists($file)){
         return $file;
-    } else { 
+    } else {
         return $prefix.'default.html';
     }
 
@@ -82,8 +82,8 @@ function set_default_file($prefix, $root){
 /**
  *
  * Получаем масив языков из браузера
- * 
- * @return array 
+ *
+ * @return array
  */
 function get_lang(){
     $langs=array();
@@ -136,13 +136,13 @@ function execute_modules($type, $modules){
             $path_to_module = 'modules/'.$type.'_'.$el['mod'].'/index.php';
             if (file_exists($path_to_module)) {
                 require_once $path_to_module;
-                
+
 //                Вызвать функцию подключения шаблона и темы к модулю
                 if($el['template'])
                   add_module_template($el);
                 if($el['theme'])
                   add_module_theme($el);
-                
+
             } else {
                 die('Модуль '.$path_to_module.' не найден!');
             }
@@ -155,14 +155,14 @@ function execute_modules($type, $modules){
 
 /**
  * Подключение шаблона модуля
- * 
+ *
  * @param type $el
  */
 function add_module_template($el){
     $path_to_template = 'modules/'.$type.'_'.$el['mod'].'/template/'. $el['template'] .'.html';
     if (file_exists($path_to_template)){
 //        $path_to_template;
-        
+
         /*
          * загружаем шаблон,
          * заменяем все выражения переменными из модуля
@@ -176,7 +176,7 @@ function add_module_template($el){
 
 /**
  * Подключение темы модуля
- * 
+ *
  * @param type $el
  */
 function add_module_theme($el){
@@ -276,19 +276,19 @@ function gen_level($page){
 
 function gen_full_link($page_id){
     global $db, $link;
-    
+
     $link = array();
-    
+
     gen_level($page_id);
-    
+
     krsort($link);
-    
+
     return implode("/", $link);
 }
 
 /**
  * замена переменных в шаблонах внутри модулей
- * 
+ *
  * @global type $txt
  * @param type $matches
  * @return string
@@ -306,7 +306,7 @@ function replace_in_mod($matches){
 
 /**
  * вызывает замену переменных в файле (для модулей)
- * 
+ *
  * @param type $file - файл шаблона для замены
  * @return type
  */
@@ -323,7 +323,7 @@ function mod_magic($file){
 
 function get_big_pics($page_gallery, $num = 0){
     global $path, $prefix, $db;
-    
+
     $pics = '';
 
     $dir = $path . 'images/' . trim($page_gallery);
@@ -356,7 +356,7 @@ function get_big_pics($page_gallery, $num = 0){
 
 /**
  * Генерим список статей / книг / альбомов
- * 
+ *
  * @global type $db
  * @global type $prefix
  * @global type $settings
@@ -372,19 +372,19 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
     global $db, $prefix, $url_lang, $settings, $lang, $def_lang, $template_vars;
 
     $articles = '';
-    
+
     $sql_what = "id, uxt, gallery, picture, url, parent";
     $sql_where = $db->makeQuery($sql_where, $sql_data);
-    
+
     $last_articles = $db->query("SELECT ?q
                                  FROM {map} as m
                                  WHERE ?q 
                                  ORDER BY id DESC", array($sql_what, $sql_where), 'assoc:id');
- 
+
     if($last_articles){
         $translates = get_few_translates(
-            'map', 
-            'map_id', 
+            'map',
+            'map_id',
             $db->makeQuery("map_id IN (?q)", array(implode(',', array_keys($last_articles))))
         );
         foreach($last_articles as $article){
@@ -402,11 +402,11 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
                 $image_src = $prefix.get_photo_by_lang('images/'.$article['gallery'].'/'.$pic);
                 $img = '<img'.$pic_prop.' src="http://'.$_SERVER['HTTP_HOST'].$image_src.'" alt="'.$article['name'].'"> ';
             }
-            
+
             $article_link = $prefix.$url_lang.gen_full_link($article['parent']).'/'.$article['url'];
-            
+
             $content = explode('<!-- pagebreak -->', $article['content']);
-            
+
             $picture = '';
             if(strpos($article['content'], '{-page_video-}') !== false){
                 $video = $db->query("SELECT * FROM {video2page} WHERE map_id = ?i", array($article['id']), 'row');
@@ -424,17 +424,17 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
                     </p>
                     ';
             }
-            
+
             $category = $db->query("SELECT id, parent, url FROM {map} WHERE id = ?i", array($article['parent']), 'row');
 
             if($type == 'articles'){
-                
+
 //                $tags = get_page_tags($article['id']);
                 $tags_list = '';
                 if(isset($tags) && $tags){
                     $tags_list = '<li class="tags">'.implode(', ', $tags).'</li>';
                 }
-                
+
                 $cat = '';
                 if($show_category){
                     $caterogy_parent_link = gen_full_link($category['parent']);
@@ -444,7 +444,7 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
                         </a>
                     ';
                 }
-                
+
                 $articles .= '
                             <article class="type-post post">
                                 <h2>
@@ -467,7 +467,7 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
                             </article>
                         ';
             }elseif($type == 'block'){ // вывод блоков
-                    
+
                     $articles .= '
                             <article class="type-post post">
                                 <h2>
@@ -479,8 +479,8 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
                                     <a href="'.$article_link.'" class="buttn">'.$template_vars['l_article_detail_btn'].'</a>
                                 
                             </article>
-                        '; 
-                
+                        ';
+
             }elseif($type == 'albums'){ // вывод списка альбомов
                 $articles .= '
                             <div class="album_outer">
@@ -493,7 +493,7 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
                                     </span>
                                 </a>
                             </div>
-                            ';   
+                            ';
             }
         }
         return $articles;
@@ -505,7 +505,7 @@ function gen_articles($sql_where, $sql_data, $show_category = true, $type = 'art
 
 function gallery($page_gallery, $suf = '_gm', $class = 'gallery_preview'){
     global $path, $prefix, $db;
-    
+
     $pics = '';
 
     if(trim($page_gallery)){
@@ -732,21 +732,21 @@ function mb_ucfirst($word){
 
 function curl_get($url, $use_ssl = false, $data = array(), $method = 'GET'){
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url); 
+    curl_setopt($ch, CURLOPT_URL, $url);
     if($method == 'POST'){
-        curl_setopt($ch, CURLOPT_POST, true); 
+        curl_setopt($ch, CURLOPT_POST, true);
     }
     if($use_ssl){
-        curl_setopt($ch, CURLOPT_SSLVERSION, 3); 
+        curl_setopt($ch, CURLOPT_SSLVERSION, 3);
     }
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     if($data){
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
-            "Content-Type: application/x-www-form-urlencoded"                                                                               
-        )); 
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "Content-Type: application/x-www-form-urlencoded"
+        ));
     }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $return_data = curl_exec($ch);
@@ -756,12 +756,12 @@ function curl_get($url, $use_ssl = false, $data = array(), $method = 'GET'){
 
 function cannonical_page_for_pagination($get_apram = null){
     global $input_html, $prefix, $arrequest;
-    $get_arr = $_GET; 
+    $get_arr = $_GET;
     if(!is_null($get_apram)){
         unset($get_arr[$get_apram]);
     }
     $get = http_build_query($get_arr);
-    $input_html['cannonical_page'] = 
+    $input_html['cannonical_page'] =
         '<meta name="robots" content="noindex, follow" />'.
         '<link rel="canonical" href="http://'.$_SERVER['HTTP_HOST'].$prefix.implode('/', $arrequest).($get ? '?'.$get : '').'"/>';
 }
