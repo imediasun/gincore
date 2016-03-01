@@ -157,7 +157,7 @@ class import_items extends abstract_import_handler
     {
         return $this->all_configs['db']
             ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
-                array($title, '', transliturl($title), 1, 100, '', $userId, 1), 'id');
+                array($title, '', transliturl($title), 1, 100, '', $userId, 0), 'id');
     }
 
     /**
