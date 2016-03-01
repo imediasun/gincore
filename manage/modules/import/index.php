@@ -10,7 +10,7 @@ class import
     private $upload_path;
     private $upload_types = array(
         'items' => array(
-            'name' => 'Товары из VVS Cклад-офис-магазин',
+            'name' => 'Товары из VVS Склад-офис-магазин',
             'handlers' => array(
                 'vvs' => 'VVS items'
             )
