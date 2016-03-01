@@ -1,3 +1,8 @@
+/nbproject/private/
+AskFtpSiteDeployer.xml
+favicon.ico
+manage/backup-export/
+nbproject/
 .idea/
 db_config-local.php
 *.csv
