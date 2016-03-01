@@ -183,7 +183,7 @@ class dashboard
         $query_filter = $this->make_filters('o.date_add');
         $avg_check = $this->db->query("
             SELECT 
-                (SUM(IF(o.sum_paid > 0 AND o.status = 40, o.sum_paid, NULL)) / COUNT(IF(o.sum_paid > 0 AND o.status = 40, o.id, NULL))) / 100 as avg_check
+                (SUM(IF(o.sum_paid > 0 AND o.type <> 1, o.sum_paid, NULL)) / COUNT(IF(o.sum_paid > 0 AND o.type <> 1, o.id, NULL))) / 100 as avg_check
             FROM {orders} as o
             WHERE ?q 
         ", array($query_filter))->el();
