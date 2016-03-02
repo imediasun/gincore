@@ -56,10 +56,17 @@ class import_items extends abstract_import_handler
     {
         list($parent, $subcategory) = explode('>>', $category);
         $categoryId = null;
-        if (isset($categories[$parent])) {
+        try {
+            if (!isset($categories[$parent])) {
+                $this->createCategory($parent, '', 0);
+            }
             if (isset($categories[$parent]['subcategories'][$subcategory])) {
                 $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
+            } else {
+                $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
             }
+        } catch (Exception $e) {
+            // add exception message to log
         }
         return $categoryId;
     }
@@ -236,6 +243,7 @@ class import_items extends abstract_import_handler
 
     /**
      * @param $userId
+     * @param $work
      * @param $modId
      * @param $itemId
      */
@@ -251,5 +259,50 @@ class import_items extends abstract_import_handler
     private function getManagerId()
     {
         return $this->userAsManager ? $this->userId : null;
+    }
+
+    /**
+     * @param $title
+     * @param $parent
+     * @param $parentId
+     * @return int|null
+     * @throws Exception
+     */
+    private function createCategory($title, $parent, $parentId)
+    {
+        $categoryId = null;
+
+        if ($this->all_configs['oRole']->hasPrivilege('create-filters-categories')) {
+            $categoryId = $this->all_configs['db']->query('INSERT INTO {categories}
+                SET title=?, url=?, content=?, parent_id=?i, avail=?i',
+                array($title, transliturl($title), '', $parentId, 1), 'id');
+
+            if (empty($categoryId)) {
+                throw new Exception('Category not created');
+            }
+            $this->appendCategory($categoryId, $title, $parent);
+            $modId = $this->all_configs['configs']['categories-manage-page'];
+            $this->addToLog($this->userId, 'create-category', $modId, $categoryId);
+        }
+        return $categoryId;
+    }
+
+    /**
+     * @param $categoryId
+     * @param $title
+     * @param $parent
+     */
+    private function appendCategory($categoryId, $title, $parent)
+    {
+        if (empty($parent)) {
+            $this->categories[$title] = array(
+                'id' => $categoryId,
+                'subcategories' => array()
+            );
+        } else {
+            $this->categories[$parent]['subcategories'][$title] = array(
+                'id' => $categoryId
+            );
+        }
     }
 }
