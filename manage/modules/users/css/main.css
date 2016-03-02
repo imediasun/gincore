@@ -16,3 +16,7 @@
 .popover {
     margin-top: 15px;
 }
+.danger {
+    color: red;
+    font-weight: bold;
+}

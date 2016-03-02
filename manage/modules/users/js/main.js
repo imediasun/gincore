@@ -121,3 +121,19 @@ function per_change( _this, ids, del ) {
     if( !$(_this).prop('checked') )
         $('form.form-horizontal').find('input.del-' + del).prop('checked', false);
 }
+
+function delete_user(_this, uid) {
+    $.ajax({
+        url: prefix + module + '/ajax/?act=delete_user',
+        type: 'POST',
+        dataType: "json",
+        data: '&uid=' + uid,
+        success: function(msg) {
+            $(_this).parent().parent('td').parent().hide();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+    return false;
+}
