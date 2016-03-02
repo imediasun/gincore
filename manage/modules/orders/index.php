@@ -9,7 +9,12 @@ class orders
     private $mod_submenu;
     protected $all_configs;
     public $count_on_page;
-    
+
+    /**
+     * orders constructor.
+     * @param      $all_configs
+     * @param bool $gen_module
+     */
     function __construct(&$all_configs, $gen_module = true)
     {
         $this->mod_submenu = self::get_submenu();
@@ -48,6 +53,9 @@ class orders
         }
     }
 
+    /**
+     * @return bool
+     */
     function can_show_module()
     {
         if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
@@ -61,6 +69,9 @@ class orders
         }
     }
 
+    /**
+     * @param $post
+     */
     function check_post ($post)
     {
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
@@ -312,6 +323,10 @@ class orders
         exit;
     }
 
+    /**
+     * @param bool $compact
+     * @return string
+     */
     function show_filter_manager($compact = false){
         $out = '<div class="'.($compact ? 'input-group' : 'form-group').'">';
         if(!$compact){
@@ -334,7 +349,11 @@ class orders
         $out .= '</select>'.($compact ? '</span>' : '').'</div>';
         return $out;
     }
-    
+
+    /**
+     * @param bool $full_link
+     * @return string
+     */
     function clients_orders_menu($full_link = false)
     {
         if($full_link){
@@ -513,6 +532,9 @@ class orders
         return $out;
     }
 
+    /**
+     * @return string
+     */
     function gencontent()
     {
         $orders_html = '';
@@ -564,6 +586,10 @@ class orders
         return $orders_html;
     }
 
+    /**
+     * @param bool $full_link
+     * @return string
+     */
     function clients_orders_navigation($full_link = false){
         if($full_link){
             $link = $this->all_configs['prefix'].'orders';
@@ -609,7 +635,11 @@ class orders
             <div class="hidden" id="filters">'.$this->clients_orders_menu($full_link).'</div>';
         return $orders_html;
     }
-    
+
+    /**
+     * @param string $hash
+     * @return array
+     */
     function orders_show_orders($hash = '#show_orders-orders')
     {
         if (trim($hash) == '#show_orders' || (trim($hash) != '#show_orders-orders' && trim($hash) != '#show_orders-sold'
@@ -641,6 +671,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function show_orders_orders()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -691,6 +724,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function show_orders_sold()
     {
         $orders_html = '';
@@ -734,6 +770,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function show_orders_return()
     {
         $orders_html = '';
@@ -778,6 +817,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function show_orders_writeoff()
     {
         $orders_html = '';
@@ -821,6 +863,10 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     function orders_create_order()
     {
         $orders_html = '';
@@ -1069,7 +1115,11 @@ class orders
             'functions' => array(),
         );
     }
-    
+
+    /**
+     * @return string
+     * @throws Exception
+     */
     function order_for_sale_form(){
         global $all_configs;
         $client_fields_for_sale = client_double_typeahead();
@@ -1142,6 +1192,10 @@ class orders
         return $form;
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function orders_show_suppliers_orders($hash = '#show_suppliers_orders')
     {
         if (trim($hash) == '#show_suppliers_orders' || (trim($hash) != '#show_suppliers_orders-all'
@@ -1187,6 +1241,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function orders_show_suppliers_orders_all()
     {
         $orders_html = '';
@@ -1223,6 +1280,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function orders_show_suppliers_orders_wait()
     {
         $orders_html = '';
@@ -1314,6 +1374,9 @@ class orders
         );
     }
 
+    /**
+     * @return string
+     */
     function menu_recommendations_procurement()
     {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
@@ -1340,12 +1403,20 @@ class orders
         return $out;
     }
 
+    /**
+     * @param $year
+     * @return int
+     */
     function getIsoWeeksInYear($year) {
         $date = new DateTime;
         $date->setISODate($year, 53);
         return ($date->format("W") === "53" ? 53 : 52);
     }
 
+    /**
+     * @param $caregories_id
+     * @return array
+     */
     function childrens_categories($caregories_id)
     {
         $return = array_combine((array)$caregories_id, (array)$caregories_id);
@@ -1360,6 +1431,9 @@ class orders
         return $return;
     }
 
+    /**
+     * @return array
+     */
     function orders_recommendations_procurement()
     {
         $orders_html = '';
@@ -1659,6 +1733,9 @@ class orders
         );
     }
 
+    /**
+     * @return array
+     */
     function orders_create_supplier_order()
     {
         $orders_html = '';
@@ -1681,6 +1758,10 @@ class orders
     }
 
     // status -1
+    /**
+     * @param $order
+     * @return bool
+     */
     function check_if_order_fail_in_orders_manager($order){
         $day = 60 * 60 * 24;
         //1 Запчасть заказана, оприходована, но не отгружена под ремонт больше 2-х дней
@@ -1721,6 +1802,11 @@ class orders
         }
         return false;
     }
+
+    /**
+     * @param string $filters_query
+     * @return mixed
+     */
     function get_orders_for_orders_manager($filters_query = ''){
         $orders = db()->query(
                 'SELECT o.status, o.date_add, o.id, s.date, o.accept_wh_id, o.manager, w.group_id, SUM(IF ((
@@ -1740,6 +1826,10 @@ class orders
                     $this->all_configs['configs']['order-statuses-manager'], (time() - 60*60*24*90)))->assoc();
         return $orders;
     }
+
+    /**
+     * @return float|int
+     */
     function get_orders_manager_fail_percent(){
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $orders = $this->get_orders_manager_stats($user_id);
@@ -1755,13 +1845,30 @@ class orders
             return 0;
         }
     }
+
+    /**
+     * @param $manager
+     * @return mixed
+     */
     function get_orders_manager_stats($manager){
         $q = $this->get_orders_manager_filter_by_manager_query(array($manager));
         return $this->get_orders_for_orders_manager($q);
     }
+
+    /**
+     * @param $mg
+     * @return mixed
+     */
     function get_orders_manager_filter_by_manager_query($mg){
         return db()->makeQuery(' (o.manager IN (?li) OR ((o.manager IS NULL OR o.manager = 0) AND o.date_add <= DATE_ADD(NOW(), INTERVAL -24 HOUR))) AND ', array($mg));
     }
+
+    /**
+     * @param      $colors_count
+     * @param null $orders_summ
+     * @param bool $as_array
+     * @return array|string
+     */
     function gen_orders_manager_stats($colors_count, $orders_summ = null, $as_array = false){
         $colors_percents = '';
         $data = array();
@@ -1792,6 +1899,10 @@ class orders
             return $colors_percents;
         }
     }
+
+    /**
+     * @return array
+     */
     function orders_manager()
     {
         $orders_html = '';
@@ -1939,6 +2050,10 @@ class orders
         );
     }
 
+    /**
+     * @param $product
+     * @return string
+     */
     function show_product($product)
     {
         $qty = isset($product['count']) ? intval($product['count']) : 1;
@@ -1961,22 +2076,22 @@ class orders
 
         $order_html = '<tr><td><a href="' . $url . '">' . htmlspecialchars($product['title']) . '</a></td>';
         if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')/* && $product['type'] == 0*/) {
-            $order_html .= '<td>' . ($product['price'] / 100) . '</td>';
+            $order_html .= '<td>';
+            $order_html .= '<form method="POST"><div class="input-group">';
+            $order_html .= '<input class="form-control global-typeahead input-medium popover-info visible-price" type="text" onclick="" value="'.($product['price'] / 100) . '"/>';
+            $order_html .= '<div class="input-group-btn"><button  class="btn btn-info" type="submit" onclick="change_visible_prices(this, ' . $product['id'] . ')">'.l('Изменить').'</button></div>';
+            $order_html .= '</div></form></td>';
         }
         $order_html .= '<td>';
-        //$order_html .= '<td>' . $count . '</td>';
-        //$order_html .= '<td><span id="product_sum-' . $product['id'] . '">' . ($product['price'] * $qty / 100) . '</span></td>';
         if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
             $order_html .= '<i title="' . l('удалить') .'" class="glyphicon glyphicon-remove remove-product" onclick="order_products(this, ' . $product['goods_id'] . ', ' . $product['id'] . ', 1, 1'.$confirm_remove_supplier_order.')"></i>';
         }
         $order_html .= '</td>';
         if ($product['type'] == 0) {
             $msg = '';
-//            $msg = '<td colspan="2">';
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $msg .= '<input style="width:100%" type="button" data-order_product_id="' . $product['id'] . '" class="btn btn-small" onclick="order_item(this)" value="' . l('Заказать') . '" />';
             }
-//            $msg .= '<td colspan="2"></td>';
             $href = $this->all_configs['prefix'] . 'orders/edit/' . $product['so_id'] . '#create_supplier_order';
             $muted = $product['so_id'] > 0 ? ' <a href="' . $href . '"><small class="muted">№' . $product['so_id'] . '</small></a> ' : '';
             if ($product['item_id'] > 0) {
@@ -2084,6 +2199,11 @@ class orders
         return $order_html;
     }
 
+    /**
+     * @param null $order_id
+     * @return string
+     * @throws Exception
+     */
     function genorder($order_id = null)
     {
         $show_btn = $order_id > 0 ? false : true;
@@ -2513,10 +2633,7 @@ class orders
             if ($order['type'] != 3) {
                 if (!$only_engineer) {
                     $order_html .= '<div class="form-group"><label>' . l('Выберите запчасть') . '</label>';
-//                    $order_html .= typeahead($this->all_configs['db'], 'goods-goods', true, 0, 6, 
-//                                             'input-xlarge', 'input-medium', 'order_products', 
-//                                             false, false, '', false, l('Введите текст')).'</div>';
-                    $order_html .= 
+                    $order_html .=
                         typeahead($this->all_configs['db'], 'goods-goods', false, 0, 6, 
                                   'input-medium popover-info', '','order_products', 
                                    false, false, '', false, l('Введите'), 
@@ -2541,10 +2658,7 @@ class orders
                 }
                 $order_html .= '</tbody></table>';
                 $order_html .= '<div class="form-group"><label>' . l('Укажите работу') . '</label>';
-//                $order_html .= typeahead($this->all_configs['db'], 'goods-service', true, 0, 7, 
-//                               'input-xlarge', 'input-medium', 'order_products', 
-//                                false, false, '', false, l('Введите текст')).'</div>';
-                $order_html .= 
+                $order_html .=
                     typeahead($this->all_configs['db'], 'goods-service', false, 0, 7, 
                               'input-medium popover-info', '','order_products', 
                                false, false, '', false, l('Введите'), 
@@ -2571,6 +2685,12 @@ class orders
         return $order_html;
     }
 
+    /**
+     * @param        $data
+     * @param string $rootNodeName
+     * @param null   $xml
+     * @return mixed
+     */
     public static function toXml($data, $rootNodeName = 'data', $xml=null)
     {
         // включить режим совместимости, не совсем понял зачем это но лучше делать
@@ -2609,6 +2729,11 @@ class orders
         return $xml->asXML();
     }
 
+    /**
+     * @param $imgname
+     * @param $order_id
+     * @return mixed
+     */
     private function insert_image_to_order($imgname, $order_id)
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -2625,7 +2750,11 @@ class orders
 
         return $img_id;
     }
-    
+
+    /**
+     * @param $item_id
+     * @return string
+     */
     function get_unbind_order_product_btn($item_id){
         $btn = '';
         if($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')){
@@ -2635,7 +2764,10 @@ class orders
         }
         return $btn;
     }
-    
+
+    /**
+     * @throws Exception
+     */
     function ajax()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -2851,6 +2983,22 @@ class orders
                 $data['msg'] = l('Нет прав');
             }
         }
+        // изменяем видимую стоимость предмета или услуги в заказе
+        if ($act == 'change-visible-prices') {
+            if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
+                $data['msg'] = l('Цена изменилась');
+                if (!empty($_POST['id']) && !empty($_POST['price']) && is_numeric($_POST['price'])) {
+                    $this->all_configs['db']->query('UPDATE {orders_goods} SET price=? WHERE id=?i',
+                        array($_POST['price'] * 100, $_POST['id']));
+                    $data['state'] = true;
+                } else {
+                    $data['msg'] = l('Укажите новую цену');
+                }
+            } else {
+                $data['msg'] = l('Нет прав');
+            }
+        }
+
 
         // создаем заказ поставщику
         if ($act == 'create-supplier-order') {
@@ -3349,6 +3497,9 @@ class orders
         exit;
     }
 
+    /**
+     * @return array
+     */
     public static function get_submenu(){
         return array(
             array(

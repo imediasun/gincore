@@ -678,3 +678,20 @@ function bind_product(_this, product_id){
         }
     });
 }
+
+//изменение видимой цены продукта или услуги
+function change_visible_prices(_this, id) {
+    price = $(_this).parent().parent().find('input.visible-price').first().val();
+    $.ajax({
+        url: prefix + module + '/ajax/?act=change-visible-prices',
+        type: 'POST',
+        data: 'id='+id+'&'+
+              'price='+price,
+        success: function(msg) {
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+    return false;
+}
