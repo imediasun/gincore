@@ -245,19 +245,20 @@ class Products
                 }
             }
         }
-        if ( (isset($_GET['p']) && $_GET['p']==1) || !isset($_GET['p']) ) {
-            $page = '<ul><li class="disabled"><a href="?p=1' . $sort . $field .'">«&nbsp;' . l('Предыдущая') . '</a></li><li>&nbsp;|&nbsp;<span class="text-bold">Страница:</span>&nbsp;</li>' . $page .
+        $pageNumber = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        if ($pageNumber == 1) {
+            $page = '<ul><li class="disabled"><a href="?p=1' . $sort . $field . '">«&nbsp;' . l('Предыдущая') . '</a></li><li>&nbsp;|&nbsp;<span class="text-bold">Страница:</span>&nbsp;</li>' . $page .
                 '<li>&nbsp;|&nbsp;</li><li><a href="?p=2' . $sort . $field . '">' . l('Следующая') . '&nbsp;»</a></li></ul>';
         } else {
-            if ( $count_page == $_GET['p'] ) {
-                $page = '<ul><li><a href="?p=' . ($_GET['p']-1) . $sort . $field . '">«&nbsp;' . l('Предыдущая') . '</a></li><li>&nbsp;|&nbsp;<span class="text-bold">Страница:</span>&nbsp;</li>' . $page .
-                    '<li>&nbsp;|&nbsp;</li><li class="disabled"><a href="?p=' . $_GET['p'] . $sort . $field . '">' . l('Следующая') . '&nbsp;»</a></li></ul>';
-            }else{
-                $page = '<ul><li><a href="?p='.($_GET['p']-1).'">«&nbsp;' . l('Предыдущая') . '</a></li><li>&nbsp;|&nbsp;<span class="text-bold">Страница:</span>&nbsp;</li>'.$page.
-                    '<li>&nbsp;|&nbsp;</li><li><a href="?p=' . ($_GET['p']+1) . $sort . $field . '">' . l('Следующая') . '&nbsp;»</a></li></ul>';
+            if ($count_page == $pageNumber) {
+                $page = '<ul><li><a href="?p=' . ($pageNumber - 1) . $sort . $field . '">«&nbsp;' . l('Предыдущая') . '</a></li><li>&nbsp;|&nbsp;<span class="text-bold">Страница:</span>&nbsp;</li>' . $page .
+                    '<li>&nbsp;|&nbsp;</li><li class="disabled"><a href="?p=' . $pageNumber . $sort . $field . '">' . l('Следующая') . '&nbsp;»</a></li></ul>';
+            } else {
+                $page = '<ul><li><a href="?p=' . ($pageNumber - 1) . '">«&nbsp;' . l('Предыдущая') . '</a></li><li>&nbsp;|&nbsp;<span class="text-bold">Страница:</span>&nbsp;</li>' . $page .
+                    '<li>&nbsp;|&nbsp;</li><li><a href="?p=' . ($pageNumber + 1) . $sort . $field . '">' . l('Следующая') . '&nbsp;»</a></li></ul>';
             }
         }
-        return '<div class="pagination">'.$page.'</div>';
+        return '<div class="pagination">' . $page . '</div>';
     }
 
     function check_page($count, $cur=1, $need=1)
