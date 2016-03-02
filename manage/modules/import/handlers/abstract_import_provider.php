@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../import_helper.php';
+
 abstract class abstract_import_provider
 {
     /**
@@ -11,6 +13,9 @@ abstract class abstract_import_provider
         $cols = $this->get_cols();
         if (!empty($cols)) {
             foreach ($header_row as $col => $name) {
+                if (empty($name)) {
+                    continue;
+                }
                 if (!isset($cols[$col])
                     || import_helper::remove_whitespace($cols[$col]) != import_helper::remove_whitespace($name)
                 ) {
