@@ -18,9 +18,9 @@ class orders
     function __construct(&$all_configs, $gen_module = true)
     {
         $this->mod_submenu = self::get_submenu();
-        
+
         $this->all_configs = $all_configs;
-        
+
         if($gen_module){
             $this->count_on_page = count_on_page();
 
@@ -29,7 +29,7 @@ class orders
             require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
             require_once($this->all_configs['sitepath'] . 'shop/cart.class.php');
             require_once($this->all_configs['sitepath'] . 'mail.php');
-            
+
             if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
                 $this->ajax();
             }
@@ -40,10 +40,9 @@ class orders
             }
 
             // если отправлена форма
-            if ( !empty($_POST) )
+            if (!empty($_POST))
                 $this->check_post($_POST);
 
-            //if($ifauth['is_2']) return false;
 
             if ( isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0 ) {
                 $input_html['mcontent'] = $this->genorder();
@@ -208,7 +207,7 @@ class orders
                     $url .= '&';
                 $url .= 'wg=' . implode(',', $post['wh_groups']);
             }
-            
+
             if (isset($post['suppliers']) && !empty($post['suppliers'])) {
                 // фильтр по поставщикам
                 if (!empty($url))
@@ -340,7 +339,7 @@ class orders
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
             WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
             array('edit-clients-orders', 'site-administration'))->assoc();
-        $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) : 
+        $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
                   (isset($_GET['managers']) ? $_GET['managers'] : array());
         foreach ($managers as $manager) {
             $out .= '<option ' . ($mg_get && in_array($manager['id'], $mg_get) ? 'selected' : '');
@@ -462,7 +461,7 @@ class orders
                     '.$this->show_filter_manager(true).'
                     <div>
                         <div class="input-group">
-                            <p class="form-control-static">'.l('Приемщик').':</p> 
+                            <p class="form-control-static">'.l('Приемщик').':</p>
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
                                     ? 'disabled' : '') . ' class="multiselect btn-sm" name="accepter[]" multiple="multiple">
@@ -522,7 +521,7 @@ class orders
             }
             $out .= '</ul>';
         }
-        
+
         $out .= '
                 </div>
             </div>
@@ -610,9 +609,11 @@ class orders
                               </span>
                             <input type="text" value="'.(isset($_GET['qsq'])?htmlspecialchars($_GET['qsq']):'').'" name="search" class="form-control" id="orders_quick_search_query">
                             <div class="input-group-btn">
+                                  <button type="button"  onclick="orders_quick_search(this, \'simple\')" class="btn btn-primary" aria-haspopup="true" aria-expanded="false">
+                                    '.l('Искать').'
+                                  </button>
                                 <div class="btn-group orders_quick_search_dropdown dropdown">
                                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    '.l('Искать').'
                                     <span class="caret"></span>
                                     <span class="sr-only">Toggle</span>
                                   </button>
@@ -651,7 +652,7 @@ class orders
             $orders_html .= '<div class="span12">';
 
             $orders_html .= $this->clients_orders_navigation();
-            
+
             $orders_html .= '<div class="pill-content">';
             $orders_html .= '<div id="show_orders-orders" class="pill-pane active">';
             $orders_html .= '</div>';
@@ -672,6 +673,37 @@ class orders
     }
 
     /**
+     * @param $search
+     * @param $filters
+     * @return array
+     */
+    public function simpleSearch($search, $filters)
+    {
+        $query = '';
+        $orders = array();
+        foreach (array('co', 'serial', 'device', 'manager', 'accepter', 'engineer') as $item) {
+            $queries = $this->all_configs['manageModel']->clients_orders_query($filters + array($item => $search));
+            $query = $queries['query'];
+            $orders = $this->getOrders($query, $queries['skip'], $this->count_on_page);
+            if (!empty($orders)) {
+                break;
+            }
+        }
+        return array($query, $orders);
+    }
+
+    /**
+     * @param $query
+     * @param $skip
+     * @param $count_on_page
+     * @return mixed
+     */
+    public function getOrders($query, $skip, $count_on_page)
+    {
+        return $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
+    }
+
+    /**
      * @return array
      */
     function show_orders_orders()
@@ -682,13 +714,17 @@ class orders
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
         }
-        $queries = $this->all_configs['manageModel']->clients_orders_query($filters + $_GET);
-        $query = $queries['query'];
-        $skip = $queries['skip'];
         $count_on_page = $this->count_on_page;
-
-        // достаем заказы
-        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
+        if(isset($_GET['simple'])) {
+            $search = $_GET['simple'];
+            unset($_GET['simple']);
+            list($query, $orders) = $this->simpleSearch($search, $filters + $_GET);
+        } else {
+            $queries = $this->all_configs['manageModel']->clients_orders_query($filters + $_GET);
+            $query = $queries['query'];
+            // достаем заказы
+            $orders = $this->getOrders($query, $queries['skip'], $count_on_page);
+        }
 
         if ($orders && count($orders) > 0) {
             $orders_html .= '<table class="table table-hover"><thead><tr><td>' . l('номер заказа') . '</td><td></td><td>'.l('Дата').'</td>';
@@ -878,11 +914,11 @@ class orders
             if(!empty($_GET['on_request'])){
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
-            
+
             //$orders_html .= '<p class="text-error">Обязательно сообщить клиенту!<br />"Диагностика у нас бесплатная в случае последующего ремонта и в случае когда мы не можем сремонтировать устройство.<br />В случае отказа от ремонта со стороны клиента - диагностика составит 100 '.viewCurrency().'"</p>';
             //$orders_html .= '<div class="control-group"><label class="control-label">Номер заказа: </label>';
 //            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
-            
+
             $client_id = $order_data ? $order_data['client_id'] : 0;
             if(!$client_id){
                 $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
@@ -962,10 +998,10 @@ class orders
                                             <legend>'  . l('Устройство') . '</legend>
                                             <div class="form-group">
                                                 <label class="control-label">' . l('Выберите устройство') . ' <b class="text-danger">*</b>: </label>
-                                                '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '', 
-                                                            'display_service_information,get_requests', false, false, '', false, l('Введите'), 
-                                                            array('name' => l('Добавить новое'), 
-                                                                  'action' => 'categories/ajax/?act=create_form', 
+                                                '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
+                                                            'display_service_information,get_requests', false, false, '', false, l('Введите'),
+                                                            array('name' => l('Добавить новое'),
+                                                                  'action' => 'categories/ajax/?act=create_form',
                                                                   'form_id' => 'new_device_form'))
                                                 .'
                                             </div>
@@ -1080,8 +1116,8 @@ class orders
                                         <fieldset>
                                             <legend>' . l('Заявки') . '</legend>
                                                 <div id="client_requests">
-                                                    '.($order_data ? 
-                                                        get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request']) 
+                                                    '.($order_data ?
+                                                        get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request'])
                                                             : '<span class="muted">' . l('выберите клиента или устройство чтобы увидеть заявки') . '</span>').'
                                                 </div>
                                             </div><br>
@@ -1223,7 +1259,7 @@ class orders
 
         $orders_html .= '<div id="show_suppliers_orders-return" class="pill-pane">';
         $orders_html .= '</div>';
-        
+
         $orders_html .= '<div id="show_suppliers_orders-procurement" class="pill-pane">';
         $orders_html .= '</div>';
 
@@ -1438,7 +1474,7 @@ class orders
     {
         $orders_html = '';
         $debug = '';
-        
+
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
             $cfg = &$this->all_configs;
             $query = '';
@@ -1473,14 +1509,14 @@ class orders
                     if (isset($_GET['df']) && strtotime($_GET['df']) > 0) {
                         $query = $cfg['db']->makeQuery('AND DATE(o.date_add)>=?', array(date('Y-m-d', strtotime($_GET['df']))));
                     }
-                    
+
                     // количество заказано
                     $wait = $cfg['db']->query('SELECT o.goods_id, sum(IF(o.count_come>0, o.count_come, o.count))
                         FROM {contractors_suppliers_orders} as o 
                         WHERE o.avail=1 AND o.count_debit=0 AND o.goods_id IN (?li) ?query
                         GROUP BY o.goods_id',
                         array(array_keys($amounts), $query))->vars();
-                    
+
                     // фильтр по дате от
                     $query = '';
                     if (isset($_GET['df']) && strtotime($_GET['df']) > 0) {
@@ -1501,7 +1537,7 @@ class orders
                         GROUP BY g.goods_id, yearweek ORDER BY g.goods_id, yearweek',
                         array($cfg['configs']['order-status-issued'], array($cfg['configs']['erp-co-category-write-off'],
                             $cfg['configs']['erp-co-category-return']), array_keys($amounts), $query))->assoc('goods_id:yearweek');
-                    
+
                     // фильтр по дате от
                     $query = '';
                     if (isset($_GET['df']) && strtotime($_GET['df']) > 0) {
@@ -1584,18 +1620,18 @@ class orders
                             $str = $amounts[$p_id]['qty_consumption'] . ' / ' . count($consumption[$p_id]) . ' * ' . 4;
                             $amounts[$p_id]['qty_consumption'] = count($consumption[$p_id]) > 0 ? round($amounts[$p_id]['qty_consumption'] / count($consumption[$p_id]) * 4, 2) : 0;
                             $amounts[$p_id]['qty_consumption'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="' . l('шт / к-во недель') .' * 4">' . $amounts[$p_id]['qty_consumption'] . '</span>';
-                            
+
                             $str = $amounts[$p_id]['qty_demand'] . ' / ' . count($demand[$p_id]) . ' * ' . 4;
                             $amounts[$p_id]['qty_demand'] = count($demand[$p_id]) > 0 ? round($amounts[$p_id]['qty_demand'] / count($demand[$p_id]) * 4, 2) : 0;
                             $amounts[$p_id]['qty_demand'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="' . l('шт / к-во недель') .' * 4">' . $amounts[$p_id]['qty_demand'] . '</span>';
 
-                            
+
                             //$debug = print_r($matrix, true);
-                            
+
                             // вычисляем рекомендации к заказу
                             ksort($matrix, SORT_NUMERIC);
                             $k = $numerator = $denominator = $b = $prev = 0;
-                            
+
                             /* #вариант 1
                             foreach ($matrix as $v) {
                                 $k++; // i
@@ -1606,7 +1642,7 @@ class orders
                             */
 
                             if (count($matrix) > 0) {
-                                
+
                                 // определяем суммы за последний и предыдущий месяц (4 недели)
                                 $matrixr = array_reverse($matrix);
                                 $first_priv = $first_priv2 = 0;
@@ -1614,7 +1650,7 @@ class orders
                                     $first_priv += isset($matrixr[$mi]) ? $matrixr[$mi] : 0;
                                     $first_priv2 += isset($matrixr[$mi+4]) ? $matrixr[$mi+4] : 0;
                                 }
-                                
+
                                 $average = array_sum($matrix)/count($matrix); //среднее в неделю.
                                 //прогноз за выбранный период * 2 (удвоенный)
                                 if ($first_priv2>0 && ($first_priv2 + $first_priv2 >= 3)) {
@@ -1624,11 +1660,11 @@ class orders
                                 } else {
                                     $percent = 0;
                                 }
-                                
+
                                 $amounts[$p_id]['qty_forecast'] = $average * ($qty_weeks * 2) * $percent;
-                                
+
                                 $debug .= "1m = ".$first_priv. ", 2m = ".$first_priv2 . "  diff=".($first_priv-$first_priv2)." avr=".($average*$qty_weeks)." \n" ;
-                                
+
                                 #Вариант 1 (не подходит)
                                 /**
                                 // if avg(b) < b ? - : +
@@ -1645,9 +1681,9 @@ class orders
 
                                 $str = '<a href=\'https://www.google.com/webhp?q=y%3D' . $a . '%2B+' . $b . '*x#q=y%3D' . $a . '%2B' . $b . '*x\'>a = ' . round($a, 2) . '; b = ' . round($b, 2) . ';</a>';
                                 $str .= '<br />x = ' . $k . '; y = ' . round($y, 2) . ';';
-                                
+
                                  */
-                                
+
                                 #Варант 2 (не подходит)
                                 /*if (array_sum($matrix) < 5 || array_sum($matrix) / count($matrix) * 4 < 1) {
                                     end($matrix);
@@ -1940,7 +1976,7 @@ class orders
                 $stats = db()->query("SELECT h.id, h.status, h.date, count(h.id) as qty_by_status "
                                     ."FROM {orders_manager_history} as h "
                                     ."LEFT JOIN {orders} as o ON h.order = o.id "
-                                    ."WHERE ?q ?q GROUP BY h.date, h.status", 
+                                    ."WHERE ?q ?q GROUP BY h.date, h.status",
                                             array($squery, $date_query), 'assoc');
                 $colors_count = array();
                 if($stats){
@@ -2022,7 +2058,7 @@ class orders
                 }
             }
             // -- фильтры
-            
+
             $orders_html = '
                 <div>
                     <form class="form-inline well">
@@ -2063,7 +2099,7 @@ class orders
                                               ."o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
                                        ."FROM {orders_suppliers_clients} as c "
                                        ."LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
-                                       ."WHERE c.client_order_id = ?i AND c.goods_id = ?i", 
+                                       ."WHERE c.client_order_id = ?i AND c.goods_id = ?i",
                                             array($product['order_id'], $product['goods_id']), 'row');
         $confirm_remove_supplier_order = $supplier_order['count'] == 1 && $supplier_order['confirm'] != 1 ? ', 1' : '';
         /*$count = '<select id="product_count-' . $product['goods_id'] . '" class="input-mini" onchange="order_products(this, ' . $product['goods_id'] . ', 1)">';
@@ -2107,34 +2143,34 @@ class orders
                 $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                 $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                 $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')";
-                
+
                 $avail_create = $avail_accept = $avail_bind = false;
                 $accept_action = $bind_action = $create_action = '';
                 $accept_data = '';
-                
+
                 if ($product['unavailable'] == 1) {
                     $msg =  l('Запчасть не доступна к заказу') . ' ' . $muted . '';
                 }elseif($product['count_debit'] > 0) {
                     $avail_bind = true;
                     $bind_action = 'bind_product(this,'.$product['goods_id'].')';
-                    $msg = l('Ожидание отгрузки запчасти') . 
-                    '<span title="' . do_nice_date($product['date_debit'], false) . '">' . 
-                            do_nice_date($product['date_debit']) . '</span> ' . 
+                    $msg = l('Ожидание отгрузки запчасти') .
+                    '<span title="' . do_nice_date($product['date_debit'], false) . '">' .
+                            do_nice_date($product['date_debit']) . '</span> ' .
                             $muted . '';
                 }elseif($product['count_come'] > 0) {
                     $avail_accept = true;
                     $accept_action = "alert_box(this,false,'form-debit-so',{},null,'warehouses/ajax/')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
                     $msg =  l('Запчасть была принята') . '
-                            <span title="' . do_nice_date($product['date_come'], false) . '">' . 
-                            do_nice_date($product['date_come']) . '</span> ' . 
+                            <span title="' . do_nice_date($product['date_come'], false) . '">' .
+                            do_nice_date($product['date_come']) . '</span> ' .
                             $muted . '';
                 }elseif($product['supplier'] > 0) {
                     $avail_accept = true;
                     $accept_action = "alert_box(this, false, 'form-accept-so-and-debit')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
                     $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' №' . $product['so_id'] . ').
-                            ' . l('Дата поставки') .' <span title="' . do_nice_date($product['date_wait'], false) . '">' . 
+                            ' . l('Дата поставки') .' <span title="' . do_nice_date($product['date_wait'], false) . '">' .
                             do_nice_date($product['date_wait']) . '';
                 }elseif($product['count_order'] > 0) {
                     $date_attach = $this->all_configs['db']->query(
@@ -2144,20 +2180,20 @@ class orders
                                              $product['order_id'],$product['so_id'],
                                              $product['goods_id'],$product['id']
                                          ), 'el');
-                    
+
                     $avail_create = true;
                     $create_action = 'show_suppliers_order(this, '.$supplier_order['id'].')';
                     $msg = '
                         <span title="'.do_nice_date($date_attach, false).'">'.
                             do_nice_date($date_attach).
                         '</span> '.
-                        l('Отправлен запрос на закупку') . ' ' . $muted.' от '. 
+                        l('Отправлен запрос на закупку') . ' ' . $muted.' от '.
                         '<span title="'.do_nice_date($product['date_add'], false).'">'.
                             do_nice_date($product['date_add']).
                         '</span>
                     ';
                 }
-               
+
                 $msg = '
                     <td colspan="2">
                         <div class="order_product clearfix">
@@ -2234,9 +2270,9 @@ class orders
             $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
                 !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ? true : false;
 
-            
+
             $order_html .= '<div class="row-fluid">';
-            
+
             $order_html .= '
                 <div class="order-form-edit-nav toggle-hidden-box">
                     '.$this->clients_orders_navigation(true).'
@@ -2262,11 +2298,11 @@ class orders
                         <i class="fa fa-print"></i> <span class="caret"></span>
                       </button>
                       <ul class="keep-open dropdown-menu print_menu">
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_kvit.'">' . l('Квитанция') . '</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">' . l('Чек') . '</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">' . l('Гарантия') . '</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">' . l('Акт выполненых работ') . '</label/></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_invoicing.'">' . l('Счет на оплату') . '</label/></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_kvit.'">' . l('Квитанция') . '</label></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">' . l('Чек') . '</label></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">' . l('Гарантия') . '</label></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">' . l('Акт выполненых работ') . '</label></li>
+                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_invoicing.'">' . l('Счет на оплату') . '</label></li>
                         <li role="separator" class="divider"></li>
                         <li class="text-center">
                             <button class="btn btn-sm btn-info" type="button" id="print_now">' . l('Распечатать') . '</button>
@@ -2279,14 +2315,14 @@ class orders
             }
             //$order_html .= '<label><span class="muted">Принят: </span> ';
             //$order_html .= '</label>';
-            
+
             $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
             $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="' . l('Курьер забрал устройство у клиента') .'" class="fa fa-truck"></i> ' : '';
-            $accepted .= $order['np_accept'] == 1 ? 
+            $accepted .= $order['np_accept'] == 1 ?
                             '<i title="' . l('Принято через почту') .'" class="fa fa-suitcase text-danger"></i> ' :
                             '<i style="color:' . $color . ';" title="' . l('Принято в сервисном центре') . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
             $accepted .= $order['aw_title'].' ';
-            
+
             $order_html .= '
                 <div class="span6">
                 <div class="row-fluid">
@@ -2309,7 +2345,7 @@ class orders
                 </div>
                 <div class="row-fluid">
                     <div class="span6">';
-            
+
             if (!$only_engineer) {
                 $icon = '<i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="' . $order['id'] . '" onclick="alert_box(this, null, \'order-gallery\')"></i>';
                 $order_html .= '
@@ -2332,7 +2368,7 @@ class orders
                             ' . $icon . '' . l('Устройство') . ': 
                         </label> ';
                 $order_html .= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4, 'input-medium').'';
-                
+
                 $colors_select = '';
                 if(is_null($order['o_color'])){
                     $colors_select .= '<option value="-1" selected disabled>' . l('Не выбран') . '</option>';
@@ -2340,13 +2376,13 @@ class orders
                 foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
                     $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'. $c .'</option>';
                 }
-                $order_html .= 
+                $order_html .=
                     '<div class="form-group">
                         <label class="control-label">' . l('Цвет') . ': </label>
                         <select class="form-control" name="color">'. $colors_select .'</select>
                     </div>
                 ';
-                
+
                 //$order_html .= typeahead($this->all_configs['db'], 'goods-goods', false, $order['title'], 8, 'input-medium', 'input-medium', 'order_products');
                 $order_html .= /*htmlspecialchars($order['title']) . */' ' . htmlspecialchars($order['note']) . '</div>';
             }
@@ -2372,7 +2408,7 @@ class orders
                 if($order['equipment']){
                     $parts[] = htmlspecialchars($order['equipment']);
                 }
-                $order_html .= 
+                $order_html .=
                     '<div class="form-group"><label>' . l('Комлектация') . ':</label><br>'.
                     implode(', ', $parts).'</div>';
             }
@@ -2407,8 +2443,8 @@ class orders
                 }
             }
             $order_html .= '</div><div class="span6">';
-            
-            
+
+
             $order_html .= '<div class="form-group"><label><span onclick="alert_box(this, false, \'stock_moves-order\')" data-o_id="' . $order['id'] . '" class="cursor-pointer glyphicon glyphicon-list" title="' . l('История перемещений') . '"></span>';
             $order_html .= ' ' . l('Локации') . ': </label> ' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']);
             $order_html .= ' <i title="' . l('Переместить заказ') .'" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" data-o_id="' . $order['id'] . '" class="glyphicon glyphicon-move cursor-pointer"></i></div>';
@@ -2634,11 +2670,11 @@ class orders
                 if (!$only_engineer) {
                     $order_html .= '<div class="form-group"><label>' . l('Выберите запчасть') . '</label>';
                     $order_html .=
-                        typeahead($this->all_configs['db'], 'goods-goods', false, 0, 6, 
-                                  'input-medium popover-info', '','order_products', 
-                                   false, false, '', false, l('Введите'), 
-                                   array('name' => l('Добавить новую'), 
-                                       'action' => 'products/ajax/?act=create_form', 
+                        typeahead($this->all_configs['db'], 'goods-goods', false, 0, 6,
+                                  'input-medium popover-info', '','order_products',
+                                   false, false, '', false, l('Введите'),
+                                   array('name' => l('Добавить новую'),
+                                       'action' => 'products/ajax/?act=create_form',
                                        'form_id' => 'order_new_device_form'))
                         .'</div>'
                         .'<div id="order_new_device_form" class="typeahead_add_form_box theme_bg order_new_device_form"></div>';
@@ -2659,11 +2695,11 @@ class orders
                 $order_html .= '</tbody></table>';
                 $order_html .= '<div class="form-group"><label>' . l('Укажите работу') . '</label>';
                 $order_html .=
-                    typeahead($this->all_configs['db'], 'goods-service', false, 0, 7, 
-                              'input-medium popover-info', '','order_products', 
-                               false, false, '', false, l('Введите'), 
-                               array('name' => l('Добавить новую'), 
-                                   'action' => 'products/ajax/?act=create_form&service=1', 
+                    typeahead($this->all_configs['db'], 'goods-service', false, 0, 7,
+                              'input-medium popover-info', '','order_products',
+                               false, false, '', false, l('Введите'),
+                               array('name' => l('Добавить новую'),
+                                   'action' => 'products/ajax/?act=create_form&service=1',
                                    'form_id' => 'order_new_work_form'))
                     .'</div>'
                     .'<div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form"></div>';
@@ -2791,12 +2827,18 @@ class orders
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
                         array($this, $_POST['tab']),
-                        array((isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'], 'UTF-8')) > 0) ? trim($_POST['hashs']) : null)
+                        array(
+                            (isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'],
+                                    'UTF-8')) > 0) ? trim($_POST['hashs']) : null
+                        )
                     );
-                    if (!isset($function['debug'])) {$function['debug'] = '';}
-                    $return = array('html' => $function['html'], 
-                        'state' => true, 
-                        'functions' => $function['functions'], 
+                    if (!isset($function['debug'])) {
+                        $function['debug'] = '';
+                    }
+                    $return = array(
+                        'html' => $function['html'],
+                        'state' => true,
+                        'functions' => $function['functions'],
                         'debug' => $function['debug']
                     );
                     if (isset($function['menu'])) {
@@ -3030,7 +3072,7 @@ class orders
                     $data['reload'] = true;
                 }
             }else{
-            
+
                 if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order/* || $order['manager'] != $_SESSION['id']*/)) {
                     //$data['msg'] = 'Вы не являетесь менеджером этого заказа';
                     $data['msg'] = l('У Вас нет прав');
@@ -3050,7 +3092,7 @@ class orders
                 }
 
                 if ($data['state'] == true) {
-                
+
                 // принимаем заказ
                 if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $order['manager'] = $user_id;
@@ -3059,7 +3101,7 @@ class orders
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                         array($user_id, 'manager-accepted-order', $mod_id, $order_id));
                 }
-                
+
                 // меняем статус
                 $response = update_order_status($order, $_POST['status']);
                 if (!isset($response['state']) || $response['state'] == false) {
@@ -3223,7 +3265,7 @@ class orders
                     $data['sms'] = true;
                 }
             }
-            
+
             }
         }
 
@@ -3231,7 +3273,7 @@ class orders
         if ($act == 'add-order') {
             $data = $this->all_configs['chains']->add_order($_POST, $mod_id);
         }
-        
+
         // создать заказ
         if ($act == 'sale-order') {
             $data = $this->all_configs['chains']->sold_items($_POST, $mod_id);
@@ -3366,7 +3408,7 @@ class orders
             $id = isset($_POST['id']) ? $_POST['id'] : null;
             $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(1, $id, false, $counter);
         }
-        
+
         if ($act == 'supplier-order-form') {
             $data['state'] = true;
             $counter = 0;
@@ -3387,7 +3429,7 @@ class orders
                 </table>
             ';
         }
-        
+
         if ($act == 'client-bind') {
 
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
@@ -3506,28 +3548,28 @@ class orders
                 'click_tab' => true,
                 'url' => '#show_orders',
                 'name' => l('customer_orders')//'Заказы клиентов'
-            ), 
+            ),
             array(
                 'click_tab' => true,
                 'url' => '#create_order',
                 'name' => l('create_order')//'Создать заказ'
-            ), 
+            ),
             array(
                 'click_tab' => true,
                 'url' => '#show_suppliers_orders',
                 'name' => l('suppliers_orders')//'Заказы поставщику'
-            ), 
+            ),
             array(
                 'click_tab' => true,
                 'url' => '#create_supplier_order',
                 'name' => l('create_supplier_order')//'Создать заказ поставщику'
-            ), 
+            ),
             array(
                 'click_tab' => true,
                 'url' => '#orders_manager',
                 'name' => l('orders_manager')//'Менеджер заказов'
-            ), 
+            ),
         );
     }
-    
+
 }
