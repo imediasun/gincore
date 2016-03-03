@@ -26,3 +26,8 @@ DirectoryIndex index.php
 #AddType video/webm .webm
 #AddType video/mp4 .mp4
 #AddType video/mp4 .m4v
+
+<Directory /gincore>
+    Order Deny,Allow
+    Allow from all
+</Directory>
