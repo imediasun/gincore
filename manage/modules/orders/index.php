@@ -1156,29 +1156,35 @@ class orders
      * @return string
      * @throws Exception
      */
-    function order_for_sale_form(){
+    function order_for_sale_form()
+    {
         global $all_configs;
+        $order_data = null;
         $client_fields_for_sale = client_double_typeahead();
         $form = '
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-sm-6">
             <form method="post" id="sale-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
-                '.$client_fields_for_sale['id'].'
+                ' . $client_fields_for_sale['id'] . '
                 <fieldset>
                     <legend>' . l('Клиент') . '</legend>
                     <div class="form-group">
                         <label>' . l('Укажите данные клиента') . ' <b class="text-danger">*</b>: </label>
                         <div class="row row-15">
                             <div class="col-sm-6">
-                                '.$client_fields_for_sale['phone'].'
+                                ' . $client_fields_for_sale['phone'] . '
                             </div>
                             <div class="col-sm-6">
-                                '.$client_fields_for_sale['fio'].'
+                                ' . $client_fields_for_sale['fio'] . '
                             </div>
                         </div>
                         <!--<input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
-                        '.typeahead($this->all_configs['db'], 'clients', false, 0, 3, 'input-xlarge', 'input-medium', 'check_fio')
-                        .'<span class="input-group-btn">
-                            <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="'.l('Добавить').'">
+                        ' . typeahead($this->all_configs['db'], 'clients', false, 0, 3, 'input-xlarge', 'input-medium',
+                'check_fio')
+            . '<span class="input-group-btn">
+                            <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="' . l('Добавить') . '">
                         </span>
                         -->
                     </div>
@@ -1188,42 +1194,114 @@ class orders
                     </div>
                     <div class="form-group">
                         <label>' . l('Рекламный канал') . ' (' . l('источник') . '): </label>
-                        '.get_service('crm/calls')->get_referers_list().'
+                        ' . get_service('crm/calls')->get_referers_list() . '
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend>' . l('Товар') . '</legend>
-                    <div class="form-group">
-                        <label class="control-label">' . l('Код товара') . ' (' . l('серийный номер') . ') <b class="text-danger">*</b>: </label>
-                        '.typeahead($this->all_configs['db'], 'serials', false, '', 4, 'input-medium clone_clear_val', '', 'display_serial_product_title_and_price', false, true)
-                        .'<small class="clone_clear_html product-title"></small>
-                        <input type="hidden" name="items" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Цена продажи') . ' <b class="text-danger">*</b>: </label>
-                        <div class="input-group">
-                            <input type="text" required id="sale_poduct_cost" class="form-control" value="" name="price" />
-                            <span class="input-group-addon">'. viewCurrency() .'</span>
+                <div class="container-fluid items-container">
+                    <div class="row">
+                        <div class="col-sm-12 no-padding-right">
+                        <legend>' . l('Товар') . '</legend>
                         </div>
-                    </div>';
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-7">
+                            <label class="control-label">' . l('Код товара') . ' (' . l('серийный номер') . ') <b class="text-danger">*</b>: </label>
+                            ' . typeahead($this->all_configs['db'], 'serials', false, '', 4, 'input-medium clone_clear_val',
+                    '', 'display_serial_product_title_and_price', false, true)
+                    . '<small class="clone_clear_html product-title" style="display:none"></small>
+                            <input type="hidden" name="items" id="item_id" value="">
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>' . l('Цена продажи') . ' <b class="text-danger">*</b>: </label>
+                            <div class="input-group">
+                                <input type="text" id="sale_poduct_cost" class="form-control" value="" name="price" />
+                                <span class="input-group-addon">' . viewCurrency() . '</span>
+                            </div>
+                        </div>
 
-            $form .= '<div class="form-group">'
-                      .'<label>' . l('Гарантия') . ': </label> '
-                      .'<div class="input-group"> '
-                      .'<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
-            $order_warranties = isset($all_configs['settings']['order_warranties']) ? explode(',', $all_configs['settings']['order_warranties']) : array();
-            foreach ($order_warranties as $warranty) {
-                $form .= '<option value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
-            }
-            $form .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
+                        <div class="form-group col-sm-1">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary class" onclick="return add_item_to_table();" title="'.l('Добавить товар').'"><i class="glyphicon glyphicon-plus"></i></button>
+                        </div>
+                   </div>
+                   <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-items" style="display:none">
+                            <thead>
+                            <tr>
+                                <th class="col-sm-7">'.l('Товар').'</th>
+                                <th class="col-sm-4">'.l('Цена').'</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="js-row-cloning" style="display: none">
+                                <td>
 
-             $form .= '<div class="form-group">
+                                    <div class="input-group col-sm-12">
+                                        <input type="hidden" class="form-control js-item-id" name="serials[]" value="">
+                                        <input type="text"  readonly class="form-control js-item-name" value="" />
+                                    </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group col-sm-12">
+                                        <input type="text" class="form-control js-price" onkeyup="recalculate_amount();" value="" name="amount[]" />
+                                        <span class="input-group-addon">' . viewCurrency() . '</span>
+                                    </div>
+                                </td>
+                                <td>
+                                <a href="#" onclick="return remove_row(this);"> <i class="glyphicon glyphicon-remove"></i> </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="row-amount">
+                                    <td>
+                                        <div class="input-group col-sm-12">
+                                            <label>'.l('Итоговая стоимость:').'</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group col-sm-12">
+                                            <input type="text" readonly class="form-control js-total" value="" />
+                                            <span class="input-group-addon">' . viewCurrency() . '</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tfoot>
+
+                            </table>
+                        </div>
+                   </div>
+               </div>';
+
+        $form .= '<div class="form-group">'
+            . '<label>' . l('Гарантия') . ': </label> '
+            . '<div class="input-group"> '
+            . '<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
+        $order_warranties = isset($all_configs['settings']['order_warranties']) ? explode(',',
+            $all_configs['settings']['order_warranties']) : array();
+        foreach ($order_warranties as $warranty) {
+            $form .= '<option value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
+        }
+        $form .= '</select><div class="input-group-addon">' . l('мес') . '</div></div></div>';
+
+        $form .= '<div class="form-group">
                         <label>' . l('Скрытый комментарий к заказу') . ': </label>
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
                     </div>
                 </fieldset>
-                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="'.l('Добавить').'" />
+                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="' . l('Добавить') . '" />
             </form>
+            <div class="col-sm-6 relative">
+            </div>
+            </div>
+            </div>
+            </div>
         ';
         return $form;
     }
@@ -2817,6 +2895,7 @@ class orders
             echo json_encode(array('message' => l('Нет прав'), 'state' => false));
             exit;
         }
+
 
         // грузим табу
         if ($act == 'tab-load') {

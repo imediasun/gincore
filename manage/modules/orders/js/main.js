@@ -714,3 +714,47 @@ function resizeInput() {
     $(this).attr('size', $(this).val().length);
 }
 
+function add_item_to_table() {
+    var $row = $('tr.js-row-cloning'),
+      cost = $('#sale_poduct_cost').val(),
+      title = $('.product-title').html(),
+      id = $('input[name="serials-value"]').val(),
+      rnd = parseInt(Math.random() * 1000);
+
+    if (cost > 0 && title.length > 0 && id.length > 0) {
+        $clone = $row.clone().removeClass('js-row-cloning');
+        $clone.addClass('row-item');
+        $clone.find('.js-item-name').first().val(title + '(sn:' + id + ')');
+        $clone.find('input.js-item-id').first().val(id).attr('name', 'serials[' + rnd + ']');
+        $clone.find('.js-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
+        $('#sale_poduct_cost').val('');
+        $('input[name="serials-value"]').val('').attr('data-required', 'false');
+        $('.product-title').html('');
+        $('#item_id').val('');
+        $clone.show();
+        $row.parent().append($clone);
+        recalculate_amount();
+        $('table.table-items').show();
+    }
+    return false;
+}
+
+function recalculate_amount() {
+    var amount = 0,
+      $body = $('.table-items > tbody');
+
+    $body.children('tr.row-item').each(function() {
+       amount += parseInt($(this).find('.js-price').first().val());
+    });
+    if(amount == 0) {
+        $body.parent().hide();
+        $('input[name="serials-value"]').attr('data-required', 'true');
+    }
+    $('.js-total').val(amount);
+}
+
+function remove_row(_this) {
+    $(_this).parent().parent().remove();
+    recalculate_amount();
+    return false;
+}

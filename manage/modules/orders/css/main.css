@@ -568,3 +568,6 @@ input.visible-price {
     border-radius: 0;
     max-width: 80px;
 }
+.no-padding-right {
+    padding-right: 0;
+}
