@@ -694,6 +694,7 @@ function change_visible_prices(_this, id) {
         data: 'id='+id+'&'+
               'price='+price,
         success: function(msg) {
+            $(_this).parent().hide();
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.responseText);
