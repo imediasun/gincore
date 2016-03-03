@@ -681,7 +681,7 @@ class orders
     {
         $query = '';
         $orders = array();
-        foreach (array('co', 'serial', 'device', 'manager', 'accepter', 'engineer') as $item) {
+        foreach (array('o_id', 'c_phone', 'o_serial' , 'c_fio','device', 'manager', 'accepter', 'engineer') as $item) {
             $queries = $this->all_configs['manageModel']->clients_orders_query($filters + array($item => $search));
             $query = $queries['query'];
             $orders = $this->getOrders($query, $queries['skip'], $this->count_on_page);

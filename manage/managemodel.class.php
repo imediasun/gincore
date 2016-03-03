@@ -449,10 +449,32 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND (o.id=?i OR c.fio LIKE "%?e%" OR c.phone LIKE "%?e%")',
                 array($query, intval($filters['co']), trim($filters['co']), trim($filters['co'])));
         }
+
+        if (isset($filters['o_id']) && !empty($filters['o_id'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.id LIKE "%?e%"',
+                array($query, trim($filters['o_id'])));
+        }
+
+        if (isset($filters['c_phone']) && !empty($filters['c_phone'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND c.phone LIKE "%?e%"',
+                array($query, trim($filters['c_phone'])));
+        }
+
+        if (isset($filters['c_fio']) && !empty($filters['c_fio'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND c.fio LIKE "%?e%"',
+                array($query, trim($filters['c_fio'])));
+        }
+
+        if (isset($filters['o_serial']) && $filters['o_serial']) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.serial LIKE "%?e%"',
+                array($query, $filters['o_serial']));
+        }
+
         if (isset($filters['cl']) && !empty($filters['cl'])) {
             $query = $this->all_configs['db']->makeQuery('?query AND (c.fio LIKE "%?e%" OR c.phone LIKE "%?e%")',
                 array($query, trim($filters['cl']), trim($filters['cl'])));
         }
+
         if (isset($filters['fco'])) {
             if ($filters['fco'] == 'unworked') {
                 $query = $this->all_configs['db']->makeQuery('?query AND (o.manager IS NULL OR o.manager="")',
