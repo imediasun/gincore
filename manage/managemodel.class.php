@@ -451,7 +451,7 @@ class manageModel
         }
 
         if (isset($filters['o_id']) && !empty($filters['o_id'])) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.id LIKE "%?e%"',
+            $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',
                 array($query, trim($filters['o_id'])));
         }
 
