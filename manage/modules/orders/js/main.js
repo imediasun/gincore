@@ -34,7 +34,6 @@ function orders_quick_search(_this, param){
 }
 
 function create_transaction(_this, conf) {
-
     $(_this).button('loading');
     $.ajax({
         url: prefix+'accountings/ajax/?act=create-transaction',
@@ -259,6 +258,13 @@ $(function() {
         update_order(this);
         e.preventDefault();
     });
+
+    $('input.visible-price')
+    // event handler
+      .keyup(resizeInput)
+      // resize on page load
+      .each(resizeInput);
+    //$('div.floating-width').css('width', )
 });
 
 
@@ -695,3 +701,15 @@ function change_visible_prices(_this, id) {
     });
     return false;
 }
+
+function change_input_width(_this, length) {
+    var $parent = $(_this).parent();
+
+    $parent.css('width', (Math.min((length + 2) * 8 + 25, 80) + 40) + 'px');
+    $parent.children('.input-group-btn').show();
+}
+
+function resizeInput() {
+    $(this).attr('size', $(this).val().length);
+}
+

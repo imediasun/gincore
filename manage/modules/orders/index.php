@@ -2113,9 +2113,9 @@ class orders
         $order_html = '<tr><td><a href="' . $url . '">' . htmlspecialchars($product['title']) . '</a></td>';
         if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')/* && $product['type'] == 0*/) {
             $order_html .= '<td>';
-            $order_html .= '<form method="POST"><div class="input-group">';
-            $order_html .= '<input class="form-control global-typeahead input-medium popover-info visible-price" type="text" onclick="" value="'.($product['price'] / 100) . '"/>';
-            $order_html .= '<div class="input-group-btn"><button  class="btn btn-info" type="submit" onclick="change_visible_prices(this, ' . $product['id'] . ')">'.l('Изменить').'</button></div>';
+            $order_html .= '<form method="POST"><div class="input-group floating-width">';
+            $order_html .= '<input class="form-control global-typeahead input-medium popover-info visible-price" type="text"  onkeypress="change_input_width(this, this.value.length);" value="'.($product['price'] / 100) . '"/>';
+            $order_html .= '<div class="input-group-btn" style="display:none" ><button class="btn btn-info" type="submit" onclick="change_visible_prices(this, ' . $product['id'] . ')"><span class="glyphicons glyphicon-ok"></span>&nbsp;</button></div>';
             $order_html .= '</div></form></td>';
         }
         $order_html .= '<td>';
