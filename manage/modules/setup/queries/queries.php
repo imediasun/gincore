@@ -63,6 +63,7 @@ $settingsArr[]=array('country', '', lq('Страна'), 1, '');
 $settingsArr[]=array('account_phone', '', lq('Ваш телефон'), 1, '');
 $settingsArr[]=array('account_business', '', lq('Ваш бизнес'), 1, '');
 $settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
+$settingsArr[]=array('time_zone', '+02:00', lq('Временная зона'), 0, lq('Временная зона, например +00:00'));
 
 foreach ($settingsArr as $ar) {
     db()->query("INSERT INTO `restore4_settings` (`name`, `value`, `ro`, `title`, `description`) 
@@ -129,7 +130,8 @@ db()->query("
     (54, '".lq('Мониторинг конкурентов')."', 'monitoring', 0, 1),
     (55, '".lq('Создать задачу')."', 'create-task', 0, 9),
     (56, '".lq('Доступ к статистике на главной странице')."', 'dashboard', 0, 1),
-    (57, '".lq('Внешний маркетинг')."', 'external-marketing', 0, 2)
+    (57, '".lq('Внешний маркетинг')."', 'external-marketing', 0, 2),
+    (58, '".lq('Просмотр и редактирование чужих заказов поставщику')."', 'read-other-suppliers-orders', 19, 5)
 ");
 db()->query('TRUNCATE TABLE {users_role_permission}');
 db()->query("
