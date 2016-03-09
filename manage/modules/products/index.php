@@ -1,6 +1,5 @@
 <?php
 
-
 $modulename[60] = 'products';
 $modulemenu[60] = l('Товары');
 $moduleactive[60] = !$ifauth['is_2'];
@@ -21,6 +20,10 @@ class products
 
     private $errors = array();
 
+    /**
+     * products constructor.
+     * @param $all_configs
+     */
     public function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
@@ -58,6 +61,9 @@ class products
     }
 
     // отключено
+    /**
+     * @return string
+     */
     function genimage()
     {
         return '';
@@ -649,6 +655,9 @@ class products
         return $goods_html;
     }
 
+    /**
+     * @return string
+     */
     function show_product_body()
     {
         $goods_html = '';
@@ -696,6 +705,9 @@ class products
         return $goods_html;
     }
 
+    /**
+     * @return string
+     */
     private function gencreate()
     {
         // если отправлена форма изменения продукта
@@ -732,6 +744,10 @@ class products
         return $goods_html;
     }
 
+    /**
+     * @param int $gid
+     * @return mixed
+     */
     function get_managers($gid = 0)
     {
         $query = '';
@@ -754,6 +770,12 @@ class products
             array($query))->assoc();//u.id<>?i AND link<>"site-administration" AND
     }
 
+    /**
+     * @param       $array
+     * @param int   $index
+     * @param array $tree
+     * @return array
+     */
     function array_tree($array, $index = 0, $tree = array() /*, $id=0*/)
     {
         $space = "";
@@ -780,6 +802,9 @@ class products
         return $tree;
     }
 
+    /**
+     * @return mixed
+     */
     private function get_goods_ids()
     {
         // все категории
@@ -952,6 +977,9 @@ class products
             array($goods_query, $sorting))->vars();
     }
 
+    /**
+     *
+     */
     private function getGoods()
     {
         // текущая страничка
@@ -992,6 +1020,9 @@ class products
 
     }
 
+    /**
+     * @return string
+     */
     private function genfilter()
     {
         $this->getGoods();
@@ -1021,11 +1052,18 @@ class products
         return $filters_html;
     }
 
+    /**
+     * @return mixed
+     */
     private function get_categories()
     {
         return $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
     }
 
+    /**
+     * @param $categories_tree
+     * @return string
+     */
     function categories_tree_menu($categories_tree)
     {
         $categories_html = '';
@@ -1044,6 +1082,11 @@ class products
         return $categories_html;
     }
 
+    /**
+     * @param       $array
+     * @param array $return
+     * @return array
+     */
     function get_all_childrens($array, $return = array())
     {
         foreach ($array as $el) {
@@ -1057,6 +1100,9 @@ class products
         return $return;
     }
 
+    /**
+     * @return string
+     */
     private function genmenu()
     {
         $categories = $this->get_categories();
@@ -1090,6 +1136,11 @@ class products
 
     }
 
+    /**
+     * @param $list
+     * @param $parent
+     * @return array
+     */
     function createTree(&$list, $parent)
     {
         $tree = array();
@@ -1106,6 +1157,9 @@ class products
         return $tree;
     }
 
+    /**
+     * @return string
+     */
     private function gencontent()
     {
         $mod_id = $this->all_configs['configs']['products-manage-page'];
@@ -1133,7 +1187,6 @@ class products
 
         // быстрое обновление
         if (isset($_POST['quick-edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-//echo '<pre>';print_r($_POST);exit;
             // обновление активности товара
             if (isset($_POST['avail']) && is_array($_POST['avail'])/* && $this->all_configs['oRole']->hasPrivilege('external-marketing')*/) {
                 foreach ($_POST['avail'] as $p_id=>$p_avail) {
@@ -1333,7 +1386,9 @@ class products
             $quick_edit_title = '';
             // быстрое редактирование
             if (isset($_GET['edit']) && !empty($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-                //$goods_html .= '<form method="POST">';
+                if (isset($_GET['edit']) && !empty($_GET['edit'])) {
+                    $goods_html .= '<form method="POST">';
+                }
                 if ($_GET['edit'] == 'ym_id')
                     $quick_edit_title = 'yandex market ID';
                 if (($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing'))
@@ -1436,8 +1491,10 @@ class products
             $goods_html .= '</tbody></table>';
 
             // быстрое редактирование
-            if (isset($_GET['edit']) && !empty($_GET['edit']))
-                $goods_html .= '<input type="submit" name="quick-edit" value="'.l('Сохранить').'" class="btn" />';
+            if (isset($_GET['edit']) && !empty($_GET['edit'])) {
+                $goods_html .= '<input type="submit" name="quick-edit" value="'.l('Сохранить').'" class="btn quick-edit-save_btn" />';
+                $goods_html .= '</form>';
+            }
 
             // строим блок страниц
             $goods_html .= page_block($count_page);
@@ -1519,6 +1576,9 @@ class products
         return $this->all_configs['oRole']->hasPrivilege('show-goods');
     }
 
+    /**
+     *
+     */
     private function ajax()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -2091,6 +2151,14 @@ class products
         exit;
     }
 
+    /**
+     * @param $products
+     * @param $dir
+     * @param $filename
+     * @param $user_id
+     * @param $mod_id
+     * @return bool
+     */
     function copy_image_from_product_to_products($products, $dir, $filename, $user_id, $mod_id)
     {
         if ($products && count($products) > 0) {
@@ -2126,6 +2194,9 @@ class products
         }
     }
 
+    /**
+     * @param $product_id
+     */
     function export_product_1c($product_id)
     {
         $uploaddir = $this->all_configs['sitepath'] . '1c/goods/';
@@ -2161,6 +2232,9 @@ class products
             array($user_id, 'export-order', $mod_id, $product['id']));
     }
 
+    /**
+     * @return array
+     */
     function products_main()
     {
         $goods_html = '';
@@ -2223,6 +2297,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_additionally()
     {
         $goods_html = '';
@@ -2279,6 +2356,10 @@ class products
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function products_managers($hash = '#managers-managers')
     {
         if (trim($hash) == '#managers' || (trim($hash) != '#managers-managers' && trim($hash) != '#managers-history'))
@@ -2309,6 +2390,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_managers_managers()
     {
         $goods_html = '';
@@ -2346,6 +2430,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_managers_history()
     {
         $goods_html = '';
@@ -2377,6 +2464,10 @@ class products
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function products_financestock($hash = '#financestock-stock')
     {
         if (trim($hash) == '#financestock' || (trim($hash) != '#financestock-stock' && trim($hash) != '#financestock-finance'))
@@ -2412,6 +2503,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_financestock_stock()
     {
         $goods_html = '';
@@ -2460,6 +2554,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_financestock_finance()
     {
         $goods_html = '';
@@ -2511,6 +2608,10 @@ class products
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function products_omt($hash = '#omt-notices')
     {
         $goods_html = '';
@@ -2541,6 +2642,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_omt_notices()
     {
         $goods_html = '';
@@ -2580,6 +2684,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_omt_aggregators()
     {
         $goods_html = '';
@@ -2657,6 +2764,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_omt_procurement()
     {
         $goods_html = '';
@@ -2708,6 +2818,9 @@ class products
         );
     }
 
+    /**
+     * @return array
+     */
     function products_omt_suppliers()
     {
         $goods_html = '';
@@ -2745,6 +2858,10 @@ class products
     }
 
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function products_imt($hash = '#imt-main')
     {
         if (trim($hash) == '#imt' || (trim($hash) != '#imt-main' && trim($hash) != '#imt-comments' && trim($hash) != '#imt-warranties'
@@ -2814,6 +2931,10 @@ class products
         );
     }
 
+    /**
+     * @param $tab
+     * @return string
+     */
     function btn_save_product($tab)
     {
         $goods_html = '';
@@ -2831,6 +2952,12 @@ class products
         return $goods_html;
     }
 
+    /**
+     * @param      $key
+     * @param      $values
+     * @param bool $option
+     * @return string
+     */
     function click_filters($key, $values, $option = false)
     {
         $active = '';
