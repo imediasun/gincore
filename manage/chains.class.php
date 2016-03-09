@@ -1055,96 +1055,79 @@ class Chains
      */
     public function add_product_order($post, $mod_id, $order_class = null)
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $data = array('state' => true);
-        $order_id = isset($post['order_id']) ? $post['order_id'] : ($this->all_configs['arrequest'][2] ? $this->all_configs['arrequest'][2] : 0);
-        $product = null;
+        try {
+            $order_id = isset($post['order_id']) ? $post['order_id'] : ($this->all_configs['arrequest'][2] ? $this->all_configs['arrequest'][2] : 0);
+            $product = null;
 
-        $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i',
-            array($order_id))->row();
+            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i',
+                array($order_id))->row();
 
-        if ($data['state'] == true && !$order) {
-            $data['msg'] = 'Заказ не найден';
-            $data['state'] = false;
-        }
-        /*if ($data['state'] == true && $order['manager'] != $user_id) {
-            $data['msg'] = 'Вы не являетесь менеджером этого заказа';
-            $data['state'] = false;
-        }*/
-        if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
-            && !$this->all_configs['oRole']->hasPrivilege('scanner-moves')
-        ) {
-            $data['msg'] = 'У Вас недостаточно прав';
-            $data['state'] = false;
-        }
-        if ($data['state'] == true && in_array($order['status'],
-                $this->all_configs['configs']['order-statuses-orders'])
-        ) {
-            $data['msg'] = 'В закрытый заказ нельзя добавить запчасть';
-            $data['state'] = false;
-        }
-        if ($data['state'] == true && (!isset($post['product_id']) || $post['product_id'] == 0)) {
-            $data['msg'] = 'Выберите товар';
-            $data['state'] = false;
-        }
-        if ($data['state'] == true) {
+            if (empty($order)) {
+                throw new ExceptionWithMsg('Заказ не найден');
+            }
+            if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
+                && !$this->all_configs['oRole']->hasPrivilege('scanner-moves')
+            ) {
+                throw new ExceptionWithMsg('У Вас недостаточно прав');
+            }
+            if (in_array($order['status'], $this->all_configs['configs']['order-statuses-orders'])) {
+                throw new ExceptionWithMsg('В закрытый заказ нельзя добавить запчасть');
+            }
+            if ((!isset($post['product_id']) || $post['product_id'] == 0)) {
+                throw new ExceptionWithMsg('Выберите товар');
+            }
             $product = $this->all_configs['db']->query(
                 'SELECT g.id as goods_id, g.* FROM {goods} as g WHERE g.id=?i AND g.avail=?i',
                 array($post['product_id'], 1))->row();
-        }
-        if ($data['state'] == true && !$product && !isset($post['remove'])) {
-            $data['msg'] = l('Товар не активен.') . ' ' . l('Зайдите в товар и поставьте галочку "активность"');
-            $data['state'] = false;
-        }
-        if ($data['state'] == true && !isset($post['confirm']) && $product['type'] == 0 && $product['qty_store'] == 0
-            && $product['foreign_warehouse'] != 1/* && strtotime($product['wait']) == 0*/
-        ) {
-            $qty = $this->all_configs['db']->query('SELECT SUM(IF(o.warehouse_type=1, 1, 0)) as qty_1,
+            if (!$product && !isset($post['remove'])) {
+                throw new ExceptionWithMsg(l('Товар не активен.') . ' ' . l('Зайдите в товар и поставьте галочку "активность"'));
+            }
+            if (!isset($post['confirm']) && $product['type'] == 0 && $product['qty_store'] == 0
+                && $product['foreign_warehouse'] != 1
+            ) {
+                $qty = $this->all_configs['db']->query('SELECT SUM(IF(o.warehouse_type=1, 1, 0)) as qty_1,
                     SUM(IF(o.warehouse_type=2, 1, 0)) as qty_2 FROM {contractors_suppliers_orders} as o
                 WHERE o.count_debit=0 AND o.goods_id=?i AND (o.supplier IS NULL OR
                 (SELECT COUNT(id) FROM {orders_suppliers_clients} as l WHERE l.supplier_order_id=o.id) < IF(o.count_come>0, o.count_come, o.count))',
-                array($product['goods_id']))->row();
-            $data['confirm']['content'] = 'Товара нет в наличии, подтвердить?';
-            $data['confirm']['btns'] = "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 1);close_alert_box();'>
+                    array($product['goods_id']))->row();
+                $data['confirm']['content'] = 'Товара нет в наличии, подтвердить?';
+                $data['confirm']['btns'] = "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 1);close_alert_box();'>
                 Заказать локально<br /><small>срок 1-3 дня (" . ($qty ? $qty['qty_1'] : '0') . ")</small></button>";
-            $data['confirm']['btns'] .= "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 2);close_alert_box();'>
+                $data['confirm']['btns'] .= "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 2);close_alert_box();'>
                 Заказать за границей<br /><small>срок 2-3 недели (" . ($qty ? $qty['qty_2'] : '0') . ")</small></button>";
-            $data['state'] = false;
-        }
+                $data['state'] = false;
+                return $data;
+            }
 
-        if ($data['state'] == true && $product && $order) {
-            if (isset($post['remove'])) {
-                $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
-                $item_id = $this->all_configs['db']->query(
-                    'SELECT item_id FROM {orders_goods} WHERE id=?i AND item_id IS NOT NULL',
-                    array($order_product_id))->el();
-                if ($item_id > 0) {
-                    /*$order_product = $this->all_configs['db']->query(
-                        'SELECT * FROM {orders_goods} WHERE goods_id=?i AND order_id=?i',
-                        array($product['goods_id'], $order['id']))->row();
-                    if ($order_product && $order_product['item_id'] > 0) {*/
-                    $data['state'] = false;
-                    $data['msg'] = 'Отвяжите серийный номер';
-                } else {
+            if ($product && $order) {
+                if (isset($post['remove'])) {
+                    $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
+                    $item_id = $this->all_configs['db']->query(
+                        'SELECT item_id FROM {orders_goods} WHERE id=?i AND item_id IS NOT NULL',
+                        array($order_product_id))->el();
+                    if ($item_id > 0) {
+                        throw new ExceptionWithMsg('Отвяжите серийный номер');
+                    }
                     // удаляем
                     $ar = $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE id=?i',
                         array($order_product_id));
-                    $supplier_order = $this->
-                    all_configs['db']
-                        ->query("SELECT supplier_order_id as id, o.count, o.supplier "
+                    $supplier_order = $this-> all_configs['db'] ->query("
+                            SELECT supplier_order_id as id, o.count, o.supplier "
                             . "FROM {orders_suppliers_clients} as c "
                             . "LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
                             . "WHERE order_goods_id=?i", array($order_product_id), 'row');
                     $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE order_goods_id=?i',
                         array($order_product_id));
-                    // удалить заказ поставщику 
+                    // удалить заказ поставщику
                     // если он для одного устройства
                     if (isset($post['close_supplier_order']) && $post['close_supplier_order']) {
                         $this->all_configs['db']->query("UPDATE {contractors_suppliers_orders} SET avail = 0 "
                             . "WHERE id = ?i", array($supplier_order['id']));
                     }
-                    // поменять статус заказа с ожидает запчастей на принят в ремонт 
-                    // если запчастей все запчасти отвязаны c заказа 
+                    // поменять статус заказа с ожидает запчастей на принят в ремонт
+                    // если запчастей все запчасти отвязаны c заказа
                     $orders_goods = $this->all_configs['db']->query("SELECT count(*) "
                         . "FROM {orders_goods} "
                         . "WHERE order_id = ?i", array($order['id']), 'el');
@@ -1153,82 +1136,65 @@ class Chains
                         $data['reload'] = 1;
                     }
                     if (!$ar) {
-                        $data['msg'] = 'Изделие не найдено';
-                        $data['state'] = false;
+                        throw new ExceptionWithMsg('Изделие не найдено');
                     }
-                }
-            } else {
-                $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
-                $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
-                $arr = array(
-                    $wh_type,
-                    $user_id,
-                    $product['goods_id'],
-                    $product['article'],
-                    $product['title'],
-                    $product['content'],
-                    (isset($post['price']) ? $post['price'] : $product['price']) * 100,
-                    $count,
-                    $order_id,
-                    $product['secret_title'],
-                    $product['url'],
-                    $product['foreign_warehouse'],
-                    $product['type'],
-                );
+                } else {
+                    $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
+                    $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
+                    $arr = array(
+                        $wh_type,
+                        $user_id,
+                        $product['goods_id'],
+                        $product['article'],
+                        $product['title'],
+                        $product['content'],
+                        (isset($post['price']) ? $post['price'] : $product['price']) * 100,
+                        $count,
+                        $order_id,
+                        $product['secret_title'],
+                        $product['url'],
+                        $product['foreign_warehouse'],
+                        $product['type'],
+                    );
 
-                // пытаемся добавить товар
-                $data['id'] = $this->all_configs['db']->query('INSERT INTO {orders_goods} (warehouse_type, user_id, goods_id,
+                    // пытаемся добавить товар
+                    $data['id'] = $this->all_configs['db']->query('INSERT INTO {orders_goods} (warehouse_type, user_id, goods_id,
                     article, title, content, price, `count`, order_id, secret_title, url, foreign_warehouse, `type`)
                     VALUES (?i, ?n, ?i, ?, ?, ?, ?i, ?i, ?i, ?, ?, ?i, ?i)', $arr, 'id');
 
-                if ($data['id'] > 0 && $order_class) {
-                    // делаем сразу заказ поставщику (если товара нету на складе)
-                    if ($wh_type) {
-                        $dt = array(
-                            'order_id' => $order_id,
-                            'order_product_id' => $data['id']
-                        );
-                        $create_supplier_order = $this->order_item($this->all_configs['configs']['orders-manage-page'],
-                            $dt);
-                        if (!$create_supplier_order['state']) {
-                            $data['state'] = false;
-                            $data['msg'] = $create_supplier_order['msg'];
+                    if ($data['id'] > 0 && $order_class) {
+                        // делаем сразу заказ поставщику (если товара нету на складе)
+                        if ($wh_type) {
+                            $dt = array(
+                                'order_id' => $order_id,
+                                'order_product_id' => $data['id']
+                            );
+                            $create_supplier_order = $this->order_item($this->all_configs['configs']['orders-manage-page'],
+                                $dt);
+                            if (!$create_supplier_order['state']) {
+                                $data['state'] = false;
+                                $data['msg'] = $create_supplier_order['msg'];
+                            }
+                        }
+                        // достаем товар в корзине
+                        $product = $this->all_configs['manageModel']->order_goods($order['id'], $product['type'],
+                            $data['id']);
+                        if ($product) {
+                            // выводим
+                            $data[($product['type'] == 0 ? 'goods' : 'service')] = $order_class->show_product($product);
                         }
                     }
-                    // достаем товар в корзине
-                    $product = $this->all_configs['manageModel']->order_goods($order['id'], $product['type'],
-                        $data['id']);
-                    if ($product) {
-                        // выводим
-                        $data[($product['type'] == 0 ? 'goods' : 'service')] = $order_class->show_product($product);
-                    }
                 }
-
-                // обновляем количество
-                //$this->all_configs['db']->query(
-                //    'UPDATE {orders_goods} SET `count`=?i WHERE order_id=?i AND goods_id=?i',
-                //    array($count, $order['id'], $product['goods_id']));
-                //$data['psum'] = $product['price'] * $count / 100;
+                // сумма товаров
+                $data['product-total'] = $this->all_configs['db']->query(
+                        'SELECT SUM(`count` * price) FROM {orders_goods} WHERE order_id=?i',
+                        array($order_id))->el() / 100;
             }
-            // обновляем общюю сумму заказа
-            //$this->all_configs['db']->query('UPDATE {orders} o
-            //    LEFT JOIN (SELECT SUM(`count` * price) as psum, order_id FROM {orders_goods}) as og ON o.id=og.order_id
-            //    SET o.sum=og.psum WHERE o.id=?i', array($order_id));
-
-            // сумма товаров
-            $data['product-total'] = $this->all_configs['db']->query(
-                    'SELECT SUM(`count` * price) FROM {orders_goods} WHERE order_id=?i',
-                    array($order_id))->el() / 100;
-
-            // обновление суммы заказа если она = 0
-            /*if ($order['sum'] == 0) {
-                $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i WHERE id=?i',
-                    array(($data['product-total'] * 100), $order['id']));
-                $data['order-total'] = $data['product-total'];
-                // сумма
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                    array($user_id, 'update-order-sum', $mod_id, $order['id'], $data['product-total']));
-            }*/
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'msg' => $e->getMessage(),
+                'state' => false
+            );
         }
 
         return $data;
@@ -1602,15 +1568,33 @@ class Chains
      */
     public function sold_items($post, $mod_id)
     {
+        $price = function($prices) {
+            return array_reduce($prices, function($carry, $item) {
+                return $carry + $item;
+            }, 0);
+        };
+        $prepareItems = function($items, $itemIds, $amounts) {
+            $ids = array_flip($itemIds);
+            $result = array();
+            foreach ($items as $item) {
+                $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+            }
+            return $result;
+        };
         try {
-            if (empty($post['price']) || (intval($post['price']) == 0)) {
+            $post['price'] = $price($post['amount']);
+            if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg('Укажите сумму');
             }
-            $items = $this->getItems($post['items']);
+            $items = $this->getItems(array_values($post['item_ids']));
             $client = $this->getClient($post);
 
             // создаем заказ
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
+            print_r($post);
+            print_r($prepareItems($items, $post['item_ids'], $post['amount']));
+            exit();
+
             $this->addSpares($items, $order['id'], $mod_id);
 
             // статус выдан
@@ -1660,120 +1644,115 @@ class Chains
         $data = array('state' => true);
         $order_id = isset($post['order_id']) ? $post['order_id'] : 0;
         $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
+        try {
+            // достаем заказ
+            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?', array($order_id))->row();
+            $product = $this->all_configs['manageModel']->order_goods($order_id, null, $order_product_id);
 
-        // достаем заказ
-        $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?', array($order_id))->row();
-        $product = $this->all_configs['manageModel']->order_goods($order_id, null, $order_product_id);
+            if (!$order) {
+                throw new ExceptionWithMsg('Заказ не найден');
+            }
+            if (!$product) {
+                throw new ExceptionWithMsg('Запчасть не найдена');
+            }
+            if ($product['type'] == 1) {
+                throw new ExceptionWithMsg('Это услуга');
+            }
 
-        /*$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
-        if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $data['state'] = false;
-            $data['msg'] = 'У Вас нет прав';
-        }*/
-        if ($data['state'] == true && !$order) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ не найден';
-        }
-        if ($data['state'] == true && !$product) {
-            $data['state'] = false;
-            $data['msg'] = 'Запчасть не найдена';
-        }
-        if ($data['state'] == true && $product['type'] == 1) {
-            $data['state'] = false;
-            $data['msg'] = 'Это услуга';
-        }
+            if ($product && $order) {
+                if ($product['so_id'] <= 0) {
+                    // по конкретному заказу поставщика
+                    $query = isset($post['supplier_order_id']) ? $this->all_configs['db']->makeQuery('AND o.id=?i',
+                        array(intval($post['supplier_order_id']))) : '';
 
-        if ($data['state'] == true && $product && $order) {
-            if ($product['so_id'] > 0) {
-                // заказ уже создан
-            } else {
-                include_once $this->all_configs['sitepath'] . 'mail.php';
-
-                // по конкретному заказу поставщика
-                $query = isset($post['supplier_order_id']) ? $this->all_configs['db']->makeQuery('AND o.id=?i',
-                    array(intval($post['supplier_order_id']))) : '';
-
-                // ищем заказ со свободным изделием
-                $free_order = $this->all_configs['db']->query('SELECT o.*, COUNT(DISTINCT i.id) -
+                    // ищем заказ со свободным изделием
+                    $free_order = $this->all_configs['db']->query('SELECT o.*, COUNT(DISTINCT i.id) -
                       (SELECT COUNT(l.id) FROM {orders_suppliers_clients} as l WHERE i.supplier_order_id=l.supplier_order_id
                         AND l.order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL)) as free_items
                     FROM {warehouses} as w, {warehouses_goods_items} as i, {contractors_suppliers_orders} as o
                     WHERE w.consider_store=1 AND i.wh_id=w.id AND i.order_id IS NULL AND i.goods_id=?i AND
                       o.id=i.supplier_order_id ?query
                     GROUP BY i.supplier_order_id ORDER BY free_items DESC, i.date_add LIMIT 1',
+                        array($product['goods_id'], $query))->row();
 
-                    array($product['goods_id'], $query))->row();
-
-                if (!$free_order || $free_order['free_items'] == 0 || $free_order['id'] == 0) {
-                    // ищем заказ со свободным местом для заявки
-                    $free_order = $this->all_configs['db']->query('SELECT o.*, IF(o.count_come>0, o.count_come, o.count) -
+                    if (!$free_order || $free_order['free_items'] == 0 || $free_order['id'] == 0) {
+                        // ищем заказ со свободным местом для заявки
+                        $free_order = $this->all_configs['db']->query('SELECT o.*, IF(o.count_come>0, o.count_come, o.count) -
                           (SELECT COUNT(l.id) FROM {orders_suppliers_clients} as l WHERE o.id=l.supplier_order_id
                             AND l.order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL)) as free_items
                         FROM {contractors_suppliers_orders} as o
                         WHERE o.goods_id=?i AND unavailable=0 AND avail=1 AND o.count_debit=0 AND o.warehouse_type=?i ?query
                         GROUP BY o.id HAVING free_items>0 OR o.supplier IS NULL
                         ORDER BY o.count_debit DESC, o.date_wait, free_items DESC LIMIT 1',
-
-                        array($product['goods_id'], $product['warehouse_type'], $query))->row();
-                }
-
-                if ($free_order && $free_order['id'] > 0) {
-                    $data['order_id'] = $free_order['id'];
-                    // увеличиваем количество в заказе
-                    if ($free_order['supplier'] == 0 && $free_order['free_items'] < 1) {
-                        $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET count=1+count WHERE id=?i',
-                            array($free_order['id']));
+                            array($product['goods_id'], $product['warehouse_type'], $query))->row();
                     }
-                    // связка заказов
-                    $id = $this->all_configs['db']->query('INSERT IGNORE INTO {orders_suppliers_clients}
+
+                    if ($free_order && $free_order['id'] > 0) {
+                        $data['order_id'] = $free_order['id'];
+                        // увеличиваем количество в заказе
+                        if ($free_order['supplier'] == 0 && $free_order['free_items'] < 1) {
+                            $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET count=1+count WHERE id=?i',
+                                array($free_order['id']));
+                        }
+                        // связка заказов
+                        $id = $this->all_configs['db']->query('INSERT IGNORE INTO {orders_suppliers_clients}
                             (client_order_id, supplier_order_id, goods_id, order_goods_id) VALUES (?i, ?i, ?i, ?i)',
-                        array($order_id, $free_order['id'], $product['goods_id'], $product['id']), 'id');
+                            array($order_id, $free_order['id'], $product['goods_id'], $product['id']), 'id');
 
-                    // публичное сообщение
-                    if ($id) {
-                        if ($free_order['supplier'] > 0) {
-                            if ($free_order['count_debit'] > 0) {
-                                $text = 'Ожидание отгрузки запчасти';//'Запчасть была оприходована';
-                            } elseif ($free_order['count_come'] > 0) {
-                                $text = 'Запчасть была принята';
+                        // публичное сообщение
+                        if ($id) {
+                            if ($free_order['supplier'] > 0) {
+                                if ($free_order['count_debit'] > 0) {
+                                    $text = 'Ожидание отгрузки запчасти';//'Запчасть была оприходована';
+                                } elseif ($free_order['count_come'] > 0) {
+                                    $text = 'Запчасть была принята';
+                                } else {
+                                    $text = 'Запчасть заказана';
+                                }
                             } else {
-                                $text = 'Запчасть заказана';
+                                $text = 'Отправлен запрос на покупку. Ожидаем ответ.';
                             }
-                        } else {
-                            $text = 'Отправлен запрос на покупку. Ожидаем ответ.';
+                            if ($send_stockman == true) {
+                                // добавляем комментарий
+                                $this->all_configs['suppliers_orders']->add_client_order_comment(intval($order_id),
+                                    $text);
+                                // отправляем уведомление кладовщику
+                                $href = $this->all_configs['prefix'] . 'warehouses?con=' . intval($order_id) . '#orders-clients_bind';
+                                $content = 'При наличии запчасти на складе, отгрузите ее под заказ <a href="' . $href . '">№' . intval($order_id) . '</a>';
+                                $this->notification('Отгрузите запчасть под заказ', $content,
+                                    'mess-debit-clients-orders');
+                            }
                         }
-                        if ($send_stockman == true) {
-                            // добавляем комментарий
-                            $this->all_configs['suppliers_orders']->add_client_order_comment(intval($order_id), $text);
-                            // отправляем уведомление кладовщику
-                            $href = $this->all_configs['prefix'] . 'warehouses?con=' . intval($order_id) . '#orders-clients_bind';
-                            $content = 'При наличии запчасти на складе, отгрузите ее под заказ <a href="' . $href . '">№' . intval($order_id) . '</a>';
-                            $this->notification('Отгрузите запчасть под заказ', $content, 'mess-debit-clients-orders');
+                    } else {
+                        // создаем заказ поставщику
+                        $arr = array(
+                            'goods-goods' => $product['goods_id'],
+                            'so_co' => array($order_id),
+                            'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
+                            'warehouse_type' => $product['warehouse_type'],
+                        );
+                        $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $arr);
+                        if ($data['id'] > 0) {
+                            $data['order_id'] = $data['id'];
+                            // отправляем уведомление
+                            $content = 'Необходимо завершить закупку запчасти ';
+                            $content .= '<a href="' . $this->all_configs['prefix'] . 'orders/edit/' . $data['id'] . '#create_supplier_order">№' . $data['id'] . '</a>';
+                            $content .= ' под ремонт №' . $order_id;
+                            $this->notification('Закупка запчасти', $content, 'edit-suppliers-orders');
                         }
                     }
-                } else {
-                    // создаем заказ поставщику
-                    $arr = array(
-                        'goods-goods' => $product['goods_id'],
-                        'so_co' => array($order_id),
-                        'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
-                        'warehouse_type' => $product['warehouse_type'],
-                    );
-                    $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $arr);
-                    if ($data['id'] > 0) {
-                        $data['order_id'] = $data['id'];
-                        // отправляем уведомление
-                        $content = 'Необходимо завершить закупку запчасти ';
-                        $content .= '<a href="' . $this->all_configs['prefix'] . 'orders/edit/' . $data['id'] . '#create_supplier_order">№' . $data['id'] . '</a>';
-                        $content .= ' под ремонт №' . $order_id;
-//                        $messages->send_message($content, 'Закупка запчасти', 'edit-suppliers-orders', 1);
-                    }
-                }
-                //}
 
-                // меняем статус ожидает запчастей
-                update_order_status($order, $this->all_configs['configs']['order-status-waits']);
+                    // меняем статус ожидает запчастей
+                    update_order_status($order, $this->all_configs['configs']['order-status-waits']);
+                }
             }
+
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage(),
+                'msg' => $e->getMessage(),
+            );
         }
 
         return $data;
