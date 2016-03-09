@@ -1167,7 +1167,7 @@ class Chains
                     $product['article'],
                     $product['title'],
                     $product['content'],
-                    (isset($post['price']) ? $post['price'] : ($product['price']) * $order['course_value'] / 100),
+                    (isset($post['price']) ? $post['price'] : $product['price']) * 100,
                     $count,
                     $order_id,
                     $product['secret_title'],

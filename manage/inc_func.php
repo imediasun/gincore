@@ -338,7 +338,7 @@ function send_sms($phone, $message, $sender = null)
     $result = is_array($result) && isset($result[0]) ? $result[0] : '';
 
     return array(
-        'state' => is_array($result) ? true : false,
+        'state' => is_array($result),
         'msg' => is_array($result) ? current($result) : $result
     );
 }
