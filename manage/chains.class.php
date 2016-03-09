@@ -1017,24 +1017,10 @@ class Chains
         $out = '';
 
         if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
-            // проверяем можем ли списать
-            $can = $item_id > 0 ? $this->can_use_item($item_id) : true;
-
-            /*if ($status) {?
-                $out .= '111';
-            }*/
-            $out .= '<div class="well"><h4>' . l('Списание изделия') . '</h4>';
-            if ($item_id === 0) {
-                $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
-            }
-            $out .= '<form class="form-horizontal" method="post">';
-            if ($can) {
-                $out .= '<input type="button" class="btn" onclick="write_off_item(this, ' . $item_id . ')" value="' . l('Списать') . '" />';
-            } else {
-                $out .= '<input disabled type="submit" class="btn" value="' . l('Списать') . '" />';
-            }
-            $out .= '</form></div>';
-
+            $out = $this->view->renderFile('chains.class/form_write_off_items', array(
+               'can' =>  $item_id > 0 ? $this->can_use_item($item_id) : true,
+                'item_id' => $item_id
+            ));
         }
 
         return $out;
@@ -1051,27 +1037,11 @@ class Chains
 
         if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
             // проверяем можем ли продать
-            $can = $item_id > 0 ? $this->can_use_item($item_id) : true;
-
-            /*if ($status) {?
-                $out .= '111';
-            }*/
-            $out .= '<div class="well"><h4>' . l('Продажа изделия') . '</h4>';
-            if ($item_id === 0) {
-                $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
-            }
-            $out .= '<form method="post" id="sold-item-form">';
-            $out .= '<div class="form-group"><label>' . l('Клиент') . ':</label>';
-            $out .= '' . typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'fonm-control') . '</div>';
-            $out .= '<div class="form-group"><label>' . l('Стоимость') . ':</label>';
-            $out .= '<input type="text" name="price" required class="form-control" placeholder="' . l('укажите стоимость') . '" /></div>';
-            if ($can) {
-                $out .= '<input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="' . l('Продать') . '" />';
-            } else {
-                $out .= '<input disabled type="submit" class="btn" value="' . l('Продать') . '" />';
-            }
-            $out .= '</form></div>';
-
+            $out = $this->view->renderFile('chains.class/form_sold_items', array(
+                'db' =>$this->all_configs['db'],
+                'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
+                'item_id' => $item_id
+            ));
         }
 
         return $out;
@@ -1329,9 +1299,7 @@ class Chains
 
                     if ($order) {
                         update_order_status($order, $this->all_configs['configs']['order-status-rework']);
-                    }
-
-                    if ($data['state'] == true && !$order) {
+                    } else {
                         $data['state'] = false;
                         $data['msg'] = '<p>' . l('Не найдено совпадений, укажите номер ремонта, по которому принимается доработка') . '</p>';
                         $data['msg'] .= '<p><input type="text" id="serial-order_id" value="" placeholder="' . l('Номер заказа на ремонт') . '" /></p>';
@@ -1447,9 +1415,7 @@ class Chains
     {
         $id = null;
         $query = '';
-        //if ($chain_id > 0) {
-        //    $query = $this->all_configs['db']->makeQuery('h.id=?i OR ?query', array($chain_id, $query));
-        //}
+
         if ($order_id > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND i.order_id<>?i', array($query, $order_id));
         }
@@ -1636,8 +1602,6 @@ class Chains
      */
     public function sold_items($post, $mod_id)
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-
         try {
             if (empty($post['price']) || (intval($post['price']) == 0)) {
                 throw new ExceptionWithMsg('Укажите сумму');
@@ -1646,7 +1610,7 @@ class Chains
             $client = $this->getClient($post);
 
             // создаем заказ
-            $order = $this->createOrder($post, $mod_id, $client['id'], $user_id);
+            $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
             $this->addSpares($items, $order['id'], $mod_id);
 
             // статус выдан
@@ -2770,81 +2734,16 @@ class Chains
         $out = '';
 
         if ($this->all_configs['configs']['erp-use'] == true) {
-            $rand = $rand ? $rand : rand(1000, 9999);
-            $out .= '<form method="post" id="moving-item-form-' . $rand . '">';
-            if ($item_id === 0 && $order === null) {
-                $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
-            }
-            // есть ид изделия
-            if ($item_id > 0) {
-                $out .= '<input type="hidden" name="item_id" value="' . $item_id . '" />';
-            }
-            if ($goods_id > 0) {
-                $out .= '<input type="hidden" name="goods_id" value="' . $goods_id . '" />';
-            }
-            if ($item_id === 0 && is_array($order) && array_key_exists('id', $order) && intval($order['id']) == 0) {
-                $out .= '<div class="form-group relative"><label>' . l('Серийный номер') . ':</label>';
-                //$out .= '<input name="item_id" type="text" value="" placeholder="' . l('Серийный номер') . '" class="imput-large" /></div></div>';
-                $out .= '<div class="serial_input">';
-                $out .= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '',
-                        'display_serial_product', true) . '';
-                $out .= '</div>';
-                $out .= '<i class="fa fa-plus cloneAndClear" data-clone_siblings=".serial_input" style="position:relative;margin:5px 0 0 0 !important" title="' . l('Добавить') . '"></i></div>';
-                $out .= ' <small class="clone_clear_html product-title"></small>';
-            }
-            if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
-                $out .= '<div class="form-group"><label class="control-label">' . l('Номер ремонта') . ':</label><div class="controls">';
-                $out .= '<input name="order_id" type="text" value="' . $order['id'] . '" placeholder="' . l('Номер ремонта') . '" class="form-control" /></div></div>';
-            }
-            $with_logistic = (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0) ? true : false;
-            //Перемещение Склад откуда
-            if ($item_id === null) {
-                $out .= '<div class="form-group"><label>Количество:</label>';
-                $out .= '<input class="form-control" type="text" maxlength="2" placeholder="Количество" name="count" onkeydown="return isNumberKey(event)" value="1" />';
-                $out .= '</div><div class="form-group"><label>Склад откуда:</label>';
-                $out .= '<select class="select-warehouses-item-move form-control" name="wh_id">';
-                $out .= $this->get_options_for_move_item_form($with_logistic);
-                $out .= '</select></div>';
-            }
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || $this->all_configs['oRole']->hasPrivilege('engineer')) {
-                $out .= '<div class="form-group"><label>' . l('Склад куда') . ':</label>';
-                $out .= '<select onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination">';
-                $out .= $this->get_options_for_move_item_form($with_logistic, $wh_id);
-                $out .= '</select></div>';
-
-                $out .= '<div class="form-group"><label>' . l('Локация') . ':</label><br>';
-                $out .= '<select class="multiselect form-control select-location" name="location">';
-                $out .= $this->all_configs['suppliers_orders']->gen_locations($wh_id);
-                $out .= '</select></div>';
-            }
-            if (is_array($order) && array_key_exists('id', $order) && array_key_exists('status', $order)) {
-                $out .= '<div class="control-group"><label class="control-label">' . l('Статус') . ':</label><div class="controls">';
-                $out .= $this->order_status($order['status'], true) . '</div></div>';
-                $out .= '<div class="control-group"><label class="control-label">' . l('Публичный комментарий') . ':</label><div class="controls">';
-                $out .= '<textarea name="public_comment" class="form-control"></textarea></div></div>';
-                $out .= '<div class="control-group"><label class="control-label">' . l('Скрытый комментарий') . ':</label><div class="controls">';
-                $out .= '<textarea name="private_comment" class="form-control"></textarea></div></div>';
-            }
-            if ($show_btn == true || $this->all_configs['configs']['erp-move-item-logistics'] == true) {
-                $out .= '<div class="control-group"><label class="control-label">';
-                if ($show_btn == true) {
-                    // проверяем привязано ли изделие к цепочке
-                    $attr = $this->can_use_item($item_id) ? 'onclick="move_item(this, ' . $rand . ')"' : 'disabled';
-                    $out .= '<input ' . $attr . ' type="button" value="' . l('Создать') . '" class="btn" />';
-                }
-                $out .= '</label><div class="controls"><label class="checkbox">';
-                if ($this->all_configs['configs']['erp-move-item-logistics'] == true) {
-                    if ($with_logistic) {
-                        $out .= '<input type="hidden" name="logistic" value="1" />';
-                        $out .= '<input checked disabled type="checkbox" value="1" />';
-                    } else {
-                        $out .= '<input onchange="item_move_logistic(this)" type="checkbox" name="logistic" value="1" />';
-                    }
-                    $out .= 'С участием логистики';
-                }
-                $out .= '</label></div></div>';
-            }
-            $out .= '</form>';
+            $out = $this->view->renderFile('chains.class/moving_item_form', array(
+               'rand' =>  $rand ? $rand : rand(1000, 9999),
+                'item_id' => $item_id,
+                'goods_id' => $goods_id,
+                'order' => $order,
+                'with_logistic' => (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0),
+                'wh_id' => $wh_id,
+                'controller' => $this,
+                'show_btn' => $show_btn,
+            ));
         }
 
         return $out;
@@ -2905,18 +2804,6 @@ class Chains
         }
 
         if ($data['state'] == true) {
-            /*// проверяем закреплен ли пользователь за складом
-            $wh_user_id = $this->all_configs['db']->query(
-                'SELECT w.id FROM {warehouses} as w
-                LEFT JOIN {warehouses_users} as u ON w.id=u.wh_id
-                WHERE w.id=?i AND (u.user_id=?i OR w.type IN (?li))',
-                array($wh_id, $_SESSION['id'], $this->all_configs['configs']['erp-logistic-warehouses']))->el();
-
-            if (!$wh_user_id) {
-                return array('message' => 'Вы не закреплены за складом', 'state' => false);
-            }
-
-            $check = ($wh_user_id && $wh_user_id > 0) ? true : false;*/
 
             if ($order_id > 0) {
                 // достаем заказ
@@ -3256,21 +3143,6 @@ class Chains
             }
         }
 
-        /*// если пользователь кладовщик и администратор
-        if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-            if ($wh_array && count($wh_array) > 0) {
-                if (empty($query_for_move_item))
-                    $query_for_move_item = $this->all_configs['db']->makeQuery('WHERE w.id IN (?li)', array(array_values($wh_array)));
-                else
-                    $query_for_move_item = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)', array($query_for_move_item, array_values($wh_array)));
-            } else {
-                if (empty($query_for_move_item))
-                    $query_for_move_item = $this->all_configs['db']->makeQuery('WHERE w.id=?i', array(0));
-                else
-                    $query_for_move_item = $this->all_configs['db']->makeQuery('?query AND w.id=?i', array($query_for_move_item, 0));
-            }
-        }*/
-
         // если логист и не администратор или продукт менеджер
         if ($this->all_configs['oRole']->hasPrivilege('logistics') && (!$this->all_configs['oRole']->hasPrivilege('site-administration') && !$this->all_configs['oRole']->hasPrivilege('external-marketing'))) {
 
@@ -3286,11 +3158,6 @@ class Chains
                     array($query_for_move_item, 1));
             }
         }
-        /*if (empty($query_for_move_item_logistic))
-            $query_for_move_item_logistic = $this->all_configs['db']->makeQuery('WHERE w.consider_store=?i', array(1));
-        else
-            $query_for_move_item_logistic = $this->all_configs['db']->makeQuery('?query AND w.consider_store=?i', array($query_for_move_item_logistic, 1));*/
-
 
         return array(
             'query_for_noadmin' => $query_for_noadmin,
