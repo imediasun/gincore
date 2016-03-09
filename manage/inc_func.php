@@ -314,11 +314,7 @@ function send_mail($to, $sbj, $msgtxt)
     //$headers .= 'BC: '.$settings['admin_email'] . "\r\n";
     //$headers .= 'Bc: ragenoir@gmail.com' . "\r\n";
 
-    if (mail($to, $subject, $message, $headers)) {
-        return true;
-    } else {
-        return false;
-    }
+    return (bool) (mail($to, $subject, $message, $headers));
 }
 
 // отправка сообщений через turbosms
@@ -342,7 +338,7 @@ function send_sms($phone, $message, $sender = null)
     $result = is_array($result) && isset($result[0]) ? $result[0] : '';
 
     return array(
-        'state' => is_array($result) ? true : false,
+        'state' => is_array($result),
         'msg' => is_array($result) ? current($result) : $result
     );
 }

@@ -2616,15 +2616,17 @@ class products
     {
         $goods_html = '';
 
-        if (trim($hash) == '#omt' || (trim($hash) != '#omt-notices' && trim($hash) != '#omt-procurement' && trim($hash) != '#omt-suppliers'))
+        if (trim($hash) == '#omt' || (trim($hash) != '#omt-notices' && trim($hash) != '#omt-procurement' && trim($hash) != '#omt-suppliers')) {
             $hash = '#omt-notices';
+        }
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
-            && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
+            && $this->all_configs['oRole']->hasPrivilege('external-marketing')
+        ) {
 
             $goods_html .= '<ul class="nav nav-pills">';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_notices" onclick="click_tab(this, event)" href="#omt-notices" title="' . l('Уведомления') .'">' . l('Уведомления') .'</a></li>';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_procurement" onclick="click_tab(this, event)" href="#omt-procurement" title="' . l('Управление закупками') . '">' . l('Упр. закупками') .'</a></li>';
+            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_notices" onclick="click_tab(this, event)" href="#omt-notices" title="' . l('Уведомления') . '">' . l('Уведомления') . '</a></li>';
+            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_procurement" onclick="click_tab(this, event)" href="#omt-procurement" title="' . l('Управление закупками') . '">' . l('Упр. закупками') . '</a></li>';
             $goods_html .= '</ul><div class="pill-content">';
 
             $goods_html .= '<div id="omt-notices" class="pill-pane">';
@@ -2772,7 +2774,8 @@ class products
         $goods_html = '';
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
-            && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
+            && $this->all_configs['oRole']->hasPrivilege('external-marketing')
+        ) {
 
             $product = $this->all_configs['db']->query('SELECT price, price_purchase, price_wholesale, qty_store, qty_wh, old_price
                 FROM {goods} WHERE id=?i',
@@ -2782,31 +2785,34 @@ class products
                 $disabled_row = $this->all_configs['oRole']->hasPrivilege('external-marketing') ? '' : 'disabled';
 
                 $goods_html .= '<form method="post">';
-                $goods_html .= '<div class="form-group"><label>' . l('Розничная цена') .' ('.viewCurrencySuppliers('shortName').'): </label>';
-                $goods_html .= '<input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="' . l('цена') . '" class="form-control" name="price" value="' . number_format($product['price'] / 100, 2, '.', '') . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>' . l('Розничная цена') . ' (' . viewCurrency('shortName') . '): </label>';
+                $goods_html .= '<input ' . $disabled_row . ' onkeydown="return isNumberKey(event, this)" placeholder="' . l('цена') . '" class="form-control" name="price" value="' . number_format($product['price'] / 100,
+                        2, '.', '') . '" /></div>';
                 $disabled_row = '';
-                if (!$this->all_configs['oRole']->hasPrivilege('external-marketing') || $this->all_configs['configs']['onec-use'] == true || $this->all_configs['configs']['erp-use'] == true)
+                if (!$this->all_configs['oRole']->hasPrivilege('external-marketing') || $this->all_configs['configs']['onec-use'] == true || $this->all_configs['configs']['erp-use'] == true) {
                     $disabled_row = 'disabled';
+                }
 
                 if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
-                    && $this->all_configs['configs']['use-goods-old-price'] == true) {
-                    $goods_html .= '<div class="form-group"><label>' . l('Старая цена') . ' ('.viewCurrencySuppliers('shortName').'): </label>';
-                    $goods_html .= '<input placeholder="' . l('старая цена') .'" ' . $disabled_row;
+                    && $this->all_configs['configs']['use-goods-old-price'] == true
+                ) {
+                    $goods_html .= '<div class="form-group"><label>' . l('Старая цена') . ' (' . viewCurrency('shortName') . '): </label>';
+                    $goods_html .= '<input placeholder="' . l('старая цена') . '" ' . $disabled_row;
                     $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="old_price" value="';
                     $goods_html .= number_format($product['old_price'] / 100, 2, '.', '') . '" /></div>';
                 }
-                $goods_html .= '<div class="form-group"><label>' . l('Закупочная цена последней партии') . ' ('.viewCurrencySuppliers('shortName').'): </label>';
+                $goods_html .= '<div class="form-group"><label>' . l('Закупочная цена последней партии') . ' (' . viewCurrencySuppliers('shortName') . '): </label>';
                 $goods_html .= '<input placeholder="' . l('закупочная цена') . '" ' . $disabled_row;
                 $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_purchase" value="';
                 $goods_html .= number_format($product['price_purchase'] / 100, 2, '.', '') . '" /></div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Оптовая цена') .' ('.viewCurrencySuppliers('shortName').'): </label>';
-                $goods_html .= '<input placeholder="' . l('оптовая цена') .'" ' . $disabled_row;
+                $goods_html .= '<div class="form-group"><label>' . l('Оптовая цена') . ' (' . viewCurrency('shortName') . '): </label>';
+                $goods_html .= '<input placeholder="' . l('оптовая цена') . '" ' . $disabled_row;
                 $goods_html .= ' onkeydown="return isNumberKey(event, this)"  class="form-control" name="price_wholesale" value="';
                 $goods_html .= number_format($product['price_wholesale'] / 100, 2, '.', '') . '" /></div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Свободный остаток') .':</label>';
-                $goods_html .= '<input ' . $disabled_row . ' placeholder="' . l('количество') .'" onkeydown="return isNumberKey(event)" class="form-control" name="exist" value="' . $product['qty_store'] . '" /></div>';
+                $goods_html .= '<div class="form-group"><label>' . l('Свободный остаток') . ':</label>';
+                $goods_html .= '<input ' . $disabled_row . ' placeholder="' . l('количество') . '" onkeydown="return isNumberKey(event)" class="form-control" name="exist" value="' . $product['qty_store'] . '" /></div>';
                 $goods_html .= '<div class="form-group"><label>' . l('Общий остаток') . ':</label>';
-                $goods_html .= '<input ' . $disabled_row . ' placeholder="' . l('количество') .'" onkeydown="return isNumberKey(event)" class="form-control" name="qty_wh" value="' . $product['qty_wh'] . '" /></div>';
+                $goods_html .= '<input ' . $disabled_row . ' placeholder="' . l('количество') . '" onkeydown="return isNumberKey(event)" class="form-control" name="qty_wh" value="' . $product['qty_wh'] . '" /></div>';
                 $goods_html .= $this->btn_save_product('omt_procurement');
                 $goods_html .= '</form>';
             }
