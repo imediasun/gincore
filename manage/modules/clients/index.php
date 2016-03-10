@@ -628,10 +628,10 @@ class clients
         $out  = '<form class="form-horizontal" method="post"><fieldset><legend>' . l('Добавление клиента') . '</legend>';
         $out .= '<div class="control-group"><label class="control-label">' . l('Электронная почта') . ': </label>
             <div class="controls"><input value="'.(isset($_POST['email'])?htmlspecialchars($_POST['email']):'').'" name="email" class="form-control" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">' . l('Телефон') . ': </label>
-            <div class="controls"><input value="'.(isset($_POST['phone']) ? htmlspecialchars($_POST['phone']):'').'" name="phone" class="form-control" /></div></div>';
-        $out .= '<div class="control-group"><label class="control-label">' . l('Ф.И.О.') . ': </label>
-            <div class="controls"><input value="'.(isset($_POST['fio'])?htmlspecialchars($_POST['fio']):'').'" name="fio" class="form-control" /></div></div>';
+        $out .= '<div class="control-group"><label class="control-label">' . l('Телефон') . ':<b class="text-danger">*</b> </label>
+            <div class="controls"><input value="'.(isset($_POST['phone']) ? htmlspecialchars($_POST['phone']):'').'" name="phone" required class="form-control" /></div></div>';
+        $out .= '<div class="control-group"><label class="control-label">' . l('Ф.И.О.') . ': <b class="text-danger">*</b></label>
+            <div class="controls"><input value="'.(isset($_POST['fio'])?htmlspecialchars($_POST['fio']):'').'" name="fio" required class="form-control" /></div></div>';
         $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
         if ($contractors) {
             $out .= '<div class="control-group"><label class="control-label">' . l('Контрагент') . ': </label><div class="controls">';
