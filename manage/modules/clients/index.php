@@ -11,6 +11,10 @@ class clients
     public $all_configs;
     public $count_on_page;
 
+    /**
+     * clients constructor.
+     * @param $all_configs
+     */
     function __construct(&$all_configs)
     {
         $this->mod_submenu = self::get_submenu();
@@ -42,6 +46,10 @@ class clients
     }
 
 
+    /**
+     * @param $post
+     * @return string
+     */
     private function check_post($post)
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -323,6 +331,9 @@ class clients
         header("Location:". $_SERVER['REQUEST_URI']);
     }
 
+    /**
+     * @return string
+     */
     private function genmenu()
     {
         $out = '';
@@ -355,6 +366,9 @@ class clients
     }
 
 
+    /**
+     * @return string
+     */
     private function gencontent()
     {
         if ( !isset($this->all_configs['arrequest'][1]) )
@@ -394,6 +408,10 @@ class clients
             return $this->group_clients();
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
     private function main_page(){
         if(!empty($_GET['export'])){
             $this->export();
@@ -457,7 +475,10 @@ class clients
             </div>
         ';
     }
-    
+
+    /**
+     *
+     */
     private function export(){
         $export_fields = array(
             // id and phones exports by default
@@ -490,7 +511,10 @@ class clients
         fclose($out);
         exit;
     }
-    
+
+    /**
+     * @return string
+     */
     private function group_clients()
     {
         $out = '
@@ -513,6 +537,10 @@ class clients
         return $out;
     }
 
+    /**
+     * @param bool $inactive
+     * @return string
+     */
     private function clients_list($inactive = false)
     {
         $count_on_page = $this->count_on_page;//50;
@@ -527,7 +555,8 @@ class clients
         }*/
         // поиск
         if (isset($_GET['s']) && !empty($_GET['s'])) {
-            $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim($_GET['s']));
+            // 0xA0 deleted because search not work  if search string contain russian letter 'P'
+            $s = str_replace(array('&nbsp;', ' '), '%', trim($_GET['s']));
             $query = $this->all_configs['db']->makeQuery('?query AND (cl.fio LIKE "%?e%" OR cl.email LIKE "%?e%"
                     OR cl.phone LIKE "%?e%" OR p.phone LIKE "%?e%")',
                 array($query, $s, $s, $s, $s));
@@ -575,16 +604,25 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function goods_reviews()
     {
         return $this->get_goods_reviews();
     }
 
+    /**
+     * @return string
+     */
     private function shop_reviews()
     {
         return $this->get_shop_reviews();
     }
 
+    /**
+     * @return string
+     */
     private function create_new_client()
     {
         $out  = '<form class="form-horizontal" method="post"><fieldset><legend>' . l('Добавление клиента') . '</legend>';
@@ -609,6 +647,11 @@ class clients
         return $out;
     }
 
+    /**
+     * @param      $user_id
+     * @param bool $show_inputs
+     * @return array|string
+     */
     function phones($user_id, $show_inputs = true)
     {
         $phones = array();
@@ -635,6 +678,10 @@ class clients
         }
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
     private function create_client()
     {
         if ( !isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] < 1 )
@@ -847,6 +894,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function create_goods_reviews()
     {
         if ( !isset($this->all_configs['arrequest'][3]) || $this->all_configs['arrequest'][3] < 1 )
@@ -929,6 +979,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function add_shop_reviews()
     {
         $out = '<form class="form-horizontal" method="post"><fieldset><legend>' . l('Новый отзыв о магазине') .'</legend>';
@@ -950,6 +1003,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function approve_reviews()
     {
         $out = '';
@@ -1021,6 +1077,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function create_approve_reviews()
     {
         if ( !isset($this->all_configs['arrequest'][3]) || $this->all_configs['arrequest'][3] < 1 )
@@ -1065,6 +1124,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function create_shop_reviews()
     {
         if ( !isset($this->all_configs['arrequest'][3]) || $this->all_configs['arrequest'][3] < 1 )
@@ -1102,6 +1164,10 @@ class clients
         return $out;
     }
 
+    /**
+     * @param null $user_id
+     * @return string
+     */
     private function get_goods_reviews($user_id=null)
     {
         $limit = $this->count_on_page;//100;
@@ -1154,6 +1220,10 @@ class clients
         return $out;
     }
 
+    /**
+     * @param null $user_id
+     * @return string
+     */
     private function get_shop_reviews($user_id=null)
     {
         // достаем все отзывы о магазине
@@ -1186,6 +1256,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return string
+     */
     private function add_goods_reviews()
     {
         $out = '<form class="form-horizontal" method="post"><fieldset><legend>' . l('Новый отзыв') .'</legend>';
@@ -1216,6 +1289,9 @@ class clients
         return $out;
     }
 
+    /**
+     * @return bool
+     */
     function ajax()
     {
         $act = isset($_GET['act']) ? $_GET['act'] : '';
@@ -1416,6 +1492,9 @@ class clients
         exit;
     }
 
+    /**
+     * @return array
+     */
     public static function get_submenu(){
         return array(
         array(
