@@ -706,7 +706,7 @@ function change_visible_prices(_this, id) {
 function change_input_width(_this, length) {
     var $parent = $(_this).parent();
 
-    $parent.css('width', (Math.min((length + 2) * 8 + 25, 80) + 40) + 'px');
+    $parent.css('width', (Math.min((length + 2) * 8 + 25, 80) + +35 + 40) + 'px');
     $parent.children('.input-group-btn').show();
 }
 

@@ -606,7 +606,7 @@ class products
         $goods_html .= '<input type="hidden" name="id" value="" />';
 
         if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-            $goods_html .= '<div class="form-group"><label class="control-label">' . l('Цена') . ' (' . viewCurrencySuppliers('shortName') . '): </label>
+            $goods_html .= '<div class="form-group"><label class="control-label">' . l('Розничная цена') . ' (' . viewCurrency('shortName') . '): </label>
                             <div class="controls"><input onkeydown="return isNumberKey(event)" placeholder="' . l('введите цену') . '" class="form-control" name="price" value="' . ((array_key_exists('post',
                         $this->errors) && array_key_exists('price',
                         $this->errors['post'])) ? htmlspecialchars($this->errors['post']['price']) : '') . '" /></div></div>';
@@ -2276,11 +2276,11 @@ class products
                 $goods_html .= '<div class="form-group"><label>' . l('Приоритет') . ': </label>
                             <input onkeydown="return isNumberKey(event)" class="form-control" name="prio" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('prio', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['prio']) : $product['prio']) . '" /></div>';
                 //use-inec $goods_html .= '<input type="button" class="btn export_product" value="Создать выгрузку в 1с" data="' . $product['id'] . '" />';
-                $goods_html .= '<div class="form-group"><label>' . l('Розничная цена') .' ('.viewCurrencySuppliers('shortName').'): </label>
+                $goods_html .= '<div class="form-group"><label>' . l('Розничная цена') .' ('.viewCurrency('shortName').'): </label>
                             ' . number_format($product['price'] / 100, 2, '.', ' ') . '</div>';
                 $goods_html .= '<div class="form-group"><label>' . l('Закупочная цена последней партии') .' ('.viewCurrencySuppliers('shortName').'): </label>
                             ' . number_format($product['price_purchase'] / 100, 2, '.', ' ') . '</div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Оптовая цена') .' ('.viewCurrencySuppliers('shortName').'): </label>
+                $goods_html .= '<div class="form-group"><label>' . l('Оптовая цена') .' ('.viewCurrency('shortName').'): </label>
                             ' . number_format($product['price_wholesale'] / 100, 2, '.', ' ') . '</div>';
                 $goods_html .= '<div class="form-group"><label>' . l('Свободный остаток') .':</label>
                             ' . intval($product['qty_store']) . '</div>';
