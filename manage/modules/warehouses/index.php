@@ -1,6 +1,5 @@
 <?php
 
-
 $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
@@ -14,6 +13,10 @@ class warehouses
 
     public $count_on_page;
 
+    /**
+     * warehouses constructor.
+     * @param $all_configs
+     */
     function __construct(&$all_configs)
     {
         $this->mod_submenu = self::get_submenu();
@@ -41,6 +44,9 @@ class warehouses
 
     }
 
+    /**
+     * @return bool
+     */
     function can_show_module()
     {
         if (($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
@@ -53,6 +59,10 @@ class warehouses
         }
     }
 
+    /**
+     * @param $post
+     * @throws Exception
+     */
     function check_post($post)
     {
         $mod_id = $this->all_configs['configs']['warehouses-manage-page'];
@@ -275,21 +285,43 @@ class warehouses
             $group_id = isset($post['group_id']) && intval($post['group_id']) > 0 ? intval($post['group_id']) : null;
             $type_id = isset($post['type_id']) && intval($post['type_id']) > 0 ? intval($post['type_id']) : null;
 
-            $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
+            $empty = function ($locations) {
+                if (empty($locations) || !is_array($locations)) {
+                    return true;
+                }
+                return ! array_reduce($locations, function ($carry, $item) {
+                    return $carry || !empty($item);
+                }, 0);
+            };
+            if(!empty($post['title']) && !$empty($_POST['location'])) {
+                $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
                 (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n)',
-                array($consider_all, $consider_store, trim($post['code_1c']), trim($post['title']), trim($post['print_address']), trim($post['print_phone']), $post['type'], $group_id, $type_id), 'id');
+                    array(
+                        $consider_all,
+                        $consider_store,
+                        trim($post['code_1c']),
+                        trim($post['title']),
+                        trim($post['print_address']),
+                        trim($post['print_phone']),
+                        $post['type'],
+                        $group_id,
+                        $type_id
+                    ), 'id');
 
-            if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
-                foreach ($_POST['location'] as $location) {
-                    if (mb_strlen(trim($location), 'UTF-8') > 0) {
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
-                            array($warehouse_id, trim($location)));
+
+                if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                        array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
+                    foreach ($_POST['location'] as $location) {
+                        if (mb_strlen(trim($location), 'UTF-8') > 0) {
+                            $this->all_configs['db']->query(
+                                'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
+                                array($warehouse_id, trim($location)));
+                        }
                     }
                 }
             }
+
         } elseif (isset($post['warehouse-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактировать склад
             if (!isset($post['warehouse-id']) || $post['warehouse-id'] == 0) {
@@ -394,6 +426,9 @@ class warehouses
         exit;
     }
 
+    /**
+     * @return array
+     */
     function get_warehouses_options()
     {
         // списсок выбранных складов для вывода
@@ -414,6 +449,9 @@ class warehouses
         return array('wo' => $warehouses_options, 'ws' => $warehouses_selected);
     }
 
+    /**
+     *
+     */
     function preload()
     {
         // запросы для касс для разных привилегий
@@ -423,6 +461,9 @@ class warehouses
         $this->warehouses = $this->all_configs['chains']->warehouses($query_for_noadmin_w);
     }
 
+    /**
+     * @return string
+     */
     function gencontent()
     {
         $this->preload();
@@ -486,6 +527,9 @@ class warehouses
         return $out;
     }
 
+    /**
+     * @return array
+     */
     function warehouses_scanner_moves()
     {
         $out = '';
@@ -503,6 +547,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_warehouses()
     {
         // всего денег по кассам которые consider_all == 1
@@ -544,6 +591,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_show_items()
     {
         // фильтрация
@@ -647,6 +697,13 @@ class warehouses
         );
     }
 
+    /**
+     * @param array $filters
+     * @param null  $count_on_page
+     * @param null  $skip
+     * @param bool  $select_name
+     * @return null
+     */
     private function getItems($filters = array(), $count_on_page = null, $skip = null, $select_name = false)
     {
         // фильтрация
@@ -704,6 +761,10 @@ class warehouses
         return $goods;
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function warehouses_orders($hash = '#orders-clients_issued')
     {
         if (trim($hash) == '#orders' || (trim($hash) != '#orders-suppliers' && trim($hash) != '#orders-clients_bind'
@@ -759,6 +820,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_orders_suppliers()
     {
         $out = '';
@@ -794,6 +858,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_orders_clients_bind()
     {
         $out = $this->all_configs['chains']->show_stockman_operations();
@@ -805,6 +872,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_orders_clients_issued()
     {
         $out = $this->all_configs['chains']->show_stockman_operations(2, '#orders-clients_issued');
@@ -816,6 +886,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_orders_clients_accept()
     {
         $out = $this->all_configs['chains']->show_stockman_operations(3, '#orders-clients_accept');
@@ -827,6 +900,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_orders_clients_unbind()
     {
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
@@ -838,6 +914,10 @@ class warehouses
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function warehouses_settings($hash = '')
     {
         if (trim($hash) == '#settings' || (trim($hash) != '#settings-warehouses' && trim($hash) != '#settings-warehouses_groups'
@@ -880,6 +960,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_settings_warehouses()
     {
         $admin_out = '';
@@ -913,6 +996,10 @@ class warehouses
         );
     }
 
+    /**
+     * @param null $type
+     * @return string
+     */
     function warehouses_settings_warehouses_types_form($type = null)
     {
         if ($type) {
@@ -948,6 +1035,9 @@ class warehouses
         ";
     }
 
+    /**
+     * @return array
+     */
     function warehouses_settings_warehouses_types()
     {
         $admin_out = '';
@@ -968,6 +1058,10 @@ class warehouses
         );
     }
 
+    /**
+     * @param null $group
+     * @return string
+     */
     function warehouses_settings_warehouses_groups_form($group = null)
     {
         if ($group) {
@@ -1006,6 +1100,9 @@ class warehouses
         ";
     }
 
+    /**
+     * @return array
+     */
     function warehouses_settings_warehouses_groups()
     {
         $admin_out = '';
@@ -1025,6 +1122,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_settings_warehouses_users()
     {
         $admin_out = '';
@@ -1072,6 +1172,10 @@ class warehouses
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function warehouses_inventories($hash = '#inventories-list')
     {
         if (trim($hash) == '#inventories' || (trim($hash) != '#inventories-list' && trim($hash) != '#inventories-journal'
@@ -1106,6 +1210,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_inventories_list()
     {
         $out = '';
@@ -1166,6 +1273,10 @@ class warehouses
         );
     }
 
+    /**
+     * @param int $id
+     * @return string
+     */
     function scan_serial_form($id = 1)
     {
         // форма сканирования
@@ -1180,6 +1291,9 @@ class warehouses
         return $html;
     }
 
+    /**
+     * @return array
+     */
     function warehouses_inventories_journal()
     {
         $left_html = $right_html = '';
@@ -1226,6 +1340,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_inventories_listinv()
     {
         $left_html = $right_html = '';
@@ -1341,6 +1458,9 @@ class warehouses
         );
     }
 
+    /**
+     * @return array
+     */
     function warehouses_inventories_writeoff()
     {
         $left_html = $right_html = '';
@@ -1386,6 +1506,11 @@ class warehouses
         );
     }
 
+    /**
+     * @param $inv
+     * @param $wh_id
+     * @return string
+     */
     function display_scanned_item($inv, $wh_id)
     {
         $out = '';
@@ -1424,6 +1549,10 @@ class warehouses
         return $out;
     }
 
+    /**
+     * @param $acive_btn
+     * @return array
+     */
     function inventories_left_menu($acive_btn)
     {
         $left_html = '';
@@ -1468,6 +1597,11 @@ class warehouses
         );
     }
 
+    /**
+     * @param     $warehouses_options
+     * @param int $i
+     * @return string
+     */
     function filter_block($warehouses_options, $i = 1)
     {
         $wh_select = '';
@@ -1543,6 +1677,13 @@ class warehouses
         return $out;
     }
 
+    /**
+     * @param      $goods
+     * @param      $query_for_noadmin
+     * @param null $type
+     * @param int  $count_page
+     * @return string
+     */
     function show_goods($goods, $query_for_noadmin, $type = null, $count_page = 1)
     {
         $out = '';
@@ -1819,6 +1960,11 @@ class warehouses
         return $out;
     }
 
+    /**
+     * @param null $warehouse
+     * @param int  $i
+     * @return string
+     */
     function form_warehouse($warehouse = null, $i = 1)
     {
         $consider_all = $warehouses_locations = $consider_store = '';
@@ -1883,7 +2029,7 @@ class warehouses
         $warehouses_types .= '</select>';
         $warehouses_groups .= '</select>';
 
-        $warehouses_locations .= '<input type="text" name="location[]" class="form-control">';
+        $warehouses_locations .= '<input type="text" name="location[]" class="form-control" required>';
         $onclick = '$(\'<input>\').attr({type: \'text\', name: \'location[]\', class: \'form-control\'}).insertBefore(this);';
         $warehouses_locations .= '<i onclick="' . $onclick . '" class="glyphicon glyphicon-plus cursor-pointer"></i>';
 
@@ -1902,7 +2048,7 @@ class warehouses
                     <div class='panel-body'>
                         <form method='POST'>
                             <div class='form-group'><label>" . l('Название') . ": </label>
-                                <input placeholder='" . l('введите название') . "' class='form-control' name='title' value='{$title}' /></div>
+                                <input placeholder='" . l('введите название') . "' class='form-control' name='title' value='{$title}' required /></div>
                             <!--<div class='form-group'><label>" . l('Код 1с') . ": </label>
                                 <input placeholder='" . l('введите код 1с') . "' class='form-control' name='code_1c' value='{$code_1c}' /></div>
                             --><div class='form-group'>
@@ -1933,6 +2079,9 @@ class warehouses
         ";
     }
 
+    /**
+     *
+     */
     function ajax()
     {
         $data = array(
@@ -2523,6 +2672,10 @@ class warehouses
         exit;
     }
 
+    /**
+     * @param string $num
+     * @return string
+     */
     function gen_categories_selector($num='')
     {
         $categories = $this->all_configs['db']->query('SELECT title,url,id FROM {categories} WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
@@ -2537,6 +2690,12 @@ class warehouses
         return $categories_html;
     }
 
+    /**
+     * @param      $price
+     * @param int  $zero
+     * @param null $course
+     * @return string
+     */
     function show_price($price, $zero = 2, $course = null)
     {
         // делим на курс
@@ -2550,7 +2709,10 @@ class warehouses
     }
 
 
-public static function get_submenu(){
+    /**
+     * @return array
+     */
+    public static function get_submenu(){
     return array(
         array(
             'click_tab' => true,
