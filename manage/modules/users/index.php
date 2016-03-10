@@ -457,7 +457,7 @@ class users
         $users = $this->get_users($sort);
 
         // достаём все роли
-        $pers = $this->get_all_roles();
+        $pers = $this->get_active_roles();
 
         $users_html .= '<div class="tabbable">
             <ul class="nav nav-tabs">
@@ -865,19 +865,18 @@ class users
     /**
      * @return mixed
      */
-    private function get_all_roles()
+    private function get_active_roles()
     {
 
-        $per = $this->all_configs['db']->query("
+        return $this->all_configs['db']->query("
             SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
               p.name as per_name, p.link, p.child, p.group_id
             FROM {users_roles} as r
             CROSS JOIN {users_permissions} as p
             LEFT JOIN (SELECT * FROM {users_role_permission})per ON per.role_id=r.id AND per.permission_id=p.id
+            WHERE r.avail = 1
             ORDER BY role_id, per_id
         ")->assoc();
-
-        return $per;
     }
 
     /**
