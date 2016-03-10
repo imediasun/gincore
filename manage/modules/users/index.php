@@ -342,7 +342,6 @@ class users
                     $active = 1;
                 }
 
-
                 $ar = $this->all_configs['db']->query('UPDATE {users_roles} SET avail=?i, date_end=? WHERE id=?i',
                     array($active, $date, intval($role_id)))->ar();
                 if (intval($ar) > 0) {
@@ -354,7 +353,7 @@ class users
             $name = trim($post['name']);
             $role_id = 0;
             if (!empty($name)) {
-                $role_id = $this->all_configs['db']->query('INSERT INTO {users_roles} (name) VALUES (?)', array($name),
+                $role_id = $this->all_configs['db']->query('INSERT INTO {users_roles} (name, avail) VALUES (?, ?)', array($name, 1),
                     'id');
             }
             if (isset($post['permissions'])) {
