@@ -328,6 +328,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                         'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                         'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                        'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                        'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                     );
                 }
 
@@ -494,6 +496,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'domain' => array('value' => $_SERVER['HTTP_HOST'], 'name' => 'Домен сайта'),
+                    'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                    'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                 );
                 $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];
@@ -611,6 +615,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                         'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                         'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                        'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                        'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                     );
                 }
 
@@ -629,6 +635,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
                         'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                         'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
+                        'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                        'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                     );
                 }
 
