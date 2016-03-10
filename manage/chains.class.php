@@ -1055,7 +1055,6 @@ class Chains
      */
     public function add_product_order($post, $mod_id, $order_class = null)
     {
-        $user_id = $this->getUserId();
         $data = array('state' => true);
         try {
             $order_id = isset($post['order_id']) ? $post['order_id'] : ($this->all_configs['arrequest'][2] ? $this->all_configs['arrequest'][2] : 0);
@@ -1143,12 +1142,12 @@ class Chains
                     $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
                     $arr = array(
                         $wh_type,
-                        $user_id,
+                        $this->getUserId(),
                         $product['goods_id'],
                         $product['article'],
                         $product['title'],
                         $product['content'],
-                        (isset($post['price']) ? $post['price'] : $product['price']) * 100,
+                        (isset($post['price']) ? $post['price'] * 100 : $product['price']),
                         $count,
                         $order_id,
                         $product['secret_title'],
@@ -1573,6 +1572,14 @@ class Chains
                 return $carry + $item;
             }, 0);
         };
+        /**
+         * заполняем цены товара в соответствии с данными запроса
+         *
+         * @param $items
+         * @param $itemIds
+         * @param $amounts
+         * @return array
+         */
         $prepareItems = function($items, $itemIds, $amounts) {
             $ids = array_flip($itemIds);
             $result = array();
@@ -1586,14 +1593,11 @@ class Chains
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg('Укажите сумму');
             }
-            $items = $this->getItems(array_values($post['item_ids']));
+            $items = $prepareItems($this->getItems(array_values($post['item_ids'])), $post['item_ids'], $post['amount']);
             $client = $this->getClient($post);
 
             // создаем заказ
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
-            print_r($post);
-            print_r($prepareItems($items, $post['item_ids'], $post['amount']));
-            exit();
 
             $this->addSpares($items, $order['id'], $mod_id);
 
