@@ -4,15 +4,25 @@ class manageModel
 {
     protected $all_configs;
 
+    /**
+     * manageModel constructor.
+     * @param $all_configs
+     */
     public function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
     }
 
+    /**
+     * @param $type
+     * @param $chains
+     * @return int
+     */
     public function get_count_warehouses_clients_orders($type, $chains)
     {
-        if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') && $type == 1)
+        if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') && $type == 1) {
             return 0;
+        }
 
         //$q = $chains->query_warehouses();
         //$query_for_my_warehouses = 'AND b.' . trim($q['query_for_my_warehouses']);
@@ -34,6 +44,10 @@ class manageModel
                 WHERE o.id=g.order_id AND l.order_goods_id=g.id', array())->el();
     }
 
+    /**
+     * @param bool $all
+     * @return mixed
+     */
     function get_count_tradein_orders($all = false)
     {
         if ($all == true) {
@@ -45,6 +59,10 @@ class manageModel
         }
     }
 
+    /**
+     * @param bool $all
+     * @return mixed
+     */
     function get_count_callback($all = false)
     {
         if ($all == true) {
@@ -56,6 +74,11 @@ class manageModel
         }
     }
 
+    /**
+     * @param        $query
+     * @param string $icon_type
+     * @return mixed
+     */
     public function get_count_clients_orders($query, $icon_type = 'co')
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id)
@@ -69,6 +92,11 @@ class manageModel
             array($_SESSION['id'], $icon_type, $query))->el();
     }
 
+    /**
+     * @param        $query
+     * @param string $icon_type
+     * @return mixed
+     */
     public function get_count_suppliers_orders($query, $icon_type = 'so')
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id)
@@ -82,6 +110,10 @@ class manageModel
             array($icon_type, $_SESSION['id'], $query))->el();
     }
 
+    /**
+     * @param string $query
+     * @return mixed
+     */
     public function get_count_logistics_clients_orders($query = '')
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT h.id)
@@ -91,6 +123,10 @@ class manageModel
             array($this->all_configs['configs']['order-statuses-logistic'], $query))->el();
     }
 
+    /**
+     * @param bool $all
+     * @return mixed
+     */
     public function get_count_logistics_orders($all = false)
     {
         if ($all == true) {
@@ -104,6 +140,10 @@ class manageModel
             array($query))->el();
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function get_count_accounting_clients_orders($query)
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id)
@@ -121,19 +161,32 @@ class manageModel
             array())->el();
     }*/
 
+    /**
+     * @return mixed
+     */
     public function get_count_accountings_noncash_orders_pre()
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id) FROM {orders} as o WHERE o.status=?i OR o.status=?i',
-            array($this->all_configs['configs']['order-status-wait-pay'],
-                $this->all_configs['configs']['order-status-part-pay']))->el();
+            array(
+                $this->all_configs['configs']['order-status-wait-pay'],
+                $this->all_configs['configs']['order-status-part-pay']
+            ))->el();
     }
 
+    /**
+     * @return mixed
+     */
     public function get_count_accountings_credit_orders_pre()
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id) FROM {orders} as o WHERE o.status=?i',
             array($this->all_configs['configs']['order-status-loan-wait']))->el();
     }
 
+    /**
+     * @param array $filters
+     * @param array $use
+     * @return string
+     */
     public function global_filters($filters = array(), $use = array())
     {
         //$use = array('date', 'category', 'product', 'operators', client, )
@@ -142,10 +195,12 @@ class manageModel
         // фильтр по дате
         $day_from = null;//1 . date(".m.Y") . ' 00:00:00';
         $day_to = null;//31 . date(".m.Y") . ' 23:59:59';
-        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0)
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
             $day_from = $_GET['df'] . ' 00:00:00';
-        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0)
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
             $day_to = $_GET['dt'] . ' 23:59:59';
+        }
         if (in_array('date', $use)) {
             if ($day_from && $day_to) {
                 $query = $this->all_configs['db']->makeQuery('AND DATE(o.date_add) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
@@ -169,7 +224,9 @@ class manageModel
                 array($query, $filters['by_gid']));
         }
         // фильтр по оператору
-        if (array_key_exists('op', $filters) && count(array_filter(explode(',', $filters['op']))) > 0 && in_array('operators', $use)) {
+        if (array_key_exists('op', $filters) && count(array_filter(explode(',',
+                $filters['op']))) > 0 && in_array('operators', $use)
+        ) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
                 array($query, array_filter(explode(',', $filters['op']))));
         }
@@ -182,6 +239,10 @@ class manageModel
         return $query;
     }
 
+    /**
+     * @param array $filters
+     * @return array
+     */
     public function suppliers_orders_query($filters = array())
     {
         $count_on_page = count_on_page();//20;
@@ -190,10 +251,12 @@ class manageModel
         // фильтр по дате
         $day_from = null;//1 . date(".m.Y") . ' 00:00:00';
         $day_to = null;//31 . date(".m.Y") . ' 23:59:59';
-        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0)
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
             $day_from = $filters['df'] . ' 00:00:00';
-        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0)
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
             $day_to = $filters['dt'] . ' 23:59:59';
+        }
 
         if ($day_from && $day_to) {
             $query = $this->all_configs['db']->makeQuery('WHERE DATE(o.date_come) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
@@ -302,7 +365,8 @@ class manageModel
         }
         if ((isset($filters['opened']) && $filters['opened'] == true) || (isset($filters['fco']) && $filters['fco'] == 'unworked')) {
             if (!array_key_exists('manage-qty-so-only-debit', $this->all_configs['configs'])
-                    || $this->all_configs['configs']['manage-qty-so-only-debit'] == false) {
+                || $this->all_configs['configs']['manage-qty-so-only-debit'] == false
+            ) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.confirm=0',
                     array($query));
             } else {
@@ -318,6 +382,13 @@ class manageModel
         );
     }
 
+    /**
+     * @param        $query
+     * @param        $skip
+     * @param        $count_on_page
+     * @param string $icon_type
+     * @return array
+     */
     public function get_clients_orders($query, $skip, $count_on_page, $icon_type = 'co')
     {
         $orders = array();
@@ -389,6 +460,10 @@ class manageModel
         return $orders;
     }
 
+    /**
+     * @param array $filters
+     * @return array
+     */
     public function clients_orders_query($filters = array())
     {
         $count_on_page = count_on_page();//20;
@@ -397,10 +472,12 @@ class manageModel
         // фильтр по дате
         $day_from = null;//1 . '.' . 1 . date(".Y") . ' 00:00:00';
         $day_to = null;//31 . '.' . 12 . date(".Y") . ' 23:59:59';Y-m-d H:i:s
-        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0)
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
             $day_from = $filters['df'] . ' 00:00:00';
-        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0)
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
             $day_to = $filters['dt'] . ' 23:59:59';
+        }
 
         $date_query = '';
         if ($day_from && $day_to) {
@@ -441,10 +518,14 @@ class manageModel
         // принимались на доработку
         if (isset($filters['ar']) && $filters['ar'] > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND (SELECT id FROM {order_status} '
-                                                                    .'WHERE order_id = o.id AND status = ?i ?q LIMIT 1) IS NOT NULL',
-                array($query, $this->all_configs['configs']['order-status-rework'], $date_query ? ' AND '.$date_query : ''));
+                . 'WHERE order_id = o.id AND status = ?i ?q LIMIT 1) IS NOT NULL',
+                array(
+                    $query,
+                    $this->all_configs['configs']['order-status-rework'],
+                    $date_query ? ' AND ' . $date_query : ''
+                ));
         }
-        
+
         if (isset($filters['co']) && !empty($filters['co'])) {
             $query = $this->all_configs['db']->makeQuery('?query AND (o.id=?i OR c.fio LIKE "%?e%" OR c.phone LIKE "%?e%")',
                 array($query, intval($filters['co']), trim($filters['co']), trim($filters['co'])));
@@ -568,12 +649,12 @@ class manageModel
 
         if (isset($filters['with_manager']) && $filters['with_manager'] == true) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IS NULL',
-                    array($query));
+                array($query));
         }
 
         if (isset($filters['prepay']) && $filters['prepay'] == true) {
             $payments = array();
-            foreach ($this->all_configs['configs']['payment-msg'] as $payment=>$values) {
+            foreach ($this->all_configs['configs']['payment-msg'] as $payment => $values) {
                 if ($values['pay'] == 'pre') {
                     $payments[] = $payment;
                 }
@@ -581,13 +662,24 @@ class manageModel
             if (count($payments) > 0) {
                 $query = $this->all_configs['db']->makeQuery('RIGHT JOIN {chains_headers} as h ON h.order_id=o.id
                         ?query AND (o.payment IN (?list) OR o.status IN (?li))',
-                    array($query, array_values($payments), array($this->all_configs['configs']['order-status-wait-pay'],
-                            $this->all_configs['configs']['order-status-part-pay'])));
+                    array(
+                        $query,
+                        array_values($payments),
+                        array(
+                            $this->all_configs['configs']['order-status-wait-pay'],
+                            $this->all_configs['configs']['order-status-part-pay']
+                        )
+                    ));
             } else {
                 $query = $this->all_configs['db']->makeQuery('RIGHT JOIN {chains_headers} as h ON h.order_id=o.id
                         ?query AND o.status IN (?li)',
-                    array($query, array($this->all_configs['configs']['order-status-wait-pay'],
-                        $this->all_configs['configs']['order-status-part-pay'])));
+                    array(
+                        $query,
+                        array(
+                            $this->all_configs['configs']['order-status-wait-pay'],
+                            $this->all_configs['configs']['order-status-part-pay']
+                        )
+                    ));
             }
 
         }
@@ -612,15 +704,24 @@ class manageModel
         );
     }
 
+    /**
+     * @param        $query
+     * @param        $skip
+     * @param        $count_on_page
+     * @param string $icon_type
+     * @return array
+     */
     public function get_suppliers_orders($query, $skip, $count_on_page, $icon_type = 'so')
     {
         $orders = array();
 
-        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs']) && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0) {
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders',
+                $this->all_configs['configs']) && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
             if (isset($_GET['wg']) && !empty($_GET['wg'])) {
-                 
+
                 $wga = explode(',', $_GET['wg']);
-                 
+
                 $orders_ids = $this->all_configs['db']->query('SELECT DISTINCT o.id
                     FROM {contractors_suppliers_orders} as o
                     LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
@@ -629,8 +730,8 @@ class manageModel
                     . 'LEFT JOIN {orders} AS oo ON osc.client_order_id=oo.id '
                     . 'LEFT JOIN {warehouses} AS w ON oo.accept_wh_id=w.id '
                     . 'INNER JOIN {warehouses_groups} AS wg ON wg.id=w.group_id AND w.group_id IN (?li) '
-                    .'?query GROUP BY o.id ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.parent_id DESC,
-                array($icon_type, $_SESSION['id'], $wga, $query, $skip, $count_on_page))->vars();
+                    . '?query GROUP BY o.id ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.parent_id DESC,
+                    array($icon_type, $_SESSION['id'], $wga, $query, $skip, $count_on_page))->vars();
 
             } else {
                 $orders_ids = $this->all_configs['db']->query('SELECT DISTINCT o.id
@@ -638,9 +739,9 @@ class manageModel
                     LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
                     LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
                     ?query GROUP BY o.id ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.parent_id DESC,
-                array($icon_type, $_SESSION['id'], $query, $skip, $count_on_page))->vars();
+                    array($icon_type, $_SESSION['id'], $query, $skip, $count_on_page))->vars();
             }
-            
+
             if ($orders_ids) {
                 $data = $this->all_configs['db']->query('SELECT o.id, o.goods_id, o.date_add, o.date_wait, o.count,
                           o.count_come, mi.id as mi_id, o.price, o.comment, o.sum_paid, o.number, o.date_come, o.parent_id, o.confirm,
@@ -661,8 +762,12 @@ class manageModel
                         LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
                         LEFT JOIN {users_marked} as mi ON mi.object_id=o.id AND mi.type="woi"
                         WHERE o.id IN (?li) ORDER BY o.date_add DESC',//o.parent_id DESC,
-                    array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']),
-                        $icon_type, $_SESSION['id'], array_keys($orders_ids)))->assoc();
+                    array(
+                        array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']),
+                        $icon_type,
+                        $_SESSION['id'],
+                        array_keys($orders_ids)
+                    ))->assoc();
 
 
                 foreach ($data as $o) {
@@ -671,7 +776,11 @@ class manageModel
                         $orders[$o['id']]['items'] = array();
                     }
                     if ($o['item_id'] > 0) {
-                        $orders[$o['id']]['items'][$o['item_id']] = array('item_id' => $o['item_id'], 'date_checked' => $o['date_checked'], 'serial' => $o['serial']);
+                        $orders[$o['id']]['items'][$o['item_id']] = array(
+                            'item_id' => $o['item_id'],
+                            'date_checked' => $o['date_checked'],
+                            'serial' => $o['serial']
+                        );
                     }
                     /*if ($o['client_order_id'] > 0) {
                         $url = $this->all_configs['prefix'] . 'orders/create/' . $o['client_order_id'];
@@ -684,6 +793,10 @@ class manageModel
         return $orders;
     }
 
+    /**
+     * @param array $filters
+     * @return array
+     */
     public function profit_margin($filters = array()/*, $return_table = false*/)
     {
         // фильтры
@@ -691,10 +804,12 @@ class manageModel
         // фильтр по дате
         $day_from = 1 . date(".m.Y") . ' 00:00:00';
         $day_to = 31 . date(".m.Y") . ' 23:59:59';
-        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0)
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
             $day_from = $filters['df'] . ' 00:00:00';
-        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0)
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
             $day_to = $filters['dt'] . ' 23:59:59';
+        }
         $query = '';
 
         // фильтр по категориям товаров
@@ -747,7 +862,7 @@ class manageModel
                 $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
                     array($query, array_keys($cos)));
             } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',  array($query, 0));
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i', array($query, 0));
             }
         }
         // принято через новую почту
@@ -756,12 +871,16 @@ class manageModel
                 array($query, 1));
         }
         // гарантийный
-        if (array_key_exists('wrn', $filters) && $filters['wrn'] == 1 && (!array_key_exists('nowrn', $filters) || $filters['nowrn'] <> 1)) {
+        if (array_key_exists('wrn', $filters) && $filters['wrn'] == 1 && (!array_key_exists('nowrn',
+                    $filters) || $filters['nowrn'] <> 1)
+        ) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.repair=?i',
                 array($query, 1));
         }
         // негарантийный
-        if (array_key_exists('nowrn', $filters) && $filters['nowrn'] == 1 && (!array_key_exists('wrn', $filters) || $filters['wrn'] <> 1)) {
+        if (array_key_exists('nowrn', $filters) && $filters['nowrn'] == 1 && (!array_key_exists('wrn',
+                    $filters) || $filters['wrn'] <> 1)
+        ) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.repair<>?i',
                 array($query, 1));
         }
@@ -787,13 +906,13 @@ class manageModel
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         $orders = $this->all_configs['db']->query('SELECT o.id as order_id, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
-              SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title, SUM(IF(t.type=?i, 0, 1)) as qty,
+              SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, SUM(IF(t.transaction_type=2, 1, 0)) as has_to
             FROM {categories} as cg, {orders} as o, {cashboxes_transactions} as t
             WHERE o.id=t.client_order_id AND t.type<>?i AND cg.id=o.category_id AND
-              DATE(t.date_transaction) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
-              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") ?query GROUP BY o.id HAVING qty>0 ORDER BY o.id',
-            array(10, 8, $day_from, $day_to, $query))->assoc('order_id');
+              t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") ?query GROUP BY o.id ORDER BY o.id',
+            array(8, $day_from, $day_to, $query))->assoc('order_id');
 
         if ($orders) {
             $prices = $this->all_configs['db']->query('SELECT i.order_id, SUM(i.price) as price
@@ -810,7 +929,7 @@ class manageModel
                     $goods[$p['order_id']][$p['type'] == 1 ? 'services' : 'goods'][$p['id']] = $p;
                 }
             }
-            foreach ($orders as $order_id=>$order) {
+            foreach ($orders as $order_id => $order) {
                 $orders[$order_id]['goods'] = isset($goods[$order_id]) && isset($goods[$order_id]['goods']) ? $goods[$order_id]['goods'] : array();
                 $orders[$order_id]['services'] = isset($goods[$order_id]) && isset($goods[$order_id]['services']) ? $goods[$order_id]['services'] : array();
 
@@ -820,7 +939,8 @@ class manageModel
                 $orders[$order_id]['profit'] = 0;
 
                 if ($order['has_to'] > 0) {
-                    $orders[$order_id]['profit'] = $orders[$order_id]['value_to']/* - $orders[$order_id]['purchase']*/;
+                    $orders[$order_id]['profit'] = $orders[$order_id]['value_to']/* - $orders[$order_id]['purchase']*/
+                    ;
                 }
                 if ($order['has_from'] > 0) {
                     $orders[$order_id]['profit'] -= ($orders[$order_id]['value_from']/* - $orders[$order_id]['purchase']*/);
@@ -828,10 +948,12 @@ class manageModel
                 $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
 
                 $orders[$order_id]['avg'] = 0;
-                if ($orders[$order_id]['purchase'] == 0)
+                if ($orders[$order_id]['purchase'] == 0) {
                     $orders[$order_id]['avg'] = '&infin;';
-                if ($orders[$order_id]['purchase'] > 0 && $orders[$order_id]['turnover'] > 0)
+                }
+                if ($orders[$order_id]['purchase'] > 0 && $orders[$order_id]['turnover'] > 0) {
                     $orders[$order_id]['avg'] = $orders[$order_id]['profit'] / $orders[$order_id]['purchase'] * 100;
+                }
 
                 $sell += $order['value_to'];
                 $buy += $order['value_from'];
@@ -842,10 +964,12 @@ class manageModel
             }
         }
 
-        if ($purchase2 == 0)
+        if ($purchase2 == 0) {
             $avg = '&infin;';
-        if ($purchase2 > 0 && $turnover > 0)
+        }
+        if ($purchase2 > 0 && $turnover > 0) {
             $avg = ($profit) / $purchase2 * 100;
+        }
 
         return array(
             'profit' => $profit,
@@ -859,6 +983,10 @@ class manageModel
 
     }
 
+    /**
+     * @param $p_id
+     * @return mixed
+     */
     function orders_product($p_id)
     {
         $c = $this->all_configs['configs'];
@@ -890,8 +1018,28 @@ class manageModel
      * вызываем при любом движении изделия
      * */
     // $move_type: 1 - Перемещение на склад, 2 - Перемещен на склад, 0 - не определено
-    function move_product_item($wh_id, $location_id, $goods_id = null, $item_id = null, $order_id = null, $chain_id = null, $msg = '', $chain_body_id = null, $move_type = 0)
-    {
+    /**
+     * @param        $wh_id
+     * @param        $location_id
+     * @param null   $goods_id
+     * @param null   $item_id
+     * @param null   $order_id
+     * @param null   $chain_id
+     * @param string $msg
+     * @param null   $chain_body_id
+     * @param int    $move_type
+     */
+    function move_product_item(
+        $wh_id,
+        $location_id,
+        $goods_id = null,
+        $item_id = null,
+        $order_id = null,
+        $chain_id = null,
+        $msg = '',
+        $chain_body_id = null,
+        $move_type = 0
+    ) {
         // есть товар
         if ($goods_id > 0 && $wh_id > 0) {
             // добавляем/обновляем сумму товаров по складам и ихнее количество
@@ -914,34 +1062,49 @@ class manageModel
     }
 
     // $move_type: 1 - Перемещение на склад(Перемещение на склад к заказу), 2 - Перемещен на склад(Перемещен на склад к заказу), 0 - не определено
+    /**
+     * @param     $item_id
+     * @param     $order_id
+     * @param     $wh_id
+     * @param     $location_id
+     * @param     $chain_id
+     * @param     $msg
+     * @param     $chain_body_id
+     * @param int $move_type
+     * @throws Exception
+     */
     function stock_moves($item_id, $order_id, $wh_id, $location_id, $chain_id, $msg, $chain_body_id, $move_type = 0)
     {
         if (($item_id > 0 || $order_id > 0) && $wh_id > 0) {
             // история перемещений
             $move_id = $this->all_configs['db']->query('INSERT INTO {warehouses_stock_moves}
                 (item_id, user_id, wh_id, comment, chain_id, chain_body_id, order_id, location_id) VALUES (?n, ?i, ?i, ?, ?n, ?n, ?n, ?n)',
-                array($item_id, $_SESSION['id'], $wh_id, $msg, $chain_id, $chain_body_id, $order_id, $location_id), 'id');
+                array($item_id, $_SESSION['id'], $wh_id, $msg, $chain_id, $chain_body_id, $order_id, $location_id),
+                'id');
 
             if ($order_id > 0) {
                 $this->all_configs['db']->query('UPDATE {orders} SET location_id=?n, wh_id=?i WHERE id=?i',
                     array($location_id, $wh_id, $order_id));
             }
-            
+
 //            echo 'order_id: '.$order_id.', item_id: '.$item_id;
             // смотрим привязку к цепочке перемещений - новая логистика
             // инициируем item_move только когда операция "Перемещен на склад"
-            if($move_type == 2){
+            if ($move_type == 2) {
                 // может быть сразу $order_id и $item_id
-                if($order_id){
+                if ($order_id) {
                     get_service('logistic')->item_move($order_id, 1, $move_id, $wh_id, $location_id);
                 }
-                if($item_id){
+                if ($item_id) {
                     get_service('logistic')->item_move($item_id, 2, $move_id, $wh_id, $location_id);
                 }
             }
         }
     }
 
+    /**
+     * @param $goods_id
+     */
     function update_product_free_qty($goods_id)
     {
         // есть товар
@@ -964,6 +1127,9 @@ class manageModel
         //$this->update_product_wait($goods_id);
     }
 
+    /**
+     * @param $goods_id
+     */
     function update_product_wh_qty($goods_id)
     {
         $query_product = '';
@@ -983,6 +1149,9 @@ class manageModel
         $this->update_product_wait($goods_id);
     }
 
+    /**
+     * @param $goods_id
+     */
     function update_product_wait($goods_id)
     {
         $query_product = '';
@@ -1002,6 +1171,12 @@ class manageModel
 
     }
 
+    /**
+     * @param      $order_id
+     * @param null $type
+     * @param null $order_product_id
+     * @return null
+     */
     function order_goods($order_id, $type = null, $order_product_id = null)
     {
         $goods = null;
