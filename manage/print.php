@@ -328,6 +328,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                         'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                         'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                        'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                        'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                     );
                 }
 
@@ -370,7 +372,10 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 
                  // товары и услуги
                 $products_rows = array();
-                $summ = 0;
+                $summ = $sum_by_products_and_services = $sum_by_products = $sum_by_services = 0;
+
+                $products = $products_cost = $services = '';
+                $services_cost = array();
                 $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                     array($object))->assoc();
@@ -381,6 +386,17 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                             'price_view' => ($product['price'] / 100).' '.viewCurrency()
                         );
 //                        $summ += $product['price'];
+                        $sum_by_products_and_services += $product['price'];
+                        if ($product['type'] == 0) {
+                            $products .= htmlspecialchars($product['title']) . '<br/>';
+                            $products_cost .= ($product['price'] / 100) . ' '.viewCurrency().'<br />';
+                            $sum_by_products += $product['price'];
+                        }
+                        if ($product['type'] == 1) {
+                            $services .= htmlspecialchars($product['title']) . '<br/>';
+                            $services_cost[] = ($product['price'] / 100). ' '.viewCurrency();
+                            $sum_by_services += $product['price'];
+                        }
                     }
                 }
                 $summ = $order['sum'];
@@ -417,6 +433,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'id'  => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
                     'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
                     'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                    'sum_by_products_and_services' => array('value' => $sum_by_products_and_services / 100, 'name' => 'Сумма за запчасти и услуги'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
                     'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
@@ -425,6 +442,12 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'wh_phone' =>  array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'products' => array('value' => $products, 'name' => 'Установленные запчасти'),
+                    'products_cost' => array('value' => $products_cost, 'name' => 'Установленные запчасти'),
+                    'sum_by_products' => array('value' => $sum_by_products/ 100, 'name' => 'Сумма за запчасти'),
+                    'services' => array('value' => $services, 'name' => 'Услуги'),
+                    'services_cost' => array('value' => implode(' '.viewCurrency().'<br />', $services_cost), 'name' => 'Стоимость услуг'),
+                    'sum_by_services' => array('value' => $sum_by_services / 100, 'name' => 'Сумма за услуги'),
                     'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги (вставляется внутрь таблицы)'),
                 );
                 $print_html = generate_template($arr, 'act');
@@ -473,6 +496,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'domain' => array('value' => $_SERVER['HTTP_HOST'], 'name' => 'Домен сайта'),
+                    'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                    'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                 );
                 $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];
@@ -590,6 +615,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'color' => array('value' => $order['color']?htmlspecialchars($all_configs['configs']['devices-colors'][$order['color']]):'', 'name' => 'Устройство'),
                         'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
                         'company' => array('value' => htmlspecialchars($all_configs['settings']['site_name']), 'name' => 'Название компании'),
+                        'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                        'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                     );
                 }
 
@@ -608,6 +635,8 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
                         'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                         'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
+                        'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                        'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
                     );
                 }
 

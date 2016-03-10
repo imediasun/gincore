@@ -1904,7 +1904,7 @@ class orders
                 || $this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {*/
             // только инженер
             $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
-                !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ? true : false;
+                !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
 
 
             $order_html .= '<div class="row-fluid">';
@@ -2089,12 +2089,23 @@ class orders
             // не продажа
             if ($order['type'] != 3) {
                 if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $manager = '<input type="submit" name="accept-manager" class="accept-manager btn btn-default btn-xs" value="' . l('Взять заказ') . '" />'
+                    $html = '<input type="submit" name="accept-manager" class="accept-manager btn btn-default btn-xs" value="' . l('Взять заказ') . '" />'
                               .'<input type="hidden" name="accept-manager" value="" />';
                 } else {
-                    $manager = get_user_name($order, 'm_');
+                    // инженеры
+                    $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders');
+                    $html = '<select class="form-control" name="manager"><option value="">' . l('Выбрать') . '</option>';
+                    if ($managers) {
+                        foreach ($managers as $manager) {
+                            $selected = $manager['id'] == $order['manager'] ? 'selected' : '';
+                            $html .= '<option ' . $selected . ' value="' . $manager['id'] . '">' . get_user_name($manager) . '</option>';
+                        }
+                    }
+                    $html .= '</select>';
+                    $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-manager\')"></span>';
+//                    $manager = get_user_name($order, 'm_');
                 }
-                $order_html .= '<div class="form-group"><label>' . l('manager') . ': </label> ' . $manager . '</div>';
+                $order_html .= l('manager') . ': </label> ' . $html . '</div>';
             }
 
             $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '';
@@ -2762,6 +2773,14 @@ class orders
                         array($user_id, 'update-order-client_took', $mod_id, $this->all_configs['arrequest'][2], isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'), isset($_POST['client_took']) ? 1 : 0));
                 }
 
+                // смена менеджера
+                if (isset($_POST['manager']) && intval($order['manager']) != intval($_POST['manager'])) {
+                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i',
+                        array($_POST['manager']))->row();
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
+                        array($user_id, 'update-order-manager', $mod_id, $this->all_configs['arrequest'][2], get_user_name($user), $_POST['manager']));
+                }
+
                 // смена инженера
                 if (isset($_POST['engineer']) && intval($order['engineer']) != intval($_POST['engineer'])) {
                     $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i',
@@ -2851,6 +2870,7 @@ class orders
                 $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
                 $order['is_waiting'] = isset($_POST['is_waiting']) ? 1 : 0;
                 $order['engineer'] = isset($_POST['engineer']) ? $_POST['engineer'] : $order['engineer'];
+                $order['manager'] = isset($_POST['manager']) ? $_POST['manager'] : $order['manager'];
                 // если статус доработка то меняем вид ремонта
                 $order['repair'] = isset($_POST['status']) && $_POST['status'] == $this->all_configs['configs']['order-status-rework'] ? 2 : $order['repair'];
                 if (in_array($_POST['status'], $this->all_configs['configs']['order-status-issue-btn'])) {
