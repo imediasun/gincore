@@ -1484,6 +1484,7 @@ class clients
                     WHERE id = ?i
                 ", array($code, $referer_id, $call_id));
                 $data['state'] = true;
+                $data['msg'] = l('Изменения сохранены');
             }
         }
         

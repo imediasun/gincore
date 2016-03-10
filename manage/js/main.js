@@ -1592,6 +1592,9 @@ $(function(){
                     if($form.data('callback')){
                         window[$form.data('callback')](data, $form);
                     }
+                    if(data.msg) {
+                      alert(data.msg);
+                    }
                 }
             }
         });
