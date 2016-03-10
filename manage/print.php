@@ -644,7 +644,10 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
         if($act == 'location'){
             $print_html .= '
                 <div class="printer_preview unprint">
-                    <p>Формат этикеток настроен под печать на термопринтере HPRT LPQ58</p>
+                    <div class="row" style="text-align: center">
+                        <button class="btn btn-primary" onclick="javascript:window.print()"><i class="cursor-pointer fa fa-print"></i> Печать</button>
+                    </div>
+                    <p><i class="fa fa-info-circle"></i>Формат этикеток настроен под печать на термопринтере HPRT LPQ58</p>
                     <img src="'.$all_configs['prefix'].'img/hprt_lpq58.jpg">
                 </div>
             ';
@@ -665,10 +668,11 @@ if ($print_html) {?>
         <script type="text/javascript" src="<?=$all_configs['prefix'];?>js/bootstrap.js"></script>
         <script type="text/javascript" src="<?=$all_configs['prefix'];?>js/summernote.js"></script>
 
-        <?=isset($_GET['act']) && in_array($_GET['act'], array('label', 'location')) ? '' :
-            '<link rel="stylesheet" href="' . $all_configs['prefix'] . 'css/bootstrap.min.css" />
-            <link rel="stylesheet" href="' . $all_configs['prefix'] . 'css/font-awesome.css">
-            <link rel="stylesheet" href="' . $all_configs['prefix'] . 'css/summernote.css" />';?>
+        <?=isset($_GET['act']) && in_array($_GET['act'], array('label', 'location')) ? '' : '
+            <link rel="stylesheet" href="' . $all_configs['prefix'] . 'css/summernote.css" />
+        ' ?>
+            <link rel="stylesheet" href="<?= $all_configs['prefix'] ?>css/bootstrap.min.css" />
+            <link rel="stylesheet" href="<?= $all_configs['prefix'] ?>css/font-awesome.css">
 
         <style>
             /* print begin */
@@ -679,9 +683,13 @@ if ($print_html) {?>
                 top: 20px;
             }
             .printer_preview p{
+                margin-top: 20px;
                 line-height: 20px;
                 font-size: 16px;
                 text-align: center;
+            }
+            .printer_preview p > i.fa {
+                color: indianred; font-size: 1.3em; margin-right: 10px
             }
             .printer_preview img{
                 width: 100%;
