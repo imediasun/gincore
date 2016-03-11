@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__.'/../../FlashMessage.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
@@ -218,7 +219,7 @@ class users
                     array($uid))->ar()
                 ) {
                     $result['success'] = true;
-                    $result['msg'] = l('Пользователь удален');
+                    FlashMessage::set(l('Пользователь удален'));
                     $result['uid'] = $uid;
                 }
             } else {
@@ -367,6 +368,7 @@ class users
             }
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
+            FlashMessage::set(l('Роль успешно создана'));
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
             $avail = 0;
             if (isset($post['avail'])) {
@@ -412,6 +414,7 @@ class users
                                 . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
                         }
                     }
+                    FlashMessage::set(l('Добавлен новый пользователь'));
                 }
             }
         }
