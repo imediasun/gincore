@@ -867,3 +867,6 @@ input.row-input {
 .modal-open #menu{
     overflow: hidden;
 }
+.panel-heading.panel-white {
+    background-color: white;
+}
