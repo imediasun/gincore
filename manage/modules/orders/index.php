@@ -2471,11 +2471,11 @@ class orders
                             $html .= '<option ' . $selected . ' value="' . $manager['id'] . '">' . get_user_name($manager) . '</option>';
                         }
                     }
-                    $html .= '</select>';
+                    $html .= '</select></div>';
                     $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-manager\')"></span>';
 //                    $manager = get_user_name($order, 'm_');
                 }
-                $order_html .= l('manager') . ': </label> ' . $html . '</div>';
+                $order_html .= l('manager') . ': </label> ' . $html;
             }
 
             $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '';

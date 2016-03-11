@@ -457,7 +457,8 @@ class users
         $users = $this->get_users($sort);
 
         // достаём все роли
-        $pers = $this->get_active_roles();
+        $pers = $this->get_all_roles();
+        $activeRoles = $this->get_active_roles();
 
         $users_html .= '<div class="tabbable">
             <ul class="nav nav-tabs">
@@ -521,7 +522,7 @@ class users
                         . '<td><select class="form-control input-sm" name="roles[' . $user['id'] . ']"><option value=""></option>';
 
                     $yet1 = array();
-                    foreach ($pers as $per) {
+                    foreach ($activeRoles as $per) {
                         if (array_key_exists($per['role_id'], $yet1)) {
 
                         } else {
@@ -860,6 +861,22 @@ class users
             ")->assoc();
 
         return $roles;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function get_all_roles()
+    {
+
+        return $this->all_configs['db']->query("
+            SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
+              p.name as per_name, p.link, p.child, p.group_id
+            FROM {users_roles} as r
+            CROSS JOIN {users_permissions} as p
+            LEFT JOIN (SELECT * FROM {users_role_permission})per ON per.role_id=r.id AND per.permission_id=p.id
+            ORDER BY role_id, per_id
+        ")->assoc();
     }
 
     /**
