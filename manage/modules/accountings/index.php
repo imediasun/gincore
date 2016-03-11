@@ -45,6 +45,10 @@ class accountings
 
     protected $course_default = 100; // default course (uah) in cent
 
+    /**
+     * accountings constructor.
+     * @param $all_configs
+     */
     function __construct(&$all_configs)
     {
         $this->mod_submenu = self::get_submenu();
@@ -76,6 +80,9 @@ class accountings
 
     }
 
+    /**
+     * @return bool
+     */
     function can_show_module()
     {
         if ($this->all_configs['oRole']->hasPrivilege('accounting')
@@ -90,6 +97,9 @@ class accountings
         }
     }
 
+    /**
+     * @param $post
+     */
     function check_post($post)
     {
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
@@ -460,6 +470,10 @@ class accountings
 
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'add-contractor_category', $mod_id, $contractor_category));
+            if($parent_id > 0) {
+            $this->addContractorCategoryForUsers($parent_id, $contractor_category);
+            }
+
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование категории
             if (!isset($post['contractor_category-id']) || $post['contractor_category-id'] == 0) {
@@ -500,6 +514,11 @@ class accountings
         exit;
     }
 
+    /**
+     * @param int  $type
+     * @param bool $arrow
+     * @return mixed
+     */
     function get_contractors_categories($type = 0, $arrow = true)
     {
         // тип
@@ -516,6 +535,9 @@ class accountings
             array($query_arrow, $query))->assoc();
     }
 
+    /**
+     * @return array
+     */
     function get_cashboxes_amounts()
     {
         // суммы по валютам
@@ -572,6 +594,12 @@ class accountings
         return $amounts;
     }
 
+    /**
+     * @param null $avail
+     * @param null $contractor_category_id
+     * @param bool $operation
+     * @return mixed
+     */
     function get_contractors($avail = null, $contractor_category_id = null, $operation = false)
     {
         $query = $query_or = '';
@@ -609,6 +637,11 @@ class accountings
             array($query))->assoc();
     }
 
+    /**
+     * @param     $contractor_category_id
+     * @param int $contractor_id
+     * @return string
+     */
     function contractors_options($contractor_category_id, $contractor_id = 0)
     {
         $contractors = null;
@@ -634,6 +667,9 @@ class accountings
         return $out;
     }
 
+    /**
+     *
+     */
     function preload()
     {
         $this->get_cashboxes_amounts();
@@ -685,6 +721,9 @@ class accountings
         }
     }
 
+    /**
+     * @return string
+     */
     function gencontent()
     {
         $this->preload();
@@ -757,6 +796,12 @@ class accountings
         return $out;
     }
 
+    /**
+     * @param      $cashboxes_currencies
+     * @param null $cashbox
+     * @param int  $i
+     * @return string
+     */
     function form_cashbox($cashboxes_currencies, $cashbox = null, $i = 1)
     {
         $currencies_html = '';
@@ -855,6 +900,12 @@ class accountings
         ";
     }
 
+    /**
+     * @param null $contractor
+     * @param null $opened
+     * @param bool $wrap_form
+     * @return string
+     */
     function form_contractor($contractor = null, $opened = null, $wrap_form = false)
     {
         $categories = $this->get_contractors_categories();
@@ -969,6 +1020,10 @@ class accountings
         return $out;
     }
 
+    /**
+     * @param null $contractor_category
+     * @return string
+     */
     function form_contractor_category_btn($contractor_category = null)
     {
         $btn = '';
@@ -986,6 +1041,11 @@ class accountings
         return $btn;
     }
 
+    /**
+     * @param      $type
+     * @param null $contractor_category
+     * @return string
+     */
     function form_contractor_category($type, $contractor_category = null)
     {
         //$btn = '';
@@ -1044,6 +1104,9 @@ class accountings
         return $out;
     }
 
+    /**
+     * @return mixed
+     */
     function cashboxes_courses()
     {
         // валюты
@@ -1051,6 +1114,10 @@ class accountings
             FROM {cashboxes_courses}')->assoc('currency');
     }
 
+    /**
+     * @param $cashbox_id
+     * @return string
+     */
     function get_cashbox_currencies($cashbox_id)
     {
         $currencies_html = '';
@@ -1067,6 +1134,9 @@ class accountings
         return $currencies_html;
     }
 
+    /**
+     *
+     */
     function export()
     {
         $array = array();
@@ -1089,6 +1159,9 @@ class accountings
         $exports->build($array);
     }
 
+    /**
+     *
+     */
     function ajax()
     {
         $data = array(
@@ -1914,6 +1987,10 @@ class accountings
         exit;
     }
 
+    /**
+     * @param null $y
+     * @return string
+     */
     function month_select($y = null)
     {
         $out = '';
@@ -1945,6 +2022,10 @@ class accountings
         return $out;
     }
 
+    /**
+     * @param bool $contractors
+     * @return string
+     */
     function transaction_filters($contractors = false)
     {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : date('01.m.Y', time())) . ' - ' .
@@ -2018,6 +2099,9 @@ class accountings
         return $out;
     }
 
+    /**
+     * @return array
+     */
     function accountings_cashboxes()
     {
         $out = '';
@@ -2138,6 +2222,10 @@ class accountings
         );
     }
 
+    /**
+     * @param $amounts
+     * @return array
+     */
     function total_cashboxes($amounts)
     {
         $out = '';
@@ -2163,11 +2251,20 @@ class accountings
         );
     }
 
+    /**
+     * @param $a
+     * @param $b
+     * @return mixed
+     */
     function akcsort($a, $b)
     {
         return $b['currency'] - $a['currency'];
     }
 
+    /**
+     * @param $hash
+     * @return array
+     */
     function accountings_transactions($hash)
     {
         if (trim($hash) == '#transactions' || (trim($hash) != '#transactions-cashboxes' && trim($hash) != '#transactions-contractors'))
@@ -2206,6 +2303,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_transactions_cashboxes()
     {
         $out = '';
@@ -2226,6 +2326,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_transactions_contractors()
     {
         $out = '';
@@ -2285,6 +2388,10 @@ class accountings
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function accountings_reports($hash = '#reports-turnover')
     {
         if (trim($hash) == '#reports' || (trim($hash) != '#reports-cash_flow'
@@ -2341,6 +2448,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_reports_cash_flow()
     {
         $out = '';
@@ -2499,6 +2609,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array|mixed
+     */
     function array_sum_values() {
         $return = array();
         //$intArgs = func_num_args();
@@ -2522,6 +2635,9 @@ class accountings
         return $return;
     }
 
+    /**
+     * @return array
+     */
     function accountings_reports_annual_balance()
     {
         $out = '';
@@ -2621,6 +2737,12 @@ class accountings
         );
     }
 
+    /**
+     * @param $year
+     * @param $hash
+     * @param $years
+     * @return string
+     */
     function accountings_year_filter($year, $hash, $years)
     {
         $y = date('Y');
@@ -2639,6 +2761,9 @@ class accountings
         return $out;
     }
 
+    /**
+     * @return array
+     */
     function accountings_reports_cost_of()
     {
         $out = '';
@@ -2839,6 +2964,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function sum_by_currency()
     {
         $sum = array();
@@ -2862,6 +2990,9 @@ class accountings
                 FROM {users} AS u WHERE u.role=?i", array(5))->assoc();//TODO плохое решение role в настройку
     }*/
 
+    /**
+     * @return array
+     */
     function accountings_reports_turnover_array()
     {
         $array = array();
@@ -2899,6 +3030,9 @@ class accountings
         return $array;
     }
 
+    /**
+     * @return array
+     */
     function accountings_reports_turnover()
     {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : date('01.m.Y', time())) . ' - ' .
@@ -3095,6 +3229,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_reports_net_profit()
     {
         $out = '';
@@ -3179,6 +3316,10 @@ class accountings
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function accountings_orders_pre($hash = '#orders_pre-noncash')
     {
         if (trim($hash) == '#orders_pre' || (trim($hash) != '#orders_pre-credit' && trim($hash) != '#orders_pre-noncash'))
@@ -3204,6 +3345,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_pre_noncash()
     {
         $out = '';
@@ -3290,6 +3434,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_orders_pre_credit()
     {
         $out = '';
@@ -3344,6 +3491,10 @@ class accountings
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function accountings_orders($hash = '#a_orders-clients')
     {
         if (trim($hash) == '#a_orders' || (trim($hash) != '#a_orders-clients' && trim($hash) != '#a_orders-suppliers'))
@@ -3374,6 +3525,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_orders_suppliers()
     {
         $out = '';
@@ -3402,6 +3556,11 @@ class accountings
         );
     }
 
+    /**
+     * @param     $chain
+     * @param int $type
+     * @return string
+     */
     function show_tr_accountings_orders_clients($chain, $type = 0)
     {
         $out = '';
@@ -3454,6 +3613,9 @@ class accountings
         return $out;
     }
 
+    /**
+     * @return array
+     */
     function accountings_orders_clients()
     {
         $out = '';
@@ -3654,6 +3816,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_contractors()
     {
         $contractors_html = '';
@@ -3700,6 +3865,10 @@ class accountings
         );
     }
 
+    /**
+     * @param string $hash
+     * @return array
+     */
     function accountings_settings($hash = '#settings-cashboxes')
     {
         if (trim($hash) == '#settings' || (trim($hash) != '#settings-cashboxes' && trim($hash) != '#settings-currencies'
@@ -3751,6 +3920,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_settings_cashboxes()
     {
         $out = '';
@@ -3782,6 +3954,9 @@ class accountings
         );
     }
 
+    /**
+     * @return string
+     */
     function gen_currency_table(){
         $cashboxes_currencies = $this->cashboxes_courses();
         $out = '';
@@ -3821,7 +3996,13 @@ class accountings
         $out .= "<tr><td colspan='3'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='" . l('Сохранить') . "' /></td></tr>";
         return $out;
     }
-    
+
+    /**
+     * @param bool $show_all
+     * @param null $current
+     * @param bool $show_default
+     * @return string
+     */
     function gen_new_currency_options($show_all = true, $current = null, $show_default = true){
         if(!$show_all){
             $cashboxes_currencies = $this->cashboxes_courses();
@@ -3840,7 +4021,10 @@ class accountings
         }
         return $out;
     }
-    
+
+    /**
+     * @return array
+     */
     function accountings_settings_currencies()
     {
         $out = '';
@@ -3868,6 +4052,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_settings_categories_expense()
     {
         $out = '';
@@ -3887,6 +4074,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_settings_categories_income()
     {
         $out = '';
@@ -3906,6 +4096,9 @@ class accountings
         );
     }
 
+    /**
+     * @return array
+     */
     function accountings_settings_contractors()
     {
         $out = '';
@@ -3934,39 +4127,54 @@ class accountings
         );
     }
 
-    public static function get_submenu(){
-    return array(
-        array(
-            'click_tab' => true,
-            'url' => '#cashboxes',
-            'name' => l('Кассы')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#transactions',
-            'name' => l('Транзакции')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#reports',
-            'name' => l('Отчеты')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#a_orders',
-            'name' => l('Заказы')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#contractors',
-            'name' => l('Контрагенты')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#settings',
-            'name' => l('Настройки')
-        ), 
-    );
-}
+    /**
+     * @return array
+     */
+    public static function get_submenu()
+    {
+        return array(
+            array(
+                'click_tab' => true,
+                'url' => '#cashboxes',
+                'name' => l('Кассы')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#transactions',
+                'name' => l('Транзакции')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#reports',
+                'name' => l('Отчеты')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#a_orders',
+                'name' => l('Заказы')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#contractors',
+                'name' => l('Контрагенты')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#settings',
+                'name' => l('Настройки')
+            ),
+        );
+    }
 
+    /**
+     * @param $parent_id
+     * @param $contractor_category
+     */
+    private function addContractorCategoryForUsers($parent_id, $contractor_category)
+    {
+        $this->all_configs['db']->query('
+            INSERT INTO  restore4_contractors_categories_links (contractors_categories_id, contractors_id)
+            SELECT ?, contractors_id FROM restore4_contractors_categories_links WHERE contractors_categories_id = ?
+            ', array($contractor_category,$parent_id))->ar();
+    }
 }

@@ -833,7 +833,10 @@ function check_mess(last_time_query) {
 
                         sound('mess.mp3');
                     }
-
+                    if (msg['flash']) {
+                        $('.flash-messages').remove();
+                        $('body').append(msg['flash']);
+                    }
                     //if (module == 'orders' && msg['new_orders'] > 0) click_tab_hash();
                 }
 
@@ -904,6 +907,7 @@ function read_mess(_this, mess_id) {
                 if (msg['state'] == true) {
                     $(_this).addClass('muted');
                     $(_this).attr('onClick', '');
+                    $(_this).parent().addClass('panel-white');
                 }
                 $('.new-count-mess').html(msg['qty']);
             }

@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__.'/../../FlashMessage.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
@@ -218,7 +219,7 @@ class users
                     array($uid))->ar()
                 ) {
                     $result['success'] = true;
-                    $result['msg'] = l('Пользователь удален');
+                    FlashMessage::set(l('Пользователь удален'));
                     $result['uid'] = $uid;
                 }
             } else {
@@ -367,6 +368,7 @@ class users
             }
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
+            FlashMessage::set(l('Роль успешно создана'));
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
             $avail = 0;
             if (isset($post['avail'])) {
@@ -412,6 +414,7 @@ class users
                                 . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
                         }
                     }
+                    FlashMessage::set(l('Добавлен новый пользователь'));
                 }
             }
         }
@@ -457,7 +460,8 @@ class users
         $users = $this->get_users($sort);
 
         // достаём все роли
-        $pers = $this->get_active_roles();
+        $pers = $this->get_all_roles();
+        $activeRoles = $this->get_active_roles();
 
         $users_html .= '<div class="tabbable">
             <ul class="nav nav-tabs">
@@ -521,7 +525,7 @@ class users
                         . '<td><select class="form-control input-sm" name="roles[' . $user['id'] . ']"><option value=""></option>';
 
                     $yet1 = array();
-                    foreach ($pers as $per) {
+                    foreach ($activeRoles as $per) {
                         if (array_key_exists($per['role_id'], $yet1)) {
 
                         } else {
@@ -860,6 +864,22 @@ class users
             ")->assoc();
 
         return $roles;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function get_all_roles()
+    {
+
+        return $this->all_configs['db']->query("
+            SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
+              p.name as per_name, p.link, p.child, p.group_id
+            FROM {users_roles} as r
+            CROSS JOIN {users_permissions} as p
+            LEFT JOIN (SELECT * FROM {users_role_permission})per ON per.role_id=r.id AND per.permission_id=p.id
+            ORDER BY role_id, per_id
+        ")->assoc();
     }
 
     /**

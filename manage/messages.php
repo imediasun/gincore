@@ -664,7 +664,7 @@ function get_messages($type = null)
             $read = $message['is_read'] == 1 ? 'class="accordion-toggle muted"' : 'class="accordion-toggle" onClick="read_mess(this, ' . $message['id'] . ')"';
             $html .=
                 '<div class="panel panel-default" style="margin-bottom:5px;">
-                    <div class="panel-heading">
+                    <div class="panel-heading '. ($message['is_read'] == 1?'panel-white':'') .'">
                         <div class="pull-right">
                             <span title="' . do_nice_date($message['date_add'], false) . '">' . do_nice_date($message['date_add']) . '</span>
                             <i onclick="remove_message(this, ' . $message['id'] . ', ' . $message['type'] . ')" class="glyphicon glyphicon-remove cursor-pointer"></i>
@@ -780,13 +780,19 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
     $data['count-alarm-timer'] = count_unread_messages(1); // количество новых напоминаний
     $data['new-count-statuses'] = count_unread_messages(2); // количество новых запросов о статусе
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array(
+    $result = array(
         //'messages' => get_messages(0, false), // проверяем пришло ли новое сообщение
         'counts' => $data,
         'new_comments' => intval($qty_unread),
         'alarms' => $alarms,
-    ));
+    );
+    require_once __DIR__.'/FlashMessage.php';
+    $flash = FlashMessage::show();
+    if(!empty($flash)) {
+        $result['flash'] = $flash;
+    }
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode($result);
     exit;
 }
 
