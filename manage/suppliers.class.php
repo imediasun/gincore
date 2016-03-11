@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/FlashMessage.php';
+
 class Suppliers
 {
     protected $all_configs;
@@ -195,6 +197,7 @@ class Suppliers
                         VALUES (?i, ?, ?n, ?n, ?i, ?n, ?i, ?, ?n, ?n, ?i)',
                     array($price, date("Y-m-d H:i:s", 86399 + strtotime($date)), $supplier, $its_warehouse,
                         $product_id, $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type), 'id');
+                FlashMessage::set(l('Заказ успешно создан'));
             } catch (Exception $e) {
                 $data['state'] = false;
                 $data['msg'] = 'Заказ с таким номером уже существует';

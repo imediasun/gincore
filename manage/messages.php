@@ -780,13 +780,19 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
     $data['count-alarm-timer'] = count_unread_messages(1); // количество новых напоминаний
     $data['new-count-statuses'] = count_unread_messages(2); // количество новых запросов о статусе
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array(
+    $result = array(
         //'messages' => get_messages(0, false), // проверяем пришло ли новое сообщение
         'counts' => $data,
         'new_comments' => intval($qty_unread),
         'alarms' => $alarms,
-    ));
+    );
+    require_once __DIR__.'/FlashMessage.php';
+    $flash = FlashMessage::show();
+    if(!empty($flash)) {
+        $result['flash'] = $flash;
+    }
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode($result);
     exit;
 }
 

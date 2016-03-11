@@ -833,7 +833,10 @@ function check_mess(last_time_query) {
 
                         sound('mess.mp3');
                     }
-
+                    if (msg['flash']) {
+                        $('.flash-messages').remove();
+                        $('body').append(msg['flash']);
+                    }
                     //if (module == 'orders' && msg['new_orders'] > 0) click_tab_hash();
                 }
 

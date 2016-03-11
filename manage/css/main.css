@@ -870,3 +870,10 @@ input.row-input {
 .panel-heading.panel-white {
     background-color: white;
 }
+.flash-messages {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+}
