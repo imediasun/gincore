@@ -1313,6 +1313,106 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         return false;
     }
 }
+function dialog_box(_this, title, content, buttons, e) {
+    if(e){
+        e.stopPropagation();
+    }
+
+    if (($(_this).hasClass('disabled') || $(_this).prop('disabled')) &&
+            !$(_this).data('alert_box_not_disabled'))
+        return false;
+
+    if ($(_this).is('input') || $(_this).is('button'))
+        $(_this).button('loading');
+    else
+        $(_this).addClass('disabled');
+
+    bootbox.addLocale('ru', {
+        OK : L['cansel'],
+        CANCEL : L['cansel'],
+        CONFIRM : L['confirm']
+    });
+    bootbox.setDefaults({
+        size: 'large',
+        /**
+         * @optional String
+         * @default: en
+         * which locale settings to use to translate the three
+         * standard button labels: OK, CONFIRM, CANCEL
+         */
+        locale: "ru",
+
+        /**
+         * @optional Boolean
+         * @default: true
+         * whether the dialog should be shown immediately
+         */
+        show: true,
+
+        /**
+         * @optional Boolean
+         * @default: true
+         * whether the dialog should be have a backdrop or not
+         */
+        backdrop: true,
+
+        /**
+         * @optional Boolean
+         * @default: true
+         * show a close button
+         */
+        closeButton: false,
+
+        /**
+         * @optional Boolean
+         * @default: true
+         * animate the dialog in and out (not supported in < IE 10)
+         */
+        animate: true,
+
+        /**
+         * @optional String
+         * @default: null
+         * an additional class to apply to the dialog wrapper
+         */
+        className: "my-modal"
+    });
+
+    if (content) {
+        close_alert_box();
+
+        if(! buttons) {
+            buttons =  {
+                success: {
+                    label: "Success!",
+                    className: "btn-success",
+                    callback: function() {
+                        alert("great success");
+                    }
+                },
+                danger: {
+                    label: "Danger!",
+                    className: "btn-danger",
+                    callback: function() {
+                        alert("uh oh, look out!");
+                    }
+                },
+                main: {
+                    label: "Click ME!",
+                    className: "btn-primary",
+                    callback: function() {
+                        alert("Primary button");
+                    }
+                }
+            };
+        }
+        bootbox.dialog({
+            message: content,
+            title: title,
+            buttons: buttons
+        });
+    }
+}
 
 function remove_by_id(_this, element_id) {
     $('#' + element_id).remove();

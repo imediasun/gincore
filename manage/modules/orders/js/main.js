@@ -714,3 +714,49 @@ function resizeInput() {
     $(this).attr('size', $(this).val().length);
 }
 
+function manager_setup(_this){
+    $.ajax({
+        url: prefix + module + '/ajax/?act=manager-setup',
+        type: 'GET',
+        success: function(msg) {
+            if (msg.state == false && msg.message) {
+                alert(msg.message);
+            }
+            if(msg.state == true && msg.html.length > 0) {
+
+                buttons =  {
+                    success: {
+                        label: "Применить",
+                        className: "btn-success",
+                        callback: function() {
+                            $.ajax({
+                                url: prefix + module + '/ajax/?act=manager-setup',
+                                type: 'POST',
+                                data: $('form#manager-setup').serialize(),
+                                success: function(msg) {
+                                    //location.reload();
+                                },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    alert(xhr.responseText);
+                                }
+                            });
+                            $(_this).button('reset');
+                        }
+                    },
+                    main: {
+                        label: "Отменить",
+                        className: "btn-primary",
+                        callback: function() {
+                            $(_this).button('reset');
+                        }
+                    }
+                };
+                dialog_box(_this, msg.title || '', msg.html, buttons);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+    return false;
+}
