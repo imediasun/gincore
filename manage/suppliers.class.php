@@ -1014,7 +1014,7 @@ class Suppliers
                                      'form_id' => 'new_device_form'), $has_orders) 
                     .($is_modal ? $new_device_form : '') . '</div>';
             }
-            $goods_html .= '<div class="form-group"><label>' . l('Тип поставки') . '<b class="text-danger">*</b>: </label>'
+            $goods_html .= '<div class="form-group"><label for="warehouse_type">' . l('Тип поставки') . '<b class="text-danger">*</b>: </label>'
                 . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' />' . l('Локально') . '</label></div>'
                 . '<div class="radio"><label><input type="radio" name="warehouse_type" data-required="true" value="2" ' . ($order['warehouse_type'] == 2 ? 'checked' : '') . ' />' . l('Заграница') . '</label></div></div>';
 
