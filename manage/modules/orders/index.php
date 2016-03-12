@@ -6,11 +6,12 @@ require_once __DIR__.'/../../View.php';
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
+require_once __DIR__ . '/../../View.php';
 
 class orders
 {
     /** @var View */
-    protected $view;
+    protected $view = null;
     private $mod_submenu;
     protected $all_configs;
     public $count_on_page;
@@ -333,26 +334,17 @@ class orders
      * @return string
      */
     function show_filter_manager($compact = false){
-        $out = '<div class="'.($compact ? 'input-group' : 'form-group').'">';
-        if(!$compact){
-            $out .= '<label>' . l('manager') . ':</label> ';
-        }else{
-            $out .= '<p class="form-control-static">' . l('manager') . ':</p><span class="input-group-btn">';
-        }
-        $out .= '<select'.($compact ? ' data-numberDisplayed="0"' : '').' class="multiselect form-control'.($compact ? ' btn-sm ' : '').'" name="managers[]" multiple="multiple">';
-        // менеджеры
         $managers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
             WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
             array('edit-clients-orders', 'site-administration'))->assoc();
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
                   (isset($_GET['managers']) ? $_GET['managers'] : array());
-        foreach ($managers as $manager) {
-            $out .= '<option ' . ($mg_get && in_array($manager['id'], $mg_get) ? 'selected' : '');
-            $out .= ' value="' . $manager['id'] . '">' . htmlspecialchars($manager['name']) . '</option>';
-        }
-        $out .= '</select>'.($compact ? '</span>' : '').'</div>';
-        return $out;
+        return $this->view->renderFile('orders/show_filter_manager', array(
+           'compact' => $compact,
+            'mg_get' => $mg_get,
+            'managers' => $managers
+        ));
     }
 
     /**
@@ -596,56 +588,13 @@ class orders
      * @return string
      */
     function clients_orders_navigation($full_link = false){
-        if($full_link){
-            $link = $this->all_configs['prefix'].'orders';
-        }else{
-            $link = '';
-        }
-        $orders_html = '';
-        $orders_html .= '<ul class="list-unstyled inline clearfix m-b-md">';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="'.$link.'#show_orders-orders" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_orders"><i class="fa fa-wrench"></i> ' . l('РЕМОНТЫ') . '</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="'.$link.'#show_orders-sold" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_sold"><i class="fa fa-money"></i> ' . l('ПРОДАЖИ') . '</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="'.$link.'#show_orders-writeoff" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_writeoff"><i class="fa fa-times"></i> ' . l('СПИСАНИЯ') . '</a></li>';
-        $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i>' . l('Фильтровать') . '<i class="fa fa-caret-down"></i></button></li>';
-        $orders_html .= '<li style="max-width:280px">
-                    <form method="POST" class="form-inline" onsubmit="return false;">
-                    <div class="input-group">
-                            <span class="input-group-btn">
-                                <a href="'.$this->all_configs['prefix'].'orders" class="btn btn-default drop-quick-orders-serach" type="button">
-                                    <i class="glyphicon glyphicon-remove-circle"></i>
-                                </a>
-                              </span>
-                            <input type="text" value="'.(isset($_GET['qsq'])?htmlspecialchars($_GET['qsq']):'').'" name="search" class="form-control" id="orders_quick_search_query">
-                            <div class="input-group-btn">
-                                  <button type="submit"  onclick="orders_quick_search(this, \'simple\')" class="btn btn-primary" aria-haspopup="true" aria-expanded="false">
-                                    '.l('Искать').'
-                                  </button>
-                                <div class="btn-group orders_quick_search_dropdown dropdown">
-                                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle</span>
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                    <li><a href="#" onclick="orders_quick_search(this, \'co_id\')">'.l('По номеру заказа').'</a></li>
-                                    <li><a href="#" onclick="orders_quick_search(this, \'cl\')">'.l('По клиенту').'</a></li>
-                                    <li><a href="#" onclick="orders_quick_search(this, \'device\')">'.l('По устройству').'</a></li>
-                                    <li><a href="#" onclick="orders_quick_search(this, \'serial\')">'.l('По сер. номеру').'</a></li>
-                                    <li><a href="#" onclick="orders_quick_search(this, \'manager\')">'.l('По менеджеру').'</a></li>
-                                    <li><a href="#" onclick="orders_quick_search(this, \'accepter\')">'.l('По приемщику').'</a></li>
-                                    <li><a href="#" onclick="orders_quick_search(this, \'engineer\')">'.l('По инженеру').'</a></li>
-                                  </ul>
-                                </div>
-                            </div>
-
-                        </div>
-                        </form>
-                        </li>';
-        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<li class="pull-right"><a href="' . $this->all_configs['prefix'] . 'orders/#create_order" class="btn btn-success hash_link">' . l('Создать заказ') . '</a></li>';
-        }
-        $orders_html .= '</ul>
-            <div class="hidden" id="filters">'.$this->clients_orders_menu($full_link).'</div>';
-        return $orders_html;
+        $link = ($full_link) ? $this->all_configs['prefix'] . 'orders' : '';
+        return $this->view->renderFile('orders/clients_orders_navigation', array(
+            'link' => $link,
+            'clientsOrdersMenu' => $this->clients_orders_menu($full_link),
+            'prefix' => $this->all_configs['prefix'],
+            'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('create-clients-orders')
+        ));
     }
 
     /**
@@ -655,27 +604,15 @@ class orders
     function orders_show_orders($hash = '#show_orders-orders')
     {
         if (trim($hash) == '#show_orders' || (trim($hash) != '#show_orders-orders' && trim($hash) != '#show_orders-sold'
-            && trim($hash) != '#show_orders-return' && trim($hash) != '#show_orders-writeoff'))
+                && trim($hash) != '#show_orders-return' && trim($hash) != '#show_orders-writeoff')
+        ) {
             $hash = '#show_orders-orders';
-
-        $orders_html = '';
-        if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<div class="span12">';
-
-            $orders_html .= $this->clients_orders_navigation();
-
-            $orders_html .= '<div class="pill-content">';
-            $orders_html .= '<div id="show_orders-orders" class="pill-pane active">';
-            $orders_html .= '</div>';
-
-            $orders_html .= '<div id="show_orders-sold" class="pill-pane">';
-            $orders_html .= '</div>';
-
-            $orders_html .= '<div id="show_orders-writeoff" class="pill-pane">';
-            $orders_html .= '</div>';
-
-            $orders_html .= '</div>';
         }
+
+        $orders_html = $this->view->renderFile('orders/orders_show_orders', array(
+           'clientsOrdersNavigation' =>  $this->clients_orders_navigation(),
+            'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
+        ));
 
         return array(
             'html' => $orders_html,
@@ -918,243 +855,28 @@ class orders
     {
         $orders_html = '';
         if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            //вывод списска клиентов для создания нового заказа
 
             // на основе заявки
             $order_data = null;
-            if(!empty($_GET['on_request'])){
+            if (!empty($_GET['on_request'])) {
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
 
-            //$orders_html .= '<p class="text-error">Обязательно сообщить клиенту!<br />"Диагностика у нас бесплатная в случае последующего ремонта и в случае когда мы не можем сремонтировать устройство.<br />В случае отказа от ремонта со стороны клиента - диагностика составит 100 '.viewCurrency().'"</p>';
-            //$orders_html .= '<div class="control-group"><label class="control-label">Номер заказа: </label>';
-//            $orders_html .= '<div class="controls"><input type="text" class="input-xlarge" value="" name="id" /></div></div>';
 
             $client_id = $order_data ? $order_data['client_id'] : 0;
-            if(!$client_id){
+            if (!$client_id) {
                 $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
             }
-            $client_fields = client_double_typeahead($client_id, 'get_requests');
-            $colors_select = '<option value="-1">' . l('Не выбран') . '</option>';
-            foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
-                $colors_select .= '<option value="'.$i.'">'.$c.'</option>';
-            }
-            $orders_html = '
-                <ul class="nav nav-tabs default_tabs" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#repair" role="tab" data-toggle="tab">' . l('Заказ на ремонт') . '</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#sale" role="tab" data-toggle="tab">' . l('Заказ на продажу') . '</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="repair">
-                        <form method="post" id="order-form">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <span class="specify_order_id">'.l('Указать номер заказа').'</span>
-                                        <div class="order_id_input">
-                                            <input style="max-width:200px" placeholder="'.l('введите номер заказа').'" type="text" class="form-control" name="id">
-                                        </div>
-                                        <fieldset>
-                                            <legend>' . l('Клиент') . '</legend>
-                                            <div class="form-group">
-                                                <label>' . l('Укажите данные клиента') .  ' <b class="text-danger">*</b>: </label>
-                                                <div class="row row-15">
-                                                    <div class="col-sm-6">
-                                                        '.$client_fields['phone'].'
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        '.$client_fields['fio'].'
-                                                    </div>
-                                                </div>
-                                                <!--<div class="input-group">
-                                                    <input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
-                                                    '.typeahead($this->all_configs['db'], 'clients', false, ($order_data ? $order_data['client_id'] : 0), 2, 'input-xlarge', 'input-medium', 'get_requests,check_fio')
-                                                    .'<span class="input-group-btn">
-                                                        <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="'.l('Добавить').'">
-                                                    </span>
-                                                </div>-->
-                                            </div>
-                                            <span class="toggle_btn" data-id="user_more_data">'.l('Указать дополнительные данные клиента').'</span>
-                                            <div class="row row-15 toggle_box'.(!empty($_COOKIE['user_more_data'])?' in':'').'" id="user_more_data">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>'.l('Укажите email').':</label>
-                                                        <input placeholder="'.l('email').'" type="text" name="email" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>'.l('Укажите адрес').':</label>
-                                                        <input placeholder="'.l('адрес').'" type="text" name="address" class="form-control">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            '.get_service('crm/calls')->assets().'
-                                            <div class="form-group">
-                                                <label style="padding-top:0">' . l('Код на скидку') . ': </label>
-                                                <input'.($order_data ? ' value="'.$order_data['code'].'" disabled' : '').' type="text" name="code" class="form-control call_code_mask" id="crm_order_code">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>' . l('Рекламный канал') .  ' (' . l('источник') . '): </label>
-                                                <div id="crm_order_referer">
-                                                    '.get_service('crm/calls')->get_referers_list($order_data ? $order_data['referer_id'] : 'null', '', !!$order_data).'
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                        <fieldset>
-                                            <legend>'  . l('Устройство') . '</legend>
-                                            <div class="form-group">
-                                                <label class="control-label">' . l('Выберите устройство') . ' <b class="text-danger">*</b>: </label>
-                                                '.typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ? $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
-                                                            'display_service_information,get_requests', false, false, '', false, l('Введите'),
-                                                            array('name' => l('Добавить новое'),
-                                                                  'action' => 'categories/ajax/?act=create_form',
-                                                                  'form_id' => 'new_device_form'))
-                                                .'
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">' . l('Цвет') . ' <!-- <b class="text-danger">*</b> -->: </label>
-                                                <select class="form-control" name="color">'. $colors_select.'</select>
-                                            </div>
-                                            <!--<div class="form-group">
-                                                <label class="control-label">' . l('Серийный номер запчасти') .': </label>
-                                                '.typeahead($this->all_configs['db'], 'serials', false, '', 3, 'input-medium clone_clear_val', '', 'display_serial_product', false, true)
-                                                .'<small class="clone_clear_html product-title"></small>
-                                            </div>-->
-                                            <div class="form-group">
-                                                <label>' . l('Серийный номер') . ': </label>
-                                                <input type="text" class="form-control" value="" name="serial" />
-                                            </div>
-                                            <input type="hidden" value="" id="serial-id" name="serial-id" />
-                                            <div class="form-group">
-                                                <label>' . l('Комплектация') . ':</label><br>
-                                                <label class="checkbox-inline"><input type="checkbox" value="1" name="battery" /> ' . l('Аккумулятор') . '</label>
-                                                <label class="checkbox-inline"><input type="checkbox" value="1" name="charger" /> ' . l('Зарядное устройство') . '/' . l('кабель') . ' </label>
-                                                <label class="checkbox-inline"><input type="checkbox" value="1" name="cover" />' . l('Задняя крышка') . '</label>
-                                                <label class="checkbox-inline"><input type="checkbox" value="1" name="box" />' . l('Коробка') . '</label>
-                                                <input type="text" class="m-t-xs form-control" name="equipment" placeholder="'.l('укажите свой вариант').'">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>' . l('Вид ремонта') . ': </label><br>
-                                                <label class="radio-inline"><input type="radio" checked value="0" name="repair" />' . l('Платный') . '</label>
-                                                <label class="radio-inline"><input type="radio" value="1" name="repair" />' . l('Гарантийный') . '</label>
-                                                <label class="radio-inline"><input type="radio" value="2" name="repair" />' . l('Доработка') . '</label>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>' . l('Неисправность со слов клиента') . ': </label>
-                                                <div class="row row-15 form-group">
-                                                    <div class="col-sm-6">
-                                                        <label>' . l('Замена') . ':</label> 
-                                                        <input class="form-control" name="repair_part" placeholder="' . l('укажите деталь') . '">
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <label>' . l('Качество детали') . ':</label> 
-                                                        <select class="form-control" name="repair_part_quality">
-                                                            <option value="' . l('Не согласовано') .'">' . l('Не согласовано') . '</option>
-                                                            <option value="' . l('Оригинал') .'">' . l('Оригинал') . '</option>
-                                                            <option value="' . l('Копия') .'">' . l('Копия') . '</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <textarea class="form-control" name="defect"></textarea>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">' . l('Внешний вид') . ': </label>
-                                                <textarea class="form-control" name="comment">' . l('Потертости, царапины') .'</textarea>
-                                            </div>
-                                        </fieldset>
-                                        <fieldset>
-                                            <legend>' . l('Стоимость') . '</legend>
-                                            <div class="form-group">
-                                                <label>' . l('Ориентировочная стоимость') . ': </label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" value="" name="approximate_cost" />
-                                                    <span class="input-group-addon">'. viewCurrency() .'</span>
-                                                </div>
-                                            </div>
-                                            <!--<div class="form-group">
-                                                <label>' . l('Партнерская программа') .': </label>
-                                                <select class="form-control" name="partner"><option value="0">' . l('Выберите') . '</option>
-                                                </select>
-                                            </div>-->
-                                            <div class="form-group">
-                                                <label>' . l('Предоплата') . ': </label>
-                                                <div class="input-group">
-                                                    <input type="text" placeholder="' . l('Введите сумму') . '" class="form-control" value="" name="sum_paid" />  
-                                                    <span class="input-group-addon">'. viewCurrency().'</span>
-                                                    <input type="text" placeholder="' . l('Комментарий к предоплате') . '" class="form-control" value="" name="prepay_comment" /> 
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>' . l('Ориентировочная дата готовности') . ': </label>
-                                                <div class="input-group">
-                                                    <input class="daterangepicker_single form-control" data-format="YYYY-MM-DD" type="text" name="date_readiness" value="" />
-                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>' . l('Доп. информация') . '</label> <br>
-                                                <div class="form-group-row">
-                                                    <div class="col-sm-6">
-                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="client_took" />' . l('Устройство у клиента') . '</label></div>
-                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="urgent" />' . l('Срочный ремонт') . '</label></div>
-                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="np_accept" />' . l('Принято через почту') . '</label></div>
-                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="nonconsent" />' . l('Можно пускать в работу без согласования') . '</label></div>
-                                                        <div class="checkbox"><label><input type="checkbox" value="1" name="is_waiting" />' . l('Клиент готов ждать 2-3 недели запчасть') . '</label></div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="checkbox"><label>
-                                                            <input onclick="if ($(this).prop(\'checked\')){$(\'.courier_address\').show();}else{$(\'.courier_address\').hide();}" type="checkbox" value="1" name="is_courier" />
-                                                            ' . l('Курьер забрал устройство у клиента') . '
-                                                            <input type="text" style="display:none;" placeholder="' . l('по адресу') .'" class="form-control courier_address" value="" name="courier" />
-                                                        </label></div>
-                                                        <div class="checkbox"><label>
-                                                            <input onclick="if ($(this).prop(\'checked\')){$(\'.replacement_fund\').show();}else{$(\'.replacement_fund\').hide();}" type="checkbox" value="1" name="is_replacement_fund" />
-                                                            ' . l('Выдан подменный фонд') . '
-                                                            <input type="text" style="display:none;" placeholder="' . l('Модель, серийный номер') .'" class="form-control replacement_fund" value="" name="replacement_fund" />
-                                                        </label></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                    <div class="col-sm-6 relative">
-                                        <div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
-                                        <fieldset>
-                                            <legend>' . l('Заявки') . '</legend>
-                                                <div id="client_requests">
-                                                    '.($order_data ?
-                                                        get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'], $order_data['product_id'], $_GET['on_request'])
-                                                            : '<span class="muted">' . l('выберите клиента или устройство чтобы увидеть заявки') . '</span>').'
-                                                </div>
-                                            </div><br>
-                                        </fieldset>
-                                    </div>
-                                </div>
-                                <div class="btn-group dropup">
-                                  <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button" onclick="add_new_order(this,\'\',\'create_order\')" value="'.l('Добавить').'" />
-                                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                    <li><a href="#" onclick="add_new_order(this, \'print\'); return false;">' . l('Добавить и распечатать квитанцию') . '</a></li>
-                                    <li><a href="#" onclick="add_new_order(this, \'new_order\'); return false;">' . l('Добавить и принять еще одно устройство от этого клиента') . '</a></li>
-                                    <li><a href="#" onclick="add_new_order(this, \'print_and_new_order\'); return false;">' . l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') . '</a></li>
-                                  </ul>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="tab-pane" id="sale">
-                            '.$this->order_for_sale_form().'
-                        </div>
-                    </div>
-                </div>
-            ';
+            //вывод списска клиентов для создания нового заказа
+            $orders_html = $this->view->renderFile('orders/orders_create_order', array(
+                'client' => client_double_typeahead($client_id, 'get_requests'),
+                'colorsSelect' => $this->view->renderFile('orders/_colors-select', array(
+                    'colors' => $this->all_configs['configs']['devices-colors']
+                )),
+                'order' => $order_data,
+                'orderForSaleForm' => $this->order_for_sale_form()
+            ));
+
         }
 
         return array(
@@ -1167,76 +889,15 @@ class orders
      * @return string
      * @throws Exception
      */
-    function order_for_sale_form(){
-        global $all_configs;
+    function order_for_sale_form()
+    {
+        $order_data = null;
         $client_fields_for_sale = client_double_typeahead();
-        $form = '
-            <form method="post" id="sale-form" parsley-validate>
-                <input type="hidden" name="type" value="3">
-                '.$client_fields_for_sale['id'].'
-                <fieldset>
-                    <legend>' . l('Клиент') . '</legend>
-                    <div class="form-group">
-                        <label>' . l('Укажите данные клиента') . ' <b class="text-danger">*</b>: </label>
-                        <div class="row row-15">
-                            <div class="col-sm-6">
-                                '.$client_fields_for_sale['phone'].'
-                            </div>
-                            <div class="col-sm-6">
-                                '.$client_fields_for_sale['fio'].'
-                            </div>
-                        </div>
-                        <!--<input name="client_fio_hidden" type="hidden" id="client_fio_hidden" value="">
-                        '.typeahead($this->all_configs['db'], 'clients', false, 0, 3, 'input-xlarge', 'input-medium', 'check_fio')
-                        .'<span class="input-group-btn">
-                            <input class="btn btn-info" type="button" onclick="alert_box(this, false, \'create-client\')" value="'.l('Добавить').'">
-                        </span>
-                        -->
-                    </div>
-                    <div class="form-group">
-                        <label style="padding-top:0">' . l('Код на скидку') . ': </label>
-                        <input type="text" name="code" class="form-control call_code_mask">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Рекламный канал') . ' (' . l('источник') . '): </label>
-                        '.get_service('crm/calls')->get_referers_list().'
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>' . l('Товар') . '</legend>
-                    <div class="form-group">
-                        <label class="control-label">' . l('Код товара') . ' (' . l('серийный номер') . ') <b class="text-danger">*</b>: </label>
-                        '.typeahead($this->all_configs['db'], 'serials', false, '', 4, 'input-medium clone_clear_val', '', 'display_serial_product_title_and_price', false, true)
-                        .'<small class="clone_clear_html product-title"></small>
-                        <input type="hidden" name="items" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Цена продажи') . ' <b class="text-danger">*</b>: </label>
-                        <div class="input-group">
-                            <input type="text" required id="sale_poduct_cost" class="form-control" value="" name="price" />
-                            <span class="input-group-addon">'. viewCurrency() .'</span>
-                        </div>
-                    </div>';
-
-            $form .= '<div class="form-group">'
-                      .'<label>' . l('Гарантия') . ': </label> '
-                      .'<div class="input-group"> '
-                      .'<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
-            $order_warranties = isset($all_configs['settings']['order_warranties']) ? explode(',', $all_configs['settings']['order_warranties']) : array();
-            foreach ($order_warranties as $warranty) {
-                $form .= '<option value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
-            }
-            $form .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
-
-             $form .= '<div class="form-group">
-                        <label>' . l('Скрытый комментарий к заказу') . ': </label>
-                        <textarea name="private_comment" class="form-control" rows="3"></textarea>
-                    </div>
-                </fieldset>
-                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="'.l('Добавить').'" />
-            </form>
-        ';
-        return $form;
+        return $this->view->renderFile('orders/order_for_sale_form', array(
+            'client' => $client_fields_for_sale,
+            'orderWarranties' => isset($all_configs['settings']['order_warranties']) ? explode(',',
+                $all_configs['settings']['order_warranties']) : array()
+        ));
     }
 
     /**
@@ -1250,41 +911,13 @@ class orders
                 && trim($hash) != '#show_suppliers_orders-return'))
             $hash = '#show_suppliers_orders-all';
 
-        $orders_html = '<div>';
+        $orders_html = $this->view->renderFile('orders/orders_show_suppliers_orders', array(
 
-        $orders_html .= '<ul class="list-unstyled inline clearfix">';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-info" href="#show_suppliers_orders-all" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_all"><i class="fa fa-bolt"></i> ' . l('Все заказы') . '<span class="tab_count hide tc_suppliers_orders_all"></span></a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-danger" href="#show_suppliers_orders-wait" title="" onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_wait"><i class="fa fa-clock-o"></i> ' . l('Ожидают проверки') . '</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-warning" href="#show_suppliers_orders-return" title="" onclick="click_tab(this, event)" data-open_tab="show_orders_return"><i class="fa fa-exchange"></i> ' . l('Возвраты поставщикам') . '</a></li>';
-        $orders_html .= '<li class=""><a class="click_tab btn btn-primary" href="#show_suppliers_orders-procurement" title="" onclick="click_tab(this, event)" data-open_tab="orders_recommendations_procurement"> ' . l('Рекомендации по закупкам') . '</a></li>';
-        $orders_html .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li>';
-        $orders_html .= '</ul>
-            <div class="hidden" id="filters"><div id="show_suppliers_orders-menu"></div></div>
-        <div class="pill-content">';
-
-        $orders_html .= '<div id="show_suppliers_orders-all" class="pill-pane">';
-        $orders_html .= '</div>';
-
-        $orders_html .= '<div id="show_suppliers_orders-wait" class="pill-pane">';
-        $orders_html .= '</div>';
-
-        $orders_html .= '<div id="show_suppliers_orders-return" class="pill-pane">';
-        $orders_html .= '</div>';
-
-        $orders_html .= '<div id="show_suppliers_orders-procurement" class="pill-pane">';
-        $orders_html .= '</div>';
-
-        $orders_html .= '</div>';
-        $orders_html .= '</div>';
+        ));
 
         return array(
             'html' => $orders_html,
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')', 'reset_multiselect()'),
-        );
-
-        return array(
-            'html' => $orders_html,
-            'functions' => array('reset_multiselect()'),
         );
     }
 
@@ -1304,12 +937,6 @@ class orders
             $count_on_page = $this->count_on_page;//$queries['count_on_page'];
 
             $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
-            /*if (1==1) {
-                include_once $this->all_configs['sitepath'] . 'shop/exports.class.php';
-                $exports = new Exports();
-                $exports->build($orders);
-                exit;
-            }*/
             $orders_html .= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders);
 
             $count = $this->all_configs['manageModel']->get_count_suppliers_orders($query);
@@ -2879,6 +2506,7 @@ class orders
                 $this->manager_setup();
             }
         }
+
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {

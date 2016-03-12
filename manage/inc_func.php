@@ -1254,17 +1254,23 @@ function dirToArray($dir, $one = true)
 
 /**
  * генерирование/разгенерирование серийника заказа поставщика
- * */
+ *
+ * @param        $order
+ * @param bool   $generate
+ * @param bool   $link
+ * @param string $class
+ * @return int|mixed|string
+ */
 function suppliers_order_generate_serial($order, $generate = true, $link = false, $class = '')
 {
     global $all_configs;
 
-    if ($generate == true) {
-        $serial = trim($order['serial']);
-
+    $serial = trim($order['serial']);
+    if ($generate) {
         if (mb_strlen($serial, 'UTF-8') == 0) {
             if ($order['item_id'] > 0) {
-                $serial = $all_configs['configs']['erp-serial-prefix'] . str_pad('', (7 - strlen($order['item_id'])), 0) . $order['item_id'];
+                $serial = $all_configs['configs']['erp-serial-prefix'] . str_pad('', (7 - strlen($order['item_id'])),
+                        0) . $order['item_id'];
             } elseif (array_key_exists('last_item_id', $order) && $order['last_item_id'] > 0) {
                 $order = $all_configs['db']->query(
                     'SELECT i.id as item_id, i.serial FROM {warehouses_goods_items} as i WHERE i.id=?i',
@@ -1275,9 +1281,9 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
         }
         $serial = htmlspecialchars(urldecode($serial));
     } else {
-        $serial = trim($order['serial']);
-        //if ($configs['erp-serial-prefix'] == substr($serial, 0, strlen($configs['erp-serial-prefix']))) {
-        if (preg_match('/^(' . $all_configs['configs']['erp-serial-prefix'] . ')([0-9]{' . $all_configs['configs']['erp-serial-count-num'] . '})$/', $serial) == 1) {
+        if (preg_match('/^(' . $all_configs['configs']['erp-serial-prefix'] . ')([0-9]{' . $all_configs['configs']['erp-serial-count-num'] . '})$/',
+                $serial) == 1
+        ) {
             $serial = preg_replace("|[^0-9]|i", "", $serial);
             $serial = intval($serial);
         } else {
@@ -1285,10 +1291,11 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
         }
     }
 
-    if ($link == true && $generate == true)
+    if ($link && $generate) {
         return '<a class="' . $class . '" href="' . $all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
-    else
+    } else {
         return $serial;
+    }
 }
 
 function timerout($order_id, $show_timer = false)

@@ -569,3 +569,6 @@ input.visible-price {
     max-width: 100px;
     min-width: 50px;
 }
+.no-padding-right {
+    padding-right: 0;
+}
