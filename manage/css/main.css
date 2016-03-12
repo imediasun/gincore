@@ -878,3 +878,6 @@ input.row-input {
     width: 100%;
     z-index: 1;
 }
+table.borderless > tbody > tr > td{
+    border-style: none;
+}
