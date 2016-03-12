@@ -703,17 +703,25 @@ function change_visible_prices(_this, id) {
     return false;
 }
 
-function change_input_width(_this, length) {
+var max_width = 0;
+function change_input_width(_this, length, not_show_button) {
     var $parent = $(_this).parent();
 
-    addonWidth = $parent.find('.input-group-addon').first().width() + 24;
-    console.log(addonWidth);
-    $parent.css('width', (Math.min((length + 2) * 8 + 25, 80) + addonWidth + 40) + 'px');
-    $parent.children('.input-group-btn').show();
+    var width  = Math.min((length + 2) * 8 + 25, 100);
+    if (typeof(not_show_button)==='undefined') {
+        width += 40;
+    }
+    max_width = Math.max(width, max_width);
+    $parent.css('width', width + 'px');
+    if (typeof(not_show_button)==='undefined') {
+        $parent.children('.input-group-btn').show();
+    }
 }
 
 function resizeInput() {
-    $(this).attr('size', $(this).val().length);
+    var length = $(this).val().length;
+    $(this).attr('size', length);
+    change_input_width(this, length, true);
 }
 
 function manager_setup(_this){
