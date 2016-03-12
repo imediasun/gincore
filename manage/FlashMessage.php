@@ -44,7 +44,7 @@ class FlashMessage
     public static function show()
     {
         $out = '';
-        if (is_array($_SESSION['flash'])) {
+        if (isset($_SESSION['flash']) && is_array($_SESSION['flash'])) {
             foreach ($_SESSION['flash'] as $type => $message) {
                 if (!empty($message)) {
                     $out .= "<div class='alert alert-{$type}'><a class='close' title='close' aria-label='close' data-dismiss='alert' href='#'>×</a><strong>" . l(ucfirst($type)) . "</strong>{$message}</div>";

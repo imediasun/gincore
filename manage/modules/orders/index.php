@@ -3657,7 +3657,7 @@ class orders
             'shows' => $this->all_configs['configs']['show-status-in-manager-config'],
             'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
         ));
-        $data['title'] = l('Укажите стандарты обслуживания для вашей компании');
+        $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . '</center>';
 
         Response::json($data);
     }

@@ -28,7 +28,7 @@ $i = 1;
     <form method="POST" id="manager-setup">
         <fieldset>
             <?php foreach ($orderStatus as $id => $status): ?>
-                <?php if (in_array($id, $shows)): ?>
+                <?php if (in_array($id, $shows) && $id != 10): ?>
                     <div class="row-fluid">
                         <div class="col-sm-3">
                             <div class="form-group">
@@ -50,25 +50,25 @@ $i = 1;
                 <?php endif; ?>
             <?php endforeach; ?>
             <hr/>
-            <!--div class="row-fluid">
+            <div class="row-fluid">
                 <div class="col-sm-3">
                     <div class="form-group">
                         <input class="form-control" type="text" readonly value="<?= l('Ожидает запчастей') ?>"
-                               style="background-color: #90C8EE; color:white; font-size: 0.7em; text-align: center"/>
+                               style="background-color: #90C8EE; color:white; font-size: 0.9em; text-align: center"/>
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input class="form-control" type="text" name="status_10" value=""
+                        <input class="form-control" type="text" name="status[10]" value="<?= empty($current[10]) ? 0 : $current[10] ?>"
                                placeholder=""/>
                     </div>
                 </div>
                 <div class="col-sm-7">
-                    <?php /* l('Укажите максимальное количество дней, которое заказ может находиться в данном статусе без изменений')
-            . l(', если не указана дата поставки запчасти (заказ на ремонт не привязан к заказу поставщика)'); */ ?>
+                    <?= l('Укажите максимальное количество дней, которое заказ может находиться в данном статусе без изменений')
+            . l(', если не указана дата поставки запчасти (заказ на ремонт не привязан к заказу поставщика)');  ?>
                 </div>
             </div>
-            <hr/-->
+            <hr/>
             <div class="row-fluid">
                 <div class="col-sm-3">
                     <?= l('Макс. количество') ?>
