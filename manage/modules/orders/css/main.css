@@ -567,4 +567,5 @@ td.td-sc-count {
 input.visible-price {
     border-radius: 0;
     max-width: 80px;
+    min-width: 50px;
 }
