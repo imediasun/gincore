@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__.'/../../Response.php';
+require_once __DIR__.'/../../View.php';
+
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
@@ -23,7 +26,7 @@ class orders
         $this->mod_submenu = self::get_submenu();
 
         $this->all_configs = $all_configs;
-        $this->view = new View($all_configs);
+        $this->view = new View($this->all_configs);
 
         if($gen_module){
             $this->count_on_page = count_on_page();
@@ -1433,8 +1436,39 @@ class orders
      * @param $order
      * @return bool
      */
-    function check_if_order_fail_in_orders_manager($order){
+    function check_if_order_fail_in_orders_manager($order)
+    {
         $day = 60 * 60 * 24;
+        $managerConfigs = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+
+        if (empty($managerConfigs)) {
+            return $this->check_with_default_config($order, $day);
+        } else {
+            $config = json_decode($managerConfigs[0]['value'], true);
+            foreach ($config as $id => $value) {
+                //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
+                if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
+                    return true;
+                }
+                // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+                if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
+                    return true;
+                }
+                if ($order['status'] == $id && strtotime($order['date']) + $day * $value < time()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param $order
+     * @param $day
+     * @return bool
+     */
+    protected function check_with_default_config($order, $day)
+    {
         //1 Запчасть заказана, оприходована, но не отгружена под ремонт больше 2-х дней
         //2 Заказ клиента подвязан к заказу поставщику, а указанная в заказе поставщику дата поставки просрочена.
         //3 По нормативу с момента создания заказа на закупку (пустышки) и создания заказа поставщику не должно пройти больше 3х дней.
@@ -1444,7 +1478,7 @@ class orders
             return true;
         }
         // Принят в ремонт > 24 часов назад и никто из манагеров не взял
-        if (!$order['manager'] && strtotime($order['date_add']) <= time()-86400) {
+        if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
             return true;
         }
         // Принят в ремонт > 3 дней
@@ -1596,76 +1630,75 @@ class orders
             $get_date = isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '';
             $date = isset($_GET['date']) && trim($_GET['date']) ? explode('-', $_GET['date']) : array();
             $filter_stats = '';
-            if($date){
+            if ($date) {
                 $date_from = date('Y-m-d', strtotime($date[0]));
                 $date_between = date('Y-m-d', strtotime($date[1]));
                 $date_diff = date_diff(date_create($date_from), date_create($date_between));
-                $date_query = $this->all_configs['db']->makeQuery(" date BETWEEN ? AND ? ", array($date_from, $date_between));
-//                echo db()->makeQuery("SELECT id, status, date, count(id) as qty_by_status "
-//                                    ."FROM {orders_manager_history} "
-//                                    ."WHERE ?q ?q GROUP BY date, status", 
-//                                            array(str_replace(array('w.','o.'),'',$query), $date_query), 'assoc');
-                $squery = str_replace(array('w.','o.'),'',$query);
-                $squery = str_replace('date_add','o.date_add',$squery);
-                $squery = str_replace('manager','h.manager',$squery);
+                $date_query = $this->all_configs['db']->makeQuery(" date BETWEEN ? AND ? ",
+                    array($date_from, $date_between));
+                $squery = str_replace(array('w.', 'o.'), '', $query);
+                $squery = str_replace('date_add', 'o.date_add', $squery);
+                $squery = str_replace('manager', 'h.manager', $squery);
                 $stats = db()->query("SELECT h.id, h.status, h.date, count(h.id) as qty_by_status "
-                                    ."FROM {orders_manager_history} as h "
-                                    ."LEFT JOIN {orders} as o ON h.order = o.id "
-                                    ."WHERE ?q ?q GROUP BY h.date, h.status",
-                                            array($squery, $date_query), 'assoc');
+                    . "FROM {orders_manager_history} as h "
+                    . "LEFT JOIN {orders} as o ON h.order = o.id "
+                    . "WHERE ?q ?q GROUP BY h.date, h.status",
+                    array($squery, $date_query), 'assoc');
                 $colors_count = array();
-                if($stats){
+                if ($stats) {
                     $stats_by_dates = array();
-                    foreach($stats as $stat){
+                    foreach ($stats as $stat) {
                         $stats_by_dates[$stat['date']][$stat['status']] = $stat;
                     }
                     ksort($stats_by_dates);
                     $days_stats = '';
                     $all_stats = array();
                     $colors_stats_qty = array();
-                    foreach($stats_by_dates as $date => $statuses){
+                    foreach ($stats_by_dates as $date => $statuses) {
                         $all_qty = 0;
                         $colors_count = array();
-                        foreach($statuses as $status => $data){
-                            if(isset($this->all_configs['configs']['order-status'][$status])){
+                        foreach ($statuses as $status => $data) {
+                            if (isset($this->all_configs['configs']['order-status'][$status])) {
                                 $color = $this->all_configs['configs']['order-status'][$status]['color'];
-                            }elseif($status == -1){
+                            } elseif ($status == -1) {
                                 $color = 'FF0000';
-                            }else{
+                            } else {
                                 $color = 'bebebe';
                             }
                             $all_qty += $data['qty_by_status'];
                             $colors_count[$color] = $data['qty_by_status'];
-                            $colors_stats_qty[$color] = isset($colors_stats_qty[$color]) ? $colors_stats_qty[$color]+1 : 1;
+                            $colors_stats_qty[$color] = isset($colors_stats_qty[$color]) ? $colors_stats_qty[$color] + 1 : 1;
                         }
                         $st = $this->gen_orders_manager_stats($colors_count, $all_qty, true);
-                        foreach($st['data'] as $c => $p){
-                            if(!isset($all_stats[$c])){$all_stats[$c] = 0;}
+                        foreach ($st['data'] as $c => $p) {
+                            if (!isset($all_stats[$c])) {
+                                $all_stats[$c] = 0;
+                            }
                             $all_stats[$c] += $p;
                         }
-                        $days_stats .= '<strong style="display:inline-block;margin:5px 0">'.$date.'</strong> <br>
-                                        '.$st['html'].'<br>';
+                        $days_stats .= '<strong style="display:inline-block;margin:5px 0">' . $date . '</strong> <br>
+                                        ' . $st['html'] . '<br>';
                     }
                     $all_stats_results = array();
-                    foreach($all_stats as $c => $s){
+                    foreach ($all_stats as $c => $s) {
                         $all_stats_results[$c] = $s / (isset($colors_stats_qty[$c]) ? $colors_stats_qty[$c] : 1);
                     }
                     $all_stats_html = $this->gen_orders_manager_stats($all_stats_results, 100);
-                }else{
-                    $days_stats = $all_stats_html = '(' . l('нет статистики за выбранный период') .')';
+                } else {
+                    $days_stats = $all_stats_html = '(' . l('нет статистики за выбранный период') . ')';
                 }
                 $filter_stats = '
-                    ' . l('Средняя статистика за период') . ' '.$get_date.'. <br>
+                    ' . l('Средняя статистика за период') . ' ' . $get_date . '. <br>
                     ' . l('Cуммируются проценты по дням и делятся на количество дней у которых есть статистика, по каждому статусу отдельно.') . '<br>
                     <div style="margin-top:5px">
-                        '.$all_stats_html.'
+                        ' . $all_stats_html . '
                     </div>
                     <br>
                     ' . l('Статистика по дням') . ':<br>
-                    '.$days_stats.'
+                    ' . $days_stats . '
                 ';
                 $orders = null;
-            }else{
+            } else {
                 $orders = $this->get_orders_for_orders_manager($query);
                 if ($orders) {
                     $colors_count = array();
@@ -1676,19 +1709,20 @@ class orders
                             $style = 'style="background-color: #' . $color . ';"';
                         }
                         $class = $this->check_if_order_fail_in_orders_manager($order) ? 'red-blink' : '';
-                        if($color || $class){
-                            if($class == 'red-blink'){
+                        if ($color || $class) {
+                            if ($class == 'red-blink') {
                                 $color = 'FF0000';
                             }
-                            $colors_count[$color] = isset($colors_count[$color]) ? $colors_count[$color]+1 : 1;
+                            $colors_count[$color] = isset($colors_count[$color]) ? $colors_count[$color] + 1 : 1;
                         }
                         $manager_block .= '<div data-o_id="' . $order['id'] . '" onclick="alert_box(this, null, \'display-order\')" class="order-manager ' . $class . '" ' . $style . '>';
-                        $manager_block .= '<b>'. $order['id'] . '</b>';
-                        $manager_block .= '<br /><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></div>';
+                        $manager_block .= '<b>' . $order['id'] . '</b>';
+                        $manager_block .= '<br /><span title="' . do_nice_date($order['date_add'],
+                                false) . '">' . do_nice_date($order['date_add']) . '</span></div>';
                     }
 
-                    $filter_stats = $this->gen_orders_manager_stats($colors_count).' <br>';
-                }else{
+                    $filter_stats = $this->gen_orders_manager_stats($colors_count) . ' <br>';
+                } else {
                     $manager_block = '<p>' . l('Заказов нет') . '</p>';
                 }
             }
@@ -1697,20 +1731,21 @@ class orders
             $orders_html = '
                 <div>
                     <form class="form-inline well">
-                        '.$this->all_configs['suppliers_orders']->show_filter_service_center().'
-                        '.$this->show_filter_manager().'
-                        <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control " value="'.$get_date.'" />
+                        ' . $this->all_configs['suppliers_orders']->show_filter_service_center() . '
+                        ' . $this->show_filter_manager() . '
+                        <input type="text" placeholder="' . l('Дата') . '" name="date" class="daterangepicker form-control " value="' . $get_date . '" />
                         <input type="submit" class="btn btn-primary" value="' . l('Фильтровать') . '">
                         <button type="button" class="btn fullscreen"><i class="fa fa-arrows-alt"></i></button>
+                        <button type="button" class="btn btn-primary  pull-right " onclick="return manager_setup(this);">' . l('Настройки') . '</button>
                     </form>
                 </div>
             ';
 
             $orders_html .= '
-                '.$filter_stats.'
+                ' . $filter_stats . '
                 <br>
                 <div id="orders-manager-block">
-                    '.$manager_block.'
+                    ' . $manager_block . '
                 </div>
             ';
         }
@@ -2465,6 +2500,13 @@ class orders
             exit;
         }
 
+        if($act == 'manager-setup') {
+            if($_SERVER['REQUEST_METHOD'] == 'GET') {
+                $this->manager_setup_form();
+            } else {
+                $this->manager_setup();
+            }
+        }
 
         // грузим табу
         if ($act == 'tab-load') {
@@ -3229,4 +3271,61 @@ class orders
         );
     }
 
+    /**
+     *
+     */
+    private function manager_setup_form()
+    {
+        $data = array(
+            'state' => true
+        );
+        $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+        $data['html'] = $this->view->renderFile('orders/manager_setup', array(
+            'orderStatus' => $this->all_configs['configs']['order-status'],
+            'shows' => $this->all_configs['configs']['show-status-in-manager-config'],
+            'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
+        ));
+        $data['title'] = l('Укажите стандарты обслуживания для вашей компании');
+
+        Response::json($data);
+    }
+
+    /**
+     *
+     */
+    private function manager_setup()
+    {
+        $data = array(
+            'state' => true
+        );
+        try {
+            if (empty($_POST) || empty($_POST['status'])) {
+                throw new Exception(l('Заполните форму'));
+            }
+            $configs = $_POST['status'];
+            $configs['status_repair'] = $_POST['status_repair'];
+            $configs['status_sold'] = $_POST['status_sold'];
+            $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+            if (empty($current)) {
+                $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('configs', ?, ?, ?, 1)",
+                    array(
+                        'Настройки менеджера заказов',
+                        'Настройки менеджера заказов',
+                        json_encode($configs)
+                    ));
+
+            } else {
+                $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'configs'",
+                    array(json_encode($configs)));
+            }
+
+
+        } catch (Exception $e) {
+            $data = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
+        }
+        Response::json($data);
+    }
 }

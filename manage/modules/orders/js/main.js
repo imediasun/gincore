@@ -706,7 +706,9 @@ function change_visible_prices(_this, id) {
 function change_input_width(_this, length) {
     var $parent = $(_this).parent();
 
-    $parent.css('width', (Math.min((length + 2) * 8 + 25, 80) + 35 + 40) + 'px');
+    addonWidth = $parent.find('.input-group-addon').first().width() + 24;
+    console.log(addonWidth);
+    $parent.css('width', (Math.min((length + 2) * 8 + 25, 80) + addonWidth + 40) + 'px');
     $parent.children('.input-group-btn').show();
 }
 
@@ -756,5 +758,52 @@ function recalculate_amount() {
 function remove_row(_this) {
     $(_this).parent().parent().remove();
     recalculate_amount();
+    return false;
+}
+
+function manager_setup(_this){
+    $.ajax({
+        url: prefix + module + '/ajax/?act=manager-setup',
+        type: 'GET',
+        success: function(msg) {
+            if (msg.state == false && msg.message) {
+                alert(msg.message);
+            }
+            if(msg.state == true && msg.html.length > 0) {
+
+                buttons =  {
+                    success: {
+                        label: "Применить",
+                        className: "btn-success",
+                        callback: function() {
+                            $.ajax({
+                                url: prefix + module + '/ajax/?act=manager-setup',
+                                type: 'POST',
+                                data: $('form#manager-setup').serialize(),
+                                success: function(msg) {
+                                    location.reload();
+                                },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    alert(xhr.responseText);
+                                }
+                            });
+                            $(_this).button('reset');
+                        }
+                    },
+                    main: {
+                        label: "Отменить",
+                        className: "btn-primary",
+                        callback: function() {
+                            $(_this).button('reset');
+                        }
+                    }
+                };
+                dialog_box(_this, msg.title || '', msg.html, buttons);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
     return false;
 }
