@@ -21,7 +21,9 @@ $all_configs['arrequest'] = clear_empty_inarray(explode('/', $request));
 $all_configs['configs'] = Configs::getInstance()->get();
 $all_configs['settings'] = $all_configs['db']->query("SELECT name, value FROM {settings}")->vars();
 
-$all_configs['db']->query('SET @@session.time_zone = ?;', array($all_configs['settings']['time_zone']))->ar();
+
+$systemTimeZone = isset($all_configs['settings']['time_zone']) ? $all_configs['settings']['time_zone'] : '+00:00'; 
+$all_configs['db']->query('SET @@session.time_zone = ?;', array($systemTimeZone))->ar();
 
 
 /* определяем языки админки */
