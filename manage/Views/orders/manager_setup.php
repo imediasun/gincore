@@ -39,7 +39,7 @@ $i = 1;
                         <div class="col-sm-2">
                             <div class="form-group">
                                 <input class="form-control" type="text" name="status[<?= $id ?>]"
-                                       value="<?= empty($current[$id]) ? 0 : $current[$id] ?>"
+                                       value="<?= empty($current[$id]) ? $default[$id] : $current[$id] ?>"
                                        placeholder=""/>
                             </div>
                         </div>
@@ -59,7 +59,7 @@ $i = 1;
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input class="form-control" type="text" name="status[10]" value="<?= empty($current[10]) ? 0 : $current[10] ?>"
+                        <input class="form-control" type="text" name="status[10]" value="<?= empty($current[10]) ? $default[10] : $current[10] ?>"
                                placeholder=""/>
                     </div>
                 </div>

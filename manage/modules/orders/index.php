@@ -3653,7 +3653,8 @@ class orders
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
         $data['html'] = $this->view->renderFile('orders/manager_setup', array(
             'orderStatus' => $this->all_configs['configs']['order-status'],
-            'shows' => $this->all_configs['configs']['show-status-in-manager-config'],
+            'shows' => array_keys($this->all_configs['configs']['show-status-in-manager-config']),
+            'default' => $this->all_configs['configs']['show-status-in-manager-config'],
             'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
         ));
         $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . '</center>';

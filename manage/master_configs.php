@@ -1069,8 +1069,15 @@ class Configs
                     'from' => array(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
                 ),
             ),
+            // id => days
             'show-status-in-manager-config' => array(
-                0, 2, 5, 10, 27, 30, 45,
+                0  => 3,
+                2 => 2,
+                5 => 3,
+                10 => 1,
+                27 => 10,
+                30 => 3,
+                45 => 3,
             ),
             'credits_package' => array( // виды кредитов
                 2 => 10, // %

@@ -712,7 +712,7 @@ function change_input_width(_this, length, not_show_button) {
         width += 40;
     }
     max_width = Math.max(width, max_width);
-    $parent.css('width', width + 'px');
+    $parent.css('width', max_width + 'px');
     if (typeof(not_show_button)==='undefined') {
         $parent.children('.input-group-btn').show();
     }
