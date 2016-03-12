@@ -1809,8 +1809,39 @@ class orders
      * @param $order
      * @return bool
      */
-    function check_if_order_fail_in_orders_manager($order){
+    function check_if_order_fail_in_orders_manager($order)
+    {
         $day = 60 * 60 * 24;
+        $managerConfigs = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+
+        if (empty($managerConfigs)) {
+            return $this->check_with_default_config($order, $day);
+        } else {
+            $config = json_decode($managerConfigs[0]['value'], true);
+            foreach ($config as $id => $value) {
+                //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
+                if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
+                    return true;
+                }
+                // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+                if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
+                    return true;
+                }
+                if ($order['status'] == $id && strtotime($order['date']) + $day * $value < time()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param $order
+     * @param $day
+     * @return bool
+     */
+    protected function check_with_default_config($order, $day)
+    {
         //1 Запчасть заказана, оприходована, но не отгружена под ремонт больше 2-х дней
         //2 Заказ клиента подвязан к заказу поставщику, а указанная в заказе поставщику дата поставки просрочена.
         //3 По нормативу с момента создания заказа на закупку (пустышки) и создания заказа поставщику не должно пройти больше 3х дней.
@@ -1820,7 +1851,7 @@ class orders
             return true;
         }
         // Принят в ремонт > 24 часов назад и никто из манагеров не взял
-        if (!$order['manager'] && strtotime($order['date_add']) <= time()-86400) {
+        if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
             return true;
         }
         // Принят в ремонт > 3 дней
@@ -3620,10 +3651,14 @@ class orders
         $data = array(
             'state' => true
         );
+        $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
         $data['html'] = $this->view->renderFile('orders/manager_setup', array(
-            'orderStatus' => $this->all_configs['configs']['order-status']
+            'orderStatus' => $this->all_configs['configs']['order-status'],
+            'shows' => $this->all_configs['configs']['show-status-in-manager-config'],
+            'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
         ));
         $data['title'] = l('Укажите стандарты обслуживания для вашей компании');
+
         Response::json($data);
     }
 
@@ -3636,10 +3671,27 @@ class orders
             'state' => true
         );
         try {
-            if(empty($_POST)) {
+            if (empty($_POST) || empty($_POST['status'])) {
                 throw new Exception(l('Заполните форму'));
             }
-            $data['value'] = print_r($_POST, true);
+            $configs = $_POST['status'];
+            $configs['status_repair'] = $_POST['status_repair'];
+            $configs['status_sold'] = $_POST['status_sold'];
+            $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+            if (empty($current)) {
+                $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('configs', ?, ?, ?, 1)",
+                    array(
+                        'Настройки менеджера заказов',
+                        'Настройки менеджера заказов',
+                        json_encode($configs)
+                    ));
+
+            } else {
+                $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'configs'",
+                    array(json_encode($configs)));
+            }
+
+
         } catch (Exception $e) {
             $data = array(
                 'state' => false,

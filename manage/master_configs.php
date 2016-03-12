@@ -1069,7 +1069,9 @@ class Configs
                     'from' => array(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
                 ),
             ),
-
+            'show-status-in-manager-config' => array(
+                0, 2, 5, 10, 27, 30, 45,
+            ),
             'credits_package' => array( // виды кредитов
                 2 => 10, // %
                 3 => 12, // %

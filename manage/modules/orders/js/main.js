@@ -736,7 +736,7 @@ function manager_setup(_this){
                                 type: 'POST',
                                 data: $('form#manager-setup').serialize(),
                                 success: function(msg) {
-                                    //location.reload();
+                                    location.reload();
                                 },
                                 error: function (xhr, ajaxOptions, thrownError) {
                                     alert(xhr.responseText);
