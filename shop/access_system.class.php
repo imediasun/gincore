@@ -96,4 +96,56 @@ class Role
         }
         return false;
     }
+
+    /**
+     * @param $permissionId
+     * @return bool
+     */
+    public function isSuperuserPermission($permissionId)
+    {
+        $count = $this->all_configs['db']->query("SELECT count(*) FROM {users_permissions} WHERE link in ('edit-users', 'site-administration') AND id=?i",
+            array(intval($permissionId)))->el();
+        return $count > 0;
+    }
+
+    /**
+     * @param $roleId
+     * @return bool
+     */
+    public function isLastSuperuserRole($roleId)
+    {
+        $count = $this->all_configs['db']->query('SELECT count(*)
+                FROM {users_permissions} as p, {users_role_permission} as l
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
+            array(array('edit-users', 'site-administration'), $roleId))->el();
+        return $count == 1;
+    }
+
+    /**
+     * @param $roleId
+     * @return bool
+     */
+    public function isSuperuserRole($roleId)
+    {
+        $count = $this->all_configs['db']->query('SELECT count(*)
+                FROM {users_permissions} as p, {users_role_permission} as l
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
+            array(array('edit-users', 'site-administration'), $roleId))->el();
+        return $count > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLastSuperuser($userId)
+    {
+        $users = $this->all_configs['db']->query('SELECT u.id
+                FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id',
+            array(array('edit-users', 'site-administration')))->assoc('id');
+        if(!in_array($userId, array_keys($users))) {
+            return false;
+        }
+        return count($users) == 1;
+    }
 }

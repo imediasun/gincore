@@ -272,26 +272,29 @@ class users
                 if (isset($post['auth_cert_only'][$uid])) {
                     $cert_avail = 1;
                 }
-                $ar = 0;
                 if (intval($uid) > 0) {
-                    $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
+                    if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
+                        FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'), FlashMessage::DANGER);
+                    } else {
+                        $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
                             auth_cert_serial=?, auth_cert_only=?
                         WHERE id=?i',
-                        array(
-                            intval($role),
-                            $avail,
-                            trim($post['fio'][$uid]),
-                            trim($post['position'][$uid]),
-                            trim($post['phone'][$uid]),
-                            trim($post['email'][$uid]),
-                            trim($post['auth_cert_serial'][$uid]),
-                            $cert_avail,
-                            intval($uid)
-                        ))->ar();
-                }
-                if (intval($ar) > 0) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'update-user', $mod_id, intval($uid)));
+                            array(
+                                intval($role),
+                                $avail,
+                                trim($post['fio'][$uid]),
+                                trim($post['position'][$uid]),
+                                trim($post['phone'][$uid]),
+                                trim($post['email'][$uid]),
+                                trim($post['auth_cert_serial'][$uid]),
+                                $cert_avail,
+                                intval($uid)
+                            ))->ar();
+                        if (intval($ar) > 0) {
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                                array($user_id, 'update-user', $mod_id, intval($uid)));
+                        }
+                    }
                 }
             }
         } elseif (isset($post['create-roles'])) { // изменяем возможности ролям
@@ -301,7 +304,6 @@ class users
                 $exist = explode(',', $s);
 
                 foreach ($post['permissions'] as $uid => $on) {
-
                     $id = explode('-', $uid);
                     if (intval($role_id) != intval($id[0])) {
                         continue;
@@ -326,12 +328,15 @@ class users
                 }
                 if (count($exist) > 0) {
                     foreach ($exist as $v) {
-                        $this->all_configs['db']->query('DELETE FROM {users_role_permission} WHERE role_id=?i AND permission_id=?i',
-                            array(intval($role_id), intval($v)));
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'delete-from-role-per', $mod_id, intval($role_id)));
+                        if ($this->all_configs['oRole']->isSuperuserPermission(intval($v)) && $this->all_configs['oRole']->isLastSuperuserRole($role_id)) {
+                            FlashMessage::set(l('Не возможно удалить права суперюзера', FlashMessage::DANGER));
+                        } else {
+                            $this->all_configs['db']->query('DELETE FROM {users_role_permission} WHERE role_id=?i AND permission_id=?i',
+                                array(intval($role_id), intval($v)));
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                                array($user_id, 'delete-from-role-per', $mod_id, intval($role_id)));
+                        }
                     }
-
                 }
                 $date = '0000-00-00 00:00:00';
                 $active = '0';
@@ -343,11 +348,15 @@ class users
                     $active = 1;
                 }
 
-                $ar = $this->all_configs['db']->query('UPDATE {users_roles} SET avail=?i, date_end=? WHERE id=?i',
-                    array($active, $date, intval($role_id)))->ar();
-                if (intval($ar) > 0) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'update-role', $mod_id, intval($role_id)));
+                if (!$active && $this->all_configs['oRole']->isLastSuperuserRole(intval($role_id))) {
+                    FlashMessage::set(l('Не возможно удалить последнюю роль с правами суперюзера'), FlashMessage::DANGER);
+                } else {
+                    $ar = $this->all_configs['db']->query('UPDATE {users_roles} SET avail=?i, date_end=? WHERE id=?i',
+                        array($active, $date, intval($role_id)))->ar();
+                    if (intval($ar) > 0) {
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                            array($user_id, 'update-role', $mod_id, intval($role_id)));
+                    }
                 }
             }
         } elseif (isset($post['add-role'])) { // добавляем новую группу ролей
