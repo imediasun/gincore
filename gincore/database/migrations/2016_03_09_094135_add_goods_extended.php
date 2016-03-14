@@ -14,6 +14,7 @@ class AddGoodsExtended extends Migration
     {
         if (!Schema::hasTable('goods_extended')) {
             Schema::create('goods_extended', function (Blueprint $table) {
+                $table->engine = 'InnoDB';
                 $table->increments('id');
                 $table->integer('goods_id')->integer(10)->unsigned();
                 $table->string('market_yandex_id');
@@ -22,9 +23,9 @@ class AddGoodsExtended extends Migration
                 $table->index('hotline_flag');
                 $table->index('goods_id');
             });
-//            Schema::table('goods_extended', function ($table) {
-//                $table->foreign('goods_id')->references('id')->on('goods');
-//            });
+            Schema::table('goods_extended', function ($table) {
+                $table->foreign('goods_id')->references('id')->on('goods');
+            });
         }
     }
 
