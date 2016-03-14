@@ -847,6 +847,11 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
                 array($query, array_filter(explode(',', $filters['eng']))));
         }
+        // фильтр по статусу
+        if (array_key_exists('sts', $filters) && count(array_filter(explode(',', $filters['sts']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
+                array($query, array_filter(explode(',', $filters['sts']))));
+        }
         // фильтр по оператору
         if (array_key_exists('op', $filters) && count(array_filter(explode(',', $filters['op']))) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',

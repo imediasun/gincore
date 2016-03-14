@@ -5,7 +5,6 @@
     </div>
     <table class="table borderless">
         <?php if ($isAdmin): ?>
-            <?php $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'); ?>
             <tr>
                 <td>
                     <label><?= l('manager') ?>:</label>
@@ -18,7 +17,6 @@
                 </td>
             </tr>
         <?php endif; ?>
-        <?php $accepters = $this->all_configs['oRole']->get_users_by_permissions('create-clients-orders'); ?>
         <tr>
             <td><label><?= l('Приемщик') ?>:</label></td>
             <td>
@@ -31,8 +29,18 @@
                 </select>
             </td>
         </tr>
-        <?php if ($isAdmin):
-            $engineers = $this->all_configs['oRole']->get_users_by_permissions('engineer'); ?>
+        <tr>
+            <td><label><?= l('Статусы') ?>:</label></td>
+            <td>
+                <select <?= $isAdmin ? '' : 'disabled'; ?> class="multiselect form-control report-filter"
+                                                           name="states[]"
+                                                           multiple="multiple">
+                    <?= build_array_tree($states,
+                        ((isset($_GET['sts'])) ? explode(',', $_GET['sts']) : array())); ?>
+                </select>
+            </td>
+        </tr>
+        <?php if ($isAdmin): ?>
             <tr>
                 <td><label> <?= l('Инженер') ?>:</label></td>
                 <td>
