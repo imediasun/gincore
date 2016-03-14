@@ -895,8 +895,8 @@ class orders
         $client_fields_for_sale = client_double_typeahead();
         return $this->view->renderFile('orders/order_for_sale_form', array(
             'client' => $client_fields_for_sale,
-            'orderWarranties' => isset($all_configs['settings']['order_warranties']) ? explode(',',
-                $all_configs['settings']['order_warranties']) : array()
+            'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
+                $this->all_configs['settings']['order_warranties']) : array()
         ));
     }
 
