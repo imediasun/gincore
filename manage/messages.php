@@ -151,9 +151,16 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 array($s, $limit))->assoc();
         }
         if ($_POST['table'] == 'serials') {
+            if (preg_match("/{$all_configs['configs']['erp-serial-prefix']}0*/", $s)) {
+                list($prefix, $length) = prepare_for_serial_search($all_configs['configs']['erp-serial-prefix'], $s, $all_configs['configs']['erp-serial-count-num']);
+                $query = $all_configs['db']->makeQuery('id REGEXP "^?e[0-9]?e$"', array($prefix, "{0,{$length}}"));
+            } else {
+                $query = $all_configs['db']->makeQuery('id LIKE "%?e%"', array(intval(preg_replace('/[^0-9]/', '', $s))));
+            }
+
             $data = $all_configs['db']->query('SELECT id as item_id, serial FROM {warehouses_goods_items}
-                    WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (id LIKE "%?e%" AND serial IS NULL)) LIMIT ?i',
-                array($s, intval(preg_replace('/[^0-9]/', '', $s)), $limit))->assoc();
+                    WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL)) LIMIT ?i',
+                array($s, $query, $limit))->assoc();
             if ($data) {
                 foreach ($data as $k=>$v) {
                     $data[$k] = array('title' => suppliers_order_generate_serial($v), 'id' => $v['item_id']);

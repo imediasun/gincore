@@ -1495,3 +1495,20 @@ function transliturl($str){
 
     return $str;
 }
+
+/**
+ * @param $prefix
+ * @param $string
+ * @param $length
+ * @return array
+ */
+function prepare_for_serial_search($prefix, $string, $length)
+{
+    $matches = array();
+    preg_match("/{$prefix}0*/", $string, $matches);
+    if (empty($matches)) {
+        return array('', $length);
+    }
+    $prefix = ltrim($string, $matches[0]);
+    return array($prefix, $length - strlen($prefix));
+}
