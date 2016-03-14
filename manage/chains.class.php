@@ -1181,6 +1181,7 @@ class Chains
                         if ($product) {
                             // выводим
                             $data[($product['type'] == 0 ? 'goods' : 'service')] = $order_class->show_product($product);
+                            $data['reload'] = 1;
                         }
                     }
                 }
