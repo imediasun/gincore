@@ -15,13 +15,16 @@ class AddGoodsExtended extends Migration
         if (!Schema::hasTable('goods_extended')) {
             Schema::create('goods_extended', function (Blueprint $table) {
                 $table->increments('id');
-                $table->integer('goods_id')->unsigned();
+                $table->integer('goods_id')->integer(10)->unsigned();
                 $table->string('market_yandex_id');
                 $table->string('hotline_url')->default('');
                 $table->boolean('hotline_flag')->default('0');
-                $table->foreign('goods_id')->references('id')->on('goods');
                 $table->index('hotline_flag');
+                $table->index('goods_id');
             });
+//            Schema::table('goods_extended', function ($table) {
+//                $table->foreign('goods_id')->references('id')->on('goods');
+//            });
         }
     }
 
