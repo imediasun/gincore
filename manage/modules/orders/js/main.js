@@ -707,7 +707,7 @@ var max_width = 0;
 function change_input_width(_this, length, not_show_button) {
     var $parent = $(_this).parent();
 
-    var width  = Math.min((length + 2) * 8 + 25, 100);
+    var width  = Math.min((length + 1) * 8 + 25, 100);
     if (typeof(not_show_button)==='undefined') {
         width += 40;
     }
