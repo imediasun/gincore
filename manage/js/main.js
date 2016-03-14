@@ -592,7 +592,7 @@ function quick_create_supplier_callback(data){
 
 function new_quick_create_supplier_callback(data, _this){
     $('select[name="warehouse-supplier"]').append('<option selected value="'+data.id+'">'+data.name+'</option>');
-    $(_this).closest('.new_supplier_form.loaded').hide().removeClass('loaded');
+    $(_this).closest('.new_supplier_form.loaded').hide().removeClass('loaded').html('');
 }
 
 // call as callback in categories/index.php:gencreate and products/index.php:create_product_form

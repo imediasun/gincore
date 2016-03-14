@@ -893,7 +893,7 @@ class Suppliers
                     }
                     for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
                         $co = current($cos);
-                        $so_co .= '<input type="text" name="so_co[]" class="form-control" value="' . $co . '" />';
+                        $so_co .= '<input type="text" name="so_co[]" readonly class="form-control" value="' . $co . '" />';
                         next($cos);
                     }
                     $order['title']     =  'Редактировать заказ';
