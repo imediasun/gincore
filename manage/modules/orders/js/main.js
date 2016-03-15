@@ -364,10 +364,13 @@ function order_item(_this) {
 }
 
 function update_order(_this) {
+    var order_id = arrequest()[2] || $('#update-order').data('o_id');
+    var modal = $(_this).parents('.modal-dialog').length > 0 ? 'modal' : '';
+
     $(_this).button('loading');
 
     $.ajax({
-        url: prefix + module + '/ajax/' + arrequest()[2] + '?act=update-order',
+        url: prefix + module + '/ajax/' + order_id + '?act=update-order&show=' + modal,
         type: 'POST',
         data: $('#order-form').serialize(),
         success: function(msg) {
@@ -388,8 +391,12 @@ function update_order(_this) {
                     //window.location.href = msg['location'];
                 }
                 if (msg['state'] == true || msg['reload'] == true) {
-                    click_tab_hash();
                     close_alert_box();
+                    if (msg['modal']) {
+                        alert_box(_this, null, 'display-order', null, null, '/orders/ajax/' + order_id + '?act=display-order&show=modal' );
+                    } else {
+                        click_tab_hash();
+                    }
                 }
             }
             $(_this).button('reset');
@@ -480,6 +487,8 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
     //var count = $('#product_count-' + order_product_id).length ? $('#product_count-' + order_product_id).val() : 1;
 
     var close_supplier_order = '';
+    var order_id = arrequest()[2] || $('#update-order').data('order_id');
+
     if(remove && show_confirm_for_remove){
         if(confirm( L['cancel-order-this-spare-part-supplier'] +'?')){
             close_supplier_order = '&close_supplier_order=1';
@@ -487,7 +496,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
     }
 
     $.ajax({
-        url: prefix + module + '/ajax/' + arrequest()[2] + '?act=add_product',
+        url: prefix + module + '/ajax/' + order_id + '?act=add_product',
         type: 'POST',
         data: 'order_product_id=' + order_product_id +
             '&product_id=' + product_id +

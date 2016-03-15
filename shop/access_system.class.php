@@ -73,7 +73,7 @@ class Role
     {
         $users = array();
         $arr = (array)$arr;
-        $query = $all == self::ALL ? '' : $this->all_configs['db']->makeQuery('AND u.avail=1 AND u.deleted=0');
+        $query = $all == self::ALL ? '' : $this->all_configs['db']->makeQuery('AND u.avail=1 AND u.deleted=0', array());
         if (count($arr) > 0) {
             $users = (array)$this->all_configs['db']->query('SELECT u.*, CONCAT(u.fio, " ", u.login) as name
                 FROM {users} as u, {users_permissions} as p, {users_role_permission} as l

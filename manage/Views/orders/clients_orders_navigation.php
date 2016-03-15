@@ -71,7 +71,7 @@
         </form>
     </li>
     <?php if ($hasPrivilege): ?>
-        <li class="pull-right"><a href="<?= $prefix ?>orders/#create_order" class="btn btn-success hash_link"><?= l('Создать заказ') ?> '</a></li>
+        <li class="pull-right"><a href="<?= $prefix ?>orders/#create_order" class="btn btn-success hash_link"><?= l('Создать заказ') ?></a></li>
     <?php endif; ?>
 </ul>
 <div class="hidden" id="filters"><?= $clientsOrdersMenu ?></div>

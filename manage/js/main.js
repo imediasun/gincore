@@ -1180,9 +1180,11 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         e.stopPropagation();
     }
 
-    if (($(_this).hasClass('disabled') || $(_this).prop('disabled')) &&
-            !$(_this).data('alert_box_not_disabled'))
-        return false;
+    if (($(_this).hasClass('disabled') || $(_this).prop('disabled'))) {
+      if (!$(_this).data('alert_box_not_disabled')) {
+          return false;
+      }
+    }
 
     if ($(_this).is('input') || $(_this).is('button'))
         $(_this).button('loading');
@@ -1239,7 +1241,8 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         className: "my-modal"
     });
 
-    if (content) {close_alert_box()
+    if (content) {
+        close_alert_box()
         $('.bootbox.bootbox-alert').remove();
         $('.modal-backdrop').remove();
 
@@ -1256,7 +1259,6 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
             $('.bootbox-alert .modal-footer').prepend(btns);
         }
     } else if (ajax_act) {
-
         if (typeof data !== 'object')
             data = {};
 
@@ -1264,7 +1266,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
             data['object_id'] = $(_this).data('o_id');
 
         $.ajax({
-            url: prefix + (url ? url : module + '/ajax/' + arrequest()[2]) + '?act=' + ajax_act,
+            url: prefix + (url ? url : module + '/ajax/' + arrequest()[2]) + '?act=' + ajax_act + '&show=modal',
             type: 'POST',
             data: data,
             //contentType: 'application/json',

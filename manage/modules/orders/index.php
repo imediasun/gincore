@@ -1912,9 +1912,8 @@ class orders
      */
     function genorder($order_id = null)
     {
-        $show_btn = $order_id > 0 ? false : true;
-        $order_id = $order_id == 0 ? intval($this->all_configs['arrequest'][2]) : $order_id;
-        $order_html = '';
+        $show_btn = true;
+        $order_id = ($order_id == 0) ? intval($this->all_configs['arrequest'][2]) : $order_id;
         // достаем заказ с прикрепленными к нему товарами
         $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
@@ -1930,476 +1929,73 @@ class orders
                 WHERE o.id=?i',
             array($order_id))->row();
 
-        if ($order) {
-
-            /*if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
-                || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
-                || $this->all_configs['oRole']->hasPrivilege('edit-tradein-orders')
-                || $this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {*/
-            // только инженер
-            $only_engineer = $this->all_configs['oRole']->hasPrivilege('engineer') &&
-                !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
-
-
-            $order_html .= '<div class="row-fluid">';
-
-            $order_html .= '
-                <div class="order-form-edit-nav toggle-hidden-box">
-                    '.$this->clients_orders_navigation(true).'
-                    <script type="text/javascript">
-                        $(function(){
-                            gen_tree();
-                        });
-                    </script>
-                </div>
-            ';
-
-            $order_html .= '<form method="post" id="order-form" class="clearfix order-form-edit backgroud-white p-lg">';
-
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $print_warranty = print_link($order['id'], 'warranty', '', true);
-                $print_check    = print_link($order['id'], 'invoice', '', true);
-                $print_kvit     = print_link($order['id'], 'check', '', true);
-                $print_act      = print_link($order['id'], 'act', '', true);
-                $print_invoicing= print_link($order['id'], 'invoicing', '', true);
-                $print_btns = '
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-print"></i> <span class="caret"></span>
-                      </button>
-                      <ul class="keep-open dropdown-menu print_menu">
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_kvit.'">' . l('Квитанция') . '</label></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_check.'">' . l('Чек') . '</label></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_warranty.'">' . l('Гарантия') . '</label></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_act.'">' . l('Акт выполненых работ') . '</label></li>
-                        <li><div class="checkbox"><label><input type="checkbox" name="print[]" value="'.$print_invoicing.'">' . l('Счет на оплату') . '</label></li>
-                        <li role="separator" class="divider"></li>
-                        <li class="text-center">
-                            <button class="btn btn-sm btn-info" type="button" id="print_now">' . l('Распечатать') . '</button>
-                        </li>
-                      </ul>
-                    </div>
-                ';
-            } else {
-                $print_btns = '';
-            }
-            //$order_html .= '<label><span class="muted">Принят: </span> ';
-            //$order_html .= '</label>';
-
-            $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
-            $accepted = mb_strlen($order['courier'], 'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="' . l('Курьер забрал устройство у клиента') .'" class="fa fa-truck"></i> ' : '';
-            $accepted .= $order['np_accept'] == 1 ?
-                            '<i title="' . l('Принято через почту') .'" class="fa fa-suitcase text-danger"></i> ' :
-                            '<i style="color:' . $color . ';" title="' . l('Принято в сервисном центре') . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
-            $accepted .= $order['aw_title'].' ';
-
-            $order_html .= '
-                <div class="span6">
-                <div class="row-fluid">
-                    <div class="span6">
-                        <h3 class="m-t-none">
-                            №'.$order['id'].'
-                            '.$print_btns.'
-                            <button data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS</button>
-                        </h3>
-                    </div>
-                    <div class="span6">
-                        <div class="form-group center">
-                            <small style="font-size:10px" title="' . do_nice_date($order['date_add'], false) . '">
-                                ' . l('Принят') . ': '.do_nice_date($order['date_add']).'
-                            </small>
-                            <br>
-                            ' . $accepted . timerout($order['id'], true) . '
-                        </div>
-                    </div>
-                </div>
-                <div class="row-fluid">
-                    <div class="span6">';
-
-            if (!$only_engineer) {
-                $icon = '<i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="' . $order['id'] . '" onclick="alert_box(this, null, \'order-gallery\')"></i>';
-                $order_html .= '
-                    <div class="form-group">
-                        <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-fio\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>
-                           ' . l('Заказчик') . ': 
-                        </label> 
-                        <input type="text" value="' . htmlspecialchars($order['fio']) . '" name="fio" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-phone\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>
-                            ' . l('Телефон') . ':
-                        </label> 
-                        <input type="text" value="' . htmlspecialchars($order['phone']) . '" name="phone" class="form-control" /></div>
-                    <div class="form-group">
-                        <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-category\')"></span>
-                            ' . $icon . '' . l('Устройство') . ': 
-                        </label> ';
-                $order_html .= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4, 'input-medium').'';
-
-                $colors_select = '';
-                if(is_null($order['o_color'])){
-                    $colors_select .= '<option value="-1" selected disabled>' . l('Не выбран') . '</option>';
-                }
-                foreach($this->all_configs['configs']['devices-colors'] as $i=>$c){
-                    $colors_select .= '<option'.(!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '').' value="'.$i.'">'. $c .'</option>';
-                }
-                $order_html .=
-                    '<div class="form-group">
-                        <label class="control-label">' . l('Цвет') . ': </label>
-                        <select class="form-control" name="color">'. $colors_select .'</select>
-                    </div>
-                ';
-
-                //$order_html .= typeahead($this->all_configs['db'], 'goods-goods', false, $order['title'], 8, 'input-medium', 'input-medium', 'order_products');
-                $order_html .= /*htmlspecialchars($order['title']) . */' ' . htmlspecialchars($order['note']) . '</div>';
-            }
-            // не продажа
-            if ($order['type'] != 3) {
-                if (!$only_engineer) {
-                    $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-serial\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>';
-                    $order_html .= ' S/N: </label> <input type="text" value="' . htmlspecialchars($order['serial']) . '" name="serial" class="form-control" /></div>';
-                }
-                $parts = array();
-                if($order['battery']){
-                    $parts[] = l('Аккумулятор');
-                }
-                if($order['charger']){
-                    $parts[] = l('Зарядное устройство кабель');
-                }
-                if($order['cover']){
-                    $parts[] = l('Задняя крышка');
-                }
-                if($order['box']){
-                    $parts[] = l('Коробка');
-                }
-                if($order['equipment']){
-                    $parts[] = htmlspecialchars($order['equipment']);
-                }
-                $order_html .=
-                    '<div class="form-group"><label>' . l('Комлектация') . ':</label><br>'.
-                    implode(', ', $parts).'</div>';
-            }
-
-            $product_total = 0;
-
-            // не продажа
-            if ($order['type'] != 3) {
-                switch($order['repair']){
-                    case 0: $order_type = l('Платный'); break;
-                    case 1: $order_type = l('Гарантийный'); break;
-                    case 2: $order_type = l('Доработка'); break;
-                }
-                $order_html .= '
-                    <div class="form-group">
-                        <label>' . l('Вид ремонта') . ':</label>
-                        '.$order_type.'
-                    </div>
-                ';
-                $order_html .= '<div class="form-group"><label>' . l('Сроки') . ':</label> ' . ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) . '</div>';
-                //$order_html .= '<label><span class="muted">Оплата: </span> ?' . '</label>';
-                $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-defect\')"></span>';
-                $order_html .= ' ' . l('Неисправность со слов клиента') . ': </label> ';// . htmlspecialchars($order['defect']) . '</label>';
-                $order_html .= '<textarea class="form-control" name="defect">' . htmlspecialchars($order['defect']) . '</textarea></div>';
-                $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-comment\')"></span>';
-                $order_html .=  l('Примечание') .  '/' .l('Внешний вид')  .  ': </label> ';// . htmlspecialchars($order['comment']) . '</label>';
-                $order_html .= '<textarea class="form-control" name="comment">' . htmlspecialchars($order['comment']) . '</textarea></div>';
-                $order_html .= '<div class="form-group"><label>' . l('Ориентировочная дата готовности') . ': </label> ';
-                $order_html .= '<span title="' . do_nice_date($order['date_readiness'], false) . '">' . do_nice_date($order['date_readiness']) . '</span></div>';
-                if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $order_html .= '<div class="form-group"><label>' . l('Ориентировочная стоимость') . ': </label> ' . ($order['approximate_cost'] / 100) . ' '. viewCurrency() .'</div>';
-                }
-            }
-            $order_html .= '</div><div class="span6">';
-
-
-            $order_html .= '<div class="form-group"><label><span onclick="alert_box(this, false, \'stock_moves-order\')" data-o_id="' . $order['id'] . '" class="cursor-pointer glyphicon glyphicon-list" title="' . l('История перемещений') . '"></span>';
-            $order_html .= ' ' . l('Локации') . ': </label> ' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']);
-            $order_html .= ' <i title="' . l('Переместить заказ') .'" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" data-o_id="' . $order['id'] . '" class="glyphicon glyphicon-move cursor-pointer"></i></div>';
-
-            $order_html .= '<div class="form-group"><label>'.l('Приемщик').':</label> ' . get_user_name($order, 'a_') . '</div>';
-            // не продажа
-            if ($order['type'] != 3) {
-                if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $html = '<input type="submit" name="accept-manager" class="accept-manager btn btn-default btn-xs" value="' . l('Взять заказ') . '" />'
-                              .'<input type="hidden" name="accept-manager" value="" />';
-                } else {
-                    // инженеры
-                    $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders', Role::ONLY_ACTIVE);
-                    $html = '<select class="form-control" name="manager"><option value="">' . l('Выбрать') . '</option>';
-                    if ($managers) {
-                        foreach ($managers as $manager) {
-                            $selected = $manager['id'] == $order['manager'] ? 'selected' : '';
-                            $html .= '<option ' . $selected . ' value="' . $manager['id'] . '">' . get_user_name($manager) . '</option>';
-                        }
-                    }
-                    $html .= '</select></div>';
-                    $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-manager\')"></span>';
-//                    $manager = get_user_name($order, 'm_');
-                }
-                $order_html .= l('manager') . ': </label> ' . $html;
-            }
-
-            $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '';
-            $order_html .= '<div class="form-group"><label><span ' . $style . '>';
-            $order_html .= '<span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История перемещений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'order-statuses\')"></span>';
-            $order_html .= ' ' . l('Статус') . ': </label> ' . $this->all_configs['chains']->order_status(intval($order['status'])) . '</div>';
-            //$order_html .= '<label><span class="muted">Партнер: </span> ' . '</label>';
-            // не продажа
-            if ($order['type'] != 3) {
-                // инженеры
-                $engineers = $this->all_configs['oRole']->get_users_by_permissions('engineer');
-                $html = '<select class="form-control" name="engineer"><option value="">' . l('Выбрать') . '</option>';
-                if ($engineers) {
-                    foreach ($engineers as $engineer) {
-                        $selected = $engineer['id'] == $order['engineer'] ? 'selected' : '';
-                        $html .= '<option ' . $selected . ' value="' . $engineer['id'] . '">' . get_user_name($engineer) . '</option>';
-                    }
-                }
-                $html .= '</select>';
-                $order_html .= '<div class="form-group"><label><span class="cursor-pointer glyphicon glyphicon-list" title="' . l('История изменений') . '" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'changes:update-order-engineer\')"></span>';
-                $order_html .= l('Инженер') . ': </label> ' . $html . '</div>';
-                $order_html .= '<div class="form-group">'
-                                  .'<span style="margin:4px 10px 0 0" class="pull-left cursor-pointer glyphicon glyphicon-list muted" onclick="alert_box(this, false, \'changes:update-order-client_took\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>'
-                                  .'<label class="checkbox-inline">'
-                                      .'<input type="checkbox" value="1" ' . ($order['client_took'] == 1 ? 'checked' : '') . ' name="client_took"> ' . l('Устройство у клиента')
-                                  .'</label>'
-                              .'</div>';
-                $onclick = 'if ($(this).prop(\'checked\')){$(\'.replacement_fund\').val(\'\');$(\'.replacement_fund\').prop(\'disabled\', false);$(\'.replacement_fund\').show();$(this).parent().parent().addClass(\'warning\');}else{$(\'.replacement_fund\').hide();$(this).parent().parent().removeClass(\'warning\');}';
-                $order_html .= '<div class="form-group' . ($order['is_replacement_fund'] == 1 ? ' warning' : '') . '">'
-                                  .'<span style="margin:4px 10px 0 0" class="pull-left cursor-pointer glyphicon glyphicon-list muted" onclick="alert_box(this, false, \'changes:update-order-replacement_fund\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>'
-                                  .'<label class="checkbox-inline">  '
-                                      .'<input onclick="' . $onclick . '" type="checkbox" value="1" ' . ($order['is_replacement_fund'] == 1 ? 'checked' : '') . ' name="is_replacement_fund" />'
-                                      . l('Подменный фонд')
-                                  .'</label> '
-                                  .'<input ' . ($order['is_replacement_fund'] == 1 ? 'disabled' : 'style="display:none;"') . ' type="text" placeholder="' . l('Модель, серийный номер') .'" class="form-control replacement_fund" value="' . htmlspecialchars($order['replacement_fund']) . '" name="replacement_fund" />'
-                              .'</div>';
-                //$order_html .= '<label><span class="muted">Уведомлять клиента по смс о статусе ремонта: </span> ';
-                //$order_html .= '<input type="checkbox" value="1" ' . ($order['notify'] == 1 ? 'checked' : '') . ' name="notify" /></label>';
-                $order_html .= '<div class="form-group">'
-                                  .'<label class="checkbox-inline">'
-                                      .'<input type="checkbox" value="1" ' . ($order['nonconsent'] == 1 ? 'checked' : '') . ' name="nonconsent" />'
-                                      . l('Можно пускать в работу без согласования')
-                                  .'</label>'
-                              .'</div>';
-                $order_html .= '<div class="form-group">'
-                                  .'<label class="checkbox-inline">'
-                                      .'<input type="checkbox" value="1" ' . ($order['is_waiting'] == 1 ? 'checked' : '') . ' name="is_waiting" />'
-                                      . l('Клиент готов ждать 2-3 недели запчасть')
-                                  .'</label>'
-                              .'</div>';
-
-                if ($order['return_id'] > 0 || $this->all_configs['oRole']->hasPrivilege('edit_return_id')) {
-                    $order_html .= '<div class="form-group">'
-                                  .'<label>' . l('Номер возврата') . ': </label> ';
-                    if ($this->all_configs['oRole']->hasPrivilege('edit_return_id')) {
-                        $order_html .= $order['id'] . '-' . '<input type="text" value="' . $order['return_id'] . '" name="return_id" class="form-control" />';
-                    } else {
-                        $order_html .= $order['id'] . '-' . $order['return_id'];
-                    }
-                    $order_html .= '</div>';
-                }
-                //гарантия только в ремонте
-            }
-            //либо гарантия и в продаже тоже
-            $order_html .= '<div class="form-group">'
-                              .'<span class="cursor-pointer glyphicon glyphicon-list muted" onclick="alert_box(this, false, \'changes:update-order-warranty\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span> '
-                              .'<label>' . l('Гарантия') . ': </label> '
-                              .'<div class="input-group"> '
-                              .'<select class="form-control" name="warranty"><option value="">' . l('Без гарантии') . '</option>';
-            $order_warranties = isset($this->all_configs['settings']['order_warranties']) ? explode(',', $this->all_configs['settings']['order_warranties']) : array();
-            foreach ($order_warranties as $warranty) {
-                $order_html .= '<option ' . ($order['warranty'] == intval($warranty) ? 'selected' : '') . ' value="' . intval($warranty) . '">' . intval($warranty) . '</option>';
-            }
-            $order_html .= '</select><div class="input-group-addon">'. l('мес') . '</div></div></div>';
-
-            // заказ на основе заявки
-            $request = get_service('crm/requests')->get_request_by_order($order['id']);
-            if($request){
-                $order_html .= '<div class="from-group">'
-                                . '' . l('Заявка'). ' '.$request['id'].' '.do_nice_date($request['date'], true).'<br> '
-                                . '' . l('Звонок'). ' '.$request['call_id'].' '.do_nice_date($request['call_date'], true).' '
-                                .($request['code'] ? '<br>Код: '.$request['code'] : '').'  '
-                                .($request['rf_name'] ? '<br>' . l('Источник') . ': '.$request['rf_name'].'' : '').'  '
-                            . '</div>';
-            }else{
-                $priv = $this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
-                // если не на основе заявки, то выводим данные о канале и коде
-                $order_html .= '<div class="from-group">'
-                                    .'<span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-code\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>'
-                                    .' <label>' . l('Код скидки') . ':</label> '
-                                    .'<input'.(!$priv ? ' disabled' : '').' class="form-control" type="text" name="code" value="'.htmlspecialchars($order['code']).'"><br>'
-                              .'</div>'
-                              .'<div class="from-group">'
-                                    .'<span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-referer_id\')" data-o_id="' . $order['id'] . '" title="' . l('История изменений') . '"></span>'
-                                    .' <label>' . l('Источник') . ':</label> '
-                                    .get_service('crm/calls')->get_referers_list($order['referer_id'], '', !$priv).'<br>'
-                              .'</div>';
-            }
-            $order_html .= '</div></div>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')/* && $_SESSION['id'] == $order['manager']*/) {
-                $order_html .= '<div class="row-fluid"><div class="span6">';
-                $hide = in_array($order['status'], $this->all_configs['configs']['order-status-issue-btn']) ? '' : 'style="display:none;"';
-                $status = $order['status'] == $this->all_configs['configs']['order-status-ready'] ? $this->all_configs['configs']['order-status-issued']
-                    : ($order['status'] == $this->all_configs['configs']['order-status-refused'] || $order['status'] == $this->all_configs['configs']['order-status-unrepairable']
-                        ? $this->all_configs['configs']['order-status-nowork'] : $order['status']);
-                if ($show_btn == true) {
-                    $order_html .= '<input id="close-order" ' . $hide . ' class="btn btn-success" onclick="issue_order(this)" data-status="' . $status . '" type="button" value="' . l('Выдать') . '" />';
-                    $order_html .= ' <input id="update-order" class="btn btn-info" onclick="update_order(this)" type="button" value="'.l('Сохранить').'" />';
-                }
-                $order_html .= '</div><div class="span6"><div class="from-control">';
-                $order_html .= ' <span class="cursor-pointer glyphicon glyphicon-list" onclick="alert_box(this, false, \'changes:update-order-sum\')" data-o_id="' . $order['id'] . '" title="'. l('История изменений') . '"></span>';
-                $pay_btn = '';
-                if($this->all_configs['oRole']->hasPrivilege('accounting')){
-                    if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
-                        $pay_btn = '<input type="button" class="btn btn-success btn-xs" value="'.($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')).'" onclick="' . $onclick . '" />';
-                    } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
-                        $pay_btn = '<input type="button" class="btn btn-success" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
-                    }
-                }
-                $order_html .= ' 
-                    <label>' . l('Стоимость ремонта') . ': </label>
-                    <div class="input-group input-group-sm">
-                        <input type="text" id="order-total" class="form-control" value="' . ($order['sum'] / 100) . '" name="sum" />
-                        <div class="input-group-addon">'. viewCurrency() .'</div>
-                        <div class="input-group-btn">'.$pay_btn.'</div>
-                    </div>';
-                $order_html .= '<span class="text-success">' . l('Оплачено') . ': ' . ($order['sum_paid'] / 100) . ' '. viewCurrency().' (' . l('из них предоплата') . ' ' . ($order['prepay'] / 100) . ' ' . viewCurrency() . ' ' . htmlspecialchars($order['prepay_comment']) . ')</span>';
-                $order_html .= ' <small id="product-total">' . ($product_total / 100) . '</small></div>';
-                $order_html .= '<link type="text/css" rel="stylesheet" href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">';
-                $order_html .= '<input id="send-sms" data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, \'sms-form\')" class="hidden" type="button" />';
-                $order_html .= '</div></div>';
-
-            } elseif ($only_engineer && $order['sum'] == $order['sum_paid'] && $order['sum'] > 0) {
-                $order_html .= '<b class="text-success">' . l('Заказ клиентом оплачен') . '</b>';
-            }
-            $order_html .= '</div>';
-
-            $order_html .= '<div class="span6">';
-
-            $order_html .= '<div class="row-fluid well well-small">';
-            $public_html = $private_html = '<div class="span6"><div class="div-table order-comments div-table-scroll"><div class="div-thead">
-                <div class="div-table-row"><div class="div-table-col span3" align="center">'.l('Дата').'</div><div class="div-table-col span9">';
-            $public_html .= l('Публичный комментарий') . '</div></div></div><div class="div-tbody">';
-            $private_html .= l('Скрытый комментарий') . '</div></div></div><div class="div-tbody">';
-            // достаем комментарии к заказу
-            $comments_public = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
+        if (empty($order)) {
+            return $this->view->renderFile('orders/genorder/_empty_orders');
+        }
+        // достаем комментарии к заказу
+        $comments_public = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
                 FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
                 WHERE oc.order_id=?i AND oc.private=0 ORDER BY oc.date_add DESC', array($order['id']))->assoc();
-            $comments_private = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
+        $comments_private = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
                 FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
                 WHERE oc.order_id=?i AND oc.private=1 ORDER BY oc.date_add DESC', array($order['id']))->assoc();
-            // перебор комментарий
-            if (count($comments_public) > 0 || count($comments_private) > 0) {
-                reset($comments_public);reset($comments_private);
-                for ($i = 0; $i < count(max($comments_public, $comments_private)); $i++) {
-                    $comment_public = current($comments_public);
-                    $comment_private = current($comments_private);
 
-                    if ($comment_public) {
-                        $public_html .= '<div class="div-table-row"><div class="div-table-col span3"><small><span title="' . do_nice_date($comment_public['date_add'], false) . '">' . do_nice_date($comment_public['date_add']) . '</span></small></div>';
-                        $public_html .= '<div class="div-table-col span9"><small>' . htmlspecialchars($comment_public['text']);
-                        //$public_html .= $this->all_configs['oRole']->hasPrivilege('site-administration') ? '<span class="comment_user muted">' . get_user_name($comment_public) . '</span>' : '';
-                        $public_html .= '<span class="comment_user muted">' . get_user_name($comment_public) . '</span></small></div></div>';
-                        //<i onclick="remove_comment(this, ' . $comment_public['id'] . ')" class="icon-remove cursor-pointer"></i>
-                    }
-                    if ($comment_private) {
-                        $private_html .= '<div class="div-table-row"><div class="div-table-col span3"><small><span title="' . do_nice_date($comment_private['date_add'], false) . '">' . do_nice_date($comment_private['date_add']) . '</span></small></div>';
-                        $private_html .= '<div class="div-table-col span9"><small>' . htmlspecialchars($comment_private['text']);
-                        //$private_html .= $this->all_configs['oRole']->hasPrivilege('site-administration') ? '<span class="comment_user muted">' . get_user_name($comment_private) . '</span>' : '';
-                        $private_html .= '<span class="comment_user muted">' . get_user_name($comment_private) . '</span></small></div></div>';
-                        //<i onclick="remove_comment(this, ' . $comment_private['id'] . ')" class="icon-remove cursor-pointer"></i>
-                    }
-                    next($comments_public);next($comments_private);
-                }
+        $notSale = $order['type'] != 3;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+
+        $productTotal = 0;
+        if(!empty($goods)) {
+            foreach ($goods as $product) {
+                $productTotal += $product['price'] * $product['count'];
             }
-            $public_html .= '</div>';
-            $private_html .= '</div>';
-            if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
-                if (!$only_engineer) {
-                    $public_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea placeholder="' . l('Данный комментарий виден клиенту на сайте') . '" class="form-control" name="public_comment"></textarea></div></div>';
-                    $public_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_public_comment" class="btn btn-sm" value="'.l('Добавить').'" type="submit"></div></div></div>';
-                }
-                $private_html .= '<div class="div-tfoot"><div class="div-table-row"><div class="div-table-col span12"><textarea placeholder="' . l('Данный комментарий видят только сотрудники') . '" class="form-control" name="private_comment"></textarea></div></div>';
-                $private_html .= '<div class="div-table-row"><div class="div-table-col span12"><input name="add_private_comment" class="btn btn-sm" value="'.l('Добавить').'" type="submit"></div></div></div>';
-            }
-            $public_html .= '</div></div>';
-            $private_html .= '</div></div>';
-            $order_html .= $public_html . $private_html;
-            $order_html .= '</div>';
-
-            $order_html .= '<div class="relative well well-small parts-well"><h4>' . l('Запчасти') . '</h4>';//<td>' . l('Стоимость') . '</td>
-            $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-            $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>' . l('Наименование') . '</td>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $order_html .= '<td>' . l('Цена') . '(' . viewCurrency() . ')</td>';
-            }
-            $order_html .= '<td></td><td></td><td></td></tr></thead><tbody id="goods-table">';
-            if ($goods) {
-                foreach ($goods as $product) {
-                    $product_total += $product['price'] * $product['count'];
-                    $order_html .= $this->show_product($product);
-                }
-            }
-            $order_html .= '</tbody></table>';
-            // не продажа
-            if ($order['type'] != 3) {
-                if (!$only_engineer) {
-                    $order_html .= '<div class="form-group"><label>' . l('Выберите запчасть') . '</label>';
-                    $order_html .=
-                        typeahead($this->all_configs['db'], 'goods-goods', false, 0, 6,
-                                  'input-medium popover-info', '','order_products',
-                                   false, false, '', false, l('Введите'),
-                                   array('name' => l('Добавить новую'),
-                                       'action' => 'products/ajax/?act=create_form',
-                                       'form_id' => 'order_new_device_form'))
-                        .'</div>'
-                        .'<div id="order_new_device_form" class="typeahead_add_form_box theme_bg order_new_device_form"></div>';
-                }
-                $order_html .= '<hr/><h4>' . l('Работы') . '</h4>';
-                $goods = $this->all_configs['manageModel']->order_goods($order['id'], 1);
-                $order_html .= '<table class="'.(!$goods ? 'hidden ' : '').'table parts-table"><thead><tr><td>' . l('Наименование') . '</td>';
-                if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $order_html .= '<td>' . l('Цена')  . '(' . viewCurrency() . ')</td>';
-                }
-                $order_html .= '<td></td><td></td></tr></thead><tbody id="service-table">';
-                if ($goods) {
-                    foreach ($goods as $product) {
-                        $product_total += $product['price'] * $product['count'];
-                        $order_html .= $this->show_product($product);
-                    }
-                }
-                $order_html .= '</tbody></table>';
-                $order_html .= '<div class="form-group"><label>' . l('Укажите работу') . '</label>';
-                $order_html .=
-                    typeahead($this->all_configs['db'], 'goods-service', false, 0, 7,
-                              'input-medium popover-info', '','order_products',
-                               false, false, '', false, l('Введите'),
-                               array('name' => l('Добавить новую'),
-                                   'action' => 'products/ajax/?act=create_form&service=1',
-                                   'form_id' => 'order_new_work_form'))
-                    .'</div>'
-                    .'<div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form"></div>';
-            }
-            $order_html .= '</div>';
-
-            $order_html .= '</div>';
-
-            $order_html .= '</form>';
-
-            $order_html .= '</div>';
-
-        } else {
-            $order_html .= '<div class="span3"></div><div class="span9"><p class="text-danger">' . l('Заказ') .' №' . $this->all_configs['arrequest'][2] . ' ' . l('не найден') .'</p></div>';
         }
-        $order_html .= $this->all_configs['chains']->append_js();
-        $order_html .= $this->all_configs['suppliers_orders']->append_js();
+        if(!empty($services)) {
+            foreach ($services as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        $parts = array();
+        if ($order['battery']) {
+            $parts[] = l('Аккумулятор');
+        }
+        if ($order['charger']) {
+            $parts[] = l('Зарядное устройство кабель');
+        }
+        if ($order['cover']) {
+            $parts[] = l('Задняя крышка');
+        }
+        if ($order['box']) {
+            $parts[] = l('Коробка');
+        }
+        if ($order['equipment']) {
+            $parts[] = htmlspecialchars($order['equipment']);
+        }
 
-        return $order_html;
+
+        $hasEditorPrivilege = $this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
+        return $this->view->renderFile('orders/genorder/genorder', array(
+            'order' => $order,
+            'onlyEngineer' => $this->all_configs['oRole']->hasPrivilege('engineer') && !$hasEditorPrivilege,
+            'hasEditorPrivilege' => $hasEditorPrivilege,
+            'notSale' => $notSale,
+            'managers' => $notSale ? null : $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders',
+                Role::ONLY_ACTIVE),
+            'engineers' => $notSale ? null : $this->all_configs['oRole']->get_users_by_permissions('engineer',
+                Role::ONLY_ACTIVE),
+            'navigation' => $this->clients_orders_navigation(true),
+            'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
+                $this->all_configs['settings']['order_warranties']) : array(),
+            'request' => get_service('crm/requests')->get_request_by_order($order['id']),
+            'showButtons' => $show_btn,
+            'goods' => $goods,
+            'services' => $services,
+            'controller' => $this,
+            'comments_public' => $comments_public,
+            'comments_private' => $comments_private,
+            'productTotal' => $productTotal,
+            'parts' => $parts
+        ));
     }
 
     /**
@@ -2491,6 +2087,7 @@ class orders
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
         $act = isset($_GET['act']) ? trim($_GET['act']) : '';
         $data = array('state' => false);
+        $data['modal'] = isset($_GET['show']) && $_GET['show'] == 'modal';
 
         // проверка доступа
         if ($this->can_show_module() == false) {
@@ -2544,8 +2141,8 @@ class orders
         // вывод заказа
         if ($act == 'display-order') {
             $data['state'] = true;
-            $data['content'] = '<br />' . $this->genorder($_POST['object_id']);
             $data['width'] = true;
+            $data['content'] = '<br />' . $this->genorder($_POST['object_id']);
         }
 
         // история статусов заказа

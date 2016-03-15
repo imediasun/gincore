@@ -35,7 +35,7 @@ class View
      * @param $params
      * @return string
      */
-    public function renderFile($file, $params)
+    public function renderFile($file, $params = array())
     {
         ob_start();
         ob_implicit_flush(false);
