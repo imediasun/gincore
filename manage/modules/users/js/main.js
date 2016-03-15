@@ -123,17 +123,19 @@ function per_change( _this, ids, del ) {
 }
 
 function delete_user(_this, uid) {
-    $.ajax({
-        url: prefix + module + '/ajax/?act=delete_user',
-        type: 'POST',
-        dataType: "json",
-        data: '&uid=' + uid,
-        success: function(msg) {
-            $(_this).parent().parent('td').parent().hide();
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.responseText);
-        }
-    });
+    if(confirm('Вы действительно хотите удалить пользователя?')) {
+      $.ajax({
+          url: prefix + module + '/ajax/?act=delete_user',
+          type: 'POST',
+          dataType: "json",
+          data: '&uid=' + uid,
+          success: function(msg) {
+              $(_this).parent().parent('td').parent().hide();
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+              alert(xhr.responseText);
+          }
+      });
+    }
     return false;
 }

@@ -140,6 +140,7 @@ class Role
     }
 
     /**
+     * @param $userId
      * @return bool
      */
     public function isLastSuperuser($userId)

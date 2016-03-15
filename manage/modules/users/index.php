@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__.'/../../FlashMessage.php';
+require_once __DIR__ . '/../../FlashMessage.php';
+require_once __DIR__ . '/../../View.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
@@ -8,6 +9,8 @@ $moduleactive[80] = !$ifauth['is_2'];
 
 class users
 {
+    /** @var View */
+    protected $view;
     private $mod_submenu;
     protected $all_configs;
 
@@ -19,6 +22,7 @@ class users
     {
         $this->mod_submenu = self::get_submenu();
         $this->all_configs = &$all_configs;
+        $this->view = new View($all_configs);
         global $input_html, $ifauth;
 
         if (!$this->all_configs['oRole']->hasPrivilege('edit-users')) {
@@ -43,7 +47,6 @@ class users
 
         $input_html['mcontent'] = $this->gencontent();
     }
-
 
     /**
      * @return bool
@@ -211,17 +214,19 @@ class users
                 'msg' => l('Что-то пошло не так')
             );
             if ($uid && $uid != $user_id) {
-                /**
-                 * @todo необходимо в таблицу users довабить поле deleted и соответствующие обработки,
-                 * что бы такие юзеры не показывались
-                 */
-                if ($this->all_configs['db']->query("UPDATE {users} SET avail = 0 " . "WHERE id = ?i",
-                    array($uid))->ar()
-                ) {
-                    $result['success'] = true;
-                    FlashMessage::set(l('Пользователь удален'));
-                    $result['uid'] = $uid;
+                if ($this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
+                    FlashMessage::set(l('Не возможно удалить последнего суперпользователя'), FlashMessage::DANGER);
+                    $result['msg'] = l('Не возможно удалить последнего суперпользователя');
+                } else {
+                    if ($this->all_configs['db']->query("UPDATE {users} SET deleted = 1 " . "WHERE id = ?i",
+                        array($uid))->ar()
+                    ) {
+                        $result['success'] = true;
+                        FlashMessage::set(l('Пользователь удален'));
+                        $result['uid'] = $uid;
+                    }
                 }
+
             } else {
                 $result['msg'] = l('Пользователь не найден');
             }
@@ -229,7 +234,6 @@ class users
             echo json_encode($result);
             exit;
         }
-
 
 
         // изменить пароль
@@ -274,7 +278,8 @@ class users
                 }
                 if (intval($uid) > 0) {
                     if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
-                        FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'), FlashMessage::DANGER);
+                        FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
+                            FlashMessage::DANGER);
                     } else {
                         $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
                             auth_cert_serial=?, auth_cert_only=?
@@ -349,7 +354,8 @@ class users
                 }
 
                 if (!$active && $this->all_configs['oRole']->isLastSuperuserRole(intval($role_id))) {
-                    FlashMessage::set(l('Не возможно удалить последнюю роль с правами суперюзера'), FlashMessage::DANGER);
+                    FlashMessage::set(l('Не возможно удалить последнюю роль с правами суперюзера'),
+                        FlashMessage::DANGER);
                 } else {
                     $ar = $this->all_configs['db']->query('UPDATE {users_roles} SET avail=?i, date_end=? WHERE id=?i',
                         array($active, $date, intval($role_id)))->ar();
@@ -363,7 +369,8 @@ class users
             $name = trim($post['name']);
             $role_id = 0;
             if (!empty($name)) {
-                $role_id = $this->all_configs['db']->query('INSERT INTO {users_roles} (name, avail) VALUES (?, ?)', array($name, 1),
+                $role_id = $this->all_configs['db']->query('INSERT INTO {users_roles} (name, avail) VALUES (?, ?)',
+                    array($name, 1),
                     'id');
             }
             if (isset($post['permissions'])) {
@@ -481,111 +488,12 @@ class users
             </ul>
             <div class="tab-content">';
 
-        // список пользователей и ихние роля
-        $users_html .= '<div id="edit_tab_users" class="tab-pane active"><form enctype="multipart/form-data" method="post" id="users-form">';
-        $users_html .= '<table class="table table-striped"><thead><tr>'
-            . '<td>ID</td>'
-            . '<td>' . l('Фото') . '</td>'
-            . '<td><i class="glyphicon glyphicon-envelope"></i></td>'
-            . '<td>' . l('Логин') . '</td>'
-            . '<td title="' . l('Активный') . '"><i class="glyphicon glyphicon-off"></i></td>'
-            . '<td>' . l('Пароль') . '</td>'
-            . '<td>' . l('Роль') . '</td>'
-            . '<td>' . l('ФИО') . '</td><td>' . $sort_position . '</a></td>'
-            . '<td>' . l('Телефон') . '</td>'
-            . '<td>' . l('Эл. почта') . '</td>'
-            . '<td title="' . l('Серийный номер сертификата') . '">' . l('Номер сертиф.') . '</td>'
-            . '<td title="' . l('Вход только по сертификату') . '">' . l('Вход по сертиф.') . '</td>'
-            . '<td title="' . l('Удалить') . '"><i class="glyphicon glyphicon-remove"></i></td>'
-            . '</tr></thead><tbody>';
-
-        // строим блок списка пользователей с ролями
-        $yet = array();
-        if (count($users) > 0) {
-            foreach ($users as $user) {
-
-                if (array_key_exists($user['id'], $yet)) {
-                } else {
-
-                    $checked = '';
-                    $cert_checked = '';
-                    if ($user['avail']) {
-                        $checked = 'checked';
-                    }
-                    if ($user['auth_cert_only']) {
-                        $cert_checked = 'checked';
-                    }
-
-                    $users_html .=
-                        '<tr class="user-row">'
-                        . '<td>' . $user['id'] . '</td>'
-                        . '<td>
-                            <img class="upload_avatar_btn" data-uid="' . $user['id'] . '" width="40" src="' . $this->avatar($user['avatar']) . '">
-                         </td>'
-                        . '<td><input type="checkbox" name="send-mess-user[' . $user['id'] . ']" '
-                        . 'class="send-mess-user" value="' . $user['id'] . '" /></td>'
-                        . '<td>' . htmlspecialchars($user['login']) . '</td>'
-                        . '<td><input ' . $checked . ' type="checkbox" name="avail_user[' . $user['id'] . ']" /></td>'
-                        . '<td><i class="glyphicon glyphicon-warning-sign editable-click" data-type="text" '
-                        . 'data-pk="' . $user['id'] . '" '
-                        . 'data-type="password" '
-                        . 'data-url="' . $this->all_configs['arrequest'][0] . '/ajax?act=change-admin-password" '
-                        . 'data-title="Введите новый пароль" data-display="false"></i></td>'
-                        . '<td><select class="form-control input-sm" name="roles[' . $user['id'] . ']"><option value=""></option>';
-
-                    $yet1 = array();
-                    foreach ($activeRoles as $per) {
-                        if (array_key_exists($per['role_id'], $yet1)) {
-
-                        } else {
-                            if ($per['role_id'] == $user['role_id']) {
-                                $users_html .= '<option selected value="' . $per['role_id'] . '">' . htmlspecialchars($per['role_name']) . '</option>';
-                            } else {
-                                $users_html .= '<option value="' . $per['role_id'] . '">' . htmlspecialchars($per['role_name']) . '</option>';
-                            }
-                            $yet1[$per['role_id']] = $per['role_id'];
-                        }
-                    }
-
-
-                    $users_html .= '</select></td>'
-                        . '<td><input placeholder="' . l('введите ФИО') . '" class="form-control input-sm" '
-                        . 'name="fio[' . $user['id'] . ']" value="' . htmlspecialchars($user['fio']) . '" /></td>'
-                        . '<td><input placeholder="' . l('введите должность') . '" class="form-control input-sm" name="position[' . $user['id'] . ']" value="' . htmlspecialchars($user['position']) . '" /></td>'
-                        . '<td><input placeholder="' . l('введите телефон') . '" onkeydown="return isNumberKey(event)" class="form-control input-sm" name="phone[' . $user['id'] . ']" value="' . $user['phone'] . '" /></td>'
-                        . '<td><input placeholder="' . l('введите email') . '" class="form-control input-sm" name="email[' . $user['id'] . ']" value="' . $user['email'] . '" /></td>
-                        <td><input placeholder="" class="form-control input-sm" name="auth_cert_serial[' . $user['id'] . ']" value="' . $user['auth_cert_serial'] . '" /></td>
-                        <td><input ' . $cert_checked . ' type="checkbox" name="auth_cert_only[' . $user['id'] . ']" /></td>
-                        <td><a href="#" class="danger delete-user" title="' . l('Удалить') . '"><i class="glyphicon glyphicon-remove" onclick="delete_user(this, ' . $user['id'] . ');"  data-id="' . $user['id'] . '" ></i></a></td>
-
-                        </tr>';
-                    $yet[$user['id']] = $user['id'];
-                }
-            }
-        }
-
-        $users_html .= '<a class="btn btn-success send-mess" href="#" >' . l('Отправить сообщение') . '</a>';
-
-        $users_html .= '</tbody></table>';
-        //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-        $users_html .= '<input type="submit" name="change-roles" value="' . l('Сохранить') . '" class="btn btn-primary" />';
-        //}
-        $users_html .= '</form></div>
-            <div id="upload_avatar" class="modal fade">
-              <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                      <h4 class="modal-title">' . l('Аватар') . '</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div id="fileuploader"></div>
-                    </div>
-                </div>
-              </div>
-            </div>
-        ';
-
+        $users_html .= $this->view->renderFile('users/users', array(
+            'users' => $users,
+            'activeRoles' => $activeRoles,
+            'sortPosition' => $sort_position,
+            'controller' => $this
+        ));
         // список ролей и ихние доступы
         $users_html .= '<div id="edit_tab_roles" class="tab-pane"><form class="form-horizontal" method="post"><div style="display: inline-block; width: 100%;">';
         // дерево ролей и возможностей
@@ -869,6 +777,7 @@ class users
             LEFT JOIN (
             SELECT id, name, link, child FROM {users_permissions}
             )p ON p.id=rp.permission_id
+            WHERE u.deleted=0
             ORDER BY u.avail DESC," . $sort . " u.id
             ")->assoc();
 

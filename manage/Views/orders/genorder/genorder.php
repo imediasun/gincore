@@ -238,32 +238,11 @@
                         )); ?>
 
                         <div class="form-group">
-                            <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list"
-                                  title="<?= l('История изменений') ?>"
-                                  data-o_id="<?= $order['id'] ?>"
-                                  onclick="alert_box(this, false, 'changes:update-order-engineer')">
+                            <span style="margin:4px 10px 0 0"
+                                  class="pull-left cursor-pointer glyphicon glyphicon-list muted"
+                                  onclick="alert_box(this, false, 'changes:update-order-client_took')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
                             </span>
-                                <?= l('Инженер') ?>:
-                            </label>
-                            <select class="form-control" name="engineer">
-                                <option value=""><?= l('Выбрать') ?></option>
-                                <?php if ($engineers): ?>
-                                    <?php foreach ($engineers as $engineer): ?>
-                                        <option <?= $engineer['id'] == $order['engineer'] ? 'selected' : '' ?>
-                                            value="<?= $engineer['id'] ?>">
-                                            <?= get_user_name($engineer) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                        <span style="margin:4px 10px 0 0"
-                              class="pull-left cursor-pointer glyphicon glyphicon-list muted"
-                              onclick="alert_box(this, false, 'changes:update-order-client_took')"
-                              data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
-                        </span>
                             <label class="checkbox-inline">
                                 <input type="checkbox" value="1" <?= ($order['client_took'] == 1 ? 'checked' : '') ?>
                                        name="client_took">

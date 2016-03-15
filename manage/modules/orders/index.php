@@ -1979,10 +1979,10 @@ class orders
             'onlyEngineer' => $this->all_configs['oRole']->hasPrivilege('engineer') && !$hasEditorPrivilege,
             'hasEditorPrivilege' => $hasEditorPrivilege,
             'notSale' => $notSale,
-            'managers' => $notSale ? null : $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders',
-                Role::ONLY_ACTIVE),
-            'engineers' => $notSale ? null : $this->all_configs['oRole']->get_users_by_permissions('engineer',
-                Role::ONLY_ACTIVE),
+            'managers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders',
+                Role::ONLY_ACTIVE) : null,
+            'engineers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('engineer',
+                Role::ONLY_ACTIVE) : null,
             'navigation' => $this->clients_orders_navigation(true),
             'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
                 $this->all_configs['settings']['order_warranties']) : array(),
@@ -2416,7 +2416,7 @@ class orders
                     $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND active=1 AND deleted=0',
                         array(intval($_POST['manager'])))->row();
                     if (empty($user)) {
-                        FlashMessage::set(l('Менеджер не активен'), FlashMessage::DANGER);
+                        FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
                     } else {
                         $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
                             array(
@@ -2433,10 +2433,21 @@ class orders
 
                 // смена инженера
                 if (isset($_POST['engineer']) && intval($order['engineer']) != intval($_POST['engineer'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i',
+                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND deleted=0 AND active=1',
                         array($_POST['engineer']))->row();
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                        array($user_id, 'update-order-engineer', $mod_id, $this->all_configs['arrequest'][2], get_user_name($user), $_POST['engineer']));
+                    if (empty($user)) {
+                        FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
+                    } else {
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
+                            array(
+                                $user_id,
+                                'update-order-engineer',
+                                $mod_id,
+                                $this->all_configs['arrequest'][2],
+                                get_user_name($user),
+                                $_POST['engineer']
+                            ));
+                    }
                 }
 
                 // смена Неисправность со слов клиента
