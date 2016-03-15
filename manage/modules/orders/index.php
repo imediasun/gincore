@@ -696,7 +696,7 @@ class orders
             $count_page = ceil($count / $count_on_page);
 
             // строим блок страниц
-            $orders_html .= page_block($count_page, '#show_orders');
+            $orders_html .= page_block($count_page, $count, '#show_orders');
 
         } else {
             $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
@@ -742,7 +742,7 @@ class orders
             $count_page = ceil($count / $count_on_page);
 
             // строим блок страниц
-            $orders_html .= page_block($count_page, '#show_orders');
+            $orders_html .= page_block($count_page, $count, '#show_orders');
 
         } else {
             $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
@@ -788,7 +788,7 @@ class orders
             $count_page = ceil($count / $count_on_page);
 
             // строим блок страниц
-            $orders_html .= page_block($count_page, '#show_orders');
+            $orders_html .= page_block($count_page, $count, '#show_orders');
 
         } else {
             $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
@@ -835,7 +835,7 @@ class orders
             $count_page = ceil($count / $count_on_page);
 
             // строим блок страниц
-            $orders_html .= page_block($count_page, '#show_orders');
+            $orders_html .= page_block($count_page, $count, '#show_orders');
 
         } else {
             $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
@@ -944,7 +944,7 @@ class orders
             $count_page = $count_on_page > 0 ? ceil($count / $count_on_page) : 0;
 
             // строим блок страниц
-            $orders_html .= page_block($count_page, '#show_suppliers_orders-all');
+            $orders_html .= page_block($count_page, $count, '#show_suppliers_orders-all');
         }
 
         return array(
@@ -1038,7 +1038,7 @@ class orders
             $count_page = $count_on_page > 0 ? ceil($count / $count_on_page) : 0;
 
             // строим блок страниц
-            $orders_html .= page_block($count_page, '#show_suppliers_orders-wait');
+            $orders_html .= page_block($count_page, $count, '#show_suppliers_orders-wait');
         }
 
         return array(

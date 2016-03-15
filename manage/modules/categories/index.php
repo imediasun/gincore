@@ -659,7 +659,7 @@ class categories
 
 
                 // строим блок страничек товаров
-                $category_html .= page_block($count_page, '#edit_tab_goods');
+                $category_html .= page_block($count_page, count($goods), '#edit_tab_goods');
 
             } else {
                 $category_html .= '<p  class="text-error">' . l('В выбранной Вами категории нет ни одного товара') . '</p>';

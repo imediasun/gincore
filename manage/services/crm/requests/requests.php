@@ -357,7 +357,7 @@ class requests extends \service{
                         <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '">
                     </form>
                     '.$this->request_to_order_form().'
-                    '.page_block($count_pages).'
+                    '.page_block($count_pages, $req_data[1]).'
                     '.get_service('crm/sms')->get_form('requests').'
                 </div>
             </div>

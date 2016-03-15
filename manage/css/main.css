@@ -881,3 +881,11 @@ input.row-input {
 table.borderless > tbody > tr > td{
     border-style: none;
 }
+.count_all_records {
+    min-width: 180px;
+    min-height: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+    position: relative;
+    float: left;
+}

@@ -852,7 +852,7 @@ class warehouses
             // количество заказов
             $count = $this->all_configs['manageModel']->get_count_suppliers_orders($query);
             $count_page = ceil($count / $this->count_on_page);
-            $out .= page_block($count_page, '#orders-suppliers');
+            $out .= page_block($count_page, $count, '#orders-suppliers');
             $out .= '</div>';
         }
 
@@ -1900,7 +1900,7 @@ class warehouses
         } else {
             $out .= '<p class="text-error">' . l('Товаров нет') .'</p>';
         }
-        $out .= page_block($count_page, '#show_items');
+        $out .= page_block($count_page, count($goods), '#show_items');
 
         return $out;
     }

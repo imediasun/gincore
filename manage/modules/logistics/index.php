@@ -262,7 +262,7 @@ class logistics
                 ';
             }
             $count_page = ceil($chains_moves_count_all / $this->count_on_page);
-            $pages = page_block($count_page, '#motions');
+            $pages = page_block($count_page, $chains_moves_count_all,'#motions');
         }else{
             $rows = l('Нет цепочек');
             $pages = '';

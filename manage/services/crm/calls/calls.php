@@ -141,7 +141,7 @@ class calls extends \service{
                 </thead>
                 <tbody>'.$list_items.'</tbody>
             </table>
-            '.page_block($count_pages).'
+            '.page_block($count_pages, $list_data[1]).'
         ';
     }
 

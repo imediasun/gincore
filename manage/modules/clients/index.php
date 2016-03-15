@@ -596,7 +596,7 @@ class clients
             $count_page = ceil($count/$count_on_page);
 
             // строим блок страниц
-            $out .= page_block($count_page);
+            $out .= page_block($count_page, $count);
         } else {
             $out .= '<p  class="text-error">' . l('Нет ни одного клиента') . '</p>';
         }
@@ -878,7 +878,7 @@ class clients
             $count = $this->all_configs['manageModel']->get_count_clients_orders($query);
             $count_page = ceil($count/$count_on_page);
             // строим блок страниц
-            $out .= page_block($count_page);
+            $out .= page_block($count_page, $count);
         } else {
             $out .= '<div class="span9"><p  class="text-error">' . l('Заказов не найдено') . '</p></div>';
         }
@@ -1019,7 +1019,7 @@ class clients
         $page = '';
         // строим блок страниц
         if ($count_page > 1) {
-            $page = page_block($count_page);
+            $page = page_block($count_page, $count_comments);
         }
 
         $comments = $this->all_configs['db']->query('SELECT ca.id, ca.market_id, ca.fio, ca.content, ca.advantages, ca.disadvantages,
@@ -1197,7 +1197,7 @@ class clients
 
         $page = '';
         // строим блок страниц
-        $page = page_block($count_page);
+        $page = page_block($count_page, $count_reviws);
 
         $out = '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/create">' . l('Создать новый') .'</a>';
         if ( $reviews ) {

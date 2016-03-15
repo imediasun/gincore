@@ -3310,7 +3310,7 @@ class accountings
                 $count = $this->all_configs['manageModel']->get_count_clients_orders($query);
                 $count_page = ceil($count/$count_on_page);
                 // строим блок страниц
-                $out .= page_block($count_page, '#orders_pre-noncash');
+                $out .= page_block($count_page, $count, '#orders_pre-noncash');
             } else {
                 $out .= '<p  class="text-error">' . l('Нет заказов') . '</p>';
             }
@@ -3436,7 +3436,7 @@ class accountings
             $count = $this->all_configs['manageModel']->get_count_suppliers_orders($query);
             //$count = $this->all_configs['manageModel']->get_count_accounting_suppliers_orders();
             $count_page = ceil($count / $count_on_page);
-            $out .= page_block($count_page, '#a_orders-suppliers');
+            $out .= page_block($count_page, $count, '#a_orders-suppliers');
         }
         return array(
             'html' => $out,
@@ -3640,7 +3640,7 @@ class accountings
                 $out .= '</tbody></table>';
 
                 $count_page = ceil($count / $count_on_page);
-                $out .= page_block($count_page, '#a_orders-clients');
+                $out .= page_block($count_page, $count, '#a_orders-clients');
             } else {
                 $out .= '<p class="text-error">' . l('Нет заказов') . '</p>';
             }
@@ -3674,7 +3674,7 @@ class accountings
                 }
                 $out .= '</tbody></table>';
                 $count_page = ceil($count / $count_on_page);
-                $out .= page_block($count_page, '#a_orders-clients');
+                $out .= page_block($count_page, $count, '#a_orders-clients');
             } else {
                 $out .= '<p class="text-error">' . l('Нет заказов') . '</p>';
             }*/

@@ -651,7 +651,7 @@ function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 
 /**
  * страниная навигация
  * */
-function page_block($count_page, $hash = '', $a_url = null)
+function page_block($count_page, $count, $hash = '', $a_url = null)
 {
     $page = '';
 
@@ -687,7 +687,9 @@ function page_block($count_page, $hash = '', $a_url = null)
         }
     }
 
-    return '<div class="count_on_page">' . select_count_on_page() . '</div><ul style="margin:1px" class="pagination">' . $page . '</ul>';
+    $out = '<div class="count_on_page">' . select_count_on_page() . '</div><ul style="margin:1px" class="pagination">' . $page . '</ul>';
+    $out .= '<div class="count_all_records"> <span class="form-control">'.l('Всего').':'.$count.l('записей').'</span></div>';
+    return $out;
 }
 
 function check_page($count, $cur = 1, $need = 1)

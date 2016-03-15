@@ -1497,7 +1497,7 @@ class products
             }
 
             // строим блок страниц
-            $goods_html .= page_block($count_page);
+            $goods_html .= page_block($count_page, $this->count_goods);
             // строим блок настроек гарантии
             if ($this->all_configs['configs']['no-warranties'] == false) {
                 $goods_html .= '</div><div id="settings" class="tab-pane">';

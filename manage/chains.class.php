@@ -789,7 +789,7 @@ class Chains
             $count_page = $count_on_page > 0 ? ceil($count / $count_on_page) : 0;
 
             // строим блок страниц
-            $out .= page_block($count_page, $hash);
+            $out .= page_block($count_page, $count, $hash);
         } else {
             $out .= l('Нет операций');
         }
