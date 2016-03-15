@@ -2,6 +2,9 @@
 
 class Role
 {
+    const ALL = 0;
+    const ONLY_ACTIVE = 1;
+
     var $permissions; // Массив доступных свойст
     var $all_configs;
     var $ifadmin;
@@ -62,18 +65,20 @@ class Role
     }
 
     /**
-     * @param $arr
+     * @param          $arr
+     * @param int $all
      * @return array
      */
-    public function get_users_by_permissions($arr)
+    public function get_users_by_permissions($arr, $all = self::ALL)
     {
         $users = array();
         $arr = (array)$arr;
+        $query = $all == self::ALL ? '' : $this->all_configs['db']->makeQuery('AND u.avail=1 AND u.deleted=0');
         if (count($arr) > 0) {
             $users = (array)$this->all_configs['db']->query('SELECT u.*, CONCAT(u.fio, " ", u.login) as name
                 FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND u.role=l.role_id AND l.permission_id=p.id',
-                array($arr))->assoc('id');
+                WHERE p.link IN (?l) AND u.role=l.role_id AND l.permission_id=p.id ?query',
+                array($arr, $query))->assoc('id');
         }
 
         return $users;
@@ -143,7 +148,7 @@ class Role
                 FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
                 WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id',
             array(array('edit-users', 'site-administration')))->assoc('id');
-        if(!in_array($userId, array_keys($users))) {
+        if (!in_array($userId, array_keys($users))) {
             return false;
         }
         return count($users) == 1;

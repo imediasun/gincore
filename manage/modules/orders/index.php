@@ -2,11 +2,11 @@
 
 require_once __DIR__.'/../../Response.php';
 require_once __DIR__.'/../../View.php';
+require_once __DIR__.'/../../FlashMessage.php';
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
-require_once __DIR__ . '/../../View.php';
 
 class orders
 {
@@ -2127,7 +2127,7 @@ class orders
                               .'<input type="hidden" name="accept-manager" value="" />';
                 } else {
                     // инженеры
-                    $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders');
+                    $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders', Role::ONLY_ACTIVE);
                     $html = '<select class="form-control" name="manager"><option value="">' . l('Выбрать') . '</option>';
                     if ($managers) {
                         foreach ($managers as $manager) {
@@ -2816,10 +2816,22 @@ class orders
 
                 // смена менеджера
                 if (isset($_POST['manager']) && intval($order['manager']) != intval($_POST['manager'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i',
-                        array($_POST['manager']))->row();
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                        array($user_id, 'update-order-manager', $mod_id, $this->all_configs['arrequest'][2], get_user_name($user), $_POST['manager']));
+                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND active=1 AND deleted=0',
+                        array(intval($_POST['manager'])))->row();
+                    if (empty($user)) {
+                        FlashMessage::set(l('Менеджер не активен'), FlashMessage::DANGER);
+                    } else {
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
+                            array(
+                                $user_id,
+                                'update-order-manager',
+                                $mod_id,
+                                $this->all_configs['arrequest'][2],
+                                get_user_name($user),
+                                $_POST['manager']
+                            ));
+                        $order['manager'] = intval($_POST['manager']);
+                    }
                 }
 
                 // смена инженера
@@ -2911,7 +2923,6 @@ class orders
                 $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
                 $order['is_waiting'] = isset($_POST['is_waiting']) ? 1 : 0;
                 $order['engineer'] = isset($_POST['engineer']) ? $_POST['engineer'] : $order['engineer'];
-                $order['manager'] = isset($_POST['manager']) ? $_POST['manager'] : $order['manager'];
                 // если статус доработка то меняем вид ремонта
                 $order['repair'] = isset($_POST['status']) && $_POST['status'] == $this->all_configs['configs']['order-status-rework'] ? 2 : $order['repair'];
                 if (in_array($_POST['status'], $this->all_configs['configs']['order-status-issue-btn'])) {
