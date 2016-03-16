@@ -88,7 +88,7 @@
                                     <option value="-1" selected disabled><?= l('Не выбран') ?></option>
                                 <?php endif; ?>
                                 <?php foreach ($this->all_configs['configs']['devices-colors'] as $id => $color): ?>
-                                    <option <?= (!is_null($order['o_color']) && $order['o_color'] == $i ? ' selected' : '') ?>
+                                    <option <?= (!is_null($order['o_color']) && $order['o_color'] == $id) ? 'selected' : '' ?>
                                         value="<?= $id ?>">
                                         <?= $color ?>
                                     </option>
