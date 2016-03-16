@@ -12,7 +12,6 @@
                         <?= (array_key_exists($cco,
                             $currencies) ? ' ' . $currencies[$cco]['shortName'] : '') ?></strong>
                 </td>
-                <td></td>
             </tr>
             <?php if ($isAdmin): ?>
                 <tr>
@@ -21,8 +20,6 @@
                     </td>
                     <td>
                         <a id="show_reports_turnover_profit_button" class="btn"><?= l('Рассчитать') ?> </a>
-                    </td>
-                    <td>
                         <strong> <span class="reports_turnover_profit invisible">
                     <?= show_price($profit, 2, ' ') ?>
                     <?= (array_key_exists($cco, $currencies) ? ' ' . $currencies[$cco]['shortName'] : '') ?>
@@ -35,8 +32,6 @@
                     </td>
                     <td>
                         <a id="show_reports_turnover_margin_button" class="btn"> <?= l('Рассчитать') ?> </a>
-                    </td>
-                    <td>
                         <strong> <span class="reports_turnover_margin invisible">
                     <?= (is_numeric($avg) ? round($avg, 2) : 0) ?> %
                 </span> </strong>
