@@ -775,23 +775,9 @@ class Chains
      */
     function show_stockman_operation($op, $type, $serials, $compact = false)
     {
-        //$q = $this->query_warehouses();
-        //$wh_ids = $q['array_for_my_warehouses'];
-        $out = $btn = '';
         $global_class = null;
-        $g_out = $w_out = $wt_out = $s_out = $b_out = '';
 
-        $out .= '<tr class="' . $global_class . '">';
         if (!$compact) {
-            $out .= '<td>';
-            if ($op['order_id'] > 0) {
-                $out .= '<a href="' . $this->all_configs['prefix'] . 'orders/create/' . $op['order_id'] . '">' . $op['order_id'];
-            } else {
-                /*if ($op['parent'] > 0) {
-                    $out .= '<a href="' . $this->all_configs['prefix'] . 'logistics?h_id=' . $op['chain_id'] . '#motions">';
-                }
-                $out .= $op['chain_id'];*/
-            }
             $selected = $this->all_configs['db']->query(
                 'SELECT COUNT(id) FROM {users_marked}
                       WHERE user_id = ?i AND type = ? AND object_id = ?i',
@@ -800,52 +786,29 @@ class Chains
                 'SELECT COUNT(id) FROM {users_marked}
                       WHERE type = ? AND object_id = ?i',
                 array('woi', $op['order_id']))->el();
-            $out .= '</a>'
-                . show_marked($op['order_id'], 'wso' . $type, $selected)
-                . show_marked($op['order_id'], 'woi', $selected_oi)
-                . '</td><td><span title="' . do_nice_date($op['date_add'],
-                    false) . '"> ' . do_nice_date($op['date_add']) . '</span></td>';
-            $out .= '<td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $op['goods_id'] . '">';
-            $content = 'Нет на складе';
-
-            //if ($op['item_id'] > 0 || $op['last_item_id'] > 0) {
-            //    $content = htmlspecialchars($op['wh_title']) . ' - ' . htmlspecialchars($op['location']);
-            //}
-            if (/*$type == 1 && $op['item_id'] == 0 && */
-                isset($serials[$op['goods_id']]) && isset($serials[$op['goods_id']]['count'])
-            ) {
-                $content = '';
-                foreach ($serials[$op['goods_id']]['count'] as $warehouse) {//$serial['count'] .
-                    $content .= htmlspecialchars($warehouse['title']);
+            $state = 'Нет на складе';
+            if (isset($serials[$op['goods_id']]) && isset($serials[$op['goods_id']]['count'])) {
+                $state = '';
+                foreach ($serials[$op['goods_id']]['count'] as $warehouse) {
+                    $state .= htmlspecialchars($warehouse['title']);
                     foreach ($warehouse['locations'] as $location) {
-                        $content .= ' - ' . htmlspecialchars($location['title']) . ' - ' . count($location['items']) . '<br />';
+                        $state .= ' - ' . htmlspecialchars($location['title']) . ' - ' . count($location['items']) . '<br />';
                     }
                 }
             }
-            $out .= htmlspecialchars($op['title']) . '</a> <i class="fa fa-arrows popover-info" data-content="' . $content . '"></i></td>';//<td>' . $w_out . '</td>';
-            if ($type == 1) {
-                $out .= '<td>' . ($op['warehouse_type'] == 1 ? 'Локально' : ($op['warehouse_type'] == 2 ? 'Заграница' : '')) . '</td>';
-            }
         }
-        if ($type == 1 && $op['item_id'] == 0) {
-            $b_out = '<input class="btn btn-xs" type="button" value="Привязать" onclick="btn_bind_item_serial(this, \'' . $op['id'] . '\')" />';
-        }
-        if ($type == 4 && $op['item_id'] > 0) {
-            $b_out = '<input class="btn btn-xs" type="button" value="Отвязать" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
-        }
-        if ($type == 1) {
-            $out .= '<td></td><td><div class="input-group"' . (!$compact ? ' style="max-width:200px"' : '') . '>' . $this->select_bind_item_wh($op,
-                    $type, $serials);
-            $out .= '<input class="form-control" type="text" value="" style="display:none;" id="bind_item_serial_input-' . $op['id'] . '" />';
-            $out .= '<span class="input-group-btn" onclick="toogle_siblings(this, true)"><button class="btn" type="button"><i class="fa fa-keyboard-o"></i></button></span></div></td>';
-        }
-        if ($type == 4) {
-            $out .= '<td>' . $this->select_bind_item_wh($op, $type, $serials) . '</td>';
-        }
-        $out .= '<td>' . $b_out . '</td>';
-        $icon = '<i style="color:' . htmlspecialchars($op['color']) . ';" class="' . htmlspecialchars($op['icon']) . '"></i> ';
-        $out .= '<td>' . $icon . htmlspecialchars($op['name']) . '</td>';
-        $out .= '</tr>';
+
+        $out = $this->view->renderFile('chains.class/show_stockman_operation', array(
+            'op' => $op,
+            'type' => $type,
+            'global_class' => $global_class,
+            'compact' => $compact,
+            'selected' => isset($selected) ? $selected : null,
+            'selected_oi' => isset($selected_oi) ? $selected_oi : null,
+            'state' => isset($state) ? $state : '',
+            'controller' => $this,
+            'serials' => $serials
+        ));
 
         return $out;
     }
