@@ -1442,7 +1442,7 @@ class orders
     function check_if_order_fail_in_orders_manager($order)
     {
         $day = 60 * 60 * 24;
-        $managerConfigs = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+        $managerConfigs = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-manager-configs'")->assoc();
 
         if (empty($managerConfigs)) {
             return $this->check_with_default_config($order, $day);
@@ -2900,7 +2900,7 @@ class orders
         $data = array(
             'state' => true
         );
-        $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+        $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-manager-configs'")->assoc();
         $data['html'] = $this->view->renderFile('orders/manager_setup', array(
             'orderStatus' => $this->all_configs['configs']['order-status'],
             'shows' => array_keys($this->all_configs['configs']['show-status-in-manager-config']),
@@ -2927,9 +2927,9 @@ class orders
             $configs = $_POST['status'];
             $configs['status_repair'] = $_POST['status_repair'];
             $configs['status_sold'] = $_POST['status_sold'];
-            $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'configs'")->assoc();
+            $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-manager-configs'")->assoc();
             if (empty($current)) {
-                $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('configs', ?, ?, ?, 1)",
+                $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-manager-configs', ?, ?, ?, 1)",
                     array(
                         'Настройки менеджера заказов',
                         'Настройки менеджера заказов',
@@ -2937,7 +2937,7 @@ class orders
                     ));
 
             } else {
-                $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'configs'",
+                $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'order-manager-configs'",
                     array(json_encode($configs)));
             }
 
