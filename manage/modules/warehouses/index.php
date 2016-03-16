@@ -360,6 +360,8 @@ class warehouses
                     $location_id = $this->all_configs['db']->query(
                         'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
                         array($post['warehouse-id'], trim($location)), 'id');
+
+                    get_service('wh_helper')->clear_cache();
                     if ($location_id > 0) {
                         $query = $this->all_configs['db']->makeQuery('?query AND id<>?i', array($query, $location_id));
                     }
@@ -773,50 +775,15 @@ class warehouses
     function warehouses_orders($hash = '#orders-clients_issued')
     {
         if (trim($hash) == '#orders' || (trim($hash) != '#orders-suppliers' && trim($hash) != '#orders-clients_bind'
-                && trim($hash) != '#orders-clients_accept' && trim($hash) != '#orders-clients_issued' && trim($hash) != '#orders-clients_unbind')) {
+                && trim($hash) != '#orders-clients_accept' && trim($hash) != '#orders-clients_issued' && trim($hash) != '#orders-clients_unbind')
+        ) {
             $hash = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') ? '#orders-clients_bind' : '#orders-clients_issued';
         }
 
         $out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')) {
-
-            $out .= '<ul class="list-unstyled inline clearfix">';
-
-            if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-                $out .= '<li><a class="click_tab btn btn-success" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_bind"';
-                $out .= ' title="' . l('Привязать серийный номер к заказу') .'" href="#orders-clients_bind">' . l('Привязать сер.номер') . '<span class="tab_count hide tc_warehouses_clients_orders_bind"></span></a></li>';
-
-                $out .= '<li><a class="click_tab btn btn-danger" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_clients_unbind"';
-                $out .= ' title="' . l('Отвязать серийный номер от заказа') .'" href="#orders-clients_unbind">' . l('Отвязать сер.номер') . '<span class="tab_count hide tc_warehouses_clients_orders_unbind"></span></a></li>';
-            }
-            if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-                $out .= '<li><a class="click_tab  btn btn-warning" onclick="click_tab(this, event)" data-open_tab="warehouses_orders_suppliers"';
-                $out .= ' title="' . l('Заказы поставщику которые ждут приходования') . '" href="#orders-suppliers">' . l('Заказы поставщику') . '<span class="tab_count hide tc_debit_suppliers_orders"></span></a></li>';
-            }
-            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li>';
-            $out .= '</ul><div class="clearfix hidden theme_bg filters-box p-sm m-b-md" id="filters"><div id="orders-menu"></div></div><div class="pill-content">';
-            if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-                $out .= '<div id="orders-suppliers" class="pill-pane">';
-                $out .= '</div><!--#orders-suppliers-->';
-
-                // привязать серийник к заказу
-                $out .= '<div id="orders-clients_bind" class="pill-pane">';
-                $out .= '</div><!--#orders-clients-->';
-
-                // отвязать серийник от заказа
-                $out .= '<div id="orders-clients_unbind" class="pill-pane">';
-                $out .= '</div><!--#orders-clients-->';
-            }
-            // выдать изделие
-            $out .= '<div id="orders-clients_issued" class="pill-pane">';
-            $out .= '</div><!--#orders-clients-->';
-
-            // выдать изделие
-            $out .= '<div id="orders-clients_accept" class="pill-pane">';
-            $out .= '</div><!--#orders-clients-->';
-
-            $out .= '</div><!--.pill-content-->';
+            $out .= $this->view->renderFile('warehouses/warehouses_orders');
         }
 
         return array(

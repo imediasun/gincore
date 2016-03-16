@@ -556,14 +556,14 @@ if ($act == 'get_locations') {
     $data['msg'] = 'Локаций не найдено';
     if (isset($_POST['wh_id'])) {
         $warehouses = get_service('wh_helper')->get_warehouses();
-        if(isset($warehouses[$_POST['wh_id']]['locations'])){
+        if (isset($warehouses[$_POST['wh_id']]['locations'])) {
             $out = '';
             $i = 0;
-            foreach ($warehouses[$_POST['wh_id']]['locations'] as $id=>$location) {
-                if(trim($location['name'])){
-                    $out .= '<option'.(!$i ? ' selected="selected"' : '').' value="' . $id . '">' . 
-                                htmlspecialchars($location['name']) . 
-                            '</option>';
+            foreach ($warehouses[$_POST['wh_id']]['locations'] as $id => $location) {
+                if (trim($location['name'])) {
+                    $out .= '<option' . (!$i ? ' selected="selected"' : '') . ' value="' . $id . '">' .
+                        htmlspecialchars($location['name']) .
+                        '</option>';
                     $i++;
                 }
             }
