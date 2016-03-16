@@ -1,4 +1,6 @@
-<div>
+<?php if ($showWrapper): ?>
+    <div>
+<?php endif; ?>
     <div class="<?= $compact ? 'input-group' : 'form-group' ?>">
         <?php if (!$compact): ?>
             <label><?= l('manager') ?>:</label>
@@ -7,7 +9,7 @@
         <span class="input-group-btn">
     <?php endif; ?>
             <select <?= ($compact ? ' data-numberDisplayed="0"' : '') ?>
-                class="multiselect <?= ($compact ? ' btn-sm ' : '') ?>" name="managers[]" multiple="multiple">
+                class="multiselect <?= ($showWrapper ? ' btn-sm ' : '') ?>" name="managers[]" multiple="multiple">
                 <?php foreach ($managers as $manager): ?>
                     <option <?= ($mg_get && in_array($manager['id'], $mg_get) ? 'selected' : '') ?>
                         value="<?= $manager['id'] ?>"><?= htmlspecialchars($manager['name']) ?>
@@ -18,4 +20,6 @@
         </span>
     <?php endif; ?>
     </div>
-</div>
+<?php if ($showWrapper): ?>
+    </div>
+<?php endif; ?>
