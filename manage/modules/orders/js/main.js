@@ -744,7 +744,7 @@ function add_item_to_table() {
     if (cost > 0 && title.length > 0 && id.length > 0) {
         $clone = $row.clone().removeClass('js-row-cloning');
         $clone.addClass('row-item');
-        $clone.find('.js-item-name').first().val(title + '(' + serial + ')');
+        $clone.find('.js-item-name').first().val(title + '(' + serial + ')').attr('title', title + '(' + serial + ')');
         $clone.find('input.js-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
         $clone.find('.js-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
         $('#sale_poduct_cost').val('');

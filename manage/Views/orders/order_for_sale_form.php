@@ -41,7 +41,7 @@
                                 <?= typeahead($this->all_configs['db'], 'serials', false, '', 4,
                                     'input-medium clone_clear_val',
                                     '', 'display_serial_product_title_and_price', false, true) ?>
-                                <small class="clone_clear_html product-title" style="display:none"></small>
+                                <small class="clone_clear_html product-title"></small>
                                 <input type="hidden" name="items" id="item_id" value="">
                             </div>
                             <div class="form-group col-sm-4">

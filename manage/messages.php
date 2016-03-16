@@ -159,7 +159,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             }
 
             $data = $all_configs['db']->query('SELECT id as item_id, serial FROM {warehouses_goods_items}
-                    WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL)) LIMIT ?i',
+                    WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL) AND order_id IS NULL) LIMIT ?i',
                 array($s, $query, $limit))->assoc();
             if ($data) {
                 foreach ($data as $k=>$v) {
@@ -518,12 +518,12 @@ if ($act == 'move-order') {
 // название товара по серийнику
 if ($act == 'get-product-title' || $act == 'get-product-title-and-price') {
     $item_ids = isset($_POST['item_id']) ? intval($_POST['item_id']) : 0;
-    $product = $all_configs['db']->query('SELECT g.title, g.price FROM {goods} as g, {warehouses_goods_items} as i
+    $product = $all_configs['db']->query('SELECT g.title, g.price, i.price as wholesale FROM {goods} as g, {warehouses_goods_items} as i
         WHERE g.id=i.goods_id AND i.id=?i', array($item_ids))->row();
 
     if ($product) {
         $data['state'] = true;
-        $data['msg'] = htmlspecialchars($product['title']) . ' (' . ($product['price'] / 100) . ')';
+        $data['msg'] = htmlspecialchars($product['title']) . ' ' . ($product['price'] / 100) . '(' . ($product['wholesale'] / 100) . ')';
         if($act == 'get-product-title-and-price'){
             $data['price'] = $product['price'] / 100;
             $data['id'] = $item_ids;
