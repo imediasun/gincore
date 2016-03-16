@@ -749,51 +749,16 @@ class Chains
             return false;
         }
 
-        // фильтры
-        $filters = '<form method="post"><legend>' . l('Фильтры') . ':</legend>';
-        $filters .= '<div class="form-group"><label>' . l('Товар') . ':</label>';
-        $filters .= typeahead($this->all_configs['db'], 'goods', true,
-            isset($_GET['by_gid']) && $_GET['by_gid'] > 0 ? $_GET['by_gid'] : 0, 2, 'input-small', 'input-mini');
-        $filters .= '</div><div class="form-group"><label>' . l('Серийный номер') . ':</label><input name="serial" value="';
-        $filters .= isset($_GET['serial']) && !empty($_GET['serial']) ? trim(htmlspecialchars($_GET['serial'])) : '';
-        $filters .= '" type="text" class="form-control" placeholder="' . l('Серийный номер') . '" class="form-control"></div>';
-        $filters .= '<div class="form-group"><label>' . l('ФИО') . ':</label>';
-        $filters .= typeahead($this->all_configs['db'], 'clients', false,
-                isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0) . '</div>';
-        $filters .= '<div class="form-group"><label>' . l('номер заказа на ремонт') . ':</label><input name="client-order-number" value="';
-        $filters .= isset($_GET['con']) && !empty($_GET['con']) ? trim(htmlspecialchars($_GET['con'])) : '';
-        $filters .= '" type="text" class="form-control" placeholder="' . l('номер заказа на ремонт') . '"></div>';
-        $filters .= '<div class="form-group"><div class="checkbox"><label><input name="noitems" ';
-        $filters .= (isset($_GET['noi']) ? 'checked' : '') . ' type="checkbox" /> ' . l('Без изделий') . '</label></div>';
-        $filters .= '<div class="form-group"><input type="submit" name="filters" class="btn" value="' . l('Фильтровать') . '"></div></div>';
-        $filters .= '</div></form>';
+        $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
 
-        $out = '';
-        if ($operations && count($operations) > 0) {
-            $out .= '<table class="table table-compact"><thead><tr><td>' . l('Заказ') . '</td><td>' . l('Дата') . '</td><td>' . l('Наименование') . '</td>';//<td>' . l('Склад') . '</td>
-            if ($type == 1) {
-                $out .= '<td>' . l('Сроки') . '</td>';
-            }
-            if ($type == 2) {
-                $out .= '<td>Куда</td>';
-            }
-            $out .= '<td>' . l('Сер.номер') . '</td><td>' . l('Управление') . '</td><td>' . l('Сервисный центр') . '</td>';//<td>' . l('ФИО клиента') . '</td><td>' . l('Управление') . '</td><td>' . l('Автор') . ' заказа</td>
-            $out .= '</tr></thead><tbody>';//<td>Сроки</td><td>Комментарий</td>
-
-            foreach ($operations as $op) {
-                $out .= $this->show_stockman_operation($op, $type, $serials);
-            }
-
-            $out .= '</tbody></table>';
-
-            $count_page = $count_on_page > 0 ? ceil($count / $count_on_page) : 0;
-
-            // строим блок страниц
-            $out .= page_block($count_page, $count, $hash);
-        } else {
-            $out .= l('Нет операций');
-        }
-        $out .= '</div>';
+        $out = $this->view->renderFile('chains.class/show_stockman_operations', array(
+            'operations' => $operations,
+            'count_on_page' => $count_on_page,
+            'count' => $count,
+            'type' => $type,
+            'serials' => $serials,
+            'controller' => $this
+        ));
 
         return array(
             'html' => $out,

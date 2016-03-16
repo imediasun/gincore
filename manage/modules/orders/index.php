@@ -1443,12 +1443,30 @@ class orders
     {
         $day = 60 * 60 * 24;
         $managerConfigs = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-manager-configs'")->assoc();
-
         if (empty($managerConfigs)) {
             return $this->check_with_default_config($order, $day);
         } else {
             $config = json_decode($managerConfigs[0]['value'], true);
             foreach ($config as $id => $value) {
+                if($id == 'status_repair' && $order['status'] == $this->all_configs['configs']['order-status-waits']) {
+                    $items = $this->all_configs['db']->query('SELECT sum(1) as quantity, sum(if(item_id IS NULL,1,0)) as not_binded FROM {orders_goods} WHERE order_id=? GROUP BY order_id', array($order['id']))->assoc();
+                    if(!empty($items) && $items[0]['quantity'] > 0 && $items[0]['not_binded'] && strtotime($order['date']) + $day * $value < time()) {
+                        return true;
+                    }
+                }
+                if($id == 'status_sold' && $order['status'] == $this->all_configs['configs']['order-status-waits']) {
+                    $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+                    if(!empty($goods)) {
+                        foreach ($goods as $good) {
+                            if($good['item_id'] <= 0 && $good['count_order'] > 0 && $good['supplier'] == 0 && strtotime($order['date']) + $day * $value < time()) {
+                                return true;
+                            }
+                        }
+                    }
+                    if(!empty($items) && $items[0]['quantity'] > 0 && $items[0]['not_binded'] && strtotime($order['date']) + $day * $value < time()) {
+                        return true;
+                    }
+                }
                 //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
                 if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
                     return true;
@@ -2436,7 +2454,7 @@ class orders
 
                 // смена инженера
                 if (isset($_POST['engineer']) && intval($order['engineer']) != intval($_POST['engineer'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND deleted=0 AND active=1',
+                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND deleted=0 AND avail=1',
                         array($_POST['engineer']))->row();
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
