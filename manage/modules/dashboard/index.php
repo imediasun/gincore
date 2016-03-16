@@ -1,8 +1,12 @@
 <?php
 
+require_once __DIR__.'/../../View.php';
+
 class dashboard
 {
     const PREPAYMENT_TRANSACTION_TYPE = 10;
+    /** @var View  */
+    protected $view;
 
     /**
      * dashboard constructor.
@@ -19,6 +23,7 @@ class dashboard
         $this->db = $this->all_configs['db'];
         $this->arrequest = $this->all_configs['arrequest'];
         $this->prefix = $this->all_configs['prefix'];
+        $this->view = new View($all_configs);
 
         if ($this->all_configs['oRole']->hasPrivilege('dashboard')) {
             $this->gen_filter_block();
@@ -38,10 +43,10 @@ class dashboard
         $start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? date("j/n/y",
             strtotime($_GET['ds'])) : date("1/n/y");
         $end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? date("j/n/y", strtotime($_GET['de'])) : date("j/n/y");
-        $input['filter'] =
-            '<div id="daterange" class="btn btn-info">
-                <span>' . $start . ' - ' . $end . '</span> <b class="caret"></b>
-            </div>';
+        $input['filter'] = $this->view->renderFile('dashboard/get_filter_block', array(
+            'start' => $start,
+            'end' => $end
+        ));
     }
 
     /**
@@ -213,18 +218,11 @@ class dashboard
             $orders = $this->db->query("SELECT count(*) "
                 . "FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
-            $stats .= '
-                <div class="m-t-xs">
-                    <span class="font-bold no-margins">
-                        ' . $name . ' <span class="pull-right">' . $orders . ' (' . $p . '%)</span>
-                    </span>
-                    <div class="progress m-t-xs full progress-small">
-                        <div style="width:' . $p . '%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="55" role="progressbar" class="' . (!$orders ? 'hidden ' : '') . 'progress-bar progress-bar-success">
-                            <span class="sr-only"></span>
-                        </div>
-                    </div>
-                </div>
-            ';
+            $stats .= $this->view->renderFile('dashboard/get_workshops_stats', array(
+                'name' => $name,
+                'percents' => $p,
+                'count' => $orders
+            ));
         }
         return $stats;
     }
