@@ -834,7 +834,7 @@ class Chains
             $b_out = '<input class="btn btn-xs" type="button" value="Отвязать" data-o_id="' . $op['item_id'] . '" onclick="alert_box(this, null, \'bind-move-item-form\')" />';
         }
         if ($type == 1) {
-            $out .= '<td><div class="input-group"' . (!$compact ? ' style="max-width:200px"' : '') . '>' . $this->select_bind_item_wh($op,
+            $out .= '<td></td><td><div class="input-group"' . (!$compact ? ' style="max-width:200px"' : '') . '>' . $this->select_bind_item_wh($op,
                     $type, $serials);
             $out .= '<input class="form-control" type="text" value="" style="display:none;" id="bind_item_serial_input-' . $op['id'] . '" />';
             $out .= '<span class="input-group-btn" onclick="toogle_siblings(this, true)"><button class="btn" type="button"><i class="fa fa-keyboard-o"></i></button></span></div></td>';
@@ -842,11 +842,9 @@ class Chains
         if ($type == 4) {
             $out .= '<td>' . $this->select_bind_item_wh($op, $type, $serials) . '</td>';
         }
-        $out .= '<td>' . $b_out . '</td>';//<td>' . get_user_name($op, 'a_') . '</td>';
+        $out .= '<td>' . $b_out . '</td>';
         $icon = '<i style="color:' . htmlspecialchars($op['color']) . ';" class="' . htmlspecialchars($op['icon']) . '"></i> ';
         $out .= '<td>' . $icon . htmlspecialchars($op['name']) . '</td>';
-        //$out .= '<td>' . get_user_name($op) . '</td>';//<td>
-        //$out .= '<td>' . cut_string($op['comment']) . '</td>';
         $out .= '</tr>';
 
         return $out;

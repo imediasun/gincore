@@ -26,7 +26,7 @@
         </tbody>
     </table>
 
-    <?= $count_page = $count_on_page > 0 ? ceil($count / $count_on_page) : 0; ?>
+    <?php $count_page = $count_on_page > 0 ? ceil($count / $count_on_page) : 0; ?>
     <?= page_block($count_page, $count, $hash); ?>
 <?php else: ?>
     <?= l('Нет операций'); ?>
