@@ -236,31 +236,31 @@ class dashboard
     private function get_repair_chart()
     {
         $categories = $this->db->query('SELECT id, title FROM {categories} WHERE parent_id=0 AND avail=1',
-            array())->assoc();
+            array())->assoc('id');
         $model = $this->db->query('SELECT id, title FROM {categories} WHERE parent_id > 0 AND avail=1',
-            array())->assoc();
-        $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc();
+            array())->assoc('id');
+        $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
 
         $orders = array();
         $ordersByCategory = array();
         $ordersByModels = array();
         if (!empty($_POST['goods_id'])) {
             $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, goods_id as good "
-                . "FROM {orders} o "
-                . "JOIN {orders_goods} as og ON og.order_id = o.id "
-                . "WHERE ?q AND goods_id in (?li) GROUP BY good, d ",
-                array($this->make_filters('date_add'), $_POST['goods_id']))->assoc(), 'good');
+                . " FROM {orders} o "
+                . " JOIN {orders_goods} as og ON og.order_id = o.id "
+                . " WHERE ?q AND goods_id in (?li) GROUP BY good, d ",
+                array($this->make_filters('o.date_add'), $_POST['goods_id']))->assoc(), 'good');
         }
         if (!empty($_POST['categories_id'])) {
-            $ordersByCategory = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
-                . "FROM {orders} o "
-                . "WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
-                array($this->make_filters('date_add'), $_POST['categories_id']))->assoc(), 'category_id');
+            $ordersByCategory = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
+                . " FROM {orders} o, {categories} cat "
+                . " WHERE ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
+                array($this->make_filters('o.date_add'), $_POST['categories_id'], $_POST['categories_id']))->assoc(), 'p_id');
         }
         if (!empty($_POST['models_id'])) {
             $ordersByModels = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
-                . "FROM {orders} o "
-                . "WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
+                . " FROM {orders} o "
+                . " WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
                 array($this->make_filters('date_add'), $_POST['models_id']))->assoc(), 'category_id');
         }
 
@@ -273,6 +273,7 @@ class dashboard
             $resultByModels = $this->formatForChart($dt, $ordersByModels, $resultByModels);
             $resultByCategories = $this->formatForChart($dt, $ordersByCategory, $resultByCategories);
         }
+        var_dump($resultByCategories);
         return $this->view->renderFile('dashboard/repair_chart', array(
             'categories' => $categories,
             'models' => $model,
