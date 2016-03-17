@@ -88,15 +88,22 @@ class dashboard
     private function gen_content()
     {
         global $input;
+        global $input_html;
+
         $conversion = $this->get_conversion();
         $input['conversion_1'] = $conversion[0];
         $input['conversion_2'] = $conversion[1];
         $input['conversion_3'] = $conversion[2];
+
         $conv_chart = $this->get_conv_chart();
         $input['line_chart_data_orders'] = $conv_chart['orders'];
         $input['line_chart_data_calls'] = $conv_chart['calls'];
         $input['line_chart_data_visitors'] = $conv_chart['visitors'];
         $input['init_visitors'] = $conv_chart['init_visitors'] ? 'true' : 'false';
+
+        $input_html['branch_chart'] = $this->get_branch_chart();
+        $input_html['repair_chart'] = $this->get_repair_chart();
+
         $input['currency'] = viewCurrency('symbol');
         $input['avg_check'] = $this->get_avg_check();
         $input['workshops_stats'] = $this->get_workshops_stats();
@@ -154,6 +161,126 @@ class dashboard
             'visitors' => implode(',', $visitors_js),
             'init_visitors' => $init_visitors
         );
+    }
+
+    /**
+     * @param $orders
+     * @param $by
+     * @return array
+     */
+    private function prepare($orders, $by)
+    {
+        $result = array();
+        foreach ($orders as $order) {
+            if (!isset($result[$order[$by]])) {
+                $result[$order[$by]] = array();
+            }
+            $result[$order[$by]][$order['d']] = $order['c'];
+        }
+        return $result;
+    }
+
+    /**
+     * @param $dt
+     * @param $orders
+     * @param $result
+     * @return mixed
+     */
+    private function formatForChart($dt, $orders, $result)
+    {
+        $date = $dt->format('Y-m-d');
+        $d_js = 'gd' . $dt->format('(Y,n,j)') ;
+        foreach ($orders as $wh => $order) {
+            if(empty($result[$wh])) {
+                $result[$wh] = array();
+            }
+
+            if (isset($order[$date])) {
+                $result[$wh][$date] = '[' . $d_js . ',' . $order[$date] . ']';
+            } else {
+                $result[$wh][$date] = '[' . $d_js . ',' . 0 . ']';
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    private function get_branch_chart()
+    {
+        $branches = $this->db->query('SELECT id, title FROM {warehouses}', array())->assoc('id');
+
+        $query = '';
+        if(!empty($_POST['branches_id'])) {
+            $query = $this->db->makeQuery('AND wh_id in (?li)', array($_POST['branches_id']));
+        }
+        $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c, wh_id as wh "
+            . "FROM {orders} "
+            . "WHERE ?q AND type = 0 ?q GROUP BY wh, d ", array($this->make_filters('date_add'), $query))->assoc(), 'wh');
+
+        $period = $this->get_date_period();
+        $result = array();
+        foreach ($period as $dt) {
+            $result = $this->formatForChart($dt, $orders, $result);
+        }
+        return $this->view->renderFile('dashboard/branch_chart', array(
+            'orders' => $result,
+            'branches' => $branches
+        ));
+    }
+
+    /**
+     * @return string
+     */
+    private function get_repair_chart()
+    {
+        $categories = $this->db->query('SELECT id, title FROM {categories} WHERE parent_id=0 AND avail=1',
+            array())->assoc();
+        $model = $this->db->query('SELECT id, title FROM {categories} WHERE parent_id > 0 AND avail=1',
+            array())->assoc();
+        $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc();
+
+        $orders = array();
+        $ordersByCategory = array();
+        $ordersByModels = array();
+        if (!empty($_POST['goods_id'])) {
+            $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, goods_id as good "
+                . "FROM {orders} o "
+                . "JOIN {orders_goods} as og ON og.order_id = o.id "
+                . "WHERE ?q AND goods_id in (?li) GROUP BY good, d ",
+                array($this->make_filters('date_add'), $_POST['goods_id']))->assoc(), 'good');
+        }
+        if (!empty($_POST['categories_id'])) {
+            $ordersByCategory = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
+                . "FROM {orders} o "
+                . "WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
+                array($this->make_filters('date_add'), $_POST['categories_id']))->assoc(), 'category_id');
+        }
+        if (!empty($_POST['models_id'])) {
+            $ordersByModels = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
+                . "FROM {orders} o "
+                . "WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
+                array($this->make_filters('date_add'), $_POST['models_id']))->assoc(), 'category_id');
+        }
+
+        $period = $this->get_date_period();
+        $resultByItems = array();
+        $resultByCategories = array();
+        $resultByModels = array();
+        foreach ($period as $dt) {
+            $resultByItems = $this->formatForChart($dt, $orders, $resultByItems);
+            $resultByModels = $this->formatForChart($dt, $ordersByModels, $resultByModels);
+            $resultByCategories = $this->formatForChart($dt, $ordersByCategory, $resultByCategories);
+        }
+        return $this->view->renderFile('dashboard/repair_chart', array(
+            'categories' => $categories,
+            'models' => $model,
+            'items' => $items,
+            'byItems' => $resultByItems,
+            'byModels' => $resultByModels,
+            'byCategories' => $resultByCategories
+        ));
     }
 
     /**

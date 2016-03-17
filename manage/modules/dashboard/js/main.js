@@ -210,3 +210,68 @@ $(function(){
         }
     );
 });
+
+function init_chart(id, data) {
+    var chartIncomeData = [], tickSize = 0;
+    $.each(data, function (index, element) {
+        chartIncomeData.push({
+            label: "&nbsp;" + element.legend,
+            data: element.points,
+            yaxis: 2
+        });
+        if (tickSize == 0) {
+            tickSize = element.length > 10 ? parseInt(element.length / 10) + 1 : 1;
+        }
+    });
+    var chartIncomeOptions = {
+        series: {
+            lines: {
+                show: true,
+                lineWidth: 1,
+            },
+            points: {
+                show: true,
+                radius: 2,
+                symbol: "circle",
+                lineWidth: 0,
+                fill: true,
+                fillColor: "#000000"
+            },
+            shadowSize: 0
+        },
+        colors: ['#FFC90E', '#22B14C', "#ED1C24"],
+        grid: {
+            backgroundColor: "#ffffff",
+            tickColor: "#f0f0f0",
+            borderWidth: 1,
+            borderColor: "#f0f0f0",
+            color: "#6a6c6f",
+            hoverable: true
+        },
+        xaxis: {
+            tickSize: [tickSize, "day"],
+            mode: "time",
+            timeformat: "%d.%m",
+            tickDecimals: 0,
+        },
+        yaxes: [
+            {
+                min: 0,
+                position: "left",
+                tickDecimals: 0,
+                mode: "number",
+                font: {
+                    color: 'yellowgreen'
+                }
+            }
+        ],
+        legend: {
+            position: "ne"
+        }
+    };
+    var plot = $.plot($(id), chartIncomeData, chartIncomeOptions);
+    $(id).flotUseTooltip();
+    $(window).resize(function () {
+        plot.resize();
+    });
+}
