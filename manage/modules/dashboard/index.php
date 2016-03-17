@@ -217,7 +217,7 @@ class dashboard
         }
         $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c, wh_id as wh "
             . "FROM {orders} "
-            . "WHERE ?q AND type = 0 ?q GROUP BY wh, d ", array($this->make_filters('date_add'), $query))->assoc(), 'wh');
+            . "WHERE ?q ?q GROUP BY wh, d ", array($this->make_filters('date_add'), $query))->assoc(), 'wh');
 
         $period = $this->get_date_period();
         $result = array();
