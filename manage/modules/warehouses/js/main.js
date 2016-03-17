@@ -339,3 +339,7 @@ function open_product_inventory(_this, goods_id) {
         });*/
     }
 }
+
+function show_bind_button(_this) {
+    $(_this).parents('tr').first().find('input.bind-button').first().show();
+}

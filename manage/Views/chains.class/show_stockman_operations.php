@@ -1,4 +1,4 @@
-<?php if ($operations && count($operations) > 0): ?>
+<?php if ($items && count($items) > 0): ?>
     <table class="table table-compact">
         <thead>
         <tr>
@@ -19,8 +19,8 @@
         </thead>
         <tbody>
 
-        <?php foreach ($operations as $op): ?>
-            <?= $controller->show_stockman_operation($op, $type, $serials) ?>
+        <?php foreach ($items as $item): ?>
+            <?= $controller->show_stockman_operation($item, $type, $serials) ?>
         <?php endforeach; ?>
 
         </tbody>

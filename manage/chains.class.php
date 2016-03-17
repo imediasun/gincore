@@ -696,7 +696,7 @@ class Chains
                  {warehouses} as w, 
                  {warehouses_locations} as t, 
                  {orders_suppliers_clients} as l
-            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id AND l.goods_id=i.goods_id ?q',
+            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id AND l.goods_id=i.goods_id ?q ',
             array(1, $prod_query))->assoc();
         if ($data) {
             foreach ($data as $i) {
@@ -740,7 +740,7 @@ class Chains
          * $type = 4 отвязка серийного номера
          * */
         $count_on_page = count_on_page();//20;
-        $operations = $this->get_operations($type, $_GET, false, $goods);
+        $items = $this->get_operations($type, $_GET, false, $goods);
         $count = $this->get_operations($type, $_GET, true, $goods);
 
         if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') &&
@@ -752,7 +752,7 @@ class Chains
         $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
 
         $out = $this->view->renderFile('chains.class/show_stockman_operations', array(
-            'operations' => $operations,
+            'items' => $items,
             'count_on_page' => $count_on_page,
             'count' => $count,
             'type' => $type,
@@ -767,13 +767,13 @@ class Chains
     }
 
     /**
-     * @param      $op
+     * @param      $item
      * @param      $type
      * @param      $serials
      * @param bool $compact
      * @return string
      */
-    function show_stockman_operation($op, $type, $serials, $compact = false)
+    function show_stockman_operation($item, $type, $serials, $compact = false)
     {
         $global_class = null;
 
@@ -781,15 +781,15 @@ class Chains
             $selected = $this->all_configs['db']->query(
                 'SELECT COUNT(id) FROM {users_marked}
                       WHERE user_id = ?i AND type = ? AND object_id = ?i',
-                array($_SESSION['id'], 'wso' . $type, $op['order_id']))->el();
+                array($_SESSION['id'], 'wso' . $type, $item['order_id']))->el();
             $selected_oi = $this->all_configs['db']->query(
                 'SELECT COUNT(id) FROM {users_marked}
                       WHERE type = ? AND object_id = ?i',
-                array('woi', $op['order_id']))->el();
+                array('woi', $item['order_id']))->el();
             $state = 'Нет на складе';
-            if (isset($serials[$op['goods_id']]) && isset($serials[$op['goods_id']]['count'])) {
+            if (isset($serials[$item['goods_id']]) && isset($serials[$item['goods_id']]['count'])) {
                 $state = '';
-                foreach ($serials[$op['goods_id']]['count'] as $warehouse) {
+                foreach ($serials[$item['goods_id']]['count'] as $warehouse) {
                     $state .= htmlspecialchars($warehouse['title']);
                     foreach ($warehouse['locations'] as $location) {
                         $state .= ' - ' . htmlspecialchars($location['title']) . ' - ' . count($location['items']) . '<br />';
@@ -799,7 +799,7 @@ class Chains
         }
 
         $out = $this->view->renderFile('chains.class/show_stockman_operation', array(
-            'op' => $op,
+            'item' => $item,
             'type' => $type,
             'global_class' => $global_class,
             'compact' => $compact,
@@ -814,58 +814,40 @@ class Chains
     }
 
     /**
-     * @param $data
+     * used in view 'show_stockman_operation.php'
+     *
+     * @param $item
      * @param $type
      * @param $serials
      * @return int|mixed|string
      */
-    private function select_bind_item_wh($data, $type, $serials)
+    public function select_bind_item_wh($item, $type, $serials)
     {
-        if ($type == 4 || $data['item_id'] > 0) {
-            $out = suppliers_order_generate_serial($data, true, true);
-        } else {
-            $out = '<select class="form-control" id="bind_item_serial-' . $data['id'] . '">';
-
-            $selects = '';
-            if (isset($serials[$data['goods_id']]['serials']) && count($serials[$data['goods_id']]['serials']) > 0) {
-                //$out .= '<option value="">Выберите изделие</option>';
-                foreach ($serials[$data['goods_id']]['serials'] as $serial) {
-
-                    if (!isset($data['supplier_order_id']) || $serial['supplier_order_id'] != $data['supplier_order_id'] || $serial['order_id'] > 0) {
-                        continue;
-                    }
-
-                    $class = $serial['order_id'] > 0 ? 'text-danger' : '';
-                    $selects .= '<option class="' . $class . '" value="' . $serial['item_id'] . '">';
-                    $selects .= suppliers_order_generate_serial($serial) . '</option>';
-
-                    /*if (array_key_exists('item_id', $data) && $data['item_id'] == $serial['item_id']) {
-                        $selects .= '<option selected value="' . $serial['item_id'] . '">';
-                        $selects .= suppliers_order_generate_serial($serial) . '</option>';
-                    } else {
-                        if ($serial['h_id'] > 0 && $serial['date_closed'] == 0) {
-                            $selects .= '<option  value="' . $serial['item_id'] . '">';
-                            $selects .= suppliers_order_generate_serial($serial) . '</option>';
-                        } else {
-                            $selects .= '<option value="' . $serial['item_id'] . '">';
-                            $selects .= suppliers_order_generate_serial($serial) . '</option>';
-                        }
-                    }*/
-                }
-                if (empty($selects)) {
-                    $out .= '<option value="">Изделия в другом заказе поставщику</option>';
-                } else {
-                    $out .= '<option value="">Выберите изделие</option>' . $selects;
-                }
-            } else {
-                $out .= '<option value="">(Изделий нет)</option>';
-            }
-
-            $out .= '</select> ';
-            //$out .= '<i data-element="bind_item_serial-' . $data['chain_id'] . '" class="icon-download-alt copy-btn"></i> ';
+        if ($type == 4 || $item['item_id'] > 0) {
+            return suppliers_order_generate_serial($item, true, true);
         }
 
-        return $out;
+        $result = array();
+        $hasItems = false;
+        if (isset($serials[$item['goods_id']]['serials']) && count($serials[$item['goods_id']]['serials']) > 0) {
+            $hasItems = true;
+            foreach ($serials[$item['goods_id']]['serials'] as $serial) {
+                if ($serial['order_id'] > 0) {
+                    continue;
+                }
+                if (isset($item['supplier_order_id']) && $serial['supplier_order_id'] == $item['supplier_order_id']) {
+                    $result['current'][] = $serial;
+                } else {
+                    $result['another'][] = $serial;
+                }
+            }
+        }
+
+        return $this->view->renderFile('chains.class/select_bind_item_wh', array(
+            'serials' => $result,
+            'hasItems' => $hasItems,
+            'data' => $item
+        ));
     }
 
     /**
