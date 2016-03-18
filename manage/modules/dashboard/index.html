@@ -15,11 +15,12 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="#">{-txt-dashboard_range_step_day}</a></li>
-                            <li><a href="#">{-txt-dashboard_range_step_week}</a></li>
-                            <li><a href="#">{-txt-dashboard_range_step_month}</a></li>
+                            <li><a href="#" onclick="set_step('day');">{-txt-dashboard_range_step_day}</a></li>
+                            <li><a href="#" onclick="set_step('week');">{-txt-dashboard_range_step_week}</a></li>
+                            <li><a href="#" onclick="set_step('month');">{-txt-dashboard_range_step_month}</a></li>
                         </ul>
-                    </div>
+                   </div>
+                    {-html-order_types_filter}
                 </span>
             </h2>
         </div>

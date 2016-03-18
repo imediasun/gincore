@@ -104,6 +104,9 @@ class dashboard
 
         $input_html['branch_chart'] = $this->get_branch_chart();
         $input_html['repair_chart'] = $this->get_repair_chart();
+        $input_html['order_types_filter'] = $this->view->renderFile('dashboard/order_types_filter', array(
+            'current' => $this->get_order_options()
+        ));
 
         $input['currency'] = viewCurrency('symbol');
         $input['avg_check'] = $this->get_avg_check();
@@ -116,15 +119,61 @@ class dashboard
     }
 
     /**
+     * @return mixed
+     */
+    private function get_order_options()
+    {
+        if (empty($_POST['types'])) {
+            return Session::getInstance()->get('dashboard.order.types');
+        } else {
+            $options = array(
+                'types' => array(),
+                'warranty' => array(),
+            );
+            if(in_array('repair', $_POST['types'])) {
+                $options['types'][] = 0;
+            }
+            if(in_array('sale', $_POST['types'])) {
+                $options['types'][] = 3;
+            }
+            if(in_array('warranty', $_POST['types'])) {
+                $options['warranty'][] = 1;
+            }
+            if(in_array('not-warranty', $_POST['types'])) {
+                $options['warranty'][] = 0;
+            }
+
+            Session::getInstance()->set('dashboard.order.types', $options);
+        }
+        return $options;
+    }
+
+    /**
      * @return DatePeriod
      */
     private function get_date_period()
     {
+        $di = function($diff) {
+            switch(true) {
+                case isset($_GET['month']):
+                    if($diff > 6 * 30) {
+                        return new DateInterval('P1M');
+                    }
+                case isset($_GET['week']):
+                    if($diff > 30) {
+                        return new DateInterval('P1W');
+                    }
+                default:
+                    $di = new DateInterval('P1D');
+            }
+            return $di;
+        };
         $filters = $this->get_filters();
         $a = new DateTime($filters['date_start']);
         $b = new DateTime($filters['date_end']);
         $b->modify('+1 day');
-        $period = new DatePeriod($a, new DateInterval('P1D'), $b);
+        $diff = $a->diff($b)->format('%a');
+        $period = new DatePeriod($a, $di($diff), $b);
         return $period;
     }
 
@@ -138,9 +187,13 @@ class dashboard
             . "WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
         $visitors = $this->db->query("SELECT date as d, SUM(users) as c FROM {crm_analytics} "
             . "WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
+        $options = $this->get_order_options();
+        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery('AND warranty in (?li)', array($options['warranty']));
+        $typeQuery = empty($options['types']) ? $this->db->makeQuery('AND type = 0', array())
+            : $this->db->makeQuery('AND type in (?li)', array($options['types']));
         $orders = $this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c "
             . "FROM {orders} "
-            . "WHERE ?q AND type = 0 GROUP BY d", array($this->make_filters('date_add')))->vars();
+            . "WHERE ?q ?q ?q GROUP BY d", array($this->make_filters('date_add'), $typeQuery, $warrantyQuery))->vars();
         $calls_js = array();
         $orders_js = array();
         $visitors_js = array();
@@ -151,7 +204,7 @@ class dashboard
             if (!empty($visitors[$date])) {
                 $init_visitors = true;
             }
-            $d_js = 'gd(' . $dt->format('Y') . ',' . $dt->format('n') . ',' . $dt->format('j') . ')';
+            $d_js = 'gd' . $dt->format('(Y,n,j)');
             $calls_js[$date] = '[' . $d_js . ',' . (isset($calls[$date]) ? $calls[$date] : 0) . ']';
             $orders_js[$date] = '[' . $d_js . ',' . (isset($orders[$date]) ? $orders[$date] : 0) . ']';
             $visitors_js[$date] = '[' . $d_js . ',' . (isset($visitors[$date]) ? $visitors[$date] : 0) . ']';
@@ -222,10 +275,14 @@ class dashboard
         if (!empty($selected)) {
             $query = $this->db->makeQuery('AND wrh.group_id in (?li)', array($selected));
         }
+        $options = $this->get_order_options();
+        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery('AND o.warranty in (?li)', array($options['warranty']));
+        $typeQuery = empty($options['types']) ? $this->db->makeQuery('AND o.type = 0', array())
+            : $this->db->makeQuery('AND o.type in (?li)', array($options['types']));
         $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c, wrh.group_id as wh "
             . " FROM {orders} o, {warehouses} wrh"
-            . " WHERE ?q ?q AND wrh.id = o.wh_id GROUP BY wh, d ",
-            array($this->make_filters('date_add'), $query))->assoc(), 'wh');
+            . " WHERE ?q ?q ?q ?q AND wrh.id = o.wh_id GROUP BY wh, d ",
+            array($this->make_filters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
 
         $period = $this->get_date_period();
         $result = array();
@@ -263,6 +320,11 @@ class dashboard
             Session::getInstance()->set('chart.selected.categories', $selectedCategories);
         }
 
+        $options = $this->get_order_options();
+        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery('AND o.warranty in (?li)',
+            array($options['warranty']));
+        $typeQuery = empty($options['types']) ? $this->db->makeQuery('AND o.type = 0', array())
+            : $this->db->makeQuery('AND o.type in (?li)', array($options['types']));
         $orders = array();
         $ordersByCategory = array();
         $ordersByModels = array();
@@ -270,20 +332,27 @@ class dashboard
             $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, goods_id as good "
                 . " FROM {orders} o "
                 . " JOIN {orders_goods} as og ON og.order_id = o.id "
-                . " WHERE ?q AND goods_id in (?li) GROUP BY good, d ",
-                array($this->make_filters('o.date_add'), $selectedItems))->assoc(), 'good');
+                . " WHERE ?q ?q ?q AND goods_id in (?li) GROUP BY good, d ",
+                array($this->make_filters('o.date_add'), $warrantyQuery, $typeQuery, $selectedItems))->assoc(), 'good');
         }
         if (!empty($selectedCategories)) {
             $ordersByCategory = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
                 . " FROM {orders} o, {categories} cat "
-                . " WHERE ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
-                array($this->make_filters('o.date_add'), $selectedCategories, $selectedCategories))->assoc(), 'p_id');
+                . " WHERE ?q ?q ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
+                array(
+                    $this->make_filters('o.date_add'),
+                    $warrantyQuery,
+                    $typeQuery,
+                    $selectedCategories,
+                    $selectedCategories
+                ))->assoc(), 'p_id');
         }
         if (!empty($selectedModels)) {
             $ordersByModels = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
                 . " FROM {orders} o "
-                . " WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
-                array($this->make_filters('date_add'), $selectedModels))->assoc(), 'category_id');
+                . " WHERE ?q ?q ?q AND category_id in (?li) GROUP BY category_id, d ",
+                array($this->make_filters('date_add'), $warrantyQuery, $typeQuery, $selectedModels))->assoc(),
+                'category_id');
         }
 
         $period = $this->get_date_period();

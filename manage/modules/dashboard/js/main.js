@@ -287,3 +287,15 @@ function collapse(_this) {
     $(_this).hide();
     return false;
 }
+
+function set_step(type) {
+    var href = window.location.href, parts = href.split('#'), re = new RegExp('/\?/');
+
+    if(re.test(parts[0])) {
+       parts[0] = parts[0] + '&' + type + '=';
+    } else {
+        parts[0] = parts[0] + '?' + type + '=';
+    }
+    window.location = parts[0];
+    return false;
+}
