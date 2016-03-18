@@ -398,8 +398,9 @@ class users
                     $this->all_configs['db']->query("SELECT 1 FROM {users} "
                         . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
                 if ($email_or_login_exists) {
-                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
-                    $_SESSION['create-user-post'] = $post;
+//                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
+//                    $_SESSION['create-user-post'] = $post;
+                    FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'), FlashMessage::DANGER);
                 } else {
                     $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
                         array(
