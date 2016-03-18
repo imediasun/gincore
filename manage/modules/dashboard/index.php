@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__.'/../../View.php';
+require_once __DIR__.'/../../Session.php';
 
 class dashboard
 {
@@ -209,15 +210,22 @@ class dashboard
      */
     private function get_branch_chart()
     {
-        $branches = $this->db->query('SELECT id, title FROM {warehouses}', array())->assoc('id');
+        $branches = $this->db->query('SELECT id, `name` as title FROM {warehouses_groups}', array())->assoc('id');
 
         $query = '';
-        if(!empty($_POST['branches_id'])) {
-            $query = $this->db->makeQuery('AND wh_id in (?li)', array($_POST['branches_id']));
+        if (empty($_POST['branches_id'])) {
+            $selected = (array)Session::getInstance()->get('chart.selected.branches');
+        } else {
+            $selected = $_POST['branches_id'];
+            Session::getInstance()->set('chart.selected.branches', $selected);
         }
-        $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c, wh_id as wh "
-            . "FROM {orders} "
-            . "WHERE ?q ?q GROUP BY wh, d ", array($this->make_filters('date_add'), $query))->assoc(), 'wh');
+        if (!empty($selected)) {
+            $query = $this->db->makeQuery('AND wrh.group_id in (?li)', array($selected));
+        }
+        $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c, wrh.group_id as wh "
+            . " FROM {orders} o, {warehouses} wrh"
+            . " WHERE ?q ?q AND wrh.id = o.wh_id GROUP BY wh, d ",
+            array($this->make_filters('date_add'), $query))->assoc(), 'wh');
 
         $period = $this->get_date_period();
         $result = array();
@@ -226,7 +234,8 @@ class dashboard
         }
         return $this->view->renderFile('dashboard/branch_chart', array(
             'orders' => $result,
-            'branches' => $branches
+            'branches' => $branches,
+            'selected' => $selected
         ));
     }
 
@@ -241,27 +250,46 @@ class dashboard
             array())->assoc('id');
         $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
 
+        if (empty($_POST['goods_id'])) {
+            $selectedItems = (array)Session::getInstance()->get('chart.selected.items');
+        } else {
+            $selectedItems = $_POST['goods_id'];
+            Session::getInstance()->set('chart.selected.items', $selectedItems);
+        }
+        if (empty($_POST['models_id'])) {
+            $selectedModels = (array)Session::getInstance()->get('chart.selected.models');
+        } else {
+            $selectedModels = $_POST['models_id'];
+            Session::getInstance()->set('chart.selected.models', $selectedModels);
+        }
+        if (empty($_POST['categories_id'])) {
+            $selectedCategories = (array)Session::getInstance()->get('chart.selected.categories');
+        } else {
+            $selectedCategories = $_POST['categories_id'];
+            Session::getInstance()->set('chart.selected.categories', $selectedCategories);
+        }
+
         $orders = array();
         $ordersByCategory = array();
         $ordersByModels = array();
-        if (!empty($_POST['goods_id'])) {
+        if (!empty($selectedItems)) {
             $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, goods_id as good "
                 . " FROM {orders} o "
                 . " JOIN {orders_goods} as og ON og.order_id = o.id "
                 . " WHERE ?q AND goods_id in (?li) GROUP BY good, d ",
-                array($this->make_filters('o.date_add'), $_POST['goods_id']))->assoc(), 'good');
+                array($this->make_filters('o.date_add'), $selectedItems))->assoc(), 'good');
         }
-        if (!empty($_POST['categories_id'])) {
+        if (!empty($selectedCategories)) {
             $ordersByCategory = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
                 . " FROM {orders} o, {categories} cat "
                 . " WHERE ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
-                array($this->make_filters('o.date_add'), $_POST['categories_id'], $_POST['categories_id']))->assoc(), 'p_id');
+                array($this->make_filters('o.date_add'), $selectedCategories, $selectedCategories))->assoc(), 'p_id');
         }
-        if (!empty($_POST['models_id'])) {
+        if (!empty($selectedModels)) {
             $ordersByModels = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
                 . " FROM {orders} o "
                 . " WHERE ?q AND category_id in (?li) GROUP BY category_id, d ",
-                array($this->make_filters('date_add'), $_POST['models_id']))->assoc(), 'category_id');
+                array($this->make_filters('date_add'), $selectedModels))->assoc(), 'category_id');
         }
 
         $period = $this->get_date_period();
@@ -279,7 +307,10 @@ class dashboard
             'items' => $items,
             'byItems' => $resultByItems,
             'byModels' => $resultByModels,
-            'byCategories' => $resultByCategories
+            'byCategories' => $resultByCategories,
+            'selectedItems' => $selectedItems,
+            'selectedModels' => $selectedModels,
+            'selectedCategories' => $selectedCategories
         ));
     }
 
@@ -371,7 +402,13 @@ class dashboard
         foreach ($orders as $ord) {
             $all_orders += $ord['orders'];
         }
+        return $this->view->renderFile('dashboard/get_engineer_stats', array(
+            'allOrders' => $all_orders,
+            'orders' => $orders,
+            'constructor' => $this
+        ));
         $stats = '';
+        $count = 0;
         foreach ($orders as $i => $o) {
             $p = $this->percent_format($o['orders'] / $all_orders * 100);
             $stats .= '
@@ -381,6 +418,15 @@ class dashboard
                     </span>
                 </div>
             ';
+            $count++;
+            if($count == 5) {
+                $stats .= '<div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer">Развернуть <i class="fa fa-chevron-down"></i>
+</div>';
+            }
+        }
+        if($count > 6) {
+            $stats .= '<div class="collapse-button" onclick="return collapse(this);" style="text-align: center; cursor: pointer; display:none">Свернуть <i class="fa fa-chevron-up"></i>
+</div>';
         }
         return $stats ?: l('dashboard_no_stats');
     }

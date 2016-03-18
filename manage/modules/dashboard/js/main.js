@@ -275,3 +275,15 @@ function init_chart(id, data) {
         plot.resize();
     });
 }
+
+function expand(_this) {
+    $(_this).parent().removeClass('h-eq-250').find('.collapse-button').first().show();
+    $(_this).hide();
+    return false;
+}
+
+function collapse(_this) {
+    $(_this).parent().addClass('h-eq-250').find('.expand-button').first().show();
+    $(_this).hide();
+    return false;
+}

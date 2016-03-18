@@ -2333,7 +2333,10 @@ body {
 .h-200 {
     min-height: 200px
 }
-
+.h-eq-250 {
+    height: 250px;
+    overflow: hidden;
+}
 .h-300 {
     min-height: 300px
 }

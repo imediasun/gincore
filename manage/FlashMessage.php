@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/Session.php';
+
 class FlashMessage
 {
     const SUCCESS = 'success';
@@ -13,8 +15,15 @@ class FlashMessage
      */
     public static function set($value, $type = self::SUCCESS)
     {
-        session_start();
-        $_SESSION['flash'][$type] = $value;
+        $flash = Session::getInstance()->get('flash');
+        if (empty($flash)) {
+            $flash = array(
+                $type => $value
+            );
+        } else {
+            $flash[$type] = $value;
+        }
+        Session::getInstance()->set('flash', $flash);
     }
 
     /**
@@ -23,8 +32,8 @@ class FlashMessage
      */
     public static function get($type)
     {
-        session_start();
-        return isset($_SESSION['flash'][$type]) ? $_SESSION['flash'][$type] : '';
+        $flash = Session::getInstance()->get('flash');
+        return isset($flash[$type]) ? $flash[$type] : '';
     }
 
     /**
@@ -32,9 +41,10 @@ class FlashMessage
      */
     public static function clear($type)
     {
-        session_start();
-        if (isset($_SESSION['flash'][$type])) {
-            unset($_SESSION['flash'][$type]);
+        $flash = Session::getInstance()->get('flash');
+        if($flash[$type]) {
+            unset($flash[$type]);
+            Session::getInstance()->set('flash', $flash);
         }
     }
 
@@ -44,8 +54,9 @@ class FlashMessage
     public static function show()
     {
         $out = '';
-        if (isset($_SESSION['flash']) && is_array($_SESSION['flash'])) {
-            foreach ($_SESSION['flash'] as $type => $message) {
+        $flash = Session::getInstance()->get('flash');
+        if (!empty($flash) && is_array($flash)) {
+            foreach ($flash as $type => $message) {
                 if (!empty($message)) {
                     $out .= "<div class='alert alert-{$type}'><a class='close' title='close' aria-label='close' data-dismiss='alert' href='#'>×</a><strong>" . l(ucfirst($type)) . "</strong>{$message}</div>";
                     self::clear($type);

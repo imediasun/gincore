@@ -33,7 +33,7 @@
                         <fieldset>
                             <select class="multiselect input-small" data-type="branches" multiple="multiple"
                                     name="branches_id[]">
-                                <?= build_array_tree($branches) ?>
+                                <?= build_array_tree($branches, $selected) ?>
                             </select>
                             <button type="submit" class="btn btn-primary"> <?= l('Применить') ?></button>
                         </fieldset>

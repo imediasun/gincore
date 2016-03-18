@@ -48,7 +48,7 @@
 
                                 <select class="multiselect input-small" data-type="categories" multiple="multiple"
                                         name="categories_id[]">
-                                    <?= build_array_tree($categories) ?>
+                                    <?= build_array_tree($categories, $selectedCategories) ?>
                                 </select>
                             </label>
                             <label class="col-sm-3">
@@ -56,14 +56,14 @@
 
                                 <select class="multiselect input-small" data-type="models" multiple="multiple"
                                         name="models_id[]">
-                                    <?= build_array_tree($models) ?>
+                                    <?= build_array_tree($models, $selectedModels) ?>
                                 </select>
                             </label>
                             <label class="col-sm-3">
                                 <?= l('Запчасти'); ?>:
                                 <select class="multiselect input-small" data-type="goods" multiple="multiple"
                                         name="goods_id[]">
-                                    <?= build_array_tree($items) ?>
+                                    <?= build_array_tree($items, $selectedItems) ?>
                                 </select>
                             </label>
                             <div class="col-sm-3">
