@@ -462,8 +462,14 @@ class ChartUtils
             $prefix = $prefix . '.';
         }
         $options = $this->getOrderOptions();
-        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery("AND {$prefix}warranty in (?li)",
-            array($options['warranty']));
+        $warrantyQuery = '';
+        if(isset($options['warranty']) && $options['warranty']) {
+            $warrantyQuery .= $this->db->makeQuery(" AND {$prefix}warranty = 1", array());
+        }
+        if(isset($options['not-warranty']) && $options['not-warranty']) {
+            $warrantyQuery .= $this->db->makeQuery(" AND ({$prefix}warranty = 0 OR {$prefix}warranty IS NULL)", array());
+        }
+
         $typeQuery = empty($options['types']) ? $this->db->makeQuery("AND {$prefix}type = 0", array())
             : $this->db->makeQuery("AND {$prefix}type in (?li)", array($options['types']));
         return array(
@@ -578,7 +584,7 @@ class ChartUtils
      */
     public function getOrderOptions()
     {
-        if (empty($_POST['types'])) {
+        if (!empty($_POST) && empty($_POST['types'])) {
             return Session::getInstance()->get('dashboard.order.types');
         } else {
             $options = array(
@@ -595,7 +601,7 @@ class ChartUtils
                 $options['warranty'][] = 1;
             }
             if(in_array('not-warranty', $_POST['types'])) {
-                $options['warranty'][] = 0;
+                $options['not-warranty'][] = 1;
             }
 
             Session::getInstance()->set('dashboard.order.types', $options);
