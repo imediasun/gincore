@@ -185,10 +185,12 @@ class dashboard
      */
     private function get_repair_chart()
     {
-        $categories = $this->db->query('SELECT id, title FROM {categories} WHERE parent_id=0 AND avail=1',
+        $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
+        .' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
+        .' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
             array())->assoc('id');
-        $model = $this->db->query('SELECT id, title FROM {categories} WHERE parent_id > 0 AND avail=1',
-            array())->assoc('id');
+        $categories = $this->db->query('SELECT id, title FROM {categories} WHERE NOT id in (?li) AND avail=1',
+            array(array_keys($models)))->assoc('id');
         $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
 
         if (empty($_POST['categories_id']) && empty($_POST['models_id']) && empty($_POST['goods_id'])) {
@@ -264,7 +266,7 @@ class dashboard
         }
         return $this->view->renderFile('dashboard/repair_chart', array(
             'categories' => $categories,
-            'models' => $model,
+            'models' => $models,
             'items' => $items,
             'byItems' => $resultByItems,
             'byModels' => $resultByModels,
