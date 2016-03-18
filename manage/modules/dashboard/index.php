@@ -250,22 +250,16 @@ class dashboard
             array())->assoc('id');
         $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
 
-        if (empty($_POST['goods_id'])) {
+        if (empty($_POST['categories_id']) && empty($_POST['models_id']) && empty($_POST['goods_id'])) {
             $selectedItems = (array)Session::getInstance()->get('chart.selected.items');
-        } else {
-            $selectedItems = $_POST['goods_id'];
-            Session::getInstance()->set('chart.selected.items', $selectedItems);
-        }
-        if (empty($_POST['models_id'])) {
             $selectedModels = (array)Session::getInstance()->get('chart.selected.models');
-        } else {
-            $selectedModels = $_POST['models_id'];
-            Session::getInstance()->set('chart.selected.models', $selectedModels);
-        }
-        if (empty($_POST['categories_id'])) {
             $selectedCategories = (array)Session::getInstance()->get('chart.selected.categories');
         } else {
-            $selectedCategories = $_POST['categories_id'];
+            $selectedItems = empty($_POST['goods_id']) ? array() : $_POST['goods_id'];
+            Session::getInstance()->set('chart.selected.items', $selectedItems);
+            $selectedModels = empty($_POST['models_id']) ? array() : $_POST['models_id'];
+            Session::getInstance()->set('chart.selected.models', $selectedModels);
+            $selectedCategories = empty($_POST['categories_id']) ? array() : $_POST['categories_id'];
             Session::getInstance()->set('chart.selected.categories', $selectedCategories);
         }
 
@@ -407,28 +401,6 @@ class dashboard
             'orders' => $orders,
             'constructor' => $this
         ));
-        $stats = '';
-        $count = 0;
-        foreach ($orders as $i => $o) {
-            $p = $this->percent_format($o['orders'] / $all_orders * 100);
-            $stats .= '
-                <div class="clearfix m-t-sm">
-                    <span class="font-bold no-margins">
-                        ' . ($o['fio'] ?: ('id ' . $o['engineer'])) . '<span class="pull-right text-success">' . $o['orders'] . ' (' . $p . '%)</span>
-                    </span>
-                </div>
-            ';
-            $count++;
-            if($count == 5) {
-                $stats .= '<div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer">Развернуть <i class="fa fa-chevron-down"></i>
-</div>';
-            }
-        }
-        if($count > 6) {
-            $stats .= '<div class="collapse-button" onclick="return collapse(this);" style="text-align: center; cursor: pointer; display:none">Свернуть <i class="fa fa-chevron-up"></i>
-</div>';
-        }
-        return $stats ?: l('dashboard_no_stats');
     }
 
     /**
