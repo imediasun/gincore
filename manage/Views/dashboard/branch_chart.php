@@ -18,7 +18,8 @@
                                             legend: "<?= $branches[$wh]['title'] ?>"
                                         },
                                     <?php endforeach; ?>
-                                    ]
+                                    ],
+                                    <?= $tickSize ?>
                                 );
                             });
                         </script>

@@ -8,6 +8,8 @@ class dashboard
     const PREPAYMENT_TRANSACTION_TYPE = 10;
     /** @var View  */
     protected $view;
+    /** @var ChartUtils  */
+    protected $utils;
 
     /**
      * dashboard constructor.
@@ -25,6 +27,7 @@ class dashboard
         $this->arrequest = $this->all_configs['arrequest'];
         $this->prefix = $this->all_configs['prefix'];
         $this->view = new View($all_configs);
+        $this->utils = new ChartUtils($all_configs);
 
         if ($this->all_configs['oRole']->hasPrivilege('dashboard')) {
             $this->gen_filter_block();
@@ -51,39 +54,6 @@ class dashboard
     }
 
     /**
-     * @return array
-     */
-    private function get_filters()
-    {
-        $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
-        $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
-        return array(
-            'date_start' => $date_start,
-            'date_end' => $date_end
-        );
-    }
-
-    /**
-     * @param $date_field
-     * @return string
-     */
-    private function make_filters($date_field)
-    {
-        $filters = $this->get_filters();
-        $query = '';
-        if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")>=?',
-                array($query, $filters['date_start']));
-        }
-
-        if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")<=?',
-                array($query, $filters['date_end']));
-        }
-        return ' 1=1 ' . $query;
-    }
-
-    /**
      *
      */
     private function gen_content()
@@ -100,12 +70,13 @@ class dashboard
         $input['line_chart_data_orders'] = $conv_chart['orders'];
         $input['line_chart_data_calls'] = $conv_chart['calls'];
         $input['line_chart_data_visitors'] = $conv_chart['visitors'];
+        $input['tick_size'] = $this->utils->tickSize();
         $input['init_visitors'] = $conv_chart['init_visitors'] ? 'true' : 'false';
 
         $input_html['branch_chart'] = $this->get_branch_chart();
         $input_html['repair_chart'] = $this->get_repair_chart();
         $input_html['order_types_filter'] = $this->view->renderFile('dashboard/order_types_filter', array(
-            'current' => $this->get_order_options()
+            'current' => $this->utils->getOrderOptions()
         ));
 
         $input['currency'] = viewCurrency('symbol');
@@ -119,85 +90,23 @@ class dashboard
     }
 
     /**
-     * @return mixed
-     */
-    private function get_order_options()
-    {
-        if (empty($_POST['types'])) {
-            return Session::getInstance()->get('dashboard.order.types');
-        } else {
-            $options = array(
-                'types' => array(),
-                'warranty' => array(),
-            );
-            if(in_array('repair', $_POST['types'])) {
-                $options['types'][] = 0;
-            }
-            if(in_array('sale', $_POST['types'])) {
-                $options['types'][] = 3;
-            }
-            if(in_array('warranty', $_POST['types'])) {
-                $options['warranty'][] = 1;
-            }
-            if(in_array('not-warranty', $_POST['types'])) {
-                $options['warranty'][] = 0;
-            }
-
-            Session::getInstance()->set('dashboard.order.types', $options);
-        }
-        return $options;
-    }
-
-    /**
-     * @return DatePeriod
-     */
-    private function get_date_period()
-    {
-        $di = function($diff) {
-            switch(true) {
-                case isset($_GET['month']):
-                    if($diff > 6 * 30) {
-                        return new DateInterval('P1M');
-                    }
-                case isset($_GET['week']):
-                    if($diff > 30) {
-                        return new DateInterval('P1W');
-                    }
-                default:
-                    $di = new DateInterval('P1D');
-            }
-            return $di;
-        };
-        $filters = $this->get_filters();
-        $a = new DateTime($filters['date_start']);
-        $b = new DateTime($filters['date_end']);
-        $b->modify('+1 day');
-        $diff = $a->diff($b)->format('%a');
-        $period = new DatePeriod($a, $di($diff), $b);
-        return $period;
-    }
-
-    /**
      * @return array
      */
     private function get_conv_chart()
     {
         $calls = $this->db->query("SELECT DATE_FORMAT(date, '%Y-%m-%d') as d, count(*) as c "
             . "FROM {crm_calls} "
-            . "WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
+            . "WHERE ?q GROUP BY d", array($this->utils->makeFilters('date')))->vars();
         $visitors = $this->db->query("SELECT date as d, SUM(users) as c FROM {crm_analytics} "
-            . "WHERE ?q GROUP BY d", array($this->make_filters('date')))->vars();
-        $options = $this->get_order_options();
-        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery('AND warranty in (?li)', array($options['warranty']));
-        $typeQuery = empty($options['types']) ? $this->db->makeQuery('AND type = 0', array())
-            : $this->db->makeQuery('AND type in (?li)', array($options['types']));
-        $orders = $this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c "
+            . "WHERE ?q GROUP BY d", array($this->utils->makeFilters('date')))->vars();
+        list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty();
+        $orders = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {orders} "
-            . "WHERE ?q ?q ?q GROUP BY d", array($this->make_filters('date_add'), $typeQuery, $warrantyQuery))->vars();
+            . "WHERE ?q ?q ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $typeQuery, $warrantyQuery))->vars();
         $calls_js = array();
         $orders_js = array();
         $visitors_js = array();
-        $period = $this->get_date_period();
+        $period = $this->utils->getDatePeriod();
         $init_visitors = false;
         foreach ($period as $dt) {
             $date = $dt->format('Y-m-d');
@@ -234,29 +143,6 @@ class dashboard
         return $result;
     }
 
-    /**
-     * @param $dt
-     * @param $orders
-     * @param $result
-     * @return mixed
-     */
-    private function formatForChart($dt, $orders, $result)
-    {
-        $date = $dt->format('Y-m-d');
-        $d_js = 'gd' . $dt->format('(Y,n,j)') ;
-        foreach ($orders as $wh => $order) {
-            if(empty($result[$wh])) {
-                $result[$wh] = array();
-            }
-
-            if (isset($order[$date])) {
-                $result[$wh][$date] = '[' . $d_js . ',' . $order[$date] . ']';
-            } else {
-                $result[$wh][$date] = '[' . $d_js . ',' . 0 . ']';
-            }
-        }
-        return $result;
-    }
 
     /**
      * @return string
@@ -264,6 +150,7 @@ class dashboard
     private function get_branch_chart()
     {
         $branches = $this->db->query('SELECT id, `name` as title FROM {warehouses_groups}', array())->assoc('id');
+        $period = $this->utils->getDatePeriod();
 
         $query = '';
         if (empty($_POST['branches_id'])) {
@@ -275,21 +162,18 @@ class dashboard
         if (!empty($selected)) {
             $query = $this->db->makeQuery('AND wrh.group_id in (?li)', array($selected));
         }
-        $options = $this->get_order_options();
-        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery('AND o.warranty in (?li)', array($options['warranty']));
-        $typeQuery = empty($options['types']) ? $this->db->makeQuery('AND o.type = 0', array())
-            : $this->db->makeQuery('AND o.type in (?li)', array($options['types']));
-        $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(date_add, '%Y-%m-%d') as d, count(*) as c, wrh.group_id as wh "
+        list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty('o');
+        $orders = $this->prepare($this->db->query("SELECT ?q, count(*) as c, wrh.group_id as wh "
             . " FROM {orders} o, {warehouses} wrh"
             . " WHERE ?q ?q ?q ?q AND wrh.id = o.wh_id GROUP BY wh, d ",
-            array($this->make_filters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
+            array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
 
-        $period = $this->get_date_period();
         $result = array();
         foreach ($period as $dt) {
-            $result = $this->formatForChart($dt, $orders, $result);
+            $result = $this->utils->formatForChart($dt, $orders, $result);
         }
         return $this->view->renderFile('dashboard/branch_chart', array(
+            'tickSize' => $this->utils->tickSize(),
             'orders' => $result,
             'branches' => $branches,
             'selected' => $selected
@@ -320,27 +204,30 @@ class dashboard
             Session::getInstance()->set('chart.selected.categories', $selectedCategories);
         }
 
-        $options = $this->get_order_options();
-        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery('AND o.warranty in (?li)',
-            array($options['warranty']));
-        $typeQuery = empty($options['types']) ? $this->db->makeQuery('AND o.type = 0', array())
-            : $this->db->makeQuery('AND o.type in (?li)', array($options['types']));
+        list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty('o');
         $orders = array();
         $ordersByCategory = array();
         $ordersByModels = array();
         if (!empty($selectedItems)) {
-            $orders = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, goods_id as good "
+            $orders = $this->prepare($this->db->query("SELECT ?q, count(*) as c, goods_id as good "
                 . " FROM {orders} o "
                 . " JOIN {orders_goods} as og ON og.order_id = o.id "
                 . " WHERE ?q ?q ?q AND goods_id in (?li) GROUP BY good, d ",
-                array($this->make_filters('o.date_add'), $warrantyQuery, $typeQuery, $selectedItems))->assoc(), 'good');
+                array(
+                    $this->utils->selectDate('o'),
+                    $this->utils->makeFilters('o.date_add'),
+                    $warrantyQuery,
+                    $typeQuery,
+                    $selectedItems
+                ))->assoc(), 'good');
         }
         if (!empty($selectedCategories)) {
-            $ordersByCategory = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
+            $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
                 . " FROM {orders} o, {categories} cat "
                 . " WHERE ?q ?q ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
                 array(
-                    $this->make_filters('o.date_add'),
+                    $this->utils->selectDate('o'),
+                    $this->utils->makeFilters('o.date_add'),
                     $warrantyQuery,
                     $typeQuery,
                     $selectedCategories,
@@ -348,21 +235,27 @@ class dashboard
                 ))->assoc(), 'p_id');
         }
         if (!empty($selectedModels)) {
-            $ordersByModels = $this->prepare($this->db->query("SELECT DATE_FORMAT(o.date_add, '%Y-%m-%d') as d, count(*) as c, category_id as category_id "
+            $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, category_id as category_id "
                 . " FROM {orders} o "
                 . " WHERE ?q ?q ?q AND category_id in (?li) GROUP BY category_id, d ",
-                array($this->make_filters('date_add'), $warrantyQuery, $typeQuery, $selectedModels))->assoc(),
+                array(
+                    $this->utils->selectDate('o'),
+                    $this->utils->makeFilters('date_add'),
+                    $warrantyQuery,
+                    $typeQuery,
+                    $selectedModels
+                ))->assoc(),
                 'category_id');
         }
 
-        $period = $this->get_date_period();
+        $period = $this->utils->getDatePeriod();
         $resultByItems = array();
         $resultByCategories = array();
         $resultByModels = array();
         foreach ($period as $dt) {
-            $resultByItems = $this->formatForChart($dt, $orders, $resultByItems);
-            $resultByModels = $this->formatForChart($dt, $ordersByModels, $resultByModels);
-            $resultByCategories = $this->formatForChart($dt, $ordersByCategory, $resultByCategories);
+            $resultByItems = $this->utils->formatForChart($dt, $orders, $resultByItems);
+            $resultByModels = $this->utils->formatForChart($dt, $ordersByModels, $resultByModels);
+            $resultByCategories = $this->utils->formatForChart($dt, $ordersByCategory, $resultByCategories);
         }
         return $this->view->renderFile('dashboard/repair_chart', array(
             'categories' => $categories,
@@ -373,7 +266,8 @@ class dashboard
             'byCategories' => $resultByCategories,
             'selectedItems' => $selectedItems,
             'selectedModels' => $selectedModels,
-            'selectedCategories' => $selectedCategories
+            'selectedCategories' => $selectedCategories,
+            'tickSize' => $this->utils->tickSize()
         ));
     }
 
@@ -383,11 +277,11 @@ class dashboard
     private function get_conversion()
     {
         $calls = $this->db->query("SELECT count(*) FROM {crm_calls} "
-            . "WHERE ?q", array($this->make_filters('date')))->el();
+            . "WHERE ?q", array($this->utils->makeFilters('date')))->el();
         $visitors = $this->db->query("SELECT SUM(users) FROM {crm_analytics} "
-            . "WHERE ?q", array($this->make_filters('date')))->el();
+            . "WHERE ?q", array($this->utils->makeFilters('date')))->el();
         $orders = $this->db->query("SELECT count(*) FROM {orders} "
-            . "WHERE ?q", array($this->make_filters('date_add')))->el();
+            . "WHERE ?q", array($this->utils->makeFilters('date_add')))->el();
         // посетители / звонки
         $conv_1 = $visitors ? $calls / $visitors : 0;
         // звонки / заказы 
@@ -406,7 +300,7 @@ class dashboard
      */
     private function get_avg_check()
     {
-        $query_filter = $this->make_filters('o.date_add');
+        $query_filter = $this->utils->makeFilters('o.date_add');
         $avg_check = $this->db->query("
             SELECT 
                 (SUM(IF(o.sum_paid > 0 AND o.type <> 1, o.sum_paid, NULL)) / COUNT(IF(o.sum_paid > 0 AND o.type <> 1, o.id, NULL))) / 100 as avg_check
@@ -429,7 +323,7 @@ class dashboard
             15 => $this->all_configs['configs']['order-status'][15]['name'], // клиент отказался
             50 => $this->all_configs['configs']['order-status'][50]['name']  // переведен в доноры
         );
-        $query_filter = $this->make_filters('date_add');
+        $query_filter = $this->utils->makeFilters('date_add');
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
             . "WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
         foreach ($statuses as $status => $name) {
@@ -453,7 +347,7 @@ class dashboard
      */
     private function get_engineer_stats()
     {
-        $query_filter = $this->make_filters('o.date_add');
+        $query_filter = $this->utils->makeFilters('o.date_add');
         $orders = $this->db->query("SELECT engineer, IF(u.fio!='',u.fio,u.login) as fio, "
             . "count(o.id) as orders "
             . "FROM {orders} as o "
@@ -477,7 +371,7 @@ class dashboard
      */
     private function get_cash()
     {
-        $query_filter = $this->make_filters('date_transaction');
+        $query_filter = $this->utils->makeFilters('date_transaction');
         $today_date = date('Y-m-d 00:00:00');
         $today_date_to = date('Y-m-d 23:59:59');
         $today_cash = $this->db->query("SELECT SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
@@ -496,7 +390,7 @@ class dashboard
             . "AND client_order_id > 0 "
             . "GROUP BY d", array($query_filter))->vars();
         $cash_chart_js = array();
-        $period = $this->get_date_period();
+        $period = $this->utils->getDatePeriod();
         $period_cash = 0;
         foreach ($period as $dt) {
             $date = $dt->format('Y-m-d');
@@ -529,5 +423,222 @@ class dashboard
     private function percent_format($p)
     {
         return str_replace('.0', '', number_format($p, 1, '.', ''));
+    }
+}
+
+class ChartUtils
+{
+    protected $all_configs;
+    protected $db;
+    /** @var  DateTime */
+    protected $start;
+    /** @var  DateTime */
+    protected $end;
+    /** @var  DateInterval */
+    protected $diff;
+
+    public function __construct($all_configs)
+    {
+        $this->all_configs = $all_configs;
+        $this->db = $this->all_configs['db'];
+        $this->prepareDate();
+    }
+
+    /**
+     * @param string $prefix
+     * @return array
+     */
+    public function makeQueryForTypeAndWarranty($prefix = '')
+    {
+        if (!empty($prefix)) {
+            $prefix = $prefix . '.';
+        }
+        $options = $this->getOrderOptions();
+        $warrantyQuery = empty($options['warranty']) ? '' : $this->db->makeQuery("AND {$prefix}warranty in (?li)",
+            array($options['warranty']));
+        $typeQuery = empty($options['types']) ? $this->db->makeQuery("AND {$prefix}type = 0", array())
+            : $this->db->makeQuery("AND {$prefix}type in (?li)", array($options['types']));
+        return array(
+            $warrantyQuery,
+            $typeQuery
+        );
+    }
+
+    /**
+     * @param $dt
+     * @param $orders
+     * @param $result
+     * @return mixed
+     */
+    public function formatForChart($dt, $orders, $result)
+    {
+        $date = $dt->format($this->getDateFormat());
+        $d_js = 'gd' . $dt->format('(Y,n,j)') ;
+        foreach ($orders as $wh => $order) {
+            if(empty($result[$wh])) {
+                $result[$wh] = array();
+            }
+
+            if (isset($order[$date])) {
+                $result[$wh][$date] = '[' . $d_js . ',' . $order[$date] . ']';
+            } else {
+                $result[$wh][$date] = '[' . $d_js . ',' . 0 . ']';
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param string $prefix
+     * @return mixed
+     */
+    public function selectDate($prefix = '')
+    {
+        if (!empty($prefix)) {
+            $prefix = $prefix . '.';
+        }
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 6 * 30) {
+                    return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m') as d", array());
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%u') as d", array());
+                }
+        }
+        return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m-%d') as d", array());
+    }
+
+    /**
+     * @return string
+     */
+    public function getDateFormat()
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 6 * 30) {
+                    return 'Y-m';
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    return 'Y-W';
+                }
+        }
+        return 'Y-m-d';
+    }
+
+    /**
+     * @return DatePeriod
+     */
+    public function getDatePeriod()
+    {
+        $di = function($diff) {
+            switch(true) {
+                case isset($_GET['month']):
+                    if($diff > 6 * 30) {
+                        return new DateInterval('P1M');
+                    }
+                case isset($_GET['week']):
+                    if($diff >= 30) {
+                        return new DateInterval('P1W');
+                    }
+                default:
+                    $di = new DateInterval('P1D');
+            }
+            return $di;
+        };
+        $period = new DatePeriod($this->start, $di($this->diff), $this->end);
+        return $period;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFilters()
+    {
+        $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
+        $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
+        return array(
+            'date_start' => $date_start,
+            'date_end' => $date_end
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOrderOptions()
+    {
+        if (empty($_POST['types'])) {
+            return Session::getInstance()->get('dashboard.order.types');
+        } else {
+            $options = array(
+                'types' => array(),
+                'warranty' => array(),
+            );
+            if(in_array('repair', $_POST['types'])) {
+                $options['types'][] = 0;
+            }
+            if(in_array('sale', $_POST['types'])) {
+                $options['types'][] = 3;
+            }
+            if(in_array('warranty', $_POST['types'])) {
+                $options['warranty'][] = 1;
+            }
+            if(in_array('not-warranty', $_POST['types'])) {
+                $options['warranty'][] = 0;
+            }
+
+            Session::getInstance()->set('dashboard.order.types', $options);
+        }
+        return $options;
+    }
+
+    private function prepareDate()
+    {
+        $filters = $this->getFilters();
+        $this->start = new DateTime($filters['date_start']);
+        $this->end = new DateTime($filters['date_end']);
+        $this->end->modify('+1 day');
+        $this->diff = $this->start->diff($this->end)->format('%a');
+    }
+
+    /**
+     * @param $date_field
+     * @return string
+     */
+    public function makeFilters($date_field)
+    {
+        $filters = $this->getFilters();
+        $query = '';
+        if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")>=?',
+                array($query, $filters['date_start']));
+        }
+
+        if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")<=?',
+                array($query, $filters['date_end']));
+        }
+        return ' 1=1 ' . $query;
+    }
+
+    /**
+     * @return int
+     */
+    public function tickSize()
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 6 * 30) {
+                    return 30;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    return 7;
+                }
+        }
+        return 1;
     }
 }

@@ -30,7 +30,8 @@
                                             legend: "<?= htmlspecialchars($categories[$id]['title']) ?>"
                                         },
                                         <?php endforeach; ?>
-                                    ]
+                                    ],
+                                    <?= $tickSize ?>
                                 );
                             });
                         </script>

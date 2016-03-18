@@ -43,7 +43,7 @@ function gd(year, month, day) {
     return Date.UTC(year, month - 1, day);
 }
 
-function init_conv_chart(id,data1,data2,data3,init_visitors,legend_labels){
+function init_conv_chart(id,data1,data2,data3,init_visitors,legend_labels, tick_size){
 //    init_visitors = true;
     var chartIncomeData = [];
     chartIncomeData.push({
@@ -92,7 +92,7 @@ function init_conv_chart(id,data1,data2,data3,init_visitors,legend_labels){
             hoverable: true
         },
         xaxis: {
-            tickSize: [data1.length > 10 ? parseInt(data1.length / 10) + 1 : 1, "day"],
+            tickSize: [tick_size||1, "day"],
             mode: "time",
             timeformat: "%d.%m",
             tickDecimals: 0,
@@ -211,17 +211,14 @@ $(function(){
     );
 });
 
-function init_chart(id, data) {
-    var chartIncomeData = [], tickSize = 0;
+function init_chart(id, data, tickSize) {
+    var chartIncomeData = [];
     $.each(data, function (index, element) {
         chartIncomeData.push({
             label: "&nbsp;" + element.legend,
             data: element.points,
             yaxis: 2
         });
-        if (tickSize == 0) {
-            tickSize = element.length > 10 ? parseInt(element.length / 10) + 1 : 1;
-        }
     });
     var chartIncomeOptions = {
         series: {
@@ -249,7 +246,7 @@ function init_chart(id, data) {
             hoverable: true
         },
         xaxis: {
-            tickSize: [tickSize, "day"],
+            tickSize: [tickSize || 1, "day"],
             mode: "time",
             timeformat: "%d.%m",
             tickDecimals: 0,
@@ -291,8 +288,10 @@ function collapse(_this) {
 function set_step(type) {
     var href = window.location.href, parts = href.split('#'), re = new RegExp('/\?/');
 
-    if(re.test(parts[0])) {
-       parts[0] = parts[0] + '&' + type + '=';
+    if (re.test(parts[0])) {
+        parts[0] = parts[0].replace(/&month=/g, '').replace(/&day=/g, '').replace(/&week=/g, '');
+        parts[0] = parts[0] + '&' + type + '=';
+
     } else {
         parts[0] = parts[0] + '?' + type + '=';
     }
