@@ -273,7 +273,6 @@ class dashboard
             $resultByModels = $this->formatForChart($dt, $ordersByModels, $resultByModels);
             $resultByCategories = $this->formatForChart($dt, $ordersByCategory, $resultByCategories);
         }
-        var_dump($resultByCategories);
         return $this->view->renderFile('dashboard/repair_chart', array(
             'categories' => $categories,
             'models' => $model,
