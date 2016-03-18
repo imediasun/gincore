@@ -163,9 +163,10 @@ class dashboard
             $query = $this->db->makeQuery('AND wrh.group_id in (?li)', array($selected));
         }
         list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty('o');
-        $orders = $this->prepare($this->db->query("SELECT ?q, count(*) as c, wrh.group_id as wh "
-            . " FROM {orders} o, {warehouses} wrh"
-            . " WHERE ?q ?q ?q ?q AND wrh.id = o.wh_id GROUP BY wh, d ",
+        $orders = $this->prepare($this->db->query("SELECT ?q, count(*) as c, wrh.group_id as wh"
+            . " FROM {orders} o"
+            . " RIGHT JOIN {warehouses} wrh ON wrh.id = o.accept_wh_id"
+            . " WHERE ?q ?q ?q ?q AND o.accept_wh_id IS NOT NULL  GROUP BY wh, d ",
             array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
 
         $result = array();

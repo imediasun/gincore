@@ -11,7 +11,7 @@
             </span>
         </div>
         <?php $count++; ?>
-        <?php if ($count == 5): ?>
+        <?php if ($count == 6): ?>
             <div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer">
                 <?= l('Развернуть') ?> <i class="fa fa-chevron-down"></i>
             </div>
