@@ -7,7 +7,7 @@
         </span>
         <?= $title ?>:
     </label>
-    <select class="form-control" name="engineer">
+    <select class="form-control" name="<?= $type ?>">
         <option value=""><?= l('Выбрать') ?></option>
         <?php if ($users): ?>
             <?php foreach ($users as $user): ?>

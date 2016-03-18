@@ -2434,7 +2434,7 @@ class orders
 
                 // смена менеджера
                 if (isset($_POST['manager']) && intval($order['manager']) != intval($_POST['manager'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND active=1 AND deleted=0',
+                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND avail=1 AND deleted=0',
                         array(intval($_POST['manager'])))->row();
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
