@@ -12,12 +12,12 @@
                                 init_chart(
                                     '#flot-branch-line-chart',
                                     [
-                                    <?php foreach($orders as $wh => $points): ?>
+                                        <?php foreach($orders as $wh => $points): ?>
                                         {
                                             points: [<?= implode(',', $points) ?>],
-                                            legend: "<?= $branches[$wh]['title'] ?>"
+                                            legend: "<?= isset($branches[$wh]['title']) ? $branches[$wh]['title'] : '' ?>"
                                         },
-                                    <?php endforeach; ?>
+                                        <?php endforeach; ?>
                                     ],
                                     <?= $tickSize ?>
                                 );

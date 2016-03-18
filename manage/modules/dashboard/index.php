@@ -223,7 +223,10 @@ class dashboard
         }
         if (!empty($selectedCategories)) {
             $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
-                . " FROM {orders} o, {categories} cat "
+                . " FROM {orders} o"
+                . " JOIN {orders_goods} as og ON og.order_id = o.id "
+                . " JOIN {category_goods} as cg ON og.goods_id = cg.goods_id "
+                . " JOIN {categories} as cat ON cat.id = cg.category_id "
                 . " WHERE ?q ?q ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
                 array(
                     $this->utils->selectDate('o'),
@@ -235,12 +238,14 @@ class dashboard
                 ))->assoc(), 'p_id');
         }
         if (!empty($selectedModels)) {
-            $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, category_id as category_id "
+            $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, cg.category_id as category_id "
                 . " FROM {orders} o "
-                . " WHERE ?q ?q ?q AND category_id in (?li) GROUP BY category_id, d ",
+                . " JOIN {orders_goods} as og ON og.order_id = o.id "
+                . " JOIN {category_goods} as cg ON og.goods_id = cg.goods_id "
+                . " WHERE ?q ?q ?q AND cg.category_id in (?li) GROUP BY category_id, d ",
                 array(
                     $this->utils->selectDate('o'),
-                    $this->utils->makeFilters('date_add'),
+                    $this->utils->makeFilters('o.date_add'),
                     $warrantyQuery,
                     $typeQuery,
                     $selectedModels
@@ -411,7 +416,7 @@ class dashboard
      * @param bool $show_dec
      * @return mixed
      */
-    private function price_format($price, $show_dec = true)
+    public function price_format($price, $show_dec = true)
     {
         return str_replace('.00', '', number_format($price, $show_dec ? 2 : 0, '.', ' '));
     }
@@ -420,7 +425,7 @@ class dashboard
      * @param $p
      * @return mixed
      */
-    private function percent_format($p)
+    public function percent_format($p)
     {
         return str_replace('.0', '', number_format($p, 1, '.', ''));
     }
