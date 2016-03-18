@@ -37,7 +37,7 @@
     <td>
         <?php if ($type == 1 && $item['item_id'] == 0): ?>
             <input class="btn btn-xs bind-button" type="button" value="Привязать"
-                   onclick="btn_bind_item_serial(this, '<?= $item['id'] ?>')" style="display:none"/>
+                   onclick="btn_bind_item_serial(this, '<?= $item['id'] ?>')" style=""/>
         <?php endif; ?>
         <?php if ($type == 4 && $item['item_id'] > 0): ?>
             <input class="btn btn-xs" type="button" value="Отвязать" data-o_id="<?= $item['item_id'] ?>"
