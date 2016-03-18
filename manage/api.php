@@ -147,6 +147,12 @@ if ($data->act == 'runManualUpdateFiles') {
     
     $res = unpackFiles();
     
+    
+    if ($data->migrate == '1') {
+        //@TODO запустить php artisan migrate
+        //send_mail('ragenoir@gmail.com', '$data->migrate == 1', '');
+    }
+    
     returnSuccess(array('message' => $res));
     
 }
