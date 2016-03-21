@@ -858,7 +858,8 @@ class orders
                     'colors' => $this->all_configs['configs']['devices-colors']
                 )),
                 'order' => $order_data,
-                'orderForSaleForm' => $this->order_for_sale_form()
+                'orderForSaleForm' => $this->order_for_sale_form(),
+                'hide' => $this->getHideFieldsConfig()
             ));
 
         }
@@ -2935,20 +2936,33 @@ class orders
         Response::json($data);
     }
 
-    private function order_fields_setup() {
-       $config = $_POST['config'];
+    /**
+     *
+     */
+    private function order_fields_setup()
+    {
+        $config = $_POST['config'];
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
-       if(empty($current)) {
-           $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
-               array(
-                   'Настройки видимости полей заказов',
-                   'Настройки видимости полей заказов',
-                   json_encode($config)
-               ));
+        if (empty($current)) {
+            $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
+                array(
+                    'Настройки видимости полей заказов',
+                    'Настройки видимости полей заказов',
+                    json_encode($config)
+                ));
 
-       } else {
-           $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'order-fields-hide'",
-               array(json_encode($config)));
-       }
+        } else {
+            $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'order-fields-hide'",
+                array(json_encode($config)));
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getHideFieldsConfig()
+    {
+        $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
+        return empty($current) ? array() : $current;
     }
 }
