@@ -118,7 +118,7 @@ class dashboard
             if (!empty($visitors[$date])) {
                 $init_visitors = true;
             }
-            $d_js = 'gd' . $dt->format('(Y,n,j)');
+            $d_js = $this->utils->getDJs($dt);
             $calls_js[$date] = '[' . $d_js . ',' . (isset($calls[$date]) ? $calls[$date] : 0) . ']';
             $orders_js[$date] = '[' . $d_js . ',' . (isset($orders[$date]) ? $orders[$date] : 0) . ']';
             $visitors_js[$date] = '[' . $d_js . ',' . (isset($visitors[$date]) ? $visitors[$date] : 0) . ']';
@@ -182,7 +182,7 @@ class dashboard
             'tickSize' => $this->utils->tickSize(),
             'orders' => $result,
             'branches' => $branches,
-            'selected' => $selected
+            'selected' => $selected,
         ));
     }
 
@@ -278,7 +278,7 @@ class dashboard
             'selectedItems' => $selectedItems,
             'selectedModels' => $selectedModels,
             'selectedCategories' => $selectedCategories,
-            'tickSize' => $this->utils->tickSize()
+            'tickSize' => $this->utils->tickSize(),
         ));
     }
 
@@ -482,7 +482,7 @@ class ChartUtils
     }
 
     /**
-     * @param $dt
+     * @param DateTime $dt
      * @param $orders
      * @param $result
      * @return mixed
@@ -490,7 +490,7 @@ class ChartUtils
     public function formatForChart($dt, $orders, $result)
     {
         $date = $dt->format($this->getDateFormat());
-        $d_js = 'gd' . $dt->format('(Y,n,j)') ;
+        $d_js = $this->getDJs($dt);
         foreach ($orders as $wh => $order) {
             if(empty($result[$wh])) {
                 $result[$wh] = array();
@@ -658,5 +658,28 @@ class ChartUtils
                 }
         }
         return 1;
+    }
+
+    /**
+     * @param DateTime $dt
+     * @return string
+     */
+    public function getDJs($dt)
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    $timestamp = strtotime('first day of this month', $dt->getTimestamp());
+                    break;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    $timestamp = strtotime('monday', $dt->getTimestamp());
+                    break;
+                }
+            default:
+                $timestamp = $dt->getTimestamp();
+        }
+        return 'gd' . date('(Y,n,j)', $timestamp);
     }
 }

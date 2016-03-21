@@ -211,7 +211,7 @@ $(function(){
     );
 });
 
-function init_chart(id, data, colors,tickSize) {
+function init_chart(id, data, colors, tickSize) {
     var chartIncomeData = [];
     $.each(data, function (index, element) {
         chartIncomeData.push({
