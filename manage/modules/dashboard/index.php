@@ -680,7 +680,7 @@ class ChartUtils
         switch (true) {
             case isset($_GET['month']):
                 if ($this->diff > 2 * 30) {
-                    $timestamp = strtotime('first day of this month', $dt->getTimestamp());
+                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
                     break;
                 }
             case isset($_GET['week']):
@@ -709,7 +709,7 @@ class ChartUtils
         switch (true) {
             case isset($_GET['month']):
                 if ($this->diff > 2 * 30) {
-                    $timestamp = strtotime('first day of this month', $dt->getTimestamp());
+                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
                     break;
                 }
             case isset($_GET['week']):
