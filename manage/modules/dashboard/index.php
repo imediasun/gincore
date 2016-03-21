@@ -183,6 +183,7 @@ class dashboard
             'orders' => $result,
             'branches' => $branches,
             'selected' => $selected,
+            'startXaxis' => $this->utils->getMonday()
         ));
     }
 
@@ -279,6 +280,7 @@ class dashboard
             'selectedModels' => $selectedModels,
             'selectedCategories' => $selectedCategories,
             'tickSize' => $this->utils->tickSize(),
+            'startXaxis' => $this->utils->getMonday()
         ));
     }
 
@@ -681,5 +683,10 @@ class ChartUtils
                 $timestamp = $dt->getTimestamp();
         }
         return 'gd' . date('(Y,n,j)', $timestamp);
+    }
+
+    public function getMonday()
+    {
+        return strtotime('monday', $this->start->getTimestamp());
     }
 }

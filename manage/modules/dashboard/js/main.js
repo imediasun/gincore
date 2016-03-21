@@ -211,7 +211,7 @@ $(function(){
     );
 });
 
-function init_chart(id, data, colors, tickSize) {
+function init_chart(id, data, colors, start_xaxis, tickSize) {
     var chartIncomeData = [];
     $.each(data, function (index, element) {
         chartIncomeData.push({
@@ -253,6 +253,7 @@ function init_chart(id, data, colors, tickSize) {
             mode: "time",
             timeformat: "%d.%m",
             tickDecimals: 0,
+            min: (new Date(start_xaxis * 1000)).getTime(),
         },
         yaxes: [
             {
