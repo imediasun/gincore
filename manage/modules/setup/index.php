@@ -9,6 +9,7 @@ class setup{
     private $lang;
     private $def_lang;
     private $langs;
+
     function __construct($all_configs, $lang, $def_lang, $langs){
         $this->def_lang = $def_lang;
         $this->lang = $lang;
@@ -57,5 +58,4 @@ class setup{
         
         $input['langs'] = $langs;
     }
-    
 }

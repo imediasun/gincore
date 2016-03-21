@@ -1,35 +1,34 @@
 var master = (function($){
-    
+    var randomColorCalls = 0, colors = ['008000', '000000', 'ee82ee' ,'8b4512'];
+
     function getRandomColor() {
         var letters = '0123456789abcdef'.split('');
         var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+        if (randomColorCalls < colors.length) {
+            color += colors[randomColorCalls];
+        } else {
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
         }
+        randomColorCalls += 1;
         return color;
     }
-    
+
     function init_colorpickers(){
         $('.colorpicker.colorpicker-element').colorpicker('destroy');
-        $('.colorpicker').colorpicker({
-            format: 'hex'
-        }).on('showPicker.colorpicker', function(event){
-            var $this = $(this);
-            if(!$this.val()){
-                $this.data('colorpicker').setValue(getRandomColor());
-            }
-        });
+        $('.colorpicker-auto').colorpicker();
     }
-    
+
     function count_course(val){
         $('.course_value').text(val);
         $('.course_value_return').text((1 / val).toFixed(2).replace('.00',''));
     }
-    
+
     return {
         init: function(){
             init_colorpickers();
-            
+
             $('.clone-elements').click(function(e){
                 e.preventDefault();
                 var $this = $(this),
@@ -44,6 +43,14 @@ var master = (function($){
                     switch($control[0].nodeName.toLowerCase()){
                         case 'input':
                             $control.val('').removeClass('colorpicker-element');
+                            if($control.hasClass('colorpicker')) {
+                              var color = getRandomColor();
+                              $control.val(color);
+                              $clone.find('.show-color').first().css('background-color', color);
+                            }
+                            if($control.hasClass('branch-phone')) {
+                                $control.val($('input[name=phone]').val());
+                            }
                         break;
                         case 'select':
                             $control.find('option:disabled').attr('selected', true);
@@ -53,7 +60,7 @@ var master = (function($){
                 $this.before($clone);
                 init_colorpickers();
             });
-            
+
             $(document).on('keyup input', '.fill-select', function(){
                 var $this = $(this),
                     id = $this.parents('[data-id]').attr('data-id'),
@@ -74,7 +81,7 @@ var master = (function($){
                     }
                 });
             });
-            
+
             var $curr_selects = $('.check-checkboxes');
             $curr_selects.change(function(){
                 var $this = $(this),
@@ -93,47 +100,23 @@ var master = (function($){
                        $('#course').attr('disabled', false);
                    }
                 }else{
-                   $('#course_input').addClass('hidden'); 
+                   $('#course_input').addClass('hidden');
                 }
             });
-            
+
             $('input[name=course]').on('keyup input', function(){
                 var val = +$(this).val();
                 count_course(val);
             });
-            
-//            $('.toggle-currency-course').change(function(){
-//                var $this = $(this);
-//                $this.parents('.checkbox-with-course').find('.currencies-courses')
-//                                                      .toggleClass('hidden', !$this.is(':checked'));
-//            });
-            
-//            var $check = $('.check-checkboxes'),
-//                $checkboxwithcourse = $('.checkbox-with-course'),
-//                $checkboxes = $checkboxwithcourse.find(':checkbox');
-//            $check.change(function(){
-//                $checkboxes.attr({
-//                    checked: false,
-//                    disabled: false
-//                }).change();
-//                $checkboxwithcourse.find('.currencies-courses').val('').attr('disabled', false);
-//                $check.each(function(){
-//                    var $this = $(this),
-//                        val = $this.val(),
-//                        $checkbox = $checkboxes.filter('[value='+val+']');
-//                    $checkbox.attr({
-//                        checked: true,
-//                        disabled: true
-//                    }).change();
-//                    if($this.data('main')){
-//                        $checkbox.parents('.checkbox-with-course').find('.currencies-courses')
-//                                    .val('1').attr('disabled', true);
-//                    }
-//                });
-//            });
+
+            $('input[name=phone]').on('keyup', function() {
+                var $branchPhone = $('.branch-phone').first();
+                $branchPhone.val($(this).val());
+            });
+
         }
     };
-    
+
 })(jQuery);
 $(function(){
     master.init();

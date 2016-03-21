@@ -260,11 +260,7 @@ function is_crawler(){
         'Facebook' => 'facebookexternalhit',
     );
     $crawlers_agents = implode('|', $crawlers);
-    if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/'.$crawlers_agents.'/i', $_SERVER['HTTP_USER_AGENT'])){
-        return true;
-    }else{
-        return false;
-    }
+    return (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/'.$crawlers_agents.'/i', $_SERVER['HTTP_USER_AGENT']));
 }
 
 function gen_city_select($triangle = false){

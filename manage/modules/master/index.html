@@ -1,7 +1,7 @@
 <div id="middle" class="master-box">
     <form method="post" class="form-horizontal ajax_form" action="{-txt-prefix}master/ajax/">
         <input type="hidden" name="act" value="save_data">
-        <div class="form-group">
+        <!--div class="form-group">
             <label class="col-sm-3 control-label">
                 {-txt-master_field_business}
             </label>
@@ -14,7 +14,7 @@
                     <option value="0">{-txt-master_field_business_option_1}</option>
                 </select>
             </div>
-        </div>
+        </div-->
         <div class="form-group">
             <label class="col-sm-3 control-label">
                 {-txt-master_field_country}
@@ -38,12 +38,12 @@
                 <input type="tel" name="phone" class="form-control">
             </div>
         </div>
-        <div class="form-group">
+        <!--div class="form-group">
             <label class="col-sm-3 control-label">{-txt-master_field_email}</label>
             <div class="col-sm-5">
                 <input type="email" name="email" class="form-control">
             </div>
-        </div>
+        </div-->
         <div class="form-group">
             <label class="col-sm-3 control-label">
                 {-txt-master_field_service_centers}
@@ -63,10 +63,15 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <input class="form-control" type="text" name="services[0][phone]" placeholder="{-txt-master_field_service_centers_phone}">
+                                    <input class="form-control branch-phone" type="text" name="services[0][phone]" placeholder="{-txt-master_field_service_centers_phone}">
                                 </div>
                                 <div class="col-xs-6">
-                                    <input class="form-control colorpicker" type="text" name="services[0][color]" placeholder="{-txt-master_field_service_centers_color}">
+                                    <div id="demo_endis" class="input-group colorpicker-auto colorpicker-component colorpicker-element">
+                                        <input class="form-control colorpicker" type="text" name="services[0][color]" placeholder="{-txt-master_field_service_centers_color}" value="#0000ff">
+                                        <span class="input-group-addon">
+                                            <i class='show-color' style="background-color: blue;"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
