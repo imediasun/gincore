@@ -511,7 +511,7 @@ class ChartUtils
         }
         switch (true) {
             case isset($_GET['month']):
-                if ($this->diff > 6 * 30) {
+                if ($this->diff > 2 * 30) {
                     return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m') as d", array());
                 }
             case isset($_GET['week']):
@@ -529,7 +529,7 @@ class ChartUtils
     {
         switch (true) {
             case isset($_GET['month']):
-                if ($this->diff > 6 * 30) {
+                if ($this->diff > 2 * 30) {
                     return 'Y-m';
                 }
             case isset($_GET['week']):
@@ -548,9 +548,10 @@ class ChartUtils
         $di = function($diff) {
             switch(true) {
                 case isset($_GET['month']):
-                    if($diff > 6 * 30) {
+                    if($diff > 2 * 30) {
                         return new DateInterval('P1M');
                     }
+                    FlashMessage::set(l('Шаг в 1 мес. можно применить на диапазоне не менее 60 дней. Увеличте диапазон дат'), FlashMessage::WARNING);
                 case isset($_GET['week']):
                     if($diff >= 30) {
                         return new DateInterval('P1W');
@@ -643,7 +644,7 @@ class ChartUtils
     {
         switch (true) {
             case isset($_GET['month']):
-                if ($this->diff > 6 * 30) {
+                if ($this->diff > 2 * 30) {
                     return 30;
                 }
             case isset($_GET['week']):
