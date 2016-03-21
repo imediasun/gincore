@@ -172,15 +172,21 @@ function setGet(params) {
     var str = window.location.search.replace("?", "");
     var obj = {};
     var pairs = str.split('&');
-    for (i in pairs) {
-        var split = pairs[i].split('=');
-        if(!params[split[0]]) {
-          obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
-        } else {
-            obj[decodeURIComponent(split[0])] = decodeURIComponent(params[split[0]]);
+    if (pairs.length > 0) {
+        for (i in pairs) {
+            var split = pairs[i].split('=');
+            if (!params[split[0]]) {
+                obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
+            } else {
+                obj[decodeURIComponent(split[0])] = decodeURIComponent(params[split[0]]);
+            }
         }
+        var result = '?' + $.param(obj);
+
+    } else {
+        var result = '?' + $.param(params);
+
     }
-    var result = '?' + $.param(obj);
     window.location = result;
 }
 
