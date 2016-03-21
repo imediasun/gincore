@@ -631,12 +631,12 @@ class ChartUtils
         $filters = $this->getFilters();
         $query = '';
         if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")>=?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") > ?',
                 array($query, $filters['date_start']));
         }
 
         if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")<=?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") <= ?',
                 array($query, $filters['date_end']));
         }
         return ' 1=1 ' . $query;
