@@ -215,7 +215,7 @@ $(function(){
     );
 });
 
-function init_chart(id, data, colors, start_xaxis, tickSize) {
+function init_chart(id, data, colors, ticks, tickSize) {
     var chartIncomeData = [];
     $.each(data, function (index, element) {
         chartIncomeData.push({
@@ -253,11 +253,12 @@ function init_chart(id, data, colors, start_xaxis, tickSize) {
             hoverable: true
         },
         xaxis: {
-            tickSize: [tickSize || 1, "day"],
+            //tickSize: [24 * (tickSize || 1), "hour"],
             mode: "time",
             timeformat: "%d.%m",
-            tickDecimals: 0,
-            min: (new Date(start_xaxis * 1000)).getTime()
+            //tickDecimals: 0,
+            //min: (new Date(start_xaxis * 1000)).getTime()
+            ticks: ticks
         },
         yaxes: [
             {

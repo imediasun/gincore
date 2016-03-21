@@ -175,15 +175,17 @@ class dashboard
             array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
 
         $result = array();
+        $ticks = array();
         foreach ($period as $dt) {
             $result = $this->utils->formatForChart($dt, $orders, $result);
+            $ticks = $this->utils->getTicks($dt, $ticks);
         }
         return $this->view->renderFile('dashboard/branch_chart', array(
             'tickSize' => $this->utils->tickSize(),
             'orders' => $result,
             'branches' => $branches,
             'selected' => $selected,
-            'startXaxis' => $this->utils->getMonday()
+            'ticks' => $ticks
         ));
     }
 
@@ -264,10 +266,12 @@ class dashboard
         $resultByItems = array();
         $resultByCategories = array();
         $resultByModels = array();
+        $ticks = array();
         foreach ($period as $dt) {
             $resultByItems = $this->utils->formatForChart($dt, $orders, $resultByItems);
             $resultByModels = $this->utils->formatForChart($dt, $ordersByModels, $resultByModels);
             $resultByCategories = $this->utils->formatForChart($dt, $ordersByCategory, $resultByCategories);
+            $ticks = $this->utils->getTicks($dt, $ticks);
         }
         return $this->view->renderFile('dashboard/repair_chart', array(
             'categories' => $categories,
@@ -280,7 +284,7 @@ class dashboard
             'selectedModels' => $selectedModels,
             'selectedCategories' => $selectedCategories,
             'tickSize' => $this->utils->tickSize(),
-            'startXaxis' => $this->utils->getMonday()
+            'ticks' => $ticks
         ));
     }
 
@@ -686,5 +690,30 @@ class ChartUtils
     public function getMonday()
     {
         return strtotime('monday', $this->start->getTimestamp());
+    }
+
+    /**
+     * @param $dt
+     * @param $ticks
+     * @return array
+     */
+    public function getTicks($dt, $ticks)
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    $timestamp = strtotime('first day of this month', $dt->getTimestamp());
+                    break;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    $timestamp = strtotime('monday', $dt->getTimestamp());
+                    break;
+                }
+            default:
+                $timestamp = $dt->getTimestamp();
+        }
+        $ticks[] = ($timestamp + 2*3600)* 1000 ;
+        return $ticks;
     }
 }

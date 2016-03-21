@@ -32,7 +32,7 @@
                                         <?php endforeach; ?>
                                     ],
                                     [],
-                                    <?= $startXaxis ?>,
+                                    [<?= implode(',', $ticks)?>],
                                     <?= $tickSize ?>
                                 );
                             });

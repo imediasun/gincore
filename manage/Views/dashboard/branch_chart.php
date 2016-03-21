@@ -22,7 +22,7 @@
                                         <?php endforeach; ?>
                                     ],
                                     [<?= implode(',', $colors) ?>],
-                                    <?= $startXaxis ?>,
+                                    [<?= implode(',', $ticks)?>],
                                     <?= $tickSize ?>
                                 );
                             });
