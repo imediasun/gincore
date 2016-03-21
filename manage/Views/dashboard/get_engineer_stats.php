@@ -5,7 +5,7 @@
     <?php foreach ($orders as $i => $o): ?>
         <?php $p = $constructor->percent_format($o['orders'] / $allOrders * 100); ?>
         <?php if ($count == 6): ?>
-            <div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer">
+            <div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer; margin-bottom: 10px">
                 <?= l('Развернуть') ?> <i class="fa fa-chevron-down"></i>
             </div>
         <?php endif; ?>
