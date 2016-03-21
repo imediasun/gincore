@@ -179,7 +179,7 @@ function location_menu(_this, e) {
 }
 
 $(function() {
-
+    $(".test-toggle").bootstrapSwitch();
     $(document).on('click', '.accept-manager', function(){
         $(this).siblings('[name=accept-manager]').val(1);
     });
@@ -238,17 +238,28 @@ $(function() {
 
         return false;
     });
-    
+
     $(document).on('click', '.specify_order_id', function(){
-        var $this = $(this),
-            $input = $this.siblings('.order_id_input');
+        var $input = $('.order_id_input').first();
         $input.stop(true).slideToggle(200, function(){
             if(!$input.is(':visible')){
                 $input.find('input').val('');
             }
         });
     });
-    
+    $(document).on('click', '.hide_order_fields', function(){
+        var $form = $('#hide-orders-fields-form');
+        $form.stop(true).slideToggle(200, function(){
+            $('.js-hide-fields').toggle();
+            if($form.is(':visible')){
+                $('.js-fields').removeClass('col-sm-6').addClass('col-sm-5');
+
+            } else {
+                $('.js-fields').removeClass('col-sm-5').addClass('col-sm-6');
+            }
+        });
+    });
+
     $(document).on('submit', '#order-form', function(e){
         $(this).find('#update-order').click();
         e.preventDefault();
@@ -407,6 +418,9 @@ function update_order(_this) {
     });
 
     return false;
+}
+function apply_hide(_this) {
+    $('#hide-orders-fields-form').submit();
 }
 
 function add_new_order(_this, next, from) {

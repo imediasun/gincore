@@ -889,3 +889,6 @@ table.borderless > tbody > tr > td{
     position: relative;
     float: left;
 }
+.bootstrap-switch-animate {
+    margin-bottom: 4px;
+}

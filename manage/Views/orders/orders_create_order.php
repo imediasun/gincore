@@ -1,3 +1,9 @@
+<script>
+
+    $(function() {
+        $(".test-toggle").bootstrapSwitch();
+    });
+</script>
 <ul class="nav nav-tabs default_tabs" role="tablist">
     <li role="presentation" class="active">
         <a href="#repair" role="tab" data-toggle="tab"><?= l('Заказ на ремонт') ?></a>
@@ -8,16 +14,24 @@
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="repair">
-        <form method="post" id="order-form">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <span class="specify_order_id"><?= l('Указать номер заказа') ?></span>
-                        <div class="order_id_input">
-                            <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>" type="text"
-                                   class="form-control" name="id">
-                        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6 js-fields">
+                    <span class="specify_order_id"><?= l('Указать номер заказа') ?></span>
+                    <span class="hide_order_fields"><?= l('Скрыть поля в квитанции') ?></span>
+                </div>
+            </div>
+            <div class="row">
+                <?= $this->renderFile('orders/hide_order_fields_form', array(
+                    'hide' => $hide
+                )); ?>
+                <form method="post" id="order-form">
+                    <div class="col-sm-6 js-fields">
                         <fieldset>
+                            <div class="order_id_input">
+                                <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>" type="text"
+                                       class="form-control" name="id">
+                            </div>
                             <legend><?= l('Клиент') ?></legend>
                             <div class="form-group">
                                 <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
@@ -257,35 +271,43 @@
                         </fieldset>
                     </div>
                     <br>
+                </form>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-1 js-hide-fields" style="display:none">
+                    <button id='apply-hide' type="submit" class="btn btn-primary" onclick="apply_hide(this)"><?= l('Применить') ?></button>
+                </div>
+                <div class="btn-group dropup col-sm-6 js-fields">
+                    <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button"
+                           onclick="add_new_order(this,'','create_order')" value="<?= l('Добавить') ?>"/>
+                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" onclick="add_new_order(this, 'print'); return false;">
+                                <?= l('Добавить и распечатать квитанцию') ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="add_new_order(this, 'new_order'); return false;">
+                                <?= l('Добавить и принять еще одно устройство от этого клиента') ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="add_new_order(this, 'print_and_new_order'); return false;">
+                                <?= l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') ?>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div class="btn-group dropup">
-                <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button"
-                       onclick="add_new_order(this,'','create_order')" value="<?= l('Добавить') ?>"/>
-                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                    <span class="caret"></span>
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="#" onclick="add_new_order(this, 'print'); return false;">
-                            <?= l('Добавить и распечатать квитанцию') ?>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" onclick="add_new_order(this, 'new_order'); return false;">
-                            <?= l('Добавить и принять еще одно устройство от этого клиента') ?>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" onclick="add_new_order(this, 'print_and_new_order'); return false;">
-                            <?= l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') ?>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </form>
+        </div>
     </div>
     <div class="tab-pane" id="sale">
         <?= $orderForSaleForm ?>

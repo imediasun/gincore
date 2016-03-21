@@ -546,12 +546,13 @@ td.td-sc-count {
     background: none !important;
 }
 
-.specify_order_id{
+.specify_order_id, .hide_order_fields{
     border-bottom: 1px dashed;
     display: inline-block;
     cursor: pointer;
     margin-bottom: 10px;
     color: #5b5b5b;
+    margin-right:20px;
 }
 .order_id_input{
     padding-bottom: 10px;
