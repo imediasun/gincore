@@ -253,7 +253,7 @@ function init_chart(id, data, colors, start_xaxis, tickSize) {
             hoverable: true
         },
         xaxis: {
-            minTickSize: [tickSize || 1, "day"],
+            tickSize: [tickSize || 1, "day"],
             mode: "time",
             timeformat: "%d.%m",
             tickDecimals: 0,
