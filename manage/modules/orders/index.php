@@ -325,6 +325,10 @@ class orders
             exit;
         }
 
+        if(isset($_POST['hide-fields'])) {
+            $this->order_fields_setup();
+        }
+
         header("Location:" . $_SERVER['REQUEST_URI']);
         exit;
     }
@@ -657,7 +661,7 @@ class orders
     /**
      * @return array
      */
-    public function show_orders_orders()
+    function show_orders_orders()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $filters = array('type' => 0);
@@ -2929,5 +2933,22 @@ class orders
             );
         }
         Response::json($data);
+    }
+
+    private function order_fields_setup() {
+       $config = $_POST['config'];
+        $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
+       if(empty($current)) {
+           $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
+               array(
+                   'Настройки видимости полей заказов',
+                   'Настройки видимости полей заказов',
+                   json_encode($config)
+               ));
+
+       } else {
+           $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'order-fields-hide'",
+               array(json_encode($config)));
+       }
     }
 }
