@@ -253,11 +253,11 @@ function init_chart(id, data, colors, start_xaxis, tickSize) {
             hoverable: true
         },
         xaxis: {
-            tickSize: [tickSize || 1, "day"],
+            minTickSize: [tickSize || 1, "day"],
             mode: "time",
             timeformat: "%d.%m",
             tickDecimals: 0,
-            min: (new Date(start_xaxis * 1000)).getTime(),
+            min: (new Date(start_xaxis * 1000)).getTime()
         },
         yaxes: [
             {
