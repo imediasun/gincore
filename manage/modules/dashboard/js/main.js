@@ -211,7 +211,7 @@ $(function(){
     );
 });
 
-function init_chart(id, data, tickSize) {
+function init_chart(id, data, colors,tickSize) {
     var chartIncomeData = [];
     $.each(data, function (index, element) {
         chartIncomeData.push({
@@ -220,6 +220,9 @@ function init_chart(id, data, tickSize) {
             yaxis: 2
         });
     });
+    if(colors.length == 0) {
+        colors = ['#FFC90E', '#22B14C', "#ED1C24"];
+    }
     var chartIncomeOptions = {
         series: {
             lines: {
@@ -236,7 +239,7 @@ function init_chart(id, data, tickSize) {
             },
             shadowSize: 0
         },
-        colors: ['#FFC90E', '#22B14C', "#ED1C24"],
+        colors: colors,
         grid: {
             backgroundColor: "#ffffff",
             tickColor: "#f0f0f0",

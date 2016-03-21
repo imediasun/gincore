@@ -31,6 +31,7 @@
                                         },
                                         <?php endforeach; ?>
                                     ],
+                                    [],
                                     <?= $tickSize ?>
                                 );
                             });

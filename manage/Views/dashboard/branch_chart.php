@@ -8,6 +8,7 @@
                     </div>
                     <div class="flot-chart" style="height: 160px">
                         <script>
+                            <?php $colors = array(); ?>
                             $(function () {
                                 init_chart(
                                     '#flot-branch-line-chart',
@@ -16,9 +17,11 @@
                                         {
                                             points: [<?= implode(',', $points) ?>],
                                             legend: "<?= isset($branches[$wh]['title']) ? $branches[$wh]['title'] : '' ?>"
+                                            <?php $colors[$wh] = "'{$branches[$wh]['color']}'"; ?>
                                         },
                                         <?php endforeach; ?>
                                     ],
+                                    [<?= implode(',', $colors) ?>],
                                     <?= $tickSize ?>
                                 );
                             });

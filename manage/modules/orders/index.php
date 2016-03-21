@@ -604,7 +604,7 @@ class orders
      * @param string $hash
      * @return array
      */
-    function orders_show_orders($hash = '#show_orders-orders')
+    public function orders_show_orders($hash = '#show_orders-orders')
     {
         if (trim($hash) == '#show_orders' || (trim($hash) != '#show_orders-orders' && trim($hash) != '#show_orders-sold'
                 && trim($hash) != '#show_orders-return' && trim($hash) != '#show_orders-writeoff')
@@ -613,7 +613,7 @@ class orders
         }
 
         $orders_html = $this->view->renderFile('orders/orders_show_orders', array(
-           'clientsOrdersNavigation' =>  $this->clients_orders_navigation(),
+            'clientsOrdersNavigation' => $this->clients_orders_navigation(),
             'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
         ));
 
@@ -657,16 +657,14 @@ class orders
     /**
      * @return array
      */
-    function show_orders_orders()
+    public function show_orders_orders()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-        $orders_html = '';
         $filters = array('type' => 0);
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
         }
-        $count_on_page = $this->count_on_page;
-        if(isset($_GET['simple'])) {
+        if (isset($_GET['simple'])) {
             $search = $_GET['simple'];
             unset($_GET['simple']);
             list($query, $orders) = $this->simpleSearch($search, $filters + $_GET);
@@ -674,39 +672,18 @@ class orders
             $queries = $this->all_configs['manageModel']->clients_orders_query($filters + $_GET);
             $query = $queries['query'];
             // достаем заказы
-            $orders = $this->getOrders($query, $queries['skip'], $count_on_page);
+            $orders = $this->getOrders($query, $queries['skip'], $this->count_on_page);
         }
 
-        if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table table-hover"><thead><tr><td>' . l('номер заказа') . '</td><td></td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
-            } else {
-                $orders_html .= '<td>' . l('Оплата') . '</td>';
-            }
-            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
-            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
-
-            foreach ($orders as $order) {
-                $orders_html .= display_client_order($order);
-            }
-            $orders_html .= '</tbody></table>';
-
-            // количество заказов клиентов
-            $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
-
-            $count_page = ceil($count / $count_on_page);
-
-            // строим блок страниц
-            $orders_html .= page_block($count_page, $count, '#show_orders');
-
-        } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
-        }
+        $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
+        $count_page = ceil($count / $this->count_on_page);
 
         return array(
-            'html' => $orders_html,
+            'html' => $this->view->renderFile('orders/show_orders_orders', array(
+                'count' => $count,
+                'count_page' => $count_page,
+                'orders' => $orders
+            )),
             'functions' => array(),
         );
     }
@@ -1054,30 +1031,18 @@ class orders
     /**
      * @return string
      */
-    function menu_recommendations_procurement()
+    public function menu_recommendations_procurement()
     {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
-        $out = '<form method="post"><div class="clearfix theme_bg filters-box p-sm m-b-md">';
-        $out .= '<div class="form-group"><label>' . l('Категории') . '</label>';
-        $out .= '<select class="multiselect form-control" multiple="multiple" name="ctg[]">';
-        $categories = $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
-        $out .= build_array_tree($categories, isset($_GET['ctg']) ? explode(',', $_GET['ctg']) : null);
-        $out .= '</select></div>';
-        $out .= '<div class="form-group"><label>' . l('Сроки доставки') .'</label>';
-        $s = isset($_GET['tso']) ? intval($_GET['tso']) : 0;
-        $out .= '<select class="form-control" name="tso"><option ' . ($s == 4 ? 'selected' : '') . ' value="4">4</option>';
-        $out .= '<option ' . ($s == 3 ? 'selected' : '') . ' value="3">3</option>';
-        $out .= '<option ' . ($s == 2 ? 'selected' : '') . ' value="2">2</option>';
-        $out .= '<option ' . ($s == 1 ? 'selected' : '') . ' value="1">1</option></select></div>';
-        $out .= '<div class="form-group"><label>' . l('Дата от') .':</label>';
-        $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />';
-        $out .= '</div><input type="submit" class="btn btn-primary" value="' . l('Применить') .'" name="procurement-filter" />';
-        $out .= '</div></form>';
+        $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
+        return $this->view->renderFile('orders/menu_recommendations_procurement', array(
+            'date' => $date,
+            'categories' => $categories,
 
-        return $out;
+        ));
     }
 
     /**
@@ -1422,9 +1387,6 @@ class orders
                 $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(1, $this->all_configs['arrequest'][2]);
             } else {
                 $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(1);
-                //$orders_html .= '<div class="control-group"><label class="control-label"></label>';
-                //$orders_html .= '<div title="Добавить еще товар" class="add_supplier_form" onclick="add_supplier_form(this)">';
-                //$orders_html .= '<i class="icon-plus"></i><div class="controls"></div></div></div>';
             }
         }
 

@@ -149,7 +149,7 @@ class dashboard
      */
     private function get_branch_chart()
     {
-        $branches = $this->db->query('SELECT id, `name` as title FROM {warehouses_groups}', array())->assoc('id');
+        $branches = $this->db->query('SELECT id, `name` as title, color FROM {warehouses_groups}', array())->assoc('id');
         $period = $this->utils->getDatePeriod();
 
         $query = '';
@@ -241,11 +241,9 @@ class dashboard
                 ))->assoc(), 'p_id');
         }
         if (!empty($selectedModels)) {
-            $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, cg.category_id as category_id "
+            $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, o.category_id as category_id "
                 . " FROM {orders} o "
-                . " JOIN {orders_goods} as og ON og.order_id = o.id "
-                . " JOIN {category_goods} as cg ON og.goods_id = cg.goods_id "
-                . " WHERE ?q ?q ?q AND cg.category_id in (?li) GROUP BY category_id, d ",
+                . " WHERE ?q ?q ?q AND o.category_id in (?li) GROUP BY category_id, d ",
                 array(
                     $this->utils->selectDate('o'),
                     $this->utils->makeFilters('o.date_add'),
