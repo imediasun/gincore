@@ -172,7 +172,7 @@ function setGet(params) {
     var str = window.location.search.replace("?", "");
     var obj = {};
     var pairs = str.split('&');
-    if (pairs.length > 0) {
+    if (pairs.length > 0 && pairs[0].length >0) {
         for (i in pairs) {
             var split = pairs[i].split('=');
             if (!params[split[0]]) {
