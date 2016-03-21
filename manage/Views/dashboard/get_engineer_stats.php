@@ -4,17 +4,17 @@
 <?php else: ?>
     <?php foreach ($orders as $i => $o): ?>
         <?php $p = $constructor->percent_format($o['orders'] / $allOrders * 100); ?>
+        <?php if ($count == 6): ?>
+            <div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer; margin-bottom: 10px">
+                <?= l('Развернуть') ?> <i class="fa fa-chevron-down"></i>
+            </div>
+        <?php endif; ?>
         <div class="clearfix m-t-sm">
             <span class="font-bold no-margins">
                 <?= ($o['fio'] ?: ('id ' . $o['engineer'])) ?>
                 <span class="pull-right text-success"><?= $o['orders'] ?> (<?= $p ?>%)</span>
             </span>
         </div>
-        <?php if ($count == 6): ?>
-            <div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer">
-                <?= l('Развернуть') ?> <i class="fa fa-chevron-down"></i>
-            </div>
-        <?php endif; ?>
         <?php $count++; ?>
     <?php endforeach; ?>
     <?php if ($count > 6): ?>
