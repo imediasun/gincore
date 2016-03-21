@@ -94,22 +94,27 @@ class dashboard
      */
     private function get_conv_chart()
     {
-        $calls = $this->db->query("SELECT DATE_FORMAT(date, '%Y-%m-%d') as d, count(*) as c "
+        $calls = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {crm_calls} "
-            . "WHERE ?q GROUP BY d", array($this->utils->makeFilters('date')))->vars();
-        $visitors = $this->db->query("SELECT date as d, SUM(users) as c FROM {crm_analytics} "
-            . "WHERE ?q GROUP BY d", array($this->utils->makeFilters('date')))->vars();
+            . "WHERE ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date')))->vars();
+        $visitors = $this->db->query("SELECT ?q, SUM(users) as c FROM {crm_analytics} "
+            . "WHERE ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date')))->vars();
         list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty();
         $orders = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {orders} "
-            . "WHERE ?q ?q ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $typeQuery, $warrantyQuery))->vars();
+            . "WHERE ?q ?q ?q GROUP BY d", array(
+            $this->utils->selectDate(),
+            $this->utils->makeFilters('date_add'),
+            $typeQuery,
+            $warrantyQuery
+        ))->vars();
         $calls_js = array();
         $orders_js = array();
         $visitors_js = array();
         $period = $this->utils->getDatePeriod();
         $init_visitors = false;
         foreach ($period as $dt) {
-            $date = $dt->format('Y-m-d');
+            $date = $dt->format($this->utils->getDateFormat());
             if (!empty($visitors[$date])) {
                 $init_visitors = true;
             }
