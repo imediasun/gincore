@@ -17,7 +17,7 @@
                             <input type="checkbox" name="types[]" value="not-warranty"<?= isset($current['not-warranty']) && in_array(1, $current['not-warranty'])? 'checked': ''?>> <?= l('Не гарантийные') ?>
                         </label>
                         <label>
-                            <input type="checkbox" name="types[]" value="sale" <?= isset($current['types']) && in_array(2, $current['types'])? 'checked': ''?>> <?= l('Продажи') ?>
+                            <input type="checkbox" name="types[]" value="sale" <?= isset($current['types']) && in_array(3, $current['types'])? 'checked': ''?>> <?= l('Продажи') ?>
                         </label>
                     </div>
 
