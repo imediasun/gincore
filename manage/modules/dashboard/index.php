@@ -96,9 +96,9 @@ class dashboard
     {
         $calls = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {crm_calls} "
-            . "WHERE ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date')))->vars();
+            . "WHERE ?q GROUP BY d", array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
         $visitors = $this->db->query("SELECT ?q, SUM(users) as c FROM {crm_analytics} "
-            . "WHERE ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date')))->vars();
+            . "WHERE ?q GROUP BY d", array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
         list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty();
         $orders = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {orders} "
@@ -509,7 +509,7 @@ class ChartUtils
      * @param string $prefix
      * @return mixed
      */
-    public function selectDate($prefix = '')
+    public function selectDate($prefix = '', $field = 'date_add')
     {
         if (!empty($prefix)) {
             $prefix = $prefix . '.';
@@ -517,14 +517,14 @@ class ChartUtils
         switch (true) {
             case isset($_GET['month']):
                 if ($this->diff > 2 * 30) {
-                    return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m') as d", array());
+                    return $this->db->makeQuery("DATE_FORMAT({$prefix}{$field}, '%Y-%m') as d", array());
                 }
             case isset($_GET['week']):
                 if ($this->diff >= 30) {
-                    return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%u') as d", array());
+                    return $this->db->makeQuery("DATE_FORMAT({$prefix}{$field}, '%Y-%u') as d", array());
                 }
         }
-        return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m-%d') as d", array());
+        return $this->db->makeQuery("DATE_FORMAT({$prefix}{$field}, '%Y-%m-%d') as d", array());
     }
 
     /**
