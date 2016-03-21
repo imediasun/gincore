@@ -555,15 +555,22 @@ class ChartUtils
     public function getDatePeriod()
     {
         $di = function($diff) {
-            switch(true) {
+            $error = 0;
+            switch (true) {
                 case isset($_GET['month']):
-                    if($diff > 2 * 30) {
+                    if ($diff > 2 * 30) {
                         return new DateInterval('P1M');
                     }
-                    FlashMessage::set(l('Шаг в 1 мес. можно применить на диапазоне не менее 60 дней. Увеличте диапазон дат'), FlashMessage::WARNING);
+                    FlashMessage::set(l('Шаг в 1 мес. можно применить на диапазоне не менее 60 дней. Увеличте диапазон дат'),
+                        FlashMessage::WARNING);
+                    $error = 1;
                 case isset($_GET['week']):
-                    if($diff >= 30) {
+                    if ($diff >= 30) {
                         return new DateInterval('P1W');
+                    }
+                    if ($error == 0) {
+                        FlashMessage::set(l('Шаг в 1 неделю можно применить на диапазоне не менее 30 дней. Увеличте диапазон дат'),
+                            FlashMessage::WARNING);
                     }
                 default:
                     $di = new DateInterval('P1D');
