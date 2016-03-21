@@ -7,6 +7,7 @@
                         <i class="fa fa-laptop"></i> <?= l('Сравнительный анализ по категориям/моделям/запчастям') ?>
                     </div>
                     <div class="flot-chart" style="height: 160px">
+                        <?= date('d-m-Y', $startXaxis) ?>
                         <script>
                             $(function () {
                                 init_chart(

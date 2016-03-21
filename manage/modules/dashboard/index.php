@@ -340,9 +340,7 @@ class dashboard
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
             . "WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
         foreach ($statuses as $status => $name) {
-
             $name = l($name);
-
             $orders = $this->db->query("SELECT count(*) "
                 . "FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
@@ -395,19 +393,19 @@ class dashboard
             . "AND client_order_id > 0 ",
             array($today_date, $today_date_to), 'el');
         $chart_cash = $this->db->query("SELECT "
-            . "DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, "
+            . "?q,"
             . "SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
             . "FROM {cashboxes_transactions} "
             . "WHERE ?q AND transaction_type = 2 "
             . "AND type NOT IN (1, 2, 3, 4, 6) "
             . "AND client_order_id > 0 "
-            . "GROUP BY d", array($query_filter))->vars();
+            . "GROUP BY d", array($this->utils->selectDate('', 'date_transaction'),$query_filter))->vars();
         $cash_chart_js = array();
         $period = $this->utils->getDatePeriod();
         $period_cash = 0;
         foreach ($period as $dt) {
-            $date = $dt->format('Y-m-d');
-            $d_js = 'gd(' . $dt->format('Y') . ',' . $dt->format('n') . ',' . $dt->format('j') . ')';
+            $date = $dt->format($this->utils->getDateFormat());
+            $d_js = $this->utils->getDJs($dt);
             $cash = isset($chart_cash[$date]) ? number_format($chart_cash[$date], 2, '.', '') : 0;
             $period_cash += $cash;
             $cash_chart_js[] = '[' . $d_js . ',' . $cash . ']';
