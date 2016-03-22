@@ -1,31 +1,14 @@
 <?php
 
 require_once __DIR__ . '/abstract_import_provider.php';
+require_once __DIR__ . '/items_inteface.php';
 
-class vvs_items extends abstract_import_provider
+class vvs_items extends abstract_import_provider implements ItemsInterface
 {
     public $cols = array(
         1 => 'Item title',
         3 => 'Category'
     );
-
-    /**
-     * @param $data
-     * @return mixed
-     */
-    function get_title($data)
-    {
-        return iconv('cp1251', 'utf8', trim($data[1]));
-    }
-
-    /**
-     * @param $data
-     * @return mixed
-     */
-    function get_category($data)
-    {
-        return trim(iconv('cp1251', 'utf8', trim($data[3])), '[]');
-    }
 
     /**
      * @return array
@@ -42,5 +25,50 @@ class vvs_items extends abstract_import_provider
     public function check_format($header_row)
     {
         return true;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function getTitle($data)
+    {
+        return iconv('cp1251', 'utf8', trim($data[1]));
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    function getCategory($data)
+    {
+        return trim(iconv('cp1251', 'utf8', trim($data[3])), '[]');
+    }
+
+    /**
+     * @param $data
+     * @return int
+     */
+    public function getPrice($data)
+    {
+        return 100;
+    }
+
+    /**
+     * @param $data
+     * @return int
+     */
+    public function getPurchase($data)
+    {
+        return 0;
+    }
+
+    /**
+     * @param $data
+     * @return int
+     */
+    public function getWholesale($data)
+    {
+        return 0;
     }
 }

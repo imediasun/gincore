@@ -1,14 +1,14 @@
 <?php
 
-require_once __DIR__.'/../../View.php';
-require_once __DIR__.'/../../Session.php';
+require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Session.php';
 
 class dashboard
 {
     const PREPAYMENT_TRANSACTION_TYPE = 10;
-    /** @var View  */
+    /** @var View */
     protected $view;
-    /** @var ChartUtils  */
+    /** @var ChartUtils */
     protected $utils;
 
     /**
@@ -96,9 +96,11 @@ class dashboard
     {
         $calls = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {crm_calls} "
-            . "WHERE ?q GROUP BY d", array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
+            . "WHERE ?q GROUP BY d",
+            array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
         $visitors = $this->db->query("SELECT ?q, SUM(users) as c FROM {crm_analytics} "
-            . "WHERE ?q GROUP BY d", array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
+            . "WHERE ?q GROUP BY d",
+            array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
         list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty();
         $orders = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {orders} "
@@ -154,7 +156,8 @@ class dashboard
      */
     private function get_branch_chart()
     {
-        $branches = $this->db->query('SELECT id, `name` as title, color FROM {warehouses_groups}', array())->assoc('id');
+        $branches = $this->db->query('SELECT id, `name` as title, color FROM {warehouses_groups}',
+            array())->assoc('id');
         $period = $this->utils->getDatePeriod();
 
         $query = '';
@@ -172,7 +175,13 @@ class dashboard
             . " FROM {orders} o"
             . " RIGHT JOIN {warehouses} wrh ON wrh.id = o.accept_wh_id"
             . " WHERE ?q ?q ?q ?q AND o.accept_wh_id IS NOT NULL  GROUP BY wh, d ",
-            array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
+            array(
+                $this->utils->selectDate(),
+                $this->utils->makeFilters('date_add'),
+                $query,
+                $warrantyQuery,
+                $typeQuery
+            ))->assoc(), 'wh');
 
         $result = array();
         $ticks = array();
@@ -195,8 +204,8 @@ class dashboard
     private function get_repair_chart()
     {
         $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
-        .' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
-        .' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
+            . ' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
+            . ' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
             array())->assoc('id');
         $categories = $this->db->query('SELECT id, title FROM {categories} WHERE NOT id in (?li) AND avail=1',
             array(array_keys($models)))->assoc('id');
@@ -404,7 +413,7 @@ class dashboard
             . "WHERE ?q AND transaction_type = 2 "
             . "AND type NOT IN (1, 2, 3, 4, 6) "
             . "AND client_order_id > 0 "
-            . "GROUP BY d", array($this->utils->selectDate('', 'date_transaction'),$query_filter))->vars();
+            . "GROUP BY d", array($this->utils->selectDate('', 'date_transaction'), $query_filter))->vars();
         $cash_chart_js = array();
         $period = $this->utils->getDatePeriod();
         $period_cash = 0;
@@ -548,11 +557,12 @@ class ChartUtils
         }
         $options = $this->getOrderOptions();
         $warrantyQuery = '';
-        if(isset($options['warranty']) && $options['warranty']) {
+        if (isset($options['warranty']) && $options['warranty']) {
             $warrantyQuery .= $this->db->makeQuery(" AND {$prefix}warranty = 1", array());
         }
-        if(isset($options['not-warranty']) && $options['not-warranty']) {
-            $warrantyQuery .= $this->db->makeQuery(" AND ({$prefix}warranty = 0 OR {$prefix}warranty IS NULL)", array());
+        if (isset($options['not-warranty']) && $options['not-warranty']) {
+            $warrantyQuery .= $this->db->makeQuery(" AND ({$prefix}warranty = 0 OR {$prefix}warranty IS NULL)",
+                array());
         }
 
         $typeQuery = empty($options['types']) ? $this->db->makeQuery("AND {$prefix}type = 0", array())
@@ -565,8 +575,8 @@ class ChartUtils
 
     /**
      * @param DateTime $dt
-     * @param $orders
-     * @param $result
+     * @param          $orders
+     * @param          $result
      * @return mixed
      */
     public function formatForChart($dt, $orders, $result)
@@ -574,7 +584,7 @@ class ChartUtils
         $date = $dt->format($this->getDateFormat());
         $d_js = $this->getDJs($dt);
         foreach ($orders as $wh => $order) {
-            if(empty($result[$wh])) {
+            if (empty($result[$wh])) {
                 $result[$wh] = array();
             }
 
@@ -612,17 +622,19 @@ class ChartUtils
                 'types' => array(),
                 'warranty' => array(),
             );
-            if(in_array('repair', $_POST['types'])) {
-                $options['types'][] = 0;
-            }
-            if(in_array('sale', $_POST['types'])) {
-                $options['types'][] = 3;
-            }
-            if(in_array('warranty', $_POST['types'])) {
-                $options['warranty'][] = 1;
-            }
-            if(in_array('not-warranty', $_POST['types'])) {
-                $options['not-warranty'][] = 1;
+            if (!empty($_POST['types'])) {
+                if (in_array('repair', $_POST['types'])) {
+                    $options['types'][] = 0;
+                }
+                if (in_array('sale', $_POST['types'])) {
+                    $options['types'][] = 3;
+                }
+                if (in_array('warranty', $_POST['types'])) {
+                    $options['warranty'][] = 1;
+                }
+                if (in_array('not-warranty', $_POST['types'])) {
+                    $options['not-warranty'][] = 1;
+                }
             }
 
             Session::getInstance()->set('dashboard.order.types', $options);
@@ -734,7 +746,7 @@ class ChartUtils
             default:
                 $timestamp = $dt->getTimestamp();
         }
-        $ticks[] = ($timestamp + 2*3600)* 1000 ;
+        $ticks[] = ($timestamp + 2 * 3600) * 1000;
         return $ticks;
     }
 
@@ -783,7 +795,7 @@ class ChartUtils
      */
     public function getDatePeriod()
     {
-        $di = function($diff) {
+        $di = function ($diff) {
             $error = 0;
             switch (true) {
                 case isset($_GET['month']):

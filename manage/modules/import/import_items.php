@@ -3,6 +3,11 @@
 require_once __DIR__ . '/abstract_import_handler.php';
 require_once $this->all_configs['sitepath'] . 'mail.php';
 
+/**
+ * Class import_items
+ *
+ * @property ItemsInterface $provider
+ */
 class import_items extends abstract_import_handler
 {
     /** @var  array */
@@ -21,7 +26,7 @@ class import_items extends abstract_import_handler
     {
         parent::__construct($all_configs, $provider, $import_settings);
         $this->categories = $this->getCategories();
-        $this->availableItems = array_flip($this->getAvailableItems());
+        $this->availableItems = $this->getAvailableItems();
         $this->userId = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $this->userAsManager = isset($this->import_settings['accepter_as_manager']) && $this->import_settings['accepter_as_manager'];
     }
@@ -34,10 +39,10 @@ class import_items extends abstract_import_handler
     {
         if (!empty($rows)) {
             foreach ($rows as $row) {
-                $title = $this->provider->get_title($row);
-                $categoryId = $this->getCategoryId($this->provider->get_category($row), $this->categories);
+                $title = $this->provider->getTitle($row);
+                $categoryId = $this->getCategoryId($this->provider->getCategory($row), $this->categories);
                 if (!empty($categoryId) && $this->isValidTitle($title, $this->availableItems)) {
-                    $this->createNewItem($this->userId, $title, $categoryId, $this->getManagerId());
+                    $this->createNewItem($this->userId, $row, $categoryId, $this->getManagerId());
                 }
             }
         }
@@ -54,16 +59,20 @@ class import_items extends abstract_import_handler
      */
     public function getCategoryId($category, $categories)
     {
-        list($parent, $subcategory) = explode('>>', $category);
+        $list = explode('>>', $category);
+        $parent = $list[0];
         $categoryId = null;
         try {
             if (!isset($categories[$parent])) {
-                $this->createCategory($parent, '', 0);
+                $categoryId = $this->createCategory($parent, '', 0);
             }
-            if (isset($categories[$parent]['subcategories'][$subcategory])) {
-                $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
-            } else {
-                $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
+            if (!empty($list[1])) {
+                $subcategory = $list[1];
+                if (isset($categories[$parent]['subcategories'][$subcategory])) {
+                    $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
+                } else {
+                    $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
+                }
             }
         } catch (Exception $e) {
             // add exception message to log
@@ -156,32 +165,47 @@ class import_items extends abstract_import_handler
     }
 
     /**
-     * @param $title
      * @param $userId
      * @return mixed
+     * @internal param $title
+     * @internal param int $price
+     * @internal param int $purchase
+     * @internal param int $wholesale
      */
-    public function insertNewItem($title, $userId)
+    public function insertNewItem($row, $userId)
     {
+        $title = $this->provider->getTitle($row);
         return $this->all_configs['db']
-            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
-                array($title, '', transliturl($title), 1, 100, '', $userId, 0), 'id');
+            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, price_purchase, price_wholesale, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i, ?i, ?i)',
+                array(
+                    $title,
+                    '',
+                    transliturl($title),
+                    1,
+                    $this->provider->getPrice($row),
+                    '',
+                    $userId,
+                    $this->provider->getPurchase($row),
+                    $this->provider->getWholesale($row),
+                    0
+                ), 'id');
     }
 
     /**
      * @param $userId
-     * @param $title
+     * @param $row
      * @param $categoryId
      * @param $managerId
      * @return bool
      */
-    public function createNewItem($userId, $title, $categoryId, $managerId)
+    public function createNewItem($userId, $row, $categoryId, $managerId)
     {
         $modId = $this->all_configs['configs']['products-manage-page'];
 
         if (!empty($userId) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            $itemId = $this->insertNewItem($title, $userId);
+            $itemId = $this->insertNewItem($row, $userId);
             if ($itemId > 0) {
-                $this->items[$itemId] = $title;
+                $this->items[$itemId] = $this->provider->getTitle($row);
                 $this->setCategory($itemId, $categoryId);
                 $this->addToLog('create-goods', $userId, $modId, $itemId);
 

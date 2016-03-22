@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../../View.php';
+
 $modulename[133] = 'import';
 $modulemenu[133] = l('Импорт');
 $moduleactive[133] = !$ifauth['is_2'];
@@ -7,12 +9,15 @@ $moduleactive[133] = !$ifauth['is_2'];
 class import
 {
     protected $all_configs;
+    /** @var View */
+    protected $view;
     private $upload_path;
     private $upload_types = array(
         'items' => array(
-            'name' => 'Товары из VVS Склад-офис-магазин',
+            'name' => 'Товары',
             'handlers' => array(
-                'vvs' => 'VVS items'
+                'vvs' => 'из VVS Склад-офис-магазин',
+                'tirika' => 'из базы "Тирика-Магазин"'
             )
         ),
         'orders' => array(
@@ -40,6 +45,7 @@ class import
     {
         global $input_html;
         $this->all_configs = $all_configs;
+        $this->view = new View($all_configs);
         $this->upload_path = $this->all_configs['path'] . 'modules/import/files/';
         $this->copy_upload_path = $this->all_configs['path'] . 'modules/import/files/copy/';
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
@@ -66,18 +72,7 @@ class import
      */
     function gencontent()
     {
-        return '
-            <div class="tabbable">
-                <ul class="nav nav-tabs">
-                    <li><a class="click_tab default" data-open_tab="import_import" 
-                           onclick="click_tab(this, event)" data-toggle="tab" href="#import">
-                                ' . l('Импортировать данные') . '</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div id="import" class="content_tab tab-pane"></div>
-                </div>
-            </div>
-        ';
+        return $this->view->renderFile('import/gencontent');
     }
 
     /**
@@ -151,33 +146,6 @@ class import
     }
 
     /**
-     * @param string $selected
-     * @return string
-     */
-    private function gen_types_select_options($selected = '')
-    {
-        $types = '';
-        foreach ($this->upload_types as $k => $v) {
-            $types .= '<option' . ($selected == $k ? ' selected' : '') . ' value="' . $k . '">' . l($v['name']) . '</option>';
-        }
-        return '<option value="">' . l('Выберите') . '</option>' . $types;
-    }
-
-    /**
-     * @param        $type
-     * @param string $selected
-     * @return string
-     */
-    private function gen_handlers_select_options($type, $selected = '')
-    {
-        $types = '';
-        foreach ($this->upload_types[$type]['handlers'] as $k => $v) {
-            $types .= '<option' . ($selected == $k ? ' selected' : '') . ' value="' . $k . '">' . l($v) . '</option>';
-        }
-        return '<option>' . l('Выберите') . '</option>' . $types;
-    }
-
-    /**
      * @todo not used???
      *
      * @return array
@@ -185,34 +153,11 @@ class import
     private function import_import()
     {
         $import = isset($_GET['i']) && isset($this->upload_types[$_GET['i']]) ? $_GET['i'] : '';
-
-        $html = '
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <form id="import_form" method="post">
-                            <div class="form-group">
-                                <label>' . l('Тип импорта') . '</label>
-                                <select class="form-control" name="import_type" id="import_type">
-                                    ' . $this->gen_types_select_options($import) . '
-                                </select>
-                            </div>
-                            <div id="import_form_part">' . $this->get_import_form($import) . '</div>
-                            <div class="form-group">
-                                <input type="file" name="file">
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-success" type="button" onclick="start_import(this)">' . l('Запустить') . '</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="row row-15" id="upload_messages"></div>
-            </div>
-        ';
-
         return array(
-            'html' => $html
+            'html' => $this->view->renderFile('import/import_import', array(
+                'selected' => $import,
+                'options' => $this->upload_types,
+            ))
         );
     }
 
@@ -222,52 +167,11 @@ class import
      */
     function get_import_form($type)
     {
-        $form = '';
-        if ($type) {
-            $form = '
-                <div class="form-group">
-                    <label>' . l('Провайдер') . '</label>
-                    <select class="form-control" name="handler">
-                        ' . $this->gen_handlers_select_options($type) . '
-                    </select>
-                </div>
-            ';
-        }
-        switch ($type) {
-            case 'items':
-                $form .= '
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="accepter_as_manager" value="1">
-                                ' . l('назначить приемщика менеджером, если последний не указан') . '
-                            </label>
-                        </div>
-                    </div>
-                ';
-                break;
-            case 'orders':
-                $form .= '
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label>
-                                <input' . ($this->has_orders() ? ' disabled' : '') . ' type="checkbox" name="clear_categories" value="1">
-                                ' . l('очистить категории (и товары) и заменить категориями с импорта') . '
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="accepter_as_manager" value="1">
-                                ' . l('назначить приемщика менеджером, если последний не указан') . '
-                            </label>
-                        </div>
-                    </div>
-                ';
-                break;
-        }
-        return $form;
+        return $this->view->renderFile('import/get_import_form', array(
+            'type' => $type,
+            'options' => $this->upload_types,
+            'hasOrders' => $this->has_orders()
+        ));
     }
 
     /**
