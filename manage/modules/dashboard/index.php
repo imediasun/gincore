@@ -236,8 +236,9 @@ class dashboard
             $children = $this->getChildren($selectedCategories, $models);
             var_dump(implode(',', $children));
             if (!empty($children)) {
-                $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, o.category_id as category_id "
-                    . " FROM {orders} o "
+                $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, c.parent_id as parent_id "
+                    . " FROM {orders} o"
+                    . " JOIN {categories} c ON c.id = o.category_id"
                     . " WHERE ?q ?q ?q AND o.category_id in (?li) GROUP BY category_id, d ",
                     array(
                         $this->utils->selectDate('o'),
@@ -246,7 +247,7 @@ class dashboard
                         $typeQuery,
                         $children
                     ))->assoc(),
-                    'category_id');
+                    'parent_id');
             }
         }
         if (!empty($selectedModels)) {
