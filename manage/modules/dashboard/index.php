@@ -234,7 +234,6 @@ class dashboard
         }
         if (!empty($selectedCategories)) {
             $children = $this->getChildren($selectedCategories, $models);
-            var_dump(implode(',', $children));
             if (!empty($children)) {
                 $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, c.parent_id as parent_id "
                     . " FROM {orders} o"
