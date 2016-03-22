@@ -1,11 +1,15 @@
 <?php
 
+require_once __DIR__.'/../../View.php';
+
 $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');
 $moduleactive[20] = !$ifauth['is_2'];
 
 class clients
 {
+    /** @var View  */
+    protected $view;
     private $mod_submenu;
     public $error;
     public $all_configs;
@@ -20,6 +24,7 @@ class clients
         $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
+        $this->view = new View($all_configs);
         global $input_html;
 
         require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
@@ -517,24 +522,7 @@ class clients
      */
     private function group_clients()
     {
-        $out = '
-            <form method="POST" class="form-horizontal" id="group_clients_form">
-            <p>К клиенту 1 будут перенесены данные (телефоны, звонки, заказы и т.д.) клиента 2. <br>
-               Эл. адрес, фио и контрагент переносятся от клиента 2 в том случае, если у клиента 1 эти поля пустые. <br>
-               После этого клиент 2 будет удален.</p><br>
-        ';
-        
-        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ' 1: </label><div class="controls">';
-//        $out .= '<input value="' . (isset($_GET['client_1']) ? $_GET['client_1'] : '') . '" name="client_1" /></div></div>';
-        $out .= '' . typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_1']) ? $_GET['client_1'] : 0, 1, 'input-medium', 'input-small', '', true, false, '1') . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label">' . l('Клиент') . ' 2: </label><div class="controls">';
-//        $out .= '<input value="' . (isset($_GET['client_2']) ? $_GET['client_2'] : '') . '" name="client_2" /></div></div>';
-        $out .= '' . typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_2']) ? $_GET['client_2'] : 0, 2, 'input-medium', 'input-small', '', true, false, '2') . '</div></div>';
-        $out .= '<div class="control-group"><label class="control-label"></label><div class="controls">';
-        $out .= '<input type="button" value="' . l('Склеить') . '" onclick="group_clients(this)" class="btn btn-default" /></div></div>';
-        $out .= '</form>';
-
-        return $out;
+        return $this->view->renderFile('clients/group_clients');
     }
 
     /**
@@ -625,6 +613,7 @@ class clients
      */
     private function create_new_client()
     {
+        $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
         $out  = '<form class="form-horizontal" method="post"><fieldset><legend>' . l('Добавление клиента') . '</legend>';
         $out .= '<div class="control-group"><label class="control-label">' . l('Электронная почта') . ': </label>
             <div class="controls"><input value="'.(isset($_POST['email'])?htmlspecialchars($_POST['email']):'').'" name="email" class="form-control" /></div></div>';
@@ -632,7 +621,6 @@ class clients
             <div class="controls"><input value="'.(isset($_POST['phone']) ? htmlspecialchars($_POST['phone']):'').'" name="phone" required class="form-control" /></div></div>';
         $out .= '<div class="control-group"><label class="control-label">' . l('Ф.И.О.') . ': <b class="text-danger">*</b></label>
             <div class="controls"><input value="'.(isset($_POST['fio'])?htmlspecialchars($_POST['fio']):'').'" name="fio" required class="form-control" /></div></div>';
-        $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title', array())->assoc();
         if ($contractors) {
             $out .= '<div class="control-group"><label class="control-label">' . l('Контрагент') . ': </label><div class="controls">';
             $out .= '<select name="contractor_id" class="multiselect"><option value="">' . l('Не выбран') . '</option>';
@@ -716,11 +704,6 @@ class clients
         $out .= '<li><a href="#calls" data-toggle="tab">' . l('Звонки') . '</a></li>';
         $out .= '<li><a href="#requests" data-toggle="tab">' . l('Заявки') . '</a></li>';
         $out .= '<li class=""><a href="#orders" data-toggle="tab">' . l('Заказы') . '</a></li>';
-        /*$out .= '<li class=""><a href="#goods_reviews" data-toggle="tab">Отзывы о товаре</a></li>';
-        $out .= '<li class=""><a href="#shop_reviews" data-toggle="tab">Отзывы о магазине</a></li>';
-        $out .= '<li class=""><a href="#wishlist" data-toggle="tab">Список желаний</a></li>';
-        $out .= '<li class=""><a href="#address" data-toggle="tab">Адреса</a></li></ul>';
-        */
         if($new_call_id){
             $out .= '<li class="active"><a href="#new_call" data-toggle="tab">' . l('Новый звонок') . '</a></li>';
         }
