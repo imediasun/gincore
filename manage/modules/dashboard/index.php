@@ -247,7 +247,7 @@ class dashboard
                 $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, c.parent_id as parent_id "
                     . " FROM {orders} o"
                     . " JOIN {categories} c ON c.id = o.category_id"
-                    . " WHERE ?q ?q ?q AND o.category_id in (?li) GROUP BY category_id, d ",
+                    . " WHERE ?q ?q ?q AND o.category_id in (?li) GROUP BY parent_id, d ",
                     array(
                         $this->utils->selectDate('o'),
                         $this->utils->makeFilters('o.date_add'),
@@ -512,7 +512,7 @@ class dashboard
      */
     private function getChildren($selectedCategories, $models)
     {
-        $categories = $this->db->query('SELECT id, parent_id FROM {categories} WHERE avail=1 group by parent_id, id',
+        $categories = $this->db->query('SELECT id, parent_id FROM {categories} group by parent_id, id',
             array())->assoc();
         $tree = $this->buildTree($categories, 0, $models);
 
