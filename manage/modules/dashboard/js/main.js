@@ -172,11 +172,21 @@ function setGet(params) {
     var str = window.location.search.replace("?", "");
     var obj = {};
     var pairs = str.split('&');
-    for (i in pairs) {
-        var split = pairs[i].split('=');
-        obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
+    if (pairs.length > 0 && pairs[0].length >0) {
+        for (i in pairs) {
+            var split = pairs[i].split('=');
+            if (!params[split[0]]) {
+                obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
+            } else {
+                obj[decodeURIComponent(split[0])] = decodeURIComponent(params[split[0]]);
+            }
+        }
+        var result = '?' + $.param(obj);
+
+    } else {
+        var result = '?' + $.param(params);
+
     }
-    var result = '?' + $.param(params);
     window.location = result;
 }
 
@@ -211,7 +221,7 @@ $(function(){
     );
 });
 
-function init_chart(id, data, colors,tickSize) {
+function init_chart(id, data, colors, ticks, tickSize) {
     var chartIncomeData = [];
     $.each(data, function (index, element) {
         chartIncomeData.push({
@@ -249,10 +259,12 @@ function init_chart(id, data, colors,tickSize) {
             hoverable: true
         },
         xaxis: {
-            tickSize: [tickSize || 1, "day"],
+            //tickSize: [24 * (tickSize || 1), "hour"],
             mode: "time",
             timeformat: "%d.%m",
-            tickDecimals: 0,
+            //tickDecimals: 0,
+            //min: (new Date(start_xaxis * 1000)).getTime()
+            ticks: ticks
         },
         yaxes: [
             {

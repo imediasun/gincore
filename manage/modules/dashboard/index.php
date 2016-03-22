@@ -94,26 +94,31 @@ class dashboard
      */
     private function get_conv_chart()
     {
-        $calls = $this->db->query("SELECT DATE_FORMAT(date, '%Y-%m-%d') as d, count(*) as c "
+        $calls = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {crm_calls} "
-            . "WHERE ?q GROUP BY d", array($this->utils->makeFilters('date')))->vars();
-        $visitors = $this->db->query("SELECT date as d, SUM(users) as c FROM {crm_analytics} "
-            . "WHERE ?q GROUP BY d", array($this->utils->makeFilters('date')))->vars();
+            . "WHERE ?q GROUP BY d", array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
+        $visitors = $this->db->query("SELECT ?q, SUM(users) as c FROM {crm_analytics} "
+            . "WHERE ?q GROUP BY d", array($this->utils->selectDate('', 'date'), $this->utils->makeFilters('date')))->vars();
         list($warrantyQuery, $typeQuery) = $this->utils->makeQueryForTypeAndWarranty();
         $orders = $this->db->query("SELECT ?q, count(*) as c "
             . "FROM {orders} "
-            . "WHERE ?q ?q ?q GROUP BY d", array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $typeQuery, $warrantyQuery))->vars();
+            . "WHERE ?q ?q ?q GROUP BY d", array(
+            $this->utils->selectDate(),
+            $this->utils->makeFilters('date_add'),
+            $typeQuery,
+            $warrantyQuery
+        ))->vars();
         $calls_js = array();
         $orders_js = array();
         $visitors_js = array();
         $period = $this->utils->getDatePeriod();
         $init_visitors = false;
         foreach ($period as $dt) {
-            $date = $dt->format('Y-m-d');
+            $date = $dt->format($this->utils->getDateFormat());
             if (!empty($visitors[$date])) {
                 $init_visitors = true;
             }
-            $d_js = 'gd' . $dt->format('(Y,n,j)');
+            $d_js = $this->utils->getDJs($dt);
             $calls_js[$date] = '[' . $d_js . ',' . (isset($calls[$date]) ? $calls[$date] : 0) . ']';
             $orders_js[$date] = '[' . $d_js . ',' . (isset($orders[$date]) ? $orders[$date] : 0) . ']';
             $visitors_js[$date] = '[' . $d_js . ',' . (isset($visitors[$date]) ? $visitors[$date] : 0) . ']';
@@ -170,14 +175,17 @@ class dashboard
             array($this->utils->selectDate(), $this->utils->makeFilters('date_add'), $query, $warrantyQuery, $typeQuery))->assoc(), 'wh');
 
         $result = array();
+        $ticks = array();
         foreach ($period as $dt) {
             $result = $this->utils->formatForChart($dt, $orders, $result);
+            $ticks = $this->utils->getTicks($dt, $ticks);
         }
         return $this->view->renderFile('dashboard/branch_chart', array(
             'tickSize' => $this->utils->tickSize(),
             'orders' => $result,
             'branches' => $branches,
-            'selected' => $selected
+            'selected' => $selected,
+            'ticks' => $ticks
         ));
     }
 
@@ -225,20 +233,21 @@ class dashboard
                 ))->assoc(), 'good');
         }
         if (!empty($selectedCategories)) {
-            $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
-                . " FROM {orders} o"
-                . " JOIN {orders_goods} as og ON og.order_id = o.id "
-                . " JOIN {category_goods} as cg ON og.goods_id = cg.goods_id "
-                . " JOIN {categories} as cat ON cat.id = cg.category_id "
-                . " WHERE ?q ?q ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
-                array(
-                    $this->utils->selectDate('o'),
-                    $this->utils->makeFilters('o.date_add'),
-                    $warrantyQuery,
-                    $typeQuery,
-                    $selectedCategories,
-                    $selectedCategories
-                ))->assoc(), 'p_id');
+            $children = $this->getChildren($selectedCategories, $models);
+            if (!empty($children)) {
+                $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, c.parent_id as parent_id "
+                    . " FROM {orders} o"
+                    . " JOIN {categories} c ON c.id = o.category_id"
+                    . " WHERE ?q ?q ?q AND o.category_id in (?li) GROUP BY category_id, d ",
+                    array(
+                        $this->utils->selectDate('o'),
+                        $this->utils->makeFilters('o.date_add'),
+                        $warrantyQuery,
+                        $typeQuery,
+                        $children
+                    ))->assoc(),
+                    'parent_id');
+            }
         }
         if (!empty($selectedModels)) {
             $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, o.category_id as category_id "
@@ -258,10 +267,12 @@ class dashboard
         $resultByItems = array();
         $resultByCategories = array();
         $resultByModels = array();
+        $ticks = array();
         foreach ($period as $dt) {
             $resultByItems = $this->utils->formatForChart($dt, $orders, $resultByItems);
             $resultByModels = $this->utils->formatForChart($dt, $ordersByModels, $resultByModels);
             $resultByCategories = $this->utils->formatForChart($dt, $ordersByCategory, $resultByCategories);
+            $ticks = $this->utils->getTicks($dt, $ticks);
         }
         return $this->view->renderFile('dashboard/repair_chart', array(
             'categories' => $categories,
@@ -273,7 +284,8 @@ class dashboard
             'selectedItems' => $selectedItems,
             'selectedModels' => $selectedModels,
             'selectedCategories' => $selectedCategories,
-            'tickSize' => $this->utils->tickSize()
+            'tickSize' => $this->utils->tickSize(),
+            'ticks' => $ticks
         ));
     }
 
@@ -333,9 +345,7 @@ class dashboard
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
             . "WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
         foreach ($statuses as $status => $name) {
-
             $name = l($name);
-
             $orders = $this->db->query("SELECT count(*) "
                 . "FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
@@ -388,19 +398,19 @@ class dashboard
             . "AND client_order_id > 0 ",
             array($today_date, $today_date_to), 'el');
         $chart_cash = $this->db->query("SELECT "
-            . "DATE_FORMAT(date_transaction, '%Y-%m-%d') as d, "
+            . "?q,"
             . "SUM((IF(transaction_type=2,value_to,0))-IF(transaction_type=1,value_from,0))/100 as c "
             . "FROM {cashboxes_transactions} "
             . "WHERE ?q AND transaction_type = 2 "
             . "AND type NOT IN (1, 2, 3, 4, 6) "
             . "AND client_order_id > 0 "
-            . "GROUP BY d", array($query_filter))->vars();
+            . "GROUP BY d", array($this->utils->selectDate('', 'date_transaction'),$query_filter))->vars();
         $cash_chart_js = array();
         $period = $this->utils->getDatePeriod();
         $period_cash = 0;
         foreach ($period as $dt) {
-            $date = $dt->format('Y-m-d');
-            $d_js = 'gd(' . $dt->format('Y') . ',' . $dt->format('n') . ',' . $dt->format('j') . ')';
+            $date = $dt->format($this->utils->getDateFormat());
+            $d_js = $this->utils->getDJs($dt);
             $cash = isset($chart_cash[$date]) ? number_format($chart_cash[$date], 2, '.', '') : 0;
             $period_cash += $cash;
             $cash_chart_js[] = '[' . $d_js . ',' . $cash . ']';
@@ -430,6 +440,79 @@ class dashboard
     {
         return str_replace('.0', '', number_format($p, 1, '.', ''));
     }
+
+    /**
+     * @param $categories
+     * @param $parentId
+     * @param $models
+     * @return array
+     */
+    function buildTree($categories, $parentId, $models)
+    {
+        $result = [];
+        foreach ($categories as $id => $category) {
+            if ($category['parent_id'] == $parentId) {
+                $id = $category['id'];
+                unset($categories[$id]);
+                $result[$id] = in_array($id, $models) ? array() : $this->buildTree($categories, $id, $models);
+            }
+        }
+        return $result;
+    }
+
+
+    /**
+     * @param $tree
+     * @return array
+     */
+    public function child($tree)
+    {
+        $result = array();
+        foreach ($tree as $id => $item) {
+            if (empty($item)) {
+                $result[] = $id;
+            } else {
+                $result += $this->child($item);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $tree
+     * @param $parent
+     * @return array
+     */
+    public function getChildBranch($tree, $parent)
+    {
+        $result = array();
+        foreach ($tree as $item) {
+            if (in_array($parent, array_keys($item))) {
+                $result += $this->child($item[$parent]);
+            } else {
+                $result += $this->getChildBranch($item, $parent);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $selectedCategories
+     * @param $models
+     * @return array
+     */
+    private function getChildren($selectedCategories, $models)
+    {
+        $categories = $this->db->query('SELECT id, parent_id FROM {categories} WHERE avail=1 group by parent_id, id',
+            array())->assoc();
+        $tree = $this->buildTree($categories, 0, $models);
+
+        $result = array();
+        foreach ($selectedCategories as $selectedCategory) {
+            $result += $this->getChildBranch($tree, $selectedCategory);
+        }
+        return $result;
+    }
 }
 
 class ChartUtils
@@ -443,6 +526,10 @@ class ChartUtils
     /** @var  DateInterval */
     protected $diff;
 
+    /**
+     * ChartUtils constructor.
+     * @param $all_configs
+     */
     public function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
@@ -477,7 +564,7 @@ class ChartUtils
     }
 
     /**
-     * @param $dt
+     * @param DateTime $dt
      * @param $orders
      * @param $result
      * @return mixed
@@ -485,7 +572,7 @@ class ChartUtils
     public function formatForChart($dt, $orders, $result)
     {
         $date = $dt->format($this->getDateFormat());
-        $d_js = 'gd' . $dt->format('(Y,n,j)') ;
+        $d_js = $this->getDJs($dt);
         foreach ($orders as $wh => $order) {
             if(empty($result[$wh])) {
                 $result[$wh] = array();
@@ -498,70 +585,6 @@ class ChartUtils
             }
         }
         return $result;
-    }
-
-    /**
-     * @param string $prefix
-     * @return mixed
-     */
-    public function selectDate($prefix = '')
-    {
-        if (!empty($prefix)) {
-            $prefix = $prefix . '.';
-        }
-        switch (true) {
-            case isset($_GET['month']):
-                if ($this->diff > 6 * 30) {
-                    return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m') as d", array());
-                }
-            case isset($_GET['week']):
-                if ($this->diff >= 30) {
-                    return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%u') as d", array());
-                }
-        }
-        return $this->db->makeQuery("DATE_FORMAT({$prefix}date_add, '%Y-%m-%d') as d", array());
-    }
-
-    /**
-     * @return string
-     */
-    public function getDateFormat()
-    {
-        switch (true) {
-            case isset($_GET['month']):
-                if ($this->diff > 6 * 30) {
-                    return 'Y-m';
-                }
-            case isset($_GET['week']):
-                if ($this->diff >= 30) {
-                    return 'Y-W';
-                }
-        }
-        return 'Y-m-d';
-    }
-
-    /**
-     * @return DatePeriod
-     */
-    public function getDatePeriod()
-    {
-        $di = function($diff) {
-            switch(true) {
-                case isset($_GET['month']):
-                    if($diff > 6 * 30) {
-                        return new DateInterval('P1M');
-                    }
-                case isset($_GET['week']):
-                    if($diff >= 30) {
-                        return new DateInterval('P1W');
-                    }
-                default:
-                    $di = new DateInterval('P1D');
-            }
-            return $di;
-        };
-        $period = new DatePeriod($this->start, $di($this->diff), $this->end);
-        return $period;
     }
 
     /**
@@ -607,6 +630,9 @@ class ChartUtils
         return $options;
     }
 
+    /**
+     *
+     */
     private function prepareDate()
     {
         $filters = $this->getFilters();
@@ -625,25 +651,27 @@ class ChartUtils
         $filters = $this->getFilters();
         $query = '';
         if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")>=?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") > ?',
                 array($query, $filters['date_start']));
         }
 
         if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")<=?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") <= ?',
                 array($query, $filters['date_end']));
         }
         return ' 1=1 ' . $query;
     }
 
     /**
+     * @todo надо что то с этими свичами делать :(
+     *
      * @return int
      */
     public function tickSize()
     {
         switch (true) {
             case isset($_GET['month']):
-                if ($this->diff > 6 * 30) {
+                if ($this->diff > 2 * 30) {
                     return 30;
                 }
             case isset($_GET['week']):
@@ -653,4 +681,133 @@ class ChartUtils
         }
         return 1;
     }
+
+    /**
+     * @param DateTime $dt
+     * @return string
+     */
+    public function getDJs($dt)
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
+                    break;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    $timestamp = strtotime('monday', $dt->getTimestamp());
+                    break;
+                }
+            default:
+                $timestamp = $dt->getTimestamp();
+        }
+        return 'gd' . date('(Y,n,j)', $timestamp);
+    }
+
+    /**
+     * @return int
+     */
+    public function getMonday()
+    {
+        return strtotime('monday', $this->start->getTimestamp());
+    }
+
+    /**
+     * @param $dt
+     * @param $ticks
+     * @return array
+     */
+    public function getTicks($dt, $ticks)
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
+                    break;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    $timestamp = strtotime('monday', $dt->getTimestamp());
+                    break;
+                }
+            default:
+                $timestamp = $dt->getTimestamp();
+        }
+        $ticks[] = ($timestamp + 2*3600)* 1000 ;
+        return $ticks;
+    }
+
+    /**
+     * @param string $prefix
+     * @return mixed
+     */
+    public function selectDate($prefix = '', $field = 'date_add')
+    {
+        if (!empty($prefix)) {
+            $prefix = $prefix . '.';
+        }
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    return $this->db->makeQuery("DATE_FORMAT({$prefix}{$field}, '%Y-%m') as d", array());
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    return $this->db->makeQuery("DATE_FORMAT({$prefix}{$field}, '%Y-%u') as d", array());
+                }
+        }
+        return $this->db->makeQuery("DATE_FORMAT({$prefix}{$field}, '%Y-%m-%d') as d", array());
+    }
+
+    /**
+     * @return string
+     */
+    public function getDateFormat()
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    return 'Y-m';
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    return 'Y-W';
+                }
+        }
+        return 'Y-m-d';
+    }
+
+    /**
+     * @return DatePeriod
+     */
+    public function getDatePeriod()
+    {
+        $di = function($diff) {
+            $error = 0;
+            switch (true) {
+                case isset($_GET['month']):
+                    if ($diff > 2 * 30) {
+                        return new DateInterval('P1M');
+                    }
+                    FlashMessage::set(l('Шаг в 1 мес. можно применить на диапазоне не менее 60 дней. Увеличте диапазон дат'),
+                        FlashMessage::WARNING);
+                    $error = 1;
+                case isset($_GET['week']):
+                    if ($diff >= 30) {
+                        return new DateInterval('P1W');
+                    }
+                    if ($error == 0) {
+                        FlashMessage::set(l('Шаг в 1 неделю можно применить на диапазоне не менее 30 дней. Увеличте диапазон дат'),
+                            FlashMessage::WARNING);
+                    }
+                default:
+                    $di = new DateInterval('P1D');
+            }
+            return $di;
+        };
+        $period = new DatePeriod($this->start, $di($this->diff), $this->end);
+        return $period;
+    }
 }
+

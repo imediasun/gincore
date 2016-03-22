@@ -32,6 +32,7 @@
                                         <?php endforeach; ?>
                                     ],
                                     [],
+                                    [<?= implode(',', $ticks)?>],
                                     <?= $tickSize ?>
                                 );
                             });
