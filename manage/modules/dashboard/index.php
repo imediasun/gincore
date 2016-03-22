@@ -233,20 +233,21 @@ class dashboard
                 ))->assoc(), 'good');
         }
         if (!empty($selectedCategories)) {
-            $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, if(cat.parent_id = 0, cat.id, cat.parent_id) as p_id "
-                . " FROM {orders} o"
-                . " JOIN {orders_goods} as og ON og.order_id = o.id "
-                . " JOIN {category_goods} as cg ON og.goods_id = cg.goods_id "
-                . " JOIN {categories} as cat ON cat.id = cg.category_id "
-                . " WHERE ?q ?q ?q AND cat.id = o.category_id AND (cat.id in (?li) OR cat.parent_id in (?li)) GROUP BY p_id, d ",
-                array(
-                    $this->utils->selectDate('o'),
-                    $this->utils->makeFilters('o.date_add'),
-                    $warrantyQuery,
-                    $typeQuery,
-                    $selectedCategories,
-                    $selectedCategories
-                ))->assoc(), 'p_id');
+            $children = $this->getChildren($selectedCategories, $models);
+            var_dump(implode(',', $children));
+            if (!empty($children)) {
+                $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, o.category_id as category_id "
+                    . " FROM {orders} o "
+                    . " WHERE ?q ?q ?q AND o.category_id in (?li) GROUP BY category_id, d ",
+                    array(
+                        $this->utils->selectDate('o'),
+                        $this->utils->makeFilters('o.date_add'),
+                        $warrantyQuery,
+                        $typeQuery,
+                        $children
+                    ))->assoc(),
+                    'category_id');
+            }
         }
         if (!empty($selectedModels)) {
             $ordersByModels = $this->prepare($this->db->query("SELECT ?q, count(*) as c, o.category_id as category_id "
@@ -439,6 +440,79 @@ class dashboard
     {
         return str_replace('.0', '', number_format($p, 1, '.', ''));
     }
+
+    /**
+     * @param $categories
+     * @param $parentId
+     * @param $models
+     * @return array
+     */
+    function buildTree($categories, $parentId, $models)
+    {
+        $result = [];
+        foreach ($categories as $id => $category) {
+            if ($category['parent_id'] == $parentId) {
+                $id = $category['id'];
+                unset($categories[$id]);
+                $result[$id] = in_array($id, $models) ? array() : $this->buildTree($categories, $id, $models);
+            }
+        }
+        return $result;
+    }
+
+
+    /**
+     * @param $tree
+     * @return array
+     */
+    public function child($tree)
+    {
+        $result = array();
+        foreach ($tree as $id => $item) {
+            if (empty($item)) {
+                $result[] = $id;
+            } else {
+                $result += $this->child($item);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $tree
+     * @param $parent
+     * @return array
+     */
+    public function getChildBranch($tree, $parent)
+    {
+        $result = array();
+        foreach ($tree as $item) {
+            if (in_array($parent, array_keys($item))) {
+                $result += $this->child($item[$parent]);
+            } else {
+                $result += $this->getChildBranch($item, $parent);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $selectedCategories
+     * @param $models
+     * @return array
+     */
+    private function getChildren($selectedCategories, $models)
+    {
+        $categories = $this->db->query('SELECT id, parent_id FROM {categories} WHERE avail=1 group by parent_id, id',
+            array())->assoc();
+        $tree = $this->buildTree($categories, 0, $models);
+
+        $result = array();
+        foreach ($selectedCategories as $selectedCategory) {
+            $result += $this->getChildBranch($tree, $selectedCategory);
+        }
+        return $result;
+    }
 }
 
 class ChartUtils
@@ -452,6 +526,10 @@ class ChartUtils
     /** @var  DateInterval */
     protected $diff;
 
+    /**
+     * ChartUtils constructor.
+     * @param $all_configs
+     */
     public function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
@@ -507,6 +585,157 @@ class ChartUtils
             }
         }
         return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFilters()
+    {
+        $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
+        $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
+        return array(
+            'date_start' => $date_start,
+            'date_end' => $date_end
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOrderOptions()
+    {
+        if (!empty($_POST) && empty($_POST['types'])) {
+            return Session::getInstance()->get('dashboard.order.types');
+        } else {
+            $options = array(
+                'types' => array(),
+                'warranty' => array(),
+            );
+            if(in_array('repair', $_POST['types'])) {
+                $options['types'][] = 0;
+            }
+            if(in_array('sale', $_POST['types'])) {
+                $options['types'][] = 3;
+            }
+            if(in_array('warranty', $_POST['types'])) {
+                $options['warranty'][] = 1;
+            }
+            if(in_array('not-warranty', $_POST['types'])) {
+                $options['not-warranty'][] = 1;
+            }
+
+            Session::getInstance()->set('dashboard.order.types', $options);
+        }
+        return $options;
+    }
+
+    /**
+     *
+     */
+    private function prepareDate()
+    {
+        $filters = $this->getFilters();
+        $this->start = new DateTime($filters['date_start']);
+        $this->end = new DateTime($filters['date_end']);
+        $this->end->modify('+1 day');
+        $this->diff = $this->start->diff($this->end)->format('%a');
+    }
+
+    /**
+     * @param $date_field
+     * @return string
+     */
+    public function makeFilters($date_field)
+    {
+        $filters = $this->getFilters();
+        $query = '';
+        if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") > ?',
+                array($query, $filters['date_start']));
+        }
+
+        if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") <= ?',
+                array($query, $filters['date_end']));
+        }
+        return ' 1=1 ' . $query;
+    }
+
+    /**
+     * @todo надо что то с этими свичами делать :(
+     *
+     * @return int
+     */
+    public function tickSize()
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    return 30;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    return 7;
+                }
+        }
+        return 1;
+    }
+
+    /**
+     * @param DateTime $dt
+     * @return string
+     */
+    public function getDJs($dt)
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
+                    break;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    $timestamp = strtotime('monday', $dt->getTimestamp());
+                    break;
+                }
+            default:
+                $timestamp = $dt->getTimestamp();
+        }
+        return 'gd' . date('(Y,n,j)', $timestamp);
+    }
+
+    /**
+     * @return int
+     */
+    public function getMonday()
+    {
+        return strtotime('monday', $this->start->getTimestamp());
+    }
+
+    /**
+     * @param $dt
+     * @param $ticks
+     * @return array
+     */
+    public function getTicks($dt, $ticks)
+    {
+        switch (true) {
+            case isset($_GET['month']):
+                if ($this->diff > 2 * 30) {
+                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
+                    break;
+                }
+            case isset($_GET['week']):
+                if ($this->diff >= 30) {
+                    $timestamp = strtotime('monday', $dt->getTimestamp());
+                    break;
+                }
+            default:
+                $timestamp = $dt->getTimestamp();
+        }
+        $ticks[] = ($timestamp + 2*3600)* 1000 ;
+        return $ticks;
     }
 
     /**
@@ -580,147 +809,5 @@ class ChartUtils
         $period = new DatePeriod($this->start, $di($this->diff), $this->end);
         return $period;
     }
-
-    /**
-     * @return array
-     */
-    public function getFilters()
-    {
-        $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
-        $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
-        return array(
-            'date_start' => $date_start,
-            'date_end' => $date_end
-        );
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOrderOptions()
-    {
-        if (!empty($_POST) && empty($_POST['types'])) {
-            return Session::getInstance()->get('dashboard.order.types');
-        } else {
-            $options = array(
-                'types' => array(),
-                'warranty' => array(),
-            );
-            if(in_array('repair', $_POST['types'])) {
-                $options['types'][] = 0;
-            }
-            if(in_array('sale', $_POST['types'])) {
-                $options['types'][] = 3;
-            }
-            if(in_array('warranty', $_POST['types'])) {
-                $options['warranty'][] = 1;
-            }
-            if(in_array('not-warranty', $_POST['types'])) {
-                $options['not-warranty'][] = 1;
-            }
-
-            Session::getInstance()->set('dashboard.order.types', $options);
-        }
-        return $options;
-    }
-
-    private function prepareDate()
-    {
-        $filters = $this->getFilters();
-        $this->start = new DateTime($filters['date_start']);
-        $this->end = new DateTime($filters['date_end']);
-        $this->end->modify('+1 day');
-        $this->diff = $this->start->diff($this->end)->format('%a');
-    }
-
-    /**
-     * @param $date_field
-     * @return string
-     */
-    public function makeFilters($date_field)
-    {
-        $filters = $this->getFilters();
-        $query = '';
-        if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") > ?',
-                array($query, $filters['date_start']));
-        }
-
-        if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") <= ?',
-                array($query, $filters['date_end']));
-        }
-        return ' 1=1 ' . $query;
-    }
-
-    /**
-     * @return int
-     */
-    public function tickSize()
-    {
-        switch (true) {
-            case isset($_GET['month']):
-                if ($this->diff > 2 * 30) {
-                    return 30;
-                }
-            case isset($_GET['week']):
-                if ($this->diff >= 30) {
-                    return 7;
-                }
-        }
-        return 1;
-    }
-
-    /**
-     * @param DateTime $dt
-     * @return string
-     */
-    public function getDJs($dt)
-    {
-        switch (true) {
-            case isset($_GET['month']):
-                if ($this->diff > 2 * 30) {
-                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
-                    break;
-                }
-            case isset($_GET['week']):
-                if ($this->diff >= 30) {
-                    $timestamp = strtotime('monday', $dt->getTimestamp());
-                    break;
-                }
-            default:
-                $timestamp = $dt->getTimestamp();
-        }
-        return 'gd' . date('(Y,n,j)', $timestamp);
-    }
-
-    public function getMonday()
-    {
-        return strtotime('monday', $this->start->getTimestamp());
-    }
-
-    /**
-     * @param $dt
-     * @param $ticks
-     * @return array
-     */
-    public function getTicks($dt, $ticks)
-    {
-        switch (true) {
-            case isset($_GET['month']):
-                if ($this->diff > 2 * 30) {
-                    $timestamp = strtotime('last day of this month', $dt->getTimestamp());
-                    break;
-                }
-            case isset($_GET['week']):
-                if ($this->diff >= 30) {
-                    $timestamp = strtotime('monday', $dt->getTimestamp());
-                    break;
-                }
-            default:
-                $timestamp = $dt->getTimestamp();
-        }
-        $ticks[] = ($timestamp + 2*3600)* 1000 ;
-        return $ticks;
-    }
 }
+
