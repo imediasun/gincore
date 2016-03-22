@@ -81,7 +81,7 @@
                                 'input-medium') ?>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['color']) ? 'hide-field' : '' ?>">
                             <label class="control-label"><?= l('Цвет') ?>: </label>
                             <select class="form-control" name="color">
                                 <?php if (is_null($order['o_color'])): ?>
@@ -101,7 +101,7 @@
                     <?php endif; ?>
                     <?php if ($notSale): ?>
                         <?php if (!$onlyEngineer): ?>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['serial']) ? 'hide-field' : '' ?>">
                                 <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-serial')"
@@ -115,12 +115,12 @@
                                        class="form-control"/>
                             </div>
                         <?php endif; ?>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['equipment']) ? 'hide-field' : '' ?>">
                             <label><?= l('Комлектация') ?>:</label><br>
                             <?= implode(', ', $parts) ?>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['repair-type']) ? 'hide-field' : '' ?>">
                             <label><?= l('Вид ремонта') ?>:</label>
                             <?php
                             switch ($order['repair']) {
@@ -139,7 +139,7 @@
                             <label><?= l('Сроки') ?>:</label>
                             <?= ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) ?>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['defect']) || isset($hide['defect-description']) ? 'hide-field' : '' ?>">
                             <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   title="<?= l('История изменений') ?>"
@@ -152,7 +152,7 @@
                         <textarea class="form-control"
                                   name="defect"><?= htmlspecialchars($order['defect']) ?></textarea>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['appearance']) ? 'hide-field' : '' ?>">
                             <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   title="<?= l('История изменений') ?>"
@@ -165,7 +165,7 @@
                             <textarea class="form-control"
                                       name="comment"><?= htmlspecialchars($order['comment']) ?></textarea>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['available-date']) ? 'hide-field' : '' ?>">
                             <label><?= l('Ориентировочная дата готовности') ?>: </label>
                             <span title="<?= do_nice_date($order['date_readiness'],
                                 false) ?>"><?= do_nice_date($order['date_readiness']) ?></span>
@@ -308,7 +308,7 @@
                             . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
                         </div>
                     <?php else: ?>
-                        <div class="from-group">
+                        <div class="from-group <?= isset($hide['crm-order-code']) ? 'hide-field' : '' ?>" >
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-code')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
@@ -319,7 +319,7 @@
                                                                                     name="code"
                                                                                     value="<?= htmlspecialchars($order['code']) ?>"><br>
                         </div>
-                        <div class="from-group">
+                        <div class="from-group <?= isset($hide['referrer']) ? 'hide-field' : '' ?>">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-referer_id')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>

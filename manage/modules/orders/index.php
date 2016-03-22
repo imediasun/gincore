@@ -1982,7 +1982,8 @@ class orders
             'comments_public' => $comments_public,
             'comments_private' => $comments_private,
             'productTotal' => $productTotal,
-            'parts' => $parts
+            'parts' => $parts,
+            'hide' => $this->getHideFieldsConfig()
         ));
     }
 
@@ -2963,6 +2964,6 @@ class orders
     private function getHideFieldsConfig()
     {
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
-        return empty($current) ? array() : $current;
+        return empty($current[0]) ? array() : json_decode($current[0]['value'], true);
     }
 }

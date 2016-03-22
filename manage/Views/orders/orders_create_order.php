@@ -33,7 +33,7 @@
                                        class="form-control" name="id">
                             </div>
                             <legend><?= l('Клиент') ?></legend>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['client-data']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
                                 <div class="row row-15">
                                     <div class="col-sm-6">
@@ -65,14 +65,14 @@
                                 </div>
                             </div>
                             <?= get_service('crm/calls')->assets() ?>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['crm-order-code']) ? 'hide-field' : '' ?>">
                                 <label style="padding-top:0"><?= l('Код на скидку') ?>: </label>
                                 <input <?= ($order ? ' value="' . $order['code'] . '" disabled' : '') ?> type="text"
                                                                                                          name="code"
                                                                                                          class="form-control call_code_mask"
                                                                                                          id="crm_order_code">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['referrer']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Рекламный канал') . l('источник') ?>): </label>
                                 <div id="crm_order_referer">
                                     <?= get_service('crm/calls')->get_referers_list($order ? $order['referer_id'] : 'null',
@@ -82,7 +82,7 @@
                         </fieldset>
                         <fieldset>
                             <legend><?= l('Устройство') ?></legend>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['device']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Выберите устройство') ?> <b
                                         class="text-danger">*</b>: </label>
                                 <?= typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ?
@@ -94,16 +94,16 @@
                                         'form_id' => 'new_device_form'
                                     )) ?>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['color']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Цвет') ?> : </label>
                                 <?= $colorsSelect ?>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['serial']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Серийный номер') ?>: </label>
                                 <input type="text" class="form-control" value="" name="serial"/>
                             </div>
                             <input type="hidden" value="" id="serial-id" name="serial-id"/>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['equipment']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Комплектация') ?>:</label><br>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="1" name="battery"/> <?= l('Аккумулятор') ?>
@@ -122,7 +122,7 @@
                                 <input type="text" class="m-t-xs form-control" name="equipment"
                                        placeholder="<?= l('укажите свой вариант') ?>">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['repair-type']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Вид ремонта') ?>: </label><br>
                                 <label class="radio-inline">
                                     <input type="radio" checked value="0" name="repair"/><?= l('Платный') ?>
@@ -134,9 +134,9 @@
                                     <input type="radio" value="2" name="repair"/><?= l('Доработка') ?>
                                 </label>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group ">
                                 <label><?= l('Неисправность со слов клиента') ?>: </label>
-                                <div class="row row-15 form-group">
+                                <div class="row row-15 form-group<?= isset($hide['defect']) ? 'hide-field' : '' ?>">
                                     <div class="col-sm-6">
                                         <label><?= l('Замена') ?>:</label>
                                         <input class="form-control" name="repair_part"
@@ -152,9 +152,9 @@
                                         </select>
                                     </div>
                                 </div>
-                                <textarea class="form-control" name="defect"></textarea>
+                                <textarea class="form-control <?= isset($hide['defect-description']) ? 'hide-field' : '' ?>" name="defect"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['appearance']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Внешний вид') ?>: </label>
                                 <textarea class="form-control"
                                           name="comment"><?= l('Потертости, царапины') ?></textarea>
@@ -162,14 +162,14 @@
                         </fieldset>
                         <fieldset>
                             <legend><?= l('Стоимость') ?></legend>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['cost']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Ориентировочная стоимость') ?>: </label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" value="" name="approximate_cost"/>
                                     <span class="input-group-addon"><?= viewCurrency() ?></span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['prepaid']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Предоплата') ?>: </label>
                                 <div class="input-group">
                                     <input type="text" placeholder="<?= l('Введите сумму') ?>" class="form-control"
@@ -179,7 +179,7 @@
                                            class="form-control" value="" name="prepay_comment"/>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['available-date']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Ориентировочная дата готовности') ?>: </label>
                                 <div class="input-group">
                                     <input class="daterangepicker_single form-control" data-format="YYYY-MM-DD"
@@ -191,7 +191,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Доп. информация') ?></label> <br>
                                 <div class="form-group-row">
                                     <div class="col-sm-6">

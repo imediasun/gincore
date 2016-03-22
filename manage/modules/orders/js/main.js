@@ -253,9 +253,11 @@ $(function() {
             $('.js-hide-fields').toggle();
             if($form.is(':visible')){
                 $('.js-fields').removeClass('col-sm-6').addClass('col-sm-5');
+                $('.hide-field').show();
 
             } else {
                 $('.js-fields').removeClass('col-sm-5').addClass('col-sm-6');
+                $('.hide-field').hide();
             }
         });
     });
