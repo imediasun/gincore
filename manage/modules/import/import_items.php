@@ -65,14 +65,17 @@ class import_items extends abstract_import_handler
         try {
             if (!isset($categories[$parent])) {
                 $categoryId = $this->createCategory($parent, '', 0);
-            }
-            if (!empty($list[1])) {
-                $subcategory = $list[1];
-                if (isset($categories[$parent]['subcategories'][$subcategory])) {
-                    $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
-                } else {
-                    $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
+                if (!empty($list[1])) {
+                    $subcategory = $list[1];
+                    if (isset($categories[$parent]['subcategories'][$subcategory])) {
+                        $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
+                    } else {
+                        $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
+                    }
                 }
+            } else {
+                $categoryId = $categories[$parent]['id'];
+
             }
         } catch (Exception $e) {
             // add exception message to log
