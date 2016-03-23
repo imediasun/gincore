@@ -153,12 +153,11 @@ use Assetic\AssetWriter;
         $am->set('combined_js', $js);
         $am->set('combined_css', $css);
         $writer = new AssetWriter($webRoot . '/assets');
-    try{
-
-        $writer->writeManagerAssets($am);
-    } catch (Exception $e) {
-       print_r($e->getMessage());
-    }
+        try{
+            $writer->writeManagerAssets($am);
+        } catch (Exception $e) {
+           print_r($e->getMessage());
+        }
         ?>
         <script src="<?= $assetsDir ?>/assets/scripts.js"></script>
         <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/assets/styles.css?6"/>
