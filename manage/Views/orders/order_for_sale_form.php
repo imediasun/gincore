@@ -44,7 +44,7 @@
                                 <small class="clone_clear_html product-title"></small>
                                 <input type="hidden" name="items" id="item_id" value="">
                             </div>
-                            <div class="form-group col-sm-4">
+                            <div class="form-group col-sm-3">
                                 <label><?= l('Цена продажи') ?> <b class="text-danger">*</b>: </label>
                                 <div class="input-group">
                                     <input type="text" id="sale_poduct_cost" class="form-control" value=""
@@ -57,7 +57,7 @@
                                 <label>&nbsp;</label>
                                 <button class="btn btn-primary class" onclick="return add_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <?= l('В корзину') ?>
                                 </button>
                             </div>
                         </div>
