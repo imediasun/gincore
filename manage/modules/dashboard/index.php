@@ -527,6 +527,9 @@ class dashboard
         return $result;
     }
 
+    /**
+     *
+     */
     private function ajax()
     {
         $act = isset($_GET['act']) ? trim($_GET['act']) : '';

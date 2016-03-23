@@ -65,7 +65,7 @@ require_once 'View.php';
 #загрузка файлов с хтмл-кодом
 $view = new View($all_configs);
 $html = $view->renderFile('layouts/html_header', array(
-    'assetsDir' => '/manage',
+    'assetsDir' => $all_configs['prefix'],
     'webRoot' => __DIR__
 ));
 //    file_get_contents($html_header);

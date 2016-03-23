@@ -16,69 +16,69 @@ use Assetic\AssetWriter;
     <script type="text/javascript">var manage_lang = '{-html-manage_lang}';</script>
 
     <?php if (DEBUG): ?>
-        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>/bootstrap/css/bootstrap.min.css">
-        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>/css/bootstrap-responsive.min.css">
-        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>/css/bootstrap3-editable.css">
-        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>/css/main.css?1">
-        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>/css/daterangepicker-bs2.css?1">
-        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>/css/bootstrap-datetimepicker.min.css"/>
-        <link rel="stylesheet" href="<?= $assetsDir ?>/css/font-awesome.css">
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/loadingbar.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/jquery.Jcrop.min.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/bootstrap-lightbox.min.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/bootstrap-multiselect.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/bootstrap-switch.min.css"/>
-        <link rel="stylesheet" href="<?= $assetsDir ?>/css/jquery-ui.css"/>
+        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>bootstrap/css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-responsive.min.css">
+        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap3-editable.css">
+        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?1">
+        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/daterangepicker-bs2.css?1">
+        <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-datetimepicker.min.css"/>
+        <link rel="stylesheet" href="<?= $assetsDir ?>css/font-awesome.css">
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/loadingbar.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/jquery.Jcrop.min.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/bootstrap-lightbox.min.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/bootstrap-multiselect.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/bootstrap-switch.min.css"/>
+        <link rel="stylesheet" href="<?= $assetsDir ?>css/jquery-ui.css"/>
         <!-- new admin -->
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/admin/animate.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/admin/helper.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/admin/metisMenu.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/admin/pe-icon-7-stroke.css"/>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/css/admin/style.css?6"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/animate.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/helper.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/metisMenu.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/pe-icon-7-stroke.css"/>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/style.css?6"/>
 
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery-1.10.2.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery-migrate-1.2.1.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery-ui-1.9.0.custom.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/bootstrap/js/bootstrap.min.js?1"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.noty.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/parsley.js?1"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/noty.default.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.ui.datepicker-ru.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.ui.datepicker-en.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-maxlength.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-button.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.FormNavigate.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-multiselect.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap3-editable.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-maxlength.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootbox.js?1"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.clipboard.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.cookie.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.Jcrop.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/webcam.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-lightbox.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.plugin.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.countdown.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/moment-with-locales.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-datetimepicker.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/bootstrap-switch.min.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/moment.js?1"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/daterangepicker.js?1"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.fullscreen-0.4.1.min.js?2"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.loadingbar.js"></script>
-        <script type="text/javascript" src="<?= $assetsDir ?>/js/jquery.ba-bbq.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/jquery.slimscroll.min.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/jquery.flot.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/jquery.flot.resize.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/jquery.flot.pie.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/curvedLines.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/index.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/metisMenu.min.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/icheck.min.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/jquery.peity.min.js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/index(1).js"></script>
-        <script src="<?= $assetsDir ?>/js/admin/homer.js?1"></script>
-        <script src="<?= $assetsDir ?>/js/admin/charts.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-migrate-1.2.1.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-ui-1.9.0.custom.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>bootstrap/js/bootstrap.min.js?1"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.noty.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/parsley.js?1"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/noty.default.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.ui.datepicker-ru.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.ui.datepicker-en.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-maxlength.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-button.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.FormNavigate.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-multiselect.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap3-editable.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-maxlength.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootbox.js?1"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.clipboard.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.cookie.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.Jcrop.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/webcam.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-lightbox.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.plugin.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.countdown.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/moment-with-locales.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-switch.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/moment.js?1"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/daterangepicker.js?1"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.fullscreen-0.4.1.min.js?2"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.loadingbar.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.ba-bbq.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/jquery.slimscroll.min.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/jquery.flot.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/jquery.flot.resize.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/jquery.flot.pie.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/curvedLines.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/index.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/metisMenu.min.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/icheck.min.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/jquery.peity.min.js"></script>
+        <script src="<?= $assetsDir ?>js/admin/index(1).js"></script>
+        <script src="<?= $assetsDir ?>js/admin/homer.js?1"></script>
+        <script src="<?= $assetsDir ?>js/admin/charts.js"></script>
     <?php else: ?>
         <?php
         $js = new AssetCollection(array(
@@ -159,12 +159,12 @@ use Assetic\AssetWriter;
            print_r($e->getMessage());
         }
         ?>
-        <script src="<?= $assetsDir ?>/assets/scripts.js"></script>
-        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>/assets/styles.css?6"/>
+        <script src="<?= $assetsDir ?>assets/scripts.js"></script>
+        <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?6"/>
     <?php endif; ?>
 
     <script type="text/javascript">
-        var prefix = '<?= $assetsDir ?>/';
+        var prefix = '<?= $assetsDir ?>';
         var siteprefix = '{-txt-siteprefix}';
         var module = '{-txt-module}';
         var cur_course = 1;
@@ -174,5 +174,5 @@ use Assetic\AssetWriter;
 
     {-css-module}
 
-    <script type="text/javascript" src="<?= $assetsDir ?>/js/main.js?17"></script>
+    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?17"></script>
 </head>
