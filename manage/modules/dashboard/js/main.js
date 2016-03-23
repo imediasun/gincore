@@ -231,7 +231,7 @@ function load_repair_chart(_this) {
     }
     href = setGet({act: 'repair-chart'});
     $.ajax({
-        url: '/manage/dashboard/ajax' + href,
+        url: prefix + 'dashboard/ajax' + href,
         type: 'POST',
         data: data,
         dataType: 'json',
