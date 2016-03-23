@@ -30,8 +30,12 @@ class dashboard
         $this->utils = new ChartUtils($all_configs);
 
         if ($this->all_configs['oRole']->hasPrivilege('dashboard')) {
-            $this->gen_filter_block();
-            $this->gen_content();
+            if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
+                $this->ajax();
+            } else {
+                $this->gen_filter_block();
+                $this->gen_content();
+            }
         } else {
             $input['dashboard_class'] = 'hidden';
             $input['mcontent'] = '<p class="text-center m-t-lg">' . l('Администрирование') . '</p>';
@@ -74,7 +78,7 @@ class dashboard
         $input['init_visitors'] = $conv_chart['init_visitors'] ? 'true' : 'false';
 
         $input_html['branch_chart'] = $this->get_branch_chart();
-        $input_html['repair_chart'] = $this->get_repair_chart();
+//        $input_html['repair_chart'] = $this->get_repair_chart();
         $input_html['order_types_filter'] = $this->view->renderFile('dashboard/order_types_filter', array(
             'current' => $this->utils->getOrderOptions()
         ));
@@ -521,6 +525,23 @@ class dashboard
             $result += $this->getChildBranch($tree, $selectedCategory);
         }
         return $result;
+    }
+
+    private function ajax()
+    {
+        $act = isset($_GET['act']) ? trim($_GET['act']) : '';
+
+        // грузим табу
+        if ($act == 'repair-chart') {
+            header("Content-Type: application/json; charset=UTF-8");
+
+            $return = array(
+                'html' => $this->get_repair_chart(),
+                'state' => true,
+            );
+            echo json_encode($return);
+        }
+        exit;
     }
 }
 
