@@ -18,7 +18,8 @@ $all_configs['prefix'] = str_replace(rtrim($_SERVER['DOCUMENT_ROOT'],'/'), '', $
 $all_configs['siteprefix'] = str_replace('manage/', '', $all_configs['prefix']);
 $all_configs['sitepath'] = str_replace('manage/', '', $all_configs['path']);
 
-$debug = true;
+define('DEBUG', false);
+$debug = DEBUG;
 
 if ($debug) {
     error_reporting(E_ALL); 
