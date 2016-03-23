@@ -64,10 +64,14 @@ function replace_pattern($matches) {
 require_once 'View.php';
 #загрузка файлов с хтмл-кодом
 $view = new View($all_configs);
-$html = $view->renderFile('layouts/html_header', array(
-    'assetsDir' => $all_configs['prefix'],
-    'webRoot' => __DIR__
-));
+if ($html_header == 'html_header.html') {
+    $html = $view->renderFile('layouts/html_header', array(
+        'assetsDir' => $all_configs['prefix'],
+        'webRoot' => __DIR__
+    ));
+} else {
+    $html = file_get_contents($html_header);
+}
 //    file_get_contents($html_header);
 $html .= file_get_contents($html_template);
 
