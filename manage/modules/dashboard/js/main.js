@@ -187,7 +187,7 @@ function setGet(params) {
         var result = '?' + $.param(params);
 
     }
-    window.location = result;
+    return result;
 }
 
 $(function(){
@@ -215,11 +215,35 @@ $(function(){
         function (start, end) {
             date_start = start.format("YYYY-MM-DD");
             date_end = end.format("YYYY-MM-DD");
-            setGet({ds: start.format("YYYY-MM-DD"), de: end.format("YYYY-MM-DD")});
+            href = setGet({ds: start.format("YYYY-MM-DD"), de: end.format("YYYY-MM-DD")});
             $('#daterange span').html(start.format('D/M/YY') + ' - ' + end.format('D/M/YY'));
+            window.location = href;
         }
     );
+    load_repair_chart();
 });
+
+function load_repair_chart(_this) {
+    if(_this) {
+        data = $("#repair-chart-form").serialize();
+    } else {
+        data = ''
+    }
+    href = setGet({act: 'repair-chart'});
+    $.ajax({
+        url: prefix + 'dashboard/ajax' + href,
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function (data) {
+            if (data.state) {
+                $('.js-repair-chart').html(data.html);
+                init_multiselect();
+            }
+        }
+    });
+    return false;
+}
 
 function init_chart(id, data, colors, ticks, tickSize) {
     var chartIncomeData = [];

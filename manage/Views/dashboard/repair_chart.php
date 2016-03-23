@@ -44,7 +44,7 @@
                     &nbsp;
                 </div>
                 <div class="col-md-12 text-center">
-                    <form method="POST">
+                    <form method="POST" id="repair-chart-form">
                         <fieldset>
                             <label class="col-sm-3">
                                 <?= l('Категории'); ?>:
@@ -70,7 +70,7 @@
                                 </select>
                             </label>
                             <div class="col-sm-3">
-                                <button type="submit" class="btn btn-primary"> <?= l('Применить') ?></button>
+                                <button type="submit" class="btn btn-primary" onclick="return load_repair_chart(this);"> <?= l('Применить') ?></button>
                             </div>
                         </fieldset>
                     </form>

@@ -61,9 +61,14 @@ function replace_pattern($matches) {
 }
 
 ################################################################################
-
+require_once 'View.php';
 #загрузка файлов с хтмл-кодом
-$html = file_get_contents($html_header);
+$view = new View($all_configs);
+$html = $view->renderFile('layouts/html_header', array(
+    'assetsDir' => $all_configs['prefix'],
+    'webRoot' => __DIR__
+));
+//    file_get_contents($html_header);
 $html .= file_get_contents($html_template);
 
 
