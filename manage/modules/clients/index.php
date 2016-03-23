@@ -482,7 +482,8 @@ class clients
             'count' => $count,
             'count_page' => ceil($count / $count_on_page),
             'clients' => $clients,
-            'arrequest' => $this->all_configs['arrequest']
+            'arrequest' => $this->all_configs['arrequest'],
+            'tags' => $this->getTags()
         ));
     }
 
@@ -560,11 +561,13 @@ class clients
             'ordersList' => $this->getOrdersList($client),
             'newCallForm' => $new_call_id ? $this->newCallForm($new_call_id, $client) : '',
             'contractorsList' => $this->getContractorsList($client),
+            'tagsList' => $this->getTagsList($client),
             'new_call_id' => $new_call_id,
-            'arrequest' => $this->all_configs['arrequest']
+            'arrequest' => $this->all_configs['arrequest'],
+            'phones' => $this->phones($client['id'], false),
+            'tags' => $this->getTags()
         ));
     }
-
     /**
      * @return string
      */
@@ -1049,7 +1052,8 @@ class clients
             array())->assoc();
 
         return $this->view->renderFile('clients/contractors_list', array(
-            'contractors' => $contractors
+            'contractors' => $contractors,
+            'client' => $client
         ));
     }
 
@@ -1072,6 +1076,28 @@ class clients
             'count' => $count,
             'count_on_page' => $count_on_page
         ));
+    }
+
+    /**
+     * @param $client
+     * @return string
+     */
+    private function getTagsList($client)
+    {
+
+        return $this->view->renderFile('clients/tags_list', array(
+            'tags' => $this->getTags(),
+            'client' => $client
+        ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getTags()
+    {
+        return $this->all_configs['db']->query('SELECT color, title, id FROM {tags} ORDER BY title',
+            array())->assoc();
     }
 }
 

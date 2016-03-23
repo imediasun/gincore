@@ -60,3 +60,19 @@
 .add-order:active {
     border: 3px solid rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
 }
+select.tags-list {
+    width: 150px;
+}
+.tags-list option {
+    margin-bottom: 3px;
+    padding: 2px;
+    color: grey;
+    text-align: center;
+}
+span.tag {
+    border-radius: 4px;
+    display: inline-block;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+}

@@ -20,8 +20,8 @@ class Tags extends Migration
                 $table->string('color')->default('#bbbbbb');
                 $table->boolean('avail')->default('1');
             });
-            Schema::table('users', function ($table) {
-                $table->integer('tag_id')->integer(10)->unsigned()->default(0);
+            Schema::table('clients', function ($table) {
+                $table->integer('tag_id')->integer(10)->unsigned()->default(null);
                 $table->index('tag_id');
             });
         }
@@ -35,7 +35,7 @@ class Tags extends Migration
     public function down()
     {
         Schema::dropIfExists('tags');
-        Schema::table('users', function ($table) {
+        Schema::table('clients', function ($table) {
             $table->dropColumn('tag_id');
         });
     }

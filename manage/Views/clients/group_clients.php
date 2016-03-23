@@ -21,7 +21,7 @@
         <label class="control-label"></label>
         <div class="controls">
             <input type="button" value="<?= l('Склеить') ?>" onclick="group_clients(this)"
-                   class="btn btn-default"/>
+                   class="btn btn-primary"/>
         </div>
     </div>
 </form>

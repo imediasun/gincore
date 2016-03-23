@@ -6,6 +6,7 @@
             <td><?= l('Эл.почта') ?></td>
             <td><?= l('Адрес') ?></td>
             <td><?= l('Ф.И.О.') ?></td>
+            <td><?= l('Метка') ?></td>
             <td><?= l('Телефон') ?></td>
             <td><?= l('Дата регистрации') ?></td>
         </tr>
@@ -38,6 +39,16 @@
                     <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
                         <?= htmlspecialchars($client['fio']) ?>
                     </a>
+                </td>
+                <td>
+                    <?= print_r($client, true); ?>
+                    <?php if ($client['tag_id'] != 0): ?>
+                        <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                            <span class="tag" style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">
+                                <?= htmlspecialchars($tags[$client['tag_id']]['title']) ?>
+                            </span>
+                        </a>
+                    <?php endif; ?>
                 </td>
                 <td>
                     <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
