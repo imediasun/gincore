@@ -35,6 +35,7 @@ use Assetic\AssetWriter;
         <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/metisMenu.css"/>
         <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/pe-icon-7-stroke.css"/>
         <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/admin/style.css?6"/>
+    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>css/login.css?6"/>
 
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-1.10.2.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-migrate-1.2.1.min.js"></script>
@@ -146,6 +147,8 @@ use Assetic\AssetWriter;
             new FileAsset("{$webRoot}/css/admin/metisMenu.css"),
             new FileAsset("{$webRoot}/css/admin/pe-icon-7-stroke.css"),
             new FileAsset("{$webRoot}/css/admin/style.css"),
+            new FileAsset("{$webRoot}/css/login.css"),
+
         ));
         $js->setTargetPath('scripts.js');
         $css->setTargetPath('styles.css');
