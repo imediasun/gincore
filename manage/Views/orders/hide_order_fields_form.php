@@ -1,12 +1,13 @@
 <form method="post" id="hide-orders-fields-form" style="display:none">
     <input type="hidden" name="hide-fields" value="1">
-    <div class="col-sm-1" >
+    <div class="col-sm-1" style="min-width: 110px">
         <legend>&nbsp;</legend>
         <div class="form-group">
             <label>&nbsp; <b class="text-danger">&nbsp;</b></label>
             <div class="row row-15">
                 <div class="col-sm-6">
-                    <input type="checkbox" name="config[client-data]" <?= isset($hide['client-data'])?'checked': '' ?> class="test-toggle">
+                    <br>
+                    <br>
                 </div>
             </div>
         </div>
@@ -33,19 +34,22 @@
         <div class="form-group">
             <label class="control-label">&nbsp; <b
                     class="text-danger">&nbsp;</b> </label>
-            <input type="checkbox" name="config[device]" <?= isset($hide['device'])?'checked': '' ?> class="test-toggle">
+            <br>
+            <br>
+            <br>
         </div>
         <div class="form-group">
             <label class="control-label">&nbsp;</label>
+            <br>
             <input type="checkbox" name="config[color]" <?= isset($hide['color'])?'checked': '' ?> class="test-toggle">
         </div>
         <div class="form-group">
             <label>&nbsp;</label>
+            <br>
             <input type="checkbox" name="config[serial]" <?= isset($hide['serial'])?'checked': '' ?> class="test-toggle">
         </div>
         <div class="form-group">
             <label>&nbsp;</label><br>
-            <label class="checkbox-inline">&nbsp; </label>
             <input type="checkbox" name="config[equipment]" <?= isset($hide['equipment'])?'checked': '' ?> class="test-toggle"><br>
         </div>
         <div class="form-group">
@@ -54,18 +58,19 @@
         </div>
         <div class="form-group">
             <label>&nbsp;</label>
-            <div class="row row-15 form-group" style="margin-top: -5px">
+            <div class="row row-15 form-group">
                 <div class="col-sm-6">
-                    <label>&nbsp;</label>
+                    <label>&nbsp;</label><br>
                     <input type="checkbox" name="config[defect]" <?= isset($hide['defect'])?'checked': '' ?> class="test-toggle"><br>
                 </div>
             </div>
             <input type="checkbox" name="config[defect-description]" <?= isset($hide['defect-description'])?'checked': '' ?> class="test-toggle"><br>
         </div>
-        <div class="form-group" style="margin-top:50px; margin-bottom: 45px">
-            <label class="control-label">&nbsp;</label>
+        <div class="form-group" style="margin-top:70px; margin-bottom: 15px">
+            <label class="control-label">&nbsp;</label><br>
             <input type="checkbox" name="config[appearance]" <?= isset($hide['appearance'])?'checked': '' ?> class="test-toggle"><br>
         </div>
+        <br>
         <legend>&nbsp;</legend>
         <div class="form-group">
             <label>&nbsp;</label>
@@ -86,7 +91,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label>&nbsp;</label>
+            <label>&nbsp;</label><br>
             <div class="input-group">
                 <input type="checkbox" name="config[addition-info]" <?= isset($hide['addition-info'])?'checked': '' ?> class="test-toggle">
             </div>

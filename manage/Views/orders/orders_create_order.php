@@ -276,7 +276,7 @@
         </div>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-1 js-hide-fields" style="display:none">
+                <div class="col-sm-1 js-hide-fields" style="display:none; min-width: 110px"">
                     <button id='apply-hide' type="submit" class="btn btn-primary" onclick="apply_hide(this)"><?= l('Применить') ?></button>
                 </div>
                 <div class="btn-group dropup col-sm-6 js-fields">
