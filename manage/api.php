@@ -4,6 +4,7 @@
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
 
+define('STDIN',fopen("php://stdin","r"));
 
 if (!isset($_POST['data'])) {
     http_response_code(404);
@@ -149,7 +150,19 @@ if ($data->act == 'runManualUpdateFiles') {
     
     
     if ($data->migrate == '1') {
-        //@TODO запустить php artisan migrate
+        require __DIR__  . '/../gincore/bootstrap/autoload.php';
+        $app = require_once __DIR__ . '/../gincore/bootstrap/app.php';
+        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+        $status = $kernel->handle(
+                $input = new Symfony\Component\Console\Input\ArgvInput(
+                array('api.php',
+            'migrate',
+            '--force')), $output = new Symfony\Component\Console\Output\BufferedOutput
+        );
+
+        $kernel->terminate($input, $status);
+        $res .= ' Migration: ' . $output->fetch();
         //send_mail('ragenoir@gmail.com', '$data->migrate == 1', '');
     }
     
