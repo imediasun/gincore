@@ -238,7 +238,7 @@
                             'type' => 'engineer'
                         )); ?>
 
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                             <span style="margin:4px 10px 0 0"
                                   class="pull-left cursor-pointer glyphicon glyphicon-list muted"
                                   onclick="alert_box(this, false, 'changes:update-order-client_took')"
@@ -251,8 +251,8 @@
                             </label>
                         </div>
                         <?php $onclick = 'if ($(this) . prop(\'checked\')){$(\'.replacement_fund\').val(\'\');$(\'.replacement_fund\').prop(\'disabled\', false);$(\'.replacement_fund\').show();$(this).parent().parent().addClass(\'warning\');}else{$(\'.replacement_fund\').hide();$(this).parent().parent().removeClass(\'warning\');}'; ?>
-                        <div class="form-group <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
-                        <span style="margin:4px 10px 0 0"
+                        <div class="form-group  <?= isset($hide['addition-info']) ? 'hide-field' : '' ?> <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
+                            <span style="margin:4px 10px 0 0"
                               class="pull-left cursor-pointer glyphicon glyphicon-list muted"
                               onclick="alert_box(this, false, 'changes:update-order-replacement_fund')"
                               data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
@@ -268,14 +268,14 @@
                                 value="<?= htmlspecialchars($order['replacement_fund']) ?>"
                                 name="replacement_fund"/>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                             <label class="checkbox-inline">
                                 <input type="checkbox" value="1" <?= ($order['nonconsent'] == 1 ? 'checked' : '') ?>
                                        name="nonconsent"/>
                                 <?= l('Можно пускать в работу без согласования') ?>
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                             <label class="checkbox-inline">
                                 <input type="checkbox" value="1" <?= ($order['is_waiting'] == 1 ? 'checked' : '') ?>
                                        name="is_waiting"/>

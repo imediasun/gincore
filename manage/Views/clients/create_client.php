@@ -45,57 +45,61 @@
         <?= $newCallForm; ?>
     <?php endif; ?>
     <div id="main" class="tab-pane<?= (!$new_call_id ? ' active' : '') ?>">
-        <div class="row-fluid">
-            <div class="col-sm-6">
+        <div class="row">
+            <div class="col-sm-4">
                 <form method="post">
-                    <div class="form-group">
-                        <label class="control-label"><?= l('Электронная почта') ?>: </label>
-                        <div class="controls">
-                            <input value="<?= htmlspecialchars($client['email']) ?>" name="email"
-                                   class="form-control "/>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label"><?= l('Телефон') ?>: </label>
-                        <div class="relative">
-                            <?= implode(',', $phones) ?> <i class="cloneAndClear glyphicon glyphicon-plus"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><?= l('Дата регистрации') ?>: </label>
-                        <div class="controls">
-                    <span title="<?= do_nice_date($client['date_add'], false) ?>">
-                        <?= do_nice_date($client['date_add']) ?>
-                    </span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><?= l('Ф.И.О.') ?>: </label>
-                        <div class="controls">
-                            <input value="<?= htmlspecialchars($client['fio']) ?>" name="fio" class="form-control"/>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><?= l('Адрес') ?>: </label>
-                        <div class="controls">
-                            <input value="<?= htmlspecialchars($client['legal_address']) ?>" name="legal_address"
-                                   class="form-control"/>
-                        </div>
-                    </div>
-
-                    <?php if ($this->all_configs['oRole']->hasPrivilege('site-administration')): ?>
+                    <div class="col-sm-12">
                         <div class="form-group">
-                            <label class="control-label"><?= l('Пароль') ?>: </label>
-                            <i class="glyphicon glyphicon-warning-sign editable-click" data-type="text"
-                               data-pk="<?= $arrequest[2] ?>" data-type="password"
-                               data-url="<?= $this->all_configs['prefix'] . $arrequest[0] ?>/ajax?act=change-client-password"
-                               data-title="<?= l('Введите новый пароль') ?>" data-display="false"></i>
+                            <label class="control-label"><?= l('Электронная почта') ?>: </label>
+                            <div class="controls">
+                                <input value="<?= htmlspecialchars($client['email']) ?>" name="email"
+                                       class="form-control "/>
+                            </div>
                         </div>
-                    <?php endif; ?>
+
+                        <div class="form-group">
+                            <label class="control-label"><?= l('Ф.И.О.') ?>: </label>
+                            <div class="controls">
+                                <input value="<?= htmlspecialchars($client['fio']) ?>" name="fio" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label"><?= l('Адрес') ?>: </label>
+                            <div class="controls">
+                                <input value="<?= htmlspecialchars($client['legal_address']) ?>" name="legal_address"
+                                       class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label"><?= l('Телефон') ?>: </label>
+                            <div class="relative">
+                                <?= $phones ?> <i class="cloneAndClear glyphicon glyphicon-plus"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label"><?= l('Дата регистрации') ?>: </label>
+                            <div class="controls">
+                        <span title="<?= do_nice_date($client['date_add'], false) ?>">
+                            <?= do_nice_date($client['date_add']) ?>
+                        </span>
+                            </div>
+                        </div>
+                        <?php if ($this->all_configs['oRole']->hasPrivilege('site-administration')): ?>
+                            <div class="form-group">
+                                <label class="control-label"><?= l('Пароль') ?>: </label>
+                                <i class="glyphicon glyphicon-warning-sign editable-click" data-type="text"
+                                   data-pk="<?= $arrequest[2] ?>" data-type="password"
+                                   data-url="<?= $this->all_configs['prefix'] . $arrequest[0] ?>/ajax?act=change-client-password"
+                                   data-title="<?= l('Введите новый пароль') ?>" data-display="false"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
 
                     <div class="form-group ">
-                    <?= $contractorsList; ?><?= $tagsList ?>
+                        <?= $contractorsList; ?>
+                    </div>
+                    <div class="form-group ">
+                        <?= $tagsList ?>
                     </div>
 
 

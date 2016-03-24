@@ -1,7 +1,8 @@
 <?php if ($contractors): ?>
-    <div class="col-sm-6">
+<div class="col-sm-6">
         <label class="control-label"><?= l('Контрагент') ?>: </label>
-        <div class="controls">
+    </div>
+    <div class="col-sm-6">
             <select name="contractor_id" class="multiselect form-control">
                 <option value=""><?= l('Не выбран') ?></option>
                 <?php foreach ($contractors as $contractor): ?>
@@ -12,5 +13,4 @@
                 <?php endforeach; ?>
             </select>
         </div>
-    </div>
 <?php endif; ?>

@@ -12,7 +12,7 @@
                 </div>
                 <div class="span4">
                     <?= l('Телефоны') ?>:  <br>
-                    <?= $this->phones($client['id']) ?>
+                    <?= $phones ?>
                     <i style="display:inline-block!important;position:relative;margin:-5px 0 0 0!important" class="cloneAndClear icon-plus"></i>
                 </div>
                 <div class="span4">

@@ -899,3 +899,6 @@ span.tag {
     padding: 0px 10px;
     text-align: center;
 }
+legend span.tag {
+    line-height:22px;
+}

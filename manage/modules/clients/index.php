@@ -515,7 +515,8 @@ class clients
         $contractors = $this->all_configs['db']->query('SELECT title, id FROM {contractors} ORDER BY title',
             array())->assoc();
         return $this->view->renderFile('clients/create_new_client', array(
-            'contractors' => $contractors
+            'contractors' => $contractors,
+            'tags' => $this->getTags()
         ));
     }
 
@@ -568,7 +569,7 @@ class clients
             'tagsList' => $this->getTagsList($client),
             'new_call_id' => $new_call_id,
             'arrequest' => $this->all_configs['arrequest'],
-            'phones' => $this->phones($client['id'], false),
+            'phones' => $this->phones($client['id'], true),
             'tags' => $this->getTags(),
             'client' => $client
         ));
@@ -998,7 +999,8 @@ class clients
             'new_call_id' => $new_call_id,
             'calldata' => $calldata,
             'code' => $code,
-            'code_exists' => get_service('crm/calls')->code_exists($code)
+            'code_exists' => get_service('crm/calls')->code_exists($code),
+            'phones' => $this->phones($client['id'])
         ));
     }
 
