@@ -75,7 +75,7 @@
                    name="config[defect-description]" <?= isset($hide['defect-description']) ? 'checked' : '' ?>
                    class="test-toggle"><br>
         </div>
-        <div class="form-group" style="margin-top:50px; margin-bottom: 32px">
+        <div class="form-group" style="margin-top:37px;">
             <label class="control-label">&nbsp;</label><br>
             <input type="checkbox" name="config[appearance]" <?= isset($hide['appearance']) ? 'checked' : '' ?>
                    class="test-toggle"><br>
@@ -112,7 +112,7 @@
                        class="test-toggle">
             </div>
         </div>
-        <div class="form-group" style="margin-top: 123px;">
+        <div class="form-group" style="margin-top: 124px;">
             <button id='apply-hide' type="submit" class="btn btn-primary"
                     onclick="apply_hide(this)"><?= l('Применить') ?></button>
         </div>
