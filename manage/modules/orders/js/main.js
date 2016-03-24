@@ -253,11 +253,13 @@ $(function() {
             $('.js-hide-fields').toggle();
             if($form.is(':visible')){
                 $('.js-fields').removeClass('col-sm-6').addClass('col-sm-5');
+                $('.js-requests').removeClass('col-sm-6').addClass('col-sm-5');
                 $('.hide-field').show();
 
             } else {
                 $('.js-fields').removeClass('col-sm-5').addClass('col-sm-6');
                 $('.hide-field').hide();
+                $('.js-requests').removeClass('col-sm-5').addClass('col-sm-6');
             }
         });
     });
@@ -479,24 +481,6 @@ function add_new_order(_this, next, from) {
 
     return false;
 }
-
-/*function remove_comment(_this, comment_id) {
-    $.ajax({
-        url: prefix + module + '/ajax/?act=remove-comment',
-        type: 'POST',
-        data: 'comment_id=' + comment_id,
-        success: function(msg) {
-            if (msg) {
-                if (msg['state']) {
-
-                }
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.responseText);
-        }
-    });
-}*/
 
 function order_products(_this, product_id, order_product_id, cfm, remove, show_confirm_for_remove) {
 

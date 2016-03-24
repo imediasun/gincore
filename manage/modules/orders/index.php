@@ -490,8 +490,10 @@ class orders
         ';
         // фильтр по складам (дерево)
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
-            FROM {orders} as o, {warehouses} as w LEFT JOIN {warehouses_groups} as gr ON gr.id=w.group_id
-            LEFT JOIN {warehouses_types} as tp ON tp.id=w.type_id WHERE o.accept_wh_id=w.id', array())->assoc();
+            FROM {orders} as o, {warehouses} as w
+            LEFT JOIN {warehouses_groups} as gr ON gr.id=w.group_id
+            LEFT JOIN {warehouses_types} as tp ON tp.id=w.type_id
+            WHERE o.accept_wh_id=w.id', array())->assoc();
         if ($data) {
             $wfs = array('groups' => array(), 'nogroups' => array());
             foreach ($data as $wf) {
@@ -893,15 +895,13 @@ class orders
     {
         if (trim($hash) == '#show_suppliers_orders' || (trim($hash) != '#show_suppliers_orders-all'
                 && trim($hash) != '#show_suppliers_orders-wait' && trim($hash) != '#show_suppliers_orders-procurement'
-                && trim($hash) != '#show_suppliers_orders-return'))
+                && trim($hash) != '#show_suppliers_orders-return')
+        ) {
             $hash = '#show_suppliers_orders-all';
-
-        $orders_html = $this->view->renderFile('orders/orders_show_suppliers_orders', array(
-
-        ));
+        }
 
         return array(
-            'html' => $orders_html,
+            'html' => $this->view->renderFile('orders/orders_show_suppliers_orders'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')', 'reset_multiselect()'),
         );
     }

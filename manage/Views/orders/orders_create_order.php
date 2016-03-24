@@ -112,7 +112,7 @@
                                     <input type="checkbox" value="1" name="charger"/>
                                     <?= l('Зарядное устройство') ?>
                                     /<?= l('кабель') ?>
-                                </label>
+                                </label><br>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="1" name="cover"/> <?= l('Задняя крышка') ?>
                                 </label>
@@ -134,9 +134,9 @@
                                     <input type="radio" value="2" name="repair"/><?= l('Доработка') ?>
                                 </label>
                             </div>
-                            <div class="form-group ">
+                            <div class="form-group <?= isset($hide['defect']) && isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
                                 <label><?= l('Неисправность со слов клиента') ?>: </label>
-                                <div class="row row-15 form-group<?= isset($hide['defect']) ? 'hide-field' : '' ?>">
+                                <div class="row row-15 form-group <?= isset($hide['defect']) ? 'hide-field' : '' ?>">
                                     <div class="col-sm-6">
                                         <label><?= l('Замена') ?>:</label>
                                         <input class="form-control" name="repair_part"
@@ -255,7 +255,7 @@
                             </div>
                         </fieldset>
                     </div>
-                    <div class="col-sm-6 relative">
+                    <div class="col-sm-6 js-requests relative">
                         <div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
                         <fieldset>
                             <legend><?= l('Заявки') ?></legend>
