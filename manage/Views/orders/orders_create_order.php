@@ -1,6 +1,6 @@
 <script>
 
-    $(function() {
+    $(function () {
         $(".test-toggle").bootstrapSwitch();
     });
 </script>
@@ -29,7 +29,8 @@
                     <div class="col-sm-6 js-fields">
                         <fieldset>
                             <div class="order_id_input">
-                                <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>" type="text"
+                                <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>"
+                                       type="text"
                                        class="form-control" name="id">
                             </div>
                             <legend><?= l('Клиент') ?></legend>
@@ -40,7 +41,8 @@
                                         <?= $client['phone'] ?>
                                     </div>
                                     <div class="col-sm-2" style="line-height: 34px">
-                                        <span class="tag" style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">
+                                        <span class="tag"
+                                              style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">
                                             <?= htmlspecialchars($tags[$client['tag_id']]['title']) ?>
                                         </span>
                                     </div>
@@ -139,7 +141,8 @@
                                     <input type="radio" value="2" name="repair"/><?= l('Доработка') ?>
                                 </label>
                             </div>
-                            <div class="form-group <?= isset($hide['defect']) && isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
+                            <div
+                                class="form-group <?= isset($hide['defect']) && isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
                                 <label><?= l('Неисправность со слов клиента') ?>: </label>
                                 <div class="row row-15 form-group <?= isset($hide['defect']) ? 'hide-field' : '' ?>">
                                     <div class="col-sm-6">
@@ -157,7 +160,9 @@
                                         </select>
                                     </div>
                                 </div>
-                                <textarea class="form-control <?= isset($hide['defect-description']) ? 'hide-field' : '' ?>" name="defect"></textarea>
+                                <textarea
+                                    class="form-control <?= isset($hide['defect-description']) ? 'hide-field' : '' ?>"
+                                    name="defect"></textarea>
                             </div>
                             <div class="form-group <?= isset($hide['appearance']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Внешний вид') ?>: </label>
@@ -258,6 +263,37 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group col-sm-12" style="padding-left:0">
+                                <div class="btn-group dropup col-6 js-request">
+                                    <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button"
+                                           onclick="add_new_order(this,'','create_order')"
+                                           value="<?= l('Добавить') ?>"/>
+                                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="#" onclick="add_new_order(this, 'print'); return false;">
+                                                <?= l('Добавить и распечатать квитанцию') ?>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="add_new_order(this, 'new_order'); return false;">
+                                                <?= l('Добавить и принять еще одно устройство от этого клиента') ?>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#"
+                                               onclick="add_new_order(this, 'print_and_new_order'); return false;">
+                                                <?= l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') ?>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </fieldset>
                     </div>
                     <div class="col-sm-6 js-requests relative">
@@ -279,40 +315,7 @@
                 </form>
             </div>
         </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-1 js-hide-fields" style="display:none; min-width: 110px"">
-                    <button id='apply-hide' type="submit" class="btn btn-primary" onclick="apply_hide(this)"><?= l('Применить') ?></button>
-                </div>
-                <div class="btn-group dropup col-sm-6 js-fields">
-                    <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button"
-                           onclick="add_new_order(this,'','create_order')" value="<?= l('Добавить') ?>"/>
-                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" onclick="add_new_order(this, 'print'); return false;">
-                                <?= l('Добавить и распечатать квитанцию') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="add_new_order(this, 'new_order'); return false;">
-                                <?= l('Добавить и принять еще одно устройство от этого клиента') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="add_new_order(this, 'print_and_new_order'); return false;">
-                                <?= l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') ?>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+
     </div>
     <div class="tab-pane" id="sale">
         <?= $orderForSaleForm ?>
