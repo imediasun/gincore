@@ -112,7 +112,7 @@
                        class="test-toggle">
             </div>
         </div>
-        <div class="form-group" style="margin-top: 124px;">
+        <div class="form-group" style="margin-top: 123px;">
             <button id='apply-hide' type="submit" class="btn btn-primary"
                     onclick="apply_hide(this)"><?= l('Применить') ?></button>
         </div>
