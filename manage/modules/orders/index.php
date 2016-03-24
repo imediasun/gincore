@@ -543,53 +543,9 @@ class orders
      */
     function gencontent()
     {
-        $orders_html = '';
-
-        $orders_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
-        if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_show_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'<span class="tab_count hide tc_clients_orders"></span></a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_show_suppliers_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'<span class="tab_count hide tc_suppliers_orders"></span></a></li>';
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_supplier_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'</a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_manager" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a></li>';
-        }
-
-        $orders_html .= '</ul><div class="tab-content">';
-
-        // вывод заказов
-        if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<div id="show_orders" class="tab-pane clearfix"></div>';
-        }
-        // создать заказ клиента
-        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<div id="create_order" class="tab-pane clearfix">';
-            $orders_html .= '</div>';
-        }
-        // менеджер заказов
-        if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<div id="orders_manager" class="tab-pane clearfix">';
-            $orders_html .= '</div>';
-        }
-        // заказ поставщику
-        if ( $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') ) {
-            $orders_html .= '<div id="show_suppliers_orders" class="tab-pane clearfix"></div>';
-
-            $orders_html .= '<div id="create_supplier_order" class="tab-pane clearfix">';
-            $orders_html .= '</div>';
-        }
-
-        $orders_html .= '</div></div>';//?
-
-//        $orders_html .= $this->all_configs['chains']->append_js();
-        $orders_html .= $this->all_configs['suppliers_orders']->append_js();
-
-        return $orders_html;
+        return $this->view->renderFile('orders/gencontent', array(
+            'mod_submenu' => $this->mod_submenu
+        ));
     }
 
     /**
@@ -1905,8 +1861,9 @@ class orders
         // достаем заказ с прикрепленными к нему товарами
         $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
-                a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title
+                a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title, c.tag_id as tag_id
                 FROM {orders} as o
+                LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users} as u ON u.id=o.manager
                 LEFT JOIN {users} as a ON a.id=o.accepter
                 LEFT JOIN {warehouses} as w ON o.wh_id=w.id
@@ -1983,8 +1940,18 @@ class orders
             'comments_private' => $comments_private,
             'productTotal' => $productTotal,
             'parts' => $parts,
-            'hide' => $this->getHideFieldsConfig()
+            'hide' => $this->getHideFieldsConfig(),
+            'tags' => $this->getTags()
         ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getTags()
+    {
+        return $this->all_configs['db']->query('SELECT color, title, id FROM {tags} ORDER BY title',
+            array())->assoc('id');
     }
 
     /**

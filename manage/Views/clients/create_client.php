@@ -9,6 +9,7 @@
     <legend>
         <?= htmlspecialchars(empty($client['fio']) ? $client['email'] : $client['fio']) ?>, <?= l('тел') ?>
         : <?= implode(', ', $phones) ?>
+
         <?php if ($client['tag_id'] != 0): ?>
             <span class="tag" style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">
                 <?= htmlspecialchars($tags[$client['tag_id']]['title']) ?>
@@ -43,7 +44,6 @@
     <?php if ($new_call_id): ?>
         <?= $newCallForm; ?>
     <?php endif; ?>
-
     <div id="main" class="tab-pane<?= (!$new_call_id ? ' active' : '') ?>">
         <div class="row-fluid">
             <div class="col-sm-6">

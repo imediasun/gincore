@@ -41,7 +41,6 @@
                     </a>
                 </td>
                 <td>
-                    <?= print_r($client, true); ?>
                     <?php if ($client['tag_id'] != 0): ?>
                         <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
                             <span class="tag" style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">

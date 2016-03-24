@@ -139,7 +139,8 @@
                             <label><?= l('Сроки') ?>:</label>
                             <?= ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) ?>
                         </div>
-                        <div class="form-group <?= isset($hide['defect']) || isset($hide['defect-description']) ? 'hide-field' : '' ?>">
+                        <div
+                            class="form-group <?= isset($hide['defect']) || isset($hide['defect-description']) ? 'hide-field' : '' ?>">
                             <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   title="<?= l('История изменений') ?>"
@@ -308,7 +309,7 @@
                             . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
                         </div>
                     <?php else: ?>
-                        <div class="from-group <?= isset($hide['crm-order-code']) ? 'hide-field' : '' ?>" >
+                        <div class="from-group <?= isset($hide['crm-order-code']) ? 'hide-field' : '' ?>">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-code')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
@@ -376,7 +377,6 @@
                                                    onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
                                         <?php endif; ?>
                                     <?php endif; ?>
-
                                 </div>
                             </div>
                         <span class="text-success">
@@ -385,6 +385,11 @@
                             )
                         </span>
                             <small id="product-total"><?= ($productTotal / 100) ?> <?= viewCurrency() ?></small>
+                            <?php if ($order['tag_id'] != 0): ?>
+                                <span class="tag" style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
+                                    <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
                         <link type="text/css" rel="stylesheet"
                               href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">

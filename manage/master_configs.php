@@ -1085,8 +1085,8 @@ class Configs
                 6 => 25, // %
                 9 => 43, // %
                 12 => 50, // %
-            )
-
+            ),
+            'blacklist-tag-id' => '4'
         );  // object instance
 
         if (is_callable(self::$configs_extend_function)) {

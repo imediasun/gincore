@@ -315,49 +315,53 @@ class clients
             return $this->main_page();
         }
 
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create') {
-            return $this->create_client();
+        switch ($this->all_configs['arrequest'][1]) {
+            case 'create':
+                return $this->create_client();
+            case 'inactive_clients':
+                if (!isset($this->all_configs['arrequest'][2])) {
+                    return $this->clients_list(true);
+                }
+                break;
+            case 'goods-reviews':
+                if (!isset($this->all_configs['arrequest'][2])) {
+                    return $this->goods_reviews();
+                }
+
+                if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create' && !isset($this->all_configs['arrequest'][3])) {
+                    return $this->add_goods_reviews();
+                }
+
+                if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create') {
+                    return $this->create_goods_reviews();
+                }
+                break;
+            case 'shop-reviews':
+                if (!isset($this->all_configs['arrequest'][2])) {
+                    return $this->shop_reviews();
+                }
+                if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create' && !isset($this->all_configs['arrequest'][3])) {
+                    return $this->add_shop_reviews();
+                }
+
+                if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create') {
+                    return $this->create_shop_reviews();
+                }
+                break;
+            case 'approve-reviews':
+                if (!isset($this->all_configs['arrequest'][2])) {
+                    return $this->approve_reviews();
+                }
+                if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create') {
+                    return $this->create_approve_reviews();
+                }
+                break;
+
+            case 'group_clients':
+                return $this->group_clients();
+            default:
         }
 
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'inactive_clients' && !isset($this->all_configs['arrequest'][2])) {
-            return $this->clients_list(true);
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'goods-reviews' && !isset($this->all_configs['arrequest'][2])) {
-            return $this->goods_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'goods-reviews' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create' && !isset($this->all_configs['arrequest'][3])) {
-            return $this->add_goods_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'goods-reviews' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create') {
-            return $this->create_goods_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'shop-reviews' && !isset($this->all_configs['arrequest'][2])) {
-            return $this->shop_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'shop-reviews' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create' && !isset($this->all_configs['arrequest'][3])) {
-            return $this->add_shop_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'shop-reviews' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create') {
-            return $this->create_shop_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'approve-reviews' && !isset($this->all_configs['arrequest'][2])) {
-            return $this->approve_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'approve-reviews' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'create') {
-            return $this->create_approve_reviews();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'group_clients') {
-            return $this->group_clients();
-        }
     }
 
     /**
@@ -565,9 +569,11 @@ class clients
             'new_call_id' => $new_call_id,
             'arrequest' => $this->all_configs['arrequest'],
             'phones' => $this->phones($client['id'], false),
-            'tags' => $this->getTags()
+            'tags' => $this->getTags(),
+            'client' => $client
         ));
     }
+
     /**
      * @return string
      */
@@ -611,19 +617,11 @@ class clients
      */
     private function approve_reviews()
     {
-        $out = '';
         $limit = $this->count_on_page;//50;
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? (($_GET['p'] - 1) * $limit) : 0;
 
         $count_comments = $this->all_configs['db']->query('SELECT count(ca.id) FROM {parser_comments_approval} as ca, {goods} as g
             WHERE ca.approve IS NULL AND g.id=ca.goods_id', array())->el();
-        $count_page = ceil($count_comments / $limit);
-
-        $page = '';
-        // строим блок страниц
-        if ($count_page > 1) {
-            $page = page_block($count_page, $count_comments);
-        }
 
         $comments = $this->all_configs['db']->query('SELECT ca.id, ca.market_id, ca.fio, ca.content, ca.advantages, ca.disadvantages,
             ca.rating, ca.usefulness_yes, ca.usefulness_no, ca.goods_id, g.title, ca.goods_id
@@ -632,54 +630,16 @@ class clients
             ORDER BY ca.date_add DESC 
             LIMIT ?i, ?i', array($skip, $limit))->assoc();
 
-        if ($comments && count($comments) > 0) {
-            $out .= '<table class="table table-striped small-font"><thead><td>' . l('Маркет') . '</td><td>' . l('Товар') . '</td><td>' . l('ФИО') . '</td><td>' . l('Текст') . '</td><td>Р</td><td>' . l('Да') . '</td>
-                <td>Нет</td><td></td></tr></thead><tbody><tr>';
+        require_once($this->all_configs['path'] . 'parser/configs_parse.php');
+        $parser_configs = Configs_Parse::get();
 
-            require_once($this->all_configs['path'] . 'parser/configs_parse.php');
-            $parser_configs = Configs_Parse::get();
 
-            foreach ($comments as $comment) {
-                if (array_key_exists('markets', $parser_configs) && array_key_exists($comment['market_id'],
-                        $parser_configs['markets'])
-                ) {
-                    $out .= '<tr id="comment_parse_remove-' . $comment['id'] . '">
-                            <td>' . htmlspecialchars($parser_configs['markets'][$comment['market_id']]['market-name']) . '</td>
-                            <td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $comment['goods_id'] . '">' . htmlspecialchars($comment['title']) . '</a></td>
-                            <td>' . htmlspecialchars($comment['fio']) . '</td>
-                            <td id="comment_parse_edit-' . $comment['id'] . '">' .
-                        /*((mb_strlen($comment['content'], 'UTF-8') < 250) ?*/
-                        nl2br(htmlspecialchars($comment['content'])) /*:
-                                    nl2br(htmlspecialchars(mb_substr($comment['content'], 0, 250, 'UTF-8'))) . '<a href="' . $this->all_configs['prefix'] . 'clients/approve-reviews/create/' . $comment['id'] . '">...</a>') */
-                        . (!empty($comment['advantages']) ? '<br><br><strong>' . l('Плюсы') . ':</strong> ' . nl2br(htmlspecialchars($comment['advantages'])) : '')
-                        . (!empty($comment['disadvantages']) ? '<br><br><strong>' . l('Минусы') . ':</strong> ' . nl2br(htmlspecialchars($comment['disadvantages'])) : '')
-                        . '
-                            </td>
-                            <td>' . htmlspecialchars($comment['rating']) . '</td>
-                            <td>' . htmlspecialchars($comment['usefulness_yes']) . '</td>
-                            <td>' . htmlspecialchars($comment['usefulness_no']) . '</td>
-                            <td id="comment_parse_empty-' . $comment['id'] . '">
-                                <!--<div class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">' . l('Настройки') . '<b class="caret"></b></a>-->
-                                    <ul class="<!--dropdown-menu--> sett-dd-btns">
-                                        <li><input onclick="window.location.href=\'' . $this->all_configs['prefix'] . 'clients/approve-reviews/create/' . $comment['id'] . '\'" class="btn btn-info btn-mini" type="button" value="' . l('Редактировать') . '" /></li>
-                                        <li><input onclick="confirm_parse_comment(' . $comment['id'] . ', 0)" class="btn btn-success btn-mini" type="button" value="' . l('Подтвердить') . ' (' . l('откл') . ')" /></li>
-                                        <li><input onclick="confirm_parse_comment(' . $comment['id'] . ', 1)" class="btn btn-success btn-mini" type="button" value="' . l('Подтвердить') . ' (' . l('вкл') . ')" /></li>
-                                        <li><input onclick="refute_parse_comment(' . $comment['id'] . ')" class="btn btn-danger btn-mini" type="button" value="' . l('Удалить') . '" /></li>
-                                    </ul>
-                                <!--</div>-->
-                            </td>
-                        </tr>';
-                }
-            }
-            $out .= '</tbody></table>';
-        } else {
-            $out .= '<tr><td colspan="4"><p  class="text-error">' . l('Нет ни одного комментария') . '</p></td></tr>';
-        }
-
-        $out .= $page;
-
-        return $out;
+        return $this->view->renderFile('clients/approve_reviews', array(
+            'count_page' => ceil($count_comments / $limit),
+            'count_comments' => $count_comments,
+            'parser_configs' => $parser_configs,
+            'comments' => $comments
+        ));
     }
 
     /**
@@ -1084,7 +1044,6 @@ class clients
      */
     private function getTagsList($client)
     {
-
         return $this->view->renderFile('clients/tags_list', array(
             'tags' => $this->getTags(),
             'client' => $client
@@ -1097,7 +1056,7 @@ class clients
     private function getTags()
     {
         return $this->all_configs['db']->query('SELECT color, title, id FROM {tags} ORDER BY title',
-            array())->assoc();
+            array())->assoc('id');
     }
 }
 

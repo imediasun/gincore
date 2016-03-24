@@ -34,7 +34,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-7">
+                            <div class="form-group col-sm-6">
                                 <label class="control-label">
                                     <?= l('Код товара') ?> (<?= l('серийный номер') ?>) <b class="text-danger">*</b>:
                                 </label>
@@ -44,7 +44,7 @@
                                 <small class="clone_clear_html product-title"></small>
                                 <input type="hidden" name="items" id="item_id" value="">
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-4">
                                 <label><?= l('Цена продажи') ?> <b class="text-danger">*</b>: </label>
                                 <div class="input-group">
                                     <input type="text" id="sale_poduct_cost" class="form-control" value=""
@@ -53,11 +53,11 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-sm-1">
+                            <div class="form-group col-2">
                                 <label>&nbsp;</label>
-                                <button class="btn btn-primary class" onclick="return add_item_to_table();"
+                                <button class="btn-sm btn-primary class" onclick="return add_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
-                                    <?= l('В корзину') ?>
+                                    <span class="small"> <?= l('В корзину') ?> </span>
                                 </button>
                             </div>
                         </div>
