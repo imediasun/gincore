@@ -53,11 +53,11 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-2">
+                            <div class="form-group col-sm-2">
                                 <label>&nbsp;</label>
                                 <button class="btn-sm btn-primary class" onclick="return add_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
-                                    <span class="small"> <?= l('В корзину') ?> </span>
+                                    <span class="small"> <?= l('В&nbsp;корзину') ?> </span>
                                 </button>
                             </div>
                         </div>
