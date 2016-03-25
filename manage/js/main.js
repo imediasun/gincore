@@ -445,7 +445,7 @@ $(document).ready(function () {
                     }
                 }
                 if(item.original['tag_id']) {
-                    $('.tag').first().html(item.original['t_title']).css('background-color', item.original['t_color']);
+                    $('span.tag').html(item.original['t_title']).css('background-color', item.original['t_color']);
                 }
                 var return_value = '';
                 $('.typeahead-double[data-id="'+id+'"]').each(function(){

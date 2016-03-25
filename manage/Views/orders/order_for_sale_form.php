@@ -9,8 +9,14 @@
                     <div class="form-group">
                         <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
                         <div class="row row-15">
-                            <div class="col-sm-6">
+                            <div class="col-sm-4" style="padding-right:0px">
                                 <?= $client['phone'] ?>
+                            </div>
+                            <div class="col-sm-2" style="line-height: 34px; ">
+                                    <span class="tag"
+                                          style="background-color: <?= !empty($tag) ? $tag['color'] : $tags[$client['tag_id']]['color'] ?>">
+                                        <?= htmlspecialchars(!empty($tag) ? $tag['title'] : $tags[$client['tag_id']]['title']) ?>
+                                    </span>
                             </div>
                             <div class="col-sm-6">
                                 <?= $client['fio'] ?>
