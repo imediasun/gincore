@@ -183,7 +183,7 @@ $(function() {
     $(document).on('click', '.accept-manager', function(){
         $(this).siblings('[name=accept-manager]').val(1);
     });
-    
+
     $(document).on('click', '.drop-quick-orders-serach', function(){
         var $this = $(this),
             href = $this.attr('href');
@@ -268,7 +268,7 @@ $(function() {
         $(this).find('#update-order').click();
         e.preventDefault();
     });
-    
+
     $(document).on('click', 'input[name=add_private_comment],input[name=add_public_comment]', function(e){
         update_order(this);
         e.preventDefault();
@@ -632,7 +632,7 @@ function change_crm_request($this){
 }
 function check_active_request(){
     var $checked_r = $('input[name=crm_request][value!=0]:checked');
-   if($checked_r.length){ 
+   if($checked_r.length){
        change_crm_request($checked_r);
    }
 }
@@ -640,18 +640,20 @@ function check_active_request(){
 $(function(){
    $('input[name=crm_request]').live('change', function(){
        change_crm_request($(this));
-   }); 
-   
+   });
+
     $('.dropdown-menu.keep-open').on("click", function(e){
         e.stopPropagation();
     });
-    
+
     $('#print_now').click(function(){
         var $checks = $(this).closest('ul').find(':checked');
         $checks.each(function(){
             window_open($(this).val());
         });
     });
+
+    $('.tooltips').tooltip();
 });
 
 // редактируем заказ поставщику
@@ -704,12 +706,25 @@ function change_visible_prices(_this, id) {
               'price='+price,
         success: function(msg) {
             $(_this).parent().hide();
+            recalculate_total_sum();
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.responseText);
         }
     });
     return false;
+}
+
+function recalculate_total_sum() {
+    var total = 0;
+    $('input.visible-price').each(function(){
+        total += parseInt($(this).val());
+    });
+    $('span.total-sum').html(total);
+    $('input.total-sum').val(total);
+    if($('input#total-sum-checkbox').prop( "checked" )) {
+        $('#order-total').val(total);
+    }
 }
 
 var max_width = 0;
@@ -824,4 +839,28 @@ function manager_setup(_this){
         }
     });
     return false;
+}
+function set_total_as_sum(_this, orderId, total) {
+    if (confirm('Вы уверены?')) {
+        $.ajax({
+            url: prefix + module + '/ajax/?act=set-total-as-sum',
+            data: {id: orderId, total_set: _this.checked},
+            type: 'POST',
+            success: function (msg) {
+                if (msg.state == false && msg.message) {
+                    alert(msg.message);
+                }
+                if (msg.state == true) {
+                    if (msg.set == true) {
+                        $('#order-total').attr('readonly', 'readonly').val($('input.total-sum').val());
+                    } else {
+                        $('#order-total').removeAttr('readonly');
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+            }
+        });
+    }
 }

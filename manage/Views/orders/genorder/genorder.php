@@ -367,7 +367,8 @@
                             </label>
                             <div class="input-group input-group-sm">
                                 <input type="text" id="order-total" class="form-control"
-                                       value="<?= ($order['sum'] / 100) ?>" name="sum"/>
+                                       value="<?= ($order['sum'] / 100) ?>"
+                                       name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
                                 <div class="input-group-addon"><?= viewCurrency() ?></div>
                                 <div class="input-group-btn">
                                     <?php $pay_btn = ''; ?>
@@ -389,7 +390,7 @@
                             (<?= l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) ?>
                             )
                         </span>
-                            <small id="product-total"><?= ($productTotal / 100) ?> <?= viewCurrency() ?></small>
+                            <!--small id="product-total"><?= ($productTotal / 100) ?> <?= viewCurrency() ?></small-->
                             <?php if ($order['tag_id'] != 0): ?>
                                 <span class="tag" style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
                                     <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
@@ -397,7 +398,7 @@
                             <?php endif; ?>
                         </div>
                         <link type="text/css" rel="stylesheet"
-                              href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">
+                              href="<?= $this->all_configs['prefix'] ?>modules/accountings/css/main.css?1">
                         <input id="send-sms" data-o_id="<?= $order['id'] ?>"
                                onclick="alert_box(this, false, 'sms-form')"
                                class="hidden" type="button"/>
@@ -427,7 +428,10 @@
                 'notSale' => $notSale,
                 'goods' => $goods,
                 'services' => $services,
-                'controller' => $controller
+                'controller' => $controller,
+                'totalChecked' => $order['total_as_sum'],
+                'total' => $productTotal,
+                'orderId' => $order['id']
             )); ?>
         </div>
     </form>

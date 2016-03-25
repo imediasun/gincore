@@ -1851,6 +1851,30 @@ class orders
     }
 
     /**
+     * @param $order
+     * @return int
+     */
+    protected function getTotalSum($order)
+    {
+        $notSale = $order['type'] != 3;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+
+        $productTotal = 0;
+        if(!empty($goods)) {
+            foreach ($goods as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        if(!empty($services)) {
+            foreach ($services as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        return $productTotal;
+    }
+
+    /**
      * @param null $order_id
      * @return string
      * @throws Exception
@@ -2276,6 +2300,24 @@ class orders
                     $this->all_configs['db']->query('UPDATE {orders_goods} SET price=? WHERE id=?i',
                         array($_POST['price'] * 100, $_POST['id']));
                     $data['state'] = true;
+
+                    $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
+                        array($_POST['id']))->row();
+                    if ($order['total_as_sum']) {
+                        $sum = $this->getTotalSum($order);
+                        if ($sum != $order['sum']) {
+                            $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
+                                array($sum, $order['id']))->ar();
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
+                                array(
+                                    $user_id,
+                                    'update-order-sum',
+                                    $mod_id,
+                                    $order['id'],
+                                    ($order['sum'] / 100)
+                                ));
+                        }
+                    }
                 } else {
                     $data['msg'] = l('Укажите новую цену');
                 }
@@ -2290,6 +2332,33 @@ class orders
             $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
             if ($data['state'] == true && $data['id'] > 0) {
                 $data['hash'] = '#show_suppliers_orders';
+            }
+        }
+
+        if ($act == 'set-total-as-sum') {
+            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?',
+                array($_POST['id']))->row();
+            if (!empty($order)) {
+                $set = $_POST['total_set'] == 'true';
+                $sum = $set ?$this->getTotalSum($order): 0;
+                $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
+                    array((int)$set, $sum, $_POST['id']))->ar();
+                if ($sum != $order['sum']) {
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
+                        array(
+                            $user_id,
+                            'update-order-sum',
+                            $mod_id,
+                            $_POST['id'],
+                            ($order['sum'] / 100)
+                        ));
+                }
+                $data = array(
+                    'state' => $ar > 0,
+                    'set' => $set
+                );
+            } else {
+                $data = array('state' => false);
             }
         }
 
@@ -2482,7 +2551,11 @@ class orders
                 }
                 $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
                 $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
-                $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
+                if ($order['total_as_sum']) {
+                    $order['sum'] = $this->gettotalsum($order);
+                } else {
+                    $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
+                }
                 $order['notify'] = isset($_POST['notify']) ? 1 : 0;
                 $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
                 $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
