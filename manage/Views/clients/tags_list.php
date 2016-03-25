@@ -1,8 +1,8 @@
 <?php if ($tags): ?>
-        <div class="col-sm-6">
+        <div class="col-sm-7">
             <label class="control-label"><?= l('Статус клиента(метка)') ?>: </label>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-5">
             <select name="tag_id" class="form-control multiselect">
                 <option value=""><?= l('Не выбран') ?></option>
                 <?php foreach ($tags as $tag): ?>
