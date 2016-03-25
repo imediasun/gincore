@@ -641,15 +641,14 @@ class access
 
         if ($result['state'] == true) {
             try {
-                $tagQuery = $this->all_configs['db']->makeQuery('tag_id = ?i,', array($tag_id));
                 if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
-                    $tagQuery = '';
+                    $tag_id = 0;
                     FlashMessage::set(l('У вас нет прав на добавление клиента в черный список'), FlashMessage::DANGER);
                 }
                 $result['id'] = $this->all_configs['db']->query('INSERT INTO {clients}
-                    (`email`, legal_address, `confirm`, `pass`, `fio`, `person`, contractor_id, tag_id)
-                    VALUES (?n, ?n, ?n, ?, ?, ?, ?q ?i)',
-                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tagQuery, $contractor_id), 'id');
+                    (`email`, legal_address, `confirm`, `pass`, `fio`, `person`, tag_id, contractor_id)
+                    VALUES (?n, ?n, ?n, ?, ?, ?, ?i, ?i)',
+                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tag_id, $contractor_id), 'id');
 
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';
