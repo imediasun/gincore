@@ -236,6 +236,11 @@ class manageModel
                 array($query, $filters['co_id']));
         }
 
+        if (array_key_exists('cashless', $filters) && is_numeric($filters['cashless']) && in_array('cashless', $use)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.cashless=?i',
+                array($query, (int)$filters['cashless']));
+        }
+
         return $query;
     }
 

@@ -3355,6 +3355,7 @@ class Chains
             $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
             $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             isset($post['warranty']) ? intval($post['warranty']) : 0,
+            isset($post['cashless']) == 'on' ? 1 : 0
         );
 
         // создаем заказ
@@ -3364,9 +3365,9 @@ class Chains
                       serial, battery, charger, cover, box, repair, urgent, np_accept, notify, partner, approximate_cost,
                       `sum`, defect, client_took, date_readiness, course_key, course_value, `type`, prepay, is_replacement_fund,
                       replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id,
-                      accept_wh_id,code,referer_id,color,equipment, warranty) VALUES
+                      accept_wh_id,code,referer_id,color,equipment, warranty, cashless) VALUES
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
-                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i)',
+                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));

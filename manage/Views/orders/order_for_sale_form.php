@@ -107,6 +107,10 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <div class="input-group"
+                                                 title="<?= l('Отфильтровать все безналичные счета для сверки Вы можете в разделе: Бухгалтерия-Заказы-Заказы клиентов') ?>">
+                                                <input type="checkbox" name="cashless" class="cashless-toggle">
+                                            </div>
                                         </td>
                                     </tr>
                                     </tfoot>

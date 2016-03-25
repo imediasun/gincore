@@ -251,11 +251,12 @@
                             </label>
                         </div>
                         <?php $onclick = 'if ($(this) . prop(\'checked\')){$(\'.replacement_fund\').val(\'\');$(\'.replacement_fund\').prop(\'disabled\', false);$(\'.replacement_fund\').show();$(this).parent().parent().addClass(\'warning\');}else{$(\'.replacement_fund\').hide();$(this).parent().parent().removeClass(\'warning\');}'; ?>
-                        <div class="form-group  <?= isset($hide['addition-info']) ? 'hide-field' : '' ?> <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
+                        <div
+                            class="form-group  <?= isset($hide['addition-info']) ? 'hide-field' : '' ?> <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
                             <span style="margin:4px 10px 0 0"
-                              class="pull-left cursor-pointer glyphicon glyphicon-list muted"
-                              onclick="alert_box(this, false, 'changes:update-order-replacement_fund')"
-                              data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                  class="pull-left cursor-pointer glyphicon glyphicon-list muted"
+                                  onclick="alert_box(this, false, 'changes:update-order-replacement_fund')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                             <label class="checkbox-inline">
                                 <input onclick="<?= $onclick ?>" type="checkbox" value="1"
                                     <?= ($order['is_replacement_fund'] == 1 ? 'checked' : '') ?>
@@ -359,7 +360,11 @@
                               onclick="alert_box(this, false, 'changes:update-order-sum')"
                               data-o_id="<?= $order['id'] ?>"
                               title="<?= l('История изменений') ?>"></span>
-                            <label><?= l('Стоимость ремонта') ?>: </label>
+                            <label><?= l('Стоимость ремонта') ?>:
+                                <?php if ($order['cashless']): ?>
+                                    <span class="text-danger"><?= l('Безнал') ?></span>
+                                <?php endif; ?>
+                            </label>
                             <div class="input-group input-group-sm">
                                 <input type="text" id="order-total" class="form-control"
                                        value="<?= ($order['sum'] / 100) ?>" name="sum"/>

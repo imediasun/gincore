@@ -1,7 +1,12 @@
 <script>
-
     $(function () {
         $(".test-toggle").bootstrapSwitch();
+        $('.cashless-toggle').bootstrapSwitch({
+            onText: '<?= l('Безнал'); ?>',
+            offText: '<?= l('Нал'); ?>',
+            labelWidth: 0,
+            size: 'normal'
+        });
     });
 </script>
 <ul class="nav nav-tabs default_tabs" role="tablist">
@@ -173,10 +178,23 @@
                         <fieldset>
                             <legend><?= l('Стоимость') ?></legend>
                             <div class="form-group <?= isset($hide['cost']) ? 'hide-field' : '' ?>">
-                                <label><?= l('Ориентировочная стоимость') ?>: </label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" value="" name="approximate_cost"/>
-                                    <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                <label class="col-sm-12"
+                                       style="padding-left: 0px; padding-right: 0px"><?= l('Ориентировочная стоимость') ?>
+                                    : </label>
+                                <div class="row-fluid">
+                                    <div class="col-sm-9" style="padding-left: 0px;">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" value="" name="approximate_cost"/>
+                                            <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="input-group"
+                                             title="<?= l('Отфильтровать все безналичные счета для сверки Вы можете в разделе: Бухгалтерия-Заказы-Заказы клиентов') ?>">
+                                            <input type="checkbox" name="cashless" class="cashless-toggle">
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="form-group <?= isset($hide['prepaid']) ? 'hide-field' : '' ?>">

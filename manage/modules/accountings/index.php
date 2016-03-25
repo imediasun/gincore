@@ -208,6 +208,14 @@ class accountings
                 $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
             }
 
+            if (isset($post['cashless']) && is_numeric($post['cashless'])) {
+                if (!empty($url)) {
+                    $url .= '&';
+                }
+                $url .= 'cashless=' . intval($post['cashless']);
+            }
+
+
             if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям товаров
                 if (!empty($url))
@@ -3384,32 +3392,14 @@ class accountings
      * @param string $hash
      * @return array
      */
-    function accountings_orders($hash = '#a_orders-clients')
+    public function accountings_orders($hash = '#a_orders-clients')
     {
-        if (trim($hash) == '#a_orders' || (trim($hash) != '#a_orders-clients' && trim($hash) != '#a_orders-suppliers'))
+        if (trim($hash) == '#a_orders' || (trim($hash) != '#a_orders-clients' && trim($hash) != '#a_orders-suppliers')) {
             $hash = '#a_orders-clients';
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out = '<ul class="list-unstyled inline clearfix">';
-            $out .= '<li><a class="click_tab btn btn-info" onclick="click_tab(this, event)" data-open_tab="accountings_orders_clients"';
-            $out .= ' href="#a_orders-clients" title="' . l('Заказы клиентов') . '">' . l('Клиентов') . '<span class="tab_count hide tc_accountings_clients_orders"></span></a></li>';
-            $out .= '<li><a class="click_tab btn btn-warning" onclick="click_tab(this, event)" data-open_tab="accountings_orders_suppliers"';
-            $out .= ' href="#a_orders-suppliers" title="' . l('Заказы поставщику') . '">' . l('Поставщику') . '<span class="tab_count hide tc_accountings_suppliers_orders"></span></a></li>';
-            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li></ul>';
-            $out .= '<div class="clearfix hidden theme_bg p-sm m-b-md" id="filters"><div id="a_orders-menu"></div></div>';
-            $out .= '<div class="pill-content">';
-
-            $out .= '<div id="a_orders-suppliers" class="pill-pane">';
-            $out .= '</div><!--#a_orders-suppliers-->';
-
-            $out .= '<div id="a_orders-clients" class="pill-pane">';
-
-            $out .= '</div><!--#a_orders-clients--></div><!--.pill-content-->';
         }
 
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_orders'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -3521,7 +3511,7 @@ class accountings
             $chains = array();
             $_chains = null;
             $query = $this->all_configs['manageModel']->global_filters($_GET,
-                array('date', 'category', 'product', 'operators', 'client', 'client_orders_id'));
+                array('date', 'category', 'product', 'operators', 'client', 'client_orders_id', 'cashless'));
 
             $count_on_page = $this->count_on_page;
             $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
