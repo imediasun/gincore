@@ -42,8 +42,8 @@
                                     </div>
                                     <div class="col-sm-2" style="line-height: 34px; ">
                                         <span class="tag"
-                                              style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">
-                                            <?= htmlspecialchars($tags[$client['tag_id']]['title']) ?>
+                                              style="background-color: <?= !empty($tag) ? $tag['color'] : $tags[$client['tag_id']]['color'] ?>">
+                                            <?= htmlspecialchars(!empty($tag) ? $tag['title'] : $tags[$client['tag_id']]['title']) ?>
                                         </span>
                                     </div>
                                     <div class="col-sm-6">

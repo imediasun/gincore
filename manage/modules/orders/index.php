@@ -817,7 +817,8 @@ class orders
                 )),
                 'order' => $order_data,
                 'orderForSaleForm' => $this->order_for_sale_form(),
-                'hide' => $this->getHideFieldsConfig()
+                'hide' => $this->getHideFieldsConfig(),
+                'tag' => $this->getTag($client_id)
             ));
 
         }
@@ -2932,5 +2933,16 @@ class orders
     {
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
         return empty($current[0]) ? array() : json_decode($current[0]['value'], true);
+    }
+
+    /**
+     * @param $client_id
+     * @return mixed
+     */
+    private function getTag($client_id)
+    {
+        return $this->all_configs['db']->query('SELECT t.color, t.title, t.id FROM {clients} c'
+            .' JOIN {tags} t ON t.id = c.tag_id'
+            .' WHERE c.id = ?i', array($client_id))->row();
     }
 }
