@@ -513,6 +513,11 @@ class access
             $result['state'] = false;
             $result['msg'] = 'Клиент не найден.';
         }
+        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id = ?i', array($post['id']))->assoc();
+        if (empty($client)) {
+            $result['state'] = false;
+            $result['msg'] = 'Клиент не найден.';
+        }
         if ($result['state'] == true && $email === false) {
             $result['state'] = false;
             $result['msg'] = 'Электронная почта указана неверно.';
@@ -525,10 +530,10 @@ class access
             $result['state'] = false;
             $result['msg'] = 'Укажите телефон или эл.почту.';
         }
-        $fio = isset($post['fio']) ? trim($post['fio']) : '';
-        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : '';
-        $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
-        $tag_id = isset($post['tag_id']) ? $post['tag_id'] : 0;
+        $fio = isset($post['fio']) ? trim($post['fio']) : $client[0]['fio'];
+        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : $client[0]['legal_address'];
+        $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : $client[0]['contractor_id'];
+        $tag_id = isset($post['tag_id']) ? $post['tag_id'] : $client[0]['tag_id'];
         $tagQuery = $this->all_configs['db']->makeQuery('tag_id = ?i,', array($tag_id));
         if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
             $tagQuery = '';

@@ -73,7 +73,10 @@
                         <div class="form-group">
                             <label class="control-label"><?= l('Телефон') ?>: </label>
                             <div class="relative">
-                                <?= $phones ?> <i class="cloneAndClear glyphicon glyphicon-plus"></i>
+                                <?= $this->renderFile('clients/phones', array(
+                                'phones' => $phones
+                                )); ?>
+                                <i class="cloneAndClear glyphicon glyphicon-plus"></i>
                             </div>
                         </div>
                         <div class="form-group">

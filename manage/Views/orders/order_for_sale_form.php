@@ -54,7 +54,7 @@
                             </div>
 
                             <div class="form-group col-sm-2" style="padding: 0px">
-                                <label>&nbsp;</label>
+                                <label>&nbsp;</label><br>
                                 <button class="btn-sm btn-primary class" onclick="return add_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
                                     <span class="small"> <?= l('В&nbsp;корзину') ?> </span>

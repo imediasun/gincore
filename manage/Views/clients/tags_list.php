@@ -1,6 +1,6 @@
 <?php if ($tags): ?>
         <div class="col-sm-6">
-            <label class="control-label"><?= l('Статус') ?>: </label>
+            <label class="control-label"><?= l('Статус клиента(метка)') ?>: </label>
         </div>
         <div class="col-sm-6">
             <select name="tag_id" class="form-control multiselect">

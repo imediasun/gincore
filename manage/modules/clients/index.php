@@ -569,7 +569,7 @@ class clients
             'tagsList' => $this->getTagsList($client),
             'new_call_id' => $new_call_id,
             'arrequest' => $this->all_configs['arrequest'],
-            'phones' => $this->phones($client['id'], true),
+            'phones' => $this->phones($client['id'], false),
             'tags' => $this->getTags(),
             'client' => $client
         ));
