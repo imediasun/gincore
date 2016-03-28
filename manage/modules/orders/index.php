@@ -2314,7 +2314,7 @@ class orders
                                     'update-order-sum',
                                     $mod_id,
                                     $order['id'],
-                                    ($order['sum'] / 100)
+                                    ($sum / 100)
                                 ));
                         }
                     }
@@ -2340,7 +2340,7 @@ class orders
                 array($_POST['id']))->row();
             if (!empty($order)) {
                 $set = $_POST['total_set'] == 'true';
-                $sum = $set ?$this->getTotalSum($order): 0;
+                $sum = $set ? $this->getTotalSum($order) : $order['sum'];
                 $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
                     array((int)$set, $sum, $_POST['id']))->ar();
                 if ($sum != $order['sum']) {
@@ -2350,7 +2350,7 @@ class orders
                             'update-order-sum',
                             $mod_id,
                             $_POST['id'],
-                            ($order['sum'] / 100)
+                            ($sum / 100)
                         ));
                 }
                 $data = array(
