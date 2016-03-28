@@ -231,13 +231,13 @@ db()->query("UPDATE {template_vars_strings} as s "
 db()->query('SET FOREIGN_KEY_CHECKS=1');
 
 db()->query("TRUNCATE TABLE {tags}");
-db()->query("INSERT IGNORE INTO {tags} (id, title, colot)
+db()->query("INSERT IGNORE INTO {tags} (id, title, color)
             VALUES
-                (2, 'regular', '#22B14C' )
-                (3, 'discount', '#B5E61D' )
-                (4, 'blacklist', '#000000' )
-                (5, '-5%',  '#C3C3C3' )
-                (6, '-10%', '#C3C3C3' )
+                (2, 'regular', '#22B14C' ),
+                (3, 'discount', '#B5E61D' ),
+                (4, 'blacklist', '#000000' ),
+                (5, '-5%',  '#C3C3C3' ),
+                (6, '-10%', '#C3C3C3' ),
                 (7, '-20%', '#C3C3C3' )
                 (8, '-30%', '#C3C3C3' )", array());
 
