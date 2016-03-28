@@ -980,7 +980,7 @@ class Chains
                 throw new ExceptionWithMsg('У Вас недостаточно прав');
             }
             if (in_array($order['status'], $this->all_configs['configs']['order-statuses-orders'])) {
-                throw new ExceptionWithMsg('В закрытый заказ нельзя добавить запчасть');
+                throw new ExceptionWithMsg(l('Вы не можете добавить или удалить запчасть/работу из закрытого заказа. Предварительно измение его статус.'));
             }
             if ((!isset($post['product_id']) || $post['product_id'] == 0)) {
                 throw new ExceptionWithMsg('Выберите товар');
@@ -1690,7 +1690,7 @@ class Chains
             WHERE o.id=g.order_id AND g.item_id=?i', array($item_id))->row();
 
         if ($product && in_array($product['status'], $this->all_configs['configs']['order-statuses-orders'])) {
-            $data['msg'] = 'Заказ закрыт';
+            $data['msg'] = l('Вы не можете отвязать запчасть, так как заказ закрыт. Предаврительно измените его статус.');
             $data['state'] = false;
         } else {
             if ($item && $product && !strtotime($product['unbind_request'])) {
