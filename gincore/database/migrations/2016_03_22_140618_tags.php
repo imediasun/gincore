@@ -101,5 +101,6 @@ class Tags extends Migration
         Schema::table('clients', function ($table) {
             $table->dropColumn('tag_id');
         });
+        DB::table('users_permissions')->where('link', '=', 'add-client-to-blacklist')->delete();
     }
 }
