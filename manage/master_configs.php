@@ -186,6 +186,14 @@ class Configs
                         'length' => 9
                     )
                 ),
+                16 => array(
+                    'name' => l('Израиль'),
+                    'phone' => array(
+                        'code' => 972,
+                        'short_code' => 0,
+                        'length' => 8
+                    )
+                ),
 
             ),
             'manage-langs' => array(
@@ -362,6 +370,14 @@ class Configs
                     'shortName' => 'GEL',
                     'viewName' => l('лари'),
                     'symbol' => '₾',
+                    'currency-name' => ''
+                ),
+                15 => array(
+                    'rutils' => array('words' => array(l('новый шекель'), l('новых шекеля'), l('новых шекелей')), 'gender' => 'male'),
+                    'name' => l('Новый израильский шекель'),
+                    'shortName' => 'ILS',
+                    'viewName' => l('новый шекель'),
+                    'symbol' => '₪',
                     'currency-name' => ''
                 ),
             ),
