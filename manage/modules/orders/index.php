@@ -804,7 +804,6 @@ class orders
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
 
-
             $client_id = $order_data ? $order_data['client_id'] : 0;
             if (!$client_id) {
                 $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
@@ -818,9 +817,9 @@ class orders
                 'order' => $order_data,
                 'orderForSaleForm' => $this->order_for_sale_form(),
                 'hide' => $this->getHideFieldsConfig(),
-                'tag' => $this->getTag($client_id)
+                'tag' => $this->getTag($client_id),
+                'order_data' => $order_data
             ));
-
         }
 
         return array(
