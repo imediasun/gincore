@@ -176,9 +176,7 @@ use Assetic\AssetWriter;
         var module = '{-txt-module}';
         var cur_course = 1;
         var formdata_original = true;
-        var L = { - txt - manage_translates_js
-        }
-        ;
+        var L = {-txt-manage_translates_js} ;
     </script>
 
     {-css-module}
