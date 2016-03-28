@@ -10,7 +10,7 @@
             <input type="text" name="price" required class="form-control" placeholder="<?= l('укажите стоимость') ?>"/>
         </div>
         <?php if ($can): ?>
-            <input type="button" class="btn" onclick="sold_item(this, ' . $item_id . ')" value="<?= l('Продать') ?>"/>
+            <input type="button" class="btn" onclick="sold_item(this, <?= $item_id ?>)" value="<?= l('Продать') ?>"/>
         <?php else: ?>
             <input disabled type="submit" class="btn" value="<?= l('Продать') ?>"/>
         <?php endif; ?>

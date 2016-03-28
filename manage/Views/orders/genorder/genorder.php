@@ -21,7 +21,7 @@
                             'hasEditorPrivilege' => $hasEditorPrivilege,
                             'order' => $order
                         )) ?>
-                        <button data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, 'sms-form')"
+                        <button data-o_id="<?= $order['id'] ?>" onclick="alert_box(this, false, 'sms-form')"
                                 class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS
                         </button>
                     </h3>
