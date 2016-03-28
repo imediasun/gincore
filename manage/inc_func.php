@@ -309,7 +309,7 @@ function send_mail($to, $sbj, $msgtxt)
     $headers = "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8 \r\n";
     $headers .= "X-originating-IP: " . $ip . "\r\n";
-    $headers .= 'From: ' . $all_configs['settings']['site_name'] . ' <' . $all_configs['settings']['email'] . '>' . "\r\n";
+    $headers .= 'From: ' . $all_configs['settings']['site_name'] . ' <' . $all_configs['settings']['content_email'] . '>' . "\r\n";
     //
     //$headers .= 'BC: '.$settings['admin_email'] . "\r\n";
     //$headers .= 'Bc: ragenoir@gmail.com' . "\r\n";

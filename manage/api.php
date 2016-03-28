@@ -163,7 +163,6 @@ if ($data->act == 'runManualUpdateFiles') {
 
         $kernel->terminate($input, $status);
         $res .= ' Migration: ' . $output->fetch();
-        //send_mail('ragenoir@gmail.com', '$data->migrate == 1', '');
     }
     
     returnSuccess(array('message' => $res));
