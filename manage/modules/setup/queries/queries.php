@@ -238,7 +238,7 @@ db()->query("INSERT IGNORE INTO {tags} (id, title, color)
                 (4, 'blacklist', '#000000' ),
                 (5, '-5%',  '#C3C3C3' ),
                 (6, '-10%', '#C3C3C3' ),
-                (7, '-20%', '#C3C3C3' )
+                (7, '-20%', '#C3C3C3' ),
                 (8, '-30%', '#C3C3C3' )", array());
 
 db()->query("TRUNCATE TABLE {migrations}");
