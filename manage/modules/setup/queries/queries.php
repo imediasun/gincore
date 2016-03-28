@@ -132,7 +132,7 @@ db()->query("
     (56, '".lq('Доступ к статистике на главной странице')."', 'dashboard', 0, 1),
     (57, '".lq('Внешний маркетинг')."', 'external-marketing', 0, 2),
     (58, '".lq('Просмотр и редактирование чужих заказов поставщику')."', 'read-other-suppliers-orders', 19, 5),
-    (58, '".lq('Добавление клиента в черный список')."', 'add-client-to-blacklist', 0, 1)
+    (59, '".lq('Добавление клиента в черный список')."', 'add-client-to-blacklist', 0, 1)
 ");
 db()->query('TRUNCATE TABLE {users_role_permission}');
 db()->query("
