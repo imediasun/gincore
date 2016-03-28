@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__.'/FlashMessage.php';
-
+require_once __DIR__.'/View.php';
 class Suppliers
 {
     protected $all_configs;
@@ -10,10 +9,17 @@ class Suppliers
 
     public $currency_suppliers_orders; // валюта заказов поставщикам
     public $currency_clients_orders; // валюта заказов клиентов
+    /** @var View  */
+    protected $view;
 
+    /**
+     * Suppliers constructor.
+     * @param $all_configs
+     */
     function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
+        $this->view = new View($all_configs);
         $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
         $this->currencies = $this->all_configs['configs']['currencies'];
         $currencies = $this->currencies;
@@ -24,6 +30,11 @@ class Suppliers
 //        }
     }
 
+    /**
+     * @param $mod_id
+     * @param $post
+     * @return array
+     */
     function edit_order($mod_id, $post)
     {
         $data = array('state' => true);
@@ -140,7 +151,7 @@ class Suppliers
                     }
                 }
             }
-            
+
             // сообщение что типа сохранено
             $_SESSION['suppliers_edit_order_msg'] = 'Сохранено успешно';
         }
@@ -148,6 +159,11 @@ class Suppliers
         return $data;
     }
 
+    /**
+     * @param $mod_id
+     * @param $post
+     * @return array
+     */
     function create_order($mod_id, $post)
     {
         $data = array('state' => true, 'id' => 0);
@@ -238,6 +254,12 @@ class Suppliers
         return $data;
     }
 
+    /**
+     * @param     $client_order_id
+     * @param     $text
+     * @param int $private
+     * @return null
+     */
     function add_client_order_comment($client_order_id, $text, $private = 0)
     {
         $result = null;
@@ -268,11 +290,14 @@ class Suppliers
         return $result;
     }
 
+    /**
+     * @return string
+     */
     function show_filter_service_center(){
         $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id', array())->assoc();
-        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> '; 
+        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> ';
         $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
-        $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) : 
+        $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) :
                   (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());
         foreach ($wh_groups as $wh_group) {
             $orders_html .= '<option ' . ($wg_get && in_array($wh_group['id'], $wg_get) ? 'selected' : '');
@@ -281,37 +306,34 @@ class Suppliers
         $orders_html .= '</select></span></div>';
         return $orders_html;
     }
-    
+
+    /**
+     * @param bool   $show_my
+     * @param bool   $show_nav
+     * @param bool   $inner_wrapper
+     * @param string $hash
+     * @return string
+     */
     function show_filters_suppliers_orders($show_my = false ,$show_nav = true,$inner_wrapper = true,$hash='show_suppliers_orders')
     {
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : '')
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
-
-        //$count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}', array())->el();
+            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : '');
+        $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}', array())->el();
+        $query = !array_key_exists('manage-qty-so-only-debit', $this->all_configs['configs']) || $this->all_configs['configs']['manage-qty-so-only-debit'] == false ? 'confirm=0' : 'count_come<>count_debit AND count_come > 0';
+        $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}
+            WHERE ?query', array($query))->el();
+        $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
+            WHERE user_id=?i AND type=?', array($_SESSION['id'], 'so'))->el();
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
+                array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
 
         $orders_html = '
             <form method="post">
             '.($inner_wrapper ? '<div class="clearfix theme_bg filters-box filters-box-sm p-sm m-b-md">' : '').'
                 <div class="row row-15">
         ';
-        //$orders_html .= '<a onclick="location_menu(this, event)" href="' . $this->all_configs['prefix'] . 'orders" class="';
-        //$orders_html .= (count($_GET) > 3 ? '' : 'disabled ' ) . 'btn text-left">';
-        //$orders_html .= 'Всего: <span id="count-clients-orders">' . $count . '</span></a>';
 
-        $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}', array())->el();
-        $query = !array_key_exists('manage-qty-so-only-debit', $this->all_configs['configs']) || $this->all_configs['configs']['manage-qty-so-only-debit'] == false ? 'confirm=0' : 'count_come<>count_debit AND count_come > 0';
-        $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}
-            WHERE ?query', array($query))->el();
-        /*if () {
-                $query = $this->all_configs['db']->makeQuery('?query AND ',
-                    array($query));
-            } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND ',
-                    array($query));
-            }*/
-        $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
-            WHERE user_id=?i AND type=?', array($_SESSION['id'], 'so'))->el();
 
         $orders_html .= '<div class="col-sm-2 b-r">';
             $orders_html .= '<div class="btn-group-vertical">';
@@ -325,7 +347,6 @@ class Suppliers
             $orders_html .= '</div>';
             $orders_html .= '<br><br><input type="submit" name="filter-orders" class="btn btn-primary" value="' . l('Фильтровать') . '">';
         $orders_html .= '</div>';
-        // show part of interface - redmine task #546
         if ($show_nav == true) {
             $orders_html .= '<div class="col-sm-2 b-r">';
                 $orders_html .= '<div class="checkbox"><label><input ' . (isset($_GET['whk']) ? 'checked' : '') . ' type="checkbox" name="wh-kiev" />' . l('Локально') . '</label></div>';
@@ -335,14 +356,11 @@ class Suppliers
         $orders_html .= '<div class="col-sm-3 b-r">';
             $orders_html .= $this->show_filter_service_center();
             $orders_html .= '<div class="input-group"><p class="form-control-static">' . l('Поставщик') . ':</p>';
-            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
-                array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
             $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="suppliers[]">';
             foreach ($suppliers as $supplier) {
                 $orders_html .= '<option ' . ((isset($_GET['sp']) && in_array($supplier['id'], explode(',', $_GET['sp']))) ? 'selected' : '');
                 $orders_html .= ' value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
             }
-            // show part of interface - redmine task #546
             if ($show_nav == true) {
                 $orders_html .= '</select></span></div><div class="input-group"><p class="form-control-static">' . l('Статус') . ':</p><span class="input-group-btn"><select data-numberDisplayed="2" class="form-control multiselect" style="width: 98px" name="so-status"><option value="0">'. l('Выбрать') . '</option>';
                 $orders_html .= '<option ' . (isset($_GET['sst']) && $_GET['sst'] == 1 ? 'selected' : '') . ' value="1">Не принятые</option>';
@@ -355,15 +373,14 @@ class Suppliers
         $orders_html .= '<div class="col-sm-2 b-r">';
             $orders_html .= '<div class="form-group">';
             $orders_html .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />';
-            //$orders_html .= '<label>' . l('номер заказа') . ':</label>';
             $orders_html .= '<input type="hidden" placeholder="' . l('номер заказа') . '" name="supplier_order_id" class="form-control" value="';
             $orders_html .= (isset($_GET['so_id']) && $_GET['so_id'] > 0 ? $_GET['so_id'] : '') . '" />';
             $orders_html .= '</div>';
-            
+
             $orders_html .= '<div class="form-group">';
             $orders_html .= '<input type="text" placeholder="' . l('номер заказа поставщику') . '" name="supplier_order_id_part" class="form-control" value="';
             $orders_html .= (isset($_GET['pso_id']) && $_GET['pso_id'] > 0 ? $_GET['pso_id'] : '') . '" /></div>';
-            
+
             $orders_html .= '<div class="form-group">';
             $orders_html .= '<input type="text" placeholder="' . l('номер заказа клиента') . '" name="client-order" class="form-control" value="';
             $orders_html .= (isset($_GET['co']) && $_GET['co'] > 0 ? $_GET['co'] : '') . '" /></div>';
@@ -383,145 +400,41 @@ class Suppliers
 
         $orders_html .= '</div>'.($inner_wrapper ? '</div>' : '').'</form>';
 
-        //$href = '';
-        //$orders_html .= '<br /><a target="_blank" href="' . $href . '" class="btn">Выгрузить данные</a>';
-        //$onclick = 'window.open(\'' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/ajax/?act=' . ($contractors == false ? 'cashboxes_transactions' : 'contractors_transactions') . '\')';
-        //$orders_html .= '<input class="btn pull-right" onclick="' . $onclick . '" value="Выгрузить в Excel" type="button" />';
-
-        return $orders_html;
+        return $this->view->renderFile('suppliers.class/show_filters_suppliers_orders', array(
+            'show_my' => $show_my,
+            'inner_wrapper' => $inner_wrapper,
+            'show_nav' => $show_nav,
+            'controller' => $this,
+            'suppliers' => $suppliers,
+            'count' => $count,
+            'count_marked' => $count_marked,
+            'count_unworked' => $count_unworked
+        ));
     }
 
+    /**
+     * @param      $orders
+     * @param bool $only_debit
+     * @param bool $only_pay
+     * @return string
+     */
     function show_suppliers_orders($orders, $only_debit = false, $only_pay = false)
     {
-        $goods_html = '';
-
-        if ( $orders ) {
-            //$str_order_count = $orders ? '<span id="str_order_count" class="badge badge-info">'.count($orders).'</span>' : '';
-
-            $goods_html .= '<table class="show-suppliers-orders table"><thead><tr><td></td><td>' . l('Дата созд.') . '</td><td>' . l('Создал') . '</td>
-                <td>' . l('Код') . '</td><td>' . l('Поставщик') . '</td><td>' . l('Наименование') . '</td><td>' . l('Кол-во') . '</td><td>' . l('Цена') . '</td>
-                <td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td><td>' . l('Дата пост.') . '</td><td>' . l('Принято') . '</td><td>' . l('Принял') . '</td><td>' . l('Склад') . '</td>
-                <td>' . l('Оприх.') . '</td><td>' . l('Примеч.') . '</td><td></td></tr></thead><tbody>';
-                //<td>Кол-во</td><td>К оплате</td><td>Созд.</td>
-
-//                print_r($orders);
-//                exit;
-                
+        return $this->view->renderFile('suppliers.class/show_suppliers_orders', array(
+            'controller' => $this,
+            'orders' => $orders,
+            'only_debit' => $only_debit,
+            'only_pay' => $only_pay,
             
-            foreach ($orders as $order) {
-                $status_txt = 'Новый заказ, ожидание поставки';
-                $class = '';
-                if (strtotime($order['date_wait']) < time() && $order['confirm'] != 1){
-                    $status_txt = 'Пропущена поставка (дата поставки в прошлом и заказ не был принят)';
-                    $class = ' danger ';
-                }
-
-                if ($order['confirm'] != 1 && ($order['count_debit'] != $order['count_come'] || $order['sum_paid'] == 0) && $order['wh_id'] > 0 && $order['count_come'] > 0){
-                    $status_txt = 'Принят, но не приходован на склад';
-                    $class = ' info ';
-                }
-
-                if ($order['confirm'] == 1){
-                    $status_txt = 'Успешно обработан';
-                    $class = ' success ';
-                }
-
-                if ($order['avail'] == 0){
-                    $status_txt = 'Отменен';
-                    $class = ' red ';
-                }
-
-                $client_orders = $this->all_configs['db']->query('SELECT  wt.icon, wt.name AS wt_name, wg.color, wg.name AS wg_name '
-                        . 'FROM {orders_suppliers_clients} AS osc '
-                        . 'LEFT JOIN {orders} AS o ON osc.client_order_id=o.id '
-                        . 'LEFT JOIN {warehouses} AS w ON o.accept_wh_id=w.id '
-                        . 'LEFT JOIN {warehouses_types} AS wt ON wt.id=w.type '
-                        . 'LEFT JOIN {warehouses_groups} AS wg ON wg.id=w.group_id '
-                        . 'WHERE osc.supplier_order_id=?i GROUP BY w.group_id', array($order['id']))->assoc();
-                if ($client_orders){
-                    $icon = '';//print_r($client_orders, 1).' - ';
-                    foreach ($client_orders as $co) {
-                        $color = preg_match('/^#[a-f0-9]{6}$/i', trim($co['color'])) ? trim($co['color']) : '#000000';
-                        $icon .= '<i style="color:' . $color . ';" title="Принято в ' . htmlspecialchars($co['wg_name']) . '" class="' . htmlspecialchars($co['icon']) . '"></i>';
-                    }
-                } else {
-                    $icon = '';                    
-                }
-                
-                $print_btn = '';
-                $buttons = '<div class="btn-group"><a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="">';
-                $buttons .= '<span class="caret"></span></a><ul class="dropdown-menu pull-right">';
-                // редактировать
-                $buttons .= '<li>' . $this->supplier_order_number($order, '<i class="glyphicon glyphicon-pencil"></i> ' . l('Редактировать')) . '</li>';
-                // ремонты
-                if ($order['avail'] == 1) {
-                    $buttons .= '<li><a onclick="return alert_box(this, false, \'so-operations\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-random"></i> ' . l('Ремонты') . '</a></li>';
-                }
-                // отправить кладовщику и бухгалтеру
-                if ($order['confirm'] <> 1 && $order['avail'] == 1 && $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['count_come'] == 0 && $only_debit == false) {
-                    $buttons .= '<li><a onclick="return alert_box(this, false, \'form-accept-so\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-wrench"></i> Принять</a></li>';
-                }
-                // оплатить
-                if (/*$order['confirm'] <> 1 &&*/ $order['avail'] == 1 && $this->all_configs['oRole']->hasPrivilege('accounting') && $order['sum_paid'] == 0 && $order['count_come'] > 0 && $only_pay == true) {
-                    $buttons .= '<li><a onclick="return pay_supplier_order(this, 1, \'' . $order['id'] . '\')" data-o_id="" href=""><i class="glyphicon glyphicon-wrench"></i> Оплатить</a></li>';
-                }
-                // приходование
-                if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
-                    if ($order['confirm'] <> 1 && $order['avail'] == 1 && $order['count_debit'] != $order['count_come'] && $order['wh_id'] > 0 && $only_debit == true) {
-                        $buttons .= '<li><a onclick="return alert_box(this, false, \'form-debit-so\')" data-o_id="' . $order['id'] . '" href=""><i class="glyphicon glyphicon-wrench"></i> ' . l('Приходовать') . '</a></li>';
-                    }
-                    if (count($order['items']) > 0) {
-                        $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . implode(',', array_keys($order['items']));
-                        $print_btn = '<a target="_blank" title="Печать" href="' . $url . '"><i class="fa fa-print"></i></a>';
-                    }
-                }
-                if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/* $order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                    //$buttons .= '<li><a onclick="return close_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-remove"></i> Закрыть</a></li>';
-                    if ($order['unavailable'] == 0) {
-                        $buttons .= '<li><a onclick="return end_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-ban-circle"></i>' . l('Запчасть не доступна к заказу') . '</a></li>';
-                    }
-                }
-                // удаление
-                if ($order['confirm'] <> 1 && $order['avail'] == 1 && $order['count_come'] == 0 && ((/*$order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                    $buttons .= '<li><a onclick="return avail_supplier_order(this, \'' . $order['id'] . '\', 0)" data-o_id="" href=""><i class="glyphicon glyphicon-off"></i> Отменить</a></li>';
-                    //$buttons .= '<button title="Удалить" onclick="remove_supplier_order(this, \'' . $order['id'] . '\')" class="btn btn-mini" type="button"><i class="glyphicon glyphicon-remove"></i></button>';// btn-danger
-                }
-                $buttons .= '</ul></div>';
-
-                $edit_comment = '<i class="glyphicon glyphicon-pencil editable-click pull-right" data-placement="left" data-display="false" data-title="Редактировать комментарий" data-url="messages.php?act=edit-supplier-order-comment" data-pk="' . $order['id'] . '" data-type="textarea" data-value="' . htmlspecialchars($order['comment']) . '"></i>';
-
-                $goods_html .= '<tr title="'.$status_txt.'" class=" ' . $class . '" id="supplier-order_id-' . $order['id'] . '">
-                    <td>
-                        ' . show_marked($order['id'], 'so', $order['m_id']) . '
-                        '.show_marked($order['id'], 'woi', $order['mi_id']).'
-                    </td>
-                    <td><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></td>
-                    <td>' . $icon . get_user_name($order) . '</td>
-                    <td>' . $this->supplier_order_number($order) . '</td>
-                    <td>' . htmlspecialchars($order['stitle']) . '</td>
-                    <td><a class="hash_link" title="' . $order['secret_title'] . '" href="' . $this->all_configs['prefix'] . 'products/create/' . $order['goods_id'] . '">' . $order['goods_title'] . '</a></td>
-                    <td>' . $order['count'] . '</td>
-                    <td>' . show_price($order['price'], 2, ' ', ',') . '</td>
-                    <td>' . show_price($order['price'], 2, ' ', ',', 100, array(), $order['count']) . '</td>
-                    <td>' . show_price($order['sum_paid'], 2, ' ', ',') . '</td>
-                    <td><span title="' . do_nice_date($order['date_wait'], false) . '">' . do_nice_date($order['date_wait']) . '</span></td>
-                    <td><span title="' . do_nice_date($order['date_come'], false) . '">' . do_nice_date($order['date_come']) . '</span></td>
-                    <td>' . (($order['count_come'] > 0) ? get_user_name($order, 'accept_') : '' ) . '</td>
-                    <td>' . (($order['wh_id'] > 0) ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $order['wh_id'] . '#show_items">' . htmlspecialchars($order['wh_title']) . '</a>' : '') . '</td>
-                    <td>' . (($order['count_debit'] > 0) ? '<a href="' . $this->all_configs['prefix'] . 'warehouses?so_id=' . $order['id'] . '#show_items">' . $order['count_debit'] . '</a>' : $order['count_debit']) . ' ' . $print_btn . '</td>
-                    <td>' . $edit_comment . '<span id="supplier-order-comment-' . $order['id'] . '">' . cut_string($order['comment'], 50) . '</span></td>
-                    <td>' . $buttons . '</td></tr>';
-            }
-            $goods_html .= '</tbody></table>';
-        } else {
-            $goods_html .= '<p  class="text-danger">' . l('Нет заказов') . '</p>';
-        }
-
-        $goods_html .= $this->append_js();
-
-        return $goods_html;
+        ));
     }
 
+    /**
+     * @param      $so_id
+     * @param      $co_id
+     * @param null $last_so_supplier
+     * @return array
+     */
     function orders_link($so_id, $co_id, $last_so_supplier = null)
     {
         $data = array('state' => false, 'msg' => 'Заказ не найден', 'links' => array());
@@ -656,6 +569,9 @@ class Suppliers
         return $data;
     }
 
+    /**
+     * @param $order_id
+     */
     function operations($order_id)
     {
         $data = array();
@@ -687,7 +603,7 @@ class Suppliers
                             '.($co_id ? '
                                 <span class="input-group-addon">
                                     <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">' . l('перейти в заказ клиента') . '</a>
-                                </span>' 
+                                </span>'
                               : '').'
                         </div>
                     ';
@@ -702,11 +618,17 @@ class Suppliers
         exit;
     }
 
-    function append_js()
+    /**
+     * @return string
+     */
+    public function append_js()
     {
         return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/suppliers-orders.js?4'></script>";
     }
 
+    /**
+     * @param $product
+     */
     function exportProduct($product)
     {
 
@@ -805,6 +727,11 @@ class Suppliers
         fclose($f);
     }
 
+    /**
+     * @param      $wh_id
+     * @param null $location_id
+     * @return string
+     */
     public function gen_locations($wh_id, $location_id = null)
     {
         $out = '';
@@ -824,6 +751,14 @@ class Suppliers
         return $out;
     }
 
+    /**
+     * @param null $goods
+     * @param null $order_id
+     * @param bool $all
+     * @param int  $typeahead
+     * @param bool $is_modal
+     * @return string
+     */
     function create_order_block($goods = null, $order_id = null, $all = true, $typeahead = 0, $is_modal = false)
     {
         $new_device_form = '<div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>';
@@ -836,7 +771,7 @@ class Suppliers
         }
         $goods_html = '';
         if(isset($_SESSION['suppliers_edit_order_msg'])){
-            $goods_html .= 
+            $goods_html .=
                 '<div class="alert alert-success alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
@@ -1007,11 +942,11 @@ class Suppliers
             if ($goods) {
                 //$categories_html = $this->gen_categories_selector('5', $disabled);
                 $goods_html .= '<div class="form-group relative"'.($has_orders ? ' onclick="alert(\''.l('Данный заказ поставщику создан на основании заказа клиенту. Вы не можете изменить запчасть в данном заказе.').'\');return false;"' : '').'><label>' . l('Запчасть') . '<b class="text-danger">*</b>: </label>'
-                    .typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'], 
-                               (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, l('Введите'), 
-                               array('name' => l('Добавить'), 
-                                     'action' => 'products/ajax/?act=create_form', 
-                                     'form_id' => 'new_device_form'), $has_orders) 
+                    .typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'],
+                               (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, l('Введите'),
+                               array('name' => l('Добавить'),
+                                     'action' => 'products/ajax/?act=create_form',
+                                     'form_id' => 'new_device_form'), $has_orders)
                     .($is_modal ? $new_device_form : '') . '</div>';
             }
             $goods_html .= '<div class="form-group"><label for="warehouse_type">' . l('Тип поставки') . '<b class="text-danger">*</b>: </label>'
@@ -1051,6 +986,11 @@ class Suppliers
         return $goods_html;
     }
 
+    /**
+     * @param $order_id
+     * @param $type
+     * @return bool|void
+     */
     function exportSupplierOrder($order_id, $type)
     {
         if ($this->all_configs['configs']['onec-use'] == false)
@@ -1131,6 +1071,9 @@ class Suppliers
         fclose($f);
     }
 
+    /**
+     * @param $order
+     */
     function exportOrder($order) {
 
         if ($this->all_configs['configs']['onec-use'] == false)
@@ -1219,6 +1162,10 @@ class Suppliers
         fclose($f);
     }
 
+    /**
+     * @param $ar
+     * @return mixed
+     */
     function assocArrayToXML($ar)
     {
         $a ="КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"" . date('Y-m-d') . "\"";
@@ -1243,6 +1190,10 @@ class Suppliers
         return $xml->asXML();
     }
 
+    /**
+     * @param     $id
+     * @param int $type
+     */
     function buildESO($id, $type=1)
     {
         if ($this->all_configs['configs']['onec-use'] == false)
@@ -1276,6 +1227,11 @@ class Suppliers
         $this->exportSupplierOrder($id, $type);
     }
 
+    /**
+     * @param string $num
+     * @param string $disabled
+     * @return string
+     */
     function gen_categories_selector($num = '', $disabled = '')
     {
         $categories = $this->all_configs['db']->query('SELECT title,url,id FROM {categories} WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
@@ -1291,6 +1247,9 @@ class Suppliers
         return $categories_html;
     }
 
+    /**
+     *
+     */
     function avail_order()
     {
         // права
@@ -1372,6 +1331,9 @@ class Suppliers
         exit;
     }
 
+    /**
+     * @param $mod_id
+     */
     function remove_order($mod_id)
     {
         // права
@@ -1453,6 +1415,10 @@ class Suppliers
         exit;
     }
 
+    /**
+     * @param $mod_id
+     * @param $chains
+     */
     function accept_order($mod_id, $chains)
     {
         // права
@@ -1629,6 +1595,9 @@ class Suppliers
         exit;
     }
 
+    /**
+     * @param bool $show_debit_form_after
+     */
     function accept_form($show_debit_form_after = false)
     {
         $data = array();
@@ -1680,7 +1649,7 @@ class Suppliers
         if($show_debit_form_after){
             $callback = ',(form_debit=function(_this){alert_box(_this,false,\'form-debit-so\',{object_id:'.$order_id.'},null,\'warehouses/ajax/\')})';
         }
-        $data['btns'] = 
+        $data['btns'] =
             '<input class="btn btn-success" onclick="accept_supplier_order(this'.$callback.')" type="button" value="Принять" />';
         $data['functions'] = array('reset_multiselect()');
 
@@ -1689,6 +1658,11 @@ class Suppliers
         exit;
     }
 
+    /**
+     * @param      $order_id
+     * @param bool $forcibly
+     * @return array
+     */
     function end_order($order_id, $forcibly = false)
     {
         $data = array('state' => true, 'msg' => 'Успешно закрыт');
@@ -1737,6 +1711,11 @@ class Suppliers
         return $data;
     }
 
+    /**
+     * @param      $order_id
+     * @param bool $forcibly
+     * @return array
+     */
     function close_order($order_id, $forcibly = false)
     {
         $data = array('state' => true, 'msg' => 'Успешно закрыт');
@@ -1805,6 +1784,10 @@ class Suppliers
         return $data;
     }
 
+    /**
+     * @param $post
+     * @param $mod_id
+     */
     function debit_order($post, $mod_id)
     {
         if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') && $this->all_configs['configs']['erp-use'] == false) {
@@ -2108,6 +2091,12 @@ class Suppliers
         exit;*/
     }
 
+    /**
+     * @param      $order
+     * @param null $serial
+     * @param      $mod_id
+     * @return mixed
+     */
     function add_item($order, $serial = null, $mod_id)
     {
         $item_id = $this->all_configs['db']->query('INSERT IGNORE INTO {warehouses_goods_items}
@@ -2218,6 +2207,12 @@ class Suppliers
 
     }*/
 
+    /**
+     * @param      $order
+     * @param null $title
+     * @param bool $link
+     * @return null|string
+     */
     function supplier_order_number ($order, $title = null, $link = true)
     {
         if (!array_key_exists('parent_id', $order) || !array_key_exists('number', $order) || !array_key_exists('num', $order)) {
@@ -2308,6 +2303,16 @@ class Suppliers
         }
     }
 
+    /**
+     * @param       $currencies
+     * @param bool  $by_day
+     * @param null  $limit
+     * @param bool  $contractors
+     * @param array $filters
+     * @param bool  $show_balace
+     * @param bool  $return_array
+     * @return array|string
+     */
     function get_transactions($currencies, $by_day = false, $limit = null, $contractors = false, $filters = array(), $show_balace = true, $return_array = false)
     {
         $result = array();
@@ -2576,6 +2581,14 @@ class Suppliers
         return $this->show_transactions($result, $currencies, $contractors , $by_day, $query_balance, $show_balace, $return_array);
     }
 
+    /**
+     * @param      $query_balance
+     * @param      $contractors
+     * @param      $currencies
+     * @param null $balance
+     * @param bool $by_day
+     * @return string
+     */
     function balance($query_balance, $contractors, $currencies, $balance = null, $by_day = false)
     {
         // достаем суммы транзакций по валютам
@@ -2647,6 +2660,16 @@ class Suppliers
         return $balance_html;
     }
 
+    /**
+     * @param $transactions
+     * @param $currencies
+     * @param $contractors
+     * @param $by_day
+     * @param $query_balance
+     * @param $show_balace
+     * @param $return_array
+     * @return array|string
+     */
     function show_transactions($transactions, $currencies, $contractors, $by_day, $query_balance, $show_balace, $return_array)
     {
         $out = '';
@@ -3182,7 +3205,28 @@ class Suppliers
         return $out;
     }
 
-
+    /**
+     * @param $order
+     * @return string
+     */
+    public function getClientIcons($order)
+    {
+        $client_orders = $this->all_configs['db']->query('SELECT  wt.icon, wt.name AS wt_name, wg.color, wg.name AS wg_name '
+            . 'FROM {orders_suppliers_clients} AS osc '
+            . 'LEFT JOIN {orders} AS o ON osc.client_order_id=o.id '
+            . 'LEFT JOIN {warehouses} AS w ON o.accept_wh_id=w.id '
+            . 'LEFT JOIN {warehouses_types} AS wt ON wt.id=w.type '
+            . 'LEFT JOIN {warehouses_groups} AS wg ON wg.id=w.group_id '
+            . 'WHERE osc.supplier_order_id=?i GROUP BY w.group_id', array($order['id']))->assoc();
+        $icon = '';
+        if ($client_orders) {
+            foreach ($client_orders as $co) {
+                $color = preg_match('/^#[a-f0-9]{6}$/i', trim($co['color'])) ? trim($co['color']) : '#000000';
+                $icon .= '<i style="color:' . $color . ';" title="Принято в ' . htmlspecialchars($co['wg_name']) . '" class="' . htmlspecialchars($co['icon']) . '"></i>';
+            }
+        }
+        return $icon;
+    }
 }
 
 
