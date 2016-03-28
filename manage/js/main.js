@@ -444,6 +444,9 @@ $(document).ready(function () {
                          window[call_function](_this.$element, item.id, item.original);
                     }
                 }
+                if(item.original['tag_id']) {
+                    $('span.tag').html(item.original['t_title']).css('background-color', item.original['t_color']);
+                }
                 var return_value = '';
                 $('.typeahead-double[data-id="'+id+'"]').each(function(){
                     var field = $(this).data('field');

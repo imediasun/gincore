@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../manage/FlashMessage.php';
+
 class access
 {
     public $remTime = 7776000; // 90 days
@@ -511,6 +513,11 @@ class access
             $result['state'] = false;
             $result['msg'] = 'Клиент не найден.';
         }
+        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id = ?i', array($post['id']))->assoc();
+        if (empty($client)) {
+            $result['state'] = false;
+            $result['msg'] = 'Клиент не найден.';
+        }
         if ($result['state'] == true && $email === false) {
             $result['state'] = false;
             $result['msg'] = 'Электронная почта указана неверно.';
@@ -523,16 +530,21 @@ class access
             $result['state'] = false;
             $result['msg'] = 'Укажите телефон или эл.почту.';
         }
-        $fio = isset($post['fio']) ? trim($post['fio']) : '';
-        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : '';
-        $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
-
+        $fio = isset($post['fio']) ? trim($post['fio']) : $client[0]['fio'];
+        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : $client[0]['legal_address'];
+        $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : $client[0]['contractor_id'];
+        $tag_id = isset($post['tag_id']) ? $post['tag_id'] : $client[0]['tag_id'];
+        $tagQuery = $this->all_configs['db']->makeQuery('tag_id = ?i,', array($tag_id));
+        if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
+            $tagQuery = '';
+            FlashMessage::set(l('У вас нет прав на добавление клиента в черный список'), FlashMessage::DANGER);
+        }
         if ($result['state'] == true) {
             $this->update_phones($post['phone'], $post['id']);
             $this->update_email($post['email'], $post['id']);
 
-            $this->all_configs['db']->query('UPDATE {clients} SET fio=?, legal_address=?, contractor_id=?i WHERE id=?i',
-                array($fio, $legal_address, $contractor_id, $post['id']));
+            $this->all_configs['db']->query('UPDATE {clients} SET fio=?, legal_address=?, ?q contractor_id=?i WHERE id=?i',
+                array($fio, $legal_address, $tagQuery, $contractor_id, $post['id']));
         }
 
         return $result;
@@ -558,36 +570,14 @@ class access
             $result['state'] = false;
             $result['msg'] = 'Укажите телефон или эл.почту.';
         }
-        //$email = (isset($post['email']) && mb_strlen(trim($post['email']), 'UTF-8') > 0 && filter_var($post['email'], FILTER_VALIDATE_EMAIL)) ? trim($post['email']) : null;
         $pass = isset($post['password']) ? trim($post['password']) : null;
         $rpass = isset($post['rpass']) ? trim($post['rpassword']) : $pass;
+        $tag_id = isset($post['tag_id']) ? (int)$post['tag_id'] : 0;
 
         $person = (!isset($post['person']) || $post['person'] == 'true') ? 1 : 2;
         $fio = isset($post['fio']) ? trim($post['fio']) : null;
         $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
-        /*$institution = isset($post['institution']) ? trim($post['institution']) : null;
-        $birthday = isset($post['birthday']) ? trim($post['birthday']) : null;
-        $job = isset($post['job']) ? trim($post['job']) : null;
-        $identification_code = isset($post['identification_code']) ? trim($this->urlsafe_b64encode($post['identification_code'])) : null;
-        $works_phone = isset($post['works_phone']) ? trim($post['works_phone']) : null;
-        $passport = isset($post['passport']) ? trim($this->urlsafe_b64encode($post['passport'])) : null;
-        $issued_passport = isset($post['issued_passport']) ? trim($this->urlsafe_b64encode($post['issued_passport'])) : null;
-        $position = isset($post['position']) ? trim($post['position']) : null;
-        $when_passport_issued = isset($post['when_passport_issued']) ? trim($this->urlsafe_b64encode($post['when_passport_issued'])) : null;
-        $relationship = isset($post['relationship']) ? trim($post['relationship']) : null;
-        $registered_address = isset($post['registered_address']) ? trim($this->urlsafe_b64encode($post['registered_address'])) : null;
-        $childrens = isset($post['childrens']) ? trim($post['childrens']) : null;
-        $childrens_age = isset($post['childrens_age']) ? trim($post['childrens_age']) : null;
-        $ind = isset($post['ind']) ? trim($post['ind']) : null;
-        $counts_people_apartment = isset($post['counts_people_apartment']) ? trim($post['counts_people_apartment']) : null;
-        $education = isset($post['education']) ? trim($post['education']) : null;
-        $payment = isset($post['payment']) ? trim($post['payment']) : null;
-        $shipping = isset($post['shipping']) ? trim($post['shipping']) : null;
-        $company_name = isset($post['company_name']) ? trim($post['company_name']) : null;
-        $inn = isset($post['inn']) ? trim($post['inn']) : null;
-        $kpp = isset($post['kpp']) ? trim($post['kpp']) : null;
-        $fax = isset($post['fax']) ? trim($post['fax']) : null;
-        $mobile = isset($post['mobile']) ? trim($post['mobile']) : null;*/
+
         $address = isset($post['legal_address']) ? trim($post['legal_address']) : null;
 
         if ($result['state'] == true && $pass != $rpass) {
@@ -651,20 +641,14 @@ class access
 
         if ($result['state'] == true) {
             try {
+                if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
+                    $tag_id = 0;
+                    FlashMessage::set(l('У вас нет прав на добавление клиента в черный список'), FlashMessage::DANGER);
+                }
                 $result['id'] = $this->all_configs['db']->query('INSERT INTO {clients}
-                    (`email`, legal_address, `confirm`, `pass`, `fio`, `person`, contractor_id) 
-                    VALUES (?n, ?n, ?n, ?, ?, ?, ?i)',
-                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $contractor_id), 'id');
-                /*$result['id'] = $this->all_configs['db']->query('
-                    INSERT INTO {clients} (`email`, `confirm`, `pass`, `fio`, `institution`, `birthday`, `job`, `identification_code`,
-                        `works_phone`, `passport`, `issued_passport`, `position`, `when_passport_issued`, `relationship`, `registered_address`,
-                        `childrens`, `childrens_age`, `ind`, `counts_people_apartment`, `education`, `mobile`, `payment`, `shipping`,
-                        `company_name`, `inn`, `kpp`, `fax`, `legal_address`, `person`)
-                    VALUES (?n, ?n, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    array($email, $confirm, sha1($pass), $fio, $institution, $birthday, $job, $identification_code,
-                        $works_phone, $passport, $issued_passport, $position, $when_passport_issued, $relationship, $registered_address,
-                        $childrens, $childrens_age, $ind, $counts_people_apartment, $education, $mobile, $payment, $shipping,
-                        $company_name, $inn, $kpp, $fax, $legal_address, $person), 'id');*/
+                    (`email`, legal_address, `confirm`, `pass`, `fio`, `person`, tag_id, contractor_id)
+                    VALUES (?n, ?n, ?n, ?, ?, ?, ?i, ?i)',
+                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tag_id, $contractor_id), 'id');
 
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';

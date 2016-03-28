@@ -162,3 +162,7 @@ div.transaction_div i.icon-plus:hover {
 #transaction_form_body.transaction_type-3.hide-conversion-3 .hide-conversion > span {
     display: none;
 }
+.multiselect-float-right .multiselect-btn-group {
+    float: right;
+    min-width: 185px;
+}

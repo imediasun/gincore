@@ -36,7 +36,7 @@
         <?php endif; ?>
         <hr/>
         <h4><?= l('Работы') ?></h4>
-        <table class="<?= (!$services ? 'hidden ' : '')?> table parts-table">
+        <table class="<?= (!$services ? 'hidden ' : '') ?> table parts-table">
             <thead>
             <tr>
                 <td><?= l('Наименование') ?></td>
@@ -67,5 +67,18 @@
                 )) ?>
         </div>
         <div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form"></div>
+        <hr/>
+        <div class="checkbox text-right">
+            <span style="display: inline-block"><?= l('Итого') ?>:</span>
+            <span class='total-sum' style="display: inline-block;"> <?= (int) $total/100 ?></span>
+            <span style="display: inline-block; margin-right: 20px"><?= viewCurrency() ?></span>
+            <label class="tooltips" data-toggle="tooltip" data-placement="bottom"
+                title="<?= l('Автоматически дублировать Итого в стоимость ремонта') ?>" >
+                <input class='total-sum' type="hidden" value="<?= (int) $total/100 ?>"/>
+                <input id='total-sum-checkbox' type="checkbox" <?= ($totalChecked) ? 'checked' : '' ?>
+                       onclick="set_total_as_sum(this, <?= $orderId ?>);" />
+                <?= l('"Итого" = "стоимость ремонта"') ?>
+            </label>
+        </div>
     <?php endif; ?>
 </div>

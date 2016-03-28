@@ -1,7 +1,12 @@
 <script>
-
-    $(function() {
+    $(function () {
         $(".test-toggle").bootstrapSwitch();
+        $('.cashless-toggle').bootstrapSwitch({
+            onText: '<?= l('Безнал'); ?>',
+            offText: '<?= l('Нал'); ?>',
+            labelWidth: 0,
+            size: 'normal'
+        });
     });
 </script>
 <ul class="nav nav-tabs default_tabs" role="tablist">
@@ -29,15 +34,22 @@
                     <div class="col-sm-6 js-fields">
                         <fieldset>
                             <div class="order_id_input">
-                                <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>" type="text"
+                                <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>"
+                                       type="text"
                                        class="form-control" name="id">
                             </div>
                             <legend><?= l('Клиент') ?></legend>
                             <div class="form-group <?= isset($hide['client-data']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
                                 <div class="row row-15">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4" style="padding-right:0px">
                                         <?= $client['phone'] ?>
+                                    </div>
+                                    <div class="col-sm-2" style="line-height: 34px; ">
+                                        <span class="tag"
+                                              style="background-color: <?= !empty($tag) ? $tag['color'] : $tags[$client['tag_id']]['color'] ?>">
+                                            <?= htmlspecialchars(!empty($tag) ? $tag['title'] : $tags[$client['tag_id']]['title']) ?>
+                                        </span>
                                     </div>
                                     <div class="col-sm-6">
                                         <?= $client['fio'] ?>
@@ -85,7 +97,7 @@
                             <div class="form-group <?= isset($hide['device']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Выберите устройство') ?> <b
                                         class="text-danger">*</b>: </label>
-                                <?= typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ?
+                                <?= typeahead($this->all_configs['db'], 'categories-last', false, (!empty($order_data) ?
                                     $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
                                     'display_service_information,get_requests', false, false, '', false, l('Введите'),
                                     array(
@@ -134,7 +146,8 @@
                                     <input type="radio" value="2" name="repair"/><?= l('Доработка') ?>
                                 </label>
                             </div>
-                            <div class="form-group <?= isset($hide['defect']) && isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
+                            <div
+                                class="form-group <?= isset($hide['defect']) && isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
                                 <label><?= l('Неисправность со слов клиента') ?>: </label>
                                 <div class="row row-15 form-group <?= isset($hide['defect']) ? 'hide-field' : '' ?>">
                                     <div class="col-sm-6">
@@ -152,7 +165,9 @@
                                         </select>
                                     </div>
                                 </div>
-                                <textarea class="form-control <?= isset($hide['defect-description']) ? 'hide-field' : '' ?>" name="defect"></textarea>
+                                <textarea
+                                    class="form-control <?= isset($hide['defect-description']) ? 'hide-field' : '' ?>"
+                                    name="defect"></textarea>
                             </div>
                             <div class="form-group <?= isset($hide['appearance']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Внешний вид') ?>: </label>
@@ -163,10 +178,23 @@
                         <fieldset>
                             <legend><?= l('Стоимость') ?></legend>
                             <div class="form-group <?= isset($hide['cost']) ? 'hide-field' : '' ?>">
-                                <label><?= l('Ориентировочная стоимость') ?>: </label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" value="" name="approximate_cost"/>
-                                    <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                <label class="col-sm-12"
+                                       style="padding-left: 0px; padding-right: 0px"><?= l('Ориентировочная стоимость') ?>
+                                    : </label>
+                                <div class="row-fluid">
+                                    <div class="col-sm-9" style="padding-left: 0px;">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" value="" name="approximate_cost"/>
+                                            <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="input-group"
+                                             title="<?= l('Отфильтровать все безналичные счета для сверки Вы можете в разделе: Бухгалтерия-Заказы-Заказы клиентов') ?>">
+                                            <input type="checkbox" name="cashless" class="cashless-toggle">
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="form-group <?= isset($hide['prepaid']) ? 'hide-field' : '' ?>">
@@ -253,6 +281,37 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group col-sm-12" style="padding-left:0">
+                                <div class="btn-group dropup col-6 js-request">
+                                    <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button"
+                                           onclick="add_new_order(this,'','create_order')"
+                                           value="<?= l('Добавить') ?>"/>
+                                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="#" onclick="add_new_order(this, 'print'); return false;">
+                                                <?= l('Добавить и распечатать квитанцию') ?>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="add_new_order(this, 'new_order'); return false;">
+                                                <?= l('Добавить и принять еще одно устройство от этого клиента') ?>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#"
+                                               onclick="add_new_order(this, 'print_and_new_order'); return false;">
+                                                <?= l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') ?>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </fieldset>
                     </div>
                     <div class="col-sm-6 js-requests relative">
@@ -274,40 +333,7 @@
                 </form>
             </div>
         </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-1 js-hide-fields" style="display:none; min-width: 110px"">
-                    <button id='apply-hide' type="submit" class="btn btn-primary" onclick="apply_hide(this)"><?= l('Применить') ?></button>
-                </div>
-                <div class="btn-group dropup col-sm-6 js-fields">
-                    <input id="add-client-order" class="btn btn-primary submit-from-btn" type="button"
-                           onclick="add_new_order(this,'','create_order')" value="<?= l('Добавить') ?>"/>
-                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" onclick="add_new_order(this, 'print'); return false;">
-                                <?= l('Добавить и распечатать квитанцию') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="add_new_order(this, 'new_order'); return false;">
-                                <?= l('Добавить и принять еще одно устройство от этого клиента') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="add_new_order(this, 'print_and_new_order'); return false;">
-                                <?= l('Добавить, распечатать квитанцию и принять еще одно устройство от этого клиента') ?>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+
     </div>
     <div class="tab-pane" id="sale">
         <?= $orderForSaleForm ?>

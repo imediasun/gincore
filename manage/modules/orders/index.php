@@ -543,53 +543,9 @@ class orders
      */
     function gencontent()
     {
-        $orders_html = '';
-
-        $orders_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
-        if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_show_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'<span class="tab_count hide tc_clients_orders"></span></a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_show_suppliers_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'<span class="tab_count hide tc_suppliers_orders"></span></a></li>';
-            $orders_html .= '<li><a class="click_tab" data-open_tab="orders_create_supplier_order" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'</a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<li><a class="click_tab default" data-open_tab="orders_manager" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a></li>';
-        }
-
-        $orders_html .= '</ul><div class="tab-content">';
-
-        // вывод заказов
-        if ($this->all_configs['oRole']->hasPrivilege('show-clients-orders')) {
-            $orders_html .= '<div id="show_orders" class="tab-pane clearfix"></div>';
-        }
-        // создать заказ клиента
-        if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            $orders_html .= '<div id="create_order" class="tab-pane clearfix">';
-            $orders_html .= '</div>';
-        }
-        // менеджер заказов
-        if ($this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            $orders_html .= '<div id="orders_manager" class="tab-pane clearfix">';
-            $orders_html .= '</div>';
-        }
-        // заказ поставщику
-        if ( $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') ) {
-            $orders_html .= '<div id="show_suppliers_orders" class="tab-pane clearfix"></div>';
-
-            $orders_html .= '<div id="create_supplier_order" class="tab-pane clearfix">';
-            $orders_html .= '</div>';
-        }
-
-        $orders_html .= '</div></div>';//?
-
-//        $orders_html .= $this->all_configs['chains']->append_js();
-        $orders_html .= $this->all_configs['suppliers_orders']->append_js();
-
-        return $orders_html;
+        return $this->view->renderFile('orders/gencontent', array(
+            'mod_submenu' => $this->mod_submenu
+        ));
     }
 
     /**
@@ -848,7 +804,6 @@ class orders
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
 
-
             $client_id = $order_data ? $order_data['client_id'] : 0;
             if (!$client_id) {
                 $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
@@ -860,10 +815,11 @@ class orders
                     'colors' => $this->all_configs['configs']['devices-colors']
                 )),
                 'order' => $order_data,
-                'orderForSaleForm' => $this->order_for_sale_form(),
-                'hide' => $this->getHideFieldsConfig()
+                'orderForSaleForm' => $this->order_for_sale_form($client_id),
+                'hide' => $this->getHideFieldsConfig(),
+                'tag' => $this->getTag($client_id),
+                'order_data' => $order_data
             ));
-
         }
 
         return array(
@@ -873,17 +829,19 @@ class orders
     }
 
     /**
+     * @param null $clientId
      * @return string
-     * @throws Exception
      */
-    function order_for_sale_form()
+    function order_for_sale_form($clientId = null)
     {
         $order_data = null;
         $client_fields_for_sale = client_double_typeahead();
         return $this->view->renderFile('orders/order_for_sale_form', array(
             'client' => $client_fields_for_sale,
             'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
-                $this->all_configs['settings']['order_warranties']) : array()
+                $this->all_configs['settings']['order_warranties']) : array(),
+            'tags' => $this->getTags(),
+            'tag' => empty($clientId)? array():$this->getTag($clientId),
         ));
     }
 
@@ -1894,6 +1852,30 @@ class orders
     }
 
     /**
+     * @param $order
+     * @return int
+     */
+    protected function getTotalSum($order)
+    {
+        $notSale = $order['type'] != 3;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+
+        $productTotal = 0;
+        if(!empty($goods)) {
+            foreach ($goods as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        if(!empty($services)) {
+            foreach ($services as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        return $productTotal;
+    }
+
+    /**
      * @param null $order_id
      * @return string
      * @throws Exception
@@ -1905,8 +1887,9 @@ class orders
         // достаем заказ с прикрепленными к нему товарами
         $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
-                a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title
+                a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title, c.tag_id as tag_id
                 FROM {orders} as o
+                LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users} as u ON u.id=o.manager
                 LEFT JOIN {users} as a ON a.id=o.accepter
                 LEFT JOIN {warehouses} as w ON o.wh_id=w.id
@@ -1983,8 +1966,18 @@ class orders
             'comments_private' => $comments_private,
             'productTotal' => $productTotal,
             'parts' => $parts,
-            'hide' => $this->getHideFieldsConfig()
+            'hide' => $this->getHideFieldsConfig(),
+            'tags' => $this->getTags()
         ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getTags()
+    {
+        return $this->all_configs['db']->query('SELECT color, title, id FROM {tags} ORDER BY title',
+            array())->assoc('id');
     }
 
     /**
@@ -2308,6 +2301,24 @@ class orders
                     $this->all_configs['db']->query('UPDATE {orders_goods} SET price=? WHERE id=?i',
                         array($_POST['price'] * 100, $_POST['id']));
                     $data['state'] = true;
+
+                    $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
+                        array($_POST['id']))->row();
+                    if ($order['total_as_sum']) {
+                        $sum = $this->getTotalSum($order);
+                        if ($sum != $order['sum']) {
+                            $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
+                                array($sum, $order['id']))->ar();
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
+                                array(
+                                    $user_id,
+                                    'update-order-sum',
+                                    $mod_id,
+                                    $order['id'],
+                                    ($sum / 100)
+                                ));
+                        }
+                    }
                 } else {
                     $data['msg'] = l('Укажите новую цену');
                 }
@@ -2322,6 +2333,33 @@ class orders
             $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
             if ($data['state'] == true && $data['id'] > 0) {
                 $data['hash'] = '#show_suppliers_orders';
+            }
+        }
+
+        if ($act == 'set-total-as-sum') {
+            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?',
+                array($_POST['id']))->row();
+            if (!empty($order)) {
+                $set = $_POST['total_set'] == 'true';
+                $sum = $set ? $this->getTotalSum($order) : $order['sum'];
+                $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
+                    array((int)$set, $sum, $_POST['id']))->ar();
+                if ($sum != $order['sum']) {
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
+                        array(
+                            $user_id,
+                            'update-order-sum',
+                            $mod_id,
+                            $_POST['id'],
+                            ($sum / 100)
+                        ));
+                }
+                $data = array(
+                    'state' => $ar > 0,
+                    'set' => $set
+                );
+            } else {
+                $data = array('state' => false);
             }
         }
 
@@ -2514,7 +2552,11 @@ class orders
                 }
                 $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
                 $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
-                $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
+                if ($order['total_as_sum']) {
+                    $order['sum'] = $this->gettotalsum($order);
+                } else {
+                    $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
+                }
                 $order['notify'] = isset($_POST['notify']) ? 1 : 0;
                 $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
                 $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
@@ -2965,5 +3007,16 @@ class orders
     {
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
         return empty($current[0]) ? array() : json_decode($current[0]['value'], true);
+    }
+
+    /**
+     * @param $client_id
+     * @return mixed
+     */
+    private function getTag($client_id)
+    {
+        return $this->all_configs['db']->query('SELECT t.color, t.title, t.id FROM {clients} c'
+            .' JOIN {tags} t ON t.id = c.tag_id'
+            .' WHERE c.id = ?i', array($client_id))->row();
     }
 }

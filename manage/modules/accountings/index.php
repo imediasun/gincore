@@ -208,6 +208,14 @@ class accountings
                 $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
             }
 
+            if (isset($post['cashless']) && is_numeric($post['cashless'])) {
+                if (!empty($url)) {
+                    $url .= '&';
+                }
+                $url .= 'cashless=' . intval($post['cashless']);
+            }
+
+
             if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям товаров
                 if (!empty($url))
@@ -3384,32 +3392,14 @@ class accountings
      * @param string $hash
      * @return array
      */
-    function accountings_orders($hash = '#a_orders-clients')
+    public function accountings_orders($hash = '#a_orders-clients')
     {
-        if (trim($hash) == '#a_orders' || (trim($hash) != '#a_orders-clients' && trim($hash) != '#a_orders-suppliers'))
+        if (trim($hash) == '#a_orders' || (trim($hash) != '#a_orders-clients' && trim($hash) != '#a_orders-suppliers')) {
             $hash = '#a_orders-clients';
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out = '<ul class="list-unstyled inline clearfix">';
-            $out .= '<li><a class="click_tab btn btn-info" onclick="click_tab(this, event)" data-open_tab="accountings_orders_clients"';
-            $out .= ' href="#a_orders-clients" title="' . l('Заказы клиентов') . '">' . l('Клиентов') . '<span class="tab_count hide tc_accountings_clients_orders"></span></a></li>';
-            $out .= '<li><a class="click_tab btn btn-warning" onclick="click_tab(this, event)" data-open_tab="accountings_orders_suppliers"';
-            $out .= ' href="#a_orders-suppliers" title="' . l('Заказы поставщику') . '">' . l('Поставщику') . '<span class="tab_count hide tc_accountings_suppliers_orders"></span></a></li>';
-            $out .= '<li class=""><button data-toggle="filters" type="button" class="toggle-hidden btn btn-default"><i class="fa fa-filter"></i> ' . l('Фильтровать') . ' <i class="fa fa-caret-down"></i></button></li></ul>';
-            $out .= '<div class="clearfix hidden theme_bg p-sm m-b-md" id="filters"><div id="a_orders-menu"></div></div>';
-            $out .= '<div class="pill-content">';
-
-            $out .= '<div id="a_orders-suppliers" class="pill-pane">';
-            $out .= '</div><!--#a_orders-suppliers-->';
-
-            $out .= '<div id="a_orders-clients" class="pill-pane">';
-
-            $out .= '</div><!--#a_orders-clients--></div><!--.pill-content-->';
         }
 
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_orders'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -3505,10 +3495,9 @@ class accountings
     /**
      * @return array
      */
-    function accountings_orders_clients()
+    public function accountings_orders_clients()
     {
         $out = '';
-
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
                 . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
@@ -3521,63 +3510,11 @@ class accountings
             $chains = array();
             $_chains = null;
             $query = $this->all_configs['manageModel']->global_filters($_GET,
-                array('date', 'category', 'product', 'operators', 'client', 'client_orders_id'));
+                array('date', 'category', 'product', 'operators', 'client', 'client_orders_id', 'cashless'));
 
             $count_on_page = $this->count_on_page;
             $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
 
-            /*$chains_ids = $this->all_configs['db']->query('SELECT DISTINCT o.id
-                    FROM {orders} as o
-                    LEFT JOIN {orders_goods} as og ON og.order_id=o.id
-                    LEFT JOIN {goods} as g ON og.goods_id=g.id
-                    LEFT JOIN {category_goods} as cg ON cg.goods_id=g.id
-                    LEFT JOIN {chains_headers} as h ON h.goods_id=g.id AND h.order_id=o.id AND o.id=h.order_id AND og.order_id=h.order_id AND og.id=h.order_goods_id
-                    LEFT JOIN {chains_bodies} as b ON h.id=b.chain_id
-                    LEFT JOIN {clients} as c ON c.id=o.user_id
-                    LEFT JOIN {users} as u ON u.id=h.user_id
-                    WHERE o.id > 0 AND h.id > 0 AND b.id > 0 AND IF(h.return=0, b.type=?i, b.type=?i) ?query
-                    ORDER BY b.date_add DESC LIMIT ?i, ?i',
-                array($this->all_configs['chains']->chain_accounting_from,
-                    $this->all_configs['chains']->chain_accounting_to, $query, $skip, $count_on_page))->vars();
-
-            if ($chains_ids) {
-                $_chains = $this->all_configs['db']->query('SELECT og.title as g_title, h.id as h_id, h.goods_id, h.order_id,
-                      h.paid, og.price, og.warranties_cost, o.course_value, b.user_id_issued, b.id as b_id, o.delivery_cost,
-                      b.date_accept, o.delivery_paid, o.payment_cost, o.payment_paid, c.contractor_id, h.return,
-                      b.date_add, u.login as u_login, u.email as u_email, u.fio as u_fio, o.fio, o.phone, o.email
-                    FROM {orders} as o
-                    LEFT JOIN {orders_goods} as og ON og.order_id=o.id
-                    LEFT JOIN {goods} as g ON og.goods_id=g.id
-                    #LEFT JOIN {category_goods} as cg ON cg.goods_id=g.id
-                    LEFT JOIN {chains_headers} as h ON h.goods_id=g.id AND h.order_id=o.id AND o.id=h.order_id AND og.order_id=h.order_id AND og.id=h.order_goods_id
-                    LEFT JOIN {chains_bodies} as b ON h.id=b.chain_id
-                    LEFT JOIN {clients} as c ON c.id=o.user_id
-                    LEFT JOIN {users} as u ON u.id=h.user_id
-                    WHERE o.id > 0 AND h.id > 0 AND b.id > 0 AND IF(h.return=0, b.type=?i, b.type=?i) AND o.id IN (?li)
-                    ORDER BY Field(o.id, ?li)',
-                    array($this->all_configs['chains']->chain_accounting_from,
-                        $this->all_configs['chains']->chain_accounting_to,
-                        array_keys($chains_ids), array_keys($chains_ids)))->assoc();
-
-                $count = $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id)
-                    FROM {orders} as o
-                    LEFT JOIN {orders_goods} as og ON og.order_id=o.id
-                    LEFT JOIN {goods} as g ON og.goods_id=g.id
-                    LEFT JOIN {category_goods} as cg ON cg.goods_id=g.id
-                    LEFT JOIN {chains_headers} as h ON h.goods_id=g.id AND h.order_id=o.id AND o.id=h.order_id AND og.order_id=h.order_id AND og.id=h.order_goods_id
-                    LEFT JOIN {chains_bodies} as b ON h.id=b.chain_id
-                    LEFT JOIN {clients} as c ON c.id=o.user_id
-                    LEFT JOIN {users} as u ON u.id=h.user_id
-                    WHERE o.id > 0 AND h.id > 0 AND b.id > 0 AND IF(h.return=0, b.type=?i, b.type=?i) ?query',
-                    array($this->all_configs['chains']->chain_accounting_from,
-                        $this->all_configs['chains']->chain_accounting_to, $query))->el();
-            }
-
-            if ($_chains) {
-                foreach ($_chains as $_chain) {
-                    $chains[$_chain['order_id']][$_chain['h_id']] = $_chain;
-                }
-            }*/
 
             $count = $this->all_configs['manageModel']->get_count_accounting_clients_orders($query);
             $orders = $this->all_configs['db']->query('SELECT o.id, o.course_value, o.sum, o.sum_paid, o.fio,
@@ -3588,6 +3525,7 @@ class accountings
                     LEFT JOIN {users} as a ON a.id=o.accepter
                     WHERE 1=1 ?query GROUP BY o.id ORDER BY o.date_add DESC LIMIT ?i, ?i',
                 array($query, $skip, $count_on_page))->assoc('id');
+            $count_page = ceil($count / $count_on_page);
 
             if ($orders) {
                 $goods = $this->all_configs['db']->query('SELECT og.title, og.goods_id, og.order_id, og.date_add
@@ -3598,89 +3536,14 @@ class accountings
                 foreach ($goods as $product) {
                     $orders[$product['order_id']]['goods'][$product['goods_id']] = $product;
                 }
-
-                $out .= '<table class="table table-bordered table-medium"><thead><tr><td></td><td>' . l('Наименование') . '</td><td>' . l('ФИО клиента') . '</td><td>' . l('Кто запросил') . '</td><td>' . l('Дата запроса') . '</td>';
-                $out .= '<td>' . l('Заказ') . '</td><td>' . l('Оплата') . '</td><td>' . l('Оплачено') . '</td><td>' . l('Управление') . '</td></tr></thead><tbody>';//<td>Дата оплаты</td>
-                $i = 1;
-                foreach($orders as $order) {
-                    $out .= '<tr class=""><td>' . $i++ . '</td><td>';
-                    if (isset($order['goods']) && count($order['goods']) > 0) {
-                        foreach ($order['goods'] as $product) {
-                            $href = $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'];
-                            $out .= '<a href="' . $href . '">' . htmlspecialchars($product['title']) . '</a><br />';
-                        }
-                    }
-                    $out .= '</td><td>' . get_user_name($order) . '</td>';
-                    $out .= '<td>' . get_user_name($order) . '</td>';
-                    $out .= '<td><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></td>';
-                    //$out .= '<td><span title="' . do_nice_date($order['date_pay'], false) . '">' . do_nice_date($order['date_pay']) . '</span></td>';
-                    $href = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
-                    $out .= '<td><a href="' . $href . '">№' . $order['id'] . '</a></td>';
-                    if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
-                        $out .= '<td>' . show_price($order['prepay']) . '</td>';
-                        $out .= '<td>' . show_price($order['sum_paid']) . '</td><td>';
-                    } else {
-                        $out .= '<td>' . show_price($order['sum']) . '</td>';
-                        $out .= '<td>' . show_price($order['sum_paid']) . '</td><td>';
-                    }
-
-                    if (intval($order['sum']) < intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 1, ' . $order['id'] . ')';
-                        $out .= '<input type="button" class="btn btn-xs" value="' . l('Выдать оплату') . '" onclick="' . $onclick . '" />';
-                    }
-                    if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ', 0, \'prepay\')';
-                        $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять предоплату') . '" onclick="' . $onclick . '" />';
-                    } elseif (intval($order['sum']) > intval($order['sum_paid'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['id'] . ')';
-                        $out .= '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
-                    }
-                    $out .= '</td></tr>';
-                }
-                $out .= '</tbody></table>';
-
-                $count_page = ceil($count / $count_on_page);
-                $out .= page_block($count_page, $count, '#a_orders-clients');
-            } else {
-                $out .= '<p class="text-error">' . l('Нет заказов') . '</p>';
             }
+            $out = $this->view->renderFile('accountings/accountings_orders_clients', array(
+                'count' => $count,
+                'count_page' => $count_page,
+                'orders' => $orders,
 
-            /*if (count($chains) > 0) {
-                //$out .= '<h4>Заказы клиентов которые ждут оплаты</h4><br />';
-                $out .= '<table class="table table-bordered table-medium"><thead><tr><td></td><td>' . l('Наименование') . '</td><td>' . l('ФИО клиента') . '</td><td>' . l('Кто запросил') . '</td><td>' . l('Дата запроса') . '</td>';
-                $out .= '<td>Дата оплаты</td><td>' . l('Заказ') . '</td><td>' . l('Оплата') . '</td><td>' . l('Оплачено') . '</td><td>' . l('Управление') . '</td></tr></thead><tbody>';
-                $i = 1;
-                foreach ($chains as $h_chain) {
-                    //$chain = current($h_chain);
-                    $rowspan = count($h_chain);// + ($chain['delivery_cost'] > 0 ? 1 : 0) + ($chain['payment_cost'] > 0 ? 1 : 0);
-                    $out .= '<tr class="border-top"><td rowspan="' . $rowspan . '">' . $i . '</td>';
-                    foreach ($h_chain as $chain) {
-                        $chain['price'] = $this->all_configs['chains']->chain_price($chain);
-                        $out .= $this->show_tr_accountings_orders_clients($chain);
-                        $out .= '</tr><tr>';
-                    }
-                    $out .= '<td rowspan="' . $rowspan . '"><input type="button"></td>';
-                    // оплата способа доставки
-                    if ($chain['delivery_cost'] > 0) {
-                        $out .= $this->show_tr_accountings_orders_clients($chain, 1);
-                        $out .= '</tr><tr>';
-                    }
-                    // оплата за комиссию (способ оплаты)
-                    if ($chain['payment_cost'] > 0) {
-                        $out .= $this->show_tr_accountings_orders_clients($chain, 2);
-                    }
-                    $out .= '</tr>';
-                    $i++;
-                }
-                $out .= '</tbody></table>';
-                $count_page = ceil($count / $count_on_page);
-                $out .= page_block($count_page, $count, '#a_orders-clients');
-            } else {
-                $out .= '<p class="text-error">' . l('Нет заказов') . '</p>';
-            }*/
-            $out .= '';
+            ));
         }
-
         return array(
             'html' => $out,
             'menu' => $filters,

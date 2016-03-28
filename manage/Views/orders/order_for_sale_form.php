@@ -9,8 +9,14 @@
                     <div class="form-group">
                         <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
                         <div class="row row-15">
-                            <div class="col-sm-6">
+                            <div class="col-sm-4" style="padding-right:0px">
                                 <?= $client['phone'] ?>
+                            </div>
+                            <div class="col-sm-2" style="line-height: 34px; ">
+                                    <span class="tag"
+                                          style="background-color: <?= !empty($tag) ? $tag['color'] : $tags[$client['tag_id']]['color'] ?>">
+                                        <?= htmlspecialchars(!empty($tag) ? $tag['title'] : $tags[$client['tag_id']]['title']) ?>
+                                    </span>
                             </div>
                             <div class="col-sm-6">
                                 <?= $client['fio'] ?>
@@ -34,7 +40,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-7">
+                            <div class="form-group col-sm-6">
                                 <label class="control-label">
                                     <?= l('Код товара') ?> (<?= l('серийный номер') ?>) <b class="text-danger">*</b>:
                                 </label>
@@ -44,7 +50,7 @@
                                 <small class="clone_clear_html product-title"></small>
                                 <input type="hidden" name="items" id="item_id" value="">
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-4">
                                 <label><?= l('Цена продажи') ?> <b class="text-danger">*</b>: </label>
                                 <div class="input-group">
                                     <input type="text" id="sale_poduct_cost" class="form-control" value=""
@@ -53,11 +59,11 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-sm-1">
-                                <label>&nbsp;</label>
-                                <button class="btn btn-primary class" onclick="return add_item_to_table();"
+                            <div class="form-group col-sm-2" style="padding: 0px">
+                                <label>&nbsp;</label><br>
+                                <button class="btn-sm btn-primary class" onclick="return add_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
-                                    <?= l('В корзину') ?>
+                                    <span class="small"> <?= l('В&nbsp;корзину') ?> </span>
                                 </button>
                             </div>
                         </div>
@@ -107,6 +113,10 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <div class="input-group"
+                                                 title="<?= l('Отфильтровать все безналичные счета для сверки Вы можете в разделе: Бухгалтерия-Заказы-Заказы клиентов') ?>">
+                                                <input type="checkbox" name="cashless" class="cashless-toggle">
+                                            </div>
                                         </td>
                                     </tr>
                                     </tfoot>

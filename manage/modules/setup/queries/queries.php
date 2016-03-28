@@ -131,7 +131,8 @@ db()->query("
     (55, '".lq('Создать задачу')."', 'create-task', 0, 9),
     (56, '".lq('Доступ к статистике на главной странице')."', 'dashboard', 0, 1),
     (57, '".lq('Внешний маркетинг')."', 'external-marketing', 0, 2),
-    (58, '".lq('Просмотр и редактирование чужих заказов поставщику')."', 'read-other-suppliers-orders', 19, 5)
+    (58, '".lq('Просмотр и редактирование чужих заказов поставщику')."', 'read-other-suppliers-orders', 19, 5),
+    (59, '".lq('Добавление клиента в черный список')."', 'add-client-to-blacklist', 0, 1)
 ");
 db()->query('TRUNCATE TABLE {users_role_permission}');
 db()->query("
@@ -228,3 +229,24 @@ db()->query("UPDATE {template_vars_strings} as s "
           ."WHERE s.lang = 'kiev' AND t.var = 'print_template_act'", array(lq('print_template_act')));
 
 db()->query('SET FOREIGN_KEY_CHECKS=1');
+
+db()->query("TRUNCATE TABLE {tags}");
+db()->query("INSERT IGNORE INTO {tags} (id, title, color)
+            VALUES
+                (2, 'regular', '#22B14C' ),
+                (3, 'discount', '#B5E61D' ),
+                (4, 'blacklist', '#000000' ),
+                (5, '-5%',  '#C3C3C3' ),
+                (6, '-10%', '#C3C3C3' ),
+                (7, '-20%', '#C3C3C3' ),
+                (8, '-30%', '#C3C3C3' )", array());
+
+db()->query("TRUNCATE TABLE {migrations}");
+db()->query("INSERT IGNORE INTO {migrations} (migration, batch)
+            VALUES
+('2016_03_03_085457_update_users', 1),
+('2016_03_09_094135_add_goods_extended', 2),
+('2016_03_22_140618_tags', 3),
+('2016_03_25_082910_add_total_as_sum_to_orders', 4),
+('2016_03_25_121307_add_cashless_to_orders', 5)
+                ", array());

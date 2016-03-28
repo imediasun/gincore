@@ -9,10 +9,14 @@ class View
     /**
      * @param $all_configs
      */
-    public function __construct(&$all_configs)
+    public function __construct(&$all_configs = array())
     {
         $this->all_configs = $all_configs;
-        $this->basePath = $all_configs['sitepath'].'manage';
+        if (empty($this->all_configs)) {
+            $this->basePath = __DIR__;
+        } else {
+            $this->basePath = $all_configs['sitepath'] . 'manage';
+        }
     }
 
     /**

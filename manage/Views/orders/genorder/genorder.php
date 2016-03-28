@@ -21,7 +21,7 @@
                             'hasEditorPrivilege' => $hasEditorPrivilege,
                             'order' => $order
                         )) ?>
-                        <button data-o_id="' . $order['id'] . '" onclick="alert_box(this, false, 'sms-form')"
+                        <button data-o_id="<?= $order['id'] ?>" onclick="alert_box(this, false, 'sms-form')"
                                 class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS
                         </button>
                     </h3>
@@ -139,7 +139,8 @@
                             <label><?= l('Сроки') ?>:</label>
                             <?= ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) ?>
                         </div>
-                        <div class="form-group <?= isset($hide['defect']) || isset($hide['defect-description']) ? 'hide-field' : '' ?>">
+                        <div
+                            class="form-group <?= isset($hide['defect']) || isset($hide['defect-description']) ? 'hide-field' : '' ?>">
                             <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   title="<?= l('История изменений') ?>"
@@ -237,7 +238,7 @@
                             'type' => 'engineer'
                         )); ?>
 
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                             <span style="margin:4px 10px 0 0"
                                   class="pull-left cursor-pointer glyphicon glyphicon-list muted"
                                   onclick="alert_box(this, false, 'changes:update-order-client_took')"
@@ -250,11 +251,12 @@
                             </label>
                         </div>
                         <?php $onclick = 'if ($(this) . prop(\'checked\')){$(\'.replacement_fund\').val(\'\');$(\'.replacement_fund\').prop(\'disabled\', false);$(\'.replacement_fund\').show();$(this).parent().parent().addClass(\'warning\');}else{$(\'.replacement_fund\').hide();$(this).parent().parent().removeClass(\'warning\');}'; ?>
-                        <div class="form-group <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
-                        <span style="margin:4px 10px 0 0"
-                              class="pull-left cursor-pointer glyphicon glyphicon-list muted"
-                              onclick="alert_box(this, false, 'changes:update-order-replacement_fund')"
-                              data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                        <div
+                            class="form-group  <?= isset($hide['addition-info']) ? 'hide-field' : '' ?> <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
+                            <span style="margin:4px 10px 0 0"
+                                  class="pull-left cursor-pointer glyphicon glyphicon-list muted"
+                                  onclick="alert_box(this, false, 'changes:update-order-replacement_fund')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                             <label class="checkbox-inline">
                                 <input onclick="<?= $onclick ?>" type="checkbox" value="1"
                                     <?= ($order['is_replacement_fund'] == 1 ? 'checked' : '') ?>
@@ -267,14 +269,14 @@
                                 value="<?= htmlspecialchars($order['replacement_fund']) ?>"
                                 name="replacement_fund"/>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                             <label class="checkbox-inline">
                                 <input type="checkbox" value="1" <?= ($order['nonconsent'] == 1 ? 'checked' : '') ?>
                                        name="nonconsent"/>
                                 <?= l('Можно пускать в работу без согласования') ?>
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group <?= isset($hide['addition-info']) ? 'hide-field' : '' ?>">
                             <label class="checkbox-inline">
                                 <input type="checkbox" value="1" <?= ($order['is_waiting'] == 1 ? 'checked' : '') ?>
                                        name="is_waiting"/>
@@ -308,7 +310,7 @@
                             . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
                         </div>
                     <?php else: ?>
-                        <div class="from-group <?= isset($hide['crm-order-code']) ? 'hide-field' : '' ?>" >
+                        <div class="from-group <?= isset($hide['crm-order-code']) ? 'hide-field' : '' ?>">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-code')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
@@ -358,10 +360,15 @@
                               onclick="alert_box(this, false, 'changes:update-order-sum')"
                               data-o_id="<?= $order['id'] ?>"
                               title="<?= l('История изменений') ?>"></span>
-                            <label><?= l('Стоимость ремонта') ?>: </label>
+                            <label><?= l('Стоимость ремонта') ?>:
+                                <?php if ($order['cashless']): ?>
+                                    <span class="text-danger"><?= l('Безнал') ?></span>
+                                <?php endif; ?>
+                            </label>
                             <div class="input-group input-group-sm">
                                 <input type="text" id="order-total" class="form-control"
-                                       value="<?= ($order['sum'] / 100) ?>" name="sum"/>
+                                       value="<?= ($order['sum'] / 100) ?>"
+                                       name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
                                 <div class="input-group-addon"><?= viewCurrency() ?></div>
                                 <div class="input-group-btn">
                                     <?php $pay_btn = ''; ?>
@@ -376,7 +383,6 @@
                                                    onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
                                         <?php endif; ?>
                                     <?php endif; ?>
-
                                 </div>
                             </div>
                         <span class="text-success">
@@ -384,10 +390,15 @@
                             (<?= l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) ?>
                             )
                         </span>
-                            <small id="product-total"><?= ($productTotal / 100) ?> <?= viewCurrency() ?></small>
+                            <!--small id="product-total"><?= ($productTotal / 100) ?> <?= viewCurrency() ?></small-->
+                            <?php if ($order['tag_id'] != 0): ?>
+                                <span class="tag" style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
+                                    <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
                         <link type="text/css" rel="stylesheet"
-                              href="'.$this->all_configs['prefix'].'modules/accountings/css/main.css?1">
+                              href="<?= $this->all_configs['prefix'] ?>modules/accountings/css/main.css?1">
                         <input id="send-sms" data-o_id="<?= $order['id'] ?>"
                                onclick="alert_box(this, false, 'sms-form')"
                                class="hidden" type="button"/>
@@ -417,7 +428,10 @@
                 'notSale' => $notSale,
                 'goods' => $goods,
                 'services' => $services,
-                'controller' => $controller
+                'controller' => $controller,
+                'totalChecked' => $order['total_as_sum'],
+                'total' => $productTotal,
+                'orderId' => $order['id']
             )); ?>
         </div>
     </form>

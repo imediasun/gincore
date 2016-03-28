@@ -980,7 +980,7 @@ class Chains
                 throw new ExceptionWithMsg('У Вас недостаточно прав');
             }
             if (in_array($order['status'], $this->all_configs['configs']['order-statuses-orders'])) {
-                throw new ExceptionWithMsg('В закрытый заказ нельзя добавить запчасть');
+                throw new ExceptionWithMsg(l('Вы не можете добавить или удалить запчасть/работу из закрытого заказа. Предварительно измение его статус.'));
             }
             if ((!isset($post['product_id']) || $post['product_id'] == 0)) {
                 throw new ExceptionWithMsg('Выберите товар');
@@ -1690,7 +1690,7 @@ class Chains
             WHERE o.id=g.order_id AND g.item_id=?i', array($item_id))->row();
 
         if ($product && in_array($product['status'], $this->all_configs['configs']['order-statuses-orders'])) {
-            $data['msg'] = 'Заказ закрыт';
+            $data['msg'] = l('Вы не можете отвязать запчасть, так как заказ закрыт. Предаврительно измените его статус.');
             $data['state'] = false;
         } else {
             if ($item && $product && !strtotime($product['unbind_request'])) {
@@ -3168,6 +3168,7 @@ class Chains
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
+            'cashless' => intval($post['cashless'])
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -3355,6 +3356,7 @@ class Chains
             $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
             $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             isset($post['warranty']) ? intval($post['warranty']) : 0,
+            isset($post['cashless']) == 'on' ? 1 : 0
         );
 
         // создаем заказ
@@ -3364,9 +3366,9 @@ class Chains
                       serial, battery, charger, cover, box, repair, urgent, np_accept, notify, partner, approximate_cost,
                       `sum`, defect, client_took, date_readiness, course_key, course_value, `type`, prepay, is_replacement_fund,
                       replacement_fund, manager, prepay_comment, nonconsent, is_waiting, courier, accept_location_id,
-                      accept_wh_id,code,referer_id,color,equipment, warranty) VALUES
+                      accept_wh_id,code,referer_id,color,equipment, warranty, cashless) VALUES
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
-                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i)',
+                        ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
