@@ -12,9 +12,11 @@ class UpdateUsers extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
-            $table->boolean('deleted')->default(false);
-        });
+        if (!Schema::hasColumn('users', 'deleted')) {
+            Schema::table('users', function ($table) {
+                $table->boolean('deleted')->default(false);
+            });
+        }
     }
 
 
@@ -25,8 +27,10 @@ class UpdateUsers extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
-            $table->dropColumn('deleted');
-        });
+        if (Schema::hasColumn('users', 'deleted')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('deleted');
+            });
+        }
     }
 }

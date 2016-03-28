@@ -12,10 +12,12 @@ class AddCashlessToOrders extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function ($table) {
-            $table->boolean('cashless')->default(0);
-            $table->index('cashless');
-        });
+        if (!Schema::hasColumn('orders', 'cashless')) {
+            Schema::table('orders', function ($table) {
+                $table->boolean('cashless')->default(0);
+                $table->index('cashless');
+            });
+        }
     }
 
     /**
@@ -25,8 +27,10 @@ class AddCashlessToOrders extends Migration
      */
     public function down()
     {
-        Schema::table('orders', function ($table) {
-            $table->dropColumn('cashless');
-        });
+        if (Schema::hasColumn('orders', 'cashless')) {
+            Schema::table('orders', function ($table) {
+                $table->dropColumn('cashless');
+            });
+        }
     }
 }

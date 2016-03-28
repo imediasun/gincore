@@ -12,10 +12,12 @@ class AddTotalAsSumToOrders extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function ($table) {
-            $table->boolean('total_as_sum')->default(0);
-            $table->index('total_as_sum');
-        });
+        if (!Schema::hasColumn('orders', 'total_as_sum')) {
+            Schema::table('orders', function ($table) {
+                $table->boolean('total_as_sum')->default(0);
+                $table->index('total_as_sum');
+            });
+        }
     }
 
     /**
@@ -25,8 +27,10 @@ class AddTotalAsSumToOrders extends Migration
      */
     public function down()
     {
-        Schema::table('orders', function ($table) {
-            $table->dropColumn('total_as_sum');
-        });
+        if (Schema::hasColumn('orders', 'total_as_sum')) {
+            Schema::table('orders', function ($table) {
+                $table->dropColumn('total_as_sum');
+            });
+        }
     }
 }
