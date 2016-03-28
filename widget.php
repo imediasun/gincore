@@ -43,6 +43,7 @@ if ($is_ajax) {
         include __DIR__ . '/manage/inc_func.php';
         include __DIR__ . '/manage/inc_settings.php';
         $widget = get_service('widgets/' . $widget_name);
+        print_r($widget);
         if (!is_null($widget) && method_exists($widget, 'ajax')) {
             $response = $widget->ajax($post);
             header('Content-type: application/json; charset=utf-8');

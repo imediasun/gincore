@@ -1,8 +1,8 @@
 <?php namespace services\widgets;
 
-if(file_exists(__DIR__ . '/../../View.php')) {
+if (file_exists(__DIR__ . '/../../View.php')) {
     print_r('est');
-require __DIR__ . '/../../View.php';
+    require __DIR__ . '/../../View.php';
 }
 
 class feedback extends \service
@@ -47,18 +47,13 @@ class feedback extends \service
         );
         $action = isset($post['action']) ? trim($post['action']) : null;
         switch ($action) {
-            case 'status_by_phone':
-                $phone = !empty($post['phone']) ? trim($post['phone']) : null;
-                if ($phone) {
-                    $html = $this->status_by_phone($phone);
-                    if ($html) {
-                        $response['state'] = true;
-                        $response['html'] = $html;
-                    } else {
-                        $response['msg'] = l('Ремонты не найдены');
-                    }
+            case 'add':
+                $html = $this->add($post);
+                if ($html) {
+                    $response['state'] = true;
+                    $response['html'] = $html;
                 } else {
-                    $response['msg'] = l('Укажите номер телефона');
+                    $response['msg'] = l('Ремонты не найдены');
                 }
                 break;
         }
@@ -66,15 +61,16 @@ class feedback extends \service
     }
 
     /**
-     * @param $phone
+     * @param $post
      * @return string
      */
-    private function status_by_phone($phone)
+    private function add($post)
     {
+        $html = '';
+        /**
         include_once $this->all_configs['sitepath'] . 'shop/access.class.php';
         $access = new \access($this->all_configs, false);
         $phone = $access->is_phone($phone);
-        $html = '';
         if (!empty($phone[0])) {
             $orders = db()->query(
                 'SELECT o.*, cg.title 
@@ -111,6 +107,7 @@ class feedback extends \service
                 }
             }
         }
+         */
         return $html;
     }
 
