@@ -20,10 +20,6 @@ class Tags extends Migration
                 $table->string('color')->default('#bbbbbb');
                 $table->boolean('avail')->default('1');
             });
-            Schema::table('clients', function ($table) {
-                $table->integer('tag_id')->integer(10)->unsigned()->default(null);
-                $table->index('tag_id');
-            });
             DB::table('tags')->insert(
                 array(
                     'id' => 1,
@@ -80,6 +76,14 @@ class Tags extends Migration
                     'color' => '#C3C3C3'
                 )
             );
+        }
+        if (!Schema::hasColumn('clients', 'tag_id')) {
+            Schema::table('clients', function ($table) {
+                $table->integer('tag_id')->integer(10)->unsigned()->default(null);
+                $table->index('tag_id');
+            });
+        }
+        if (DB::table('users_permissions')->where('link', '=', 'add-client-to-blacklist')->count() == 0) {
             DB::table('users_permissions')->insert(
                 array(
                     'name' => 'Добавление клиента в черный список',
@@ -98,8 +102,11 @@ class Tags extends Migration
     public function down()
     {
         Schema::dropIfExists('tags');
-        Schema::table('clients', function ($table) {
-            $table->dropColumn('tag_id');
-        });
+        if (Schema::hasColumn('clients', 'tag_id')) {
+            Schema::table('clients', function ($table) {
+                $table->dropColumn('tag_id');
+            });
+        }
+        DB::table('users_permissions')->where('link', '=', 'add-client-to-blacklist')->delete();
     }
 }

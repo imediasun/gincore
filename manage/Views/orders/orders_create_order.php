@@ -97,7 +97,7 @@
                             <div class="form-group <?= isset($hide['device']) ? 'hide-field' : '' ?>">
                                 <label class="control-label"><?= l('Выберите устройство') ?> <b
                                         class="text-danger">*</b>: </label>
-                                <?= typeahead($this->all_configs['db'], 'categories-last', false, ($order_data ?
+                                <?= typeahead($this->all_configs['db'], 'categories-last', false, (!empty($order_data) ?
                                     $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
                                     'display_service_information,get_requests', false, false, '', false, l('Введите'),
                                     array(

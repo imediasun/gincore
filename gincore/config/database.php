@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../../db_config.php';
+require __DIR__.'/../../db_config.php';
 
 return [
 
