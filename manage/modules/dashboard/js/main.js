@@ -204,7 +204,7 @@ $(function(){
                 'This Month': [moment().startOf('month'), moment().endOf('month')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             },
-            opens: 'right',
+            opens: 'left',
             startDate: date_start ? date_start : moment().format("YYYY-MM-01"),
             endDate: date_end ? date_end : moment().format("YYYY-MM-DD"),
             locale: {
