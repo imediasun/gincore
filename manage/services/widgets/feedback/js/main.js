@@ -1,4 +1,4 @@
-var gcw_status_widget = (function($){
+var gcw_feedback_widget = (function($){
 
     function resize(){
         var $modal = $('.gcw_modal');

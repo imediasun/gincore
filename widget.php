@@ -1,7 +1,8 @@
 <?php
 
 $active_widgets = array(
-    'status'
+    'status',
+    'feedback'
 );
 
 // загружаем виджет

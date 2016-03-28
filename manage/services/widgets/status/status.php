@@ -1,10 +1,17 @@
 <?php namespace services\widgets;
 
+require_once __DIR__.'/../../../View.php';
+
 class status extends \service{
     
     private static $instance = null;
-    private $widgets = null; 
-    
+    private $widgets = null;
+    /** @var \View */
+    private $view = null;
+
+    /**
+     * @return string
+     */
     public function load_widget(){
         $loader = '';
         $loader .= $this->widgets->attach_css('status/css/main.css');
@@ -13,36 +20,20 @@ class status extends \service{
         $loader .= $this->widgets->add_html($html);
         return $loader;
     }
-    
+
+    /**
+     * @return mixed
+     */
     private function widget_html(){
-        return '
-            <div class="gcw">
-                <div class="gcw_title gcw_show_modal" data-id="gcw_status_modal">'.l('Cтатус ремонта').'</div>
-            </div>
-            <div class="gcw_modal_box" id="gcw_status_modal">
-                <div class="gcw_modal_blackout"></div>
-                <div class="gcw_modal">
-                    <div class="gcw_modal_title">
-                        '.l('Узнать статус ремонта').'
-                        <span class="gcw_modal_close"></span>
-                    </div>
-                    <div class="gcw_modal_body">
-                        <form class="gcw_form" action="'.$this->widgets->get_requests_url('status').'" method="post">
-                            <input type="hidden" name="widget" value="status">
-                            <input type="hidden" name="action" value="status_by_phone">
-                            <div class="gcw_form_group">
-                                <label>'.l('Номер мобильного телефона').'</label>
-                                <input class="gcw_form_control" type="text" name="phone">
-                            </div>
-                            <input type="submit" value="'.l('Отправить').'" class="gcw_btn"><span class="gcw_form_error"></span>
-                        </form>
-                        <div id="gcw_form_html"></div>
-                    </div>
-                </div>
-            </div>
-        ';
+        return $this->view->renderFile('services/widgets/status/widget', array(
+            'widgets' => $this->widgets
+        ));
     }
-    
+
+    /**
+     * @param $post
+     * @return array
+     */
     public function ajax($post){
         $response = array(
             'state' => false
@@ -66,7 +57,11 @@ class status extends \service{
         }
         return $response;
     }
-    
+
+    /**
+     * @param $phone
+     * @return string
+     */
     private function status_by_phone($phone){
         include_once $this->all_configs['sitepath'].'shop/access.class.php';
         $access = new \access($this->all_configs, false);
@@ -115,13 +110,22 @@ class status extends \service{
         }
         return $html;
     }
-    
+
+    /**
+     * @return null|status
+     * @throws \Exception
+     */
     public static function getInstanse(){
         if(is_null(self::$instance)){
             self::$instance = new self();
             self::$instance->widgets = get_service('widgets');
+            self::$instance->view = new \View();
         }
         return self::$instance;
     }
+
+    /**
+     * status constructor.
+     */
     private function __construct(){}
 }
