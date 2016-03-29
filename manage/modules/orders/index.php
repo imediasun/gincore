@@ -1852,30 +1852,6 @@ class orders
     }
 
     /**
-     * @param $order
-     * @return int
-     */
-    protected function getTotalSum($order)
-    {
-        $notSale = $order['type'] != 3;
-        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
-
-        $productTotal = 0;
-        if(!empty($goods)) {
-            foreach ($goods as $product) {
-                $productTotal += $product['price'] * $product['count'];
-            }
-        }
-        if(!empty($services)) {
-            foreach ($services as $product) {
-                $productTotal += $product['price'] * $product['count'];
-            }
-        }
-        return $productTotal;
-    }
-
-    /**
      * @param null $order_id
      * @return string
      * @throws Exception
@@ -2305,7 +2281,7 @@ class orders
                     $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
                         array($_POST['id']))->row();
                     if ($order['total_as_sum']) {
-                        $sum = $this->getTotalSum($order);
+                        $sum = $this->all_configs['chains']->getTotalSum($order);
                         if ($sum != $order['sum']) {
                             $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
                                 array($sum, $order['id']))->ar();
@@ -2341,7 +2317,7 @@ class orders
                 array($_POST['id']))->row();
             if (!empty($order)) {
                 $set = $_POST['total_set'] == 'true';
-                $sum = $set ? $this->getTotalSum($order) : $order['sum'];
+                $sum = $set ? $this->all_configs['chains']->getTotalSum($order) : $order['sum'];
                 $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
                     array((int)$set, $sum, $_POST['id']))->ar();
                 if ($sum != $order['sum']) {
@@ -2553,7 +2529,7 @@ class orders
                 $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
                 $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
                 if ($order['total_as_sum']) {
-                    $order['sum'] = $this->gettotalsum($order);
+                    $order['sum'] = $this->all_configs['chains']->getTotalSum($order);
                 } else {
                     $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
                 }
@@ -2980,20 +2956,44 @@ class orders
     }
 
     /**
+     * @return array
+     */
+    protected function setDefaultHideFieldsConfig()
+    {
+        $config = array(
+            'crm-order-code' => 'on',
+            'referrer' => 'on',
+            'color' => 'on',
+            'serial' => 'on',
+            'equipment' => 'on',
+            'repair-type' => 'on',
+            'defect' => 'on',
+            'defect-description' => 'on',
+            'appearance' => 'on',
+            'cost' => 'on',
+            'prepaid' => 'on',
+            'available-date' => 'on',
+            'addition-info' => 'on'
+        );
+        $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
+            array(
+                l('Настройки видимости полей заказов'),
+                l('Настройки видимости полей заказов'),
+                json_encode($config)
+            ));
+        return $config;
+
+    }
+
+    /**
      *
      */
     private function order_fields_setup()
     {
-        $config = $_POST['config'];
+        $config = empty($_POST['config']) ? array() : $_POST['config'];
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
         if (empty($current)) {
-            $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
-                array(
-                    'Настройки видимости полей заказов',
-                    'Настройки видимости полей заказов',
-                    json_encode($config)
-                ));
-
+            $this->setDefaultHideFieldsConfig();
         } else {
             $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'order-fields-hide'",
                 array(json_encode($config)));
@@ -3006,6 +3006,9 @@ class orders
     private function getHideFieldsConfig()
     {
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
+        if (empty($current)) {
+            $current[0]['value'] = json_encode($this->setDefaultHideFieldsConfig());
+        }
         return empty($current[0]) ? array() : json_decode($current[0]['value'], true);
     }
 

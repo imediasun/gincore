@@ -233,6 +233,7 @@ db()->query('SET FOREIGN_KEY_CHECKS=1');
 db()->query("TRUNCATE TABLE {tags}");
 db()->query("INSERT IGNORE INTO {tags} (id, title, color)
             VALUES
+                (1, 'VIP', '#3F48CC' ),
                 (2, 'regular', '#22B14C' ),
                 (3, 'discount', '#B5E61D' ),
                 (4, 'blacklist', '#000000' ),
