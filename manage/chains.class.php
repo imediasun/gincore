@@ -1094,6 +1094,7 @@ class Chains
                     }
                 }
                 // сумма товаров
+                $this->setOrderSum($order, $mod_id);
                 $data['product-total'] = $this->all_configs['db']->query(
                         'SELECT SUM(`count` * price) FROM {orders_goods} WHERE order_id=?i',
                         array($order_id))->el() / 100;
@@ -3229,6 +3230,7 @@ class Chains
                     array($orderId, $so['id'], $item['goods_id'], $product['id']), 'ar');
                 $this->deleteOnePack($orderId, $ar, $so);
             }
+            $this->setOrderSum($orderId, $modId);
         }
     }
 
@@ -3547,6 +3549,61 @@ class Chains
     protected function getUserId()
     {
         return isset($_SESSION['id']) ? $_SESSION['id'] : '';
+    }
+
+    /**
+     * @param $order
+     * @return int
+     */
+    public function getTotalSum($order)
+    {
+        $notSale = $order['type'] != 3;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+
+        $productTotal = 0;
+        if(!empty($goods)) {
+            foreach ($goods as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        if(!empty($services)) {
+            foreach ($services as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        return $productTotal;
+    }
+
+    /**
+     * @param $order
+     * @param $modId
+     * @return mixed
+     */
+    protected function setOrderSum($order, $modId)
+    {
+
+        if (is_numeric($order)) {
+            $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
+                array($order))->row();
+        }
+        if ($order['total_as_sum']) {
+            $sum = $this->getTotalSum($order);
+            if ($sum != $order['sum']) {
+                $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
+                    array($sum, $order['id']))->ar();
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
+                    array(
+                        $this->getUserId(),
+                        'update-order-sum',
+                        $modId,
+                        $order['id'],
+                        ($sum / 100)
+                    ));
+                $order['sum'] = $sum;
+            }
+        }
+        return $order;
     }
 }
 

@@ -547,6 +547,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
             if ($(_this).hasClass('global-typeahead')) {
                 $(_this).val('');
             }
+            recalculate_total_sum();
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.responseText);
@@ -786,6 +787,11 @@ function recalculate_amount() {
         $('input[name="serials-value"]').attr('data-required', 'true');
     }
     $('.js-total').val(amount);
+    if(amount > 0) {
+        $('.js-pay-button').removeClass('disabled');
+    } else {
+        $('.js-pay-button').addClass('disabled');
+    }
 }
 
 function remove_row(_this) {
@@ -847,12 +853,14 @@ function set_total_as_sum(_this, orderId, total) {
             data: {id: orderId, total_set: _this.checked},
             type: 'POST',
             success: function (msg) {
+                var sum;
                 if (msg.state == false && msg.message) {
                     alert(msg.message);
                 }
                 if (msg.state == true) {
+                    sum = parseInt($('input.total-sum').val());
                     if (msg.set == true) {
-                        $('#order-total').attr('readonly', 'readonly').val($('input.total-sum').val());
+                        $('#order-total').attr('readonly', 'readonly').val(sum);
                     } else {
                         $('#order-total').removeAttr('readonly');
                     }

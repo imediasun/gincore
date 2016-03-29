@@ -892,6 +892,10 @@ table.borderless > tbody > tr > td{
 .bootstrap-switch-animate {
     margin-bottom: 4px;
 }
+.bootstrap-switch-container {
+    height:28px;
+    overflow: hidden;
+}
 span.tag {
     border-radius: 4px;
     display: inline-block;
