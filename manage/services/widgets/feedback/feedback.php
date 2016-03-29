@@ -1,9 +1,9 @@
 <?php namespace services\widgets;
 
 if (file_exists(__DIR__ . '/../../View.php')) {
-    print_r('est');
     require __DIR__ . '/../../View.php';
 }
+
 
 class feedback extends \service
 {
@@ -46,16 +46,36 @@ class feedback extends \service
             'state' => false
         );
         $action = isset($post['action']) ? trim($post['action']) : null;
-        switch ($action) {
-            case 'add':
-                $html = $this->add($post);
-                if ($html) {
+        try {
+
+            switch ($action) {
+                case 'add':
+                    if (empty($post['code']) && empty($post['sms'])) {
+                        throw new \Exception(l('Форма заполнена не корректно. Введите код клиента или код из sms'));
+                    }
+                    $html = $this->add($post);
+                    if (empty($html)) {
+                        throw new \Exception(l('Ремонты не найдены'));
+                    }
                     $response['state'] = true;
                     $response['html'] = $html;
-                } else {
-                    $response['msg'] = l('Ремонты не найдены');
-                }
-                break;
+                    break;
+                case 'send_sms':
+                    if (empty($post['phone'])) {
+                        throw new \Exception(l('Недопустимый номер телефона'));
+                    }
+                    $html = $this->sendSMS($post);
+                    if (empty($html)) {
+                        throw new \Exception(l('Ремонты не найдены'));
+                    }
+                    $response['state'] = true;
+                    $response['html'] = $html;
+                    break;
+                default:
+            }
+        } catch (\Exception $e) {
+            $response['msg'] = $e->getMessage();
+
         }
         return $response;
     }
@@ -63,52 +83,45 @@ class feedback extends \service
     /**
      * @param $post
      * @return string
+     * @throws \Exception
      */
     private function add($post)
     {
-        $html = '';
-        /**
-        include_once $this->all_configs['sitepath'] . 'shop/access.class.php';
-        $access = new \access($this->all_configs, false);
-        $phone = $access->is_phone($phone);
-        if (!empty($phone[0])) {
-            $orders = db()->query(
-                'SELECT o.*, cg.title 
-                                 FROM {orders} as o, {categories} as cg
-                                 WHERE o.phone=? AND o.category_id=cg.id 
-                                 ORDER BY o.date_add DESC', array($phone[0]))->assoc();
-            if ($orders) {
-                foreach ($orders as $order) {
-                    $status = isset($this->all_configs['configs']['order-status'][$order['status']])
-                        ? htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['name'])
-                        : '';
-                    $html .= '<div class="gcw_status_order">';
-                    $html .= '<h2>' . l('Ремонт') . ' №' . $order['id'] . '</h2>';
-                    $html .= '<p><b>' . l('Дата') . '</b>: ' . date("d/m/Y", strtotime($order['date_add'])) . '</p>';
-                    $html .= '<p><b>' . l('Статус') . '</b>: ' . $status . '</p>';
-                    $html .= '<p><b>' . l('Устройство') . '</b>: ' . htmlspecialchars($order['title']) . '</p>';
-                    $html .= '<p><b>' . l('Серийный номер') . '</b>: ' . htmlspecialchars($order['serial']) . '</p>';
-
-                    $comments = db()->query('SELECT * FROM {orders_comments} WHERE order_id=?i AND private=0 ORDER BY date_add DESC',
-                        array($order['id']))->assoc();
-                    if ($comments) {
-                        $html .= '<table class="gcw_table gcw_table_stripped">'
-                            . '<thead><tr><td><center>' . l('Дата') . '</center></td>'
-                            . '<td>' . l('Текущий статус ремонта') . '</td></tr></thead><tbody>';
-                        foreach ($comments as $comment) {
-                            $html .= '<tr><td><center>' . date("d.m.Y<b\\r/>H:i",
-                                    strtotime($comment['date_add'])) . '</center></td>';
-                            $html .= '<td>' . htmlspecialchars(wordwrap($comment['text'], 25, " ",
-                                    true)) . '</td></tr>';
-                        }
-                        $html .= '</tbody></table>';
-                    }
-                    $html .= '</div>';
-                }
-            }
+        if (!empty($post['code'])) {
+            $client = db()->query('SELECT * FROM {clients} WHERE client_code=? ', array($post['code']))->row();
         }
-         */
-        return $html;
+        if (!empty($post['sms'])) {
+            $client = db()->query('SELECT * FROM {clients} WHERE sms_code=? ', array($post['sms']))->row();
+        }
+        if (empty($client)) {
+            throw new \Exception(l('Клиент не найден в базе'));
+        }
+        return $this->view->renderFile('services/widgets/feedback/add');
+    }
+
+    /**
+     * @param $post
+     * @return string
+     * @throws \Exception
+     */
+    private function sendSMS($post)
+    {
+        $client = db()->query('SELECT * FROM {clients} WHERE phone LIKE "%?li%"', array($post['phone']))->row();
+        if (empty($client)) {
+            throw new \Exception(l('Номер не найден в базе'));
+        }
+        $code = mt_rand(10000, 99999);
+        $result = send_sms($client['phone'], l('Vash kod dlya otsiva') . ':' . $code);
+        if (!$result['state']) {
+            throw new \Exception(l('Проблемы с отправкой sms. Попробуйте повторить попытку позже.'));
+        }
+        db()->query('UPDATE {clients} SET sms_code=?l WHERE id = ?i', array($code, $client['id']));
+        return $this->view->renderFile('services/widgets/feedback/wait_sms', array());
+    }
+
+    protected function findUser($phone)
+    {
+
     }
 
     /**

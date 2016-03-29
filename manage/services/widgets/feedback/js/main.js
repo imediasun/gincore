@@ -17,16 +17,46 @@ var gcw_feedback_widget = (function ($) {
   }
 
   var callbacks = {
-    status_by_phone: function ($form, data) {
+    add: function ($form, data) {
       $form.hide();
       $('#gcw_form_html').html(data.html);
       resize();
+    },
+    send_sms: function ($form, data) {
+      $form.find('.gcw_buttons').html(data.html);
     }
   };
 
+  function send($this, data, method) {
+    var action = $this.attr('data-action'),
+      contentType = "application/x-www-form-urlencoded;charset=utf-8";
+
+    if (window.XDomainRequest) {
+      contentType = "text/plain";
+    }
+    console.log(method);
+    $.ajax({
+      url: action,
+      data: data,
+      type: "POST",
+      dataType: "json",
+      contentType: contentType,
+      success: function (data) {
+        if (data.state) {
+          callbacks[method]($this, data);
+        } else {
+          alert(data.msg);
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown);
+      }
+    });
+    return false;
+  }
+
   return {
     init: function () {
-
       $(document).on('click', '.gcw_show_modal', function () {
         var $this = $(this),
           id = $this.data('id');
@@ -39,38 +69,33 @@ var gcw_feedback_widget = (function ($) {
       });
       $(window).resize(resize).resize();
 
-      var form_msg_timeout;
       $(document).on('submit', '.gcw_form', function (e) {
         var $this = $(this),
-          $error_msg = $this.find('.gcw_form_error'),
           method = $this.find('input[name=action]').val(),
-          action = $this.attr('action');
-        var contentType = "application/x-www-form-urlencoded;charset=utf-8";
-        if (window.XDomainRequest) {
-          contentType = "text/plain";
+          data,
+          phone = $('input[name=phone]').val(),
+          sms = $('input[name=sms]').val(),
+          code = $('input[name=code]').val();
+
+        if ((typeof code != 'undefined' && code.length > 0) || (typeof sms != 'undefined' && sms.length > 0)) {
+          send($this, $this.serialize(), method);
         }
-        $.ajax({
-          url: action,
-          data: $this.serialize(),
-          type: "POST",
-          dataType: "json",
-          contentType: contentType,
-          success: function (data) {
-            if (data.state) {
-              callbacks[method]($this, data);
-            } else {
-              clearTimeout(form_msg_timeout);
-              $('.gcw_form_error').text(data.msg);
-              form_msg_timeout = setTimeout(function () {
-                $error_msg.empty();
-              }, 7000);
-            }
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            console.log(errorThrown);
+        else {
+          if (typeof phone != 'undefined' && phone.length > 0) {
+            data = {
+              phone: phone,
+              action: 'send_sms',
+              widget: 'feedback'
+            };
+
+            send($this, data, 'send_sms');
+          } else {
+            alert('Заполните форму')
           }
-        });
+        }
+
         e.preventDefault();
+        return false;
       });
     }
   };

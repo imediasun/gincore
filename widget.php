@@ -37,18 +37,20 @@ if ($is_ajax) {
     } else {
         $post = $_POST;
     }
+    $response = array(
+        'state' => false,
+    );
     $widget_name = isset($post['widget']) ? trim($post['widget']) : null;
     if (in_array($widget_name, $active_widgets)) {
         include __DIR__ . '/manage/inc_config.php';
         include __DIR__ . '/manage/inc_func.php';
         include __DIR__ . '/manage/inc_settings.php';
         $widget = get_service('widgets/' . $widget_name);
-        print_r($widget);
         if (!is_null($widget) && method_exists($widget, 'ajax')) {
             $response = $widget->ajax($post);
-            header('Content-type: application/json; charset=utf-8');
-            echo json_encode($response);
-            exit;
         }
     }
+    header('Content-type: application/json; charset=utf-8');
+    echo json_encode($response);
+    exit;
 }
