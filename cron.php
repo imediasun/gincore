@@ -351,6 +351,28 @@ function orders_manager_stats(){
     }
 }
 
+// сохраняем статитстику отзывов
+// каждый день в 23:59
+function ratings_stats()
+{
+    global $all_configs;
+
+    $ratings = $this->db->query("SELECT user_id, "
+        . "(SUM(ur.rating) / COUNT(ur.id)) as avg_rating "
+        . "FROM {users_ratings} as ur "
+        . "LEFT JOIN {users} as u ON u.id = ur.user_id "
+        . "GROUP BY user_id "
+        . "ORDER BY avg_rating DESC",
+        'assoc');
+
+    if (!empty($ratings)) {
+        foreach ($ratings as $rating) {
+            $all_configs['db']->query("UPDATE {users} SET rating=?i WHERE id=?i ",
+                array($rating['avg_rating'], $rating['user_id']));
+        }
+    }
+}
+
 // имитация конфига
 function all_configs()
 {

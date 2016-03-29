@@ -91,6 +91,12 @@ class dashboard
         $input['today_cash'] = $cash['today'];
         $input['period_cash'] = $cash['period'];
         $input['cash_chart'] = $cash['cash_chart'];
+
+        $input['avg_rating'] = $this->averageRating();
+        $input['dashboard_avg_company_rating'] = l('Рейтинг компании');
+        $input['dashboard_avg_ratings'] = l('Формируется из отзывов клиентов компании. Рассчитывается как сумма всех рейтингов сотрудников, деленная на количество сотрудников');
+        $input['dashboard_users_ratings'] = l('Рейтинг сотрудников');
+        $input['users_ratings'] = $this->usersRatings();
     }
 
     /**
@@ -545,6 +551,47 @@ class dashboard
             echo json_encode($return);
         }
         exit;
+    }
+
+    /**
+     * @return string
+     */
+    private function usersRatings()
+    {
+        $query_filter = $this->utils->makeFilters('ur.created_at');
+        $ratings = $this->db->query("SELECT user_id, IF(u.fio!='',u.fio,u.login) as fio, "
+            . "(SUM(ur.rating) / COUNT(ur.id)) as avg_rating "
+            . "FROM {users_ratings} as ur "
+            . "LEFT JOIN {users} as u ON u.id = ur.user_id "
+            . "WHERE ?q AND u.deleted = 0 GROUP BY user_id "
+            . "ORDER BY avg_rating DESC", array($query_filter),
+            'assoc');
+        return $this->view->renderFile('dashboard/users_ratings', array(
+            'ratings' => $ratings,
+        ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function averageRating()
+    {
+        $queryFilter = $this->utils->makeFilters('ur.created_at');
+        $count = $this->db->query("
+            SELECT 
+                COUNT(*) as `count`
+            FROM {users_ratings} as ur
+            WHERE ?q 
+        ", array($queryFilter))->el();
+        if ($count > 0) {
+            $averageRating = $this->db->query("
+            SELECT 
+                (SUM(ur.rating) / COUNT(ur.id))) as avg_rating
+            FROM {users_ratings} as ur
+            WHERE ?q 
+        ", array($queryFilter))->el();
+        }
+        return $count > 0 ? $averageRating : 10;
     }
 }
 
