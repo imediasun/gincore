@@ -9,3 +9,5 @@ $path=str_replace('//', '/', dirname(__FILE__).'/');
 $prefix=str_replace(rtrim($_SERVER['DOCUMENT_ROOT'],'/'), '', $path);
 
 include 'db_config.php';
+
+
