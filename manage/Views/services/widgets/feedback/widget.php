@@ -5,7 +5,7 @@
     }
 </style>
 <div class="gcw">
-    <div class="gcw_title gcw_show_modal" data-id="gcw_feedback_modal">
+    <div class="gcw_title gcw_show_modal gcw_feedback_modal" data-id="gcw_feedback_modal">
         <i class="fa fa-thumbs-o-up"></i>
         <?= l('Оставить отзыв') ?>
     </div>

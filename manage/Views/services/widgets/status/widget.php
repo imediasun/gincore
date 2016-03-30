@@ -1,5 +1,5 @@
 <div class="gcw">
-    <div class="gcw_title gcw_show_modal" data-id="gcw_status_modal"><?= l('Cтатус ремонта') ?></div>
+    <div class="gcw_title gcw_show_modal gcw_status_modal" data-id="gcw_status_modal"><?= l('Cтатус ремонта') ?></div>
 </div>
 <div class="gcw_modal_box" id="gcw_status_modal">
     <div class="gcw_modal_blackout"></div>
