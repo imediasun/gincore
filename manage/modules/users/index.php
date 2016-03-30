@@ -213,7 +213,7 @@ class users
                 $data = array(
                     'state' => true,
                     'content' => $this->view->renderFile('users/ratings', array(
-                        'ratigns' => $ratings,
+                        'ratings' => $ratings,
                     ))
                 );
             }

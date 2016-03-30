@@ -4,14 +4,15 @@
 <?php else: ?>
     <?php foreach ($ratings as $i => $o): ?>
         <?php if ($count == 6): ?>
-            <div class="expand-button" onclick="return expand(this);" style="text-align: center; cursor: pointer; margin-bottom: 10px">
+            <div class="expand-button" onclick="return expand(this);"
+                 style="text-align: center; cursor: pointer; margin-bottom: 10px">
                 <?= l('Развернуть') ?> <i class="fa fa-chevron-down"></i>
             </div>
         <?php endif; ?>
         <div class="clearfix m-t-sm">
             <span class="font-bold no-margins">
                 <?= ($o['fio'] ?: ('id ' . $o['user'])) ?>
-                <span class="pull-right text-success"><?= $o['avg_rating'] ?></span>
+                <span class="pull-right text-success"><?= round($o['avg_rating'], 2) ?></span>
             </span>
         </div>
         <?php $count++; ?>

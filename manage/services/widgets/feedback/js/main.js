@@ -19,7 +19,7 @@ var gcw_feedback_widget = (function ($) {
   var callbacks = {
     add: function ($form, data) {
       $form.hide();
-      $('#gcw_form_html').html(data.html);
+      $('.js-feedback-body').html(data.html);
       resize();
     },
     send_sms: function ($form, data) {
@@ -34,7 +34,6 @@ var gcw_feedback_widget = (function ($) {
     if (window.XDomainRequest) {
       contentType = "text/plain";
     }
-    console.log(method);
     $.ajax({
       url: action,
       data: data,
@@ -90,7 +89,7 @@ var gcw_feedback_widget = (function ($) {
 
             send($this, data, 'send_sms');
           } else {
-            alert('Заполните форму')
+            alert('Заполните поле "Код клиента", "Код из sms" или "Номер телефона"');
           }
         }
 

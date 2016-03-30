@@ -13,9 +13,8 @@ class UsersSmsCode extends Migration
     public function up()
     {
         if (!Schema::hasColumn('clients', 'sms_code')) {
-            Schema::table('users', function ($table) {
+            Schema::table('clients', function ($table) {
                 $table->string('sms_code', 10)->default('');
-                $table->string('client_code', 10)->default('');
             });
         }
     }
@@ -28,9 +27,8 @@ class UsersSmsCode extends Migration
     public function down()
     {
         if (Schema::hasColumn('clients', 'sms_code')) {
-            Schema::table('users', function ($table) {
+            Schema::table('clients', function ($table) {
                 $table->dropColumn('sms_code');
-                $table->dropColumn('client_code');
             });
         }
     }

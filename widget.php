@@ -1,5 +1,7 @@
 <?php
 
+define('ROOT_DIR', __DIR__);
+
 $active_widgets = array(
     'status',
     'feedback'

@@ -586,12 +586,12 @@ class dashboard
         if ($count > 0) {
             $averageRating = $this->db->query("
             SELECT 
-                (SUM(ur.rating) / COUNT(ur.id))) as avg_rating
+                (SUM(ur.rating) / COUNT(ur.id)) as avg_rating
             FROM {users_ratings} as ur
             WHERE ?q 
         ", array($queryFilter))->el();
         }
-        return $count > 0 ? $averageRating : 10;
+        return $count > 0 ? round($averageRating, 2) : 10;
     }
 }
 

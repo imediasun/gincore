@@ -17,53 +17,56 @@
             <?= l('Оставить отзывы') ?>
             <span class="gcw_modal_close"></span>
         </div>
-        <div class="gcw_modal_body" style="background-color: lightgrey">
+        <div class="gcw_modal_body js-feedback-body" style="background-color: #f1f1f1">
             <form class="gcw_form" data-action="<?= $widgets->get_requests_url('feedback') ?>" method="post">
                 <input type="hidden" name="widget" value="feedback">
                 <input type="hidden" name="action" value="add">
                 <div class="gcw_form_group">
-                    <label><?= l('Оцените работу инженера') ?></label>
-                    <input class="gcw_form_control" type="radio" name="engineer" value="0"> <?= l('Ужасно'); ?>
-                    <input class="gcw_form_control" type="radio" name="engineer" value="2.5"> <?= l('Плохо'); ?>
-                    <input class="gcw_form_control" type="radio" name="engineer" value="5"> <?= l('Нормально'); ?>
-                    <input class="gcw_form_control" type="radio" name="engineer" value="7.5"> <?= l('Хорошо'); ?>
-                    <input class="gcw_form_control" type="radio" name="engineer" value="10"> <?= l('Отлично'); ?>
+                    <label><?= l('Оцените работу инженера') ?><span style="color: red">*</span></label>
+                    <input class="gcw_form_control" type="radio" name="engineer" required value="0"> <?= l('Ужасно'); ?>
+                    <input class="gcw_form_control" type="radio" name="engineer" required value="2.5"> <?= l('Плохо'); ?>
+                    <input class="gcw_form_control" type="radio" name="engineer" required value="5"> <?= l('Нормально'); ?>
+                    <input class="gcw_form_control" type="radio" name="engineer" required value="7.5"> <?= l('Хорошо'); ?>
+                    <input class="gcw_form_control" type="radio" name="engineer" required value="10"> <?= l('Отлично'); ?>
                 </div>
+                <br>
                 <div class="gcw_form_group">
-                    <label><?= l('Оцените работу сотрудника, который выдавал Вам устройство после ремонта') ?></label>
-                    <input class="gcw_form_control" type="radio" name="warehouse" value="0"> <?= l('Ужасно'); ?>
-                    <input class="gcw_form_control" type="radio" name="warehouse" value="2.5"> <?= l('Плохо'); ?>
-                    <input class="gcw_form_control" type="radio" name="warehouse" value="5"> <?= l('Нормально'); ?>
-                    <input class="gcw_form_control" type="radio" name="warehouse" value="7.5"> <?= l('Хорошо'); ?>
-                    <input class="gcw_form_control" type="radio" name="warehouse" value="10"> <?= l('Отлично'); ?>
+                    <label><?= l('Оцените работу сотрудника, который выдавал Вам устройство после ремонта') ?><span style="color: red">*</span></label>
+                    <input class="gcw_form_control" type="radio" name="acceptor" required value="0"> <?= l('Ужасно'); ?>
+                    <input class="gcw_form_control" type="radio" name="acceptor" required value="2.5"> <?= l('Плохо'); ?>
+                    <input class="gcw_form_control" type="radio" name="acceptor" required value="5"> <?= l('Нормально'); ?>
+                    <input class="gcw_form_control" type="radio" name="acceptor" required value="7.5"> <?= l('Хорошо'); ?>
+                    <input class="gcw_form_control" type="radio" name="acceptor" required value="10"> <?= l('Отлично'); ?>
                 </div>
+                <br>
                 <div class="gcw_form_group">
-                    <label><?= l('Оцените работу менеджера, который общался с Вами по телефону') ?></label>
-                    <input class="gcw_form_control" type="radio" name="manager" value="0"> <?= l('Ужасно'); ?>
-                    <input class="gcw_form_control" type="radio" name="manager" value="2.5"> <?= l('Плохо'); ?>
-                    <input class="gcw_form_control" type="radio" name="manager" value="5"> <?= l('Нормально'); ?>
-                    <input class="gcw_form_control" type="radio" name="manager" value="7.5"> <?= l('Хорошо'); ?>
-                    <input class="gcw_form_control" type="radio" name="manager" value="10"> <?= l('Отлично'); ?>
+                    <label><?= l('Оцените работу менеджера, который общался с Вами по телефону') ?><span style="color: red">*</span></label>
+                    <input class="gcw_form_control" type="radio" name="manager" required value="0"> <?= l('Ужасно'); ?>
+                    <input class="gcw_form_control" type="radio" name="manager" required value="2.5"> <?= l('Плохо'); ?>
+                    <input class="gcw_form_control" type="radio" name="manager" required value="5"> <?= l('Нормально'); ?>
+                    <input class="gcw_form_control" type="radio" name="manager" required value="7.5"> <?= l('Хорошо'); ?>
+                    <input class="gcw_form_control" type="radio" name="manager" required value="10"> <?= l('Отлично'); ?>
                 </div>
+                <br>
                 <div class="gcw_form_group">
                     <label><?= l('Комментарий к отзыву') ?></label>
-                    <input class="gcw_form_control" type="text" name="comment">
+                    <textarea class="gcw_form_control" name="comment"> </textarea>
                 </div>
                 <div class="gcw_form_group">
-                    <label><?= l('Заработная плата сотрудников зависит от Ваших оценок') ?></label>
+                    <label><small><?= l('Заработная плата сотрудников зависит от Ваших оценок') ?></small></label>
                 </div>
                 <div class="gcw_buttons">
                     <div class="gcw_form_group">
-                        <label><?= l('Укажите Ваш код клиента') ?></label>
+                        <label><b><?= l('Укажите Ваш код клиента') ?></b></label>
                         <input class="gcw_form_control" type="text" name="code">
                     </div>
                     <div class="gcw_form_group">
                         <label><?= l('или') ?></label>
                     </div>
                     <div class="gcw_form_group">
-                        <label><?= l('Укажите номер телефона') ?></label>
+                        <label><b><?= l('Укажите номер телефона') ?></b></label>
                         <input class="gcw_form_control" type="text" name="phone">
-                        <span><?= l('Номер должен совпадать с тем, который Вы указали в квитанции на ремонт'); ?></span>
+                        <span><small><?= l('Номер должен совпадать с тем, который Вы указали в квитанции на ремонт'); ?></small></span>
                     </div>
 
                     <input type="submit" value="<?= l('Отправить') ?>" class="gcw_btn">
@@ -72,7 +75,6 @@
                 </div>
                 <span class="gcw_form_error"></span>
             </form>
-            <div id="gcw_form_html"></div>
         </div>
     </div>
 </div>
