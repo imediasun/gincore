@@ -400,7 +400,8 @@ class users
                 if ($email_or_login_exists) {
 //                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
 //                    $_SESSION['create-user-post'] = $post;
-                    FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'), FlashMessage::DANGER);
+                    FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
+                        FlashMessage::DANGER);
                 } else {
                     $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
                         array(
@@ -495,87 +496,14 @@ class users
             'sortPosition' => $sort_position,
             'controller' => $this
         ));
-        // список ролей и ихние доступы
-        $users_html .= '<div id="edit_tab_roles" class="tab-pane"><form class="form-horizontal" method="post"><div style="display: inline-block; width: 100%;">';
-        // дерево ролей и возможностей
-        $aRoles = array();
-        foreach ($pers as $per) {
-            if (array_key_exists($per['role_id'], $aRoles)) {
 
-                $aRoles[$per['role_id']]['children'][$per['per_id']] = array(
-                    'link' => $per['link'],
-                    'name' => $per['per_name'],
-                    'group_id' => $per['group_id'],
-                    'child' => $per['child'],
-                    'checked' => $per['id']
-                );
-
-            } else {
-                $aRoles[$per['role_id']] = array(
-                    'name' => $per['role_name'],
-                    'all' => array(),
-                    'date_end' => $per['date_end'],
-                    'avail' => $per['avail'],
-                    'children' => array(
-                        $per['per_id'] => array(
-                            'link' => $per['link'],
-                            'name' => $per['per_name'],
-                            'group_id' => $per['group_id'],
-                            'child' => $per['child'],
-                            'checked' => $per['id']
-                        )
-                    )
-                );
-            }
-            if ( /*array_search($per['per_id'], $aRoles[$per['role_id']]['all']) >=0 &&*/
-                intval($per['id']) > 0
-            ) {
-                $aRoles[$per['role_id']]['all'][] = $per['per_id'];
-                //array_push($aRoles[$per['role_id']]['all'], $per['per_id']);
-            }
-        }
+        $aRoles = $this->getRolesTree($pers);
         $groups = $this->get_permissions_groups();
-        // блок управление ролями
-        foreach ($aRoles as $rid => $v) {
-            $checked = '';
-            if ($v['avail']) {
-                $checked = 'checked';
-            }
-            $users_html .= '<ul class="nav nav-list pull-left" style="width:33%;padding:0 10px">
-                <li class="nav-header"><br><h4 class="text-info">' . htmlspecialchars($v['name']) . '</h4>
-                <div class="checkbox"><label><input type="checkbox" ' . $checked . ' name="active[' . $rid . ']" />' . l('активность') . '</label></div></li>';
-            $users_html .= '<li>' . l('Дата конца активности группы') . '</li>';
-            $users_html .= '<li><input class="form-control input-sm datepicker" name="date_end[' . $rid . ']" type="text" value="' . $v['date_end'] . '" ></li>';
-            $group_html = array();
-            foreach ($v['children'] as $pid => $sv) {
-                $checked = '';
-                if ($sv['checked']) {
-                    $checked = 'checked';
-                }
-                $group_html[(int)$sv['group_id']][] = '
-                    <li><div class="checkbox"><label><input id="per_id_' . $rid . '_' . $pid . '" class="del-' . $rid . '-' . $sv['child'] . '"
-                        onchange="per_change(this, \'' . $rid . '-' . $sv['child'] . '\', \'' . $rid . '-' . $pid . '\')"
-                        name="permissions[' . $rid . '-' . $pid . ']" ' . $checked . ' type="checkbox" />' .
-                    $sv['name'] . '</label></div></li>';
-            }
-            foreach ($groups as $group_id => $name) {
-                if (!empty($group_html[$group_id])) {
-                    $users_html .= '
-                        <li>
-                            <label class="m-t-sm">' . $name . '</label>
-                        </li>
-                        ' . implode('', $group_html[$group_id]) . '
-                    ';
-                }
-            }
-            $users_html .= '</ul><input type="hidden" name="exist-box[' . $rid . ']" value="' . implode(",",
-                    $v['all']) . '" />';
-        }
-        $users_html .= '</div>';
-        //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-        $users_html .= '<input type="submit" name="create-roles" value="' . l('Сохранить') . '" class="btn btn-primary" />';
-        //}
-        $users_html .= '</form></div>';
+        // список ролей и ихние доступы
+        $users_html .= $this->view->renderFile('users/roles_list', array(
+            'aRoles' => $aRoles,
+            'groups' => $groups
+        ));
 
         // добавление новой роли
         $users_html .= '<div id="edit_tab_create" class="tab-pane">';
@@ -680,77 +608,16 @@ class users
                 }
             }
         }
-        $users_html .= '
-            <form method="post">
-                ' . $msg . '
-                <fieldset>
-                    <legend>' . l('Добавление нового пользователя') . '</legend>
-                    <div class="form-group">
-                        <label>' . l('Логин') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="' . (isset($form_data['login']) ? htmlspecialchars($form_data['login']) : '') . '" name="login" placeholder="' . l('введите логин') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('E-mail') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="' . (isset($form_data['email']) ? htmlspecialchars($form_data['email']) : '') . '" name="email" placeholder="' . l('введите e-mail') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Пароль') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="pass" placeholder="' . l('введите пароль') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('ФИО') . ':</label>
-                        <input class="form-control" value="' . (isset($form_data['fio']) ? htmlspecialchars($form_data['fio']) : '') . '" name="fio" placeholder="' . l('введите фио') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Должность') . '</label>
-                        <input class="form-control" value="' . (isset($form_data['position']) ? htmlspecialchars($form_data['position']) : '') . '" name="position" placeholder="' . l('введите должность') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Телефон') . '</label>
-                        <input onkeydown="return isNumberKey(event)" class="form-control" value="' . (isset($form_data['phone']) ? htmlspecialchars($form_data['phone']) : '') . '" name="phone" placeholder="' . l('введите телефон') . '">
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label><input ' . (!empty($form_data['avail']) || !$form_data ? 'checked' : '') . ' type="checkbox" name="avail" />' . l('Активность') . '</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Укажите склад и локацию, на которую по умолчанию перемещается устройство принятое на ремонт данным сотрудником') . '</label>
-                        <div class="clearfix">
-                            <div class="pull-left m-r-lg">
-                                <label>' . l('Склад') . ':</label><br>
-                                <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouse">
-                                    ' . $warehouses_options . '
-                                </select>
-                            </div>
-                            <div class="pull-left">
-                                <label>' . l('Локация') . ':</label><br>
-                                <select class="multiselect form-control select-location" name="location">
-                                    ' . $warehouses_options_locations . '
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Укажите склады к которым сотрудник имеет доступ') . '</label><br>
-                        <select class="multiselect" name="warehouses[]" multiple="multiple">
-                            ' . $warehouses . '
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Роль') . '</label>
-                        <select name="role" class="form-control">
-                            <option value="">' . l('выберите роль') . '</option>
-                            ' . $role_html . '
-                        </select>
-                    </div>';
-//                        '.typeahead($this->all_configs['db'], 'locations', false, 0, 0, 'input-large', '', '', false, false).'
+        $users_html .= $this->view->renderFile('users/create', array(
+            'msg' => $msg,
+            'form_data' => $form_data,
+            'warehouses_options' => $warehouses_options,
+            'warehouses_options_locations' => $warehouses_options_locations,
+            'warehouses' => $warehouses,
+            'role_html' => $role_html
 
-        //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-        $users_html .= '<div class="control-group"><div class="controls">
-                    <input class="btn btn-primary" type="submit" name="create-user" onclick="return add_user_validation();" value="' . l('Создать') . '"></div></div>';
-        //}
-        $users_html .= '</fieldset></form>';
+        ));
+
         $users_html .= '</div>';
 
         $users_html .= '</div>';
@@ -860,5 +727,47 @@ class users
                 'name' => l('Создать пользователя')
             ),
         );
+    }
+
+    /**
+     * @param $pers
+     * @return array
+     */
+    private function getRolesTree($pers)
+    {
+        $aRoles = array();
+        foreach ($pers as $per) {
+            if (array_key_exists($per['role_id'], $aRoles)) {
+
+                $aRoles[$per['role_id']]['children'][$per['per_id']] = array(
+                    'link' => $per['link'],
+                    'name' => $per['per_name'],
+                    'group_id' => $per['group_id'],
+                    'child' => $per['child'],
+                    'checked' => $per['id']
+                );
+
+            } else {
+                $aRoles[$per['role_id']] = array(
+                    'name' => $per['role_name'],
+                    'all' => array(),
+                    'date_end' => $per['date_end'],
+                    'avail' => $per['avail'],
+                    'children' => array(
+                        $per['per_id'] => array(
+                            'link' => $per['link'],
+                            'name' => $per['per_name'],
+                            'group_id' => $per['group_id'],
+                            'child' => $per['child'],
+                            'checked' => $per['id']
+                        )
+                    )
+                );
+            }
+            if (intval($per['id']) > 0) {
+                $aRoles[$per['role_id']]['all'][] = $per['per_id'];
+            }
+        }
+        return $aRoles;
     }
 }

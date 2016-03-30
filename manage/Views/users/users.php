@@ -26,7 +26,7 @@
                 <?php foreach ($users as $user): ?>
                     <?php if (!array_key_exists($user['id'], $yet)): ?>
                         <tr class="user-row">
-                            <td><?= $user['id'] ?></td>
+                            <td><a href="<?= $this->all_configs['prefix'] ?>users/edit/<?= $user['id'] ?>"><?= $user['id'] ?></a></td>
                             <td>
                                 <img class="upload_avatar_btn" data-uid="<?= $user['id'] ?>" width="40"
                                      src="<?= $controller->avatar($user['avatar']) ?>">
@@ -35,9 +35,9 @@
                                 <input type="checkbox" name="send-mess-user[<?= $user['id'] ?>]" class="send-mess-user"
                                        value="<?= $user['id'] ?>"/>
                             </td>
-                            <td><?= htmlspecialchars($user['login']) ?></td>
+                            <td><a href="<?= $this->all_configs['prefix'] ?>users/edit/<?= $user['id'] ?>"><?= htmlspecialchars($user['login']) ?></a></td>
                             <td><input <?= $user['avail']? 'checked': '' ?> type="checkbox" name="avail_user[<?= $user['id'] ?>]"/></td>
-                            <td><i class="glyphicon glyphicon-warning-sign editable-click" data-type="text"
+                            <td><i class="glyphicon glyphicon-lock editable-click" data-type="text"
                                    data-pk="<?= $user['id'] ?>"
                                    data-type="password"
                                    data-url="<?= $this->all_configs['arrequest'][0] ?>/ajax?act=change-admin-password"
