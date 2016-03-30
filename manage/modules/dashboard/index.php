@@ -687,7 +687,7 @@ class ChartUtils
         $filters = $this->getFilters();
         $query = '';
         if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") > ?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") >= ?',
                 array($query, $filters['date_start']));
         }
 
