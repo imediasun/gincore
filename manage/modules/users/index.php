@@ -475,11 +475,6 @@ class users
         }
 
         // достаём всех пользователей и их роли
-        $users = $this->get_users($sort);
-
-        // достаём все роли
-        $pers = $this->get_all_roles();
-        $activeRoles = $this->get_active_roles();
 
         $users_html .= '<div class="tabbable">
             <ul class="nav nav-tabs">
@@ -490,14 +485,20 @@ class users
             </ul>
             <div class="tab-content">';
 
+
+        $users = $this->get_users($sort);
         $users_html .= $this->view->renderFile('users/users', array(
             'users' => $users,
-            'activeRoles' => $activeRoles,
+            'activeRoles' => $this->get_active_roles(),
             'sortPosition' => $sort_position,
             'controller' => $this
         ));
 
-        $aRoles = $this->getRolesTree($pers);
+        // достаём все роли
+        $permissions = $this->get_all_roles();
+        $aRoles = $this->getRolesTree($permissions);
+        print_r($aRoles);
+        exit();
         $groups = $this->get_permissions_groups();
         // список ролей и ихние доступы
         $users_html .= $this->view->renderFile('users/roles_list', array(
@@ -505,120 +506,25 @@ class users
             'groups' => $groups
         ));
 
-        // добавление новой роли
-        $users_html .= '<div id="edit_tab_create" class="tab-pane">';
-        $users_html .= '
-            <form  method="post">
-                <fieldset>
-                    <legend>' . l('Добавление новой роли') . '</legend>
-                    <div class="form-group">
-                        <label>' . l('Название') . ':</label>
-                        <input class="form-control" value="" name="name" placeholder="' . l('введите название') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Права доступа') . ':</label>
-                        ' . l('отметьте нужные') . '
-                    </div>';
-        $yet = 0;
-        $roles = array();
-        $group_html = array();
-        foreach ($pers as $per) {
-            if ($yet === 0) {
-                $yet = $per['role_id'];
-                $roles[$per['role_id']] = $per['role_name'];
-            } elseif ($yet != $per['role_id']) {
-                $roles[$per['role_id']] = $per['role_name'];
-                continue;
-            }
-            $group_html[(int)$per['group_id']][] = '
-                <div class="checkbox">
-                    <label><input id="per_id_a_' . $per['per_id'] . '" class="del-a-' . $per['child'] . '"
-                        onchange="per_change(this, \'a-' . $per['child'] . '\', \'a-' . $per['per_id'] . '\')"
-                        type="checkbox" name="permissions[a-' . $per['per_id'] . ']">' . htmlspecialchars($per['per_name']) . '</label>
-                </div>';
-        }
-        foreach ($groups as $group_id => $name) {
-            if (!empty($group_html[$group_id])) {
-                $users_html .= '
-                    <div class="form-group">
-                        <label>' . $name . '</label>
-                        ' . implode('', $group_html[$group_id]) . '
-                    </div>
-                ';
-            }
-        }
-        $users_html .= '<div class="control-group"><div class="controls">
-            <input class="btn btn-primary" type="submit" name="add-role" value="' . l('Создать') . '"></div></div>';
-        $users_html .= '</fieldset></form>';
-        $users_html .= '</div>';
 
-        $form_data = array();
-        $msg = '';
+        $users_html .= $this->createNewRole($permissions, $groups);
+
+        $user = array();
         if (!empty($_SESSION['create-user-error'])) {
-            $msg = '
-                <div class="alert alert-danger alert-dismissible" role="alert">
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  ' . $_SESSION['create-user-error'] . '
-                </div>
-            ';
-            $form_data = $_SESSION['create-user-post'];
-            unset($_SESSION['create-user-error']);
+            $user = $_SESSION['create-user-post'];
             unset($_SESSION['create-user-post']);
         }
-
-        $role_html = '';
-        foreach ($roles as $role_id => $role_name) {
-            $sel = !empty($form_data['role']) && $role_id == $form_data['role'] ? ' selected' : '';
-            $role_html .= '<option' . $sel . ' value="' . $role_id . '">' . htmlspecialchars($role_name) . '</option>';
-        }
-
-        // добавление нового пользователя
-        $users_html .= '<div id="create_tab_user" class="tab-pane">';
-        $warehouses = '';
-        $q = $this->all_configs['chains']->query_warehouses();
-        // списсок складов с общим количеством товаров
-        $warehouses_arr = $this->all_configs['chains']->warehouses($q['query_for_noadmin_w']);
-        foreach ($warehouses_arr as $warehouse) {
-            $sel = !empty($form_data['warehouses']) && in_array($warehouse['id'],
-                $form_data['warehouses']) ? ' selected' : '';
-            $warehouses .= '<option' . $sel . ' value="' . $warehouse['id'] . '">' . htmlspecialchars($warehouse['title']) . '</option>';
-        }
-        $warehouses_options = '';
-//        $whs = $this->all_configs['chains']->warehouses();
-        $whs = get_service('wh_helper')->get_warehouses();
-        $whs_first = 0;
-        $i = 0;
-        foreach ($whs as $warehouse) {
-            $sel = !empty($form_data['warehouse']) && $form_data['warehouse'] == $warehouse['id'] ? ' selected' : '';
-            if (!$i) {
-                $whs_first = $warehouse['id'];
-            }
-            $warehouses_options .= '<option' . $sel . ' value="' . $warehouse['id'] . '">' . $warehouse['title'] . '</option>';
-            $i++;
-        }
-        $warehouses_options_locations = '';
-        if (isset($whs[$whs_first]['locations'])) {
-            foreach ($whs[$whs_first]['locations'] as $id => $location) {
-                if (trim($location['name'])) {
-                    $sel = !empty($form_data['location']) && $form_data['location'] == $id ? ' selected' : '';
-                    $warehouses_options_locations .=
-                        '<option' . $sel . (!$i ? ' selected="selected"' : '') . ' value="' . $id . '">' .
-                        htmlspecialchars($location['name']) .
-                        '</option>';
-                }
+        $roles = array();
+        $yet = 0;
+        foreach ($permissions as $permission) {
+            if ($yet === 0) {
+                $yet = $permission['role_id'];
+                $roles[$permission['role_id']] = $permission['role_name'];
+            } elseif ($yet != $permission['role_id']) {
+                $roles[$permission['role_id']] = $permission['role_name'];
             }
         }
-        $users_html .= $this->view->renderFile('users/create', array(
-            'msg' => $msg,
-            'form_data' => $form_data,
-            'warehouses_options' => $warehouses_options,
-            'warehouses_options_locations' => $warehouses_options_locations,
-            'warehouses' => $warehouses,
-            'role_html' => $role_html
-
-        ));
-
-        $users_html .= '</div>';
+        $users_html .= $this->createUserForm($user, $roles);
 
         $users_html .= '</div>';
 
@@ -657,7 +563,6 @@ class users
      */
     private function get_all_roles()
     {
-
         return $this->all_configs['db']->query("
             SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
               p.name as per_name, p.link, p.child, p.group_id
@@ -730,44 +635,80 @@ class users
     }
 
     /**
-     * @param $pers
+     * @param $permissions
      * @return array
      */
-    private function getRolesTree($pers)
+    private function getRolesTree($permissions)
     {
         $aRoles = array();
-        foreach ($pers as $per) {
-            if (array_key_exists($per['role_id'], $aRoles)) {
-
-                $aRoles[$per['role_id']]['children'][$per['per_id']] = array(
-                    'link' => $per['link'],
-                    'name' => $per['per_name'],
-                    'group_id' => $per['group_id'],
-                    'child' => $per['child'],
-                    'checked' => $per['id']
-                );
-
-            } else {
-                $aRoles[$per['role_id']] = array(
-                    'name' => $per['role_name'],
+        foreach ($permissions as $permission) {
+            if (!array_key_exists($permission['role_id'], $aRoles)) {
+                $aRoles[$permission['role_id']] = array(
+                    'name' => $permission['role_name'],
                     'all' => array(),
-                    'date_end' => $per['date_end'],
-                    'avail' => $per['avail'],
-                    'children' => array(
-                        $per['per_id'] => array(
-                            'link' => $per['link'],
-                            'name' => $per['per_name'],
-                            'group_id' => $per['group_id'],
-                            'child' => $per['child'],
-                            'checked' => $per['id']
-                        )
-                    )
+                    'date_end' => $permission['date_end'],
+                    'avail' => $permission['avail'],
+                    'children' => array()
                 );
             }
-            if (intval($per['id']) > 0) {
-                $aRoles[$per['role_id']]['all'][] = $per['per_id'];
+            $aRoles[$permission['role_id']]['children'][$permission['per_id']] = array(
+                'link' => $permission['link'],
+                'name' => $permission['per_name'],
+                'group_id' => $permission['group_id'],
+                'child' => $permission['child'],
+                'checked' => $permission['id']
+            );
+            if (intval($permission['id']) > 0) {
+                $aRoles[$permission['role_id']]['all'][] = $permission['per_id'];
             }
         }
         return $aRoles;
+    }
+
+    /**
+     * @param $user
+     * @param $roles
+     * @return string
+     * @throws Exception
+     */
+    private function createUserForm($user, $roles)
+    {
+        $error = '';
+        if (!empty($_SESSION['create-user-error'])) {
+            $error = $_SESSION['create-user-error'];
+            unset($_SESSION['create-user-error']);
+        }
+
+        $q = $this->all_configs['chains']->query_warehouses();
+        // списсок складов с общим количеством товаров
+        $warehouses_arr = $this->all_configs['chains']->warehouses($q['query_for_noadmin_w']);
+
+        $warehouses = get_service('wh_helper')->get_warehouses();
+
+        $firstWarehouse = reset($warehouses);
+        $cashboxes = array();
+        return $this->view->renderFile('users/create', array(
+            'error' => $error,
+            'form_data' => $user,
+            'warehouses' => $warehouses,
+            'warehouses_locations' => isset($firstWarehouse['locations']) ? $firstWarehouse['locations'] : array(),
+            'warehouses_arr' => $warehouses_arr,
+            'cashboxes' => $cashboxes,
+            'roles' => $roles,
+            'controller' => $this
+        ));
+    }
+
+    /**
+     * @param $permissions
+     * @param $groups
+     * @return array
+     */
+    private function createNewRole($permissions, $groups)
+    {
+        return $this->view->renderFile('users/create_new_role', array(
+            'groups' => $groups,
+            'permissions' => $permissions
+        ));
     }
 }
