@@ -372,16 +372,15 @@
                                 <div class="input-group-addon"><?= viewCurrency() ?></div>
                                 <div class="input-group-btn">
                                     <?php $pay_btn = ''; ?>
-                                    <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
-                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
-                                            <input type="button" class="btn btn-success btn-xs"
-                                                   value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
-                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
-                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
-                                            <input type="button" class="btn btn-success js-pay-button <?= intval($order['sum']) == 0? 'disabled': ''?>"
-                                                   value="<?= l('Принять оплату') ?>"
-                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
-                                        <?php endif; ?>
+                                    <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
+                                        <input type="button" class="btn btn-success btn-xs"
+                                               value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
+                                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
+                                    <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
+                                        <input type="button"
+                                               class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
+                                               value="<?= l('Принять оплату') ?>"
+                                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
                                     <?php endif; ?>
                                 </div>
                             </div>

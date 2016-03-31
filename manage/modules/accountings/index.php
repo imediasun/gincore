@@ -1274,409 +1274,18 @@ class accountings
 
         // добавление нового контрагента
         if ($act == 'contractor-create') {
-
-            $data['state'] = true;
-            // права
-            if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                $data['state'] = false;
-                $data['message'] = l('Нет прав');
-            }
-            // статьи
-            if ($data['state'] == true && !isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
-                $data['state'] = false;
-                $data['message'] = l('Укажите статью');
-            }
-            // фио
-            if ($data['state'] == true && !isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
-                $data['state'] = false;
-                $data['message'] = l('Введите ФИО');
-            }
-
-            $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
-            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-            $access = new access($this->all_configs, false);
-            $phone = $access->is_phone($phone);
-            // телефон
-            if ($data['state'] == true && !$phone) {
-                $data['state'] = false;
-                $data['message'] = l('Введите номер телефона в формате вашей страны');
-            }
-
-            if ($data['state'] == true) {
-                // создаем
-                $contractor_id = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors}
-                        (title, type, comment) VALUES (?, ?i, ?)',
-                    array(trim($_POST['title']), $_POST['type'], trim($_POST['comment'])), 'id');
-
-                if ($contractor_id > 0) {
-                    $data['id'] = $contractor_id;
-                    $data['name'] = htmlspecialchars($_POST['title']);
-                    foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
-                        if ($contractor_category_id > 0) {
-                            $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
-                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                                array($contractor_category_id, $contractor_id))->ar();
-                        }
-                    }
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'add-contractor', $mod_id, $contractor_id));
-
-                    // создаем клиента для контрагента
-                    //email проверяется чуть выше
-                    $email = isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
-                    if($phone || $email){
-                        $exists_client = $access->get_client($email, $phone, true);
-                        if($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i", array($exists_client['id']), 'el')){
-                            // привязываем к существующему если к нему не привязан контрагент
-                            $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
-                                                           ."WHERE id = ?i", array($contractor_id,$exists_client['id']));
-                        }else{
-                            // создаем клиента и привязываем
-                            $result = $access->registration(array(
-                                'email' => $email,
-                                'phone' => $phone[0],
-                                'fio' => $_POST['title']
-                            ));
-                            if($result['new']){
-                                $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
-                                                               ."WHERE id = ?i", array($contractor_id,$result['id']));
-                            }
-                        }
-                    }
-                } else {
-                    $data['state'] = false;
-                    $data['message'] = l('Такой контрагент уже существует');
-                }
-            }
+            $data = $this->contractorCreate($data, $user_id, $mod_id);
         }
         // редактирование контрагента
         if ($act == 'contractor-edit') {
-            $data['state'] = true;
-            $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
-                                                        ."WHERE id = ?i AND comment = 'system'", array($this->all_configs['arrequest'][2]), 'el');
-            if($is_system){
-                $data['state'] = false;
-                $data['message'] = l('Системный контрагент - не подлежит редактированию');
-            }
-            // права
-            if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                $data['state'] = false;
-                $data['message'] = l('Нет прав');
-            }
-            // ид
-            if ($data['state'] == true && !isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
-                $data['state'] = false;
-                $data['message'] = l('Контрагент не найден');
-            }
-            // статьи
-            if ($data['state'] == true && !isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
-                $data['state'] = false;
-                $data['message'] = l('Укажите статью');
-            }
-            // фио
-            if ($data['state'] == true && !isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
-                $data['state'] = false;
-                $data['message'] = l('Введите ФИО');
-            }
-            if ($data['state'] == true) {
-                $ar = $this->all_configs['db']->query('UPDATE {contractors} SET title=?, type=?i, comment=? WHERE id=?i',
-                    array(trim($_POST['title']), $_POST['type'], trim($_POST['comment']), $this->all_configs['arrequest'][2]))->ar();
-
-                if ($ar) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'edit-contractor', $mod_id, $this->all_configs['arrequest'][2]));
-                }
-
-                $contractor_categories_id = $this->all_configs['db']->query('SELECT contractors_categories_id
-                        FROM {contractors_categories_links} WHERE contractors_id=?i',
-                    array($this->all_configs['arrequest'][2]))->vars();
-
-                foreach ($contractor_categories_id as $contractor_category_id) {
-                    if ($contractor_category_id > 0) {
-                        try {
-                            $this->all_configs['db']->query('DELETE FROM {contractors_categories_links} WHERE contractors_id=?i
-                                    AND contractors_categories_id=?i',
-                                array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                        } catch (Exception $e) {}
-                    }
-                }
-                // категории
-                if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
-                    foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
-                        if ($contractor_category_id > 0) {
-                            $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
-                                    (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                                array($contractor_category_id, $this->all_configs['arrequest'][2]))->ar();
-                        }
-                    }
-                }
-            }
+            $data = $this->contractorEdit($data, $user_id, $mod_id);
         }
 
         // форма создания транзакции
         if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3'
             || $act == 'begin-transaction-1-co' || $act == 'begin-transaction-2-co'
             || $act == 'begin-transaction-1-so' || $act == 'begin-transaction-2-so') {
-            $btn = l('Сохранить');
-            // тип транзакции
-            $tt = intval(preg_replace("/[^0-9]/", "", $act));
-            // сегодня
-            $today = date("d.m.Y");
-            $select_cashbox = '';
-            $selected_cashbox = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
-            // список форм для редактирования касс
-            if (count($this->cashboxes) > 0) {
-                $erpct = $this->all_configs['configs']['erp-cashbox-transaction'];
-                $erpt = $this->all_configs['configs']['erp-so-cashbox-terminal'];
-
-                foreach ($this->cashboxes as $cashbox) {
-                    // выбор кассы при транзакции
-                    if ($cashbox['avail'] == 1) {
-                        // кроме транзитной
-                        $dis = $cashbox['id'] == $erpct
-                               || ($cashbox['id'] == $erpt && !$this->all_configs['configs']['manage-show-terminal-cashbox']);
-
-                        $select_cashbox .= '<option' . ($dis ? ' disabled' : '');
-                        $select_cashbox .= ($cashbox['id'] == $selected_cashbox ? ' selected' : '');
-                        $select_cashbox .= ' value="' . $cashbox['id'] . '">' . htmlspecialchars($cashbox['name']) . '</option>';
-                        $selected_cashbox = $selected_cashbox == 0 ? $cashbox['id'] : $selected_cashbox;
-                    }
-                }
-            }
-
-            $daf = $dc = $dccf = $dcct = ''; // disabled
-            $fc = ''; // form class
-            $so_id = $co_id = 0; // orders
-            $b_id = 0; // chanin body
-            $t_extra = 0; // delivery payment
-            $amount_from = $amount_to = 0; // amounts
-            $client_contractor = 0; // client order contractor
-
-            // контрагенты
-            $select_contractors = '';
-            $ccg_id = 0;
-
-            // заказ поставщику
-            if (isset($_POST['supplier_order_id']) && $_POST['supplier_order_id'] > 0) {
-                // выдача
-                if ($tt == 1) {
-                    $amount_from = $this->all_configs['db']->query('SELECT (count_come * price)
-                          FROM {contractors_suppliers_orders} WHERE id=?i',
-                            array($_POST['supplier_order_id']))->el() / 100;
-
-                    $ccg_id = $this->all_configs['configs']['erp-so-contractor_category_id_from'];
-                    $c_id = $this->all_configs['db']->query('SELECT supplier FROM {contractors_suppliers_orders} WHERE id=?i',
-                        array($_POST['supplier_order_id']))->el();
-                    $select_contractors = $this->contractors_options($ccg_id, $c_id);
-
-                    $daf = $dc = $dcct = 'disabled';
-                }
-                $fc .= ' transaction_type-so-' . $tt;
-                $so_id = $_POST['supplier_order_id'];
-            }
-
-            // заказ клиента
-            if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
-                $co_id = $_POST['client_order_id'];
-                $select_query_1 = $this->all_configs['db']->makeQuery('o.sum_paid-o.sum FROM {orders} as o', array());
-                $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid FROM {orders} as o', array());
-                $b_id = isset($_POST['b_id']) && $_POST['b_id'] > 0 ? $_POST['b_id'] : $b_id;
-
-                // за доставку
-                if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'delivery') {
-                    $select_query_1 = $this->all_configs['db']->makeQuery('o.delivery_paid FROM {orders} as o', array());
-                    $select_query_2 = $this->all_configs['db']->makeQuery('o.delivery_cost-o.delivery_paid FROM {orders} as o', array());
-                    $t_extra = 'delivery';
-                }
-                // за комиссию
-                if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'payment') {
-                    $select_query_1 = $this->all_configs['db']->makeQuery('o.payment_paid FROM {orders} as o', array());
-                    $select_query_2 = $this->all_configs['db']->makeQuery('o.payment_cost-o.payment_paid FROM {orders} as o', array());
-                    $t_extra = 'payment';
-                }
-                // за предоплату
-                if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'prepay') {
-                    $select_query_1 = $this->all_configs['db']->makeQuery('o.sum_paid FROM {orders} as o', array());
-                    $select_query_2 = $this->all_configs['db']->makeQuery('o.prepay-o.sum_paid FROM {orders} as o', array());
-                    $t_extra = 'prepay';
-                }
-                // конкретная цепочка
-                if ($b_id > 0 && (!isset($_POST['transaction_extra']) || ($_POST['transaction_extra'] != 'payment'
-                            && $_POST['transaction_extra'] != 'delivery'))) {
-                    // выдача
-                    if ($tt == 1) {
-                        $select_query_1 = $this->all_configs['db']->makeQuery('h.paid FROM {orders} as o
-                                LEFT JOIN {chains_headers} as h ON h.order_id=o.id
-                                    AND h.id=(SELECT chain_id FROM {chains_bodies} WHERE id=?i)
-                                LEFT JOIN {orders_goods} as og ON h.order_goods_id=og.id',
-                            array($b_id));
-                    }
-                    // внесение
-                    if ($tt == 2) {
-                        $select_query_2 = $this->all_configs['db']->makeQuery('og.price+og.warranties_cost-h.paid
-                                FROM {orders} as o
-                                LEFT JOIN {chains_headers} as h ON h.order_id=o.id
-                                    AND h.id=(SELECT chain_id FROM {chains_bodies} WHERE id=?i)
-                                LEFT JOIN {orders_goods} as og ON h.order_goods_id=og.id',
-                            array($b_id));
-                    }
-                }
-                // выдача
-                if ($tt == 1) {
-                    $btn = l('Выдать');
-                    $amount_from = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
-                            array($select_query_1, $_POST['client_order_id']))->el() / 100;
-                }
-                // внесение
-                if ($tt == 2) {
-                    $amount_to = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
-                            array($select_query_2, $_POST['client_order_id']))->el() / 100;
-                }
-
-                $client_contractor = $this->all_configs['db']->query('SELECT c.contractor_id
-                        FROM {orders} as o, {clients} as c WHERE o.id=?i AND o.user_id=c.id',
-                    array($_POST['client_order_id']))->el();
-            }
-
-            $data['content'] = '<form method="post" id="transaction_form"><fieldset>';
-
-            // категории для транзакции
-            $categories = $this->get_contractors_categories(1);
-            $select_contractors_categories_to = "<option value=''>" . l('Выберите') . "</option>" . build_array_tree($categories, $ccg_id) . "</select>";
-            $categories = $this->get_contractors_categories(2);
-            $select_contractors_categories_from = "<option value=''>" . l('Выберите') . "</option>" . build_array_tree($categories, $ccg_id) . "</select>";
-
-            $cashbox_id = array_key_exists('object_id', $_POST) && $_POST['object_id'] > 0 ? $_POST['object_id'] : $selected_cashbox;
-            // валюта
-            $cashbox_currencies = $this->get_cashbox_currencies($cashbox_id);
-
-            $data['content'] .= '<input type="hidden" name="transaction_type" id="transaction_type" value="' . $tt . '" />';
-            $data['content'] .= '<input type="hidden" name="supplier_order_id" value="' . $so_id . '" />';
-            $data['content'] .= '<input type="hidden" name="client_order_id" value="' . $co_id . '" />';
-            $data['content'] .= '<input type="hidden" name="b_id" value="' . $b_id . '" />';
-            $data['content'] .= '<input type="hidden" name="transaction_extra" value="' . $t_extra . '" />';
-
-            //#transaction_type=>value #transaction_form_body=>.transaction_type-...
-            //$data['content'] .= '<div class="btn-group">';
-            //$data['content'] .= '<button class="btn ' . ($tt == 1 ? 'active' : '') . '">' . l('Выдача') .'</button>';
-            //$data['content'] .= '<button class="btn ' . ($tt == 2 ? 'active' : '') . '">' . l('Внесение') .'</button>';
-            //$data['content'] .= '<button class="btn ' . ($tt == 3 ? 'active' : '') . '">' . l('Перемещение') .'</button></div>';
-
-            $data['content'] .= '<div id="transaction_form_body" class="hide-conversion-3 transaction_type-' . $tt . ' ' . $fc . '">';
-            $data['content'] .= '<table><thead><tr><td></td><td></td><td>' . l('Сумма') . '</td><td>' . l('Валюта') . '</td>';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span>Курс</span></td><td class="hide-not-tt-1 hide-not-tt-2"></td></tr></thead><tbody>';
-            //* С кассы 1 3
-            $data['content'] .= '<tr class="hide-not-tt-2"><td>* ' . l('С кассы') . '</td>';
-            $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control input-sm cashbox-1">' . $select_cashbox . '</select></td>';
-            $data['content'] .= '<td><input ' . $daf . ' class="form-control input-sm" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
-            $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
-            $onchange = '
-                $(\'#amount-2\').val(($(\'#amount-1\').val()*$(\'#conversion-course-1\').val()).toFixed(2));
-                if ($(\'#amount-2\').val() > 0)
-                    $(\'#conversion-course-2\').val(($(\'#amount-1\').val()/$(\'#amount-2\').val()).toFixed(4));
-                else
-                    $(\'#conversion-course-2\').val(0.0000);';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-1" style="width:80px" onchange="' . $onchange . '" class="form-control input-mini" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_from"/></span></td>';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>' . l('Прямой') . '</small><br /><small id="conversion-course-db-1">1.0000</small></span></td></tr>';
-            //* В кассу 2 3
-            $data['content'] .= '<tr class="hide-not-tt-1"><td>* ' . l('В кассу') . '</td>';
-            $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="form-control input-sm cashbox-2">' . $select_cashbox . '</select></td>';
-            $onchange = '
-                if ($(\'#amount-1\').val() > 0 && $(\'#amount-2\').val() > 0) {
-                    $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
-                    $(\'#conversion-course-2\').val(($(\'#amount-1\').val()/$(\'#amount-2\').val()).toFixed(4));
-                } else {
-                    $(\'#conversion-course-1\').val(0.0000);
-                    $(\'#conversion-course-2\').val(0.0000);
-                }';
-            $data['content'] .= '<td class="hide-conversion"><span><input class="form-control input-sm" onchange="' . $onchange . '" id="amount-2" type="text" style="width:80px" name="amount_to" value="' . $amount_to . '" onkeydown="return isNumberKey(event, this)" /></span></td>';
-            $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-2" onchange="get_course(0)" name="cashbox_currencies_to">' . $cashbox_currencies . '</select></td>';
-            $onchange = '
-                if ($(\'#conversion-course-2\').val() > 0)
-                    $(\'#amount-2\').val(($(\'#amount-1\').val()/$(\'#conversion-course-2\').val()).toFixed(2));
-                else
-                    $(\'#amount-2\').val(0.0000);
-                if ($(\'#amount-2\').val() > 0)
-                    $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
-                else
-                    $(\'#conversion-course-1\').val(0.0000);';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-2" style="width:80px" onchange="' . $onchange . '" class="form-control input-sm" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_to"/></span></td>';
-            $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>' . l('Обратный') . '</small><br /><small id="conversion-course-db-2">1.0000</small></span></td></tr>';
-            if ($co_id == 0) {
-                //* Статья 1
-                $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
-                $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
-                $data['content'] .= $select_contractors_categories_to . '</select>';
-                $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
-                $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
-                //* Статья 2
-                $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
-                $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
-                $data['content'] .= $select_contractors_categories_from . '</select>';
-                $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
-                $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
-                //* Контрагент 1 2
-                $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
-                $data['content'] .= '<td><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id">' . $select_contractors . '</select>';
-                $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
-                $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
-            }
-            // только обычные транзакции
-            if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
-                // Без внесения на баланс 1
-                $content = '(' . l('Ставим птичку в случае, если данная выплата производится за услуги или расходные материалы.') . ' ';
-                $content .= l('Не ставим птичку - если оплата производится за приобретаемые оборотные активы)');
-                $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3 hide-not-tt-so-1"><td colspan="2">';
-                $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
-                $js = '
-                    if (this.checked) {
-                        if (!confirm(\'' . l('Не зачислять контрагенту на баланс?') . '\')) {
-                            this.checked=false;
-                        }
-                    }';
-                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>' . l('Без внесения на баланс') . '</label></div></td></tr>';
-                // Без списания c баланса 2
-                $content = '(' . l('Птичку ставим - когда поступление денежных средств не связано с приобретением или возвратом оборотных активов') . ')';
-                $js = 'if (this.checked) { if (!confirm(\'' . l('Не списывать у контрагента с баланса?') . '\')) { this.checked=false; } }';
-                $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td colspan="2">';
-                $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
-                $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>' . l('Без списания с баланса') . '</label></div></td></tr>';
-            }
-            // Списать с баланса контрагента (заказ клиента)
-            if ($co_id > 0 && ($tt == 1 || $tt == 2) && $client_contractor > 0) {//TODO have contractor
-                //onchange='transaction_with_supplier(this, {$this->all_configs['configs']['erp-cashbox-transaction']})'
-                $ct = $this->all_configs['configs']['erp-cashbox-transaction'];
-                $js = '
-                    if (this.checked) {
-                        $(\'.cashbox-1, .cashbox-2\').val(' . $ct . ').prop(\'disabled\', true);
-                    } else {
-                        $(\'.cashbox-1, .cashbox-2\').val(' . $selected_cashbox . ').prop(\'disabled\',false);
-                    }';
-                $data['content'] .= '<tr><td colspan="6"><label class="checkbox">';
-                $data['content'] .= '<input name="client_contractor" value="1" type="checkbox" onchange="javascript:' . $js . '"/> ';
-                $data['content'] .= $tt == 2 ? l('Списать с баланса контрагента') : l('Зачислить на баланс контрагента');
-                $data['content'] .= '</label></td></tr>';
-            }
-            // только обычные транзакции или выдача за заказ клиента
-            if ($act == 'begin-transaction-1-co' || $act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
-                // Примечание 1 2 3
-                $data['content'] .= '<tr><td colspan="2"><textarea class="form-control input-sm" name="comment" placeholder="' . l('примечание') .'"></textarea></td>';
-                // только обычные транзакции
-                if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
-                    //$data['content'] .= '<td colspan="4" class="center"><input type="text" name="date_transaction" class="input-small date-pickmeup" data-pmu-format="d.m.Y" value="' . $today .'" /></td>';
-                    $data['content'] .=
-                        '<td colspan="4" class="center"><div class="form-group">
-                            <input class="form-control daterangepicker_single input-sm" type="text" name="date_transaction" value="' . $today . '" />
-                        </div>';
-                }
-                $data['content'] .= '</tr>';
-            }
-            //$data['content'] .= '<tr><td colspan="2"></td><td colspan="4" class="center"></td></tr>';
-            $data['content'] .= '</tbody></table></div></fieldset></form>';
-            $data['btns'] = '<button type="button" onclick="create_transaction(this)" class="btn btn-success">' . $btn . '</button>';
-
-            $data['functions'] = array('reset_multiselect()');
-            $data['state'] = true;
+            $data = $this->createTransactionForm($data, $user_id, $act);
         }
 
         // форма создания категории расход контрагента
@@ -2284,40 +1893,19 @@ class accountings
      * @param $hash
      * @return array
      */
-    function accountings_transactions($hash)
+    public function accountings_transactions($hash)
     {
-        if (trim($hash) == '#transactions' || (trim($hash) != '#transactions-cashboxes' && trim($hash) != '#transactions-contractors'))
+        if (trim($hash) == '#transactions' || (trim($hash) != '#transactions-cashboxes' && trim($hash) != '#transactions-contractors')) {
             $hash = '#transactions-cashboxes';
-
-        $out = '';
-
+        }
         if (!$this->all_configs['oRole']->hasPrivilege('accounting')) {
             $hash = '#transactions-contractors';
         }
 
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
-            $out = '<ul class="nav nav-pills">';
-            if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-                $out .= '<li><a class="click_tab" data-open_tab="accountings_transactions_cashboxes" onclick="click_tab(this, event)" href="#transactions-cashboxes" title="' . l('Транзакции касс') . '">' . l('Касс') . '</a></li>';
-            }
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_transactions_contractors" onclick="click_tab(this, event)" href="#transactions-contractors" title="' . l('Транзакции контрагентов') . '">' . l('Контрагентов') . '</a></li>';
-            $out .= '</ul>';
-            $out .= '<div class="pill-content">';
-
-            if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-                // фильтры транзакций
-                $out .= '<div id="transactions-cashboxes" class="pill-pane">';
-                $out .= '</div><!--#transactions-cashboxes-->';
-            }
-            $out .= '<div id="transactions-contractors" class="pill-pane">';
-            $out .= '</div><!--#transactions-contractors-->';
-
-            $out .= '</div><!--.pill-content-->';
-        }
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_transactions', array(
+                'hash' => $hash
+            )),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -3911,5 +3499,447 @@ class accountings
             INSERT INTO  restore4_contractors_categories_links (contractors_categories_id, contractors_id)
             SELECT ?, contractors_id FROM restore4_contractors_categories_links WHERE contractors_categories_id = ?
             ', array($contractor_category,$parent_id))->ar();
+    }
+
+    /**
+     * @param $data
+     * @param $user_id
+     * @param $mod_id
+     * @return array
+     */
+    private function contractorEdit($data, $user_id, $mod_id)
+    {
+        $data['state'] = true;
+        $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
+            . "WHERE id = ?i AND comment = 'system'", array($this->all_configs['arrequest'][2]), 'el');
+        if ($is_system) {
+            $data['state'] = false;
+            $data['message'] = l('Системный контрагент - не подлежит редактированию');
+        }
+        // права
+        if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data['state'] = false;
+            $data['message'] = l('Нет прав');
+        }
+        // ид
+        if ($data['state'] == true && !isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
+            $data['state'] = false;
+            $data['message'] = l('Контрагент не найден');
+        }
+        // статьи
+        if ($data['state'] == true && !isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
+            $data['state'] = false;
+            $data['message'] = l('Укажите статью');
+        }
+        // фио
+        if ($data['state'] == true && !isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
+            $data['state'] = false;
+            $data['message'] = l('Введите ФИО');
+        }
+        if ($data['state'] == true) {
+            $ar = $this->all_configs['db']->query('UPDATE {contractors} SET title=?, type=?i, comment=? WHERE id=?i',
+                array(
+                    trim($_POST['title']),
+                    $_POST['type'],
+                    trim($_POST['comment']),
+                    $this->all_configs['arrequest'][2]
+                ))->ar();
+
+            if ($ar) {
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                    array($user_id, 'edit-contractor', $mod_id, $this->all_configs['arrequest'][2]));
+            }
+
+            $contractor_categories_id = $this->all_configs['db']->query('SELECT contractors_categories_id
+                        FROM {contractors_categories_links} WHERE contractors_id=?i',
+                array($this->all_configs['arrequest'][2]))->vars();
+
+            foreach ($contractor_categories_id as $contractor_category_id) {
+                if ($contractor_category_id > 0) {
+                    try {
+                        $this->all_configs['db']->query('DELETE FROM {contractors_categories_links} WHERE contractors_id=?i
+                                    AND contractors_categories_id=?i',
+                            array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
+                        return array($data, $is_system, $ar);
+                    } catch (Exception $e) {
+                    }
+                }
+            }
+            // категории
+            if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
+                foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
+                    if ($contractor_category_id > 0) {
+                        $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
+                                    (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
+                            array($contractor_category_id, $this->all_configs['arrequest'][2]))->ar();
+                    }
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @param $user_id
+     * @param $mod_id
+     * @return array
+     */
+    private function contractorCreate($data, $user_id, $mod_id)
+    {
+        $data['state'] = true;
+        // права
+        if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data['state'] = false;
+            $data['message'] = l('Нет прав');
+        }
+        // статьи
+        if ($data['state'] == true && !isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
+            $data['state'] = false;
+            $data['message'] = l('Укажите статью');
+        }
+        // фио
+        if ($data['state'] == true && !isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
+            $data['state'] = false;
+            $data['message'] = l('Введите ФИО');
+        }
+
+        $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
+        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        $access = new access($this->all_configs, false);
+        $phone = $access->is_phone($phone);
+        // телефон
+        if ($data['state'] == true && !$phone) {
+            $data['state'] = false;
+            $data['message'] = l('Введите номер телефона в формате вашей страны');
+        }
+
+        if ($data['state'] == true) {
+            // создаем
+            $contractor_id = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors}
+                        (title, type, comment) VALUES (?, ?i, ?)',
+                array(trim($_POST['title']), $_POST['type'], trim($_POST['comment'])), 'id');
+
+            if ($contractor_id > 0) {
+                $data['id'] = $contractor_id;
+                $data['name'] = htmlspecialchars($_POST['title']);
+                foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
+                    if ($contractor_category_id > 0) {
+                        $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
+                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
+                            array($contractor_category_id, $contractor_id))->ar();
+                    }
+                }
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                    array($user_id, 'add-contractor', $mod_id, $contractor_id));
+
+                // создаем клиента для контрагента
+                //email проверяется чуть выше
+                $email = isset($_POST['email']) && filter_var($_POST['email'],
+                    FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
+                if ($phone || $email) {
+                    $exists_client = $access->get_client($email, $phone, true);
+                    if ($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i",
+                            array($exists_client['id']), 'el')
+                    ) {
+                        // привязываем к существующему если к нему не привязан контрагент
+                        $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
+                            . "WHERE id = ?i", array($contractor_id, $exists_client['id']));
+                    } else {
+                        // создаем клиента и привязываем
+                        $result = $access->registration(array(
+                            'email' => $email,
+                            'phone' => $phone[0],
+                            'fio' => $_POST['title']
+                        ));
+                        if ($result['new']) {
+                            $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
+                                . "WHERE id = ?i", array($contractor_id, $result['id']));
+                        }
+                    }
+                }
+            } else {
+                $data['state'] = false;
+                $data['message'] = l('Такой контрагент уже существует');
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @param $user_id
+     * @param $act
+     * @return mixed
+     */
+    private function createTransactionForm($data, $user_id, $act)
+    {
+        $btn = l('Сохранить');
+        // тип транзакции
+        $transactionType = intval(preg_replace("/[^0-9]/", "", $act));
+        // сегодня
+        $today = date("d.m.Y");
+        $select_cashbox = '';
+        $selected_cashbox = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
+        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
+            $cashboxes = $this->cashboxes;
+        } else {
+            $cashboxes = $this->all_configs['db']->query('SELECT * FROM {cashboxes}'
+                . ' WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id = ?i)', array(
+                $user_id
+            ))->assoc('id');
+        }
+        // список форм для редактирования касс
+        if (count($cashboxes) > 0) {
+            $erpct = $this->all_configs['configs']['erp-cashbox-transaction'];
+            $erpt = $this->all_configs['configs']['erp-so-cashbox-terminal'];
+
+            foreach ($cashboxes as $cashbox) {
+                // выбор кассы при транзакции
+                if ($cashbox['avail'] == 1) {
+                    // кроме транзитной
+                    $dis = $cashbox['id'] == $erpct
+                        || ($cashbox['id'] == $erpt && !$this->all_configs['configs']['manage-show-terminal-cashbox']);
+
+                    $select_cashbox .= '<option' . ($dis ? ' disabled' : '');
+                    $select_cashbox .= ($cashbox['id'] == $selected_cashbox ? ' selected' : '');
+                    $select_cashbox .= ' value="' . $cashbox['id'] . '">' . htmlspecialchars($cashbox['name']) . '</option>';
+                    $selected_cashbox = $selected_cashbox == 0 ? $cashbox['id'] : $selected_cashbox;
+                }
+            }
+        }
+
+        $daf = $dc = $dccf = $dcct = ''; // disabled
+        $formClass = ''; // form class
+        $supplier_order_id = $co_id = 0; // orders
+        $b_id = 0; // chanin body
+        $t_extra = 0; // delivery payment
+        $amount_from = $amount_to = 0; // amounts
+        $client_contractor = 0; // client order contractor
+
+        // контрагенты
+        $select_contractors = '';
+        $ccg_id = 0;
+
+        // заказ поставщику
+        if (isset($_POST['supplier_order_id']) && $_POST['supplier_order_id'] > 0) {
+            // выдача
+            if ($transactionType == 1) {
+                $amount_from = $this->all_configs['db']->query('SELECT (count_come * price)
+                          FROM {contractors_suppliers_orders} WHERE id=?i',
+                        array($_POST['supplier_order_id']))->el() / 100;
+                $ccg_id = $this->all_configs['configs']['erp-so-contractor_category_id_from'];
+                $contractor_id = $this->all_configs['db']->query('SELECT supplier FROM {contractors_suppliers_orders} WHERE id=?i',
+                    array($_POST['supplier_order_id']))->el();
+                $select_contractors = $this->contractors_options($ccg_id, $contractor_id);
+
+                $daf = $dc = $dcct = 'disabled';
+            }
+            $formClass .= ' transaction_type-so-' . $transactionType;
+            $supplier_order_id = $_POST['supplier_order_id'];
+        }
+
+        // заказ клиента
+        if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
+            $co_id = $_POST['client_order_id'];
+            $select_query_1 = $this->all_configs['db']->makeQuery('o.sum_paid-o.sum FROM {orders} as o', array());
+            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid FROM {orders} as o', array());
+            $b_id = isset($_POST['b_id']) && $_POST['b_id'] > 0 ? $_POST['b_id'] : $b_id;
+
+            // за доставку
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'delivery') {
+                $select_query_1 = $this->all_configs['db']->makeQuery('o.delivery_paid FROM {orders} as o', array());
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.delivery_cost-o.delivery_paid FROM {orders} as o',
+                    array());
+                $t_extra = 'delivery';
+            }
+            // за комиссию
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'payment') {
+                $select_query_1 = $this->all_configs['db']->makeQuery('o.payment_paid FROM {orders} as o', array());
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.payment_cost-o.payment_paid FROM {orders} as o',
+                    array());
+                $t_extra = 'payment';
+            }
+            // за предоплату
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'prepay') {
+                $select_query_1 = $this->all_configs['db']->makeQuery('o.sum_paid FROM {orders} as o', array());
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.prepay-o.sum_paid FROM {orders} as o',
+                    array());
+                $t_extra = 'prepay';
+            }
+            // конкретная цепочка
+            if ($b_id > 0 && (!isset($_POST['transaction_extra']) || ($_POST['transaction_extra'] != 'payment'
+                        && $_POST['transaction_extra'] != 'delivery'))
+            ) {
+                // выдача
+                if ($transactionType == 1) {
+                    $select_query_1 = $this->all_configs['db']->makeQuery('h.paid FROM {orders} as o
+                                LEFT JOIN {chains_headers} as h ON h.order_id=o.id
+                                    AND h.id=(SELECT chain_id FROM {chains_bodies} WHERE id=?i)
+                                LEFT JOIN {orders_goods} as og ON h.order_goods_id=og.id',
+                        array($b_id));
+                }
+                // внесение
+                if ($transactionType == 2) {
+                    $select_query_2 = $this->all_configs['db']->makeQuery('og.price+og.warranties_cost-h.paid
+                                FROM {orders} as o
+                                LEFT JOIN {chains_headers} as h ON h.order_id=o.id
+                                    AND h.id=(SELECT chain_id FROM {chains_bodies} WHERE id=?i)
+                                LEFT JOIN {orders_goods} as og ON h.order_goods_id=og.id',
+                        array($b_id));
+                }
+            }
+            // выдача
+            if ($transactionType == 1) {
+                $btn = l('Выдать');
+                $amount_from = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
+                        array($select_query_1, $_POST['client_order_id']))->el() / 100;
+            }
+            // внесение
+            if ($transactionType == 2) {
+                $amount_to = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
+                        array($select_query_2, $_POST['client_order_id']))->el() / 100;
+            }
+
+            $client_contractor = $this->all_configs['db']->query('SELECT c.contractor_id
+                        FROM {orders} as o, {clients} as c WHERE o.id=?i AND o.user_id=c.id',
+                array($_POST['client_order_id']))->el();
+        }
+
+        $data['content'] = '<form method="post" id="transaction_form"><fieldset>';
+
+        // категории для транзакции
+        $categories = $this->get_contractors_categories(1);
+        $select_contractors_categories_to = "<option value=''>" . l('Выберите') . "</option>" . build_array_tree($categories,
+                $ccg_id) . "</select>";
+        $categories = $this->get_contractors_categories(2);
+        $select_contractors_categories_from = "<option value=''>" . l('Выберите') . "</option>" . build_array_tree($categories,
+                $ccg_id) . "</select>";
+
+        $cashbox_id = array_key_exists('object_id',
+            $_POST) && $_POST['object_id'] > 0 ? $_POST['object_id'] : $selected_cashbox;
+        // валюта
+        $cashbox_currencies = $this->get_cashbox_currencies($cashbox_id);
+
+        $data['content'] .= '<input type="hidden" name="transaction_type" id="transaction_type" value="' . $transactionType . '" />';
+        $data['content'] .= '<input type="hidden" name="supplier_order_id" value="' . $supplier_order_id . '" />';
+        $data['content'] .= '<input type="hidden" name="client_order_id" value="' . $co_id . '" />';
+        $data['content'] .= '<input type="hidden" name="b_id" value="' . $b_id . '" />';
+        $data['content'] .= '<input type="hidden" name="transaction_extra" value="' . $t_extra . '" />';
+
+        $data['content'] .= '<div id="transaction_form_body" class="hide-conversion-3 transaction_type-' . $transactionType . ' ' . $formClass . '">';
+        $data['content'] .= '<table><thead><tr><td></td><td></td><td>' . l('Сумма') . '</td><td>' . l('Валюта') . '</td>';
+        $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span>Курс</span></td><td class="hide-not-tt-1 hide-not-tt-2"></td></tr></thead><tbody>';
+        //* С кассы 1 3
+        $data['content'] .= '<tr class="hide-not-tt-2"><td>* ' . l('С кассы') . '</td>';
+        $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control input-sm cashbox-1">' . $select_cashbox . '</select></td>';
+        $data['content'] .= '<td><input ' . $daf . ' class="form-control input-sm" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
+        $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
+        $onchange = '
+                $(\'#amount-2\').val(($(\'#amount-1\').val()*$(\'#conversion-course-1\').val()).toFixed(2));
+                if ($(\'#amount-2\').val() > 0)
+                    $(\'#conversion-course-2\').val(($(\'#amount-1\').val()/$(\'#amount-2\').val()).toFixed(4));
+                else
+                    $(\'#conversion-course-2\').val(0.0000);';
+        $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-1" style="width:80px" onchange="' . $onchange . '" class="form-control input-mini" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_from"/></span></td>';
+        $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>' . l('Прямой') . '</small><br /><small id="conversion-course-db-1">1.0000</small></span></td></tr>';
+        //* В кассу 2 3
+        $data['content'] .= '<tr class="hide-not-tt-1"><td>* ' . l('В кассу') . '</td>';
+        $data['content'] .= '<td><select onchange="select_cashbox(this, 2)" name="cashbox_to" class="form-control input-sm cashbox-2">' . $select_cashbox . '</select></td>';
+        $onchange = '
+                if ($(\'#amount-1\').val() > 0 && $(\'#amount-2\').val() > 0) {
+                    $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
+                    $(\'#conversion-course-2\').val(($(\'#amount-1\').val()/$(\'#amount-2\').val()).toFixed(4));
+                } else {
+                    $(\'#conversion-course-1\').val(0.0000);
+                    $(\'#conversion-course-2\').val(0.0000);
+                }';
+        $data['content'] .= '<td class="hide-conversion"><span><input class="form-control input-sm" onchange="' . $onchange . '" id="amount-2" type="text" style="width:80px" name="amount_to" value="' . $amount_to . '" onkeydown="return isNumberKey(event, this)" /></span></td>';
+        $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-2" onchange="get_course(0)" name="cashbox_currencies_to">' . $cashbox_currencies . '</select></td>';
+        $onchange = '
+                if ($(\'#conversion-course-2\').val() > 0)
+                    $(\'#amount-2\').val(($(\'#amount-1\').val()/$(\'#conversion-course-2\').val()).toFixed(2));
+                else
+                    $(\'#amount-2\').val(0.0000);
+                if ($(\'#amount-2\').val() > 0)
+                    $(\'#conversion-course-1\').val(($(\'#amount-2\').val()/$(\'#amount-1\').val()).toFixed(4));
+                else
+                    $(\'#conversion-course-1\').val(0.0000);';
+        $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 hide-conversion"><span><input id="conversion-course-2" style="width:80px" onchange="' . $onchange . '" class="form-control input-sm" onkeydown="return isNumberKey(event, this)" type="text" value="1.0000" name="cashbox_course_to"/></span></td>';
+        $data['content'] .= '<td class="hide-not-tt-1 hide-not-tt-2 center cursor-pointer hide-conversion" onclick="get_course(0)"><span><small>' . l('Обратный') . '</small><br /><small id="conversion-course-db-2">1.0000</small></span></td></tr>';
+        if ($co_id == 0) {
+            //* Статья 1
+            $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
+            $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
+            $data['content'] .= $select_contractors_categories_to . '</select>';
+            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
+            $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            //* Статья 2
+            $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
+            $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
+            $data['content'] .= $select_contractors_categories_from . '</select>';
+            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
+            $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            //* Контрагент 1 2
+            $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
+            $data['content'] .= '<td><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id">' . $select_contractors . '</select>';
+            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
+            $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+        }
+        // только обычные транзакции
+        if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
+            // Без внесения на баланс 1
+            $content = '(' . l('Ставим птичку в случае, если данная выплата производится за услуги или расходные материалы.') . ' ';
+            $content .= l('Не ставим птичку - если оплата производится за приобретаемые оборотные активы)');
+            $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3 hide-not-tt-so-1"><td colspan="2">';
+            $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
+            $js = '
+                    if (this.checked) {
+                        if (!confirm(\'' . l('Не зачислять контрагенту на баланс?') . '\')) {
+                            this.checked=false;
+                        }
+                    }';
+            $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>' . l('Без внесения на баланс') . '</label></div></td></tr>';
+            // Без списания c баланса 2
+            $content = '(' . l('Птичку ставим - когда поступление денежных средств не связано с приобретением или возвратом оборотных активов') . ')';
+            $js = 'if (this.checked) { if (!confirm(\'' . l('Не списывать у контрагента с баланса?') . '\')) { this.checked=false; } }';
+            $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td colspan="2">';
+            $data['content'] .= '<div class="checkbox"><label class="popover-info" data-original-title="" data-content="' . $content . '">';
+            $data['content'] .= '<input type="checkbox" onchange="javascript:' . $js . '" name="without_contractor" value="1"/>' . l('Без списания с баланса') . '</label></div></td></tr>';
+        }
+        // Списать с баланса контрагента (заказ клиента)
+        if ($co_id > 0 && ($transactionType == 1 || $transactionType == 2) && $client_contractor > 0) {//TODO have contractor
+            //onchange='transaction_with_supplier(this, {$this->all_configs['configs']['erp-cashbox-transaction']})'
+            $ct = $this->all_configs['configs']['erp-cashbox-transaction'];
+            $js = '
+                    if (this.checked) {
+                        $(\'.cashbox-1, .cashbox-2\').val(' . $ct . ').prop(\'disabled\', true);
+                    } else {
+                        $(\'.cashbox-1, .cashbox-2\').val(' . $selected_cashbox . ').prop(\'disabled\',false);
+                    }';
+            $data['content'] .= '<tr><td colspan="6"><label class="checkbox">';
+            $data['content'] .= '<input name="client_contractor" value="1" type="checkbox" onchange="javascript:' . $js . '"/> ';
+            $data['content'] .= $transactionType == 2 ? l('Списать с баланса контрагента') : l('Зачислить на баланс контрагента');
+            $data['content'] .= '</label></td></tr>';
+        }
+        // только обычные транзакции или выдача за заказ клиента
+        if ($act == 'begin-transaction-1-co' || $act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
+            // Примечание 1 2 3
+            $data['content'] .= '<tr><td colspan="2"><textarea class="form-control input-sm" name="comment" placeholder="' . l('примечание') . '"></textarea></td>';
+            // только обычные транзакции
+            if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
+                $data['content'] .=
+                    '<td colspan="4" class="center"><div class="form-group">
+                            <input class="form-control daterangepicker_single input-sm" type="text" name="date_transaction" value="' . $today . '" />
+                        </div>';
+            }
+            $data['content'] .= '</tr>';
+        }
+        $data['content'] .= '</tbody></table></div></fieldset></form>';
+        $data['btns'] = '<button type="button" onclick="create_transaction(this)" class="btn btn-success">' . $btn . '</button>';
+
+        $data['functions'] = array('reset_multiselect()');
+        $data['state'] = true;
+        return $data;
     }
 }
