@@ -85,7 +85,6 @@ function add_alarm(_this) {
         data: $('form#add-alarm').serialize(),
         dataType: 'json',
         success: function (result) {
-
             if (result) {
                 if (result['state'] == false && result['msg']) {
                     alert(result['msg']);
@@ -378,6 +377,28 @@ $(document).ready(function () {
         $(this).closest('.typeahead_add_form_box').hide();
     });
 
+    $('.js-show-ratings').on('click', function(){
+        $.ajax({
+            url: prefix + 'users/ajax/?act=ratings',
+            dataType: "json",
+            type: 'GET',
+            success: function (data) {
+                if (data) {
+                    if (data['state'] == true){
+                        alert_box(this, data['content']);
+                    }
+                    if (data['state'] == false && data['message']) {
+                        alert(data['message']);
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+            }
+        });
+
+        return false;
+    });
     $(document).on('focusin', '.typeahead-double', function(e) {
         var $this = $(this),
             id = $this.data('id'),

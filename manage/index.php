@@ -194,6 +194,12 @@ if($all_configs['oRole']->hasPrivilege('edit-clients-orders')){
 }
 
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
+if (isset($_SESSION['id'])) {
+    $input['rating'] = l('Рейтинг') . ':' . $db->query("SELECT rating FROM {users} WHERE id = ?i",
+            array($_SESSION['id']), 'el') . '/10';
+} else {
+    $input['rating'] = '';
+}
 $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
 $input['homepage'] = l('Главная');
 $modules = scandir('./modules/');

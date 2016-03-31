@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../Response.php';
 require_once __DIR__ . '/../../FlashMessage.php';
 require_once __DIR__ . '/../../View.php';
 
@@ -200,6 +201,24 @@ class users
             }
         }
 
+        if($act == 'ratings') {
+            $ratings = $this->all_configs['db']->query('SELECT * FROM {users_ratings} WHERE user_id=?i ORDER BY created_at',
+                array($user_id))->assoc();
+            if (empty($ratings)) {
+                $data = array(
+                    'state' => false,
+                    'message' => l('Записи об отзывах клиентов не найдены')
+                );
+            } else {
+                $data = array(
+                    'state' => true,
+                    'content' => $this->view->renderFile('users/ratings', array(
+                        'ratings' => $ratings,
+                    ))
+                );
+            }
+            Response::json($data);
+        }
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");

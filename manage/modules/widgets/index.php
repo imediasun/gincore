@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../View.php';
 // настройки
 $modulename[132] = 'widgets';
 $modulemenu[132] = l('Виджеты');  //карта сайта
@@ -10,6 +11,8 @@ class widgets
 {
 
     protected $all_configs;
+    /** @var View */
+    protected $view;
     private $lang;
     private $def_lang;
     private $langs;
@@ -27,6 +30,7 @@ class widgets
         $this->lang = $lang;
         $this->langs = $langs;
         $this->all_configs = $all_configs;
+        $this->view = new View($all_configs);
 
         global $input_html, $ifauth;
 
@@ -50,16 +54,9 @@ class widgets
      */
     private function genmenu()
     {
-
-        $out = '
-            <ul>
-                <li' . ($this->current == 'status' ? ' class="active"' : '') . '>
-                    <a href="' . $this->all_configs['prefix'] . 'widgets/status">' . l('Статус ремонта') . '</a>
-                </li>
-            </ul>
-        ';
-
-        return $out;
+        return $this->view->renderFile('widgets/genmenu', array(
+            'current' => $this->current
+        ));
     }
 
     /**
@@ -67,32 +64,24 @@ class widgets
      */
     private function gencontent()
     {
-
+        $widget = '';
         switch ($this->current) {
             case 'status':
-                $out = '
-                    <h2>' . l('Виджет «Статус заказа»') . '</h2>
-                    <pre>' .
-                    htmlspecialchars(
-                        "<script>\n" .
-                        "    (function () {\n" .
-                        "        var s = document.createElement(\"script\");\n" .
-                        "            s.type = \"text/javascript\";\n" .
-                        "            s.async = true;\n" .
-                        "            s.src = \"//" . $_SERVER['HTTP_HOST'] . "/widget.php?ajax=&w=status&jquery=\"+(\"jQuery\" in window?1:0);\n" .
-                        "        document.getElementsByTagName(\"head\")[0].appendChild(s);\n" .
-                        "    })();\n" .
-                        "</script>"
-                    ) . '
-                    </pre>
-                ';
+                $title = l('Виджет «Статус заказа»');
+                $widget = $this->current;
+                break;
+            case 'feedback':
+                $title = l('Виджет «Отзывы о работе сотрудников»');
+                $widget = $this->current;
                 break;
             default:
-                $out = l('Виджеты');
-                break;
+                $title = l('Виджеты');
         }
 
-        return $out;
+        return $this->view->renderFile('widgets/gencontent', array(
+            'title' => $title,
+            'widget' => $widget
+        ));
     }
 
     /**

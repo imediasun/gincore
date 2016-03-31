@@ -1,7 +1,10 @@
 <?php
 
+define('ROOT_DIR', __DIR__);
+
 $active_widgets = array(
-    'status'
+    'status',
+    'feedback'
 );
 
 // загружаем виджет
@@ -36,6 +39,9 @@ if ($is_ajax) {
     } else {
         $post = $_POST;
     }
+    $response = array(
+        'state' => false,
+    );
     $widget_name = isset($post['widget']) ? trim($post['widget']) : null;
     if (in_array($widget_name, $active_widgets)) {
         include __DIR__ . '/manage/inc_config.php';
@@ -44,9 +50,9 @@ if ($is_ajax) {
         $widget = get_service('widgets/' . $widget_name);
         if (!is_null($widget) && method_exists($widget, 'ajax')) {
             $response = $widget->ajax($post);
-            header('Content-type: application/json; charset=utf-8');
-            echo json_encode($response);
-            exit;
         }
     }
+    header('Content-type: application/json; charset=utf-8');
+    echo json_encode($response);
+    exit;
 }

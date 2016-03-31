@@ -1086,7 +1086,8 @@ class Configs
                 9 => 43, // %
                 12 => 50, // %
             ),
-            'blacklist-tag-id' => '4'
+            'blacklist-tag-id' => '4',
+            'set-rating-site' => 'localhost:8080'
         );  // object instance
 
         if (is_callable(self::$configs_extend_function)) {

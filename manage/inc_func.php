@@ -1514,3 +1514,14 @@ function prepare_for_serial_search($prefix, $string, $length)
     $prefix = ltrim($string, $matches[0]);
     return array($prefix, $length - strlen($prefix));
 }
+
+/**
+ * check if https
+ * 
+ * @return bool
+ */
+function isHTTPS()
+{
+    return isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1)
+    || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
+}
