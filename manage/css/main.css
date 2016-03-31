@@ -906,3 +906,31 @@ span.tag {
 legend span.tag {
     line-height:22px;
 }
+#navigation .btn.btn-default {
+    background-color: #f7f9fa;
+    border: 0 none;
+    border-radius: 0;
+    padding: 15px 12px 15px 20px;
+    text-align: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: 130px;
+}
+#navigation .btn.btn-default:hover {
+    color: #34495e;
+    background-color: #fff;
+}
+#side-menu li.active > .btn.btn-default {
+    background-color: #fff;
+    color: #34495e;
+}
+#navigation .btn.btn-default.full-size {
+    width: 100%;
+}
+.nav > li > a.main {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 15px 20px 15px 15px !important;
+}

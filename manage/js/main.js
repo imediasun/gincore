@@ -1658,6 +1658,9 @@ function reset_tagsinput() {
 
 
 $(function(){
+    $('#navigation .btn.btn-default').on('click', function(){
+       window.location = $(this).attr('data-href'); 
+    });
     function set_events(){
         $('.ajax_form').each(function(){
             var $this = $(this),
