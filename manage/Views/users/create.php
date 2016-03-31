@@ -1,5 +1,5 @@
 <div id="create_tab_user" class="tab-pane">
-    <form method="post" class="create-user">
+    <form method="post" class="<?= empty($isEdit) ? 'create-user': 'edit-user' ?>">
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
@@ -44,10 +44,12 @@
                                name="email"
                                placeholder="<?= l('введите e-mail') ?>">
                     </div>
-                    <div class="form-group">
-                        <label><?= l('Пароль') ?> <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="pass" placeholder="<?= l('введите пароль') ?>">
-                    </div>
+                    <?php if (empty($isEdit)): ?>
+                        <div class="form-group">
+                            <label><?= l('Пароль') ?> <b class="text-danger">*</b>:</label>
+                            <input class="form-control" value="" name="pass" placeholder="<?= l('введите пароль') ?>">
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
@@ -155,14 +157,17 @@
                 </table>
             </div>
 
-            <div class="control-group">
-                <div class="controls">
-                    <input class="btn btn-primary" type="submit" name="create-user"
-                           onclick="return add_user_validation();"
-                           value="<?= l('Создать') ?>">
+            <?php if (empty($isEdit)): ?>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="btn btn-primary" type="submit" name="create-user"
+                               onclick="return add_user_validation();"
+                               value="<?= l('Создать') ?>">
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </fieldset>
     </form>
 </div>
+
 

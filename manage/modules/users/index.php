@@ -237,20 +237,39 @@ class users
 
         if ($act == 'edit-user') {
             $result = array(
-                'success' => false,
-                'msg' => l('Что-то пошло не так')
+                'state' => false,
+                'message' => l('Что-то пошло не так')
             );
-            $uid = isset($_POST['uid']) ? (int)$_POST['uid'] : 0;
+            $uid = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
             try {
-                if (empty($_POST['uid']) || empty($uid)) {
-                    $result['msg'] = l('Пользователь не найден');
+                if (empty($_GET['uid']) || empty($uid)) {
+                    $result['message'] = l('Пользователь не найден');
                 }
 
                 $result['html'] = $this->editUserForm($uid);
-                unset($result['msg']);
-
+                unset($result['message']);
+                $result['state'] = true;
             } catch (Exception $e) {
-                $result['msg'] = $e->getMessage();
+                $result['message'] = $e->getMessage();
+            }
+            Response::json($result);
+        }
+        if ($act == 'update-user') {
+            $result = array(
+                'state' => false,
+                'message' => l('Что-то пошло не так')
+            );
+            $uid = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+            try {
+                if (empty($_POST['id']) || empty($uid)) {
+                    $result['message'] = l('Пользователь не найден');
+                }
+
+                $this->updateUser($uid, $_POST, $mod_id);
+                unset($result['message']);
+                $result['state'] = true;
+            } catch (Exception $e) {
+                $result['message'] = $e->getMessage();
             }
             Response::json($result);
         }
@@ -282,14 +301,16 @@ class users
     protected function editUserForm($userId)
     {
         $permissions = $this->get_all_roles();
-        if (!empty($_SESSION['create-user-error'])) {
-            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($userId))->row();
-            $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i', array($userId))->col();
-            $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i', array($userId))->col();
-            list($user['warehouse'], $user['location']) = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i', array($userId))->row();
-            $user['warehouses'] = $this->all_configs['db']->query('SELECT wh_id FROM {warehouses_users} WHERE main=0 AND user_id=?i', array($userId))->col();
-        }
-        if(empty($user)) {
+        $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($userId))->row();
+        $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
+            array($userId))->col();
+        $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
+            array($userId))->col();
+        list($user['warehouse'], $user['location']) = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+            array($userId))->row();
+        $user['warehouses'] = $this->all_configs['db']->query('SELECT wh_id FROM {warehouses_users} WHERE main=0 AND user_id=?i',
+            array($userId))->col();
+        if (empty($user)) {
             throw new Exception(l('Пользователь не найден'));
         }
         $roles = array();
@@ -302,7 +323,7 @@ class users
                 $roles[$permission['role_id']] = $permission['role_name'];
             }
         }
-        return $this->createUserForm($user, $roles);
+        return $this->createUserForm($user, $roles, true);
     }
 
     /**
@@ -447,8 +468,6 @@ class users
                     $this->all_configs['db']->query("SELECT 1 FROM {users} "
                         . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
                 if ($email_or_login_exists) {
-//                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
-//                    $_SESSION['create-user-post'] = $post;
                     FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
                         FlashMessage::DANGER);
                 } else {
@@ -465,92 +484,12 @@ class users
                         ), 'id');
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                         array($user_id, 'add-user', $mod_id, intval($id)));
-                    // добавляем локацию и склад для перемещения заказа при приемке
-                    if (!empty($post['location']) && !empty($post['warehouse'])) {
-                        $wh_id = $post['warehouse'];
-                        $location_id = $post['location'];
-                        $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=1 AND user_id=?i',
-                            array($id));
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
-                            . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
-                    }
-                    // добавляем склады
-                    if (!empty($post['warehouses'])) {
-                        $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=0 AND user_id=?i',
-                            array($id));
-                        foreach ($post['warehouses'] as $wh) {
-                            $this->all_configs['db']->query(
-                                'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
-                                . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
-                        }
-                    }
-                    // добавляем кассы
-                    if (!empty($post['cashboxes'])) {
-                        $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($id));
-                        foreach ($post['cashboxes'] as $cashbox) {
-                            $this->all_configs['db']->query(
-                                'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '
-                                . 'VALUES (?i,?i)', array($cashbox, $id, 0));
-                        }
-                    }
+                    $this->saveUserRelations($id, $post);
                     FlashMessage::set(l('Добавлен новый пользователь'));
                 }
             }
-        } elseif (isset($post['edit-user'])) {
-            $avail = 0;
-            if (isset($post['avail'])) {
-                $avail = 1;
-            }
-            if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
-                $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
-                $_SESSION['create-user-post'] = $post;
-            } else {
-                $id = intval($post['user_id']);
-                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?) WHERE id=?i',
-                    array(
-                        $post['login'],
-                        $post['fio'],
-                        $post['position'],
-                        $post['phone'],
-                        $avail,
-                        $post['role'],
-                        $post['email'],
-                        $id
-                    ), 'id');
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'edit-user', $mod_id, intval($id)));
-                // добавляем локацию и склад для перемещения заказа при приемке
-                if (!empty($post['location']) && !empty($post['warehouse'])) {
-                    $wh_id = $post['warehouse'];
-                    $location_id = $post['location'];
-                    $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=1 AND user_id=?i',
-                        array($id));
-                    $this->all_configs['db']->query(
-                        'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
-                        . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
-                }
-                // добавляем склады
-                if (!empty($post['warehouses'])) {
-                    $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=0 AND user_id=?i',
-                        array($id));
-                    foreach ($post['warehouses'] as $wh) {
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
-                            . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
-                    }
-                }
-                // добавляем кассы
-                if (!empty($post['cashboxes'])) {
-                    $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($id));
-                    foreach ($post['cashboxes'] as $cashbox) {
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '
-                            . 'VALUES (?i,?i)', array($cashbox, $id, 0));
-                    }
-                }
-                FlashMessage::set(l('Данные пользователя обновлены'));
-            }
+        } elseif (isset($post['update-user'])) {
+            $this->updateUser($post, $user_id, $mod_id);
         }
 
         header("Location:" . $_SERVER['REQUEST_URI']);
@@ -782,12 +721,13 @@ class users
     }
 
     /**
-     * @param $user
-     * @param $roles
+     * @param      $user
+     * @param      $roles
+     * @param bool $isEdit
      * @return string
      * @throws Exception
      */
-    private function createUserForm($user, $roles)
+    private function createUserForm($user, $roles, $isEdit = false)
     {
         $error = '';
         if (!empty($_SESSION['create-user-error'])) {
@@ -810,7 +750,8 @@ class users
             'warehouses_arr' => $warehouses_arr,
             'cashboxes' => $this->getCashboxes(),
             'roles' => $roles,
-            'controller' => $this
+            'controller' => $this,
+            'isEdit' => $isEdit
         ));
     }
 
@@ -819,6 +760,77 @@ class users
      */
     private function getCashboxes()
     {
-        return $this->all_configs['db']->query("SELECT * FROM {cashboxes} WHERE 1=1", array())->assoc();
+        return $this->all_configs['db']->query("SELECT * FROM {cashboxes} WHERE 1=1", array())->assoc('id');
+    }
+
+    /**
+     * @param $post
+     * @param $userId
+     * @param $modId
+     */
+    private function updateUser($userId, $post, $modId)
+    {
+        $avail = 0;
+        if (isset($post['avail'])) {
+            $avail = 1;
+        }
+        if (empty($post['login']) ||  empty($post['email'])) {
+            FlashMessage::set(l('Пожалуйста, заполните логин и эл. адрес'), FlashMessage::DANGER);
+        } else {
+            $id = intval($post['user_id']);
+            $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=? WHERE id=?i',
+                array(
+                    $post['login'],
+                    $post['fio'],
+                    $post['position'],
+                    $post['phone'],
+                    $avail,
+                    $post['role'],
+                    $post['email'],
+                    $id
+                ), 'id');
+            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                array($userId, 'edit-user', $modId, intval($id)));
+            $this->saveUserRelations($id, $post);
+
+            FlashMessage::set(l('Данные пользователя обновлены'));
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $post
+     */
+    private function saveUserRelations($userId, $post)
+    {
+// добавляем локацию и склад для перемещения заказа при приемке
+        if (!empty($post['location']) && !empty($post['warehouse'])) {
+            $wh_id = $post['warehouse'];
+            $location_id = $post['location'];
+            $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+                array($userId));
+            $this->all_configs['db']->query(
+                'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
+                . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $userId, 1));
+        }
+        // добавляем склады
+        if (!empty($post['warehouses'])) {
+            $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=0 AND user_id=?i',
+                array($userId));
+            foreach ($post['warehouses'] as $wh) {
+                $this->all_configs['db']->query(
+                    'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
+                    . 'VALUES (?i,?i,?i)', array($wh, $userId, 0));
+            }
+        }
+        // добавляем кассы
+        if (!empty($post['cashboxes'])) {
+            $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($userId));
+            foreach ($post['cashboxes'] as $cashbox) {
+                $this->all_configs['db']->query(
+                    'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '
+                    . 'VALUES (?i,?i)', array($cashbox, $userId));
+            }
+        }
     }
 }
