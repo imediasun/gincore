@@ -9,6 +9,9 @@
         <?php endif; ?>
         <fieldset>
             <legend><?= l('Добавление нового пользователя') ?></legend>
+            <?php if (!empty($form_data['id'])): ?>
+                <input type="hidden" name="user_id" value="<?= $form_data['id'] ?>"/>
+            <?php endif; ?>
             <div class="row-fluid">
                 <div class="col-sm-3">
                     <center>
@@ -135,12 +138,9 @@
                     </tr>
                     <tr>
                         <td class="col-sm-6">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label><?= l('Роль') ?></label>
-                                </div>
+                            <div class="form-group">
+                                <label><?= l('Роль') ?></label>
                             </div>
-
                         </td>
                         <td class="col-sm-6">
                             <div class="form-group">

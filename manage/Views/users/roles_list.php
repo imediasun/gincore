@@ -21,22 +21,29 @@
                     </li>
                     <?php foreach ($groups as $group_id => $name): ?>
                         <?php if (!empty($v['children'])): ?>
-                            <li>
-                                <label class="m-t-sm"><?= $name ?></label>
-                            </li>
+                            <?php $i = 0 ?>
                             <?php foreach ($v['children'] as $pid => $sv): ?>
-                                <li>
-                                    <div class="checkbox">
-                                        <label>
-                                            <input id="per_id_<?= $rid ?>_<?= $pid ?>"
-                                                   class="del-<?= $rid ?>-<?= $sv['child'] ?>"
-                                                   onchange="per_change(this, '<?= $rid ?>-<?= $sv['child'] ?>', '<?= $rid ?>-<?= $pid ?>')"
-                                                   name="permissions[<?= $rid ?>-<?= $pid ?>]" <?= $sv['checked'] ? 'checked' : '' ?>
-                                                   type="checkbox"/>
-                                            <?= $sv['name'] ?>
-                                        </label>
-                                    </div>
-                                </li>
+                                <?php if ($sv['group_id'] == $group_id): ?>
+                                    <?php // выводим только заголовок не пустой группы ?>
+                                    <?php if ($i == 0): ?>
+                                        <li>
+                                            <label class="m-t-sm"><?= $name ?></label>
+                                        </li>
+                                    <?php endif; ?>
+                                    <li>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input id="per_id_<?= $rid ?>_<?= $pid ?>"
+                                                       class="del-<?= $rid ?>-<?= $sv['child'] ?>"
+                                                       onchange="per_change(this, '<?= $rid ?>-<?= $sv['child'] ?>', '<?= $rid ?>-<?= $pid ?>')"
+                                                       name="permissions[<?= $rid ?>-<?= $pid ?>]" <?= $sv['checked'] ? 'checked' : '' ?>
+                                                       type="checkbox"/>
+                                                <?= $sv['name'] ?>
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <?php $i++ ?>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     <?php endforeach; ?>

@@ -235,6 +235,25 @@ class users
             exit;
         }
 
+        if ($act == 'edit-user') {
+            $result = array(
+                'success' => false,
+                'msg' => l('Что-то пошло не так')
+            );
+            $uid = isset($_POST['uid']) ? (int)$_POST['uid'] : 0;
+            try {
+                if (empty($_POST['uid']) || empty($uid)) {
+                    $result['msg'] = l('Пользователь не найден');
+                }
+
+                $result['html'] = $this->editUserForm($uid);
+                unset($result['msg']);
+
+            } catch (Exception $e) {
+                $result['msg'] = $e->getMessage();
+            }
+            Response::json($result);
+        }
 
         // изменить пароль
         if ($act == 'change-admin-password') {
@@ -255,6 +274,36 @@ class users
         exit;
     }
 
+    /**
+     * @param $userId
+     * @return string
+     * @throws Exception
+     */
+    protected function editUserForm($userId)
+    {
+        $permissions = $this->get_all_roles();
+        if (!empty($_SESSION['create-user-error'])) {
+            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($userId))->row();
+            $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i', array($userId))->col();
+            $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i', array($userId))->col();
+            list($user['warehouse'], $user['location']) = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i', array($userId))->row();
+            $user['warehouses'] = $this->all_configs['db']->query('SELECT wh_id FROM {warehouses_users} WHERE main=0 AND user_id=?i', array($userId))->col();
+        }
+        if(empty($user)) {
+            throw new Exception(l('Пользователь не найден'));
+        }
+        $roles = array();
+        $yet = 0;
+        foreach ($permissions as $permission) {
+            if ($yet === 0) {
+                $yet = $permission['role_id'];
+                $roles[$permission['role_id']] = $permission['role_name'];
+            } elseif ($yet != $permission['role_id']) {
+                $roles[$permission['role_id']] = $permission['role_name'];
+            }
+        }
+        return $this->createUserForm($user, $roles);
+    }
 
     /**
      * @param $post
@@ -420,20 +469,87 @@ class users
                     if (!empty($post['location']) && !empty($post['warehouse'])) {
                         $wh_id = $post['warehouse'];
                         $location_id = $post['location'];
+                        $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+                            array($id));
                         $this->all_configs['db']->query(
                             'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
                             . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
                     }
                     // добавляем склады
                     if (!empty($post['warehouses'])) {
+                        $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=0 AND user_id=?i',
+                            array($id));
                         foreach ($post['warehouses'] as $wh) {
                             $this->all_configs['db']->query(
                                 'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
                                 . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
                         }
                     }
+                    // добавляем кассы
+                    if (!empty($post['cashboxes'])) {
+                        $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($id));
+                        foreach ($post['cashboxes'] as $cashbox) {
+                            $this->all_configs['db']->query(
+                                'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '
+                                . 'VALUES (?i,?i)', array($cashbox, $id, 0));
+                        }
+                    }
                     FlashMessage::set(l('Добавлен новый пользователь'));
                 }
+            }
+        } elseif (isset($post['edit-user'])) {
+            $avail = 0;
+            if (isset($post['avail'])) {
+                $avail = 1;
+            }
+            if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
+                $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
+                $_SESSION['create-user-post'] = $post;
+            } else {
+                $id = intval($post['user_id']);
+                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?) WHERE id=?i',
+                    array(
+                        $post['login'],
+                        $post['fio'],
+                        $post['position'],
+                        $post['phone'],
+                        $avail,
+                        $post['role'],
+                        $post['email'],
+                        $id
+                    ), 'id');
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                    array($user_id, 'edit-user', $mod_id, intval($id)));
+                // добавляем локацию и склад для перемещения заказа при приемке
+                if (!empty($post['location']) && !empty($post['warehouse'])) {
+                    $wh_id = $post['warehouse'];
+                    $location_id = $post['location'];
+                    $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+                        array($id));
+                    $this->all_configs['db']->query(
+                        'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
+                        . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
+                }
+                // добавляем склады
+                if (!empty($post['warehouses'])) {
+                    $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=0 AND user_id=?i',
+                        array($id));
+                    foreach ($post['warehouses'] as $wh) {
+                        $this->all_configs['db']->query(
+                            'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
+                            . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
+                    }
+                }
+                // добавляем кассы
+                if (!empty($post['cashboxes'])) {
+                    $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($id));
+                    foreach ($post['cashboxes'] as $cashbox) {
+                        $this->all_configs['db']->query(
+                            'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '
+                            . 'VALUES (?i,?i)', array($cashbox, $id, 0));
+                    }
+                }
+                FlashMessage::set(l('Данные пользователя обновлены'));
             }
         }
 
@@ -497,8 +613,6 @@ class users
         // достаём все роли
         $permissions = $this->get_all_roles();
         $aRoles = $this->getRolesTree($permissions);
-        print_r($aRoles);
-        exit();
         $groups = $this->get_permissions_groups();
         // список ролей и ихние доступы
         $users_html .= $this->view->renderFile('users/roles_list', array(
@@ -506,8 +620,10 @@ class users
             'groups' => $groups
         ));
 
-
-        $users_html .= $this->createNewRole($permissions, $groups);
+        $users_html .= $this->view->renderFile('users/create_new_role', array(
+            'groups' => $groups,
+            'permissions' => $permissions
+        ));
 
         $user = array();
         if (!empty($_SESSION['create-user-error'])) {
@@ -686,29 +802,23 @@ class users
         $warehouses = get_service('wh_helper')->get_warehouses();
 
         $firstWarehouse = reset($warehouses);
-        $cashboxes = array();
         return $this->view->renderFile('users/create', array(
             'error' => $error,
             'form_data' => $user,
             'warehouses' => $warehouses,
             'warehouses_locations' => isset($firstWarehouse['locations']) ? $firstWarehouse['locations'] : array(),
             'warehouses_arr' => $warehouses_arr,
-            'cashboxes' => $cashboxes,
+            'cashboxes' => $this->getCashboxes(),
             'roles' => $roles,
             'controller' => $this
         ));
     }
 
     /**
-     * @param $permissions
-     * @param $groups
-     * @return array
+     * @return mixed
      */
-    private function createNewRole($permissions, $groups)
+    private function getCashboxes()
     {
-        return $this->view->renderFile('users/create_new_role', array(
-            'groups' => $groups,
-            'permissions' => $permissions
-        ));
+        return $this->all_configs['db']->query("SELECT * FROM {cashboxes} WHERE 1=1", array())->assoc();
     }
 }

@@ -10,12 +10,18 @@
                 <label><?= l('Права доступа') ?>:</label>
                 <?= l('отметьте нужные') ?>
             </div>
-            <?= var_dump($permissions) ?>
+            <?php $showedPermission = array(); ?>
             <?php foreach ($groups as $group_id => $name): ?>
                 <div class="form-group">
-                    <label><?= $name ?></label>
+                    <?php $i = 0; ?>
                     <?php foreach ($permissions as $permission): ?>
-                        <?php if ($permission['group_id'] == $group_id): ?>
+                        <?php if ($permission['group_id'] == $group_id && !in_array($permission['per_id'],
+                                $showedPermission)
+                        ): ?>
+                            <?php // выводим только заголовок не пустой группы ?>
+                            <?php if ($i == 0): ?>
+                                <label><?= $name ?></label>
+                            <?php endif; ?>
                             <div class="checkbox">
                                 <label>
                                     <input id="per_id_a_<?= $permission['per_id'] ?>"
@@ -25,13 +31,16 @@
                                     <?= htmlspecialchars($permission['per_name']) ?>
                                 </label>
                             </div>
+                            <?php $showedPermission[] = $permission['per_id']; ?>
+                            <?php $i++ ?>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             <?php endforeach; ?>
             <div class="control-group">
                 <div class="controls">
-                    <input class="btn btn-primary" type="submit" name="add-role" value="<?= l('Создать') ?>"></div>
+                    <input class="btn btn-primary" type="submit" name="add-role" value="<?= l('Создать') ?>">
+                </div>
             </div>
         </fieldset>
     </form>
