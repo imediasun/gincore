@@ -1,7 +1,7 @@
 <?php if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
     $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')
 ): ?>
-    <ul class="nav nav-pills">';
+    <ul class="nav nav-pills">
         <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
             <li>
                 <a class="click_tab" data-open_tab="accountings_transactions_cashboxes" onclick="click_tab(this, event)"

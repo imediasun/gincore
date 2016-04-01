@@ -696,15 +696,10 @@ class accountings
 
         $contractors = $this->get_contractors();
 
-        //$contractors_html = '<p class="text-error">Нет касс.</p>';
         if ($contractors) {
-            //$contractors_html = '<table class="table"><thead><tr><td></td><td>' . l('Название') . '</td><td>' . l('Сумма') . '</td></tr></thead><tbody>';
             foreach ($contractors as $contractor) {
 
                 if (!array_key_exists($contractor['id'], $this->contractors)) {
-                    //$contractors_html .= '<tr><td>' . $contractor['id'] . '</td>';
-                    //$contractors_html .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?ct=' . $contractor['id'] . '#transactions-contractors">' . $contractor['title'] . '</a></td>';
-                    //$contractors_html .= '<td>' . show_price($contractor['amount']) . '</td></tr>';
 
                     $this->contractors[$contractor['id']] = array(
                         'id' => $contractor['id'],
@@ -716,7 +711,6 @@ class accountings
                             $contractor['contractors_categories_id'] => array(
                                 'transaction_type' => $contractor['transaction_type'],
                                 'name' => $contractor['contractor_name'],
-                                //'avail' => $contractor['avail'],
                             ),
                         ),
                         'transaction_types' => array(
@@ -728,7 +722,6 @@ class accountings
                     $this->contractors[$contractor['id']]['contractors_categories_ids'][$contractor['contractors_categories_id']] = array(
                         'transaction_type' => $contractor['transaction_type'],
                         'name' => $contractor['contractor_name'],
-                        //'avail' => $contractor['avail'],
                     );
                     if (!array_key_exists($contractor['transaction_type'], $this->contractors[$contractor['id']]['transaction_types'])) {
                         $this->contractors[$contractor['id']]['transaction_types'][$contractor['transaction_type']] = array($contractor['contractors_categories_id']);
@@ -737,7 +730,6 @@ class accountings
                     }
                 }
             }
-            //$contractors_html .= '</tbody></table>';
         }
     }
 
@@ -748,72 +740,9 @@ class accountings
     {
         $this->preload();
 
-        $out = '<div class="tabbable"><ul class="nav nav-tabs">';
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_cashboxes" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_transactions" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
-        }
-        if ($this->all_configs["oRole"]->hasPrivilege("site-administration")
-                || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
-                || $this->all_configs['oRole']->hasPrivilege('partner')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_reports" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            //$out .= '<li><a class="click_tab" data-open_tab="accountings_orders_pre" onclick="click_tab(this, event)" data-toggle="tab" href="#orders_pre">Предоплата (заказы)<span class="tab_count hide tc_sum_accountings_orders_pre"></span></a></li>';
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_orders" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[3]['url'].'">'.$this->mod_submenu[3]['name'].'<span class="tab_count hide tc_sum_accountings_orders"></span></a>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-contractors')) {
-            $out .= '<li><a class="click_tab default" data-open_tab="accountings_contractors" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[4]['url'].'">'.$this->mod_submenu[4]['name'].'</a>';
-        }
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<li><a class="click_tab" data-open_tab="accountings_settings" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[5]['url'].'">'.$this->mod_submenu[5]['name'].'</a></li>';
-        }
-        $out .= '</ul><div class="tab-content">';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<div id="cashboxes" class="content_tab tab-pane clearfix">';
-            $out .= '</div><!--#cashboxes-->';
-        }
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
-            $out .= '<div id="transactions" class="content_tab tab-pane clearfix">';
-            $out .= '</div><!--#transactions-->';
-        }
-
-        // отчеты
-        if ($this->all_configs["oRole"]->hasPrivilege("site-administration")
-                || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
-                || $this->all_configs['oRole']->hasPrivilege('partner')) {
-            $out .= '<div id="reports" class="content_tab tab-pane clearfix">';
-            $out .= '</div><!--#reports-->';
-        }
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            // постоплата
-            $out .= '<div id="orders_pre" class="content_tab tab-pane clearfix">';
-            $out .= '</div>';
-
-            $out .= '<div id="a_orders" class="content_tab tab-pane clearfix">';
-            $out .= '</div><!--#a_orders-->';
-        }
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-contractors')) {
-            $out .= '<div id="contractors" class="content_tab tab-pane clearfix">';
-            $out .= '</div><!--#contractors-->';
-        }
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out .= '<div id="settings" class="content_tab tab-pane clearfix">';
-            $out .= '</div>';
-        }
-
-        return $out;
+        return $this->view->renderFile('accountings/gencontent', array(
+            'mod_submenu' => $this->mod_submenu 
+        ));
     }
 
     /**
@@ -855,18 +784,6 @@ class accountings
                 $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' {$checked} type='checkbox' /> {$currency['name']}</label></div>";
 
             }
-            $avail = '';
-            $avail_in_balance = '';
-            $avail_in_orders = '';
-            if ($cashbox['avail'] == 1)
-                $avail = 'checked';
-
-            if ($cashbox['avail_in_balance'] == 1)
-                $avail_in_balance = 'checked';
-
-            if ($cashbox['avail_in_orders'] == 1)
-                $avail_in_orders = 'checked';
-
         } else {
 
             foreach ($cashboxes_currencies as $currency) {
@@ -877,9 +794,6 @@ class accountings
             }
             $btn = "<input type='submit' class='btn btn-primary' name='cashbox-add' value='" . l('Создать') . "' />";
             $title = '';
-            $avail = 'checked';
-            $avail_in_balance = '';
-            $avail_in_orders = '';
         }
 
         if ($i == 1) {
@@ -905,13 +819,6 @@ class accountings
                                 <label>" . l('Используемые валюты') . ": </label>
                                 {$currencies_html}
                             </div>
-                            <!--<div class='form-group'>
-                                <div class='controls'>
-                                    <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />" . l('Отображать') . "</label></div>
-                                    <div class='checkbox'><label><input type='checkbox' {$avail_in_balance} class='btn' name='avail_in_balance' value='1' />" . l('Учитывать в балансе')  ."</label></div>
-                                    <div class='checkbox'><label><input type='checkbox' {$avail_in_orders} class='btn' name='avail_in_orders' value='1' /> " . l('Участвуют в заказах') . "</label></div>
-                                </div>
-                            </div>-->
                             <div class='form-group'>{$btn}</div>
                         </form>
                     </div>
@@ -937,7 +844,7 @@ class accountings
         if ($contractor) {
             $name = htmlspecialchars($contractor['name']);
             $comment = htmlspecialchars($contractor['comment']);
-            $out .= '<div class="panel panel-default"><div class="panel-heading">';// data-toggle="collapse"
+            $out .= '<div class="panel panel-default"><div class="panel-heading">';
             $out .= '<a class="accordion-toggle" data-parent="#accordion_contractors" href="?ct=';
             $out .= $opened == $contractor['id'] ? '' : $contractor['id'];
             $out .= '#settings-contractors">' . $name . '</a></div>';
@@ -1068,18 +975,12 @@ class accountings
      */
     function form_contractor_category($type, $contractor_category = null)
     {
-        //$btn = '';
 
         if ($contractor_category) {
-            $code_1c = htmlspecialchars($contractor_category['code_1c']);
             $name = htmlspecialchars($contractor_category['name']);
             $category_html = "<select class='multiselect' name='parent_id'><option value=''>" . l('Высшая') . "</option>";
             $categories = $this->get_contractors_categories($type);
             $category_html .= build_array_tree($categories, $contractor_category['parent_id']) . "</select>";
-            /*if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                $btn .= "<input type='button' class='btn' name='contractor_category-edit' value='" . l('Редактировать') . "' />";
-                $btn .= "<input type='button' onclick='contractor_category_remove(this, \"{$contractor_category['id']}\")' class='btn btn-danger contractor_category-remove' value='Удалить' />";
-            }*/
             $avail = '';
             if ($contractor_category['avail'] == 1)
                 $avail = 'checked';
@@ -1094,8 +995,6 @@ class accountings
             $category_html .= build_array_tree($categories) . "</select>";
             $name = '';
             $avail = 'checked';
-            $code_1c = '';
-            //$btn = "<input type='button' class='btn' name='contractor_category-add' value='" . l('Создать') . "' />";
             $id_html = '';
             $comment = '';
             $id_html .= "<input type='hidden' name='contractor_category-add' value='1' />";
@@ -1111,9 +1010,6 @@ class accountings
                     <input class='form-control' placeholder='" . l('введите название статьи') . "' name='title' value='{$name}' /></div></div>
                 <div class='form-group'><label>" . l('Родительская статья') . ": </label>
                     {$category_html}</div></div>
-                <!--<div class='form-group'><label>" . l('Код 1с') . ": </label>
-                    <input class='form-control' placeholder='введите код 1с статьи' name='code_1c' value='{$code_1c}' /></div></div>
-                -->
                 <div class='form-group'><label>" . l('Комментарий') . ": </label><div class='controls'>
                     <textarea class='form-control' name='comment' placeholder='" . l('введите комментарий к статье') . "'>{$comment}</textarea></div></div>
                 <div class='form-group'>
@@ -1165,14 +1061,17 @@ class accountings
         // допустимые валюты
         $currencies = $this->all_configs['suppliers_orders']->currencies;
 
-        if ($act == 'contractors_transactions')
-            $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true, array(), true, true);
-        if ($act == 'cashboxes_transactions')
-            $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, false, array(), true, true);
-        if ($act == 'reports-turnover')
+        if ($act == 'contractors_transactions') {
+            $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true, array(),
+                true, true);
+        }
+        if ($act == 'cashboxes_transactions') {
+            $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, false, array(),
+                true, true);
+        }
+        if ($act == 'reports-turnover') {
             $array = $this->accountings_reports_turnover_array();
-        //if ($act == 'cashboxes_transactions')
-        //    $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, true, 30);
+        }
 
         include_once $this->all_configs['sitepath'] . 'shop/exports.class.php';
         $exports = new Exports();
@@ -1624,28 +1523,28 @@ class accountings
         $out = '';
 
         $cur_year = date('Y', time());
-        $cur_month = (isset($_GET['df']) && !empty($_GET['df'])) ? date('m', strtotime($_GET['df'])) : date('m', time());
+        $cur_month = (isset($_GET['df']) && !empty($_GET['df'])) ? date('m', strtotime($_GET['df'])) : date('m',
+            time());
 
-        if ($y == null)
+        if ($y == null) {
             $year = $cur_year;
-        else
+        } else {
             $year = $y;
+        }
 
         if ($y == null) {
             $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
             $out .= '<select class="form-control" onchange="window.location.href=\'' . $url . '?\' + this.value + \'#transactions\'">';
         }
 
-        //$out .= '<option class="get_months" value="">' . ($year-1) . '</option>';
-
         foreach ($this->months as $number_month => $month) {
-            $out .= '<option ' . (($cur_month == $number_month) ? 'selected' : '') . ' value="df=01.' . $number_month . '.' . $year . '&dt=' . date('t.' . $number_month . '.' . $year, strtotime('01.' . $number_month . '.' . $year)) . '">' . $month . (($year == $cur_year) ? '' : ', ' . $y) . '</option>';
+            $out .= '<option ' . (($cur_month == $number_month) ? 'selected' : '') . ' value="df=01.' . $number_month . '.' . $year . '&dt=' . date('t.' . $number_month . '.' . $year,
+                    strtotime('01.' . $number_month . '.' . $year)) . '">' . $month . (($year == $cur_year) ? '' : ', ' . $y) . '</option>';
         }
 
-        //$out .= '<option class="get_months"  value="">' . ($year+1) . '</option>';
-
-        if ($y == null)
+        if ($y == null) {
             $out .= '</select>';
+        }
 
         return $out;
     }
@@ -1710,21 +1609,35 @@ class accountings
         $out .= '<option ' . ((isset($_GET['t_id']) && $_GET['t_id'] > 0) ? 'selected' : '') . ' value="t_id">' . l('Транзакции касс') . '</option>';
         $out .= '</select></div></div></div>';
         $out .= '<div class="form-group"><div class="checkbox"><label class="">';
-        if (isset($_GET['grp']) && $_GET['grp'] == 1)
+        if (isset($_GET['grp']) && $_GET['grp'] == 1) {
             $out .= '<input type="checkbox" name="group" value="1" />';
-        else
+        } else {
             $out .= '<input type="checkbox" checked name="group" value="1" />';
+        }
         $out .= l('Группировать') . '</label></div></div>';
         $out .= '<div class="form-group"><div class="controls"><input class="btn btn-primary" type="submit" name="filter-transactions" value="' . l('Применить') .'" /></div></div>';
 
-        if ($contractors == true)
+        if ($contractors == true) {
             $out .= '<input type="hidden" name="hash" value="#transactions-contractors" />';
-        else
+        } else {
             $out .= '<input type="hidden" name="hash" value="#transactions-cashboxes" />';
+        }
 
-        $out .= '</form>'; //.form-horizontal
+        $out .= '</form>'; 
 
         return $out;
+    }
+
+    /**
+     * @param $cashbox
+     * @return bool
+     */
+    public function cashboxAvailable($cashbox)
+    {
+        return !($cashbox['avail'] != 1
+            || $cashbox['id'] == $this->all_configs['configs']['erp-cashbox-transaction']
+            || ($cashbox['id'] == $this->all_configs['configs']['erp-so-cashbox-terminal']
+                && !$this->all_configs['configs']['manage-show-terminal-cashbox']));
     }
 
     /**
@@ -1733,13 +1646,13 @@ class accountings
     function accountings_cashboxes()
     {
         $out = '';
+        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
+        if ($this->hasCashierPermission($user_id)) {
             $amounts = $this->get_cashboxes_amounts();
             // день
             $day = date("d.m.Y", time());
             $day_html = $day;
-            //$query_day = date("Y-m-d", time());
             if (isset($_GET['d']) && !empty($_GET['d'])) {
                 $days = explode('-', $_GET['d']);
                 $day_html = urldecode(trim($_GET['d']));
@@ -1749,99 +1662,52 @@ class accountings
             // допустимые валюты
             $currencies = $this->all_configs['suppliers_orders']->currencies;
 
-            //if ($this->all_configs['oRole']->hasPrivilege('site-administration'))
-            //    $out .= '<div class="go-to-settings"><a href="#settings-cashboxes" onclick="init_hash(\'#settings-cashboxes\')">Создать/редактировать кассу</a></div>';
-
-            $out = "<form class='date-filter form-inline' method='get'>"
-                  ."<div class='input-group'><input type='text' name='d' class='form-control daterangepicker_single' value='{$day_html}' />"
-                  ."<span class='input-group-btn'><input class='btn' type='submit' value='" . l('Применить') . "' /></span></div>";
             // сумма по кассам если дата не сегодня
-            //if ($today != $day) {
             $amounts_by_day = $this->all_configs['db']->query('SELECT a.amount, a.cashboxes_currency_id, c.course
                     FROM {cashboxes_amount_by_day} as a, {cashboxes_courses} as c
                     WHERE DATE_FORMAT(a.date_add, "%d.%m.%Y")=? AND c.currency=a.cashboxes_currency_id',
                 array($day))->assoc();
+            $total_cashboxes = $this->total_cashboxes($amounts);
+            $cashboxes = $this->getCashboxes($user_id);
 
+            $all_amount = 0;
+            $out_amounts = '';
             if ($amounts_by_day) {
-                $out .= '<p>На ' . $day . '. ' . l('Всего') . ': ';
-                $all_amount = 0;
-                //$default_currency = '';
-                $out_amounts = '';
                 foreach ($amounts_by_day as $amount_by_day) {
                     if (array_key_exists($amount_by_day['cashboxes_currency_id'], $currencies)) {
-                        //if ($currencies[$amount_by_day['cashboxes_currency_id']]['default'] == 1)
-                        //    $default_currency = $currencies[$amount_by_day['cashboxes_currency_id']]['shortName'];
                         $all_amount += $amount_by_day['amount'] * ($amount_by_day['course'] / 100);
                         $out_amounts .= show_price($amount_by_day['amount']) . ' ' . ($currencies[$amount_by_day['cashboxes_currency_id']]['shortName']) . '  ';
                     }
                 }
-                if ($this->all_configs['configs']['manage-actngs-in-1-amount'] == true)
-                    $out .= show_price($all_amount) . (empty($out_amounts) ? '' : ' (' . $out_amounts . ')') . '</p>';
-                else
-                    $out .= (empty($out_amounts) ? '' : $out_amounts) . '</p>';
-            }
-            //}
-            $out .= '</form>';
-            // достаем прибыль текущего бухгалтера
-            //$this->all_configs['db']->query('SELECT FROM {warehouses} WHERE ');
-            $out .= '<p>' . l('Всего') . ': ' . ($this->all_configs['configs']['manage-actngs-in-1-amount'] == true ? show_price($amounts['all']) : '');
-            $out .= $this->all_configs['configs']['manage-actngs-in-1-amount'] == true ? ' (' : '';
-            $total_cashboxes = $this->total_cashboxes($amounts);
-            $out .= $total_cashboxes['html'];
-            $out .= $this->all_configs['configs']['manage-actngs-in-1-amount'] == true ? ')' : '';
-            $out .= '<p>';
-            // выводим кассы с возможностю транзакций
-            if (count($this->cashboxes) > 0) {
-                $out_cashbox_name = $out_cashbox_btns = $out_cashbox_cur ='';
-                $cashboxes_cur = array();
-                $out .= '<table class="cashboxes-table"><tbody>';
-                foreach ($this->cashboxes as $cashbox) {
-                    // кроме не активной и транзитной
-                    if ($cashbox['avail'] != 1 || $cashbox['id'] == $this->all_configs['configs']['erp-cashbox-transaction']
-                                               || ($cashbox['id'] == $this->all_configs['configs']['erp-so-cashbox-terminal']
-                                                   && !$this->all_configs['configs']['manage-show-terminal-cashbox']))
-                        continue;
-
-                    $out_cashbox_name .= '<td><h4 class="center" style="max-width:150px">' . $cashbox['name'] . '</h4></td>';
-                    $cashboxes_cur[$cashbox['id']] = array();
-                    if (array_key_exists('currencies', $cashbox)) {
-                        ksort($cashbox['currencies']);
-                        foreach ($cashbox['currencies'] as $cur_id => $currency) {
-                            $name = show_price($currency['amount']) . ' ' . htmlspecialchars(l($currency['short_name'])); //@TODO переделать 
-                            $cashboxes_cur[$cashbox['id']][$cur_id] = $name;
-                        }
-                    }
-                    //$out_cashbox_btns .= '<td><div class="btns-cashbox"><div><button onclick="begin_transaction(1, \'' . $cashbox['id'] . '\')" class="btn btn-cashboxes">' . l('Выдача') .'</button></div>';
-                    //$out_cashbox_btns .= '<div><button onclick="begin_transaction(2, \'' . $cashbox['id'] . '\')" class="btn btn-cashboxes">' . l('Внесение') .'</button></div>';
-                    //$out_cashbox_btns .= '<div><button onclick="begin_transaction(3, \'' . $cashbox['id'] . '\')" class="btn btn-cashboxes">' . l('Перемещение') .'</button></div>';
-                    $out_cashbox_btns .= '<td><div class="btns-cashbox">';
-                    $out_cashbox_btns .= '<div><button data-o_id="' . $cashbox['id'] . '" onclick="alert_box(this, false, \'begin-transaction-1\')" class="btn btn-cashboxes">' . l('Выдача') .'</button></div>';
-                    $out_cashbox_btns .= '<div><button data-o_id="' . $cashbox['id'] . '" onclick="alert_box(this, false, \'begin-transaction-2\')" class="btn btn-cashboxes">' . l('Внесение') .'</button></div>';
-                    $out_cashbox_btns .= '<div><button data-o_id="' . $cashbox['id'] . '" onclick="alert_box(this, false, \'begin-transaction-3\')" class="btn btn-cashboxes">' . l('Перемещение') .'</button></div>';
-                    $out_cashbox_btns .= '<div><button onclick="javascript:window.location.href=\'' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
-                    $out_cashbox_btns .= '?cb=' . $cashbox['id'] . '#transactions\'" class="btn btn-cashboxes">' . l('Отчеты') .'</button></div></div></td>';
-                }
-                $out .= '<tr>' . $out_cashbox_name . '</tr>';
-
-                foreach ($currencies as $cur_id=>$currency) {
-                    $out .= '<tr>';
-                    if($cashboxes_cur){
-                        foreach ($cashboxes_cur as $cashbox_cur) {
-                            $out .= '<td class="text-success center">' . (array_key_exists($cur_id, $cashbox_cur) ? $cashbox_cur[$cur_id] : '') . '</td>';
-                        }
-                    }else{
-                        $out .= '<td></td>';
-                    }
-                    $out .= '</tr>';
-                }
-                $out .= '<tr>' . $out_cashbox_btns . '</tr>';
-                $out .= '</tbody></table>';
-            } else {
-                $out .= '<p class="text-error">' . l('Нет касс') . '.</p>';
             }
 
-            // списсок 30 последних транзакций по дню
-            $out .= $this->all_configs['suppliers_orders']->get_transactions($currencies, true, 30);
+            $cashboxes_cur = array();
+            if (count($cashboxes) > 0) {
+                foreach ($cashboxes as $cashbox) {
+                    if ($this->cashboxAvailable($cashbox)) {
+                        $cashboxes_cur[$cashbox['id']] = array();
+                        if (array_key_exists('currencies', $cashbox)) {
+                            ksort($cashbox['currencies']);
+                            foreach ($cashbox['currencies'] as $cur_id => $currency) {
+                                $name = show_price($currency['amount']) . ' ' . htmlspecialchars(l($currency['short_name']));
+                                $cashboxes_cur[$cashbox['id']][$cur_id] = $name;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $out = $this->view->renderFile('accountings/accountings_cashboxes', array(
+                'day_html' => $day_html,
+                'cashboxes' => $cashboxes,
+                'amounts_by_day' => $amounts_by_day,
+                'total_cashboxes' => $total_cashboxes,
+                'currencies' => $currencies,
+                'out_amounts' => $out_amounts,
+                'all_amount' => $all_amount,
+                'controller' => $this,
+                'cashboxes_cur' => $cashboxes_cur
+            ));
         }
 
         return array(
@@ -2004,53 +1870,16 @@ class accountings
         if (trim($hash) == '#reports' || (trim($hash) != '#reports-cash_flow'
                 && trim($hash) != '#reports-annual_balance' && trim($hash) != '#reports-cost_of'
                 && trim($hash) != '#reports-turnover' && trim($hash) != '#reports-net_profit')
-        )
+        ) {
             $hash = '#reports-turnover';
-        $out = '';
+        }
 
         if (!$this->all_configs["oRole"]->hasPrivilege("site-administration")) {
             $hash = '#reports-turnover';
         }
 
-        if ($this->all_configs["oRole"]->hasPrivilege("site-administration")
-                || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
-                || $this->all_configs['oRole']->hasPrivilege('partner')) {
-            $out .= '<ul class="nav nav-pills">';
-
-            $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_reports_turnover" class="click_tab"  href="#reports-turnover">' . l('Оборот') . '</a></li>';
-            if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
-                $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_reports_net_profit" class="click_tab" href="#reports-net_profit">' . l('Чистая прибыль') . '</a></li>';
-                $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_reports_cost_of" class="click_tab"  href="#reports-cost_of">' . l('Стоимость компании') . '</a></li>';
-                $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_reports_cash_flow" class="click_tab"  href="#reports-cash_flow">' . l('Денежный поток') . '</a></li>';
-                $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_reports_annual_balance" class="click_tab"  href="#reports-annual_balance">' . l('Годовые балансы') . '</a></li>';
-            }
-            $out .= '</ul><div class="pill-content">';
-
-            // оборот
-            $out .= '<div id="reports-turnover" class="pill-pane">';
-            $out .= '</div>';
-
-            if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
-                // Денежный поток
-                $out .= '<div id="reports-cash_flow" class="pill-pane">';
-                $out .= '</div>';
-
-                // Годовые балансы
-                $out .= '<div class="pill-content"><div id="reports-annual_balance" class="pill-pane">';
-                $out .= '</div>';
-
-                // стоимость компании
-                $out .= '<div id="reports-cost_of" class="pill-pane">';
-                $out .= '</div>';
-
-                // чистая прибыль
-                $out .= '<div id="reports-net_profit" class="pill-pane">';
-                $out .= '</div></div>';
-            }
-        }
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_reports', array()),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -2381,31 +2210,6 @@ class accountings
                 . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
             $query = '';
-            /*// фильтры
-            $out = '<form method="post" class="form-horizontal">';
-            $out .= '<div class="control-group"><label class="control-label">' . l('Период') . ':</label><div class="controls">';
-            $out .= '<input type="text" name="date" value="' . $date . '" class="input-big daterangepicker" /></div></div>';
-            $out .= '<div class="control-group"><div class="controls"><input class="btn" type="submit" name="filters" value="' . l('Применить') .'" /></div></div>';
-            $out .= '</form>';
-
-            // фильтр по дате
-            $day_from = null;//1 . date(".m.Y") . ' 00:00:00';
-            $day_to = null;//31 . date(".m.Y") . ' 23:59:59';
-            if (array_key_exists('df', $_GET) && strtotime($_GET['df']) > 0)
-                $day_from = $_GET['df'] . ' 00:00:00';
-            if (array_key_exists('dt', $_GET) && strtotime($_GET['dt']) > 0)
-                $day_to = $_GET['dt'] . ' 23:59:59';
-
-            if ($day_from && $day_to) {
-                $query = $this->all_configs['db']->makeQuery('AND DATE(t.date_add) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
-                  AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($day_from, $day_to));
-            } elseif ($day_from) {
-                $query = $this->all_configs['db']->makeQuery('AND DATE(t.date_add)>=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
-                    array($day_from));
-            } elseif ($day_to) {
-                $query = $this->all_configs['db']->makeQuery('AND DATE(t.date_add)<=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
-                    array($day_to));
-            }*/
 
             $currencies = $this->all_configs['suppliers_orders']->currencies;
             $cso = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
@@ -2590,12 +2394,6 @@ class accountings
 
         return $sum;
     }
-
-    /*function get_operators()
-    {
-        return $this->all_configs['db']->query("SELECT u.id, CONCAT(u.fio, ' ', u.login) as name
-                FROM {users} AS u WHERE u.role=?i", array(5))->assoc();//TODO плохое решение role в настройку
-    }*/
 
     /**
      * @return array
@@ -2807,25 +2605,12 @@ class accountings
      */
     function accountings_orders_pre($hash = '#orders_pre-noncash')
     {
-        if (trim($hash) == '#orders_pre' || (trim($hash) != '#orders_pre-credit' && trim($hash) != '#orders_pre-noncash'))
+        if (trim($hash) == '#orders_pre' || (trim($hash) != '#orders_pre-credit' && trim($hash) != '#orders_pre-noncash')) {
             $hash = '#orders_pre-noncash';
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out = '<ul class="nav nav-pills">';
-            $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_pre_noncash" class="click_tab"  href="#orders_pre-noncash" title="' . l('Безнал') . '">' . l('Безнал') . '<span class="tab_count hide tc_accountings_noncash_orders_pre"></span></a></li>';
-            $out .= '<li><a onclick="click_tab(this, event)" data-open_tab="accountings_orders_pre_credit" class="click_tab" href="#orders_pre-credit" title="' . l('Кредит') . '">' . l('Кредит') . '<span class="tab_count hide tc_accountings_credit_orders_pre"></span></a></li></ul>';
-            // бухгалтерия безнал
-            $out .= '<div class="pill-content"><div id="orders_pre-noncash" class="pill-pane">';
-            $out .= '</div>';
-
-            // бухгалтерия кредит
-            $out .= '<div id="orders_pre-credit" class="pill-pane">';
-            $out .= '</div></div>';
         }
 
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_orders_pre'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -2833,7 +2618,7 @@ class accountings
     /**
      * @return array
      */
-    function accountings_pre_noncash()
+    public function accountings_pre_noncash()
     {
         $out = '';
 
@@ -2842,30 +2627,7 @@ class accountings
             $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
                 . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
                 . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
-
-            $out = '<div class="span2">';
-            $out .= '<form method="post">';
-            $out .= '<legend>' . l('Фильтры') . ':</legend><label>' . l('manager') . ':</label>';
-            $out .= '<select class="multiselect input-small" name="managers[]" multiple="multiple">';
-            // менеджеры
             $managers = $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders');
-            foreach ($managers as $manager) {
-                $out .= '<option ' . ((isset($_GET['mg']) && in_array($manager['id'], explode(',', $_GET['mg']))) ? 'selected' : '');
-                $out .= ' value="' . $manager['id'] . '">' . htmlspecialchars($manager['name']) . '</option>';
-            }
-            $out .= '</select>';
-            $out .= '<label>'.l('Дата').':</label>';
-            $out .= '<input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker input-medium" value="' . $date . '" />';
-            $out .= '<label>' . l('номер заказа') . ':</label><input name="client-order" value="';
-            $out .= isset($_GET['co']) && !empty($_GET['co']) ? trim(htmlspecialchars($_GET['co'])) : '';
-            $out .= '" type="text" class="input-medium" placeholder="' . l('номер заказа') . '">';
-            $out .= '<label>' . l('Клиент') . ':</label>';
-            $out .= '<div>' . typeahead($this->all_configs['db'], 'clients', false, (isset($_GET['c_id']) && $_GET['c_id'] > 0 ? $_GET['c_id'] : 0), 3) . '</div>';
-            $out .= '<input type="submit" name="filters" class="btn" value="' . l('Фильтровать') . '">';
-            $out .= '</form>';
-
-            $out .= '</div><div class="span10">';
-
             $_GET['prepay'] = true;
             $queries = $this->all_configs['manageModel']->clients_orders_query($_GET);
             $query = $queries['query'];
@@ -2875,42 +2637,13 @@ class accountings
             // достаем заказы
             $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page);
 
-
-            if (count($orders) > 0) {
-                $out .= '<table class="table table-striped"><thead><tr><td>№</td><td>'.l('Дата').'</td><td>' . l('Кто обработал') . '</td>';
-                $out .= '<td>' . l('ФИО клиента') . '</td><td>' . l('Сумма') . '</td><td>' . l('Оплачено') . '</td><td>' . l('Способ оплаты') . '</td><td>' . l('Оплата') . '</td></tr></thead><tbody>';
-                foreach ($orders as $order) { //<td>Товар</td>
-                    $btn = '<div class="text-success">Оплачено</div>';
-                    //if ($order['sum_paid'] != $order['sum'])
-                    //    $btn = '<div class="text-error">Не оплачено</div>';
-                    if ($order['sum'] > $order['sum_paid'] && ($order['status'] == $this->all_configs['configs']['order-status-wait-pay']
-                            || $order['status'] == $this->all_configs['configs']['order-status-part-pay'])) {
-                        $onclick = 'pay_client_order(this, 2, ' . $order['order_id'] . ', 0)';
-                        $btn = '<input type="button" class="btn btn-xs" value="' . l('Принять оплату') . '" onclick="' . $onclick . '" />';
-                    }
-                    $payment = (array_key_exists($order['payment'], $this->all_configs['configs']['payment-msg'])) ? $this->all_configs['configs']['payment-msg'][$order['payment']]['name'] : '';
-                    //$fio = (mb_strlen(trim($order['fio']), 'UTF-8') > 0) ? trim($order['fio']) : ((mb_strlen(trim($order['phone']), 'UTF-8') > 0) ? trim($order['phone']) : trim($order['email']));
-                    $out .= '<tr><td>' . $order['order_id'] . '</td>'
-                        . '<td><span title="' . do_nice_date($order['date_add'], false) . '">' . do_nice_date($order['date_add']) . '</span></td>'
-                        . '<td>' . get_user_name($order, 'h_') . '</td>'
-                        . '<td>' . get_user_name($order, 'o_') . '</td>'
-                        //. '<td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $chain['goods_id'] . '">' . htmlspecialchars($chain['g_title']) . '</a></td>'
-                        . '<td>' . show_price($order['sum']) . '</td>'
-                        . '<td>' . show_price($order['sum_paid']) . '</td>'
-                        . '<td>' . $payment . '</td>'
-                        . '<td>' . $btn . '</td></tr>';
-                }
-                $out .= '</tbody></table>';
-
-                // количество заказов клиентов
-                $count = $this->all_configs['manageModel']->get_count_clients_orders($query);
-                $count_page = ceil($count/$count_on_page);
-                // строим блок страниц
-                $out .= page_block($count_page, $count, '#orders_pre-noncash');
-            } else {
-                $out .= '<p  class="text-error">' . l('Нет заказов') . '</p>';
-            }
-            $out .= '</div>';
+            $out = $this->view->renderFile('accountings/accountings_pre_noncash', array(
+                'date' => $date,
+                'managers' => $managers,
+                'query' => $query,
+                'count_on_page' => $count_on_page,
+                'orders' => $orders,
+            ));
         }
 
         return array(
@@ -3144,46 +2877,12 @@ class accountings
      */
     function accountings_contractors()
     {
-        $contractors_html = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-contractors')) {
-            // списсок контрагентов
-            if ($this->contractors) {
-
-                $contractors_html = '';
-                //$contractors_html = '<pre>'.print_r($this->contractors, true).'</pre>';
-                //$contractors_html = '<pre>'.print_r($this->all_configs['suppliers_orders']->currencies[$this->all_configs['configs']['erp-contractor-balance-currency']]['shortName'], true).'</pre>';
-
-
-                $contractors_html .= '<table class="table"><thead><tr><td></td><td>' . l('Название') . '</td><td>' . l('Сумма') . '</td><td></td></tr></thead><tbody>';
-                foreach ($this->contractors as $contractor) {
-
-                    //if ($contractor['type'] == ) { если надо конкретный тип контрагентов
-                    $contractors_html .= '<tr class="'
-                        . ($contractor['amount'] > 0 ? 'success' : '')
-                        . ($contractor['amount'] < 0 ? 'danger' : '')
-                        . '">'
-                        . '<td>' . $contractor['id'] . '</td>';
-                    $contractors_html .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
-                    $contractors_html .= '?ct=' . $contractor['id'] .'#transactions-contractors">' . $contractor['name'] . '</a></td>';
-                    $contractors_html .= '<td>' . show_price($contractor['amount'])
-                        . ' '
-                        //. $this->all_configs['suppliers_orders']->currencies[$this->all_configs['configs']['erp-contractor-balance-currency']]['shortName']
-                        .'</td><td><input class="btn btn-default btn-xs" type="button" value="' . l('Проверить') . '" onclick="check_contractor_amount(this, ' . $contractor['id'] . ')" />'
-                        .'<div class="pull-right">'.($contractor['amount'] > 0 ? l('Вы должны') :
-                                                     ($contractor['amount'] < 0 ? l('Вам должны') : '')).'</div></td></tr>';
-                    //}
-                }
-                $contractors_html .= '</tbody></table>';
-            } else {
-
-                $contractors_html = '<p class="text-error">' . l('Список контрагентов пуст.') . '</p>';
-            }
-        }
-
+        ini_set('error_reporting', E_ALL);
+        ini_set('display_errors', 1);
         return array(
-            'html' => $contractors_html,
+            'html' => $this->view->renderFile('accountings/accountings_contractors', array(
+                'contractors' => $this->contractors
+            )),
             'functions' => array(),
         );
     }
@@ -3197,48 +2896,12 @@ class accountings
         if (trim($hash) == '#settings' || (trim($hash) != '#settings-cashboxes' && trim($hash) != '#settings-currencies'
                 && trim($hash) != '#settings-categories_expense' && trim($hash) != '#settings-categories_income'
                 && trim($hash) != '#settings-contractors')
-        )
+        ) {
             $hash = '#settings-cashboxes';
-
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $out = '<ul class="nav nav-pills">';
-            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_cashboxes" href="#settings-cashboxes" title="' . l('Создать/редактировать кассу') . '">' . l('Кассы') . '</a></li>';
-                $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_currencies" href="#settings-currencies" title="' . l('Валюты') . '">' . l('Валюты') . '</a></li>';
-            }
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_categories_expense" href="#settings-categories_expense" title="' . l('Создать/редактировать статью расход') . '">' . l('Статьи расходов') .  '</a></li>';
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_categories_income" href="#settings-categories_income" title="' . l('Создать/редактировать статью приход') . '">' . l('Статьи поступлений') . '</a></li>';
-            $out .= '<li><a class="click_tab" onclick="click_tab(this, event)" data-open_tab="accountings_settings_contractors" href="#settings-contractors" title="' . l('Создание/редактирование контрагентов') . '">' . l('Контрагенты') . '</a></li>';
-            $out .= '</ul>';
-            $out .= '<div class="pill-content">';
-
-            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                $out .= '<div id="settings-cashboxes" class="pill-pane">';
-                $out .= '</div>';
-
-                $out .= '<div id="settings-currencies" class="pill-pane">';
-                $out .= '</div>';
-            }
-
-            if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-                $out .= '<div id="settings-categories_expense" class="pill-pane">';
-                $out .= '</div><!--#settings-categories_expense-->';
-
-                $out .= '<div id="settings-categories_income" class="pill-pane">';
-                $out .= '</div><!--#settings-categories_income-->';
-
-                $out .= '<div id="settings-contractors" class="pill-pane">';
-                $out .= '</div><!--#settings-categories-->';
-            }
-            $out .= '</div>';
-
-            $out .= '</div><div>';
         }
 
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_settings'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -3281,43 +2944,9 @@ class accountings
      * @return string
      */
     function gen_currency_table(){
-        $cashboxes_currencies = $this->cashboxes_courses();
-        $out = '';
-        foreach ($cashboxes_currencies as $cashbox_currency) {
-            $is_orders_currency = $cashbox_currency['currency'] == $this->all_configs['settings']['currency_orders'];
-            $is_suppliers_currency = $cashbox_currency['currency'] == $this->all_configs['settings']['currency_suppliers_orders'];
-            $out .= "
-                <tr>
-                    <td>".$this->all_configs['configs']['currencies'][$cashbox_currency['currency']]['name']."</td>
-            ";
-            if(array_key_exists($cashbox_currency['currency'], $this->all_configs['suppliers_orders']->currencies) && $is_orders_currency){
-                $out .= "
-                    <td>
-                        1 ".$cashbox_currency['short_name']."
-                        = 1 ".$cashbox_currency['short_name']."
-                    </td>
-                ";
-            }else{
-                $price = show_price($cashbox_currency['course']);
-                $out .= "
-                    <td>
-                        1 {$cashbox_currency['short_name']} = 
-                        <input style='width:60px' class='input-sm inline-block form-control' type='text' name='cashbox_course[{$cashbox_currency['currency']}]' placeholder='" . l('Курс') . "' value='{$price}' onkeydown='return isNumberKey(event, this)' />
-                        <span class='main_currency_name'>".viewCurrency('shortName')."</span>
-                    </td>
-                ";
-            }
-            if($is_orders_currency){
-                $out .= '<td><b>' . l('Основная валюта') . '</b></td>';
-            }elseif($is_suppliers_currency){
-                $out .= '<td><b>' . l('Валюта заказов поставщикам') . '</b></td>';
-            }else{
-                $out .= "<td><i class='glyphicon glyphicon-remove remove_currency' onclick='remove_currency(this)' data-currency_id='{$cashbox_currency['currency']}'></i></td>";
-            }
-            $out .= '</tr>';
-        }
-        $out .= "<tr><td colspan='3'><input type='submit' class='btn btn-primary' name='cashboxes-currencies-edit' value='" . l('Сохранить') . "' /></td></tr>";
-        return $out;
+        return $this->view->renderFile('accountings/gen_currency_table', array(
+            'cashboxes_currencies' => $this->cashboxes_courses()
+        ));
     }
 
     /**
@@ -3350,27 +2979,10 @@ class accountings
      */
     function accountings_settings_currencies()
     {
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            // валюты
-            if(isset($_SESSION['save_currencies_error'])){
-                $out .= '<div class="alert alert-danger" role="alert">'.htmlspecialchars($_SESSION['save_currencies_error']).'</div>';
-                unset($_SESSION['save_currencies_error']);
-            }
-            $out .= '<form method="post">';
-            // редактируем валюты касс
-            $out .= '<table class="table table-striped"><thead><tr><td>' . l('Наименование') . '</td>';
-            $out .= '<td>' . l('Курс') . '</td><td></td></tr></thead><tbody id="edit-courses-from">'.$this->gen_currency_table().'</tbody></table>';
-            $out .= '</form>';
-            // добавить валюту
-            $out .= '<form class="form-inline"><label>' . l('Добавить валюту') . ' </label> <select class="form-control" onchange="add_currency(this)" id="add_new_course">';
-            $out .= $this->gen_new_currency_options(false);
-            $out .= '</select></form>';
-        }
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_settings_currencies', array(
+                'controller' => $this
+            )),
             'functions' => array(),
         );
     }
@@ -3435,10 +3047,8 @@ class accountings
             if (count($this->contractors) > 0) {
                 $i = 1;
                 foreach ($this->contractors as $contractor) {
-                    //if (array_key_exists(1, $contractor['transaction_types'])) {
                     $out .= $this->form_contractor($contractor, isset($_GET['ct']) && $_GET['ct'] > 0 ? $_GET['ct'] : 0);
                     $i++;
-                    //}
                 }
             }
             $out .= '</div><!--#accordion_contractors-->';
@@ -3941,5 +3551,28 @@ class accountings
         $data['functions'] = array('reset_multiselect()');
         $data['state'] = true;
         return $data;
+    }
+
+    /**
+     * @param $userId
+     * @return bool
+     */
+    protected function hasCashierPermission($userId)
+    {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i', array($userId))->el();
+        return $count > 0 && $this->all_configs['oRole']->hasPrivilege('accounting');
+    }
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    protected function getCashboxes($userId)
+    {
+        if($this->all_configs['oRole']->hasPrivilege('accounting')) {
+            return $this->cashboxes;
+        }
+        return $this->all_configs['db']->query('SELECT * FROM {cashboxes}'.
+            ' WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i)', array($userId))->assoc();
     }
 }
