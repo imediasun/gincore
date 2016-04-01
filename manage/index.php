@@ -309,7 +309,7 @@ if(empty($curmod)){
                     } else {
                         $mainmenu .= '
                             <li ' . ($curmod == $v ? 'class="active"' : '') . '>
-                                <button data-href="' . $submenuUrl . '" class="btn btn-default';
+                                <button data-href="' . (empty($submenuUrl) ? ($all_configs['prefix']) . $v : $submenuUrl) . '" class="btn btn-default';
                         if (empty($submenu)) {
                             $mainmenu .= ' full-size';
                         }
@@ -326,8 +326,7 @@ if(empty($curmod)){
         if(!empty($additionally)){
             $mainmenu .= '
                 <li>
-                    <button data-href="'.$additionallUrl.'" class="btn btn-default"><span class="nav-label">' . l('еще') . '</span> </button>
-                    <a href="#" class="main"><span class="fa arrow"></span> </a>
+                    <a href="#"><span class="nav-label">' . l('еще') . '</span><span class="fa arrow"></span> </a>
                     <ul class="nav nav-second-level collapse">
                         '.$additionally.'
                     </ul>
