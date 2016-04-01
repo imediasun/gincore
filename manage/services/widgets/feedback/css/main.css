@@ -188,3 +188,10 @@
 .gcw_status_order{
     margin-bottom: 20px;
 }
+.gcw_feedback_modal {
+    background-color: #0099e5;
+    color: black;
+}
+.gcw_feedback_modal >i.fa {
+   color:white;
+}
