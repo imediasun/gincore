@@ -24,5 +24,6 @@
             </form>
             <div id="gcw_form_html"></div>
         </div>
+        <div class="gcw_sign">Supported by <a href="http://gincore.net">Gincore</a></div>
     </div>
 </div>

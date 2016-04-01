@@ -76,5 +76,6 @@
                 <span class="gcw_form_error"></span>
             </form>
         </div>
+        <div class="gcw_sign"><a href="http://gincore.net">Supported by <b>Gincore</b></a></div>
     </div>
 </div>
