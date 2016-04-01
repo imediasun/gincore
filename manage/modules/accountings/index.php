@@ -88,18 +88,21 @@ class accountings
     /**
      * @return bool
      */
-    function can_show_module()
+    public function can_show_module()
     {
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')
+        return ($this->all_configs['oRole']->hasCashierPermission($this->getUserId())
             || $this->all_configs['oRole']->hasPrivilege('accounting-contractors')
             || $this->all_configs['oRole']->hasPrivilege('accounting-reports-turnover')
             || $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')
-            || $this->all_configs['oRole']->hasPrivilege('partner')) {
+            || $this->all_configs['oRole']->hasPrivilege('partner'));
+    }
 
-            return true;
-        } else {
-            return false;
-        }
+    /**
+     * @return string
+     */
+    public function getUserId()
+    {
+        return isset($_SESSION['id']) ? $_SESSION['id'] : '';
     }
 
     /**
@@ -108,7 +111,7 @@ class accountings
     function check_post($post)
     {
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
 
         // допустимые валюты
         $currencies = $this->all_configs['suppliers_orders']->currencies;
@@ -741,7 +744,8 @@ class accountings
         $this->preload();
 
         return $this->view->renderFile('accountings/gencontent', array(
-            'mod_submenu' => $this->mod_submenu 
+            'mod_submenu' => $this->mod_submenu,
+            'isCashier' => $this->all_configs['oRole']->hasCashierPermission($this->getUserId())
         ));
     }
 
@@ -1555,6 +1559,7 @@ class accountings
      */
     function transaction_filters($contractors = false)
     {
+        /** @todo остановился тут, убираем лишние фильтры */
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : date('01.m.Y', time())) . ' - ' .
             (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : date('t.m.Y', time()));
 
@@ -1648,7 +1653,7 @@ class accountings
         $out = '';
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
-        if ($this->hasCashierPermission($user_id)) {
+        if ($this->all_configs['oRole']->hasCashierPermission($user_id)) {
             $amounts = $this->get_cashboxes_amounts();
             // день
             $day = date("d.m.Y", time());
@@ -1770,9 +1775,10 @@ class accountings
 
         return array(
             'html' => $this->view->renderFile('accountings/accountings_transactions', array(
-                'hash' => $hash
+                'isCashier' => $this->all_configs['oRole']->hasCashierPermission($this->getUserId())
             )),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
+            'hash' => $hash
         );
     }
 
@@ -1783,7 +1789,7 @@ class accountings
     {
         $out = '';
 
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
+        if ($this->all_configs['oRole']->hasCashierPermission($this->getUserId())) {
             // допустимые валюты
             $currencies = $this->all_configs['suppliers_orders']->currencies;
 
@@ -3063,9 +3069,9 @@ class accountings
     /**
      * @return array
      */
-    public static function get_submenu()
+    public static function get_submenu($hasAccounting = null)
     {
-        return array(
+        $submenu = array(
             array(
                 'click_tab' => true,
                 'url' => '#cashboxes',
@@ -3076,27 +3082,33 @@ class accountings
                 'url' => '#transactions',
                 'name' => l('Транзакции')
             ),
-            array(
-                'click_tab' => true,
-                'url' => '#reports',
-                'name' => l('Отчеты')
-            ),
-            array(
-                'click_tab' => true,
-                'url' => '#a_orders',
-                'name' => l('Заказы')
-            ),
-            array(
-                'click_tab' => true,
-                'url' => '#contractors',
-                'name' => l('Контрагенты')
-            ),
-            array(
-                'click_tab' => true,
-                'url' => '#settings',
-                'name' => l('Настройки')
-            ),
         );
+        if ($hasAccounting) {
+            $submenu = array_merge($submenu, array(
+
+                array(
+                    'click_tab' => true,
+                    'url' => '#reports',
+                    'name' => l('Отчеты')
+                ),
+                array(
+                    'click_tab' => true,
+                    'url' => '#a_orders',
+                    'name' => l('Заказы')
+                ),
+                array(
+                    'click_tab' => true,
+                    'url' => '#contractors',
+                    'name' => l('Контрагенты')
+                ),
+                array(
+                    'click_tab' => true,
+                    'url' => '#settings',
+                    'name' => l('Настройки')
+                ),
+            ));
+        }
+        return $submenu;
     }
 
     /**
@@ -3551,16 +3563,6 @@ class accountings
         $data['functions'] = array('reset_multiselect()');
         $data['state'] = true;
         return $data;
-    }
-
-    /**
-     * @param $userId
-     * @return bool
-     */
-    protected function hasCashierPermission($userId)
-    {
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i', array($userId))->el();
-        return $count > 0 && $this->all_configs['oRole']->hasPrivilege('accounting');
     }
 
     /**

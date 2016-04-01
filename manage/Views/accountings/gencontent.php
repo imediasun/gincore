@@ -1,6 +1,6 @@
 <div class="tabbable">
     <ul class="nav nav-tabs">
-        <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+        <?php if ($isCashier): ?>
             <li>
                 <a class="click_tab default" data-open_tab="accountings_cashboxes" onclick="click_tab(this, event)"
                    data-toggle="tab" href="<?= $mod_submenu[0]['url'] ?>">
@@ -8,7 +8,7 @@
                 </a>
             </li>
         <?php endif; ?>
-        <?php if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
+        <?php if ($isCashier ||
             $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')
         ): ?>
             <li>
@@ -57,11 +57,11 @@
         <?php endif; ?>
     </ul>
     <div class="tab-content">
-        <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+        <?php if ($isCashier): ?>
             <div id="cashboxes" class="content_tab tab-pane clearfix"></div>
         <?php endif; ?>
 
-        <?php if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
+        <?php if ($isCashier ||
             $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')
         ): ?>
             <div id="transactions" class="content_tab tab-pane clearfix"></div>
