@@ -39,7 +39,7 @@
                                        class="form-control" name="id">
                             </div>
                             <legend><?= l('Клиент') ?></legend>
-                            <div class="form-group <?= !isset($hide['client-data']) ? 'hide-field' : '' ?>">
+                            <div class="form-group">
                                 <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
                                 <div class="row row-15">
                                     <div class="col-sm-4" style="padding-right:0px">
@@ -94,7 +94,7 @@
                         </fieldset>
                         <fieldset>
                             <legend><?= l('Устройство') ?></legend>
-                            <div class="form-group <?= !isset($hide['device']) ? 'hide-field' : '' ?>">
+                            <div class="form-group ">
                                 <label class="control-label"><?= l('Выберите устройство') ?> <b
                                         class="text-danger">*</b>: </label>
                                 <?= typeahead($this->all_configs['db'], 'categories-last', false, (!empty($order_data) ?
