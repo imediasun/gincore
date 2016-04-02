@@ -4,6 +4,7 @@ if (file_exists(__DIR__ . '/../../View.php')) {
     require __DIR__ . '/../../View.php';
 }
 
+require_once(ROOT_DIR . '/shop/access.class.php');
 
 class feedback extends \service
 {
@@ -109,7 +110,15 @@ class feedback extends \service
      */
     private function sendSMS($post)
     {
-        $client = $this->getClient($post);
+        $access = new \access($this->all_configs, false);
+        $phone = $access->is_phone($post['phone']);
+        if(is_array($phone)) {
+            $phone = $phone[0];
+        }
+        if (empty($phone)) {
+            throw new \Exception(l('Номер не найден в базе'));
+        }
+        $client = $this->getClient($phone);
 
         if (empty($client) || empty($client['phone'])) {
             throw new \Exception(l('Указанный номер не закреплен ни за одним заказом'));
@@ -118,37 +127,31 @@ class feedback extends \service
             throw new \Exception(l('С вашего номера уже оставлен отзыв'));
         }
         $code = mt_rand(10000, 99999);
-        $result = send_sms($client['phone'], l('Vash kod dlya otsiva') . ':' . $code);
+        $result = send_sms($phone, l('Vash kod dlya otsiva') . ':' . $code);
         if (!$result['state']) {
             throw new \Exception(l('Проблемы с отправкой sms. Попробуйте повторить попытку позже.'));
         }
-        db()->query('UPDATE {clients} SET sms_code=?l WHERE id = ?i', array($code, $client['id']));
+        db()->query('UPDATE {clients} SET sms_code=?i WHERE id = ?i', array($code, $client['id']))->ar();
         return $this->view->renderFile('services/widgets/feedback/wait_sms', array());
     }
 
     /**
-     * @param $post
+     * @param $phone
      * @return array
-     * @throws \Exception
+     * @internal param $post
      */
-    private function getClient($post)
+    private function getClient($phone)
     {
-        require_once(ROOT_DIR . '/shop/access.class.php');
         $access = new \access($this->all_configs, false);
-        $phone = $access->is_phone($post['phone']);
-        if (empty($phone)) {
-            throw new \Exception(l('Номер не найден в базе'));
-        }
         $client = $access->get_client(null, $phone);
         if (empty($client)) {
-            $record = db()->query("SELECT * FROM {changes} WHERE work='update-order-phone' AND change like '%?e%' LIMIT 1",
-                array($post['phone']))->row();
+            $record = db()->query("SELECT * FROM {changes} WHERE work='update-order-phone' AND `change` like '%?e%' LIMIT 1",
+                array($phone))->row();
             if (!empty($record)) {
-                $client = db()->query("SELECT * FROM {clients} WHERE id in (SELECT user_id FROM {order} WHERE id=?i)",
+                $client = db()->query("SELECT * FROM {clients} WHERE id in (SELECT user_id FROM {orders} WHERE id=?i)",
                     array($record['object_id']))->row();
             }
         }
-
         return $client;
     }
 
