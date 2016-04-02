@@ -3372,6 +3372,8 @@ class Chains
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
                         ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
+            send_sms($client['phone'],
+                'Prosim vas ostavit` otziv o rabote mastera na saite ' . $this->all_configs['configs']['host'] . ' Vash kod klienta:' . $client['id']);
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
         }
