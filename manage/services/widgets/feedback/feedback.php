@@ -111,7 +111,7 @@ class feedback extends \service
     {
         $client = $this->getClient($post);
 
-        if (empty($client)) {
+        if (empty($client) || empty($client['phone'])) {
             throw new \Exception(l('Указанный номер не закреплен ни за одним заказом'));
         }
         if (!$this->isRatingAccessible($client)) {
