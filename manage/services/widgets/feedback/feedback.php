@@ -100,6 +100,7 @@ class feedback extends \service
             throw new \Exception(l('Номер не найден в базе'));
         }
         $this->saveRatings($client, $order, $post);
+        db()->query('UPDATE {clients} SET sms_code=0 WHERE id=?i', array($client['id']));
         return $this->view->renderFile('services/widgets/feedback/add');
     }
 
