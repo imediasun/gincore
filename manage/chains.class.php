@@ -3110,9 +3110,16 @@ class Chains
         $clientCode = db()->query('SELECT client_code FROM {clients} WHERE id=?i', array($clientId))->el();
         if(empty($clientCode)) {
             do {
-                print_r($clientId.mt_rand(1000000000, 9999999999));
-                $clientCode = substr($clientId.mt_rand(1000000000, 9999999999), 0, 10);
-                $has = db()->query('SELECT count(*) FROM {clients} WHERE client_code=?i', array($clientCode))->el();
+                /** @todo алогоритм предложен Vitaly */
+                if ($clientId <= 9) {
+                    $clientCode = $clientId + 1;
+                } else {
+                    $clientCodeAsArray = str_split((string)($clientId + 1));
+                    $clientCode = implode('', array_merge((array)array_pop($clientCodeAsArray), $clientCodeAsArray));
+                }
+
+//                $clientCode = substr($clientId.mt_rand(1000000000, 9999999999), 0, 10);
+                $has = db()->query('SELECT count(*) FROM {clients} WHERE client_code=?', array($clientCode))->el();
             } while($has != 0);
             db()->query('UPDATE {clients} SET client_code=?i WHERE id=?i', array($clientCode, $clientId));
         }

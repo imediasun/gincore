@@ -113,7 +113,7 @@ class feedback extends \service
     {
         $access = new \access($this->all_configs, false);
         $phone = $access->is_phone($post['phone']);
-        if(is_array($phone)) {
+        if (is_array($phone)) {
             $phone = $phone[0];
         }
         if (empty($phone)) {
@@ -127,7 +127,11 @@ class feedback extends \service
         if (!$this->isRatingAccessible($client)) {
             throw new \Exception(l('С вашего номера уже оставлен отзыв'));
         }
-        $code = mt_rand(10000, 99999);
+        do {
+            $code = mt_rand(10000, 99999);
+            $count = db()->query('SELECT count(*) FROM {clients} WHERE sms_code=?i', array($code))->el();
+        } while ($count > 0);
+
         $result = send_sms($phone, l('Vash kod dlya otsiva') . ':' . $code);
         if (!$result['state']) {
             throw new \Exception(l('Проблемы с отправкой sms. Попробуйте повторить попытку позже.'));
@@ -213,7 +217,7 @@ class feedback extends \service
             $this->recalculateRating($order['accepter']);
         }
         db()->query('INSERT INTO {feedback} (manager, acceptor, engineer, comment, client_id, order_id, created_at, updated_at)'
-        .  ' VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
+            . ' VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
             array(
                 $post['manager'],
                 $post['acceptor'],
