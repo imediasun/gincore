@@ -1087,7 +1087,8 @@ class Configs
                 12 => 50, // %
             ),
             'blacklist-tag-id' => '4',
-            'set-rating-site' => 'localhost:8080'
+            'set-rating-site' => 'localhost:8080',
+            'send-sms-with-client-code' => true,
         );  // object instance
 
         if (is_callable(self::$configs_extend_function)) {

@@ -3103,6 +3103,23 @@ class Chains
     }
 
     /**
+     * @param $clientId
+     * @return string
+     */
+    public function getClientCode($clientId) {
+        $clientCode = db()->query('SELECT client_code FROM {clients} WHERE id=?i', array($clientId))->el();
+        if(empty($clientCode)) {
+            do {
+                print_r($clientId.mt_rand(1000000000, 9999999999));
+                $clientCode = substr($clientId.mt_rand(1000000000, 9999999999), 0, 10);
+                $has = db()->query('SELECT count(*) FROM {clients} WHERE client_code=?i', array($clientCode))->el();
+            } while($has != 0);
+            db()->query('UPDATE {clients} SET client_code=?i WHERE id=?i', array($clientCode, $clientId));
+        }
+        return $clientCode;
+    }
+
+    /**
      * @param $post
      * @return array
      * @throws Exception
@@ -3372,8 +3389,10 @@ class Chains
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
                         ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
-            send_sms($client['phone'],
-                'Prosim vas ostavit` otziv o rabote mastera na saite ' . $this->all_configs['configs']['host'] . ' Vash kod klienta:' . $client['id']);
+            if($this->all_configs['configs']['send-sms-with-client-code']) {
+                send_sms($client['phone'],
+                    'Prosim vas ostavit` otziv o rabote mastera na saite ' . $this->all_configs['configs']['host'] . ' Vash kod klienta:' . $this->getClientCode($client['id']));
+            }
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
         }

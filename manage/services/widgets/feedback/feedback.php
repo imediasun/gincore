@@ -83,7 +83,7 @@ class feedback extends \service
     private function add($post)
     {
         if (!empty($post['code'])) {
-            $client = db()->query('SELECT * FROM {clients} WHERE id=? ', array($post['code']))->row();
+            $client = db()->query('SELECT * FROM {clients} WHERE client_code=?i ', array($post['code']))->row();
         }
         if (!empty($post['sms'])) {
             $client = db()->query('SELECT * FROM {clients} WHERE sms_code=? ', array($post['sms']))->row();

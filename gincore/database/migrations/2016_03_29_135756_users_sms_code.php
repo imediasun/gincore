@@ -15,6 +15,7 @@ class UsersSmsCode extends Migration
         if (!Schema::hasColumn('clients', 'sms_code')) {
             Schema::table('clients', function ($table) {
                 $table->string('sms_code', 10)->default('');
+                $table->string('client_code', 10)->default('')->unique();
             });
         }
     }
@@ -29,6 +30,7 @@ class UsersSmsCode extends Migration
         if (Schema::hasColumn('clients', 'sms_code')) {
             Schema::table('clients', function ($table) {
                 $table->dropColumn('sms_code');
+                $table->dropColumn('client_code');
             });
         }
     }
