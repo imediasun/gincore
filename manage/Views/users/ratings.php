@@ -5,6 +5,7 @@
                 <tr>
                     <th><?= l('Номер заказа') ?></th>
                     <th><?= l('Рейтинг') ?></th>
+                    <th><?= l('Комментарий') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -15,6 +16,9 @@
                     </td>
                     <td>
                         <?= $rating['rating'] ?>
+                    </td>
+                    <td>
+                        <?= $rating['comment'] ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

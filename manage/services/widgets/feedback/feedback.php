@@ -112,7 +112,7 @@ class feedback extends \service
         $client = $this->getClient($post);
 
         if (empty($client)) {
-            throw new \Exception(l('Номер не найден в базе'));
+            throw new \Exception(l('Указанный номер не закреплен ни за одним заказом'));
         }
         if (!$this->isRatingAccessible($client)) {
             throw new \Exception(l('С вашего номера уже оставлен отзыв'));
@@ -141,7 +141,7 @@ class feedback extends \service
         }
         $client = $access->get_client(null, $phone);
         if (empty($client)) {
-            $record = db()->query("SELECT * FROM {chenges} WHERE work='update-order-phone' AND change like '%?e%' LIMIT 1",
+            $record = db()->query("SELECT * FROM {changes} WHERE work='update-order-phone' AND change like '%?e%' LIMIT 1",
                 array($post['phone']))->row();
             if (!empty($record)) {
                 $client = db()->query("SELECT * FROM {clients} WHERE id in (SELECT user_id FROM {order} WHERE id=?i)",
