@@ -13,4 +13,15 @@
             "</script>"
         ) ?>
     </pre>
+    <?php if($widget == 'feedback'): ?>
+        <form action="<?= $this->all_configs['prefix'] ?>/widgets/set" method="POST">
+            <fieldset>
+                <div class="form-group">
+                    <label><?= l('Отправлять клиентам смс с кодом'); ?></label>
+                    <input type="checkbox" name="send_sms" <?= $sendSms == 'on'? 'checked': '' ?> />
+                </div>
+                <button class="btn btn-primary" type="submit"><?= l('Сохранить') ?></button>
+            </fieldset>
+        </form>
+    <?php endif; ?>
 <?php endif; ?>

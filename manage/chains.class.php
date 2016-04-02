@@ -3389,7 +3389,8 @@ class Chains
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
                         ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
-            if($this->all_configs['configs']['send-sms-with-client-code']) {
+            $config = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+            if(!empty($config) && $config == 'on') {
                 send_sms($client['phone'],
                     'Prosim vas ostavit` otziv o rabote mastera na saite ' . $this->all_configs['configs']['host'] . ' Vash kod klienta:' . $this->getClientCode($client['id']));
             }

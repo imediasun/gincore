@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../FlashMessage.php';
+require_once __DIR__ . '/../../Response.php';
 // настройки
 $modulename[132] = 'widgets';
 $modulemenu[132] = l('Виджеты');  //карта сайта
@@ -41,6 +43,10 @@ class widgets
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
         }
+        // если отправлена форма
+        if (count($_POST) > 0) {
+            $this->check_post($_POST);
+        }
 
         $this->current = isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : '';
 
@@ -65,6 +71,7 @@ class widgets
     private function gencontent()
     {
         $widget = '';
+        $sendSms = null;
         switch ($this->current) {
             case 'status':
                 $title = l('Виджет «Статус заказа»');
@@ -72,6 +79,7 @@ class widgets
                 break;
             case 'feedback':
                 $title = l('Виджет «Отзывы о работе сотрудников»');
+                $sendSms = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
                 $widget = $this->current;
                 break;
             default:
@@ -80,7 +88,8 @@ class widgets
 
         return $this->view->renderFile('widgets/gencontent', array(
             'title' => $title,
-            'widget' => $widget
+            'widget' => $widget,
+            'sendSms' => $sendSms
         ));
     }
 
@@ -96,5 +105,32 @@ class widgets
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
         exit;
+    }
+
+    /**
+     * @param $post
+     * @return mixed|string
+     */
+    private function check_post($post)
+    {
+        ini_set('error_reporting', E_ALL);
+        ini_set('display_errors', 1);
+        if(isset($post['send_sms'])) {
+            $config = db()->query("SELECT count(*) FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+            if(empty($config)) {
+                db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
+                    'order-send-sms-with-client-code',
+                    $post['send_sms'],
+                    l('Отправлять клиентам смс с кодом'),
+                    l('Отправлять клиентам смс с кодом'),
+                ));
+            } else {
+                db()->query("UPDATE {settings} SET value=?  WHERE  name='order-send-sms-with-client-code'", array(
+                    $post['send_sms'],
+                ));
+            }
+            FlashMessage::set(l('Настройки сохранены'), FlashMessage::SUCCESS);
+        }
+        Response::redirect(Response::referrer());
     }
 }
