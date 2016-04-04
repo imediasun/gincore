@@ -396,7 +396,7 @@ class master
         if (!empty($goods)) {
             $query = $this->db->makeQuery("AND not id in (?li)", $goods);
         }
-        $this->db->query("INSERT INTO {users_goods_manager} (goods_id, user_id) VALUES (SELECT id, ?i WHERE 1=1 ?q)",
+        $this->db->query("INSERT INTO {users_goods_manager} (goods_id, user_id) SELECT id, ?i FROM {goods} WHERE 1=1 ?q",
             array($user_id, $query));
     }
 }
