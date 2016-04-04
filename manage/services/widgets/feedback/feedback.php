@@ -263,7 +263,7 @@ class feedback extends \service
     public function recalculateRating($userId)
     {
         $ratings = db()->query("SELECT user_id, "
-            . " (SUM(ur.rating) / COUNT(ur.id)) as avg_rating "
+            . " ROUND(SUM(ur.rating) / COUNT(ur.id), 2) as avg_rating "
             . " FROM {users_ratings} as ur "
             . " LEFT JOIN {users} as u ON u.id = ur.user_id "
             . " WHERE u.id = ?"

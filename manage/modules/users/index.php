@@ -205,7 +205,7 @@ class users
             $ratings = $this->all_configs['db']->query('SELECT ur.*, f.comment '
             .' FROM {users_ratings} ur'
             .' JOIN {feedback} f ON ur.order_id=f.order_id'
-            .' WHERE user_id=?i ORDER BY created_at',
+            .' WHERE user_id=?i ORDER BY created_at DESC',
                 array($user_id))->assoc();
             if (empty($ratings)) {
                 $data = array(
