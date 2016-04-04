@@ -225,15 +225,15 @@ class master
             . "WHERE name = 'currency_orders'", array($orders_currency));
 
         // создаем кассу основную
-        $cashbox_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+        $cashbox_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(1,1,1,1,1,'" . lq('Основная') . "')")->id();
         // создаем кассу на которой будет происходить переводы валюты для контрагентов
-        $cashbox_c_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+        $cashbox_c_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(2,1,1,1,1,'" . lq('Транзитная') . "')")->id();
         // создаем кассу терминал
-        $cashbox_t_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+        $cashbox_t_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(3,1,1,1,1,'" . lq('Терминал') . "')")->id();
 
@@ -253,13 +253,13 @@ class master
                 $id = $this->db->query("INSERT IGNORE INTO {cashboxes_courses}(currency,name,short_name,course)"
                     . "VALUES(?i,?,?,?f)", array($curr, $name, $short_name, ($course > 0 ? $course : 1) * 100), 'id');
                 // привязываем валюты в основную кассу
-                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                $this->db->query("INSERT IGNORE  INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                     . "VALUES(?i,?i,0)", array($cashbox_id, $curr));
                 // привязываем валюты в транзитную кассу
-                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                $this->db->query("INSERT IGNORE  INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                     . "VALUES(?i,?i,0)", array($cashbox_c_id, $curr));
                 // привязываем валюты в терминал кассу
-                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                $this->db->query("INSERT IGNORE  INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                     . "VALUES(?i,?i,0)", array($cashbox_t_id, $curr));
             }
         }
