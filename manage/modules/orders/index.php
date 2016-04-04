@@ -2867,33 +2867,49 @@ class orders
      * @return array
      */
     public static function get_submenu(){
-        return array(
+        global $all_configs;
+        $submenu = array(
             array(
                 'click_tab' => true,
                 'url' => '#show_orders',
                 'name' => l('customer_orders')//'Заказы клиентов'
             ),
-            array(
+        );
+        if ($all_configs['oRole']->hasPrivilege('site-administration') || $all_configs['oRole']->hasPrivilege('create-clients-orders')) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#create_order',
                 'name' => l('create_order')//'Создать заказ'
-            ),
-            array(
+            );
+        }
+        if ($all_configs['oRole']->hasPrivilege('site-administration')
+            || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+            || $all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
+            || $all_configs['oRole']->hasPrivilege('return-items-suppliers')
+        ) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#show_suppliers_orders',
                 'name' => l('suppliers_orders')//'Заказы поставщику'
-            ),
-            array(
+            );
+        }
+        if ($all_configs['oRole']->hasPrivilege('site-administration')
+            || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+        ) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#create_supplier_order',
                 'name' => l('create_supplier_order')//'Создать заказ поставщику'
-            ),
-            array(
+            );
+        }
+        if ($all_configs['oRole']->hasPrivilege('site-administration') || $all_configs['oRole']->hasPrivilege('orders-manager')) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#orders_manager',
                 'name' => l('orders_manager')//'Менеджер заказов'
-            ),
-        );
+            );
+        }
+        return $submenu;
     }
 
     /**
