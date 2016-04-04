@@ -36,7 +36,7 @@ class Response
      * @param string $type
      * @param        $content
      */
-    public function sendContent($type = 'html', $content = '')
+    public static function sendContent($type = 'html', $content = '')
     {
         switch ($type) {
             case  'json':
