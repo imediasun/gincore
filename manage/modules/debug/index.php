@@ -154,7 +154,7 @@ class debug{
         if ($this->all_configs['arrequest'][1] == 'reset' /*&& $this->all_configs['configs']['manage-reset-access']*/) {
 
             if(!empty($_GET)) {
-                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=0');
+                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 0');
                 $this->all_configs['db']->query('TRUNCATE TABLE {orders_images}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes_amount_by_day}');
                 $this->all_configs['db']->query('UPDATE {cashboxes_currencies} SET `amount` = 0');
@@ -187,11 +187,9 @@ class debug{
                 $this->all_configs['db']->query('TRUNCATE TABLE {chains_bodies}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {chains_headers}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {chains_moves}');
-                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 0');
                 $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes_currencies}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes_courses}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {cashboxes}');
-                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 1');
                 $this->all_configs['db']->query('TRUNCATE TABLE {contractors}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {contractors_categories_links}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {goods_suppliers}');
@@ -234,7 +232,7 @@ class debug{
                                                ."WHERE name = 'lang'");
                 
                 
-                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS=1');
+                $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 1');
                 
                 // чистим кеш складов
                 get_service('wh_helper')->clear_cache();
