@@ -3397,9 +3397,10 @@ class Chains
                         ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
             $config = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+            $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
             if(!empty($config) && $config == 'on') {
                 send_sms($client['phone'],
-                    'Prosim vas ostavit` otziv o rabote mastera na saite ' . $this->all_configs['configs']['host'] . ' Vash kod klienta:' . $this->getClientCode($client['id']));
+                    'Prosim vas ostavit` otziv o rabote mastera na saite ' . $host . ' Vash kod klienta:' . $this->getClientCode($client['id']));
             }
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));

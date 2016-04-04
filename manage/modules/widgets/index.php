@@ -72,6 +72,7 @@ class widgets
     {
         $widget = '';
         $sendSms = null;
+        $host = null;
         switch ($this->current) {
             case 'status':
                 $title = l('Виджет «Статус заказа»');
@@ -80,6 +81,7 @@ class widgets
             case 'feedback':
                 $title = l('Виджет «Отзывы о работе сотрудников»');
                 $sendSms = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+                $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
                 $widget = $this->current;
                 break;
             default:
@@ -89,7 +91,8 @@ class widgets
         return $this->view->renderFile('widgets/gencontent', array(
             'title' => $title,
             'widget' => $widget,
-            'sendSms' => $sendSms
+            'sendSms' => $sendSms,
+            'host' => $host
         ));
     }
 
@@ -120,12 +123,25 @@ class widgets
             if(empty($config)) {
                 db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
                     'order-send-sms-with-client-code',
-                    $post['send_sms'],
+                    $post['host'],
                     l('Отправлять клиентам смс с кодом'),
                     l('Отправлять клиентам смс с кодом'),
                 ));
             } else {
                 db()->query("UPDATE {settings} SET value=?  WHERE  name='order-send-sms-with-client-code'", array(
+                    $post['send_sms'],
+                ));
+            }
+            $config = db()->query("SELECT count(*) FROM {settings} WHERE name='site-for-add-rating'")->el();
+            if(empty($config)) {
+                db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
+                    'site-for-add-rating',
+                    $post['host'],
+                    l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                    l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                ));
+            } else {
+                db()->query("UPDATE {settings} SET value=?  WHERE  name='site-for-add-rating'", array(
                     $post['send_sms'],
                 ));
             }
