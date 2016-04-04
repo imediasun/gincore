@@ -200,7 +200,7 @@ class Suppliers
             $data['msg'] = 'Ремонтов не может быть больше чем количество в заказе';
         }
         // проверка на создание заказа с ценой 0
-        if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
+        if ($price <= 0) {
             $data['state'] = false;
             $data['msg'] = 'Укажите цену больше 0';
         }
