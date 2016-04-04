@@ -3193,7 +3193,7 @@ class Chains
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
-            'cashless' => intval($post['cashless'])
+            'cashless' => trim($post['cashless'])
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -3382,7 +3382,7 @@ class Chains
             $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
             $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             isset($post['warranty']) ? intval($post['warranty']) : 0,
-            isset($post['cashless']) == 'on' ? 1 : 0
+            isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0
         );
 
         // создаем заказ
