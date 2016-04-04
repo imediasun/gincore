@@ -690,7 +690,7 @@ class ChartUtils
             return Session::getInstance()->get('dashboard.order.types');
         } else {
             $options = array(
-                'types' => array(),
+                'types' => array(0, 3),
                 'warranty' => array(),
             );
             if (!empty($_POST['types'])) {
