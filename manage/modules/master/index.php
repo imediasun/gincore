@@ -29,9 +29,9 @@ class master
 
         global $ifauth;
 
-        if ($ifauth['is_1']) {
-            return false;
-        }
+//        if ($ifauth['is_1']) {
+//            return false;
+//        }
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
