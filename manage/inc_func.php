@@ -627,7 +627,8 @@ function client_double_typeahead($id = null, $callbacks = ''){
     return array(
         'phone' => $value_field.$phone_field,
         'fio' => $fio_field,
-        'id' => $id
+        'id' => $id,
+        'tag_id' => $client['tag_id']
     );
 }
 

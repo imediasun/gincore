@@ -818,6 +818,7 @@ class orders
                 'orderForSaleForm' => $this->order_for_sale_form($client_id),
                 'hide' => $this->getHideFieldsConfig(),
                 'tag' => $this->getTag($client_id),
+                'tags' => $this->getTags(),
                 'order_data' => $order_data
             ));
         }
