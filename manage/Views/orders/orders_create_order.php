@@ -272,11 +272,11 @@
                                                     onclick="if ($(this).prop('checked')){$('.replacement_fund').show();}else{$('.replacement_fund').hide();}"
                                                     type="checkbox" value="1" name="is_replacement_fund"/>
                                                 <?= l('Выдан подменный фонд') ?>
-                                                <input type="text" style="display:none;"
-                                                       placeholder="<?= l('Модель, серийный номер') ?>"
-                                                       class="form-control replacement_fund" value=""
-                                                       name="replacement_fund"/>
                                             </label>
+                                            <input type="text" style="display:none;"
+                                                   placeholder="<?= l('Модель, серийный номер') ?>"
+                                                   class="form-control replacement_fund" value=""
+                                                   name="replacement_fund"/>
                                         </div>
                                     </div>
                                 </div>
