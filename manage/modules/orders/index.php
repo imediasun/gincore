@@ -2307,9 +2307,16 @@ class orders
 
         // создаем заказ поставщику
         if ($act == 'create-supplier-order') {
-            $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
-            if ($data['state'] == true && $data['id'] > 0) {
-                $data['hash'] = '#show_suppliers_orders';
+            // проверка на создание заказа с ценой 0
+            $price = isset($post['warehouse-order-price']) ? intval($post['warehouse-order-price'] * 100) : 0;
+            if ($price == 0) {
+                $data['state'] = false;
+                $data['msg'] = 'Укажите цену больше 0';
+            } else {
+                $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
+                if ($data['state'] == true && $data['id'] > 0) {
+                    $data['hash'] = '#show_suppliers_orders';
+                }
             }
         }
 
