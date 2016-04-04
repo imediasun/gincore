@@ -1317,7 +1317,7 @@ class Chains
         $items = isset($post['items']) && count(array_filter(explode(',',
             $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
         if ($items) {
-            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, cl.id as user_id,
+            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, cl.id as user_id, m.user_id as manager_id,
                       cl.contractor_id, ct.title as contractor_title, (i.price / 100) as price
                     FROM {warehouses} as w, {warehouses_goods_items} as i
                     LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
@@ -1336,23 +1336,11 @@ class Chains
             $data['state'] = false;
             $data['message'] = l('Свободные изделия для возврата не найдены или они находятся не в общем остатке (на складе у которого не включена опция учета в свободном остатке)');
         }
-        /*// клиент
-        $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
-        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i', array($client_id))->row();
-
-        if ($data['state'] == true && !$client) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите клиента';
-        }*/
-        /*if ($data['state'] == true && (!isset($post['price']) || intval($post['price']) == 0)) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите сумму';
-        }*/
 
         if ($data['state'] == true) {
             foreach ($items as $k => $item) {
                 // нет менеджера
-                if ($item['user_id'] == 0) {
+                if ($item['manager_id'] == 0) {
                     $data['state'] = false;
                     $data['location'] = $this->all_configs['prefix'] . "products/create/" . $item['goods_id'] . "?error=manager#managers";
                     break;
