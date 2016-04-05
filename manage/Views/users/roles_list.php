@@ -38,7 +38,7 @@
                                                        onchange="per_change(this, '<?= $rid ?>-<?= $sv['child'] ?>', '<?= $rid ?>-<?= $pid ?>')"
                                                        name="permissions[<?= $rid ?>-<?= $pid ?>]" <?= $sv['checked'] ? 'checked' : '' ?>
                                                        type="checkbox"/>
-                                                <?= $sv['name'] ?>
+                                                <?= mb_ucfirst(mb_strtolower(htmlspecialchars($sv['name']))) ?>
                                             </label>
                                         </div>
                                     </li>

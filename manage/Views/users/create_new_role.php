@@ -28,7 +28,7 @@
                                            class="del-a-<?= $permission['child'] ?>"
                                            onchange="per_change(this, 'a-<?= $permission['child'] ?>', 'a-<?= $permission['per_id'] ?>')"
                                            type="checkbox" name="permissions[a-<?= $permission['per_id'] ?>]">
-                                    <?= htmlspecialchars($permission['per_name']) ?>
+                                    <?= mb_ucfirst(mb_strtolower(htmlspecialchars($permission['per_name']))) ?>
                                 </label>
                             </div>
                             <?php $showedPermission[] = $permission['per_id']; ?>
