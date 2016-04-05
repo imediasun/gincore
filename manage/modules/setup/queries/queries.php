@@ -177,6 +177,11 @@ db()->query('INSERT IGNORE INTO {contractors_categories_links}
 $pid = db()->query('INSERT IGNORE INTO {contractors}
                             (title, type, comment) VALUES (?, ?i, ?)',
                         array(lq('Поставщик'), 2, ''), 'id');
+
+db()->query(
+    "INSERT INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
+    ."VALUES('000000000000','-','".lq('Поставщик')."',NOW(),1, {$pid})");
+
 $s_values = array();
 foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
     $s_values[] = db()->makeQuery("(?i, ?i)", array($sid,$pid));

@@ -3181,7 +3181,7 @@ class Chains
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
-            'cashless' => trim($post['cashless'])
+            'cashless' => isset($post['cashless'])?trim($post['cashless']):''
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа

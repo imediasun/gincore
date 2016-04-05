@@ -818,6 +818,7 @@ class orders
                 'orderForSaleForm' => $this->order_for_sale_form($client_id),
                 'hide' => $this->getHideFieldsConfig(),
                 'tag' => $this->getTag($client_id),
+                'tags' => $this->getTags(),
                 'order_data' => $order_data
             ));
         }
@@ -1785,9 +1786,10 @@ class orders
                     $avail_accept = true;
                     $accept_action = "alert_box(this, false, 'form-accept-so-and-debit')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
-                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' №' . $product['so_id'] . ').
-                            ' . l('Дата поставки') .' <span title="' . do_nice_date($product['date_wait'], false) . '">' .
-                            do_nice_date($product['date_wait']) . '';
+                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' № <a href="'.$this->all_configs['prefix'].'orders/edit/'.$product['so_id'].'#create_supplier_order">
+<small class="muted">' . $product['so_id'] . '</small> </a>). ' . l('Дата поставки') . ' <span title="' . do_nice_date($product['date_wait'],
+                            false) . '">' .
+                        do_nice_date($product['date_wait']) . '';
                 }elseif($product['count_order'] > 0) {
                     $date_attach = $this->all_configs['db']->query(
                                         "SELECT date_add FROM {orders_suppliers_clients} "
@@ -2249,9 +2251,16 @@ class orders
 
         // редактируем заказ поставщику
         if ($act == 'edit-supplier-order') {
-            $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
-            if ($data['state'] == true) {
-                //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
+            // проверка на создание заказа с ценой 0
+            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
+            if ($price == 0) {
+                $data['state'] = false;
+                $data['msg'] = 'Укажите цену больше 0';
+            } else {
+                $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
+                if ($data['state'] == true) {
+                    //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
+                }
             }
         }
 
@@ -2306,9 +2315,16 @@ class orders
 
         // создаем заказ поставщику
         if ($act == 'create-supplier-order') {
-            $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
-            if ($data['state'] == true && $data['id'] > 0) {
-                $data['hash'] = '#show_suppliers_orders';
+            // проверка на создание заказа с ценой 0
+            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
+            if ($price == 0) {
+                $data['state'] = false;
+                $data['msg'] = 'Укажите цену больше 0';
+            } else {
+                $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
+                if ($data['state'] == true && $data['id'] > 0) {
+                    $data['hash'] = '#show_suppliers_orders';
+                }
             }
         }
 

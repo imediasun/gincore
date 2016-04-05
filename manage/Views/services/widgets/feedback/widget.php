@@ -51,9 +51,7 @@
                 <div class="gcw_form_group">
                     <label><?= l('Комментарий к отзыву') ?></label>
                     <textarea class="gcw_form_control" name="comment"> </textarea>
-                </div>
-                <div class="gcw_form_group">
-                    <label><small><?= l('Заработная плата сотрудников зависит от Ваших оценок') ?></small></label>
+                    <span><small><?= l('Заработная плата сотрудников зависит от Ваших оценок') ?></small></span>
                 </div>
                 <div class="gcw_buttons">
                     <div class="gcw_form_group">

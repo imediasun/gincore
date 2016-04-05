@@ -576,3 +576,9 @@ input.visible-price {
 .hide-field {
     display: none;
 }
+
+/*.input-group-addon, .input-group-btn {*/
+    /*vertical-align: middle;*/
+    /*white-space: nowrap;*/
+    /*width: 40%;*/
+/*}*/

@@ -1759,7 +1759,15 @@ $(function(){
     });
 
     $('.module_submenu_click_tab_event').click(function(e){
+        var url = $(this).attr('data-url');
+
+        if(url.length > 0 ) {
+            window.location = url;
+            window.location.reload();
+            return;
+        }
         var $menu = $('a[href="'+$(this).data('href')+'"]');
+
         if($menu.length){
             e.preventDefault();
             $menu.click();
