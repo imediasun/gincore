@@ -2308,7 +2308,7 @@ class orders
         // создаем заказ поставщику
         if ($act == 'create-supplier-order') {
             // проверка на создание заказа с ценой 0
-            $price = isset($post['warehouse-order-price']) ? intval($post['warehouse-order-price'] * 100) : 0;
+            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
             if ($price == 0) {
                 $data['state'] = false;
                 $data['msg'] = 'Укажите цену больше 0';
