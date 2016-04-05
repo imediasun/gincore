@@ -1786,7 +1786,7 @@ class orders
                     $avail_accept = true;
                     $accept_action = "alert_box(this, false, 'form-accept-so-and-debit')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
-                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' № <a href="/manage/orders/edit/'.$product['so_id'].'#create_supplier_order">
+                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' № <a href="'.$this->all_configs['prefix'].'orders/edit/'.$product['so_id'].'#create_supplier_order">
 <small class="muted">' . $product['so_id'] . '</small> </a>). ' . l('Дата поставки') . ' <span title="' . do_nice_date($product['date_wait'],
                             false) . '">' .
                         do_nice_date($product['date_wait']) . '';
