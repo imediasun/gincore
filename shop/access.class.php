@@ -743,8 +743,10 @@ class access
                     VALUES (?n, ?n, ?n, ?, ?, ?, ?i, ?i)',
                     array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tag_id, $contractor_id), 'id');
 
+
+                $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
                 send_sms($phone,
-                    l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $this->all_configs['configs']['set-rating-site'] . '. ' . l('Vash kod clienta: ') . $result['id']);
+                    l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $host . '. ' . l('Vash kod clienta: ') . $result['id']);
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';
             } catch (go\DB\Exceptions\Exception $e) {

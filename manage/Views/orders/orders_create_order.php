@@ -47,8 +47,8 @@
                                     </div>
                                     <div class="col-sm-2" style="line-height: 34px; ">
                                         <span class="tag"
-                                              style="background-color: <?= !empty($tag) ? $tag['color'] : $tags[$client['tag_id']]['color'] ?>">
-                                            <?= htmlspecialchars(!empty($tag) ? $tag['title'] : $tags[$client['tag_id']]['title']) ?>
+                                              style="background-color: <?= !empty($tag) ? $tag['color'] : (isset($tags[$client['tag_id']]['color']) ? $tags[$client['tag_id']]['color'] : '') ?>">
+                                            <?= htmlspecialchars(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title']) ? $tags[$client['tag_id']]['title'] : '')) ?>
                                         </span>
                                     </div>
                                     <div class="col-sm-6">
@@ -272,11 +272,11 @@
                                                     onclick="if ($(this).prop('checked')){$('.replacement_fund').show();}else{$('.replacement_fund').hide();}"
                                                     type="checkbox" value="1" name="is_replacement_fund"/>
                                                 <?= l('Выдан подменный фонд') ?>
-                                                <input type="text" style="display:none;"
-                                                       placeholder="<?= l('Модель, серийный номер') ?>"
-                                                       class="form-control replacement_fund" value=""
-                                                       name="replacement_fund"/>
                                             </label>
+                                            <input type="text" style="display:none;"
+                                                   placeholder="<?= l('Модель, серийный номер') ?>"
+                                                   class="form-control replacement_fund" value=""
+                                                   name="replacement_fund"/>
                                         </div>
                                     </div>
                                 </div>

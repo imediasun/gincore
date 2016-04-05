@@ -51,9 +51,7 @@
                 <div class="gcw_form_group">
                     <label><?= l('Комментарий к отзыву') ?></label>
                     <textarea class="gcw_form_control" name="comment"> </textarea>
-                </div>
-                <div class="gcw_form_group">
-                    <label><small><?= l('Заработная плата сотрудников зависит от Ваших оценок') ?></small></label>
+                    <span><small><?= l('Заработная плата сотрудников зависит от Ваших оценок') ?></small></span>
                 </div>
                 <div class="gcw_buttons">
                     <div class="gcw_form_group">
@@ -76,5 +74,6 @@
                 <span class="gcw_form_error"></span>
             </form>
         </div>
+        <div class="gcw_sign"><a href="http://gincore.net">Supported by <b>Gincore</b></a></div>
     </div>
 </div>

@@ -441,33 +441,6 @@ class products
                                     SET user_id=?i, goods_id=?i',
                                 array($user, $product_id));
                         }
-                        /*if ($user > 0) {
-                            if ($this->all_configs['configs']['manage-product-managers'] == true) {
-                                $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager} SET user_id=?i, goods_id=?i',
-                                    array($user, $product_id));
-                                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                    array($user_id, 'add-manager', $mod_id, $product_id));
-                            } else {
-                                $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager} SET user_id=?i, goods_id=?i',
-                                    array($user, $product_id));
-                                $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE user_id<>?i AND goods_id=?i',
-                                    array($user, $product_id));
-                            }
-                        } elseif(count($post['users']) == 1) {
-                            $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
-                                array($product_id));
-                        }
-                    }
-                }
-                // удаляем доступ к товару пользователям
-                if (isset($post['del-user'])) {
-                    foreach ($post['del-user'] as $uid => $on) {
-                        if ($uid > 0) {
-                            $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE user_id=?i AND goods_id=?i',
-                                array($uid, $product_id));
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'delete-manager', $mod_id, $product_id));
-                        }*/
                     }
                 }
             }

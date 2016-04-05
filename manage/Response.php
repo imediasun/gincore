@@ -36,11 +36,11 @@ class Response
      * @param string $type
      * @param        $content
      */
-    public function sendContent($type = 'html', $content = '')
+    public static function sendContent($type = 'html', $content = '')
     {
         switch ($type) {
             case  'json':
-                if(!is_array($content)) {
+                if (!is_array($content)) {
                     $content = array($content);
                 }
                 echo json_encode($content);
@@ -84,5 +84,13 @@ class Response
     public static function json($content, $statusCode = 200)
     {
         self::send($content, 'json', $statusCode);
+    }
+
+    /**
+     * @return string
+     */
+    public static function referrer()
+    {
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '/';
     }
 }

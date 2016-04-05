@@ -87,7 +87,7 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="text" placeholder="<? l('номер заказа поставщику') ?>" name="supplier_order_id_part"
+                    <input type="text" placeholder="<?= l('номер заказа поставщику') ?>" name="supplier_order_id_part"
                            class="form-control"
                            value="<?= (isset($_GET['pso_id']) && $_GET['pso_id'] > 0 ? $_GET['pso_id'] : '') ?>"/>
                 </div>
@@ -121,7 +121,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label><? l('Товар') ?>:</label>
+                    <label><?= l('Товар') ?>:</label>
                     <?= typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) &&
                     $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini') ?>
                 </div>
