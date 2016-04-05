@@ -76,7 +76,7 @@ foreach ($settingsArr as $ar) {
 
 db()->query("UPDATE {goods} SET date_add = NOW()");
 db()->query(
-    "INSERT INTO {clients}(phone,pass,fio,date_add,person) "
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person) "
    ."VALUES('000000000000','-','".lq('Списание товара')."',NOW(),1)");
 // права доступа
 db()->query('TRUNCATE TABLE {users_permissions_groups}');

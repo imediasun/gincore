@@ -230,6 +230,7 @@ class debug{
                                                ."WHERE name = 'complete-master'");
                 $this->all_configs['db']->query("UPDATE {settings} SET value = '' "
                                                ."WHERE name = 'lang'");
+                $this->all_configs['db']->query("DELETE FROM {settings} WHERE name='order-fields-hide'");
                 
                 
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 1');
