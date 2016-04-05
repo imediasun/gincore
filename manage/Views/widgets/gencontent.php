@@ -16,12 +16,13 @@
     <?php if($widget == 'feedback'): ?>
         <form action="<?= $this->all_configs['prefix'] ?>/widgets/set" method="POST">
             <fieldset>
+                <input type="hidden" name="feedback-form" value="1" />
                 <div class="form-group">
                     <label><?= l('Отправлять клиентам смс с кодом'); ?></label>
                     <input type="checkbox" name="send_sms" <?= $sendSms == 'on'? 'checked': '' ?> />
                 </div>
                 <div class="form-group">
-                    <label><?= l('Отправлять клиентам смс с кодом'); ?></label>
+                    <label><?= l('Сайт на котором будет установлен виджет'); ?></label>
                     <input type="url" name="host" value="<?= !empty($host)? $host: '' ?>" />
                 </div>
                 <button class="btn btn-primary" type="submit"><?= l('Сохранить') ?></button>
