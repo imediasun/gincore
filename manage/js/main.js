@@ -1761,7 +1761,7 @@ $(function(){
     $('.module_submenu_click_tab_event').click(function(e){
         var url = $(this).attr('data-url');
 
-        if(url.length > 0 ) {
+        if(typeof url != 'undefined' && url.length > 0 ) {
             window.location = url;
             window.location.reload();
             return;
