@@ -231,7 +231,9 @@ class debug{
                 $this->all_configs['db']->query("UPDATE {settings} SET value = '' "
                                                ."WHERE name = 'lang'");
                 $this->all_configs['db']->query("DELETE FROM {settings} WHERE name='order-fields-hide'");
-                
+				$this->all_configs['db']->query("DELETE FROM {settings} WHERE name='site-for-add-rating'");
+				$this->all_configs['db']->query("DELETE FROM {settings} WHERE name='order-send-sms-with-client-code'");
+
                 
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 1');
                 
