@@ -14,7 +14,7 @@
     <div class="gcw_modal_blackout"></div>
     <div class="gcw_modal">
         <div class="gcw_modal_title">
-            <center><?= l('Оставить отзывы') ?></center>
+            <?= l('Оставить отзывы') ?>
             <span class="gcw_modal_close"></span>
         </div>
         <div class="gcw_modal_body js-feedback-body" style="background-color: #f1f1f1">

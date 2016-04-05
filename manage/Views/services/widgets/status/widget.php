@@ -8,7 +8,7 @@
     <div class="gcw_modal_blackout"></div>
     <div class="gcw_modal">
         <div class="gcw_modal_title">
-            <center><?= l('Узнать статус ремонта') ?></center>
+            <?= l('Узнать статус ремонта') ?>
             <span class="gcw_modal_close"></span>
         </div>
         <div class="gcw_modal_body">

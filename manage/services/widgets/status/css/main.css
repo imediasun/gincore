@@ -160,6 +160,7 @@
 }
 .gcw_modal_title{
     border-bottom: 1px solid #e4e4e4;
+    text-align: center;
 }
 .gcw_modal_body{
     max-height: 400px;
