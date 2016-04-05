@@ -116,14 +116,12 @@ class widgets
      */
     private function check_post($post)
     {
-        ini_set('error_reporting', E_ALL);
-        ini_set('display_errors', 1);
-        if(isset($post['send_sms'])) {
+        if (isset($post['send_sms'])) {
             $config = db()->query("SELECT count(*) FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
-            if(empty($config)) {
+            if (empty($config)) {
                 db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
                     'order-send-sms-with-client-code',
-                    $post['host'],
+                    $post['send_sms'],
                     l('Отправлять клиентам смс с кодом'),
                     l('Отправлять клиентам смс с кодом'),
                 ));
@@ -132,8 +130,12 @@ class widgets
                     $post['send_sms'],
                 ));
             }
+        } else {
+            db()->query("DELETE FROM {settings}  WHERE name='order-send-sms-with-client-code'")->ar();
+        }
+        if (isset($post['host'])) {
             $config = db()->query("SELECT count(*) FROM {settings} WHERE name='site-for-add-rating'")->el();
-            if(empty($config)) {
+            if (empty($config)) {
                 db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
                     'site-for-add-rating',
                     $post['host'],
@@ -142,7 +144,7 @@ class widgets
                 ));
             } else {
                 db()->query("UPDATE {settings} SET value=?  WHERE  name='site-for-add-rating'", array(
-                    $post['send_sms'],
+                    $post['host'],
                 ));
             }
             FlashMessage::set(l('Настройки сохранены'), FlashMessage::SUCCESS);
