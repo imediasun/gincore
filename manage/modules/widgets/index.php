@@ -116,38 +116,40 @@ class widgets
      */
     private function check_post($post)
     {
-        if (isset($post['send_sms'])) {
-            $config = db()->query("SELECT count(*) FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
-            if (empty($config)) {
-                db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
-                    'order-send-sms-with-client-code',
-                    $post['send_sms'],
-                    l('Отправлять клиентам смс с кодом'),
-                    l('Отправлять клиентам смс с кодом'),
-                ));
+        if (isset($post['feedback-form'])) {
+            if (isset($post['send_sms'])) {
+                $config = db()->query("SELECT count(*) FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+                if (empty($config)) {
+                    db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
+                        'order-send-sms-with-client-code',
+                        $post['send_sms'],
+                        l('Отправлять клиентам смс с кодом'),
+                        l('Отправлять клиентам смс с кодом'),
+                    ));
+                } else {
+                    db()->query("UPDATE {settings} SET value=?  WHERE  name='order-send-sms-with-client-code'", array(
+                        $post['send_sms'],
+                    ));
+                }
             } else {
-                db()->query("UPDATE {settings} SET value=?  WHERE  name='order-send-sms-with-client-code'", array(
-                    $post['send_sms'],
-                ));
+                db()->query("DELETE FROM {settings}  WHERE name='order-send-sms-with-client-code'")->ar();
             }
-        } else {
-            db()->query("DELETE FROM {settings}  WHERE name='order-send-sms-with-client-code'")->ar();
-        }
-        if (isset($post['host'])) {
-            $config = db()->query("SELECT count(*) FROM {settings} WHERE name='site-for-add-rating'")->el();
-            if (empty($config)) {
-                db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
-                    'site-for-add-rating',
-                    $post['host'],
-                    l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
-                    l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
-                ));
-            } else {
-                db()->query("UPDATE {settings} SET value=?  WHERE  name='site-for-add-rating'", array(
-                    $post['host'],
-                ));
+            if (isset($post['host'])) {
+                $config = db()->query("SELECT count(*) FROM {settings} WHERE name='site-for-add-rating'")->el();
+                if (empty($config)) {
+                    db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
+                        'site-for-add-rating',
+                        $post['host'],
+                        l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                        l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                    ));
+                } else {
+                    db()->query("UPDATE {settings} SET value=?  WHERE  name='site-for-add-rating'", array(
+                        $post['host'],
+                    ));
+                }
+                FlashMessage::set(l('Настройки сохранены'), FlashMessage::SUCCESS);
             }
-            FlashMessage::set(l('Настройки сохранены'), FlashMessage::SUCCESS);
         }
         Response::redirect(Response::referrer());
     }
