@@ -699,7 +699,7 @@ function bind_product(_this, product_id){
 
 //изменение видимой цены продукта или услуги
 function change_visible_prices(_this, id) {
-    price = $(_this).parent().parent().find('input.visible-price').first().val();
+    var price = $(_this).parent().parent().find('input.visible-price').first().val();
     $.ajax({
         url: prefix + module + '/ajax/?act=change-visible-prices',
         type: 'POST',
@@ -864,6 +864,10 @@ function set_total_as_sum(_this, orderId, total) {
                     } else {
                         $('#order-total').removeAttr('readonly');
                     }
+                  $('.js-pay-button').removeClass('disabled');
+                  if (sum == 0) {
+                      $('.js-pay-button').addClass('disabled');
+                  }
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
