@@ -94,7 +94,7 @@ class import
                     mkdir($this->upload_path, 0777);
                 }
                 $file_info = pathinfo($_FILES['file']['name']);
-                $filename = $type . '.' . $file_info['extension'];
+                $filename = $type . '.' . strtolower($file_info['extension']);
                 $target = $this->upload_path . $filename;
                 if (file_exists($this->upload_path . $type . '.csv')) {
                     if (!is_dir($this->copy_upload_path)) {

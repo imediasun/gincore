@@ -1,5 +1,8 @@
 <div class="gcw">
-    <div class="gcw_title gcw_show_modal gcw_status_modal" data-id="gcw_status_modal"><?= l('Cтатус ремонта') ?></div>
+    <div class="gcw_title gcw_show_modal gcw_status_modal" data-id="gcw_status_modal">
+        <i class="fa">?</i>
+        <?= l('Cтатус ремонта') ?>
+    </div>
 </div>
 <div class="gcw_modal_box" id="gcw_status_modal">
     <div class="gcw_modal_blackout"></div>
@@ -21,5 +24,6 @@
             </form>
             <div id="gcw_form_html"></div>
         </div>
+        <div class="gcw_sign">Supported by <a href="http://gincore.net">Gincore</a></div>
     </div>
 </div>

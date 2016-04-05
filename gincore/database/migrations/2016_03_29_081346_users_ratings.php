@@ -38,7 +38,7 @@ class UsersRatings extends Migration
         }
         if (!Schema::hasColumn('users', 'rating')) {
             Schema::table('users', function ($table) {
-                $table->integer('rating')->integer(2)->unsigned()->default(10);
+                $table->float('rating')->unsigned()->default(10);
             });
         }
     }

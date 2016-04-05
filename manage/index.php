@@ -194,8 +194,8 @@ if($all_configs['oRole']->hasPrivilege('edit-clients-orders')){
 
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
 if (isset($_SESSION['id'])) {
-    $input['rating'] = l('Рейтинг') . ':' . $db->query("SELECT rating FROM {users} WHERE id = ?i",
-            array($_SESSION['id']), 'el') . '/10';
+    $input['rating'] = l('Рейтинг') . ':' . round($db->query("SELECT rating FROM {users} WHERE id = ?i",
+            array($_SESSION['id']), 'el'), 1) . '/10';
 } else {
     $input['rating'] = '';
 }

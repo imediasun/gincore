@@ -3,5 +3,5 @@ AskFtpSiteDeployer.xml
 manage/backup-export/
 nbproject/
 .idea/
-db_config-local.php
+*_config-local.php
 *.csv
