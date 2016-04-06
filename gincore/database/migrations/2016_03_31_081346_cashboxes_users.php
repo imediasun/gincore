@@ -18,6 +18,8 @@ class CashboxesUsers extends Migration
                 $table->increments('id');
                 $table->integer('user_id')->integer(10)->unsigned();
                 $table->integer('cashbox_id')->integer(10)->unsigned();
+                $table->index('user_id');
+                $table->index('cashbox_id');
             });
         }
     }
