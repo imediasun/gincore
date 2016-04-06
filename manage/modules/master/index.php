@@ -275,7 +275,7 @@ class master
                 if ($id) {
                     // основной
                     $main_wh = $this->create_warehouse($service['name'], $service['address'], $service['phone'], 1, $id,
-                        1);
+                        1, 1);
                     // прикрепляем текущего админа к складу
                     $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) "
                         . "VALUES(?i,?i,?i,1)",
@@ -285,9 +285,9 @@ class master
                             $_SESSION['id']
                         ));
                     // брак
-                    $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id);
+                    $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id, 1, 0);
                     // клиент
-                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id);
+                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id, 0, 0);
                     $added_services[$i] = array(
                             'id' => $id
                         ) + $main_wh;
@@ -295,9 +295,9 @@ class master
             }
         }
         // склад логистика без группы
-        $this->create_warehouse(lq('Логистика'), '', '', 3, 0);
+        $this->create_warehouse(lq('Логистика'), '', '', 3, 0, 1, 1);
         // недостача без группы
-        $this->create_warehouse(lq('Недостача'), '', '', 2, 0);
+        $this->create_warehouse(lq('Недостача'), '', '', 2, 0, 0, 0);
 
         // добавляем юзеров
         foreach ($users as $i => $user) {
