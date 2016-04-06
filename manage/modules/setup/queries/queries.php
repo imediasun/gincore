@@ -179,7 +179,7 @@ $pid = db()->query('INSERT IGNORE INTO {contractors}
                         array(lq('Поставщик'), 2, ''), 'id');
 
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
+    "INSERT INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
     ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i)", array($pid));
 
 $s_values = array();
