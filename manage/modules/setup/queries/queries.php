@@ -254,5 +254,8 @@ db()->query("INSERT IGNORE INTO {migrations} (migration, batch)
 ('2016_03_09_094135_add_goods_extended', 2),
 ('2016_03_22_140618_tags', 3),
 ('2016_03_25_082910_add_total_as_sum_to_orders', 4),
-('2016_03_25_121307_add_cashless_to_orders', 5)
+('2016_03_25_121307_add_cashless_to_orders', 5),
+('2016_03_29_081346_users_ratings', 5),
+('2016_03_29_135756_users_sms_code', 5),
+('2016_03_31_081346_cashboxes_users', 5)
                 ", array());
