@@ -23,3 +23,6 @@
 .create-user table >tbody >tr >td {
     border-top: none;
 }
+#upload_avatar {
+    z-index: 100000;
+}

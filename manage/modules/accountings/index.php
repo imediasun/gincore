@@ -1533,6 +1533,10 @@ class accountings
             (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : date('t.m.Y', time()));
         $value = (isset($_GET['o_id']) && $_GET['o_id'] > 0) ? $_GET['o_id'] : ((isset($_GET['s_id']) && $_GET['s_id'] >
             0) ? $_GET['s_id'] : ((isset($_GET['t_id']) && $_GET['t_id'] > 0) ? $_GET['t_id'] : ''));
+        $in = 'in';
+        if (!isset($_GET['cb']) && !isset($_GET['cg']) && !isset($_GET['o_id']) && !isset($_GET['s_id']) && !isset($_GET['t_id'])) {
+            $in = '';
+        }
 
         return $this->view->renderFile('accountings/transaction_filters', array(
             'date' => $date,
@@ -1541,7 +1545,8 @@ class accountings
             'contractors' => $this->contractors,
             'cashboxes' => $this->getCashboxes($this->getUserId()),
             'isContractors' => $contractors,
-            'value' => $value
+            'value' => $value,
+            'in' => $in
         ));
     }
 
@@ -1724,14 +1729,13 @@ class accountings
     {
         $out = '';
 
-        if ($this->all_configs['oRole']->hasPrivilege('accounting') ||
+        if ($this->all_configs['oRole']->hasCashierPermission($this->getUserId()) ||
                 $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
 
             // допустимые валюты
             $currencies = $this->all_configs['suppliers_orders']->currencies;
 
             // фильтры
-            $in = 'in';
             $contractor_html = '';
             if (isset($_GET['ct'])) {
                 $cn = explode(',', $_GET['ct']);
@@ -1750,24 +1754,10 @@ class accountings
                                 $contractor_html .= ', ';
                         }
                         $contractor_html .= '</h4>';
-                        // сворачиваем фильтры
-                        if (!isset($_GET['cb']) && !isset($_GET['cg']) && !isset($_GET['o_id']) && !isset($_GET['s_id']) && !isset($_GET['t_id']))
-                            $in = '';
                     }
                 }
             }
-            $out = ' 
-                <div class="panel-group" id="transaction_filters">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingOne">
-                          <h4 class="panel-title">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#transaction_filters" href="#transaction_filters_collapse">' . l('Фильтры') . '</a>
-                          </h4>
-                        </div>
-                        <div id="transaction_filters_collapse" class="panel-collapse collapse ' . $in . '">
-                            <div class="panel-body">';
             $out .= $this->transaction_filters(true);
-            $out .= '</div></div></div></div>';
             $out .= $contractor_html;
             // списсок транзакций
             $out .= $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true);

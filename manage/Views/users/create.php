@@ -1,5 +1,5 @@
-<div id="create_tab_user" class="tab-pane">
-    <form method="post" class="<?= empty($isEdit) ? 'create-user': 'edit-user' ?>">
+<div id="create_tab_user" class="tab-pane row-fluid">
+    <form method="post" class="<?= empty($isEdit) ? 'create-user' : 'edit-user' ?> <?= empty($isEdit)?'col-sm-6': '' ?>">
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
@@ -8,7 +8,13 @@
             </div>
         <?php endif; ?>
         <fieldset>
-            <legend><?= l('Добавление нового пользователя') ?></legend>
+            <legend>
+                <?php if ($isEdit): ?>
+                    <?= l('Редактирование информации пользователя') ?>
+                <?php else: ?>
+                    <?= l('Добавление нового пользователя') ?>
+                <?php endif; ?>
+            </legend>
             <?php if (!empty($form_data['id'])): ?>
                 <input type="hidden" name="user_id" value="<?= $form_data['id'] ?>"/>
             <?php endif; ?>
@@ -158,7 +164,7 @@
             </div>
 
             <?php if (empty($isEdit)): ?>
-                <div class="control-group">
+                <div class="control-group text-right">
                     <div class="controls">
                         <input class="btn btn-primary" type="submit" name="create-user"
                                onclick="return add_user_validation();"

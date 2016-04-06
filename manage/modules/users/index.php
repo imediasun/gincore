@@ -328,8 +328,13 @@ class users
             array($userId))->col();
         $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
             array($userId))->col();
-        list($user['warehouse'], $user['location']) = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+            $warehouses = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i',
             array($userId))->row();
+        list($user['warehouse'], $user['location']) = array('', '');
+        if(!empty($warehouses)) {
+            $user['warehouse'] = $warehouses['wh_id'];
+            $user['location'] = $warehouses['location_id'];
+        }
         $user['warehouses'] = $this->all_configs['db']->query('SELECT wh_id FROM {warehouses_users} WHERE main=0 AND user_id=?i',
             array($userId))->col();
         if (empty($user)) {

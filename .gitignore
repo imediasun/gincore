@@ -5,3 +5,4 @@ nbproject/
 .idea/
 *_config-local.php
 *.csv
+/manage/img/avatars/*

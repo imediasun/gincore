@@ -22,6 +22,13 @@ function create_avatar_uploader(){
             }
         });           
     }
+    $('.upload_avatar_btn').click(function(){
+        avatar_uploader.setParams({
+            act: 'upload_avatar',
+            uid: $(this).data('uid')
+        });
+        $('#upload_avatar').modal('show');
+    });
 }
 
 
@@ -71,14 +78,7 @@ $(function(){
     
     create_avatar_uploader();
     
-    $('.upload_avatar_btn').click(function(){
-        avatar_uploader.setParams({
-            act: 'upload_avatar',
-            uid: $(this).data('uid')
-        });
-        $('#upload_avatar').modal('show');
-    });
-    
+
    $('.js-edit-user').on('click', function(){
        var uid = $(this).attr('data-uid'), _this = this;
        $.ajax({
@@ -120,6 +120,7 @@ $(function(){
                    };
                    dialog_box(_this, msg.title || '', msg.html, buttons);
                    reset_multiselect();
+                   create_avatar_uploader();
                }
            },
            error: function (xhr, ajaxOptions, thrownError) {
