@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../Response.php';
 require_once __DIR__ . '/../../FlashMessage.php';
 require_once __DIR__ . '/../../View.php';
 
@@ -200,6 +201,27 @@ class users
             }
         }
 
+        if($act == 'ratings') {
+            $ratings = $this->all_configs['db']->query('SELECT ur.*, f.comment '
+            .' FROM {users_ratings} ur'
+            .' JOIN {feedback} f ON ur.order_id=f.order_id'
+            .' WHERE user_id=?i ORDER BY created_at DESC',
+                array($user_id))->assoc();
+            if (empty($ratings)) {
+                $data = array(
+                    'state' => false,
+                    'message' => l('Записи об отзывах клиентов не найдены')
+                );
+            } else {
+                $data = array(
+                    'state' => true,
+                    'content' => $this->view->renderFile('users/ratings', array(
+                        'ratings' => $ratings,
+                    ))
+                );
+            }
+            Response::json($data);
+        }
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");
@@ -556,7 +578,7 @@ class users
                     <li><div class="checkbox"><label><input id="per_id_' . $rid . '_' . $pid . '" class="del-' . $rid . '-' . $sv['child'] . '"
                         onchange="per_change(this, \'' . $rid . '-' . $sv['child'] . '\', \'' . $rid . '-' . $pid . '\')"
                         name="permissions[' . $rid . '-' . $pid . ']" ' . $checked . ' type="checkbox" />' .
-                    $sv['name'] . '</label></div></li>';
+                    mb_ucfirst(mb_strtolower($sv['name'])) . '</label></div></li>';
             }
             foreach ($groups as $group_id => $name) {
                 if (!empty($group_html[$group_id])) {
@@ -606,7 +628,7 @@ class users
                 <div class="checkbox">
                     <label><input id="per_id_a_' . $per['per_id'] . '" class="del-a-' . $per['child'] . '"
                         onchange="per_change(this, \'a-' . $per['child'] . '\', \'a-' . $per['per_id'] . '\')"
-                        type="checkbox" name="permissions[a-' . $per['per_id'] . ']">' . htmlspecialchars($per['per_name']) . '</label>
+                        type="checkbox" name="permissions[a-' . $per['per_id'] . ']">' . mb_ucfirst(mb_strtolower(htmlspecialchars($per['per_name']))) . '</label>
                 </div>';
         }
         foreach ($groups as $group_id => $name) {

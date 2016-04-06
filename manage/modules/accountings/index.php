@@ -76,8 +76,9 @@ class accountings
         }
 
         // если отправлена форма
-        if (count($_POST) > 0)
+        if (count($_POST) > 0) {
             $this->check_post($_POST);
+        }
 
         //if ($this->all_configs['ifauth']['is_2']) return false;
 

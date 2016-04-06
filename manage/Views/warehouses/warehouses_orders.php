@@ -14,7 +14,7 @@
             </a>
         </li>
     <?php endif; ?>
-    <?php if ($this->all_configs['oRole']->hasPrivilege('debit - suppliers - orders')): ?>
+    <?php if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')): ?>
         <li>
             <a class="click_tab  btn btn-warning" onclick="click_tab(this, event)"
                data-open_tab="warehouses_orders_suppliers"

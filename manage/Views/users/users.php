@@ -61,28 +61,39 @@
                                     <?php endforeach; ?>
 
                                 </select></td>
-                            <td><input placeholder="<?= l('введите ФИО') ?>" class="form-control input-sm"
+                            <td>
+                                <input placeholder="<?= l('введите ФИО') ?>" class="form-control input-sm"
                                        name="fio[<?= $user['id'] ?>]" value="<?= htmlspecialchars($user['fio']) ?>"/>
                             </td>
-                            <td><input placeholder="<?= l('введите должность') ?>" class="form-control input-sm"
+                            <td>
+                                <input placeholder="<?= l('введите должность') ?>" class="form-control input-sm"
                                        name="position[<?= $user['id'] ?>]"
                                        value="<?= htmlspecialchars($user['position']) ?>"/>
                             </td>
-                            <td><input placeholder="<?= l('введите телефон') ?>" onkeydown="return isNumberKey(event)"
+                            <td>
+                                <input placeholder="<?= l('введите телефон') ?>" onkeydown="return isNumberKey(event)"
                                        class="form-control input-sm" name="phone[<?= $user['id'] ?>]"
-                                       value="<?= $user['phone'] ?>"/></td>
-                            <td><input placeholder="<?= l('введите email') ?>" class="form-control input-sm"
-                                       name="email[<?= $user['id'] ?>]" value="<?= $user['email'] ?>"/></td>
-                            <td><input placeholder="" class="form-control input-sm"
-                                       name="auth_cert_serial[<?= $user['id'] ?>]"
-                                       value="<?= $user['auth_cert_serial'] ?>"/></td>
-                            <td><input <?= $user['auth_cert_only']? 'checked': '' ?> type="checkbox" name="auth_cert_only[<?= $user['id'] ?>]"/>
+                                       value="<?= $user['phone'] ?>"/>
                             </td>
-                            <td><a href="#" class="danger delete-user" title="<?= l('Удалить') ?>"><i
-                                        class="glyphicon glyphicon-remove"
+                            <td>
+                                <input placeholder="<?= l('введите email') ?>" class="form-control input-sm"
+                                       name="email[<?= $user['id'] ?>]" value="<?= $user['email'] ?>"/>
+                            </td>
+                            <td>
+                                <input placeholder="" class="form-control input-sm"
+                                       name="auth_cert_serial[<?= $user['id'] ?>]"
+                                       value="<?= $user['auth_cert_serial'] ?>"/>
+                            </td>
+                            <td>
+                                <input <?= $user['auth_cert_only']? 'checked': '' ?> type="checkbox" name="auth_cert_only[<?= $user['id'] ?>]"/>
+                            </td>
+                            <td>
+                                <a href="#" class="danger delete-user" title="<?= l('Удалить') ?>">
+                                    <i class="glyphicon glyphicon-remove"
                                         onclick="delete_user(this, <?= $user['id'] ?>);"
-                                        data-id="<?= $user['id'] ?>"></i></a></td>
-
+                                        data-id="<?= $user['id'] ?>"></i>
+                                </a>
+                            </td>
                         </tr>
                         <?php $yet[$user['id']] = $user['id']; ?>
                     <?php endif; ?>

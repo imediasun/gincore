@@ -85,8 +85,8 @@ class Chains
             if ($order && $order['location_id'] != $arr['location']) {
                 // списание
                 if ($order['type'] == 2) {
-                    $arr['wh_id_destination'] = $this->all_configs['configs']['erp-write-off-warehouse'];
-                    $arr['location'] = $this->all_configs['configs']['erp-write-off-location'];
+                    $arr['wh_id_destination'] = $this->getWriteOffWarehouseId();
+                    $arr['location'] = $this->getLocationId($arr['wh_id_destination']);
                 }
                 // пробуем переместить
                 $result = $this->move_item_request($arr, $mod_id);
@@ -1094,6 +1094,7 @@ class Chains
                     }
                 }
                 // сумма товаров
+                $this->setOrderSum($order, $mod_id);
                 $data['product-total'] = $this->all_configs['db']->query(
                         'SELECT SUM(`count` * price) FROM {orders_goods} WHERE order_id=?i',
                         array($order_id))->el() / 100;
@@ -1316,7 +1317,7 @@ class Chains
         $items = isset($post['items']) && count(array_filter(explode(',',
             $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
         if ($items) {
-            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, cl.id as user_id,
+            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, cl.id as user_id, m.user_id as manager_id,
                       cl.contractor_id, ct.title as contractor_title, (i.price / 100) as price
                     FROM {warehouses} as w, {warehouses_goods_items} as i
                     LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
@@ -1335,23 +1336,11 @@ class Chains
             $data['state'] = false;
             $data['message'] = l('Свободные изделия для возврата не найдены или они находятся не в общем остатке (на складе у которого не включена опция учета в свободном остатке)');
         }
-        /*// клиент
-        $client_id = isset($post['clients']) ? intval($post['clients']) : 0;
-        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i', array($client_id))->row();
-
-        if ($data['state'] == true && !$client) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите клиента';
-        }*/
-        /*if ($data['state'] == true && (!isset($post['price']) || intval($post['price']) == 0)) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите сумму';
-        }*/
 
         if ($data['state'] == true) {
             foreach ($items as $k => $item) {
                 // нет менеджера
-                if ($item['user_id'] == 0) {
+                if ($item['manager_id'] == 0) {
                     $data['state'] = false;
                     $data['location'] = $this->all_configs['prefix'] . "products/create/" . $item['goods_id'] . "?error=manager#managers";
                     break;
@@ -1735,12 +1724,7 @@ class Chains
             $items = $this->getItems($itemIds);
 
             // склад куда списать
-            $wh_id = array_key_exists('erp-write-off-warehouse', $this->all_configs['configs']) ?
-                $this->all_configs['configs']['erp-write-off-warehouse'] : null;
-            // склад недостача не найдено
-            if ($wh_id == 0) {
-                throw new ExceptionWithMsg('Склад не найден');
-            }
+            $wh_id = $this->getWriteOffWarehouseId();
 
             // создаем заказ
             $post = array(
@@ -1749,6 +1733,7 @@ class Chains
                 'categories-last' => $this->all_configs['configs']['erp-co-category-write-off'],
                 'manager' => $user_id,
                 'writeoffings' => true,
+                'wh_id' => $wh_id
             );
             $order = $this->add_order($post, $mod_id, false);
 
@@ -2023,7 +2008,7 @@ class Chains
                 } else {
                     $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_id_from'];
                     if (array_key_exists('write_off', $order) && $order['write_off'] > 0
-                        && $order['write_off'] == $this->all_configs['configs']['erp-write-off-warehouse']
+                        && $order['write_off'] == $this->getWriteOffWarehouseId()
                     ) {
                         $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_off_id_from'];
                     }
@@ -3102,6 +3087,30 @@ class Chains
     }
 
     /**
+     * @param $clientId
+     * @return string
+     */
+    public function getClientCode($clientId) {
+        $clientCode = db()->query('SELECT client_code FROM {clients} WHERE id=?i', array($clientId))->el();
+        if(empty($clientCode)) {
+            do {
+                /** @todo алогоритм предложен Vitaly */
+                if ($clientId <= 9) {
+                    $clientCode = $clientId + 1;
+                } else {
+                    $clientCodeAsArray = str_split((string)($clientId + 1));
+                    $clientCode = implode('', array_merge((array)array_pop($clientCodeAsArray), $clientCodeAsArray));
+                }
+
+//                $clientCode = substr($clientId.mt_rand(1000000000, 9999999999), 0, 10);
+                $has = db()->query('SELECT count(*) FROM {clients} WHERE client_code=?', array($clientCode))->el();
+            } while($has != 0);
+            db()->query('UPDATE {clients} SET client_code=?i WHERE id=?i', array($clientCode, $clientId));
+        }
+        return $clientCode;
+    }
+
+    /**
      * @param $post
      * @return array
      * @throws Exception
@@ -3168,7 +3177,7 @@ class Chains
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
-            'cashless' => intval($post['cashless'])
+            'cashless' => isset($post['cashless'])?trim($post['cashless']):''
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -3229,6 +3238,7 @@ class Chains
                     array($orderId, $so['id'], $item['goods_id'], $product['id']), 'ar');
                 $this->deleteOnePack($orderId, $ar, $so);
             }
+            $this->setOrderSum($orderId, $modId);
         }
     }
 
@@ -3356,7 +3366,7 @@ class Chains
             $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
             $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             isset($post['warranty']) ? intval($post['warranty']) : 0,
-            isset($post['cashless']) == 'on' ? 1 : 0
+            isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0
         );
 
         // создаем заказ
@@ -3370,6 +3380,12 @@ class Chains
                       (?i, ?i, ?, ?n, ?n, ?, ?i, ?i, ?, ?, ?, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?n, ?, ?i, ?i, ?, ?i, ?n,
                         ?, ?i, ?i, ?i, ?i, ?, ?n, ?, ?i, ?i, ?n, ?i, ?i,?q,?q,?q,?q, ?i, ?i)',
                 $params, 'id');
+            $config = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+            $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
+            if(!empty($config) && $config == 'on') {
+                send_sms($client['phone'],
+                    'Prosim vas ostavit` otziv o rabote mastera na saite ' . $host . ' Vash kod klienta:' . $this->getClientCode($client['id']));
+            }
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
         }
@@ -3547,6 +3563,89 @@ class Chains
     protected function getUserId()
     {
         return isset($_SESSION['id']) ? $_SESSION['id'] : '';
+    }
+
+    /**
+     * @param $order
+     * @return int
+     */
+    public function getTotalSum($order)
+    {
+        $notSale = $order['type'] != 3;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+
+        $productTotal = 0;
+        if(!empty($goods)) {
+            foreach ($goods as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        if(!empty($services)) {
+            foreach ($services as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        return $productTotal;
+    }
+
+    /**
+     * @param $order
+     * @param $modId
+     * @return mixed
+     */
+    protected function setOrderSum($order, $modId)
+    {
+
+        if (is_numeric($order)) {
+            $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
+                array($order))->row();
+        }
+        if ($order['total_as_sum']) {
+            $sum = $this->getTotalSum($order);
+            if ($sum != $order['sum']) {
+                $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
+                    array($sum, $order['id']))->ar();
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
+                    array(
+                        $this->getUserId(),
+                        'update-order-sum',
+                        $modId,
+                        $order['id'],
+                        ($sum / 100)
+                    ));
+                $order['sum'] = $sum;
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @return mixed
+     * @throws ExceptionWithMsg
+     */
+    public function getWriteOffWarehouseId()
+    {
+        $warehouse = $this->all_configs['db']->query('SELECT * FROM {warehouses}  WHERE type=2 LIMIT 1', array())->row();
+        if(empty($warehouse)) {
+            throw new ExceptionWithMsg(l('Склад списания не найден'));
+        }
+        return $warehouse['id'];
+    }
+
+    /**
+     * @param $warehouseId
+     * @return mixed
+     * @throws ExceptionWithMsg
+     */
+    private function getLocationId($warehouseId)
+    {
+        $location = $this->all_configs['db']->query('SELECT * FROM {warehouses_locations}  WHERE wh_id=?i LIMIT 1',
+            array($warehouseId))->row();
+        if (empty($location)) {
+            throw new ExceptionWithMsg(l('Локация списания не найдена'));
+        }
+        return $location['id'];
     }
 }
 

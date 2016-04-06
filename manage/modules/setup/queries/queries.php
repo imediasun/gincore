@@ -76,7 +76,7 @@ foreach ($settingsArr as $ar) {
 
 db()->query("UPDATE {goods} SET date_add = NOW()");
 db()->query(
-    "INSERT INTO {clients}(phone,pass,fio,date_add,person) "
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person) "
    ."VALUES('000000000000','-','".lq('Списание товара')."',NOW(),1)");
 // права доступа
 db()->query('TRUNCATE TABLE {users_permissions_groups}');
@@ -177,6 +177,11 @@ db()->query('INSERT IGNORE INTO {contractors_categories_links}
 $pid = db()->query('INSERT IGNORE INTO {contractors}
                             (title, type, comment) VALUES (?, ?i, ?)',
                         array(lq('Поставщик'), 2, ''), 'id');
+
+db()->query(
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
+    ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i)", array($pid));
+
 $s_values = array();
 foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
     $s_values[] = db()->makeQuery("(?i, ?i)", array($sid,$pid));
@@ -233,6 +238,7 @@ db()->query('SET FOREIGN_KEY_CHECKS=1');
 db()->query("TRUNCATE TABLE {tags}");
 db()->query("INSERT IGNORE INTO {tags} (id, title, color)
             VALUES
+                (1, 'VIP', '#3F48CC' ),
                 (2, 'regular', '#22B14C' ),
                 (3, 'discount', '#B5E61D' ),
                 (4, 'blacklist', '#000000' ),

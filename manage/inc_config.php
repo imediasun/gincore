@@ -19,10 +19,17 @@ $all_configs['siteprefix'] = str_replace('manage/', '', $all_configs['prefix']);
 $all_configs['sitepath'] = str_replace('manage/', '', $all_configs['path']);
 
 define('DEBUG', false);
+
+if (file_exists(__DIR__ . '/inc_config-local.php')) {
+    require(__DIR__ . '/inc_config-local.php');
+}
+
 $debug = DEBUG;
 
 if ($debug) {
-    error_reporting(E_ALL); 
+    error_reporting(E_ALL);
+    ini_set('error_reporting', E_ALL);
+    ini_set('display_errors', 1);
 } else {
     error_reporting(0); 
 }

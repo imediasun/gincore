@@ -194,6 +194,12 @@ if($all_configs['oRole']->hasPrivilege('edit-clients-orders')){
 }
 
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
+if (isset($_SESSION['id'])) {
+    $input['rating'] = l('Рейтинг') . ':' . round($db->query("SELECT rating FROM {users} WHERE id = ?i",
+            array($_SESSION['id']), 'el'), 1) . '/10';
+} else {
+    $input['rating'] = '';
+}
 $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
 $input['homepage'] = l('Главная');
 $modules = scandir('./modules/');
@@ -213,6 +219,7 @@ if(empty($curmod)){
     }
     
     $additionally = '';
+    $additionallUrl = '';
     if($modulename){
         ksort($modulename);
         foreach($modulename as $k => $v){
@@ -225,11 +232,18 @@ if(empty($curmod)){
             if ($moduleactive[$k] == true) {
                 $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() : 
                                      (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
+                $submenuUrl = '';
                 if($hassubmenu){
                     $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
                     foreach($hassubmenu as $sm){
-                        if($active_mod && isset($sm['click_tab']) && $sm['click_tab']){
-                            $data = ' class="module_submenu_click_tab_event" data-href="'.$sm['url'].'"';
+                        if (empty($submenuUrl)) {
+                            $submenuUrl = $all_configs['prefix'] . $v . $sm['url'];
+                        }
+                        if ($active_mod && isset($sm['click_tab']) && $sm['click_tab']) {
+                            $data = ' class="module_submenu_click_tab_event" data-href="' . $sm['url'] . '"';
+                            if ($sm['url'] == '#create_supplier_order') {
+                                $data .= ' data-url="' . $all_configs['prefix'] . $v . $sm['url'] . '"';
+                            }
                         }else{
                             $data = '';
                         }
@@ -285,6 +299,10 @@ if(empty($curmod)){
                         || $v == 'debug'  || $v == 'tasks' || $v == 'flayers' || $v == 'statistics' 
                         || $v == 'seo' || $v == 'widgets' || $v == 'import') {
 
+                        if (empty($additionallUrl)) {
+                            $additionallUrl = $all_configs['prefix'] . $v;
+                        }
+
                         $additionally .= '
                             <li '.($curmod == $v ? 'class="active"' : '').'>
                                 <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
@@ -293,11 +311,17 @@ if(empty($curmod)){
                         ';
                     } else {
                         $mainmenu .= '
-                            <li '.($curmod == $v ? 'class="active"' : '').'>
-                                <a href="'.$all_configs['prefix'].$v.'" >'.$modulemenu[$k].''.($hassubmenu ? ' <span class="fa arrow"></span>' : '').'</a>
-                                '.$submenu.'
-                            </li>
-                        ';
+                            <li ' . ($curmod == $v ? 'class="active"' : '') . '>
+                                <button data-href="' . (empty($submenuUrl) ? ($all_configs['prefix']) . $v : $submenuUrl) . '" class="btn btn-default';
+                        if (empty($submenu)) {
+                            $mainmenu .= ' full-size';
+                        }
+
+                        $mainmenu .= '"><span class="nav-label">' . $modulemenu[$k] . '</span> </button>';
+                        if (!empty($submenu)) {
+                            $mainmenu .= ' <a href="#" class="main">' . ($hassubmenu ? ' <span class="fa arrow"></span>' : '') . '</a> ' . $submenu;
+                        }
+                        $mainmenu .= '</li>';
                     }
                 }
             }

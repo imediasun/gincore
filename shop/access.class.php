@@ -21,6 +21,11 @@ class access
 
     protected $all_configs;
 
+    /**
+     * access constructor.
+     * @param      $all_configs
+     * @param bool $standart
+     */
     function __construct(&$all_configs, $standart = true)
     {
         include_once $all_configs['sitepath'] . 'mail.php';
@@ -37,6 +42,9 @@ class access
         return null;
     }
 
+    /**
+     * @return mixed
+     */
     function gen_user()
     {
         $this->remTime = $this->all_configs['configs']['cookie-live'];
@@ -163,11 +171,20 @@ class access
 //        }
 //    }
 
+    /**
+     * @return bool
+     */
     function is_logged_in()
     {
         return $this->get_info() ? true : false;
     }
 
+    /**
+     * @param $name
+     * @param $arguments
+     * @return string
+     * @throws Exception
+     */
     function __call($name, $arguments)
     {
         preg_match('/(user_)(.+)/', $name, $arr);
@@ -188,6 +205,9 @@ class access
         }
     }
 
+    /**
+     * @return string
+     */
     function __toString()
     {
         $this->get_info();
@@ -203,6 +223,9 @@ class access
         return 'Login';
     }
 
+    /**
+     * @return null
+     */
     private function get_info()
     {
         if (isset($_SESSION['user_id']) && $this->user === null) {
@@ -213,6 +236,13 @@ class access
         return $this->user;
     }
 
+    /**
+     * @param string $user_id
+     * @param        $table
+     * @param        $id
+     * @param string $sid
+     * @return mixed
+     */
     function check($user_id = '', $table, $id, $sid = '')
     {
         if ($user_id > 0) {
@@ -239,6 +269,10 @@ class access
         return $this->find($table, $id, $user_id, $sid);
     }
 
+    /**
+     * @param string $user_id
+     * @return mixed
+     */
     private function create_new($user_id = '')
     {
         $browser_salt = $this->unique_salt();
@@ -281,6 +315,13 @@ class access
         }
     }
 
+    /**
+     * @param $table
+     * @param $id
+     * @param $user_id
+     * @param $sid
+     * @return mixed
+     */
     function find($table, $id, $user_id, $sid)
     {
         if ($user_id > 0 && $sid > 0) {
@@ -335,6 +376,11 @@ class access
         return $this->create_new();
     }
 
+    /**
+     * @param      $name
+     * @param      $value
+     * @param null $time
+     */
     private function setcookie($name, $value, $time = null)
     {
         $time = $time === null ? time() + $this->remTime : $time;
@@ -342,16 +388,27 @@ class access
         setcookie($name, $value, $time, $this->all_configs['prefix']);
     }
 
+    /**
+     * @param $name
+     */
     private function clearcookie($name)
     {
         $this->setcookie($name, '', time() - 3600);
     }
 
+    /**
+     * @return string
+     */
     function unique_salt()
     {
         return substr(sha1(mt_rand()), 0, 22);
     }
 
+    /**
+     * @param $unique_salt
+     * @param $browser_salt
+     * @return string
+     */
     function myhash($unique_salt, $browser_salt)
     {
         $salt = "f#@V)Hu^%Hgfds";
@@ -362,6 +419,11 @@ class access
         return sha1($hash);
     }
 
+    /**
+     * @param      $data
+     * @param null $user_id
+     * @return array
+     */
     function update_user($data, $user_id = null)
     {
         $result = array('state' => true);
@@ -423,6 +485,13 @@ class access
         return $result;
     }
 
+    /**
+     * @param      $email
+     * @param      $pass
+     * @param bool $return_result
+     * @param bool $without_pass
+     * @return array
+     */
     function login($email, $pass, $return_result = false, $without_pass = false)
     {
         $result = array('state' => true, 'msg' => '');
@@ -472,6 +541,10 @@ class access
         return $result;
     }
 
+    /**
+     * @param $user_id
+     * @param $guest_id
+     */
     function move_shopping_cart($user_id, $guest_id)
     {
         if (intval($user_id) > 0 &&  intval($guest_id) > 0) {
@@ -480,11 +553,19 @@ class access
         }
     }
 
+    /**
+     * @param $pass
+     * @return string
+     */
     function wrap_pass($pass)
     {
         return sha1(trim($pass));
     }
 
+    /**
+     * @param $string
+     * @return mixed|string
+     */
     function urlsafe_b64encode($string)
     {
         $data = base64_encode($string);
@@ -492,6 +573,10 @@ class access
         return $data;
     }
 
+    /**
+     * @param $string
+     * @return string
+     */
     private function urlsafe_b64decode($string)
     {
         $data = str_replace(array('-','_','.'),array('+','/','='),$string);
@@ -502,6 +587,10 @@ class access
         return base64_decode($data);
     }
 
+    /**
+     * @param $post
+     * @return array
+     */
     function edit($post)
     {
         $result = array('state' => true, 'msg' => '');
@@ -550,6 +639,10 @@ class access
         return $result;
     }
 
+    /**
+     * @param $post
+     * @return array
+     */
     function registration($post)
     {
         $mailer = new Mailer($this->all_configs);
@@ -650,6 +743,10 @@ class access
                     VALUES (?n, ?n, ?n, ?, ?, ?, ?i, ?i)',
                     array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tag_id, $contractor_id), 'id');
 
+
+                $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
+                send_sms($phone,
+                    l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $host . '. ' . l('Vash kod clienta: ') . $result['id']);
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';
             } catch (go\DB\Exceptions\Exception $e) {
@@ -687,6 +784,12 @@ class access
         return $result;
     }
 
+    /**
+     * @param null $email
+     * @param null $phones
+     * @param bool $or
+     * @return null
+     */
     public function get_client($email = null, $phones = null, $or = false)
     {
         $user = null;
@@ -718,6 +821,11 @@ class access
         return $user;
     }
 
+    /**
+     * @param      $phone
+     * @param null $user_id
+     * @return bool|null
+     */
     private function update_phones($phone, $user_id = null)
     {
         $phones = $this->is_phone($phone);
@@ -746,6 +854,11 @@ class access
         return null;
     }
 
+    /**
+     * @param      $email
+     * @param null $user_id
+     * @return bool|null
+     */
     private function update_email($email, $user_id = null)
     {
         if ($this->is_email($email) && $user_id > 0) {
@@ -762,6 +875,10 @@ class access
         return null;
     }
 
+    /**
+     * @param $client_phone
+     * @return string
+     */
     private function hide_phone($client_phone)
     {
         $out = '';
@@ -776,6 +893,10 @@ class access
         return htmlspecialchars($out);
     }
 
+    /**
+     * @param $client_email
+     * @return string
+     */
     private function hide_email($client_email)
     {
         $out = '';
@@ -809,6 +930,11 @@ class access
         return $out;
     }
 
+    /**
+     * @param int    $length
+     * @param string $chars
+     * @return string
+     */
     function rand_str($length = 32, $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890')
     {
         $chars_length = (strlen($chars) - 1);
@@ -821,6 +947,10 @@ class access
         return $string;
     }
 
+    /**
+     * @param $value
+     * @return array|bool
+     */
     function is_phone($value)
     {
         $return = array();
@@ -850,6 +980,10 @@ class access
         return count($return) > 0 ? $return : false;
     }
 
+    /**
+     * @param $value
+     * @return bool|mixed
+     */
     function is_email($value)
     {
         return is_string($value) ? filter_var(trim($value), FILTER_VALIDATE_EMAIL) : false;

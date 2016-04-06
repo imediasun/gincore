@@ -170,12 +170,12 @@ function getGet(name) {
 
 function setGet(params) {
     var str = window.location.search.replace("?", "");
-    var obj = {};
+    var obj = params;
     var pairs = str.split('&');
     if (pairs.length > 0 && pairs[0].length >0) {
         for (i in pairs) {
             var split = pairs[i].split('=');
-            if (!params[split[0]]) {
+            if (!params[split[0]] && !obj[split[0]]) {
                 obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
             } else {
                 obj[decodeURIComponent(split[0])] = decodeURIComponent(params[split[0]]);
