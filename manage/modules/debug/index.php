@@ -223,6 +223,7 @@ class debug{
                 $this->all_configs['db']->query('TRUNCATE TABLE {visitors}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {visitors_code}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {visitors_system_codes}');
+				$this->all_configs['db']->query('TRUNCATE TABLE {user_ratings}');
                 $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE id <> ?i', array($_SESSION['id']));
                 $this->all_configs['db']->query('DELETE FROM {users} WHERE id <> ?i', array($_SESSION['id']));
                 
@@ -230,7 +231,10 @@ class debug{
                                                ."WHERE name = 'complete-master'");
                 $this->all_configs['db']->query("UPDATE {settings} SET value = '' "
                                                ."WHERE name = 'lang'");
-                
+                $this->all_configs['db']->query("DELETE FROM {settings} WHERE name='order-fields-hide'");
+				$this->all_configs['db']->query("DELETE FROM {settings} WHERE name='site-for-add-rating'");
+				$this->all_configs['db']->query("DELETE FROM {settings} WHERE name='order-send-sms-with-client-code'");
+
                 
                 $this->all_configs['db']->query('SET FOREIGN_KEY_CHECKS = 1');
                 

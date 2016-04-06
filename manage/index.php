@@ -242,8 +242,11 @@ if(empty($curmod)){
                         if (empty($submenuUrl)) {
                             $submenuUrl = $all_configs['prefix'] . $v . $sm['url'];
                         }
-                        if($active_mod && isset($sm['click_tab']) && $sm['click_tab']){
-                            $data = ' class="module_submenu_click_tab_event" data-href="'.$sm['url'].'"';
+                        if ($active_mod && isset($sm['click_tab']) && $sm['click_tab']) {
+                            $data = ' class="module_submenu_click_tab_event" data-href="' . $sm['url'] . '"';
+                            if ($sm['url'] == '#create_supplier_order') {
+                                $data .= ' data-url="' . $all_configs['prefix'] . $v . $sm['url'] . '"';
+                            }
                         }else{
                             $data = '';
                         }

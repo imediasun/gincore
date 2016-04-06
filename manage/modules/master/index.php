@@ -325,9 +325,10 @@ class master
         }
 
         $this->setGoodsManager();
+        $this->createSupplierUser();
 
         // ставим отметку что мастер настройки закончен
-        $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
+        $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'", array());
 
         setcookie('show_intro', 1, time() + 600, $this->all_configs['prefix']);
         return array(
@@ -388,16 +389,32 @@ class master
     private function setGoodsManager()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-        if(empty($user_id)) {
+        if (empty($user_id)) {
             return;
         }
         $goods = $this->db->query('SELECT goods_id FROM {users_goods_manager}', array())->col();
         $query = '';
         if (!empty($goods)) {
-            $query = $this->db->makeQuery("AND not id in (?li)", $goods);
+            $query = $this->db->makeQuery("AND not id in (?li)", array($goods));
         }
         $this->db->query("INSERT INTO {users_goods_manager} (goods_id, user_id) SELECT id, ?i FROM {goods} WHERE 1=1 ?q",
             array($user_id, $query));
+    }
+
+    /**
+     *
+     */
+    private function createSupplierUser()
+    {
+        $client = $this->db->query('SELECT count(*) FROM {clients} WHERE fio = ?', array(
+            lq('Поставщик')
+        ))->el();
+        $pid = $this->db->query('SELECT id FROM {contractors} WHERE title = ?', array(lq('Поставщик')))->el();
+        if ($client == 0 && !empty($pid)) {
+            $this->db->query(
+                "INSERT INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
+                . "VALUES('000000000000','-','" . lq('Поставщик') . "',NOW(),1, {$pid})");
+        }
     }
 }
 
