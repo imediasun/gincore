@@ -225,7 +225,7 @@ class debug{
                 $this->all_configs['db']->query('TRUNCATE TABLE {visitors}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {visitors_code}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {visitors_system_codes}');
-				$this->all_configs['db']->query('TRUNCATE TABLE {user_ratings}');
+				$this->all_configs['db']->query('TRUNCATE TABLE {users_ratings}');
                 $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE id <> ?i', array($_SESSION['id']));
                 $this->all_configs['db']->query('DELETE FROM {users} WHERE id <> ?i', array($_SESSION['id']));
                 
