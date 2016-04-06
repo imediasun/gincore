@@ -1,4 +1,4 @@
-<div id="create_tab_user" class="tab-pane row-fluid">
+<div id="create_tab_user" class="tab-pane row-fluid" style="<?= empty($isEdit)?'':'border-style: none;' ?>">
     <form method="post" class="<?= empty($isEdit) ? 'create-user' : 'edit-user' ?> <?= empty($isEdit)?'col-sm-6': '' ?>">
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible" role="alert">
