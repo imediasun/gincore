@@ -85,8 +85,8 @@ class Chains
             if ($order && $order['location_id'] != $arr['location']) {
                 // списание
                 if ($order['type'] == 2) {
-                    $arr['wh_id_destination'] = $this->all_configs['configs']['erp-write-off-warehouse'];
-                    $arr['location'] = $this->all_configs['configs']['erp-write-off-location'];
+                    $arr['wh_id_destination'] = $this->getWriteOffWarehouseId();
+                    $arr['location'] = $this->getLocationId($arr['wh_id_destination']);
                 }
                 // пробуем переместить
                 $result = $this->move_item_request($arr, $mod_id);
@@ -1724,12 +1724,7 @@ class Chains
             $items = $this->getItems($itemIds);
 
             // склад куда списать
-            $wh_id = array_key_exists('erp-write-off-warehouse', $this->all_configs['configs']) ?
-                $this->all_configs['configs']['erp-write-off-warehouse'] : null;
-            // склад недостача не найдено
-            if ($wh_id == 0) {
-                throw new ExceptionWithMsg('Склад не найден');
-            }
+            $wh_id = $this->getWriteOffWarehouseId();
 
             // создаем заказ
             $post = array(
@@ -1738,6 +1733,7 @@ class Chains
                 'categories-last' => $this->all_configs['configs']['erp-co-category-write-off'],
                 'manager' => $user_id,
                 'writeoffings' => true,
+                'wh_id' => $wh_id
             );
             $order = $this->add_order($post, $mod_id, false);
 
@@ -2012,7 +2008,7 @@ class Chains
                 } else {
                     $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_id_from'];
                     if (array_key_exists('write_off', $order) && $order['write_off'] > 0
-                        && $order['write_off'] == $this->all_configs['configs']['erp-write-off-warehouse']
+                        && $order['write_off'] == $this->getWriteOffWarehouseId()
                     ) {
                         $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_off_id_from'];
                     }
@@ -3622,6 +3618,34 @@ class Chains
             }
         }
         return $order;
+    }
+
+    /**
+     * @return mixed
+     * @throws ExceptionWithMsg
+     */
+    public function getWriteOffWarehouseId()
+    {
+        $warehouse = $this->all_configs['db']->query('SELECT * FROM {warehouses}  WHERE type=2 LIMIT 1', array())->row();
+        if(empty($warehouse)) {
+            throw new ExceptionWithMsg(l('Склад списания не найден'));
+        }
+        return $warehouse['id'];
+    }
+
+    /**
+     * @param $warehouseId
+     * @return mixed
+     * @throws ExceptionWithMsg
+     */
+    private function getLocationId($warehouseId)
+    {
+        $location = $this->all_configs['db']->query('SELECT * FROM {warehouses_locations}  WHERE wh_id=?i LIMIT 1',
+            array($warehouseId))->row();
+        if (empty($location)) {
+            throw new ExceptionWithMsg(l('Локация списания не найдена'));
+        }
+        return $location['id'];
     }
 }
 

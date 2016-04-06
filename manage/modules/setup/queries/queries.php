@@ -180,7 +180,7 @@ $pid = db()->query('INSERT IGNORE INTO {contractors}
 
 db()->query(
     "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
-    ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, {$pid})");
+    ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i)", array($pid));
 
 $s_values = array();
 foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
