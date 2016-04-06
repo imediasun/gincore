@@ -216,7 +216,6 @@ if(empty($curmod)){
             require_once $module;
         }
     }
-    
     $additionally = '';
     $additionallUrl = '';
     if($modulename){
@@ -229,12 +228,8 @@ if(empty($curmod)){
                 $pre_title = strip_tags($modulemenu[$k]);
             }
             if ($moduleactive[$k] == true) {
-                if ($v == 'accountings') {
-                    $hassubmenu = $v::get_submenu($all_configs['oRole']->hasPrivilege('accounting'));
-                } else {
-                    $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() :
-                        (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
-                }
+                $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu($all_configs['oRole']) :
+                    (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
                 $submenuUrl = '';
                 if($hassubmenu){
                     $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';

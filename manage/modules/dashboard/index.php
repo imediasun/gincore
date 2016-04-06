@@ -748,8 +748,8 @@ class ChartUtils
     }
 
     /**
-     * @todo надо что то с этими свичами делать :(
-     *
+     * @todo надо что то с этими свичами делать. фабрику?
+     *     
      * @return int
      */
     public function tickSize()
