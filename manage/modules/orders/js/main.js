@@ -547,6 +547,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
             if ($(_this).hasClass('global-typeahead')) {
                 $(_this).val('');
             }
+            recalculate_total_sum();
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.responseText);
@@ -698,7 +699,7 @@ function bind_product(_this, product_id){
 
 //изменение видимой цены продукта или услуги
 function change_visible_prices(_this, id) {
-    price = $(_this).parent().parent().find('input.visible-price').first().val();
+    var price = $(_this).parent().parent().find('input.visible-price').first().val();
     $.ajax({
         url: prefix + module + '/ajax/?act=change-visible-prices',
         type: 'POST',
@@ -756,6 +757,13 @@ function add_item_to_table() {
       serial = $('input[name="serials"]').val(),
       rnd = parseInt(Math.random() * 1000);
 
+    if(cost == 0) {
+        $('#sale_poduct_cost').addClass('parsley-error');
+        $('#sale_product_cost_error').show();
+    } else {
+        $('#sale_poduct_cost').removeClass('parsley-error');
+        $('#sale_product_cost_error').hide();
+    }
     if (cost > 0 && title.length > 0 && id.length > 0) {
         $clone = $row.clone().removeClass('js-row-cloning');
         $clone.addClass('row-item');
@@ -786,6 +794,11 @@ function recalculate_amount() {
         $('input[name="serials-value"]').attr('data-required', 'true');
     }
     $('.js-total').val(amount);
+    if(amount > 0) {
+        $('.js-pay-button').removeClass('disabled');
+    } else {
+        $('.js-pay-button').addClass('disabled');
+    }
 }
 
 function remove_row(_this) {
@@ -847,15 +860,21 @@ function set_total_as_sum(_this, orderId, total) {
             data: {id: orderId, total_set: _this.checked},
             type: 'POST',
             success: function (msg) {
+                var sum;
                 if (msg.state == false && msg.message) {
                     alert(msg.message);
                 }
                 if (msg.state == true) {
+                    sum = parseInt($('input.total-sum').val());
                     if (msg.set == true) {
-                        $('#order-total').attr('readonly', 'readonly').val($('input.total-sum').val());
+                        $('#order-total').attr('readonly', 'readonly').val(sum);
                     } else {
                         $('#order-total').removeAttr('readonly');
                     }
+                  $('.js-pay-button').removeClass('disabled');
+                  if (sum == 0) {
+                      $('.js-pay-button').addClass('disabled');
+                  }
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {

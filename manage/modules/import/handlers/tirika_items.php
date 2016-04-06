@@ -66,7 +66,7 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
      */
     public function getPurchase($data)
     {
-        return (int) $data['6'] * 100;
+        return (int) $data['7'] * 100;
     }
 
     /**

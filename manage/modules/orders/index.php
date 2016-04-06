@@ -818,6 +818,7 @@ class orders
                 'orderForSaleForm' => $this->order_for_sale_form($client_id),
                 'hide' => $this->getHideFieldsConfig(),
                 'tag' => $this->getTag($client_id),
+                'tags' => $this->getTags(),
                 'order_data' => $order_data
             ));
         }
@@ -1785,9 +1786,10 @@ class orders
                     $avail_accept = true;
                     $accept_action = "alert_box(this, false, 'form-accept-so-and-debit')";
                     $accept_data = ' data-o_id="'.$supplier_order['id'].'"';
-                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' №' . $product['so_id'] . ').
-                            ' . l('Дата поставки') .' <span title="' . do_nice_date($product['date_wait'], false) . '">' .
-                            do_nice_date($product['date_wait']) . '';
+                    $msg = l('Запчасть заказана') . ' (' . l('заказ поставщику') .' № <a href="'.$this->all_configs['prefix'].'orders/edit/'.$product['so_id'].'#create_supplier_order">
+<small class="muted">' . $product['so_id'] . '</small> </a>). ' . l('Дата поставки') . ' <span title="' . do_nice_date($product['date_wait'],
+                            false) . '">' .
+                        do_nice_date($product['date_wait']) . '';
                 }elseif($product['count_order'] > 0) {
                     $date_attach = $this->all_configs['db']->query(
                                         "SELECT date_add FROM {orders_suppliers_clients} "
@@ -1849,30 +1851,6 @@ class orders
         $order_html .= $msg . '</tr>';
 
         return $order_html;
-    }
-
-    /**
-     * @param $order
-     * @return int
-     */
-    protected function getTotalSum($order)
-    {
-        $notSale = $order['type'] != 3;
-        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
-
-        $productTotal = 0;
-        if(!empty($goods)) {
-            foreach ($goods as $product) {
-                $productTotal += $product['price'] * $product['count'];
-            }
-        }
-        if(!empty($services)) {
-            foreach ($services as $product) {
-                $productTotal += $product['price'] * $product['count'];
-            }
-        }
-        return $productTotal;
     }
 
     /**
@@ -2273,9 +2251,16 @@ class orders
 
         // редактируем заказ поставщику
         if ($act == 'edit-supplier-order') {
-            $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
-            if ($data['state'] == true) {
-                //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
+            // проверка на создание заказа с ценой 0
+            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
+            if ($price == 0) {
+                $data['state'] = false;
+                $data['msg'] = 'Укажите цену больше 0';
+            } else {
+                $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
+                if ($data['state'] == true) {
+                    //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
+                }
             }
         }
 
@@ -2305,7 +2290,7 @@ class orders
                     $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
                         array($_POST['id']))->row();
                     if ($order['total_as_sum']) {
-                        $sum = $this->getTotalSum($order);
+                        $sum = $this->all_configs['chains']->getTotalSum($order);
                         if ($sum != $order['sum']) {
                             $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
                                 array($sum, $order['id']))->ar();
@@ -2330,9 +2315,16 @@ class orders
 
         // создаем заказ поставщику
         if ($act == 'create-supplier-order') {
-            $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
-            if ($data['state'] == true && $data['id'] > 0) {
-                $data['hash'] = '#show_suppliers_orders';
+            // проверка на создание заказа с ценой 0
+            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
+            if ($price == 0) {
+                $data['state'] = false;
+                $data['msg'] = 'Укажите цену больше 0';
+            } else {
+                $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
+                if ($data['state'] == true && $data['id'] > 0) {
+                    $data['hash'] = '#show_suppliers_orders';
+                }
             }
         }
 
@@ -2341,7 +2333,7 @@ class orders
                 array($_POST['id']))->row();
             if (!empty($order)) {
                 $set = $_POST['total_set'] == 'true';
-                $sum = $set ? $this->getTotalSum($order) : $order['sum'];
+                $sum = $set ? $this->all_configs['chains']->getTotalSum($order) : $order['sum'];
                 $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
                     array((int)$set, $sum, $_POST['id']))->ar();
                 if ($sum != $order['sum']) {
@@ -2553,7 +2545,7 @@ class orders
                 $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
                 $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
                 if ($order['total_as_sum']) {
-                    $order['sum'] = $this->gettotalsum($order);
+                    $order['sum'] = $this->all_configs['chains']->getTotalSum($order);
                 } else {
                     $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
                 }
@@ -2891,33 +2883,49 @@ class orders
      * @return array
      */
     public static function get_submenu(){
-        return array(
+        global $all_configs;
+        $submenu = array(
             array(
                 'click_tab' => true,
                 'url' => '#show_orders',
                 'name' => l('customer_orders')//'Заказы клиентов'
             ),
-            array(
+        );
+        if ($all_configs['oRole']->hasPrivilege('site-administration') || $all_configs['oRole']->hasPrivilege('create-clients-orders')) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#create_order',
                 'name' => l('create_order')//'Создать заказ'
-            ),
-            array(
+            );
+        }
+        if ($all_configs['oRole']->hasPrivilege('site-administration')
+            || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+            || $all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
+            || $all_configs['oRole']->hasPrivilege('return-items-suppliers')
+        ) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#show_suppliers_orders',
                 'name' => l('suppliers_orders')//'Заказы поставщику'
-            ),
-            array(
+            );
+        }
+        if ($all_configs['oRole']->hasPrivilege('site-administration')
+            || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+        ) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#create_supplier_order',
                 'name' => l('create_supplier_order')//'Создать заказ поставщику'
-            ),
-            array(
+            );
+        }
+        if ($all_configs['oRole']->hasPrivilege('site-administration') || $all_configs['oRole']->hasPrivilege('orders-manager')) {
+            $submenu[] = array(
                 'click_tab' => true,
                 'url' => '#orders_manager',
                 'name' => l('orders_manager')//'Менеджер заказов'
-            ),
-        );
+            );
+        }
+        return $submenu;
     }
 
     /**
@@ -2980,20 +2988,44 @@ class orders
     }
 
     /**
+     * @return array
+     */
+    protected function setDefaultHideFieldsConfig()
+    {
+        $config = array(
+            'crm-order-code' => 'on',
+            'referrer' => 'on',
+            'color' => 'on',
+            'serial' => 'on',
+            'equipment' => 'on',
+            'repair-type' => 'on',
+            'defect' => 'on',
+            'defect-description' => 'on',
+            'appearance' => 'on',
+            'cost' => 'on',
+            'prepaid' => 'on',
+            'available-date' => 'on',
+            'addition-info' => 'on'
+        );
+        $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
+            array(
+                l('Настройки видимости полей заказов'),
+                l('Настройки видимости полей заказов'),
+                json_encode($config)
+            ));
+        return $config;
+
+    }
+
+    /**
      *
      */
     private function order_fields_setup()
     {
-        $config = $_POST['config'];
+        $config = empty($_POST['config']) ? array() : $_POST['config'];
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
         if (empty($current)) {
-            $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
-                array(
-                    'Настройки видимости полей заказов',
-                    'Настройки видимости полей заказов',
-                    json_encode($config)
-                ));
-
+            $this->setDefaultHideFieldsConfig();
         } else {
             $this->all_configs['db']->query("UPDATE {settings} SET value = ? WHERE name = 'order-fields-hide'",
                 array(json_encode($config)));
@@ -3006,6 +3038,9 @@ class orders
     private function getHideFieldsConfig()
     {
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
+        if (empty($current)) {
+            $current[0]['value'] = json_encode($this->setDefaultHideFieldsConfig());
+        }
         return empty($current[0]) ? array() : json_decode($current[0]['value'], true);
     }
 

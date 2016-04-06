@@ -29,9 +29,9 @@ class master
 
         global $ifauth;
 
-        if ($ifauth['is_1']) {
-            return false;
-        }
+//        if ($ifauth['is_1']) {
+//            return false;
+//        }
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
@@ -225,15 +225,15 @@ class master
             . "WHERE name = 'currency_orders'", array($orders_currency));
 
         // создаем кассу основную
-        $cashbox_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+        $cashbox_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(1,1,1,1,1,'" . lq('Основная') . "')")->id();
         // создаем кассу на которой будет происходить переводы валюты для контрагентов
-        $cashbox_c_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+        $cashbox_c_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(2,1,1,1,1,'" . lq('Транзитная') . "')")->id();
         // создаем кассу терминал
-        $cashbox_t_id = $this->db->query("INSERT INTO {cashboxes}(id,cashboxes_type,avail,"
+        $cashbox_t_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(3,1,1,1,1,'" . lq('Терминал') . "')")->id();
 
@@ -253,13 +253,13 @@ class master
                 $id = $this->db->query("INSERT IGNORE INTO {cashboxes_courses}(currency,name,short_name,course)"
                     . "VALUES(?i,?,?,?f)", array($curr, $name, $short_name, ($course > 0 ? $course : 1) * 100), 'id');
                 // привязываем валюты в основную кассу
-                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                $this->db->query("INSERT IGNORE  INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                     . "VALUES(?i,?i,0)", array($cashbox_id, $curr));
                 // привязываем валюты в транзитную кассу
-                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                $this->db->query("INSERT IGNORE  INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                     . "VALUES(?i,?i,0)", array($cashbox_c_id, $curr));
                 // привязываем валюты в терминал кассу
-                $this->db->query("INSERT INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
+                $this->db->query("INSERT IGNORE  INTO {cashboxes_currencies}(cashbox_id,currency,amount) "
                     . "VALUES(?i,?i,0)", array($cashbox_t_id, $curr));
             }
         }
@@ -324,8 +324,10 @@ class master
             }
         }
 
+        $this->setGoodsManager();
+
         // ставим отметку что мастер настройки закончен
-        $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
+        $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'", array());
 
         setcookie('show_intro', 1, time() + 600, $this->all_configs['prefix']);
         return array(
@@ -378,6 +380,24 @@ class master
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
         exit;
+    }
+
+    /**
+     *
+     */
+    private function setGoodsManager()
+    {
+        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        if (empty($user_id)) {
+            return;
+        }
+        $goods = $this->db->query('SELECT goods_id FROM {users_goods_manager}', array())->col();
+        $query = '';
+        if (!empty($goods)) {
+            $query = $this->db->makeQuery("AND not id in (?li)", array($goods));
+        }
+        $this->db->query("INSERT INTO {users_goods_manager} (goods_id, user_id) SELECT id, ?i FROM {goods} WHERE 1=1 ?q",
+            array($user_id, $query));
     }
 }
 

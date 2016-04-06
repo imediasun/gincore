@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../FlashMessage.php';
 
 $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');
@@ -289,42 +290,45 @@ class warehouses
                 $consider_store = 1;
             $group_id = isset($post['group_id']) && intval($post['group_id']) > 0 ? intval($post['group_id']) : null;
             $type_id = isset($post['type_id']) && intval($post['type_id']) > 0 ? intval($post['type_id']) : null;
-
-            $empty = function ($locations) {
-                if (empty($locations) || !is_array($locations)) {
-                    return true;
-                }
-                return ! array_reduce($locations, function ($carry, $item) {
-                    return $carry || !empty($item);
-                }, 0);
-            };
-            if(!empty($post['title']) && !$empty($_POST['location'])) {
-                $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
+            if ($post['type'] != 2) {
+                $empty = function ($locations) {
+                    if (empty($locations) || !is_array($locations)) {
+                        return true;
+                    }
+                    return !array_reduce($locations, function ($carry, $item) {
+                        return $carry || !empty($item);
+                    }, 0);
+                };
+                if (!empty($post['title']) && !$empty($_POST['location'])) {
+                    $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
                 (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n)',
-                    array(
-                        $consider_all,
-                        $consider_store,
-                        trim($post['code_1c']),
-                        trim($post['title']),
-                        trim($post['print_address']),
-                        trim($post['print_phone']),
-                        $post['type'],
-                        $group_id,
-                        $type_id
-                    ), 'id');
+                        array(
+                            $consider_all,
+                            $consider_store,
+                            trim($post['code_1c']),
+                            trim($post['title']),
+                            trim($post['print_address']),
+                            trim($post['print_phone']),
+                            $post['type'],
+                            $group_id,
+                            $type_id
+                        ), 'id');
 
 
-                if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
-                    foreach ($_POST['location'] as $location) {
-                        if (mb_strlen(trim($location), 'UTF-8') > 0) {
-                            $this->all_configs['db']->query(
-                                'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
-                                array($warehouse_id, trim($location)));
+                    if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                            array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
+                        foreach ($_POST['location'] as $location) {
+                            if (mb_strlen(trim($location), 'UTF-8') > 0) {
+                                $this->all_configs['db']->query(
+                                    'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
+                                    array($warehouse_id, trim($location)));
+                            }
                         }
                     }
                 }
+            } else {
+                FlashMessage::set(l('Склад типа "Надостача" может существовать только в единственном экземпляре'), FlashMessage::DANGER);
             }
 
         } elseif (isset($post['warehouse-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -1888,7 +1892,10 @@ class warehouses
         $warehouses_groups = '<select name="group_id" class="form-control"><option value=""></option>';
         if ($warehouse == null) {
             foreach ($this->all_configs['configs']['erp-warehouses-types'] as $w_id=>$w_name) {
-                $warehouses_type .= '<option value="' . $w_id . '">' . $w_name . '</option>';
+                // если не тип "недостача"
+                if($w_id != 2) {
+                    $warehouses_type .= '<option value="' . $w_id . '">' . $w_name . '</option>';
+                }
             }
             foreach ($types as $type) {
                 $warehouses_types .= '<option value="' . $type['id'] . '">' . $type['name'] . '</option>';

@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../FlashMessage.php';
+require_once __DIR__ . '/../../Response.php';
 // настройки
 $modulename[132] = 'widgets';
 $modulemenu[132] = l('Виджеты');  //карта сайта
@@ -10,6 +13,8 @@ class widgets
 {
 
     protected $all_configs;
+    /** @var View */
+    protected $view;
     private $lang;
     private $def_lang;
     private $langs;
@@ -27,6 +32,7 @@ class widgets
         $this->lang = $lang;
         $this->langs = $langs;
         $this->all_configs = $all_configs;
+        $this->view = new View($all_configs);
 
         global $input_html, $ifauth;
 
@@ -36,6 +42,10 @@ class widgets
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
+        }
+        // если отправлена форма
+        if (count($_POST) > 0) {
+            $this->check_post($_POST);
         }
 
         $this->current = isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : '';
@@ -50,16 +60,9 @@ class widgets
      */
     private function genmenu()
     {
-
-        $out = '
-            <ul>
-                <li' . ($this->current == 'status' ? ' class="active"' : '') . '>
-                    <a href="' . $this->all_configs['prefix'] . 'widgets/status">' . l('Статус ремонта') . '</a>
-                </li>
-            </ul>
-        ';
-
-        return $out;
+        return $this->view->renderFile('widgets/genmenu', array(
+            'current' => $this->current
+        ));
     }
 
     /**
@@ -67,32 +70,30 @@ class widgets
      */
     private function gencontent()
     {
-
+        $widget = '';
+        $sendSms = null;
+        $host = null;
         switch ($this->current) {
             case 'status':
-                $out = '
-                    <h2>' . l('Виджет «Статус заказа»') . '</h2>
-                    <pre>' .
-                    htmlspecialchars(
-                        "<script>\n" .
-                        "    (function () {\n" .
-                        "        var s = document.createElement(\"script\");\n" .
-                        "            s.type = \"text/javascript\";\n" .
-                        "            s.async = true;\n" .
-                        "            s.src = \"//" . $_SERVER['HTTP_HOST'] . "/widget.php?ajax=&w=status&jquery=\"+(\"jQuery\" in window?1:0);\n" .
-                        "        document.getElementsByTagName(\"head\")[0].appendChild(s);\n" .
-                        "    })();\n" .
-                        "</script>"
-                    ) . '
-                    </pre>
-                ';
+                $title = l('Виджет «Статус заказа»');
+                $widget = $this->current;
+                break;
+            case 'feedback':
+                $title = l('Виджет «Отзывы о работе сотрудников»');
+                $sendSms = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+                $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
+                $widget = $this->current;
                 break;
             default:
-                $out = l('Виджеты');
-                break;
+                $title = l('Виджеты');
         }
 
-        return $out;
+        return $this->view->renderFile('widgets/gencontent', array(
+            'title' => $title,
+            'widget' => $widget,
+            'sendSms' => $sendSms,
+            'host' => $host
+        ));
     }
 
     /**
@@ -107,5 +108,49 @@ class widgets
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
         exit;
+    }
+
+    /**
+     * @param $post
+     * @return mixed|string
+     */
+    private function check_post($post)
+    {
+        if (isset($post['feedback-form'])) {
+            if (isset($post['send_sms'])) {
+                $config = db()->query("SELECT count(*) FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+                if (empty($config)) {
+                    db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
+                        'order-send-sms-with-client-code',
+                        $post['send_sms'],
+                        l('Отправлять клиентам смс с кодом'),
+                        l('Отправлять клиентам смс с кодом'),
+                    ));
+                } else {
+                    db()->query("UPDATE {settings} SET value=?  WHERE  name='order-send-sms-with-client-code'", array(
+                        $post['send_sms'],
+                    ));
+                }
+            } else {
+                db()->query("DELETE FROM {settings}  WHERE name='order-send-sms-with-client-code'")->ar();
+            }
+            if (isset($post['host'])) {
+                $config = db()->query("SELECT count(*) FROM {settings} WHERE name='site-for-add-rating'")->el();
+                if (empty($config)) {
+                    db()->query("INSERT INTO {settings} (name, value, title, description) VALUES (?, ?, ?, ?)", array(
+                        'site-for-add-rating',
+                        $post['host'],
+                        l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                        l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                    ));
+                } else {
+                    db()->query("UPDATE {settings} SET value=?  WHERE  name='site-for-add-rating'", array(
+                        $post['host'],
+                    ));
+                }
+                FlashMessage::set(l('Настройки сохранены'), FlashMessage::SUCCESS);
+            }
+        }
+        Response::redirect(Response::referrer());
     }
 }

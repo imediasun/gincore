@@ -317,6 +317,11 @@ function send_mail($to, $sbj, $msgtxt)
     return (bool) (mail($to, $subject, $message, $headers));
 }
 
+function mb_ucfirst($str) {
+    $fc = mb_strtoupper(mb_substr($str, 0, 1));
+    return $fc.mb_substr($str, 1);
+}
+
 // отправка сообщений через turbosms
 function send_sms($phone, $message, $sender = null)
 {
@@ -622,7 +627,8 @@ function client_double_typeahead($id = null, $callbacks = ''){
     return array(
         'phone' => $value_field.$phone_field,
         'fio' => $fio_field,
-        'id' => $id
+        'id' => $id,
+        'tag_id' => $client['tag_id']
     );
 }
 
@@ -1513,4 +1519,15 @@ function prepare_for_serial_search($prefix, $string, $length)
     }
     $prefix = ltrim($string, $matches[0]);
     return array($prefix, $length - strlen($prefix));
+}
+
+/**
+ * check if https
+ * 
+ * @return bool
+ */
+function isHTTPS()
+{
+    return isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1)
+    || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
 }

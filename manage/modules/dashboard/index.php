@@ -91,6 +91,12 @@ class dashboard
         $input['today_cash'] = $cash['today'];
         $input['period_cash'] = $cash['period'];
         $input['cash_chart'] = $cash['cash_chart'];
+
+        $input['avg_rating'] = $this->averageRating();
+        $input['dashboard_avg_company_rating'] = l('Рейтинг компании');
+        $input['dashboard_avg_ratings'] = l('Формируется из отзывов клиентов компании. Рассчитывается как сумма всех рейтингов сотрудников, деленная на количество сотрудников');
+        $input['dashboard_users_ratings'] = l('Рейтинг сотрудников');
+        $input['users_ratings'] = $this->usersRatings();
     }
 
     /**
@@ -546,6 +552,47 @@ class dashboard
         }
         exit;
     }
+
+    /**
+     * @return string
+     */
+    private function usersRatings()
+    {
+        $query_filter = $this->utils->makeFilters('ur.created_at');
+        $ratings = $this->db->query("SELECT user_id, IF(u.fio!='',u.fio,u.login) as fio, "
+            . "(SUM(ur.rating) / COUNT(ur.id)) as avg_rating "
+            . "FROM {users_ratings} as ur "
+            . "LEFT JOIN {users} as u ON u.id = ur.user_id "
+            . "WHERE ?q AND u.deleted = 0 GROUP BY user_id "
+            . "ORDER BY avg_rating DESC", array($query_filter),
+            'assoc');
+        return $this->view->renderFile('dashboard/users_ratings', array(
+            'ratings' => $ratings,
+        ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function averageRating()
+    {
+        $queryFilter = $this->utils->makeFilters('ur.created_at');
+        $count = $this->db->query("
+            SELECT 
+                COUNT(*) as `count`
+            FROM {users_ratings} as ur
+            WHERE ?q 
+        ", array($queryFilter))->el();
+        if ($count > 0) {
+            $averageRating = $this->db->query("
+            SELECT 
+                (SUM(ur.rating) / COUNT(ur.id)) as avg_rating
+            FROM {users_ratings} as ur
+            WHERE ?q 
+        ", array($queryFilter))->el();
+        }
+        return $count > 0 ? round($averageRating, 2) : 10;
+    }
 }
 
 class ChartUtils
@@ -582,10 +629,10 @@ class ChartUtils
         $options = $this->getOrderOptions();
         $warrantyQuery = '';
         if (isset($options['warranty']) && $options['warranty']) {
-            $warrantyQuery .= $this->db->makeQuery(" AND {$prefix}warranty = 1", array());
+            $warrantyQuery .= $this->db->makeQuery(" AND {$prefix}repair = 1", array());
         }
         if (isset($options['not-warranty']) && $options['not-warranty']) {
-            $warrantyQuery .= $this->db->makeQuery(" AND ({$prefix}warranty = 0 OR {$prefix}warranty IS NULL)",
+            $warrantyQuery .= $this->db->makeQuery(" AND (NOT {$prefix}repair = 1)",
                 array());
         }
 
@@ -642,10 +689,6 @@ class ChartUtils
         if (!empty($_POST) && empty($_POST['types'])) {
             return Session::getInstance()->get('dashboard.order.types');
         } else {
-            $options = array(
-                'types' => array(),
-                'warranty' => array(),
-            );
             if (!empty($_POST['types'])) {
                 if (in_array('repair', $_POST['types'])) {
                     $options['types'][] = 0;
@@ -659,6 +702,12 @@ class ChartUtils
                 if (in_array('not-warranty', $_POST['types'])) {
                     $options['not-warranty'][] = 1;
                 }
+            }
+            if (empty($options)) {
+                $options = array(
+                    'types' => array(0, 3),
+                    'warranty' => array(),
+                );
             }
 
             Session::getInstance()->set('dashboard.order.types', $options);
@@ -687,7 +736,7 @@ class ChartUtils
         $filters = $this->getFilters();
         $query = '';
         if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") > ?',
+            $query = $this->db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d") >= ?',
                 array($query, $filters['date_start']));
         }
 
