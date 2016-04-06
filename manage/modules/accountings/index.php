@@ -41,8 +41,8 @@ class accountings
      */
     function __construct(&$all_configs)
     {
-        $this->mod_submenu = self::get_submenu();
         $this->all_configs = $all_configs;
+        $this->mod_submenu = self::get_submenu($this->all_configs['oRole']);
         $this->count_on_page = count_on_page();
         $this->view = new View($all_configs);
 
@@ -1504,38 +1504,23 @@ class accountings
     }
 
     /**
-     * @param null $y
+     * @param null $year
      * @return string
      */
-    function month_select($y = null)
+    function month_select($year = null)
     {
-        $out = '';
-
         $cur_year = date('Y', time());
         $cur_month = (isset($_GET['df']) && !empty($_GET['df'])) ? date('m', strtotime($_GET['df'])) : date('m',
             time());
 
-        if ($y == null) {
-            $year = $cur_year;
-        } else {
-            $year = $y;
-        }
 
-        if ($y == null) {
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
-            $out .= '<select class="form-control" onchange="window.location.href=\'' . $url . '?\' + this.value + \'#transactions\'">';
-        }
-
-        foreach ($this->months as $number_month => $month) {
-            $out .= '<option ' . (($cur_month == $number_month) ? 'selected' : '') . ' value="df=01.' . $number_month . '.' . $year . '&dt=' . date('t.' . $number_month . '.' . $year,
-                    strtotime('01.' . $number_month . '.' . $year)) . '">' . $month . (($year == $cur_year) ? '' : ', ' . $y) . '</option>';
-        }
-
-        if ($y == null) {
-            $out .= '</select>';
-        }
-
-        return $out;
+        return $this->view->renderFile('accountings/month_select', array(
+            'months' => $this->months,
+            'currentYear' => ($year == null) ? $cur_year : $year,
+            'year' => $year,
+            'cur_month' => $cur_month,
+            'cur_year' => $cur_year
+        ));
     }
 
     /**
@@ -2947,21 +2932,22 @@ class accountings
             ),
         );
         if(empty($oRole)) {
-            return $submenu;
+            global $all_configs;
+            $oRole = $all_configs['oRole'];
         }
 
         if ($oRole->hasPrivilege("site-administration")
             || $oRole->hasPrivilege('accounting-reports-turnover')
             || $oRole->hasPrivilege('partner')
         ) {
-            $submenu[] = array(
+            $submenu[2] = array(
                 'click_tab' => true,
                 'url' => '#reports',
                 'name' => l('Отчеты')
             );
         }
         if ($oRole->hasPrivilege('accounting')) {
-            $submenu[] = array(
+            $submenu[3] = array(
                 'click_tab' => true,
                 'url' => '#a_orders',
                 'name' => l('Заказы')
@@ -2970,14 +2956,14 @@ class accountings
         if ($oRole->hasPrivilege('accounting') ||
             $oRole->hasPrivilege('accounting-contractors')
         ) {
-            $submenu[] = array(
+            $submenu[4] = array(
                 'click_tab' => true,
                 'url' => '#contractors',
                 'name' => l('Контрагенты')
             );
         }
         if ($oRole->hasPrivilege('accounting')) {
-            $submenu[] = array(
+            $submenu[5] = array(
                 'click_tab' => true,
                 'url' => '#settings',
                 'name' => l('Настройки')
@@ -3448,7 +3434,6 @@ class accountings
     protected function getCashboxes($userId)
     {
         if($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            return array();
             return $this->cashboxes;
         }
         return $this->all_configs['db']->query('SELECT * FROM {cashboxes}'.

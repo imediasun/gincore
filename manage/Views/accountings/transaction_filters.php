@@ -56,46 +56,49 @@
         </div>
     </div>
 
-    <div class="form-group"><label><?= l('Контрагенты') ?>:</label>
-        <div class="row container-fluid">
-            <div class="col-sm-3">
-                <select class="form-control" name="include_contractors">
-                    <option value="1"><?= l('Показать') ?></option>
-                    <option
-                        <?= ((isset($_GET['cte']) && $_GET['cte'] == -1) ? 'selected' : '') ?> value="-1">
-                        <?= l('Исключить') ?>
-                    </option>
-                </select>
-            </div>
-            <div class="col-sm-3">
-                <select class="multiselect form-control" name="contractors[]" multiple="multiple">
-                    <?= build_array_tree($contractors, ((isset($_GET['ct'])) ? explode(',', $_GET['ct']) : array())); ?>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="form-group"><label class="control-label"><?= l('По') ?>:</label>
-        <div class="row container-fluid">
-            <div class="col-sm-3">
-                <input class="form-control" value="<?= $value ?>" onkeydown="return isNumberKey(event, this)"
-                       type="text" name="by_id" placeholder="<?= l('Введите ид') ?>"/>
-            </div>
-            <div class="col-sm-3">
-                <select class="form-control" name="by">
-                    <option value="0"></option>
-                    <option <?= ((isset($_GET['o_id']) && $_GET['o_id'] > 0) ? 'selected' : '') ?> value="o_id">
-                        <?= l('Заказу клиента') ?>
-                    </option>
-                    <option <?= ((isset($_GET['s_id']) && $_GET['s_id'] > 0) ? 'selected' : '') ?> value="s_id">
-                        <?= l('Заказу поставщика') ?>
-                    </option>
-                    <option <?= ((isset($_GET['t_id']) && $_GET['t_id'] > 0) ? 'selected' : '') ?> value=" t_id">
-                        <?= l('Транзакции касс') ?>
-                    </option>
-                </select>
+    <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+        <div class="form-group"><label><?= l('Контрагенты') ?>:</label>
+            <div class="row container-fluid">
+                <div class="col-sm-3">
+                    <select class="form-control" name="include_contractors">
+                        <option value="1"><?= l('Показать') ?></option>
+                        <option
+                            <?= ((isset($_GET['cte']) && $_GET['cte'] == -1) ? 'selected' : '') ?> value="-1">
+                            <?= l('Исключить') ?>
+                        </option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <select class="multiselect form-control" name="contractors[]" multiple="multiple">
+                        <?= build_array_tree($contractors,
+                            ((isset($_GET['ct'])) ? explode(',', $_GET['ct']) : array())); ?>
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="form-group"><label class="control-label"><?= l('По') ?>:</label>
+            <div class="row container-fluid">
+                <div class="col-sm-3">
+                    <input class="form-control" value="<?= $value ?>" onkeydown="return isNumberKey(event, this)"
+                           type="text" name="by_id" placeholder="<?= l('Введите ид') ?>"/>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" name="by">
+                        <option value="0"></option>
+                        <option <?= ((isset($_GET['o_id']) && $_GET['o_id'] > 0) ? 'selected' : '') ?> value="o_id">
+                            <?= l('Заказу клиента') ?>
+                        </option>
+                        <option <?= ((isset($_GET['s_id']) && $_GET['s_id'] > 0) ? 'selected' : '') ?> value="s_id">
+                            <?= l('Заказу поставщика') ?>
+                        </option>
+                        <option <?= ((isset($_GET['t_id']) && $_GET['t_id'] > 0) ? 'selected' : '') ?> value=" t_id">
+                            <?= l('Транзакции касс') ?>
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="form-group">
         <div class="checkbox">
             <label class="">
