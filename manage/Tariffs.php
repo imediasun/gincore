@@ -4,6 +4,12 @@ require_once __DIR__ . '/Session.php';
 
 class Tariffs
 {
+    /**
+     * @param       $api
+     * @param       $host
+     * @param array $data
+     * @return array|mixed
+     */
     public static function get($api, $host, $data = array())
     {
         $result = null;
@@ -18,6 +24,12 @@ class Tariffs
         return empty($result) ? array() : json_decode($result);
     }
 
+    /**
+     * @param       $api
+     * @param       $host
+     * @param array $data
+     * @return array|mixed
+     */
     public static function post($api, $host, $data = array())
     {
         $result = null;
@@ -63,7 +75,7 @@ class Tariffs
 
     }
 
-    public static function nesOrderAvailable($api, $host)
+    public static function newOrderAvailable($api, $host)
     {
 
     }
