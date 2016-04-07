@@ -390,7 +390,7 @@ class master
      */
     private function setGoodsManager()
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->db->query('SELECT id FROM {users} ORDER BY id ASC LIMIT 1')->el();
         if (empty($user_id)) {
             return;
         }
