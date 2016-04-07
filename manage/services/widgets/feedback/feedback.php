@@ -205,23 +205,23 @@ class feedback extends \service
     private function saveRatings($client, $order, $post)
     {
         if (!empty($order['manager'])) {
-            $this->saveRating($order['manager'], $order['id'], $client['id'], $post['manager']);
+            $this->saveRating($order['manager'], $order['id'], $client['id'], min(abs($post['manager']), 10));
             $this->recalculateRating($order['manager']);
         }
         if (!empty($order['engineer'])) {
-            $this->saveRating($order['engineer'], $order['id'], $client['id'], $post['engineer']);
+            $this->saveRating($order['engineer'], $order['id'], $client['id'], min(abs($post['engineer']), 10));
             $this->recalculateRating($order['engineer']);
         }
         if (!empty($order['accepter'])) {
-            $this->saveRating($order['accepter'], $order['id'], $client['id'], $post['acceptor']);
+            $this->saveRating($order['accepter'], $order['id'], $client['id'], min(abs($post['acceptor']), 10));
             $this->recalculateRating($order['accepter']);
         }
         db()->query('INSERT INTO {feedback} (manager, acceptor, engineer, comment, client_id, order_id, created_at, updated_at)'
             . ' VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
             array(
-                $post['manager'],
-                $post['acceptor'],
-                $post['engineer'],
+                min(abs($post['manager']), 10),
+                min(abs($post['acceptor']), 10),
+                min(abs($post['engineer']), 10),
                 empty($post['comment']) ? '' : $post['comment'],
                 $client['id'],
                 $order['id'],

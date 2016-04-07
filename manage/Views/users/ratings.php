@@ -18,7 +18,7 @@
                         <?= $rating['rating'] ?>
                     </td>
                     <td>
-                        <?= $rating['comment'] ?>
+                        <?= htmlspecialchars($rating['comment']) ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
