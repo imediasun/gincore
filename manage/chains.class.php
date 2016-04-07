@@ -3382,8 +3382,9 @@ class Chains
                 $params, 'id');
             $config = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
             $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
+            $client = db()->query("SELECT * FROM {clients} WHERE id=?i", array($client['id']))->row();
             if(!empty($config) && $config == 'on') {
-                send_sms($client['phone'],
+                send_sms("+{$client['phone']}",
                     'Prosim vas ostavit` otziv o rabote mastera na saite ' . $host . ' Vash kod klienta:' . $this->getClientCode($client['id']));
             }
         } catch (Exception $e) {
