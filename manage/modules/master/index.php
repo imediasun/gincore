@@ -302,6 +302,9 @@ class master
         $this->create_warehouse(lq('Логистика'), '', '', 3, 0, 1, 1);
         // недостача без группы
         $this->create_warehouse(lq('Недостача'), '', '', 2, 0, 0, 0);
+        $this->db->query("DELETE FROM {settings} WHERE name='order-fields-hide'");
+        $this->db->query("DELETE FROM {settings} WHERE name='site-for-add-rating'");
+        $this->db->query("DELETE FROM {settings} WHERE name='order-send-sms-with-client-code'");
 
         // добавляем юзеров
         foreach ($users as $i => $user) {
