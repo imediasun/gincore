@@ -112,16 +112,16 @@ class feedback extends \service
     private function sendSMS($post)
     {
         $access = new \access($this->all_configs, false);
-        $phone = $access->is_phone($post['phone']);
-        if (is_array($phone)) {
-            $phone = $phone[0];
+        $phones = $access->is_phone($post['phone']);
+        if (is_array($phones)) {
+            $phone = $phones[0];
         }
         if (empty($phone)) {
             throw new \Exception(l('Номер не найден в базе'));
         }
-        $client = $this->getClient($phone);
+        $client = $this->getClient($phones);
 
-        if (empty($client) || empty($client['phone'])) {
+        if (empty($client) || empty($client['phones'])) {
             throw new \Exception(l('Указанный номер не закреплен ни за одним заказом'));
         }
         if (!$this->isRatingAccessible($client)) {
@@ -132,7 +132,7 @@ class feedback extends \service
             $count = db()->query('SELECT count(*) FROM {clients} WHERE sms_code=?i', array($code))->el();
         } while ($count > 0);
 
-        $result = send_sms($phone, l('Vash kod dlya otsiva') . ':' . $code);
+        $result = send_sms("+{$phone}", l('Vash kod dlya otsiva') . ':' . $code);
         if (!$result['state']) {
             throw new \Exception(l('Проблемы с отправкой sms. Попробуйте повторить попытку позже.'));
         }
@@ -141,17 +141,17 @@ class feedback extends \service
     }
 
     /**
-     * @param $phone
+     * @param array $phones
      * @return array
      * @internal param $post
      */
-    private function getClient($phone)
+    private function getClient($phones)
     {
         $access = new \access($this->all_configs, false);
-        $client = $access->get_client(null, $phone);
+        $client = $access->get_client(null, $phones);
         if (empty($client)) {
             $record = db()->query("SELECT * FROM {changes} WHERE work='update-order-phone' AND `change` like '%?e%' LIMIT 1",
-                array($phone))->row();
+                array($phones[0]))->row();
             if (!empty($record)) {
                 $client = db()->query("SELECT * FROM {clients} WHERE id in (SELECT user_id FROM {orders} WHERE id=?i)",
                     array($record['object_id']))->row();
@@ -205,23 +205,23 @@ class feedback extends \service
     private function saveRatings($client, $order, $post)
     {
         if (!empty($order['manager'])) {
-            $this->saveRating($order['manager'], $order['id'], $client['id'], $post['manager']);
+            $this->saveRating($order['manager'], $order['id'], $client['id'], min(abs($post['manager']), 10));
             $this->recalculateRating($order['manager']);
         }
         if (!empty($order['engineer'])) {
-            $this->saveRating($order['engineer'], $order['id'], $client['id'], $post['engineer']);
+            $this->saveRating($order['engineer'], $order['id'], $client['id'], min(abs($post['engineer']), 10));
             $this->recalculateRating($order['engineer']);
         }
         if (!empty($order['accepter'])) {
-            $this->saveRating($order['accepter'], $order['id'], $client['id'], $post['acceptor']);
+            $this->saveRating($order['accepter'], $order['id'], $client['id'], min(abs($post['acceptor']), 10));
             $this->recalculateRating($order['accepter']);
         }
         db()->query('INSERT INTO {feedback} (manager, acceptor, engineer, comment, client_id, order_id, created_at, updated_at)'
             . ' VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
             array(
-                $post['manager'],
-                $post['acceptor'],
-                $post['engineer'],
+                min(abs($post['manager']), 10),
+                min(abs($post['acceptor']), 10),
+                min(abs($post['engineer']), 10),
                 empty($post['comment']) ? '' : $post['comment'],
                 $client['id'],
                 $order['id'],

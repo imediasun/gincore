@@ -298,6 +298,9 @@ class master
         $this->create_warehouse(lq('Логистика'), '', '', 3, 0, 1, 1);
         // недостача без группы
         $this->create_warehouse(lq('Недостача'), '', '', 2, 0, 0, 0);
+        $this->db->query("DELETE FROM {settings} WHERE name='order-fields-hide'");
+        $this->db->query("DELETE FROM {settings} WHERE name='site-for-add-rating'");
+        $this->db->query("DELETE FROM {settings} WHERE name='order-send-sms-with-client-code'");
 
         // добавляем юзеров
         foreach ($users as $i => $user) {
@@ -387,7 +390,7 @@ class master
      */
     private function setGoodsManager()
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->db->query('SELECT id FROM {users} ORDER BY id ASC LIMIT 1')->el();
         if (empty($user_id)) {
             return;
         }
