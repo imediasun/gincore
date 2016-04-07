@@ -1,4 +1,11 @@
-<div id="create_tab_user" class="tab-pane row-fluid" style="<?= empty($isEdit)?'':'border-style: none;' ?>">
+<?php if(!empty($isEdit)): ?>
+    <style>
+        .modal-dialog {
+            margin-top: 20px;
+        }
+    </style>
+<?php endif; ?>
+<div id="create_tab_user" class="tab-pane row-fluid <?= empty($isEdit)?'':'edit_tab_user' ?>" style="padding-bottom: 0">
     <form method="post" class="<?= empty($isEdit) ? 'create-user' : 'edit-user' ?> <?= empty($isEdit)?'col-sm-6': '' ?>">
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible" role="alert">
@@ -22,7 +29,7 @@
                 <div class="col-sm-3">
                     <center>
                         <div class="form-group">
-                            <img class="upload_avatar_btn" data-uid="<?= $form_data['id'] ?>" width="170"
+                            <img class="upload_avatar_btn img-responsive" data-uid="<?= $form_data['id'] ?>"  <?= empty($isEdit)? '':'style="width: 170px"' ?>
                                  src="<?= $controller->avatar($form_data['avatar']) ?>">
                         </div>
                         <div class="form-group">
@@ -83,7 +90,7 @@
             </div>
             <hr>
             <div class="row-fluid">
-                <table class="table">
+                <table class="table" style="margin-bottom: 0px">
                     <tbody>
                     <tr>
                         <td class="col-sm-6">

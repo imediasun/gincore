@@ -548,9 +548,6 @@ class accountings
      */
     function get_cashboxes_amounts()
     {
-        // суммы по валютам
-        $amounts = array('all' => 0, 'cashboxes' => array());
-
         // достаем все кассы
         $cashboxes = $this->all_configs['db']->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
               cr.name as cur_name, cr.short_name, cr.course, cr.currency
@@ -558,48 +555,9 @@ class accountings
             LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
             LEFT JOIN (SELECT currency, name, short_name, course FROM {cashboxes_courses})cr ON cr.currency=cc.currency
             ORDER BY c.id')->assoc();
+        return $this->calculateCashboxesAmount($cashboxes);
 
-        if ($cashboxes) {
 
-            //usort($cashboxes, array('accountings', 'akcsort'));
-
-            foreach ($cashboxes as $cashbox) {
-
-                if (!array_key_exists($cashbox['currency'], $amounts['cashboxes'])) {
-                    $amounts['cashboxes'][$cashbox['currency']] = array(
-                        'short_name' => $cashbox['short_name'],
-                        'amount' => $cashbox['amount'],
-                        'course' => $cashbox['course'],
-                        'currency' => $cashbox['currency'],
-                    );
-                } else {
-                    $amounts['cashboxes'][$cashbox['currency']]['amount'] += $cashbox['amount'];
-                }
-
-                $amounts['all'] += ($cashbox['amount'] * ($cashbox['course'] / 100));
-
-                if (!array_key_exists($cashbox['id'], $this->cashboxes)) {
-                    $this->cashboxes[$cashbox['id']] = array(
-                        'id' => $cashbox['id'],
-                        'name' => $cashbox['name'],
-                        'avail' => $cashbox['avail'],
-                        'avail_in_balance' => $cashbox['avail_in_balance'],
-                        'avail_in_orders' => $cashbox['avail_in_orders'],
-                        'currencies' => array()
-                    );
-                }
-                if ($cashbox['currency'] > 0) {
-                    $this->cashboxes[$cashbox['id']]['currencies'][$cashbox['currency']] = array(
-                        'amount' => $cashbox['amount'],
-                        'cur_name' => $cashbox['cur_name'],
-                        'short_name' => $cashbox['short_name'],
-                        //'course' => $cashbox['course'],
-                    );
-                }
-            }
-        }
-
-        return $amounts;
     }
 
     /**
@@ -1570,7 +1528,8 @@ class accountings
         $out = '';
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
-        if ($this->all_configs['oRole']->hasCashierPermission($user_id)) {
+        $isCashier = $this->all_configs['oRole']->hasCashierPermission($user_id);
+        if ($isCashier) {
             $amounts = $this->get_cashboxes_amounts();
             // день
             $day = date("d.m.Y", time());
@@ -1618,7 +1577,6 @@ class accountings
                     }
                 }
             }
-
             $out = $this->view->renderFile('accountings/accountings_cashboxes', array(
                 'day_html' => $day_html,
                 'cashboxes' => $cashboxes,
@@ -3423,10 +3381,67 @@ class accountings
      */
     protected function getCashboxes($userId)
     {
-        if($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            return $this->cashboxes;
+        if (!$this->all_configs['oRole']->hasPrivilege('accounting')) {
+            $cashboxes = $this->all_configs['db']->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
+              cr.name as cur_name, cr.short_name, cr.course, cr.currency
+            FROM {cashboxes} as c
+            LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
+            LEFT JOIN (SELECT currency, name, short_name, course FROM {cashboxes_courses})cr ON cr.currency=cc.currency
+            WHERE c.id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i)
+            ORDER BY c.id', array($userId))->assoc();
+            $this->calculateCashboxesAmount($cashboxes);
         }
-        return $this->all_configs['db']->query('SELECT * FROM {cashboxes}'.
-            ' WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i)', array($userId))->assoc();
+        return $this->cashboxes;
+    }
+
+    /**
+     * @param $cashboxes
+     * @return array
+     */
+    private function calculateCashboxesAmount($cashboxes)
+    {
+// суммы по валютам
+        $amounts = array('all' => 0, 'cashboxes' => array());
+        if ($cashboxes) {
+
+            //usort($cashboxes, array('accountings', 'akcsort'));
+
+            foreach ($cashboxes as $cashbox) {
+
+                if (!array_key_exists($cashbox['currency'], $amounts['cashboxes'])) {
+                    $amounts['cashboxes'][$cashbox['currency']] = array(
+                        'short_name' => $cashbox['short_name'],
+                        'amount' => $cashbox['amount'],
+                        'course' => $cashbox['course'],
+                        'currency' => $cashbox['currency'],
+                    );
+                } else {
+                    $amounts['cashboxes'][$cashbox['currency']]['amount'] += $cashbox['amount'];
+                }
+
+                $amounts['all'] += ($cashbox['amount'] * ($cashbox['course'] / 100));
+
+                if (!array_key_exists($cashbox['id'], $this->cashboxes)) {
+                    $this->cashboxes[$cashbox['id']] = array(
+                        'id' => $cashbox['id'],
+                        'name' => $cashbox['name'],
+                        'avail' => $cashbox['avail'],
+                        'avail_in_balance' => $cashbox['avail_in_balance'],
+                        'avail_in_orders' => $cashbox['avail_in_orders'],
+                        'currencies' => array()
+                    );
+                }
+                if ($cashbox['currency'] > 0) {
+                    $this->cashboxes[$cashbox['id']]['currencies'][$cashbox['currency']] = array(
+                        'amount' => $cashbox['amount'],
+                        'cur_name' => $cashbox['cur_name'],
+                        'short_name' => $cashbox['short_name'],
+                        //'course' => $cashbox['course'],
+                    );
+                }
+            }
+        }
+
+        return $amounts;
     }
 }

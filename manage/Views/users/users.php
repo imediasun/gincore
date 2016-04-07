@@ -37,7 +37,8 @@
                             </td>
                             <td><a href="#" class="js-edit-user" data-uid="<?= $user['id'] ?>"><?= htmlspecialchars($user['login']) ?></a></td>
                             <td><input <?= $user['avail']? 'checked': '' ?> type="checkbox" name="avail_user[<?= $user['id'] ?>]"/></td>
-                            <td><i class="glyphicon glyphicon-lock editable-click" data-type="text"
+                            <td style="text-align:center;">
+                                <i class="fa fa-lock editable-click" data-type="text"
                                    data-pk="<?= $user['id'] ?>"
                                    data-type="password"
                                    data-url="<?= $this->all_configs['arrequest'][0] ?>/ajax?act=change-admin-password"

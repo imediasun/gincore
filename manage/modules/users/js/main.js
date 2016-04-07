@@ -100,8 +100,8 @@ $(function(){
                                    type: 'POST',
                                    data: $('form.edit-user').serialize(),
                                    success: function(msg) {
-                                       return;
-                                       location.reload();
+                                       window.location = prefix + module;
+                                       window.location.reload();
                                    },
                                    error: function (xhr, ajaxOptions, thrownError) {
                                        alert(xhr.responseText);
