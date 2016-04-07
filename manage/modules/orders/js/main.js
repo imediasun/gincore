@@ -757,6 +757,13 @@ function add_item_to_table() {
       serial = $('input[name="serials"]').val(),
       rnd = parseInt(Math.random() * 1000);
 
+    if(cost == 0) {
+        $('#sale_poduct_cost').addClass('parsley-error');
+        $('#sale_product_cost_error').show();
+    } else {
+        $('#sale_poduct_cost').removeClass('parsley-error');
+        $('#sale_product_cost_error').hide();
+    }
     if (cost > 0 && title.length > 0 && id.length > 0) {
         $clone = $row.clone().removeClass('js-row-cloning');
         $clone.addClass('row-item');

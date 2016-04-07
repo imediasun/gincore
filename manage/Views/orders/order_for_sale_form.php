@@ -14,8 +14,8 @@
                             </div>
                             <div class="col-sm-2" style="line-height: 34px; ">
                                     <span class="tag"
-                                          style="background-color: <?= !empty($tag) ? $tag['color'] : (isset($tags[$client['tag_id']]['color'])?$tags[$client['tag_id']]['color']:'') ?>">
-                                        <?= htmlspecialchars(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title'])?$tags[$client['tag_id']]['title']:'')) ?>
+                                          style="background-color: <?= !empty($tag) ? $tag['color'] : (isset($tags[$client['tag_id']]['color']) ? $tags[$client['tag_id']]['color'] : '') ?>">
+                                        <?= htmlspecialchars(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title']) ? $tags[$client['tag_id']]['title'] : '')) ?>
                                     </span>
                             </div>
                             <div class="col-sm-6">
@@ -57,6 +57,10 @@
                                            name="price"/>
                                     <span class="input-group-addon"><?= viewCurrency() ?></span>
                                 </div>
+                                <ul id="sale_product_cost_error" class="parsley-errors-list filled"
+                                    style="display: none">
+                                    <li class="parsley-required">Обязательное поле.</li>
+                                </ul>
                             </div>
 
                             <div class="form-group col-sm-2" style="padding: 0px">

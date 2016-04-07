@@ -275,7 +275,7 @@ class master
                 if ($id) {
                     // основной
                     $main_wh = $this->create_warehouse($service['name'], $service['address'], $service['phone'], 1, $id,
-                        1);
+                        1, 1);
                     // прикрепляем текущего админа к складу
                     $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) "
                         . "VALUES(?i,?i,?i,1)",
@@ -285,9 +285,9 @@ class master
                             $_SESSION['id']
                         ));
                     // брак
-                    $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id);
+                    $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id, 1, 0);
                     // клиент
-                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id);
+                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id, 0, 0);
                     $added_services[$i] = array(
                             'id' => $id
                         ) + $main_wh;
@@ -295,9 +295,9 @@ class master
             }
         }
         // склад логистика без группы
-        $this->create_warehouse(lq('Логистика'), '', '', 3, 0);
+        $this->create_warehouse(lq('Логистика'), '', '', 3, 0, 1, 1);
         // недостача без группы
-        $this->create_warehouse(lq('Недостача'), '', '', 2, 0);
+        $this->create_warehouse(lq('Недостача'), '', '', 2, 0, 0, 0);
 
         // добавляем юзеров
         foreach ($users as $i => $user) {
@@ -327,7 +327,7 @@ class master
         $this->setGoodsManager();
 
         // ставим отметку что мастер настройки закончен
-        $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'");
+        $this->db->query("UPDATE {settings} SET value = 1 WHERE name = 'complete-master'", array());
 
         setcookie('show_intro', 1, time() + 600, $this->all_configs['prefix']);
         return array(
@@ -388,13 +388,13 @@ class master
     private function setGoodsManager()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-        if(empty($user_id)) {
+        if (empty($user_id)) {
             return;
         }
         $goods = $this->db->query('SELECT goods_id FROM {users_goods_manager}', array())->col();
         $query = '';
         if (!empty($goods)) {
-            $query = $this->db->makeQuery("AND not id in (?li)", $goods);
+            $query = $this->db->makeQuery("AND not id in (?li)", array($goods));
         }
         $this->db->query("INSERT INTO {users_goods_manager} (goods_id, user_id) SELECT id, ?i FROM {goods} WHERE 1=1 ?q",
             array($user_id, $query));

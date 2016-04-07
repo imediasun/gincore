@@ -629,10 +629,10 @@ class ChartUtils
         $options = $this->getOrderOptions();
         $warrantyQuery = '';
         if (isset($options['warranty']) && $options['warranty']) {
-            $warrantyQuery .= $this->db->makeQuery(" AND {$prefix}warranty in (?li)", array($options['warranty']));
+            $warrantyQuery .= $this->db->makeQuery(" AND {$prefix}repair = 1", array());
         }
         if (isset($options['not-warranty']) && $options['not-warranty']) {
-            $warrantyQuery .= $this->db->makeQuery(" AND ({$prefix}warranty = 0 OR {$prefix}warranty IS NULL)",
+            $warrantyQuery .= $this->db->makeQuery(" AND (NOT {$prefix}repair = 1)",
                 array());
         }
 
@@ -697,7 +697,7 @@ class ChartUtils
                     $options['types'][] = 3;
                 }
                 if (in_array('warranty', $_POST['types'])) {
-                    $options['warranty'] = array(1, 3, 6, 12);
+                    $options['warranty'][] = 1;
                 }
                 if (in_array('not-warranty', $_POST['types'])) {
                     $options['not-warranty'][] = 1;

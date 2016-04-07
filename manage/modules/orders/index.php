@@ -2251,9 +2251,16 @@ class orders
 
         // редактируем заказ поставщику
         if ($act == 'edit-supplier-order') {
-            $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
-            if ($data['state'] == true) {
-                //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
+            // проверка на создание заказа с ценой 0
+            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
+            if ($price == 0) {
+                $data['state'] = false;
+                $data['msg'] = 'Укажите цену больше 0';
+            } else {
+                $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
+                if ($data['state'] == true) {
+                    //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
+                }
             }
         }
 
