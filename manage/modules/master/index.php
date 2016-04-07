@@ -87,10 +87,6 @@ class master
      */
     private function save()
     {
-        
-        //запускаем квериз
-        require_once __DIR__ . '../setup/queries/queries.php';
-        
         // business
         $business = isset($_POST['business']) ? $_POST['business'] : '';
         // country

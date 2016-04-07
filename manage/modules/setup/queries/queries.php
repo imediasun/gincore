@@ -174,7 +174,7 @@ db()->query('INSERT IGNORE INTO {contractors_categories_links}
                     (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
                     array(32, $id));
 // поставщик
-$pid = db()->query('INSERT IGNORE INTO {contractors}
+$pid = db()->query('INSERT INTO {contractors}
                             (title, type, comment) VALUES (?, ?i, ?)',
                         array(lq('Поставщик'), 2, ''), 'id');
 
