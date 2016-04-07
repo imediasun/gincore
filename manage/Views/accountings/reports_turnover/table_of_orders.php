@@ -44,8 +44,8 @@
                     <?php foreach ($order['services'] as $s): ?>
                         <a href="<?= $this->all_configs['prefix'] . 'products/create/' . $s['goods_id'] ?>"><?= $s['title'] ?></a>
                         <br/>
-                        <?php $services_price += roundUpToAny($s['price'], 5000); ?>
-                        <?php $services_prices += roundUpToAny($s['price'], 5000); ?>
+                        <?php $services_price += $s['price']; ?>
+                        <?php $services_prices += $s['price']; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </td>
