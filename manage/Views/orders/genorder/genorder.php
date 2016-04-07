@@ -48,73 +48,69 @@
             </div>
             <div class="row-fluid">
                 <div class="span6">
-                    <?php if (!$onlyEngineer): ?>
-                        <div class="form-group">
-                            <label>
+                    <div class="form-group">
+                        <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-fio')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                <?= l('Заказчик') ?>:
-                            </label>
-                            <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
-                                   class="form-control"/>
-                        </div>
-                        <div class="form-group">
-                            <label>
+                            <?= l('Заказчик') ?>:
+                        </label>
+                        <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
+                               class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-phone')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                <?= l('Телефон') ?>:
-                            </label>
-                            <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
-                                   class="form-control"/></div>
-                        <div class="form-group">
-                            <label>
+                            <?= l('Телефон') ?>:
+                        </label>
+                        <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
+                               class="form-control"/></div>
+                    <div class="form-group">
+                        <label>
                             <span class="cursor-pointer glyphicon glyphicon-list" title="<?= l('История изменений') ?>"
                                   data-o_id="<?= $order['id'] ?>"
                                   onclick="alert_box(this, false, 'changes:update-order-category')"></span>
-                                <i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="<?= $order['id'] ?>"
-                                   onclick="alert_box(this, null, 'order-gallery')"></i>
-                                <?= l('Устройство') ?>:
-                            </label>
-                            <?= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4,
-                                'input-medium') ?>
-                        </div>
+                            <i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="<?= $order['id'] ?>"
+                               onclick="alert_box(this, null, 'order-gallery')"></i>
+                            <?= l('Устройство') ?>:
+                        </label>
+                        <?= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4,
+                            'input-medium') ?>
+                    </div>
 
-                        <div class="form-group <?= !isset($hide['color']) ? 'hide-field' : '' ?>">
-                            <label class="control-label"><?= l('Цвет') ?>: </label>
-                            <select class="form-control" name="color">
-                                <?php if (is_null($order['o_color'])): ?>
-                                    <option value="-1" selected disabled><?= l('Не выбран') ?></option>
-                                <?php endif; ?>
-                                <?php foreach ($this->all_configs['configs']['devices-colors'] as $id => $color): ?>
-                                    <option <?= (!is_null($order['o_color']) && $order['o_color'] == $id) ? 'selected' : '' ?>
-                                        value="<?= $id ?>">
-                                        <?= $color ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <?= htmlspecialchars($order['note']) ?>
-                        </div>
-                    <?php endif; ?>
+                    <div class="form-group <?= !isset($hide['color']) ? 'hide-field' : '' ?>">
+                        <label class="control-label"><?= l('Цвет') ?>: </label>
+                        <select class="form-control" name="color">
+                            <?php if (is_null($order['o_color'])): ?>
+                                <option value="-1" selected disabled><?= l('Не выбран') ?></option>
+                            <?php endif; ?>
+                            <?php foreach ($this->all_configs['configs']['devices-colors'] as $id => $color): ?>
+                                <option <?= (!is_null($order['o_color']) && $order['o_color'] == $id) ? 'selected' : '' ?>
+                                    value="<?= $id ?>">
+                                    <?= $color ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <?= htmlspecialchars($order['note']) ?>
+                    </div>
                     <?php if ($notSale): ?>
-                        <?php if (!$onlyEngineer): ?>
-                            <div class="form-group <?= !isset($hide['serial']) ? 'hide-field' : '' ?>">
-                                <label>
+                        <div class="form-group <?= !isset($hide['serial']) ? 'hide-field' : '' ?>">
+                            <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-serial')"
                                   data-o_id="<?= $order['id'] ?>"
                                   title="<?= l('История изменений') ?>">
 
                             </span>
-                                    S/N:
-                                </label>
-                                <input type="text" value="<?= htmlspecialchars($order['serial']) ?>" name="serial"
-                                       class="form-control"/>
-                            </div>
-                        <?php endif; ?>
+                                S/N:
+                            </label>
+                            <input type="text" value="<?= htmlspecialchars($order['serial']) ?>" name="serial"
+                                   class="form-control"/>
+                        </div>
                         <div class="form-group <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
                             <label><?= l('Комлектация') ?>:</label><br>
                             <?= implode(', ', $parts) ?>
@@ -378,7 +374,8 @@
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
                                                    onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
                                         <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
-                                            <input type="button" class="btn btn-success js-pay-button <?= intval($order['sum']) == 0? 'disabled': ''?>"
+                                            <input type="button"
+                                                   class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
                                                    value="<?= l('Принять оплату') ?>"
                                                    onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
                                         <?php endif; ?>

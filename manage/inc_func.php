@@ -1433,10 +1433,6 @@ if ((!function_exists('mb_str_replace')) &&
     }
 }
 
-function roundUpToAny($n,$x = 5) {
-    return (ceil($n)%$x === 0) ? ceil($n) : round(($n+$x/2)/$x)*$x;
-}
-
 function get_service($service){
     global $all_configs;
     // load interface
