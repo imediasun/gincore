@@ -1,4 +1,4 @@
-<?php if (!empty($cashbox_currencies)): ?>
+<?php if (!empty($cashboxes_currencies)): ?>
     <?php foreach ($cashboxes_currencies as $cashbox_currency): ?>
         <?php
         $is_orders_currency = $cashbox_currency['currency'] == $this->all_configs['settings']['currency_orders'];

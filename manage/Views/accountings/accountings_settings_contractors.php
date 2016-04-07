@@ -6,7 +6,7 @@
         <br><br>
         <legend><?= l('Редактирование статей контрагента') ?></legend>
         <?php if (count($contractors) > 0): ?>
-            <?php foreach ($this->contractors as $contractor): ?>
+            <?php foreach ($contractors as $contractor): ?>
                 <?= $controller->form_contractor($contractor,
                     isset($_GET['ct']) && $_GET['ct'] > 0 ? $_GET['ct'] : 0); ?>
             <?php endforeach; ?>
