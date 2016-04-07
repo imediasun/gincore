@@ -336,55 +336,12 @@ if ($act == 'alarm-clock') {
 
     $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
 
-    $data['content'] = '<br />
-    <div class="panel-" id="accordion-alarms">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms" href="#accordion-alarm-add">
-                    ' . l('Добавить напоминание') . '
-                </a>
-            </div>
-            <div id="accordion-alarm-add" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <form method="post" id="add-alarm">
-                        <input type="hidden" name="order_id" value="' . $order_id . '" />
-                        <textarea class="form-control" name="text" placeholder="комментарий к напоминанию"></textarea>
-                        <div class="checkbox">
-                            <label>
-                                <input ' . ($order_id > 0 ? '' : 'disabled') . ' type="checkbox" name="text-to-private-comment">
-                                Продублировать в скрытый комментарий
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <input class="form-control datetimepicker" placeholder="Дата напоминания" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_alarm" value="" />
-                        </div>
-                        <div class="form-group">
-                            ' . typeahead($all_configs['db'], 'users', false, $user_id, 26, 'input-xlarge') . '
-                        </div>
-                        <input style="margin-left:0" type="button" class="btn btn-default" onclick="add_alarm(this)" value="'.l('Добавить').'" />
-                    </form>
-                </div>
-            </div>
-        </div>
-    ';
-    $data['content'] .= show_alarms($all_configs, $user_id);
-
-    $data['content'] .=
-        '<div class="panel-group" id="accordion-alarms-history">
-        <div class="panel-default panel">
-            <div class="panel-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms-history" href="#accordion-alarm-show">
-                ' . l('История') . '
-            </a>
-        </div>
-        <div id="accordion-alarm-show" class="panel-collapse collapse">
-            <div class="panel-body">';
-    $data['content'] .=
-                show_alarms($all_configs, $user_id, true);
-    $data['content'] .=
-            '</div>
-        </div>
-    </div>';
+    require_once __DIR__.'/View.php';
+    $view = new View($all_configs);
+    $data['content'] = $view->renderFile('messages/alarm_clock_form', array(
+        'order_id' => $order_id,
+        'user_id' => $user_id,
+    ));
 
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
