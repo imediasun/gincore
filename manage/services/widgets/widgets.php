@@ -78,7 +78,7 @@ class widgets extends \service
     public function get_requests_url()
     {
         $protocol = isHTTPS() ? 'https' : 'http';
-        return "{$protocol}://{$_SERVER['HTTP_HOST']}{$this->all_configs['siteprefix']}widget.php?ajax";
+        return "//{$_SERVER['HTTP_HOST']}{$this->all_configs['siteprefix']}widget.php?ajax";
     }
 
     /**
