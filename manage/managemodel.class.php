@@ -817,28 +817,8 @@ class manageModel
         }
         $query = '';
 
-        // фильтр по категориям товаров
-        /*if (array_key_exists('g_cg', $filters) && count(array_filter(explode(',', $filters['g_cg']))) > 0) {
-            $goods = $this->all_configs['db']->query('SELECT goods_id FROM {category_goods} as WHERE category_id IN (?li)',
-                array(array_filter(explode(',', $filters['g_cg']))))->vars();
-            if (count($goods) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND og.goods_id IN (?li)',
-                    array($query, array_keys($goods)));
-            } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND og.goods_id=?i', array($query, 0));
-            }
-        }*/
         // фильтр по менеджерам
         if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
-            /*$cos = $this->all_configs['db']->query('SELECT DISTINCT order_id
-                FROM {users_goods_manager} as m, {orders_goods} as g WHERE m.user_id IN (?li) AND m.goods_id=g.goods_id',
-                array(array_filter(explode(',', $filters['mg']))))->vars();
-            if (count($cos) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
-                    array($query, array_keys($cos)));
-            } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',  array($query, 0));
-            }*/
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
                 array($query, array_filter(explode(',', $filters['mg']))));
         }
@@ -867,8 +847,6 @@ class manageModel
         }
         // фильтр по товару
         if (array_key_exists('by_gid', $filters) && $filters['by_gid'] > 0) {
-            //$query = $this->all_configs['db']->makeQuery('?query AND t.goods_id=?i',
-            //    array($query, intval($filters['by_gid'])));
             $cos = $this->all_configs['db']->query('SELECT DISTINCT order_id FROM {orders_goods} WHERE goods_id=?i',
                 array(intval($filters['by_gid'])))->vars();
             if (count($cos) > 0) {
@@ -948,7 +926,11 @@ class manageModel
                 $orders[$order_id]['services'] = isset($goods[$order_id]) && isset($goods[$order_id]['services']) ? $goods[$order_id]['services'] : array();
 
                 $price = $prices && isset($prices[$order_id]) ? intval($prices[$order_id]) : 0;
-                $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'];
+                if(empty($order['value_from'])) {
+                    $orders[$order_id]['turnover'] = $order['value_to'];
+                } else {
+                    $orders[$order_id]['turnover'] = $order['value_from'] * ($order['course_value'] / 100);
+                }
                 $orders[$order_id]['purchase'] = $price * ($order['course_value'] / 100);
                 $orders[$order_id]['profit'] = 0;
 
