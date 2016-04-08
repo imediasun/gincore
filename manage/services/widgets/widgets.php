@@ -46,7 +46,7 @@ class widgets extends \service
             's.rel = "stylesheet";' .
             's.innerHTML = decodeURIComponent("' . $style . '");' .
             'document.getElementsByTagName("head")[0].appendChild(s);' .
-            '})();';;
+            '})();';
     }
 
     /**
@@ -55,7 +55,7 @@ class widgets extends \service
      */
     public function add_html($html)
     {
-        return 'document.body.innerHTML+=decodeURIComponent("' . rawUrlEncode($html) . '");';
+        return "jQuery(document).ready(function() { jQuery('body').append(decodeURIComponent('" . rawUrlEncode($html) . "')); });";
     }
 
     /**
