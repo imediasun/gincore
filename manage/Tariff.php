@@ -88,7 +88,8 @@ class Tariff
     public static function isAddUserAvailable($api, $host)
     {
         $response = self::get($api, $host, array(
-            'act' => 'add_user_available'
+            'act' => 'add_user_available',
+            'current' => db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el()
         ));
         return !empty($response) && $response['available'] == 1;
     }
@@ -101,7 +102,8 @@ class Tariff
     public static function isAddOrderAvailable($api, $host)
     {
         $response = self::get($api, $host, array(
-            'act' => 'add_order_available'
+            'act' => 'add_order_available',
+            'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?', array(strtotime('today')))->el()
         ));
         return !empty($response) && $response['available'] == 1;
     }

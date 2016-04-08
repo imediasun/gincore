@@ -169,6 +169,10 @@ if ($data->act == 'runManualUpdateFiles') {
     
 }
 
+if ($data->act == 'change-tariff') {
+    $ar = db()->query("DELETE FROM {settings} WHERE name='tariff'", array())->ar();
+    returnSuccess(array('result' => $ar));
+}
 
 
 
