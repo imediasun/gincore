@@ -224,7 +224,7 @@ class Tariffs
             return $session->get('api_key');
         }
         $keyAPI = db()->query("SELECT value FROM {settings} WHERE name='api_key'")->el();
-        $session->save('api_key', $keyAPI);
+        $session->set('api_key', $keyAPI);
         return $keyAPI;
     }
 }
