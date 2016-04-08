@@ -1,5 +1,10 @@
 <?php
 
+define('ORDER_REPAIR', 0);
+define('ORDER_RETURN', 1);
+define('ORDER_SELL', 3);
+define('ORDER_WRITE_OFF', 2);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';

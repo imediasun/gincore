@@ -691,10 +691,10 @@ class ChartUtils
         } else {
             if (!empty($_POST['types'])) {
                 if (in_array('repair', $_POST['types'])) {
-                    $options['types'][] = 0;
+                    $options['types'][] = ORDER_REPAIR;
                 }
                 if (in_array('sale', $_POST['types'])) {
-                    $options['types'][] = 3;
+                    $options['types'][] = ORDER_SELL;
                 }
                 if (in_array('warranty', $_POST['types'])) {
                     $options['warranty'][] = 1;
@@ -705,7 +705,7 @@ class ChartUtils
             }
             if (empty($options)) {
                 $options = array(
-                    'types' => array(0, 3),
+                    'types' => array(ORDER_REPAIR, ORDER_SELL),
                     'warranty' => array(),
                 );
             }

@@ -895,7 +895,7 @@ class manageModel
         }
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
-        $orders = $this->all_configs['db']->query('SELECT o.id as order_id, t.type, o.course_value, t.transaction_type,
+        $orders = $this->all_configs['db']->query('SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
               SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, SUM(IF(t.transaction_type=2, 1, 0)) as has_to
@@ -925,23 +925,25 @@ class manageModel
                 $orders[$order_id]['goods'] = isset($goods[$order_id]) && isset($goods[$order_id]['goods']) ? $goods[$order_id]['goods'] : array();
                 $orders[$order_id]['services'] = isset($goods[$order_id]) && isset($goods[$order_id]['services']) ? $goods[$order_id]['services'] : array();
 
-                $price = $prices && isset($prices[$order_id]) ? intval($prices[$order_id]) : 0;
-                if(empty($order['value_from'])) {
-                    $orders[$order_id]['turnover'] = $order['value_to'];
-                } else {
+                $price = ($prices && isset($prices[$order_id])) ? intval($prices[$order_id]) : 0;
+                if($order['order_type'] == ORDER_RETURN) {
                     $orders[$order_id]['turnover'] = $order['value_from'] * ($order['course_value'] / 100);
+                } else {
+                    $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'] * ($order['course_value'] / 100);
                 }
                 $orders[$order_id]['purchase'] = $price * ($order['course_value'] / 100);
                 $orders[$order_id]['profit'] = 0;
 
                 if ($order['has_to'] > 0) {
-                    $orders[$order_id]['profit'] = $orders[$order_id]['value_to']/* - $orders[$order_id]['purchase']*/
+                    $orders[$order_id]['profit'] = $order['value_to']/* - $orders[$order_id]['purchase']*/
                     ;
                 }
                 if ($order['has_from'] > 0) {
-                    $orders[$order_id]['profit'] -= ($orders[$order_id]['value_from']/* - $orders[$order_id]['purchase']*/);
+                    $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value']/ 100);
                 }
-                $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
+                if($order['order_type'] != ORDER_RETURN) {
+                    $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
+                }
 
                 $orders[$order_id]['avg'] = 0;
                 if ($orders[$order_id]['purchase'] == 0) {
