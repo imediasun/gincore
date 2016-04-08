@@ -101,9 +101,13 @@ class Tariff
      */
     public static function isAddOrderAvailable($api, $host)
     {
+        $tariff =  self::getSavedTariff(Session::getInstance());
+        if(empty($tariff['start'])) {
+            return false;
+        }
         $response = self::get($api, $host, array(
             'act' => 'add_order_available',
-            'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?', array(strtotime('today')))->el()
+            'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?', array((int)$tariff['start']))->el()
         ));
         return !empty($response) && $response['available'] == 1;
     }
