@@ -20,10 +20,14 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
     exit;
 }
 
-$tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
-$usersCount = db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el();
-if($usersCount > $tariff['number_of_users']) {
-    db()->query("UPDATE {users} SET avail=0 WHERE NOT id in (SELECT id FROM {users} WHERE avail=1 LIMIT ?i)", array($tariff['number_of_users']));
+try {
+    $tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
+    $usersCount = db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el();
+    if($usersCount > $tariff['number_of_users']) {
+        db()->query("UPDATE {users} SET avail=0 WHERE NOT id in (SELECT id FROM {users} WHERE avail=1 LIMIT ?i)", array($tariff['number_of_users']));
+    }
+} catch(Exception  $e) {
+
 }
 
 if(empty($all_configs['configs']['settings-system-lang-select-enabled'])){
