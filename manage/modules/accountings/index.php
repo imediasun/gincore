@@ -3395,14 +3395,16 @@ class accountings
         $result = array();
         if ($cashboxes) {
             foreach ($cashboxes as $cashbox) {
-                $result[$cashbox['id']] = array(
-                    'id' => $cashbox['id'],
-                    'name' => $cashbox['name'],
-                    'avail' => $cashbox['avail'],
-                    'avail_in_balance' => $cashbox['avail_in_balance'],
-                    'avail_in_orders' => $cashbox['avail_in_orders'],
-                    'currencies' => array()
-                );
+                if (!isset($result[$cashbox['id']])) {
+                    $result[$cashbox['id']] = array(
+                        'id' => $cashbox['id'],
+                        'name' => $cashbox['name'],
+                        'avail' => $cashbox['avail'],
+                        'avail_in_balance' => $cashbox['avail_in_balance'],
+                        'avail_in_orders' => $cashbox['avail_in_orders'],
+                        'currencies' => array()
+                    );
+                }
                 if ($cashbox['currency'] > 0) {
                     $result[$cashbox['id']]['currencies'][$cashbox['currency']] = array(
                         'amount' => $cashbox['amount'],
