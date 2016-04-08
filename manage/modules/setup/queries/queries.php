@@ -174,12 +174,12 @@ db()->query('INSERT IGNORE INTO {contractors_categories_links}
                     (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
                     array(32, $id));
 // поставщик
-$pid = db()->query('INSERT INTO {contractors}
+$pid = db()->query('INSERT IGNORE INTO {contractors}
                             (title, type, comment) VALUES (?, ?i, ?)',
                         array(lq('Поставщик'), 2, ''), 'id');
 
 db()->query(
-    "INSERT INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
     ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i)", array($pid));
 
 $s_values = array();
