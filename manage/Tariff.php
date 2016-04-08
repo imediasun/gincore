@@ -3,7 +3,7 @@
 require_once __DIR__ . '/Session.php';
 require_once __DIR__ . '/../gincore/vendor/autoload.php';
 
-class Tariffs
+class Tariff
 {
     /**
      * @param       $api
@@ -15,7 +15,8 @@ class Tariffs
     {
         $result = null;
         $data['host'] = $host;
-        $data['sign'] = self::getSignature($data);
+        $data['key'] = self::getAPIKey();
+        $data['signature'] = self::getSignature($data);
         if (class_exists('Requests')) {
             $result = Requests::get($api, array('Accept' => 'application/json'), $data);
         } else {
@@ -40,8 +41,9 @@ class Tariffs
     protected static function post($api, $host, $data = array())
     {
         $result = null;
+        $data['key'] = self::getAPIKey();
         $data['host'] = $host;
-        $data['sign'] = self::getSignature($data);
+        $data['signature'] = self::getSignature($data);
         if (class_exists('Requests')) {
             $result = Requests::post($api, array('Accept' => 'application/json'), $data);
         } else {
@@ -197,8 +199,7 @@ class Tariffs
     private static function getSignature($data)
     {
         $keyAPI = self::getAPIKey();
-        $data['key'] = $keyAPI; //@todo временно
-        return md5(empty($keyAPI) ? json_encode($data) : $keyAPI . json_encode($data));
+        return md5($keyAPI . implode(';', $data) . $keyAPI);
     }
 
     /**
@@ -207,11 +208,11 @@ class Tariffs
      */
     private static function checkSignature($result)
     {
-        if (empty($result['sign'])) {
+        if (empty($result['signature'])) {
             return false;
         }
-        $signature = $result['sign'];
-        unset($result['sign']);
+        $signature = $result['signature'];
+        unset($result['signature']);
         return strcmp($signature, self::getSignature($result)) === 0;
     }
 
@@ -222,7 +223,7 @@ class Tariffs
     {
         global $all_configs;
         $keyAPI = !empty($all_configs['settings']['api_key']) ? $all_configs['settings']['api_key'] : null;
-        if(!empty($keyAPI)) {
+        if (!empty($keyAPI)) {
             return $keyAPI;
         }
         $session = Session::getInstance();

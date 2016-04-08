@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../Response.php';
 require_once __DIR__ . '/../../FlashMessage.php';
 require_once __DIR__ . '/../../View.php';
-require_once __DIR__ . '/../../Tariffs.php';
+require_once __DIR__ . '/../../Tariff.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
@@ -409,7 +409,7 @@ class users
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
             FlashMessage::set(l('Роль успешно создана'));
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
-            if(!Tariffs::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
+            if(!Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
                 FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
             } else {
                 $avail = 0;
@@ -442,7 +442,7 @@ class users
                             ), 'id');
                         $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                             array($user_id, 'add-user', $mod_id, intval($id)));
-                        Tariffs::addUser($this->all_configs['configs']['api_url'],
+                        Tariff::addUser($this->all_configs['configs']['api_url'],
                             $this->all_configs['configs']['host']);
                         // добавляем локацию и склад для перемещения заказа при приемке
                         if (!empty($post['location']) && !empty($post['warehouse'])) {

@@ -11,7 +11,7 @@ require_once 'inc_config.php';
 require_once 'inc_func.php';
 require_once 'inc_settings.php';
 require_once $all_configs['sitepath'].'inc_lang_func.php';
-require_once __DIR__.'/Tariffs.php';
+require_once __DIR__.'/Tariff.php';
 
 if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_lang' && isset($all_configs['arrequest'][1])){
     $cotnent_lang_cookie = $dbcfg['_prefix'].'content_lang';
@@ -20,7 +20,7 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
     exit;
 }
 
-$tariff = Tariffs::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
+$tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
 $usersCount = db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el();
 if($usersCount > $tariff['number_of_users']) {
     db()->query("UPDATE {users} SET avail=0 WHERE NOT id in (SELECT id FROM {users} WHERE avail=1 LIMIT ?i)", array($tariff['number_of_users']));

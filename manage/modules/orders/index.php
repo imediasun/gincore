@@ -3,6 +3,7 @@
 require_once __DIR__.'/../../Response.php';
 require_once __DIR__.'/../../View.php';
 require_once __DIR__.'/../../FlashMessage.php';
+require_once __DIR__ . '/../../Tariff.php';
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
@@ -2611,11 +2612,11 @@ class orders
 
         // создать заказ
         if ($act == 'add-order') {
-            if(!Tariffs::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
+            if(!Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
                 FlashMessage::set(l('Вы достигли предельного количества заказов. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
                 $data['state'] = false;
             } else {
-                Tariffs::addOrder($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
+                Tariff::addOrder($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
                 $data = $this->all_configs['chains']->add_order($_POST, $mod_id);
             }
         }
