@@ -875,10 +875,10 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.repair<>?i',
                 array($query, 1));
         }
-        // не учитывать возвраты поставщикам
+        // не учитывать возвраты поставщикам и списания
         if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
-            $query = $this->all_configs['db']->makeQuery('?query AND t.type NOT IN (?li)',
-                array($query, array(1, 2, 3, 4)));
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
+                array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
         }
         // не учитывать доставку
         if (array_key_exists('dlv', $filters)) {
