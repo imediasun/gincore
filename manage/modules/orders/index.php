@@ -2611,7 +2611,13 @@ class orders
 
         // создать заказ
         if ($act == 'add-order') {
-            $data = $this->all_configs['chains']->add_order($_POST, $mod_id);
+            if(!Tariffs::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
+                FlashMessage::set(l('Вы достигли предельного количества заказов. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
+                $data['state'] = false;
+            } else {
+                Tariffs::addOrder($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
+                $data = $this->all_configs['chains']->add_order($_POST, $mod_id);
+            }
         }
 
         // создать заказ

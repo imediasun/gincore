@@ -68,7 +68,7 @@ class Tariffs
     {
         $session = Session::getInstance();
         if ($session->check('last_check_tariff') && $session->get('last_check_tariff') < strtotime('-1 hour')) {
-            $response = self::get($api, $host);
+            $response = self::get($api, $host, array('act' => 'load'));
             if (empty($response) || !self::validate($response)) {
                 throw new Exception('api error');
             }
@@ -83,10 +83,10 @@ class Tariffs
      * @param $host
      * @return array|mixed
      */
-    public static function isNewUserAvailable($api, $host)
+    public static function isAddUserAvailable($api, $host)
     {
         $response = self::get($api, $host, array(
-            'add_user' => 1
+            'act' => 'add_user_available'
         ));
         return !empty($response) && $response['available'] == 1;
     }
@@ -96,10 +96,10 @@ class Tariffs
      * @param $host
      * @return array|mixed
      */
-    public static function isNewOrderAvailable($api, $host)
+    public static function isAddOrderAvailable($api, $host)
     {
         $response = self::get($api, $host, array(
-            'add_order' => 1
+            'act' => 'add_order_available'
         ));
         return !empty($response) && $response['available'] == 1;
     }
@@ -112,7 +112,7 @@ class Tariffs
     public static function addUser($api, $host)
     {
         return self::post($api, $host, array(
-            'add_new_user' => 1
+            'act' => 'add_new_user'
         ));
     }
 
@@ -124,7 +124,7 @@ class Tariffs
     public static function addOrder($api, $host)
     {
         return self::post($api, $host, array(
-            'add_new_order' => 1
+            'act' => 'add_new_order'
         ));
     }
 
@@ -197,6 +197,7 @@ class Tariffs
     private static function getSignature($data)
     {
         $keyAPI = self::getAPIKey();
+        $data['key'] = $keyAPI; //@todo временно
         return md5(empty($keyAPI) ? json_encode($data) : $keyAPI . json_encode($data));
     }
 
@@ -219,6 +220,11 @@ class Tariffs
      */
     private static function getAPIKey()
     {
+        global $all_configs;
+        $keyAPI = !empty($all_configs['settings']['api_key']) ? $all_configs['settings']['api_key'] : null;
+        if(!empty($keyAPI)) {
+            return $keyAPI;
+        }
         $session = Session::getInstance();
         if ($session->check('api_key')) {
             return $session->get('api_key');

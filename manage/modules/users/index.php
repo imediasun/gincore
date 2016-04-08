@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../Response.php';
 require_once __DIR__ . '/../../FlashMessage.php';
 require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Tariffs.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
@@ -408,52 +409,59 @@ class users
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
             FlashMessage::set(l('Роль успешно создана'));
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
-            $avail = 0;
-            if (isset($post['avail'])) {
-                $avail = 1;
-            }
-            if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
-                $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
-                $_SESSION['create-user-post'] = $post;
+            if(!Tariffs::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
+                FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
             } else {
-                $email_or_login_exists =
-                    $this->all_configs['db']->query("SELECT 1 FROM {users} "
-                        . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
-                if ($email_or_login_exists) {
+                $avail = 0;
+                if (isset($post['avail'])) {
+                    $avail = 1;
+                }
+                if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
+                    $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
+                    $_SESSION['create-user-post'] = $post;
+                } else {
+                    $email_or_login_exists =
+                        $this->all_configs['db']->query("SELECT 1 FROM {users} "
+                            . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
+                    if ($email_or_login_exists) {
 //                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
 //                    $_SESSION['create-user-post'] = $post;
-                    FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'), FlashMessage::DANGER);
-                } else {
-                    $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
-                        array(
-                            $post['login'],
-                            $post['pass'],
-                            $post['fio'],
-                            $post['position'],
-                            $post['phone'],
-                            $avail,
-                            $post['role'],
-                            $post['email']
-                        ), 'id');
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'add-user', $mod_id, intval($id)));
-                    // добавляем локацию и склад для перемещения заказа при приемке
-                    if (!empty($post['location']) && !empty($post['warehouse'])) {
-                        $wh_id = $post['warehouse'];
-                        $location_id = $post['location'];
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
-                            . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
-                    }
-                    // добавляем склады
-                    if (!empty($post['warehouses'])) {
-                        foreach ($post['warehouses'] as $wh) {
+                        FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
+                            FlashMessage::DANGER);
+                    } else {
+                        $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
+                            array(
+                                $post['login'],
+                                $post['pass'],
+                                $post['fio'],
+                                $post['position'],
+                                $post['phone'],
+                                $avail,
+                                $post['role'],
+                                $post['email']
+                            ), 'id');
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                            array($user_id, 'add-user', $mod_id, intval($id)));
+                        Tariffs::addUser($this->all_configs['configs']['api_url'],
+                            $this->all_configs['configs']['host']);
+                        // добавляем локацию и склад для перемещения заказа при приемке
+                        if (!empty($post['location']) && !empty($post['warehouse'])) {
+                            $wh_id = $post['warehouse'];
+                            $location_id = $post['location'];
                             $this->all_configs['db']->query(
-                                'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
-                                . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
+                                'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
+                                . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
                         }
+                        // добавляем склады
+                        if (!empty($post['warehouses'])) {
+                            foreach ($post['warehouses'] as $wh) {
+                                $this->all_configs['db']->query(
+                                    'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
+                                    . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
+                            }
+                        }
+                        FlashMessage::set(l('Добавлен новый пользователь'));
                     }
-                    FlashMessage::set(l('Добавлен новый пользователь'));
                 }
             }
         }
