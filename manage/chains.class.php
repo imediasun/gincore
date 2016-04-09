@@ -3117,6 +3117,10 @@ class Chains
      */
     protected function getClient($post)
     {
+        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        $access = new \access($this->all_configs, false);
+        $client_phone_filtered = $access->is_phone($post['client_phone']);
+        
         if (!$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
             throw new ExceptionWithMsg('У Вас нет прав');
         }
@@ -3133,13 +3137,11 @@ class Chains
             throw new ExceptionWithMsg(l('Укажите телефон клиента'));
         }
         // создать клиента
-        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-        $access = new \access($this->all_configs, false);
-        if (!$access->is_phone($_POST['client_phone'])) {
+        if (!$client_phone_filtered) {
             throw new ExceptionWithMsg(l('Введите номер телефона в формате вашей страны'));
         }
         $info = array(
-            'phone' => $_POST['client_phone'],
+            'phone' => $client_phone_filtered[0],
             'fio' => $_POST['client_fio']
         );
         if (!empty($_POST['address'])) {
@@ -3154,7 +3156,7 @@ class Chains
         }
         return array(
             'id' => $u['id'],
-            'phone' => $_POST['client_phone'],
+            'phone' => $client_phone_filtered[0],
             'fio' => $_POST['client_fio']
         );
     }

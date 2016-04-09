@@ -189,9 +189,17 @@ class Configs
                 16 => array(
                     'name' => l('Израиль'),
                     'phone' => array(
-                        'code' => 972,
-                        'short_code' => 0,
-                        'length' => 8
+                        'code' => 972, //+972546829601
+                        'short_code' => 0, //0546829601
+                        'length' => 9 
+                    )
+                ),
+                17 => array(
+                    'name' => l('Великобритания'),
+                    'phone' => array(
+                        'code' => 44, //+972546829601
+                        'short_code' => 0, //0546829601
+                        'length' => 10 
                     )
                 ),
 
