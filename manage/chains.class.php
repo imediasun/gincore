@@ -3126,7 +3126,7 @@ class Chains
         }
         $clientId = isset($post['client_id']) ? intval($post['client_id']) :
             (isset($post['clients']) ? intval($post['clients']) : 0);
-        if (isset($post['clients'])) {
+        if (isset($post['clients']) && $clientId != 0) {
             return $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
                 array($clientId))->row();
         }
