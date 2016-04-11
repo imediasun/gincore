@@ -154,4 +154,18 @@ class Role
         }
         return count($users) == 1;
     }
+
+    /**
+     * @param $userId
+     * @return bool
+     */
+    public function hasCashierPermission($userId)
+    {
+        $hasAccounting = $this->hasPrivilege('accounting');
+        if(empty($userId)) {
+            return $hasAccounting;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i', array($userId))->el();
+        return $count > 0 || $hasAccounting;
+    }
 }

@@ -6,7 +6,6 @@ $curmod = $mainmenu = $pre_title = '';
 $input = $input_html = $input_js = $input_css = $all_configs = array();
 $modulename = $modulemenu = $moduleactive = array();
 
-
 require_once 'inc_config.php';
 require_once 'inc_func.php';
 require_once 'inc_settings.php';
@@ -22,9 +21,10 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
 
 try {
     $tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
-    $usersCount = db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el();
+    $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
     if($usersCount > $tariff['number_of_users']) {
-        db()->query("UPDATE {users} SET avail=0 WHERE NOT id in (SELECT id FROM {users} WHERE avail=1 LIMIT ?i)", array($tariff['number_of_users']));
+        db()->query("UPDATE {users} SET blocked_by_tariff=0)", array());
+        db()->query("UPDATE {users} SET blocked_by_tariff=1 WHERE NOT id in (SELECT id FROM {users} WHERE deleted=0 LIMIT ?i)", array($tariff['number_of_users']));
     }
 } catch(Exception  $e) {
 
@@ -228,7 +228,6 @@ if(empty($curmod)){
             require_once $module;
         }
     }
-    
     $additionally = '';
     $additionallUrl = '';
     if($modulename){
@@ -241,8 +240,8 @@ if(empty($curmod)){
                 $pre_title = strip_tags($modulemenu[$k]);
             }
             if ($moduleactive[$k] == true) {
-                $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() : 
-                                     (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
+                $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu($all_configs['oRole']) :
+                    (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
                 $submenuUrl = '';
                 if($hassubmenu){
                     $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
@@ -289,7 +288,7 @@ if(empty($curmod)){
                             || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $all_configs['oRole']->hasPrivilege('edit-tradein-orders') || $all_configs['oRole']->hasPrivilege('orders-manager')))
                     || ($v == 'clients' && $all_configs['oRole']->hasPrivilege('edit-goods'))
                     || ($v == 'chat' && $all_configs['oRole']->hasPrivilege('chat'))
-                    || ($v == 'accountings' && ($all_configs['oRole']->hasPrivilege('accounting') || $all_configs['oRole']->hasPrivilege('accounting-contractors')
+                    || ($v == 'accountings' && ($all_configs['oRole']->hasCashierPermission(isset($_SESSION['id']) ? $_SESSION['id'] : null) || $all_configs['oRole']->hasPrivilege('accounting-contractors')
                             || $all_configs['oRole']->hasPrivilege('accounting-reports-turnover') || $all_configs['oRole']->hasPrivilege('partner') || $all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')))
                     || ($v == 'warehouses' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
                             || /*$all_configs['oRole']->hasPrivilege('logistics') || */$all_configs['oRole']->hasPrivilege('scanner-moves')))

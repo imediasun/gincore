@@ -934,3 +934,18 @@ legend span.tag {
     top: 0;
     padding: 15px 20px 15px 15px !important;
 }
+
+.alert-clock {
+    float: left;
+    padding: 0px 15px 0px 15px;
+    line-height: 24px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+.alert-clock span.from {
+    color: #000;
+    opacity: 0.2;
+    text-shadow: 0 1px 0 #fff;
+    display: inline-block;
+    padding: 0 5px 0 5px;
+}

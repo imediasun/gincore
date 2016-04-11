@@ -258,6 +258,44 @@ class users
             exit;
         }
 
+        if ($act == 'edit-user') {
+            $result = array(
+                'state' => false,
+                'message' => l('Что-то пошло не так')
+            );
+            $uid = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
+            try {
+                if (empty($_GET['uid']) || empty($uid)) {
+                    $result['message'] = l('Пользователь не найден');
+                }
+
+                $result['html'] = $this->editUserForm($uid);
+                unset($result['message']);
+                $result['state'] = true;
+            } catch (Exception $e) {
+                $result['message'] = $e->getMessage();
+            }
+            Response::json($result);
+        }
+        if ($act == 'update-user') {
+            $result = array(
+                'state' => false,
+                'message' => l('Что-то пошло не так')
+            );
+            $uid = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+            try {
+                if (empty($_POST['id']) || empty($uid)) {
+                    $result['message'] = l('Пользователь не найден');
+                }
+
+                $this->updateUser($uid, $_POST, $mod_id);
+                unset($result['message']);
+                $result['state'] = true;
+            } catch (Exception $e) {
+                $result['message'] = $e->getMessage();
+            }
+            Response::json($result);
+        }
 
         // изменить пароль
         if ($act == 'change-admin-password') {
@@ -278,6 +316,43 @@ class users
         exit;
     }
 
+    /**
+     * @param $userId
+     * @return string
+     * @throws Exception
+     */
+    protected function editUserForm($userId)
+    {
+        $permissions = $this->get_all_roles();
+        $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($userId))->row();
+        $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
+            array($userId))->col();
+        $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
+            array($userId))->col();
+            $warehouses = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+            array($userId))->row();
+        list($user['warehouse'], $user['location']) = array('', '');
+        if(!empty($warehouses)) {
+            $user['warehouse'] = $warehouses['wh_id'];
+            $user['location'] = $warehouses['location_id'];
+        }
+        $user['warehouses'] = $this->all_configs['db']->query('SELECT wh_id FROM {warehouses_users} WHERE main=0 AND user_id=?i',
+            array($userId))->col();
+        if (empty($user)) {
+            throw new Exception(l('Пользователь не найден'));
+        }
+        $roles = array();
+        $yet = 0;
+        foreach ($permissions as $permission) {
+            if ($yet === 0) {
+                $yet = $permission['role_id'];
+                $roles[$permission['role_id']] = $permission['role_name'];
+            } elseif ($yet != $permission['role_id']) {
+                $roles[$permission['role_id']] = $permission['role_name'];
+            }
+        }
+        return $this->createUserForm($user, $roles, true);
+    }
 
     /**
      * @param $post
@@ -424,8 +499,6 @@ class users
                         $this->all_configs['db']->query("SELECT 1 FROM {users} "
                             . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
                     if ($email_or_login_exists) {
-//                    $_SESSION['create-user-error'] = l('Пользователь с указанным логинои или эл. адресом уже существует');
-//                    $_SESSION['create-user-post'] = $post;
                         FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
                             FlashMessage::DANGER);
                     } else {
@@ -442,28 +515,13 @@ class users
                             ), 'id');
                         $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                             array($user_id, 'add-user', $mod_id, intval($id)));
-                        Tariff::addUser($this->all_configs['configs']['api_url'],
-                            $this->all_configs['configs']['host']);
-                        // добавляем локацию и склад для перемещения заказа при приемке
-                        if (!empty($post['location']) && !empty($post['warehouse'])) {
-                            $wh_id = $post['warehouse'];
-                            $location_id = $post['location'];
-                            $this->all_configs['db']->query(
-                                'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
-                                . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $id, 1));
-                        }
-                        // добавляем склады
-                        if (!empty($post['warehouses'])) {
-                            foreach ($post['warehouses'] as $wh) {
-                                $this->all_configs['db']->query(
-                                    'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
-                                    . 'VALUES (?i,?i,?i)', array($wh, $id, 0));
-                            }
-                        }
+                        $this->saveUserRelations($id, $post);
                         FlashMessage::set(l('Добавлен новый пользователь'));
                     }
                 }
             }
+        } elseif (isset($post['update-user'])) {
+            $this->updateUser($post, $user_id, $mod_id);
         }
 
         header("Location:" . $_SERVER['REQUEST_URI']);
@@ -504,11 +562,6 @@ class users
         }
 
         // достаём всех пользователей и их роли
-        $users = $this->get_users($sort);
-
-        // достаём все роли
-        $pers = $this->get_all_roles();
-        $activeRoles = $this->get_active_roles();
 
         $users_html .= '<div class="tabbable">
             <ul class="nav nav-tabs">
@@ -519,269 +572,41 @@ class users
             </ul>
             <div class="tab-content">';
 
+
+        $users = $this->get_users($sort);
         $users_html .= $this->view->renderFile('users/users', array(
             'users' => $users,
-            'activeRoles' => $activeRoles,
+            'activeRoles' => $this->get_active_roles(),
             'sortPosition' => $sort_position,
             'controller' => $this
         ));
-        // список ролей и ихние доступы
-        $users_html .= '<div id="edit_tab_roles" class="tab-pane"><form class="form-horizontal" method="post"><div style="display: inline-block; width: 100%;">';
-        // дерево ролей и возможностей
-        $aRoles = array();
-        foreach ($pers as $per) {
-            if (array_key_exists($per['role_id'], $aRoles)) {
 
-                $aRoles[$per['role_id']]['children'][$per['per_id']] = array(
-                    'link' => $per['link'],
-                    'name' => $per['per_name'],
-                    'group_id' => $per['group_id'],
-                    'child' => $per['child'],
-                    'checked' => $per['id']
-                );
-
-            } else {
-                $aRoles[$per['role_id']] = array(
-                    'name' => $per['role_name'],
-                    'all' => array(),
-                    'date_end' => $per['date_end'],
-                    'avail' => $per['avail'],
-                    'children' => array(
-                        $per['per_id'] => array(
-                            'link' => $per['link'],
-                            'name' => $per['per_name'],
-                            'group_id' => $per['group_id'],
-                            'child' => $per['child'],
-                            'checked' => $per['id']
-                        )
-                    )
-                );
-            }
-            if ( /*array_search($per['per_id'], $aRoles[$per['role_id']]['all']) >=0 &&*/
-                intval($per['id']) > 0
-            ) {
-                $aRoles[$per['role_id']]['all'][] = $per['per_id'];
-                //array_push($aRoles[$per['role_id']]['all'], $per['per_id']);
-            }
-        }
+        // достаём все роли
+        $permissions = $this->get_all_roles();
+        $aRoles = $this->getRolesTree($permissions);
         $groups = $this->get_permissions_groups();
-        // блок управление ролями
-        foreach ($aRoles as $rid => $v) {
-            $checked = '';
-            if ($v['avail']) {
-                $checked = 'checked';
-            }
-            $users_html .= '<ul class="nav nav-list pull-left" style="width:33%;padding:0 10px">
-                <li class="nav-header"><br><h4 class="text-info">' . htmlspecialchars($v['name']) . '</h4>
-                <div class="checkbox"><label><input type="checkbox" ' . $checked . ' name="active[' . $rid . ']" />' . l('активность') . '</label></div></li>';
-            $users_html .= '<li>' . l('Дата конца активности группы') . '</li>';
-            $users_html .= '<li><input class="form-control input-sm datepicker" name="date_end[' . $rid . ']" type="text" value="' . $v['date_end'] . '" ></li>';
-            $group_html = array();
-            foreach ($v['children'] as $pid => $sv) {
-                $checked = '';
-                if ($sv['checked']) {
-                    $checked = 'checked';
-                }
-                $group_html[(int)$sv['group_id']][] = '
-                    <li><div class="checkbox"><label><input id="per_id_' . $rid . '_' . $pid . '" class="del-' . $rid . '-' . $sv['child'] . '"
-                        onchange="per_change(this, \'' . $rid . '-' . $sv['child'] . '\', \'' . $rid . '-' . $pid . '\')"
-                        name="permissions[' . $rid . '-' . $pid . ']" ' . $checked . ' type="checkbox" />' .
-                    mb_ucfirst(mb_strtolower($sv['name'])) . '</label></div></li>';
-            }
-            foreach ($groups as $group_id => $name) {
-                if (!empty($group_html[$group_id])) {
-                    $users_html .= '
-                        <li>
-                            <label class="m-t-sm">' . $name . '</label>
-                        </li>
-                        ' . implode('', $group_html[$group_id]) . '
-                    ';
-                }
-            }
-            $users_html .= '</ul><input type="hidden" name="exist-box[' . $rid . ']" value="' . implode(",",
-                    $v['all']) . '" />';
-        }
-        $users_html .= '</div>';
-        //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-        $users_html .= '<input type="submit" name="create-roles" value="' . l('Сохранить') . '" class="btn btn-primary" />';
-        //}
-        $users_html .= '</form></div>';
+        // список ролей и ихние доступы
+        $users_html .= $this->view->renderFile('users/roles_list', array(
+            'aRoles' => $aRoles,
+            'groups' => $groups
+        ));
 
-        // добавление новой роли
-        $users_html .= '<div id="edit_tab_create" class="tab-pane">';
-        $users_html .= '
-            <form  method="post">
-                <fieldset>
-                    <legend>' . l('Добавление новой роли') . '</legend>
-                    <div class="form-group">
-                        <label>' . l('Название') . ':</label>
-                        <input class="form-control" value="" name="name" placeholder="' . l('введите название') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Права доступа') . ':</label>
-                        ' . l('отметьте нужные') . '
-                    </div>';
-        $yet = 0;
+        $users_html .= $this->view->renderFile('users/create_new_role', array(
+            'groups' => $groups,
+            'permissions' => $permissions
+        ));
+
         $roles = array();
-        $group_html = array();
-        foreach ($pers as $per) {
+        $yet = 0;
+        foreach ($permissions as $permission) {
             if ($yet === 0) {
-                $yet = $per['role_id'];
-                $roles[$per['role_id']] = $per['role_name'];
-            } elseif ($yet != $per['role_id']) {
-                $roles[$per['role_id']] = $per['role_name'];
-                continue;
-            }
-            $group_html[(int)$per['group_id']][] = '
-                <div class="checkbox">
-                    <label><input id="per_id_a_' . $per['per_id'] . '" class="del-a-' . $per['child'] . '"
-                        onchange="per_change(this, \'a-' . $per['child'] . '\', \'a-' . $per['per_id'] . '\')"
-                        type="checkbox" name="permissions[a-' . $per['per_id'] . ']">' . mb_ucfirst(mb_strtolower(htmlspecialchars($per['per_name']))) . '</label>
-                </div>';
-        }
-        foreach ($groups as $group_id => $name) {
-            if (!empty($group_html[$group_id])) {
-                $users_html .= '
-                    <div class="form-group">
-                        <label>' . $name . '</label>
-                        ' . implode('', $group_html[$group_id]) . '
-                    </div>
-                ';
+                $yet = $permission['role_id'];
+                $roles[$permission['role_id']] = $permission['role_name'];
+            } elseif ($yet != $permission['role_id']) {
+                $roles[$permission['role_id']] = $permission['role_name'];
             }
         }
-        $users_html .= '<div class="control-group"><div class="controls">
-            <input class="btn btn-primary" type="submit" name="add-role" value="' . l('Создать') . '"></div></div>';
-        $users_html .= '</fieldset></form>';
-        $users_html .= '</div>';
-
-        $form_data = array();
-        $msg = '';
-        if (!empty($_SESSION['create-user-error'])) {
-            $msg = '
-                <div class="alert alert-danger alert-dismissible" role="alert">
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  ' . $_SESSION['create-user-error'] . '
-                </div>
-            ';
-            $form_data = $_SESSION['create-user-post'];
-            unset($_SESSION['create-user-error']);
-            unset($_SESSION['create-user-post']);
-        }
-
-        $role_html = '';
-        foreach ($roles as $role_id => $role_name) {
-            $sel = !empty($form_data['role']) && $role_id == $form_data['role'] ? ' selected' : '';
-            $role_html .= '<option' . $sel . ' value="' . $role_id . '">' . htmlspecialchars($role_name) . '</option>';
-        }
-
-        // добавление нового пользователя
-        $users_html .= '<div id="create_tab_user" class="tab-pane">';
-        $warehouses = '';
-        $q = $this->all_configs['chains']->query_warehouses();
-        // списсок складов с общим количеством товаров
-        $warehouses_arr = $this->all_configs['chains']->warehouses($q['query_for_noadmin_w']);
-        foreach ($warehouses_arr as $warehouse) {
-            $sel = !empty($form_data['warehouses']) && in_array($warehouse['id'],
-                $form_data['warehouses']) ? ' selected' : '';
-            $warehouses .= '<option' . $sel . ' value="' . $warehouse['id'] . '">' . htmlspecialchars($warehouse['title']) . '</option>';
-        }
-        $warehouses_options = '';
-//        $whs = $this->all_configs['chains']->warehouses();
-        $whs = get_service('wh_helper')->get_warehouses();
-        $whs_first = 0;
-        $i = 0;
-        foreach ($whs as $warehouse) {
-            $sel = !empty($form_data['warehouse']) && $form_data['warehouse'] == $warehouse['id'] ? ' selected' : '';
-            if (!$i) {
-                $whs_first = $warehouse['id'];
-            }
-            $warehouses_options .= '<option' . $sel . ' value="' . $warehouse['id'] . '">' . $warehouse['title'] . '</option>';
-            $i++;
-        }
-        $warehouses_options_locations = '';
-        if (isset($whs[$whs_first]['locations'])) {
-            foreach ($whs[$whs_first]['locations'] as $id => $location) {
-                if (trim($location['name'])) {
-                    $sel = !empty($form_data['location']) && $form_data['location'] == $id ? ' selected' : '';
-                    $warehouses_options_locations .=
-                        '<option' . $sel . (!$i ? ' selected="selected"' : '') . ' value="' . $id . '">' .
-                        htmlspecialchars($location['name']) .
-                        '</option>';
-                }
-            }
-        }
-        $users_html .= '
-            <form method="post">
-                ' . $msg . '
-                <fieldset>
-                    <legend>' . l('Добавление нового пользователя') . '</legend>
-                    <div class="form-group">
-                        <label>' . l('Логин') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="' . (isset($form_data['login']) ? htmlspecialchars($form_data['login']) : '') . '" name="login" placeholder="' . l('введите логин') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('E-mail') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="' . (isset($form_data['email']) ? htmlspecialchars($form_data['email']) : '') . '" name="email" placeholder="' . l('введите e-mail') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Пароль') . ' <b class="text-danger">*</b>:</label>
-                        <input class="form-control" value="" name="pass" placeholder="' . l('введите пароль') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('ФИО') . ':</label>
-                        <input class="form-control" value="' . (isset($form_data['fio']) ? htmlspecialchars($form_data['fio']) : '') . '" name="fio" placeholder="' . l('введите фио') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Должность') . '</label>
-                        <input class="form-control" value="' . (isset($form_data['position']) ? htmlspecialchars($form_data['position']) : '') . '" name="position" placeholder="' . l('введите должность') . '">
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Телефон') . '</label>
-                        <input onkeydown="return isNumberKey(event)" class="form-control" value="' . (isset($form_data['phone']) ? htmlspecialchars($form_data['phone']) : '') . '" name="phone" placeholder="' . l('введите телефон') . '">
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label><input ' . (!empty($form_data['avail']) || !$form_data ? 'checked' : '') . ' type="checkbox" name="avail" />' . l('Активность') . '</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Укажите склад и локацию, на которую по умолчанию перемещается устройство принятое на ремонт данным сотрудником') . '</label>
-                        <div class="clearfix">
-                            <div class="pull-left m-r-lg">
-                                <label>' . l('Склад') . ':</label><br>
-                                <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouse">
-                                    ' . $warehouses_options . '
-                                </select>
-                            </div>
-                            <div class="pull-left">
-                                <label>' . l('Локация') . ':</label><br>
-                                <select class="multiselect form-control select-location" name="location">
-                                    ' . $warehouses_options_locations . '
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Укажите склады к которым сотрудник имеет доступ') . '</label><br>
-                        <select class="multiselect" name="warehouses[]" multiple="multiple">
-                            ' . $warehouses . '
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>' . l('Роль') . '</label>
-                        <select name="role" class="form-control">
-                            <option value="">' . l('выберите роль') . '</option>
-                            ' . $role_html . '
-                        </select>
-                    </div>';
-//                        '.typeahead($this->all_configs['db'], 'locations', false, 0, 0, 'input-large', '', '', false, false).'
-
-        //if ( $this->all_configs['oRole']->hasPrivilege('edit-user') ) {
-        $users_html .= '<div class="control-group"><div class="controls">
-                    <input class="btn btn-primary" type="submit" name="create-user" onclick="return add_user_validation();" value="' . l('Создать') . '"></div></div>';
-        //}
-        $users_html .= '</fieldset></form>';
-        $users_html .= '</div>';
+        $users_html .= $this->createUserForm(array(), $roles);
 
         $users_html .= '</div>';
 
@@ -820,7 +645,6 @@ class users
      */
     private function get_all_roles()
     {
-
         return $this->all_configs['db']->query("
             SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
               p.name as per_name, p.link, p.child, p.group_id
@@ -890,5 +714,162 @@ class users
                 'name' => l('Создать пользователя')
             ),
         );
+    }
+
+    /**
+     * @param $permissions
+     * @return array
+     */
+    private function getRolesTree($permissions)
+    {
+        $aRoles = array();
+        foreach ($permissions as $permission) {
+            if (!array_key_exists($permission['role_id'], $aRoles)) {
+                $aRoles[$permission['role_id']] = array(
+                    'name' => $permission['role_name'],
+                    'all' => array(),
+                    'date_end' => $permission['date_end'],
+                    'avail' => $permission['avail'],
+                    'children' => array()
+                );
+            }
+            $aRoles[$permission['role_id']]['children'][$permission['per_id']] = array(
+                'link' => $permission['link'],
+                'name' => $permission['per_name'],
+                'group_id' => $permission['group_id'],
+                'child' => $permission['child'],
+                'checked' => $permission['id']
+            );
+            if (intval($permission['id']) > 0) {
+                $aRoles[$permission['role_id']]['all'][] = $permission['per_id'];
+            }
+        }
+        return $aRoles;
+    }
+
+    /**
+     * @param      $user
+     * @param      $roles
+     * @param bool $isEdit
+     * @return string
+     * @throws Exception
+     */
+    private function createUserForm($user, $roles, $isEdit = false)
+    {
+        $error = '';
+        if (!empty($_SESSION['create-user-error'])) {
+            $error = $_SESSION['create-user-error'];
+            unset($_SESSION['create-user-error']);
+        }
+
+        $q = $this->all_configs['chains']->query_warehouses();
+        // списсок складов с общим количеством товаров
+        $warehouses_arr = $this->all_configs['chains']->warehouses($q['query_for_noadmin_w']);
+
+        $warehouses = get_service('wh_helper')->get_warehouses();
+
+        $firstWarehouse = reset($warehouses);
+        return $this->view->renderFile('users/create', array(
+            'error' => $error,
+            'form_data' => $user,
+            'warehouses' => $warehouses,
+            'warehouses_locations' => isset($firstWarehouse['locations']) ? $firstWarehouse['locations'] : array(),
+            'warehouses_arr' => $warehouses_arr,
+            'cashboxes' => $this->getCashboxes(),
+            'roles' => $roles,
+            'controller' => $this,
+            'isEdit' => $isEdit,
+            'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
+        ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getCashboxes()
+    {
+        return $this->all_configs['db']->query("SELECT * FROM {cashboxes} WHERE 1=1", array())->assoc('id');
+    }
+
+    /**
+     * @param $post
+     * @param $userId
+     * @param $modId
+     */
+    private function updateUser($userId, $post, $modId)
+    {
+        ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
+        $avail = 0;
+        if (isset($post['avail'])) {
+            $avail = 1;
+        }
+        if (empty($post['login']) || empty($post['email'])) {
+            FlashMessage::set(l('Пожалуйста, заполните логин и эл. адрес'), FlashMessage::DANGER);
+        } else {
+            $id = intval($post['user_id']);
+            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($id));
+            if (!empty($user)) {
+                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+//                $access = new access($this->all_configs, false);
+//                $password = empty($post['pass']) ? $user['pass']: $access->wrap_pass(trim($post['pass']));
+                $password = empty($post['pass']) ? $user['pass']: trim($post['pass']);
+
+                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?, pass=? WHERE id=?i',
+                    array(
+                        $post['login'],
+                        $post['fio'],
+                        $post['position'],
+                        $post['phone'],
+                        $avail,
+                        $post['role'],
+                        $post['email'],
+                        $password,
+                        $id
+                    ), 'id');
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                    array($userId, 'edit-user', $modId, intval($id)));
+                $this->saveUserRelations($id, $post);
+
+                FlashMessage::set(l('Данные пользователя обновлены'));
+            }
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $post
+     */
+    private function saveUserRelations($userId, $post)
+    {
+// добавляем локацию и склад для перемещения заказа при приемке
+        if (!empty($post['location']) && !empty($post['warehouse'])) {
+            $wh_id = $post['warehouse'];
+            $location_id = $post['location'];
+            $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+                array($userId));
+            $this->all_configs['db']->query(
+                'INSERT IGNORE INTO {warehouses_users} (wh_id, location_id, user_id, main) '
+                . 'VALUES (?i,?i,?i,?i)', array($wh_id, $location_id, $userId, 1));
+        }
+        // добавляем склады
+        if (!empty($post['warehouses'])) {
+            $this->all_configs['db']->query('DELETE FROM {warehouses_users} WHERE main=0 AND user_id=?i',
+                array($userId));
+            foreach ($post['warehouses'] as $wh) {
+                $this->all_configs['db']->query(
+                    'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) '
+                    . 'VALUES (?i,?i,?i)', array($wh, $userId, 0));
+            }
+        }
+        // добавляем кассы
+        $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($userId));
+        if (!empty($post['cashboxes']) && $post['cashboxes'] != -1) {
+            foreach ($post['cashboxes'] as $cashbox) {
+                $this->all_configs['db']->query(
+                    'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '
+                    . 'VALUES (?i,?i)', array($cashbox, $userId));
+            }
+        }
     }
 }
