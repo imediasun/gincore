@@ -33,7 +33,7 @@ function make_request($url, $action, $data = array())
     return false;
 }
 
-$data = make_request('http://192.168.1.20/fon/unify/manage/modules/gincore/api.php', 'get_link_to_tariffs_page');
+$data = make_request($all_configs['configs']['api_url'], 'get_link_to_tariffs_page');
 
 if (!empty($data['link'])) {
     header('Location: ' . $data['link']);
