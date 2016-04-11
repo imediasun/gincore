@@ -17,19 +17,23 @@ class Tariff
         $data['host'] = $host;
         $data['key'] = self::getAPIKey();
         $data['signature'] = self::getSignature($data);
+        $data_get_query = '?' . (empty($data) ? '' : http_build_query($data));
         if (class_exists('Requests')) {
-            $result = Requests::get($api, array('Accept' => 'application/json'), $data);
+            $result_obj = Requests::get($api . $data_get_query, array('Accept' => 'application/json'));
+            $result = $result_obj->body;
         } else {
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($curl, CURLOPT_URL, $api . '?' . (empty($data) ? '' : implode('&', $data)));
-                $result = json_decode(curl_exec($curl), true);
+                curl_setopt($curl, CURLOPT_URL, $api . $data_get_query);
+                $result = curl_exec($curl);
                 curl_close($curl);
             }
         }
-
-        return empty($result) || !self::checkSignature($result) ? array() : json_decode($result, true);
+        $result = gettype($result) == 'string' ? json_decode($result, true) : $result;
+        $return = empty($result) || !self::checkSignature($result) ? array() : $result;
+        unset($return['signature']);
+        return $return;
     }
 
     /**
@@ -45,19 +49,22 @@ class Tariff
         $data['host'] = $host;
         $data['signature'] = self::getSignature($data);
         if (class_exists('Requests')) {
-            $result = Requests::post($api, array('Accept' => 'application/json'), $data);
+            $result_obj = Requests::post($api, array('Accept' => 'application/json'), $data);
+            $result = $result_obj->body;
         } else {
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_URL, $api . '?host=' . $host);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl, CURLOPT_POST, true);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, (empty($data) ? '' : implode('&', $data)));
-                $result = json_decode(curl_exec($curl), true);
+                $result = curl_exec($curl);
                 curl_close($curl);
             }
         }
-
-        return empty($result) || !self::checkSignature($result) ? array() : $result;
+        $result = gettype($result) == 'string' ? json_decode($result, true) : $result;
+        $return = empty($result) || !self::checkSignature($result) ? array() : $result;
+        unset($return['signature']);
+        return $return;
     }
 
     /**
@@ -69,7 +76,7 @@ class Tariff
     public static function load($api, $host)
     {
         $session = Session::getInstance();
-        if ($session->check('last_check_tariff') && $session->get('last_check_tariff') < strtotime('-1 hour')) {
+        if (!$session->check('last_check_tariff') || $session->get('last_check_tariff') < strtotime('-1 hour')) {
             $response = self::get($api, $host, array('act' => 'load'));
             if (empty($response) || !self::validate($response)) {
                 throw new Exception('api error');
@@ -107,7 +114,7 @@ class Tariff
         }
         $response = self::get($api, $host, array(
             'act' => 'add_order_available',
-            'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?', array((int)$tariff['start']))->el()
+            'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?', array($tariff['start']))->el()
         ));
         return !empty($response) && $response['available'] == 1;
     }
@@ -169,10 +176,10 @@ class Tariff
         $count = db()->query("SELECT count(*) FROM {settings} WHERE name='tariff'", array())->el();
         if (empty($count)) {
             db()->query("INSERT INTO {settings} (description, name, value, title) VALUES (?, 'tariff', ?, ?)", array(
-                l('Текущий тариф'),
+                lq('Текущий тариф'),
                 json_encode($response),
-                l('Текущий тариф'),
-            ))->el();
+                lq('Текущий тариф'),
+            ));
         } else {
             db()->query("UPDATE {settings} SET value=? WHERE name='tariff'", array(
                 json_encode($response),
