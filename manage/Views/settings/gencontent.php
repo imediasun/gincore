@@ -28,8 +28,8 @@
         <?php else: ?>
             <div class="form-group">
                 <label><?= l('sets_value') ?>:</label>
-            <textarea class="form-control" id="inputParam" <?= ($pp['ro'] == '1' ? 'disabled="disabled"' : '') ?>
-                      name="value" rows="5" cols="60"><?= $pp['value'] ?></textarea>
+            <input type="text" class="form-control" id="inputParam" <?= ($pp['ro'] == '1' ? 'disabled="disabled"' : '') ?>
+                      name="value" value="<?= $pp['value'] ?>" />
             </div>
         <?php endif; ?>
         <div class="form-group">
