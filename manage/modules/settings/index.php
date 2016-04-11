@@ -129,7 +129,7 @@ class settings
             $tariff = Tariff::load($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
             $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
             $orderCount = db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
-                array((int)$tariff['start']))->el();
+                array($tariff['start']))->el();
             $data = array(
                 'state' => true,
                 'title' => l('Текущий тариф'),
