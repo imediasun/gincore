@@ -1128,7 +1128,9 @@ class Chains
         $crm_request = !empty($post['crm_request']) ? $post['crm_request'] : null;
         $repair_part = !empty($post['repair_part']) ? trim($post['repair_part']) : '';
         $repair_part_quality = !empty($post['repair_part_quality']) ? $post['repair_part_quality'] : lq('Не согласовано');
-        $warranty = (isset($post['warranty']) && intval($post['warranty'])) ? intval($post['warranty']) : 0;
+        $warranty = (isset($post['warranty']) && intval($post['warranty']))
+            ? intval($post['warranty'])
+            : (isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0);
 
         $next = isset($post['next']) ? trim($post['next']) : '';
 
@@ -1250,6 +1252,7 @@ class Chains
                     WHERE NOT EXISTS (SELECT 1 FROM {orders} su WHERE su.id=o.id+1) ORDER BY o.id LIMIT 1')->el();
                 }
 
+                $post['warranty'] = $warranty;
                 $this->createNewOrder($post, $client, $category, $wh, $part_quality_comment);
                 $data['id'] = $post['id'];
 
