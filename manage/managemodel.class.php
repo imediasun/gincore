@@ -853,9 +853,12 @@ class manageModel
                 array($query, array_filter(explode(',', $filters['eng']))));
         }
         // фильтр по статусу
-        if (array_key_exists('sts', $filters) && count(array_filter(explode(',', $filters['sts']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
-                array($query, array_filter(explode(',', $filters['sts']))));
+        if (array_key_exists('sts', $filters)) {
+            $states = explode(',', $filters['sts']);
+            if(count($states) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
+                    array($query, $states));
+            }
         }
         // фильтр по оператору
         if (array_key_exists('op', $filters) && count(array_filter(explode(',', $filters['op']))) > 0) {
@@ -918,9 +921,10 @@ class manageModel
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
               SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, SUM(IF(t.transaction_type=2, 1, 0)) as has_to
-            FROM {categories} as cg, {orders} as o, {cashboxes_transactions} as t
-            WHERE o.id=t.client_order_id AND t.type<>?i AND cg.id=o.category_id AND
-              t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+            FROM {orders} as o
+            JOIN {categories} as cg ON cg.id=o.category_id
+            JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
+            WHERE  t.type<>?i AND t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
               AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") ?query GROUP BY o.id ORDER BY o.id',
             array(8, $day_from, $day_to, $query))->assoc('order_id');
 
