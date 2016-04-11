@@ -399,6 +399,57 @@ $(document).ready(function () {
 
         return false;
     });
+    $('.js-show-tariff').on('click', function(){
+        var buttons =  {
+            success: {
+                label: "Изменить",
+                className: "btn-success",
+                callback: function() {
+                    if (false) {
+                      $.ajax({
+                        url: prefix + module + '/ajax/?act=get-tariff-url',
+                        type: 'GET',
+                        success: function (msg) {
+                            window.location = msg.url;
+                            location.reload();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                          alert(xhr.responseText);
+                        }
+                      });
+                    }
+                    $(this).button('reset');
+                }
+            },
+            main: {
+                label: "Отменить",
+                className: "btn-primary",
+                callback: function() {
+                    $(this).button('reset');
+                }
+            }
+        };
+        $.ajax({
+            url: prefix + 'settings/ajax/?act=show-tariff',
+            dataType: "json",
+            type: 'GET',
+            success: function (data) {
+                if (data) {
+                    if (data['state'] == true){
+                        dialog_box(this, data['title'], data['content'], buttons);
+                    }
+                    if (data['state'] == false && data['message']) {
+                        alert(data['message']);
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+            }
+        });
+
+        return false;
+    });
     $(document).on('focusin', '.typeahead-double', function(e) {
         var $this = $(this),
             id = $this.data('id'),
@@ -1664,7 +1715,7 @@ function reset_tagsinput() {
 
 $(function(){
     $('#navigation .btn.btn-default').on('click', function(){
-       window.location = $(this).attr('data-href'); 
+       window.location = $(this).attr('data-href');
     });
     function set_events(){
         $('.ajax_form').each(function(){

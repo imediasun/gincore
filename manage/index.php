@@ -213,6 +213,7 @@ if (isset($_SESSION['id'])) {
 }
 $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
 $input['homepage'] = l('Главная');
+$input['tariff'] = empty($tariff['name'])?l('Проблемы'): $tariff['name'];
 $modules = scandir('./modules/');
 
 if(empty($curmod)){

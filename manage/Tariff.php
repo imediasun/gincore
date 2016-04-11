@@ -209,7 +209,7 @@ class Tariff
         if (!$session->check('tariff')) {
             $response = db()->query("SELECT value FROM {settings} WHERE name='tariff'", array())->el();
             if (empty($response)) {
-                throw new Exception('Tariff not set');
+                $response = json_encode(array());
             }
             $session->set('last_check_tariff', time());
             $session->set('tariff', json_decode($response, true));

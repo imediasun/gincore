@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Tariff.php';
+
 // настройки
 $modulename[110] = 'settings';
 $modulemenu[110] = l('sets_modulemenu');  //карта сайта
@@ -14,6 +16,10 @@ class settings
     /** @var View */
     protected $view;
 
+    /**
+     * settings constructor.
+     * @param $all_configs
+     */
     function __construct($all_configs)
     {
         global $input_html, $ifauth;
@@ -34,6 +40,9 @@ class settings
         $input_html['mcontent'] = $this->gencontent();
     }
 
+    /**
+     * @return string
+     */
     private function genmenu()
     {
         $sqls = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE `ro` = 0 ORDER BY `title`")->assoc();
@@ -43,6 +52,9 @@ class settings
         ));
     }
 
+    /**
+     * @return mixed|string
+     */
     private function gencontent()
     {
         $id = isset($_POST['id']) ? $_POST['id'] : '';
@@ -103,13 +115,31 @@ class settings
         return $out;
     }
 
+    /**
+     * @throws Exception
+     */
     private function ajax()
     {
-
         $data = array(
             'state' => false
         );
 
+        if (!empty($_GET['act']) && $_GET['act'] == 'show-tariff') {
+
+            $tariff = Tariff::load($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
+            $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
+            $orderCount = db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
+                array((int)$tariff['start']))->el();
+            $data = array(
+                'state' => true,
+                'title' => l('Текущий тариф'),
+                'content' => $this->view->renderFile('settings/tariff', array(
+                    'tariff' => $tariff,
+                    'usersCount' => $usersCount,
+                    'orderCount' => $orderCount
+                ))
+            );
+        }
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
         exit;

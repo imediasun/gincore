@@ -190,6 +190,9 @@
         </form>
     <?php else: ?>
         <p><?= l('Создание новых пользователей запрещено условиями текущего тарифа') ?></p>
+        <div class="form-group">
+            <a href=""  class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+        </div>
     <?php endif; ?>
 </div>
 
