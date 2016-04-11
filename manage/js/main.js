@@ -778,7 +778,12 @@ function endcountdown()
     if (order_id == 0) {
         sound('alarm.mp3', 2);
         $("html, body").animate({scrollTop: 0}, "quick");
-        $('#wrapper>.content').prepend('<div class="alert alert-danger">' +
+        var $alerts = $('#wrapper>.content').find('.alerts');
+        console.log($alerts.length);
+        if($alerts.length == 0) {
+            $('#wrapper>.content').prepend('<div class="alerts col-sm-12"></div>');
+        }
+        $('#wrapper>.content >.alerts').prepend('<div class="alert alert-danger alert-clock">' +
             '<button type="button" class="close close_alarm" data-alarm_id="'+alarm_id+'" data-dismiss="alert">×</button>' + text + '</div>');
     }
 }

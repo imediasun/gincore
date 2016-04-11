@@ -20,3 +20,18 @@
     color: red;
     font-weight: bold;
 }
+.edit_tab_user {
+    max-height:450px;
+    overflow: auto;
+    border-style: none;
+}
+.edit-user table >tbody >tr >td {
+    padding: 0px 8px 8px 8px;
+}
+.create-user table >tbody >tr >td,
+.edit-user table >tbody >tr >td {
+    border-top: none;
+}
+#upload_avatar {
+    z-index: 100000;
+}

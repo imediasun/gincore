@@ -73,7 +73,7 @@ class Role
     {
         $users = array();
         $arr = (array)$arr;
-        $query = $all == self::ALL ? '' : $this->all_configs['db']->makeQuery('AND u.avail=1 AND u.deleted=0', array());
+        $query = $all == self::ALL ? '' : $this->all_configs['db']->makeQuery('AND u.avail=1 AND u.deleted=0 AND NOT u.state = ?i', array(USER_STATE_DEACTIVATED_BY_TARIFF));
         if (count($arr) > 0) {
             $users = (array)$this->all_configs['db']->query('SELECT u.*, CONCAT(u.fio, " ", u.login) as name
                 FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
@@ -153,5 +153,19 @@ class Role
             return false;
         }
         return count($users) == 1;
+    }
+
+    /**
+     * @param $userId
+     * @return bool
+     */
+    public function hasCashierPermission($userId)
+    {
+        $hasAccounting = $this->hasPrivilege('accounting');
+        if(empty($userId)) {
+            return $hasAccounting;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i', array($userId))->el();
+        return $count > 0 || $hasAccounting;
     }
 }

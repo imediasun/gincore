@@ -22,6 +22,13 @@ function create_avatar_uploader(){
             }
         });           
     }
+    $('.upload_avatar_btn').click(function(){
+        avatar_uploader.setParams({
+            act: 'upload_avatar',
+            uid: $(this).data('uid')
+        });
+        $('#upload_avatar').modal('show');
+    });
 }
 
 
@@ -71,15 +78,57 @@ $(function(){
     
     create_avatar_uploader();
     
-    $('.upload_avatar_btn').click(function(){
-        avatar_uploader.setParams({
-            act: 'upload_avatar',
-            uid: $(this).data('uid')
-        });
-        $('#upload_avatar').modal('show');
-    });
-    
-    
+
+   $('.js-edit-user').on('click', function(){
+       var uid = $(this).attr('data-uid'), _this = this;
+       $.ajax({
+           url: prefix + module + '/ajax/?act=edit-user&uid=' + uid,
+           type: 'GET',
+           success: function(msg) {
+               if (msg.state == false && msg.message) {
+                   alert(msg.message);
+               }
+               if(msg.state == true && msg.html.length > 0) {
+
+                   buttons =  {
+                       success: {
+                           label: "Сохранить",
+                           className: "btn-success",
+                           callback: function() {
+                               $.ajax({
+                                   url: prefix + module + '/ajax/?act=update-user',
+                                   type: 'POST',
+                                   data: $('form.edit-user').serialize(),
+                                   success: function(msg) {
+                                       window.location = prefix + module;
+                                       window.location.reload();
+                                   },
+                                   error: function (xhr, ajaxOptions, thrownError) {
+                                       alert(xhr.responseText);
+                                   }
+                               });
+                               $(_this).button('reset');
+                           }
+                       },
+                       main: {
+                           label: "Отменить",
+                           className: "btn-primary",
+                           callback: function() {
+                               $(_this).button('reset');
+                           }
+                       }
+                   };
+                   dialog_box(_this, msg.title || '', msg.html, buttons);
+                   reset_multiselect();
+                   create_avatar_uploader();
+               }
+           },
+           error: function (xhr, ajaxOptions, thrownError) {
+               alert(xhr.responseText);
+           }
+       });
+       return false;
+   });
 });
 
 

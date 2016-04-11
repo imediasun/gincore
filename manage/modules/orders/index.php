@@ -623,7 +623,7 @@ class orders
     function show_orders_orders()
     {
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-        $filters = array('type' => 0);
+        $filters = array('type' => ORDER_REPAIR);
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
         }
@@ -657,7 +657,7 @@ class orders
     function show_orders_sold()
     {
         $orders_html = '';
-        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => 3) + $_GET);
+        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_SELL) + $_GET);
         $query = $queries['query'];
         $skip = $queries['skip'];
         $count_on_page = $this->count_on_page;
@@ -703,7 +703,7 @@ class orders
     function show_orders_return()
     {
         $orders_html = '';
-        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => 1) + $_GET);
+        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_RETURN) + $_GET);
         $query = $queries['query'];
         $skip = $queries['skip'];
         $count_on_page = $this->count_on_page;
@@ -750,7 +750,7 @@ class orders
     function show_orders_writeoff()
     {
         $orders_html = '';
-        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => 2) + $_GET);
+        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_WRITE_OFF) + $_GET);
         $query = $queries['query'];
         $skip = $queries['skip'];
         $count_on_page = $this->count_on_page;

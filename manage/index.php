@@ -6,7 +6,6 @@ $curmod = $mainmenu = $pre_title = '';
 $input = $input_html = $input_js = $input_css = $all_configs = array();
 $modulename = $modulemenu = $moduleactive = array();
 
-
 require_once 'inc_config.php';
 require_once 'inc_func.php';
 require_once 'inc_settings.php';
@@ -228,7 +227,6 @@ if(empty($curmod)){
             require_once $module;
         }
     }
-    
     $additionally = '';
     $additionallUrl = '';
     if($modulename){
@@ -241,8 +239,8 @@ if(empty($curmod)){
                 $pre_title = strip_tags($modulemenu[$k]);
             }
             if ($moduleactive[$k] == true) {
-                $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu() : 
-                                     (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
+                $hassubmenu = method_exists($v, 'get_submenu') ? $v::get_submenu($all_configs['oRole']) :
+                    (isset($v::$mod_submenu) ? $v::$mod_submenu : null);
                 $submenuUrl = '';
                 if($hassubmenu){
                     $submenu = '<ul class="nav nav-second-level collapse" aria-expanded="false">';
@@ -289,7 +287,7 @@ if(empty($curmod)){
                             || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $all_configs['oRole']->hasPrivilege('edit-tradein-orders') || $all_configs['oRole']->hasPrivilege('orders-manager')))
                     || ($v == 'clients' && $all_configs['oRole']->hasPrivilege('edit-goods'))
                     || ($v == 'chat' && $all_configs['oRole']->hasPrivilege('chat'))
-                    || ($v == 'accountings' && ($all_configs['oRole']->hasPrivilege('accounting') || $all_configs['oRole']->hasPrivilege('accounting-contractors')
+                    || ($v == 'accountings' && ($all_configs['oRole']->hasCashierPermission(isset($_SESSION['id']) ? $_SESSION['id'] : null) || $all_configs['oRole']->hasPrivilege('accounting-contractors')
                             || $all_configs['oRole']->hasPrivilege('accounting-reports-turnover') || $all_configs['oRole']->hasPrivilege('partner') || $all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')))
                     || ($v == 'warehouses' && $all_configs['configs']['erp-use'] == true && ($all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
                             || /*$all_configs['oRole']->hasPrivilege('logistics') || */$all_configs['oRole']->hasPrivilege('scanner-moves')))

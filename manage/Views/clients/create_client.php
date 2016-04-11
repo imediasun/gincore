@@ -90,7 +90,7 @@
                         <?php if ($this->all_configs['oRole']->hasPrivilege('site-administration')): ?>
                             <div class="form-group">
                                 <label class="control-label"><?= l('Пароль') ?>: </label>
-                                <i class="glyphicon glyphicon-warning-sign editable-click" data-type="text"
+                                <i class="glyphicon glyphicon-lock editable-click" data-type="text"
                                    data-pk="<?= $arrequest[2] ?>" data-type="password"
                                    data-url="<?= $this->all_configs['prefix'] . $arrequest[0] ?>/ajax?act=change-client-password"
                                    data-title="<?= l('Введите новый пароль') ?>" data-display="false"></i>
