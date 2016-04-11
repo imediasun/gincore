@@ -596,11 +596,6 @@ class users
             'permissions' => $permissions
         ));
 
-        $user = array();
-        if (!empty($_SESSION['create-user-error'])) {
-            $user = $_SESSION['create-user-post'];
-            unset($_SESSION['create-user-post']);
-        }
         $roles = array();
         $yet = 0;
         foreach ($permissions as $permission) {
@@ -611,7 +606,7 @@ class users
                 $roles[$permission['role_id']] = $permission['role_name'];
             }
         }
-        $users_html .= $this->createUserForm($user, $roles);
+        $users_html .= $this->createUserForm(array(), $roles);
 
         $users_html .= '</div>';
 
@@ -783,7 +778,8 @@ class users
             'cashboxes' => $this->getCashboxes(),
             'roles' => $roles,
             'controller' => $this,
-            'isEdit' => $isEdit
+            'isEdit' => $isEdit,
+            'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
         ));
     }
 

@@ -87,10 +87,14 @@ class Tariff
      */
     public static function isAddUserAvailable($api, $host)
     {
-        $response = self::get($api, $host, array(
-            'act' => 'add_user_available',
-            'current' => db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el()
-        ));
+        try {
+            $response = self::get($api, $host, array(
+                'act' => 'add_user_available',
+                'current' => db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el()
+            ));
+        } catch (Exception $e) {
+            $response = array();
+        }
         return !empty($response) && $response['available'] == 1;
     }
 
@@ -101,14 +105,19 @@ class Tariff
      */
     public static function isAddOrderAvailable($api, $host)
     {
-        $tariff =  self::getSavedTariff(Session::getInstance());
-        if(empty($tariff['start'])) {
+        $tariff = self::getSavedTariff(Session::getInstance());
+        if (empty($tariff['start'])) {
             return false;
         }
-        $response = self::get($api, $host, array(
-            'act' => 'add_order_available',
-            'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?', array((int)$tariff['start']))->el()
-        ));
+        try {
+            $response = self::get($api, $host, array(
+                'act' => 'add_order_available',
+                'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
+                    array((int)$tariff['start']))->el()
+            ));
+        } catch (Exception $e) {
+            $response = array();
+        }
         return !empty($response) && $response['available'] == 1;
     }
 
@@ -119,9 +128,14 @@ class Tariff
      */
     public static function addUser($api, $host)
     {
-        return self::post($api, $host, array(
-            'act' => 'add_new_user'
-        ));
+        try {
+            $response = self::post($api, $host, array(
+                'act' => 'add_new_user'
+            ));
+        } catch (Exception $e) {
+            $response = array();
+        }
+        return $response;
     }
 
     /**
@@ -131,9 +145,14 @@ class Tariff
      */
     public static function addOrder($api, $host)
     {
-        return self::post($api, $host, array(
-            'act' => 'add_new_order'
-        ));
+        try {
+            $response = self::post($api, $host, array(
+                'act' => 'add_new_order'
+            ));
+        } catch (Exception $e) {
+            $response = array();
+        }
+        return $response;
     }
 
     /**

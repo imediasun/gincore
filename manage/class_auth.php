@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../manage/FlashMessage.php';
+
 class Auth { //класс авторизации
 #db settings
 
@@ -34,6 +36,10 @@ class Auth { //класс авторизации
                                 ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? AND deleted = 0",
             array($login_unchk, $login_unchk, $pass_unchk), 'row');
 
+        if($user['blocked_by_tariff'] == 1) {
+            FlashMessage::set(l('Ваша учетная записиь заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
+            return false;
+        }
         if ($user['avail'] != 1 || $user['auth_cert_only'] == 1) {
             return false;
         }
