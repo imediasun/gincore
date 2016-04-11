@@ -3,6 +3,7 @@
         <h2>
             <?= $tariff['name'] ?>
         </h2>
+        <input type="hidden" id="'tariffs-url" value="<?= $tariffsUrl ?>" />
         <table class="table ">
             <thead>
             <tr>

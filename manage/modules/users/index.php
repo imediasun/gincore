@@ -780,6 +780,7 @@ class users
             'controller' => $this,
             'isEdit' => $isEdit,
             'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
+            'tariffsUrl' => Tariff::getURL($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])
         ));
     }
 
@@ -798,8 +799,6 @@ class users
      */
     private function updateUser($userId, $post, $modId)
     {
-        ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
         $avail = 0;
         if (isset($post['avail'])) {
             $avail = 1;

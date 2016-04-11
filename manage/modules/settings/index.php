@@ -123,20 +123,29 @@ class settings
         $data = array(
             'state' => false
         );
-
         if (!empty($_GET['act']) && $_GET['act'] == 'show-tariff') {
+            try {
+                $tariff = Tariff::load($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
+                $tariffsUrl = Tariff::getURL($this->all_configs['configs']['api_url'],
+                    $this->all_configs['configs']['host']);
+                $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
+                $orderCount = db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
+                    array($tariff['start']))->el();
+            } catch (Exception $e) {
+                $tariff = array();
+                $usersCount = 0;
+                $orderCount = 0;
+                $tariffsUrl = '#';
+            }
 
-            $tariff = Tariff::load($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
-            $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
-            $orderCount = db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
-                array($tariff['start']))->el();
             $data = array(
                 'state' => true,
                 'title' => l('Текущий тариф'),
                 'content' => $this->view->renderFile('settings/tariff', array(
                     'tariff' => $tariff,
                     'usersCount' => $usersCount,
-                    'orderCount' => $orderCount
+                    'orderCount' => $orderCount,
+                    'tariffsUrl' => $tariffsUrl
                 ))
             );
         }

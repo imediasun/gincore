@@ -6,6 +6,23 @@ require_once __DIR__ . '/../gincore/vendor/autoload.php';
 class Tariff
 {
     /**
+     * @param $api
+     * @param $host
+     * @return string
+     */
+    public static function getURL($api, $host)
+    {
+        try {
+            $response = self::get($api, $host, array(
+                'act' => 'get_link_to_tariffs_page'
+            ));
+        } catch (Exception $e) {
+            $response = array();
+        }
+        return empty($response['link']) ? '/' : $response['link'];
+    }
+
+    /**
      * @param $result
      * @return mixed
      */
@@ -16,6 +33,7 @@ class Tariff
         unset($return['signature']);
         return $return;
     }
+
     /**
      * @param       $api
      * @param       $host

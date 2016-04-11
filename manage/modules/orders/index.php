@@ -821,7 +821,8 @@ class orders
                 'tag' => $this->getTag($client_id),
                 'tags' => $this->getTags(),
                 'order_data' => $order_data,
-                'available' => Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])
+                'available' => Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
+                'tariffsUrl' => Tariff::getURL($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])
             ));
         }
 

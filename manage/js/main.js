@@ -405,20 +405,9 @@ $(document).ready(function () {
                 label: "Изменить",
                 className: "btn-success",
                 callback: function() {
-                    if (false) {
-                      $.ajax({
-                        url: prefix + module + '/ajax/?act=get-tariff-url',
-                        type: 'GET',
-                        success: function (msg) {
-                            window.location = msg.url;
-                            location.reload();
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                          alert(xhr.responseText);
-                        }
-                      });
-                    }
                     $(this).button('reset');
+                    window.location = $('#tariffs-url').val();
+                    location.reload();
                 }
             },
             main: {
