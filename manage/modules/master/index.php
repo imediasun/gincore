@@ -77,7 +77,8 @@ class master
 
         // страны
         $input_html['country_select'] = '';
-        foreach ($this->all_configs['configs']['countries'] as $id => $country) {
+        sort($this->all_configs['configs']['countries'], SORT_REGULAR);
+        foreach ($this->all_configs['configs']['countries']  as $id => $country) {
             $input_html['country_select'] .= '<option value="' . $id . '">' . $country['name'] . '</option>';
         }
     }
