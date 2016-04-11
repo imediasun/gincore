@@ -108,7 +108,7 @@ class Role
      */
     public function isSuperuserPermission($permissionId)
     {
-        $count = $this->all_configs['db']->query("SELECT count(*) FROM {users_permissions} WHERE link in ('edit-users', 'site-administration') AND id=?i",
+        $count = $this->all_configs['db']->query("SELECT count(*) FROM {users_permissions} WHERE link in ('site-administration') AND id=?i",
             array(intval($permissionId)))->el();
         return $count > 0;
     }
@@ -121,8 +121,8 @@ class Role
     {
         $count = $this->all_configs['db']->query('SELECT count(*)
                 FROM {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
-            array(array('edit-users', 'site-administration'), $roleId))->el();
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=? AND u.deleted=0',
+            array(array('site-administration'), $roleId))->el();
         return $count == 1;
     }
 
@@ -135,7 +135,7 @@ class Role
         $count = $this->all_configs['db']->query('SELECT count(*)
                 FROM {users_permissions} as p, {users_role_permission} as l
                 WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
-            array(array('edit-users', 'site-administration'), $roleId))->el();
+            array(array('site-administration'), $roleId))->el();
         return $count > 0;
     }
 
@@ -147,8 +147,8 @@ class Role
     {
         $users = $this->all_configs['db']->query('SELECT u.id
                 FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id',
-            array(array('edit-users', 'site-administration')))->assoc('id');
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id AND u.deleted=0',
+            array(array('site-administration')))->assoc('id');
         if (!in_array($userId, array_keys($users))) {
             return false;
         }

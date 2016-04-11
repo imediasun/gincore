@@ -20,14 +20,23 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
 }
 
 try {
+
+    $usersCount = db()->query('SELECT count(*) FROM {users} u WHERE deleted=0 AND blocked_by_tariff=0')->el();
     $tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
-    $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
-    if($usersCount > $tariff['number_of_users']) {
-        db()->query("UPDATE {users} SET blocked_by_tariff=0)", array());
-        db()->query("UPDATE {users} SET blocked_by_tariff=1 WHERE NOT id in (SELECT id FROM {users} WHERE deleted=0 LIMIT ?i)", array($tariff['number_of_users']));
+    if(isset($tariff['number_of_users']) && $usersCount != $tariff['number_of_users']) {
+        $adminId = db()->query('SELECT u.id
+                    FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
+                    WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id AND u.avail=1 AND u.deleted=0',
+            array(array('site-administration')))->el();
+        db()->query("UPDATE {users} SET blocked_by_tariff=0", array());
+        $userIds = db()->query('SELECT id FROM {users} WHERE deleted=0 AND NOT id=?i LIMIT ?i', array($adminId, $tariff['number_of_users'] - 1))->col();
+        $query = '';
+        if(!empty($userIds)) {
+            $query = db()->makeQuery('NOT id in (?li) AND', array($userIds));
+        }
+        db()->query("UPDATE {users} SET blocked_by_tariff=1 WHERE ?q NOT id=?i", array($query, $adminId));
     }
 } catch(Exception  $e) {
-
 }
 
 if(empty($all_configs['configs']['settings-system-lang-select-enabled'])){
