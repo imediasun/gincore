@@ -6,6 +6,17 @@ require_once __DIR__ . '/../gincore/vendor/autoload.php';
 class Tariff
 {
     /**
+     * @param $result
+     * @return mixed
+     */
+    protected static function process($result)
+    {
+        $result = gettype($result) == 'string' ? json_decode($result, true) : $result;
+        $return = empty($result) || !self::checkSignature($result) ? array() : $result;
+        unset($return['signature']);
+        return $return;
+    }
+    /**
      * @param       $api
      * @param       $host
      * @param array $data
@@ -17,23 +28,20 @@ class Tariff
         $data['host'] = $host;
         $data['key'] = self::getAPIKey();
         $data['signature'] = self::getSignature($data);
-        $data_get_query = '?' . (empty($data) ? '' : http_build_query($data));
+        $url = $api . (empty($data) ? '' : '?' . http_build_query($data));
         if (class_exists('Requests')) {
-            $result_obj = Requests::get($api . $data_get_query, array('Accept' => 'application/json'));
-            $result = $result_obj->body;
+            $response = Requests::get($url, array('Accept' => 'application/json'));
+            $result = $response->body;
         } else {
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($curl, CURLOPT_URL, $api . $data_get_query);
+                curl_setopt($curl, CURLOPT_URL, $url);
                 $result = curl_exec($curl);
                 curl_close($curl);
             }
         }
-        $result = gettype($result) == 'string' ? json_decode($result, true) : $result;
-        $return = empty($result) || !self::checkSignature($result) ? array() : $result;
-        unset($return['signature']);
-        return $return;
+        return self::process($result);
     }
 
     /**
@@ -49,22 +57,19 @@ class Tariff
         $data['host'] = $host;
         $data['signature'] = self::getSignature($data);
         if (class_exists('Requests')) {
-            $result_obj = Requests::post($api, array('Accept' => 'application/json'), $data);
-            $result = $result_obj->body;
+            $response = Requests::post($api, array('Accept' => 'application/json'), $data);
+            $result = $response->body;
         } else {
             if ($curl = curl_init()) {
-                curl_setopt($curl, CURLOPT_URL, $api . '?host=' . $host);
+                curl_setopt($curl, CURLOPT_URL, $api);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, (empty($data) ? '' : implode('&', $data)));
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
                 $result = curl_exec($curl);
                 curl_close($curl);
             }
         }
-        $result = gettype($result) == 'string' ? json_decode($result, true) : $result;
-        $return = empty($result) || !self::checkSignature($result) ? array() : $result;
-        unset($return['signature']);
-        return $return;
+        return self::process($result);
     }
 
     /**
