@@ -1,12 +1,14 @@
-<?php if(!empty($isEdit)): ?>
+<?php if (!empty($isEdit)): ?>
     <style>
         .modal-dialog {
             margin-top: 20px;
         }
     </style>
 <?php endif; ?>
-<div id="create_tab_user" class="tab-pane row-fluid <?= empty($isEdit)?'':'edit_tab_user' ?>" style="padding-bottom: 0">
-    <form method="post" class="<?= empty($isEdit) ? 'create-user' : 'edit-user' ?> <?= empty($isEdit)?'col-sm-6': '' ?>">
+<div id="create_tab_user" class="tab-pane row-fluid <?= empty($isEdit) ? '' : 'edit_tab_user' ?>"
+     style="padding-bottom: 0">
+    <form method="post"
+          class="<?= empty($isEdit) ? 'create-user' : 'edit-user' ?> <?= empty($isEdit) ? 'col-sm-6' : '' ?>">
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
@@ -29,7 +31,8 @@
                 <div class="col-sm-3">
                     <center>
                         <div class="form-group">
-                            <img class="upload_avatar_btn img-responsive" data-uid="<?= $form_data['id'] ?>"  <?= empty($isEdit)? '':'style="width: 170px"' ?>
+                            <img class="upload_avatar_btn img-responsive"
+                                 data-uid="<?= $form_data['id'] ?>" <?= empty($isEdit) ? '' : 'style="width: 170px"' ?>
                                  src="<?= $controller->avatar($form_data['avatar']) ?>">
                         </div>
                         <div class="form-group">
@@ -57,12 +60,15 @@
                                name="email"
                                placeholder="<?= l('введите e-mail') ?>">
                     </div>
-                    <?php if (empty($isEdit)): ?>
-                        <div class="form-group">
-                            <label><?= l('Пароль') ?> <b class="text-danger">*</b>:</label>
-                            <input class="form-control" value="" name="pass" placeholder="<?= l('введите пароль') ?>">
-                        </div>
-                    <?php endif; ?>
+                    <div class="form-group">
+                        <label><?= l('Пароль') ?>
+                            <?php if (empty($isEdit)): ?>
+                                <b class="text-danger">*</b>
+                            <?php endif; ?>:
+                        </label>
+                        <input type='password' class="form-control" value="" name="pass"
+                               placeholder="<?= l('введите пароль') ?>">
+                    </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">

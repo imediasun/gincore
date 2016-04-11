@@ -797,30 +797,41 @@ class users
      */
     private function updateUser($userId, $post, $modId)
     {
+        ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
         $avail = 0;
         if (isset($post['avail'])) {
             $avail = 1;
         }
-        if (empty($post['login']) ||  empty($post['email'])) {
+        if (empty($post['login']) || empty($post['email'])) {
             FlashMessage::set(l('Пожалуйста, заполните логин и эл. адрес'), FlashMessage::DANGER);
         } else {
             $id = intval($post['user_id']);
-            $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=? WHERE id=?i',
-                array(
-                    $post['login'],
-                    $post['fio'],
-                    $post['position'],
-                    $post['phone'],
-                    $avail,
-                    $post['role'],
-                    $post['email'],
-                    $id
-                ), 'id');
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($userId, 'edit-user', $modId, intval($id)));
-            $this->saveUserRelations($id, $post);
+            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($id));
+            if (!empty($user)) {
+                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+//                $access = new access($this->all_configs, false);
+//                $password = empty($post['pass']) ? $user['pass']: $access->wrap_pass(trim($post['pass']));
+                $password = empty($post['pass']) ? $user['pass']: trim($post['pass']);
 
-            FlashMessage::set(l('Данные пользователя обновлены'));
+                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?, pass=? WHERE id=?i',
+                    array(
+                        $post['login'],
+                        $post['fio'],
+                        $post['position'],
+                        $post['phone'],
+                        $avail,
+                        $post['role'],
+                        $post['email'],
+                        $password,
+                        $id
+                    ), 'id');
+                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                    array($userId, 'edit-user', $modId, intval($id)));
+                $this->saveUserRelations($id, $post);
+
+                FlashMessage::set(l('Данные пользователя обновлены'));
+            }
         }
     }
 
