@@ -3,7 +3,7 @@
         <h2>
             <?= $tariff['name'] ?>
         </h2>
-        <input type="hidden" id="'tariffs-url" value="<?= $tariffsUrl ?>" />
+        <input type="hidden" id="tariffs-url" value="<?= $this->all_configs['prefix'] ?>settings/tariffs"  />
         <table class="table ">
             <thead>
             <tr>

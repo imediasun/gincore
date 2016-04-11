@@ -346,7 +346,7 @@
         <?php else: ?>
             <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
             <div class="form-group">
-                <a href="<?= $tariffsUrl ?>" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
             </div>
         <?php endif; ?>
     </div>
@@ -356,7 +356,7 @@
         <?php else: ?>
             <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
             <div class="form-group">
-                <a href="<?= $tariffsUrl ?>" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
             </div>
         <?php endif; ?>
     </div>

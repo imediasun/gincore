@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../View.php';
 require_once __DIR__ . '/../../Tariff.php';
+require_once __DIR__ . '/../../Response.php';
 
 // настройки
 $modulename[110] = 'settings';
@@ -29,6 +30,11 @@ class settings
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
+        }
+        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'tariffs') {
+            $tariffsUrl = Tariff::getURL($this->all_configs['configs']['api_url'],
+                $this->all_configs['configs']['host']);
+            Response::redirect($tariffsUrl);
         }
 
         if ($ifauth['is_2']) {
@@ -126,8 +132,6 @@ class settings
         if (!empty($_GET['act']) && $_GET['act'] == 'show-tariff') {
             try {
                 $tariff = Tariff::load($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
-                $tariffsUrl = Tariff::getURL($this->all_configs['configs']['api_url'],
-                    $this->all_configs['configs']['host']);
                 $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
                 $orderCount = db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
                     array($tariff['start']))->el();
@@ -135,7 +139,6 @@ class settings
                 $tariff = array();
                 $usersCount = 0;
                 $orderCount = 0;
-                $tariffsUrl = '#';
             }
 
             $data = array(
@@ -144,8 +147,7 @@ class settings
                 'content' => $this->view->renderFile('settings/tariff', array(
                     'tariff' => $tariff,
                     'usersCount' => $usersCount,
-                    'orderCount' => $orderCount,
-                    'tariffsUrl' => $tariffsUrl
+                    'orderCount' => $orderCount
                 ))
             );
         }

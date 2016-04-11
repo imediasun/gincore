@@ -780,7 +780,6 @@ class users
             'controller' => $this,
             'isEdit' => $isEdit,
             'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
-            'tariffsUrl' => Tariff::getURL($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])
         ));
     }
 

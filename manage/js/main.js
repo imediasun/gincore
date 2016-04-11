@@ -405,9 +405,8 @@ $(document).ready(function () {
                 label: "Изменить",
                 className: "btn-success",
                 callback: function() {
+                    window.open($('#tariffs-url').val(), '_blank');
                     $(this).button('reset');
-                    window.location = $('#tariffs-url').val();
-                    location.reload();
                 }
             },
             main: {
