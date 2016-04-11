@@ -1489,7 +1489,7 @@ class Chains
         try {
             $post['price'] = $price($post['amount']);
             if (empty($post['amount']) || ($post['price'] == 0)) {
-                throw new ExceptionWithMsg('Укажите сумму');
+                throw new ExceptionWithMsg('Вы не добавили изделие в корзину');
             }
             $items = $prepareItems($this->getItems(array_values($post['item_ids'])), $post['item_ids'], $post['amount']);
             $client = $this->getClient($post);
