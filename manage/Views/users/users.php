@@ -1,6 +1,6 @@
 <div id="edit_tab_users" class="tab-pane active">
     <form enctype="multipart/form-data" method="post" id="users-form">
-        <input type="hidden" value="<?= $tariff['number_of_users'] ?>" name="limit" />
+        <input type="hidden" value="<?= $tariff['number_of_users'] ?>" name="limit"/>
         <table class="table table-striped">
             <thead>
             <tr>
@@ -28,7 +28,8 @@
                 <?php foreach ($users as $user): ?>
                     <?php if (!array_key_exists($user['id'], $yet)): ?>
                         <tr class="user-row">
-                            <td><a href="#" class="js-edit-user" data-uid="<?= $user['id'] ?>"><?= $user['id'] ?></a></td>
+                            <td><a href="#" class="js-edit-user" data-uid="<?= $user['id'] ?>"><?= $user['id'] ?></a>
+                            </td>
                             <td>
                                 <img class="upload_avatar_btn" data-uid="<?= $user['id'] ?>" width="40"
                                      src="<?= $controller->avatar($user['avatar']) ?>">
@@ -37,8 +38,12 @@
                                 <input type="checkbox" name="send-mess-user[<?= $user['id'] ?>]" class="send-mess-user"
                                        value="<?= $user['id'] ?>"/>
                             </td>
-                            <td><a href="#" class="js-edit-user" data-uid="<?= $user['id'] ?>"><?= htmlspecialchars($user['login']) ?></a></td>
-                            <td><input  class="checkbox js-block-by-tariff" <?= $user['avail']? 'checked': '' ?> type="checkbox" name="avail_user[<?= $user['id'] ?>]"  <?= (!$user['avail'] && $i >= $tariff['number_of_users'])? 'disabled':'' ?>/></td>
+                            <td><a href="#" class="js-edit-user"
+                                   data-uid="<?= $user['id'] ?>"><?= htmlspecialchars($user['login']) ?></a></td>
+                            <td><input class="checkbox js-block-by-tariff" <?= $user['avail'] ? 'checked' : '' ?>
+                                       type="checkbox"
+                                       name="avail_user[<?= $user['id'] ?>]" <?= (!$user['avail']) || ($user['avail'] && $i >= $tariff['number_of_users']) ? 'disabled' : '' ?>/>
+                            </td>
                             <td style="text-align:center;">
                                 <i class="fa fa-lock editable-click" data-type="text"
                                    data-pk="<?= $user['id'] ?>"
@@ -88,18 +93,21 @@
                                        value="<?= $user['auth_cert_serial'] ?>"/>
                             </td>
                             <td>
-                                <input <?= $user['auth_cert_only']? 'checked': '' ?> type="checkbox" name="auth_cert_only[<?= $user['id'] ?>]"/>
+                                <input <?= $user['auth_cert_only'] ? 'checked' : '' ?> type="checkbox"
+                                                                                       name="auth_cert_only[<?= $user['id'] ?>]"/>
                             </td>
                             <td>
                                 <a href="#" class="danger delete-user" title="<?= l('Удалить') ?>">
                                     <i class="glyphicon glyphicon-remove"
-                                        onclick="delete_user(this, <?= $user['id'] ?>);"
-                                        data-id="<?= $user['id'] ?>"></i>
+                                       onclick="delete_user(this, <?= $user['id'] ?>);"
+                                       data-id="<?= $user['id'] ?>"></i>
                                 </a>
                             </td>
                         </tr>
                         <?php $yet[$user['id']] = $user['id']; ?>
-                        <?php $i++ ?>
+                        <?php if ($user['avail']): ?>
+                            <?php $i++ ?>
+                        <?php endif; ?>
                     <?php endif; ?>
                 <?php endforeach; ?>
             <?php endif; ?>

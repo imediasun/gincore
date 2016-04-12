@@ -13,14 +13,14 @@ function create_avatar_uploader(){
             maxConnections: 1,
             debug: false,
             onSubmit: function(){
-                
+
             },
             onComplete: function(id, filename, data){
                 if(data.success){
                     $('.upload_avatar_btn[data-uid="'+data.uid+'"]').attr('src', data.avatar);
                 }
             }
-        });           
+        });
     }
     $('.upload_avatar_btn').click(function(){
         avatar_uploader.setParams({
@@ -71,21 +71,25 @@ $(function(){
         }
 
         $('.js-block-by-tariff').each(function () {
+            $(this).removeAttr('disabled');
             if ($(this).is(':checked')) {
                 count++;
             }
         });
-        $('.js-block-by-tariff').each(function () {
-            $(this).removeAttr('disabled');
-            if (!$(this).is(':checked')) {
-                if (i > (limit - count)) {
-                    $(this).attr('disabled', 'disabled');
-                }
-            }
-            i++;
-        });
 
-        if(count > $limit) {
+        if(count >= limit) {
+            $('.js-block-by-tariff').each(function () {
+              if ($(this).is(':checked')) {
+                if (i >= limit) {
+                  $(this).attr('disabled', 'disabled');
+                }
+                i++;
+              } else {
+                $(this).attr('disabled', 'disabled');
+              }
+            });
+        }
+        if($(this).is(':checked') && (count > limit)) {
             alert('Вы достигли лимита активных пользователей по текущему тарифу');
             return false;
         }
@@ -102,9 +106,9 @@ $(function(){
             '<p><textarea class="ta-mess form-control" rows="3"></textarea></p>' +
             '<p><input type="button" class="btn" onclick="send_mess()" value="' + L['send'] +'" /></p>',
     });
-    
+
     create_avatar_uploader();
-    
+
 
    $('.js-edit-user').on('click', function(){
        var uid = $(this).attr('data-uid'), _this = this;
