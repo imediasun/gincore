@@ -32,12 +32,12 @@ class Auth { //класс авторизации
     {
         if (!$login_unchk || !$pass_unchk) return false;
 
-        $user = $this->db->query("SELECT id, state, avail, auth_cert_only FROM {users} "
+        $user = $this->db->query("SELECT id, state, avail, auth_cert_only, blocked_by_tariff FROM {users} "
                                 ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? AND deleted = 0",
             array($login_unchk, $login_unchk, $pass_unchk), 'row');
 
         if($user['blocked_by_tariff'] == 1) {
-            FlashMessage::set(l('Ваша учетная записиь заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
+            FlashMessage::set(l('Ваша учетная запись заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
             return false;
         }
         if ($user['avail'] != 1 || $user['auth_cert_only'] == 1) {
