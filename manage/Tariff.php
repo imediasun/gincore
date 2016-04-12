@@ -134,7 +134,7 @@ class Tariff
         try {
             $response = self::get($api, $host, array(
                 'act' => 'add_user_available',
-                'current' => db()->query('SELECT count(*) FROM {users} WHERE avail=1')->el()
+                'current' => db()->query('SELECT count(*) FROM {users} WHERE avail=1 AND blocked_by_tariff=0 AND deleted=0')->el()
             ));
         } catch (Exception $e) {
             $response = array();
