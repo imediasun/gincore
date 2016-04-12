@@ -378,25 +378,27 @@ class users
                     if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
                         FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
                             FlashMessage::DANGER);
-                    } else {
-                        $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
-                            auth_cert_serial=?, auth_cert_only=?
+                        continue;
+                    }
+
+                    $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
+                            auth_cert_serial=?, auth_cert_only=?, blocked_by_tariff=?i
                         WHERE id=?i',
-                            array(
-                                intval($role),
-                                $avail,
-                                trim($post['fio'][$uid]),
-                                trim($post['position'][$uid]),
-                                trim($post['phone'][$uid]),
-                                trim($post['email'][$uid]),
-                                trim($post['auth_cert_serial'][$uid]),
-                                $cert_avail,
-                                intval($uid)
-                            ))->ar();
-                        if (intval($ar) > 0) {
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'update-user', $mod_id, intval($uid)));
-                        }
+                        array(
+                            intval($role),
+                            $avail,
+                            trim($post['fio'][$uid]),
+                            trim($post['position'][$uid]),
+                            trim($post['phone'][$uid]),
+                            trim($post['email'][$uid]),
+                            trim($post['auth_cert_serial'][$uid]),
+                            $cert_avail,
+                            isset($post['blocked_by_tariff'][$uid]) && $post['blocked_by_tariff'][$uid] == 'on'? 1: 0,
+                            intval($uid)
+                        ))->ar();
+                    if (intval($ar) > 0) {
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                            array($user_id, 'update-user', $mod_id, intval($uid)));
                     }
                 }
             }
@@ -578,7 +580,8 @@ class users
             'users' => $users,
             'activeRoles' => $this->get_active_roles(),
             'sortPosition' => $sort_position,
-            'controller' => $this
+            'controller' => $this,
+            'tariff' => Tariff::current()
         ));
 
         // достаём все роли

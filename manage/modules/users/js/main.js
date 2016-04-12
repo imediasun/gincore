@@ -64,6 +64,19 @@ function add_user_validation() {
 $(function(){
     $('.datepicker').datepicker();
 
+    $('.js-block-by-tariff').on('click', function(){
+       var count = 0;
+        $('.js-block-by-tariff').each(function() {
+           if(!$(this).is(':checked')) {
+            count++;
+           }
+        });
+        if(count > $('input[name=limit]').val()) {
+            alert('Вы достигли лимита активных пользователей по текущему тарифу');
+            return false;
+        }
+    });
+
     $('.send-mess').popover({
         trigger:'click',
         html:'<a>sss</a>',

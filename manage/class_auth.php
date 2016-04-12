@@ -88,13 +88,9 @@ class Auth { //класс авторизации
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['id'] = $user['id'];
                 return $user;
-            } else { #num_rows
-                return false;
             }
-
-        } else { #isset cookie
-            return false;
         }
+        return false;
     }
 
     public function IfAuthCert()

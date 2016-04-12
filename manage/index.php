@@ -124,6 +124,7 @@ if(isset($all_configs['arrequest'][0])){
 
     if($all_configs['arrequest'][0] == 'logout' && $ifauth){
         $auth->Logout($all_configs);
+        session_destroy();
         header("Location: " . $all_configs['prefix']);
         exit;
     }

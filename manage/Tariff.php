@@ -6,6 +6,14 @@ require_once __DIR__ . '/../gincore/vendor/autoload.php';
 class Tariff
 {
     /**
+     * @return mixed
+     */
+    public static function current()
+    {
+        return self::getSavedTariff(Session::getInstance());    
+    }
+    
+    /**
      * @param $api
      * @param $host
      * @return string
@@ -135,7 +143,7 @@ class Tariff
      */
     public static function isAddOrderAvailable($api, $host)
     {
-        $tariff = self::getSavedTariff(Session::getInstance());
+        $tariff = self::current();
         if (empty($tariff['start'])) {
             return false;
         }
