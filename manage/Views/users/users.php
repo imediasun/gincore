@@ -42,7 +42,7 @@
                                    data-uid="<?= $user['id'] ?>"><?= htmlspecialchars($user['login']) ?></a></td>
                             <td><input class="checkbox js-block-by-tariff" <?= $user['avail'] ? 'checked' : '' ?>
                                        type="checkbox"
-                                       name="avail_user[<?= $user['id'] ?>]" <?= (!$user['avail']) || ($user['avail'] && $i >= $tariff['number_of_users']) ? 'disabled' : '' ?>/>
+                                       name="avail_user[<?= $user['id'] ?>]" />
                             </td>
                             <td style="text-align:center;">
                                 <i class="fa fa-lock editable-click" data-type="text"
@@ -117,7 +117,7 @@
             </tbody>
         </table>
         <input type="submit" name="change-roles" value="<?= l('Сохранить') ?>"
-               class="btn btn-primary"/>
+               class="btn btn-primary js-change-roles-btn"/>
     </form>
 </div>
 <div id="upload_avatar" class="modal fade">

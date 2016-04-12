@@ -61,39 +61,44 @@ function add_user_validation() {
     }
 }
 
+function click_by_block(_this) {
+    var count = 0, i = 0, limit = $('input[name=limit]').val();
+    if ($(_this).hasClass('disabled')) {
+        return false;
+    }
+
+    $('.js-block-by-tariff').each(function () {
+        $(this).removeAttr('disabled');
+        if ($(this).is(':checked')) {
+            count++;
+        }
+    });
+
+    if(count >= limit) {
+        $('.js-block-by-tariff').each(function () {
+            if ($(this).is(':checked')) {
+                if (i >= limit) {
+                    $(this).attr('disabled', 'disabled');
+                }
+                i++;
+            } else {
+                $(this).attr('disabled', 'disabled');
+            }
+        });
+    }
+    if($(this).is(':checked') && (count > limit)) {
+        alert('Вы достигли лимита активных пользователей по текущему тарифу');
+        return false;
+    }
+}
+
 $(function(){
     $('.datepicker').datepicker();
 
     $('.js-block-by-tariff').on('click', function(){
-        var count = 0, i = 0, limit = $('input[name=limit]').val();
-        if ($(this).hasClass('disabled')) {
-            return false;
-        }
-
-        $('.js-block-by-tariff').each(function () {
-            $(this).removeAttr('disabled');
-            if ($(this).is(':checked')) {
-                count++;
-            }
-        });
-
-        if(count >= limit) {
-            $('.js-block-by-tariff').each(function () {
-              if ($(this).is(':checked')) {
-                if (i >= limit) {
-                  $(this).attr('disabled', 'disabled');
-                }
-                i++;
-              } else {
-                $(this).attr('disabled', 'disabled');
-              }
-            });
-        }
-        if($(this).is(':checked') && (count > limit)) {
-            alert('Вы достигли лимита активных пользователей по текущему тарифу');
-            return false;
-        }
+        click_by_block(this);
     });
+    click_by_block($('body').find('.js-block-by-tariff').first());
 
     $('.send-mess').popover({
         trigger:'click',
@@ -108,6 +113,10 @@ $(function(){
     });
 
     create_avatar_uploader();
+
+    $('.js-change-roles-btn').on('click', function(){
+        $('.js-block-by-tariff').removeAttr('disabled');
+    });
 
 
    $('.js-edit-user').on('click', function(){

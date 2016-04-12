@@ -382,10 +382,17 @@ class users
                         continue;
                     }
                     $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL: USER_ACTIVATED_BY_TARIFF;
-                    if($isBlocked > 0 && $isLastSuperuser) {
+                    if($isBlocked && $isLastSuperuser) {
                         FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
                             FlashMessage::DANGER);
                         $isBlocked = 0;
+                        $avail = 1;
+                    }
+                    if($isBlocked && $uid == $user_id) {
+                        FlashMessage::set(l('Нельзя заблокировать текущую учетную запись'),
+                            FlashMessage::DANGER);
+                        $isBlocked = 0;
+                        $avail = 1;
                     }
                     $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
                             auth_cert_serial=?, auth_cert_only=?, blocked_by_tariff=?i
