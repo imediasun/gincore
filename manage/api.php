@@ -61,9 +61,9 @@ if ($data->act == 'getSystemInfo') {
     $info = array();
   
     $info['orders']['count'] = $all_configs['db']->query("SELECT count(*) FROM {orders}")->el();
-    $info['orders']['date_last'] = $all_configs['db']->query("SELECT date_add FROM {orders} ORDER BY id DESC LIMIT 1")->el();
+    $info['orders']['date_last'] = $all_configs['db']->query("SELECT date_add FROM {orders} ORDER BY date_add DESC LIMIT 1")->el();
     $info['clients']['count'] = $all_configs['db']->query("SELECT count(*) FROM {clients}")->el();
-    $info['clients']['date_last'] = $all_configs['db']->query("SELECT date_add FROM {clients} ORDER BY id DESC LIMIT 1")->el();
+    $info['clients']['date_last'] = $all_configs['db']->query("SELECT date_add FROM {clients} ORDER BY date_add DESC LIMIT 1")->el();
     $info['users']['count'] = $all_configs['db']->query("SELECT count(*) FROM {users}")->el();
     $info['warehouses_goods_items']['count_all'] = $all_configs['db']->query("SELECT count(*) FROM {warehouses_goods_items}")->el();
     $info['cashboxes']['count'] = $all_configs['db']->query("SELECT count(*) FROM {cashboxes}")->el();
