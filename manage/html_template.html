@@ -1,89 +1,92 @@
 <body class="{-txt-hide_sidebar}">
-
-    <div id="header">
-        <div class="color-line">
-        </div>
-        <div id="logo" class="">
-            <a id="logo_gincore" href="{-txt-prefix}">
-                <img src="{-txt-prefix}img/logo.png" alt="logo"/></a>
-        </div>
-        <nav role="navigation">
-            <div style="margin-right:0" class="header-link hide-menu"><i class="fa fa-bars"></i></div>
-            <ul class="nav navbar-nav no-borders">{-txt-manage_langs}</ul>
-            <div class="small-logo">
-                <span class="text-primary">ERP</span>
+    
+    {-txt-tariff_message}
+    <div class="relative">
+        <div id="header">
+            <div class="color-line">
             </div>
-            <div class="navbar-right">
-                <ul class="nav navbar-nav no-borders">
-                    {-txt-lang_switch}
-                    <li>
-                        <a data-o_id="2" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
-                            <i class="fa fa-phone"></i>
-                            <span class="label label-success new-count-statuses"></span>
-                        </a>
-                    </li>
-                    <li class="{-txt-show_contact_phones_class}">
-                        <a data-o_id="3" onclick="alert_box(this, false, 'show_contact_phones', undefined, undefined, 'messages.php')" class="label-menu-corner" href="javascript:void(0);" >
-                            <span class="fa fa-phone-square"></span>
-                        </a>
-                    </li>
-                    <li>
-                        {-html-timer}
-                    </li>
-                    <li>
-                        <a data-o_id="0" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
-                            <i class="fa fa-envelope"></i>
-                            <span class="label label-success new-count-mess"></span>
-                        </a>
-                    </li>
-                </ul>
+            <div id="logo" class="">
+                <a id="logo_gincore" href="{-txt-prefix}">
+                    <img src="{-txt-prefix}img/logo.png" alt="logo"/></a>
             </div>
-        </nav>
-    </div>
+            <nav role="navigation">
+                <div style="margin-right:0" class="header-link hide-menu"><i class="fa fa-bars"></i></div>
+                <ul class="nav navbar-nav no-borders">{-txt-manage_langs}</ul>
+                <div class="small-logo">
+                    <span class="text-primary">ERP</span>
+                </div>
+                <div class="navbar-right">
+                    <ul class="nav navbar-nav no-borders">
+                        {-txt-lang_switch}
+                        <li>
+                            <a data-o_id="2" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
+                                <i class="fa fa-phone"></i>
+                                <span class="label label-success new-count-statuses"></span>
+                            </a>
+                        </li>
+                        <li class="{-txt-show_contact_phones_class}">
+                            <a data-o_id="3" onclick="alert_box(this, false, 'show_contact_phones', undefined, undefined, 'messages.php')" class="label-menu-corner" href="javascript:void(0);" >
+                                <span class="fa fa-phone-square"></span>
+                            </a>
+                        </li>
+                        <li>
+                            {-html-timer}
+                        </li>
+                        <li>
+                            <a data-o_id="0" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
+                                <i class="fa fa-envelope"></i>
+                                <span class="label label-success new-count-mess"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
 
-    <!-- Navigation -->
-    <aside id="menu">
-        <div id="navigation">
-            <div class="profile-picture" style="{-txt-profile_color}">
-                <div class="text-center">{-txt-profile_color_percent}</div>
-                <img src="{-txt-avatar}" width="75" class="img-circle m-b" alt="logo">
-                <div class="stats-label text-color">
-                    <span class="font-extra-bold font-uppercase">{-txt-current_admin}</span>
-                    <div class="dropdown">
-                        <a  href="#"  style="color:inherit" class="js-show-tariff">
-                            <small class="text-muted" style="color:inherit">{-txt-tariff}</small>
-                        </a><br>
-                        <a class="dropdown-toggle" href="#" data-toggle="dropdown" style="color:inherit">
-                            <small class="text-muted" style="color:inherit">{-txt-position_admin} <b class="caret"></b></small>
-                        </a>
-                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a href="{-txt-prefix}logout">{-txt-exit}</a></li>
-                        </ul>
-                        <a  href="#"  style="color:inherit" class="js-show-ratings">
-                            <small class="text-muted" style="color:inherit">{-txt-rating}</small>
-                        </a>
+        <!-- Navigation -->
+        <aside id="menu">
+            <div id="navigation">
+                <div class="profile-picture" style="{-txt-profile_color}">
+                    <div class="text-center">{-txt-profile_color_percent}</div>
+                    <img src="{-txt-avatar}" width="75" class="img-circle m-b" alt="logo">
+                    <div class="stats-label text-color">
+                        <span class="font-extra-bold font-uppercase">{-txt-current_admin}</span>
+                        <div class="dropdown">
+                            <a  href="#"  style="color:inherit" class="js-show-tariff">
+                                <small class="text-muted" style="color:inherit">{-txt-tariff}</small>
+                            </a><br>
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown" style="color:inherit">
+                                <small class="text-muted" style="color:inherit">{-txt-position_admin} <b class="caret"></b></small>
+                            </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a href="{-txt-prefix}logout">{-txt-exit}</a></li>
+                            </ul>
+                            <a  href="#"  style="color:inherit" class="js-show-ratings">
+                                <small class="text-muted" style="color:inherit">{-txt-rating}</small>
+                            </a>
+                        </div>
                     </div>
                 </div>
+
+                <ul class="nav" id="side-menu">
+                    <li{-txt-home_active}><a href="{-txt-prefix}">{-txt-homepage}</a></li>
+                    {-html-mainmenu}
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div id="wrapper">
+
+            <div class="content animate-panel">
+                {-html-timer_alerts}
+                {-html-call_btn}
+                {-html-infoblock}
+                {-html-module_content}
+                {-js-module}
             </div>
 
-            <ul class="nav" id="side-menu">
-                <li{-txt-home_active}><a href="{-txt-prefix}">{-txt-homepage}</a></li>
-                {-html-mainmenu}
-            </ul>
         </div>
-    </aside>
-
-    <!-- Main Wrapper -->
-    <div id="wrapper">
-        
-        <div class="content animate-panel">
-            {-html-timer_alerts}
-            {-html-call_btn}
-            {-html-infoblock}
-            {-html-module_content}
-            {-js-module}
-        </div>
-
     </div>
 
 

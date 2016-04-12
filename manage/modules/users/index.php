@@ -589,7 +589,7 @@ class users
             'controller' => $this,
             'tariff' => Tariff::current()
         ));
-
+        
         // достаём все роли
         $permissions = $this->get_all_roles();
         $aRoles = $this->getRolesTree($permissions);

@@ -134,7 +134,7 @@ class Tariff
         try {
             $response = self::get($api, $host, array(
                 'act' => 'add_user_available',
-                'current' => db()->query('SELECT count(*) FROM {users} WHERE avail=1 AND blocked_by_tariff=0 AND deleted=0')->el()
+                'current' => self::getCurrentUsers()
             ));
         } catch (Exception $e) {
             $response = array();
@@ -142,6 +142,14 @@ class Tariff
         return !empty($response) && $response['available'] == 1;
     }
 
+    /**
+     * 
+     * @return int
+     */
+    public static function getCurrentUsers(){
+        return (int)db()->query('SELECT count(*) FROM {users} WHERE avail=1 AND blocked_by_tariff=0 AND deleted=0')->el();
+    }
+    
     /**
      * @param $api
      * @param $host
@@ -156,8 +164,7 @@ class Tariff
         try {
             $response = self::get($api, $host, array(
                 'act' => 'add_order_available',
-                'current' => db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
-                    array($tariff['start']))->el()
+                'current' => self::getCurrentOrders()
             ));
         } catch (Exception $e) {
             $response = array();
@@ -165,6 +172,16 @@ class Tariff
         return !empty($response) && $response['available'] == 1;
     }
 
+    /**
+     * 
+     * @return int
+     */
+    public static function getCurrentOrders(){
+        $tariff = self::current();
+        return (int)db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
+                            array($tariff['start']))->el();
+    }
+    
     /**
      * @param $api
      * @param $host
