@@ -117,7 +117,7 @@
             </tbody>
         </table>
         <input type="submit" name="change-roles" value="<?= l('Сохранить') ?>"
-               class="btn btn-primary"/>
+               class="btn btn-primary js-change-roles-btn"/>
     </form>
 </div>
 <div id="upload_avatar" class="modal fade">

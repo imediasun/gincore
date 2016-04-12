@@ -114,6 +114,10 @@ $(function(){
 
     create_avatar_uploader();
 
+    $('.js-change-roles-btn').on('click', function(){
+        $('.js-block-by-tariff').removeAttr('disabled');
+    });
+
 
    $('.js-edit-user').on('click', function(){
        var uid = $(this).attr('data-uid'), _this = this;
