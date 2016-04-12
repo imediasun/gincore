@@ -65,13 +65,27 @@ $(function(){
     $('.datepicker').datepicker();
 
     $('.js-block-by-tariff').on('click', function(){
-       var count = 0;
-        $('.js-block-by-tariff').each(function() {
-           if(!$(this).is(':checked')) {
-            count++;
-           }
+        var count = 0, i = 0, limit = $('input[name=limit]').val();
+        if ($(this).hasClass('disabled')) {
+            return false;
+        }
+
+        $('.js-block-by-tariff').each(function () {
+            if ($(this).is(':checked')) {
+                count++;
+            }
         });
-        if(count > $('input[name=limit]').val()) {
+        $('.js-block-by-tariff').each(function () {
+            $(this).removeAttr('disabled');
+            if (!$(this).is(':checked')) {
+                if (i > (limit - count)) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            }
+            i++;
+        });
+
+        if(count > $limit) {
             alert('Вы достигли лимита активных пользователей по текущему тарифу');
             return false;
         }

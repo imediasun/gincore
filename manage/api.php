@@ -166,6 +166,7 @@ if ($data->act == 'runManualUpdateFiles') {
 }
 if ($data->act == 'change-tariff') {
     $ar = db()->query("DELETE FROM {settings} WHERE name='tariff'", array())->ar();
+    db()->query('UPDATE {users} SET blocked_by_tariff=0');
     returnSuccess(array('result' => $ar));
 }
 
