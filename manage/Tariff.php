@@ -110,7 +110,14 @@ class Tariff
         if (!$session->check('last_check_tariff') || $session->get('last_check_tariff') < strtotime('-1 minutes')) {
             $response = self::get($api, $host, array('act' => 'load'));
             if (empty($response) || !self::validate($response)) {
-                throw new Exception('api error');
+                $response = array(
+                    'id' => -1,
+                    'name' => l('Стартовый'),
+                    'start' => date('d-m-Y H:i'),
+                    'period' => date('d-m-Y H:i', strtotime('+30 days')),
+                    'number_of_users' => 1,
+                    'number_of_orders' => 30
+                );
             }
             self::saveTariff($response);
         }

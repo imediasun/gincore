@@ -12,10 +12,12 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td><?= l('Использутся с') ?> </td>
-                <td> <?= $tariff['start'] ?> </td>
-            </tr>
+            <?php if($tariff['id'] != -1): ?>
+                <tr>
+                    <td><?= l('Использутся с') ?> </td>
+                    <td> <?= $tariff['start'] ?> </td>
+                </tr>
+            <?php endif; ?>
             <tr>
                 <td> <?= l('Максимальное число пользователей системой') ?> </td>
                 <td> <?= $tariff['number_of_users'] > 100? '&infin;': $tariff['number_of_users'] ?></td>
