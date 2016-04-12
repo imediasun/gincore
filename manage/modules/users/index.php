@@ -382,8 +382,14 @@ class users
                         continue;
                     }
                     $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL: USER_ACTIVATED_BY_TARIFF;
-                    if($isLastSuperuser) {
+                    if($isBlocked && $isLastSuperuser) {
                         FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
+                            FlashMessage::DANGER);
+                        $isBlocked = 0;
+                        $avail = 1;
+                    }
+                    if($isBlocked && $uid == $user_id) {
+                        FlashMessage::set(l('Нельзя заблокировать текущую учетную запись'),
                             FlashMessage::DANGER);
                         $isBlocked = 0;
                         $avail = 1;
