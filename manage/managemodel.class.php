@@ -817,28 +817,8 @@ class manageModel
         }
         $query = '';
 
-        // фильтр по категориям товаров
-        /*if (array_key_exists('g_cg', $filters) && count(array_filter(explode(',', $filters['g_cg']))) > 0) {
-            $goods = $this->all_configs['db']->query('SELECT goods_id FROM {category_goods} as WHERE category_id IN (?li)',
-                array(array_filter(explode(',', $filters['g_cg']))))->vars();
-            if (count($goods) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND og.goods_id IN (?li)',
-                    array($query, array_keys($goods)));
-            } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND og.goods_id=?i', array($query, 0));
-            }
-        }*/
         // фильтр по менеджерам
         if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
-            /*$cos = $this->all_configs['db']->query('SELECT DISTINCT order_id
-                FROM {users_goods_manager} as m, {orders_goods} as g WHERE m.user_id IN (?li) AND m.goods_id=g.goods_id',
-                array(array_filter(explode(',', $filters['mg']))))->vars();
-            if (count($cos) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
-                    array($query, array_keys($cos)));
-            } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',  array($query, 0));
-            }*/
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
                 array($query, array_filter(explode(',', $filters['mg']))));
         }
@@ -867,8 +847,6 @@ class manageModel
         }
         // фильтр по товару
         if (array_key_exists('by_gid', $filters) && $filters['by_gid'] > 0) {
-            //$query = $this->all_configs['db']->makeQuery('?query AND t.goods_id=?i',
-            //    array($query, intval($filters['by_gid'])));
             $cos = $this->all_configs['db']->query('SELECT DISTINCT order_id FROM {orders_goods} WHERE goods_id=?i',
                 array(intval($filters['by_gid'])))->vars();
             if (count($cos) > 0) {
@@ -897,10 +875,10 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.repair<>?i',
                 array($query, 1));
         }
-        // не учитывать возвраты поставщикам
+        // не учитывать возвраты поставщикам и списания
         if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
-            $query = $this->all_configs['db']->makeQuery('?query AND t.type NOT IN (?li)',
-                array($query, array(1, 2, 3, 4)));
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
+                array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
         }
         // не учитывать доставку
         if (array_key_exists('dlv', $filters)) {
@@ -917,7 +895,7 @@ class manageModel
         }
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
-        $orders = $this->all_configs['db']->query('SELECT o.id as order_id, t.type, o.course_value, t.transaction_type,
+        $orders = $this->all_configs['db']->query('SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
               SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, SUM(IF(t.transaction_type=2, 1, 0)) as has_to
@@ -947,19 +925,25 @@ class manageModel
                 $orders[$order_id]['goods'] = isset($goods[$order_id]) && isset($goods[$order_id]['goods']) ? $goods[$order_id]['goods'] : array();
                 $orders[$order_id]['services'] = isset($goods[$order_id]) && isset($goods[$order_id]['services']) ? $goods[$order_id]['services'] : array();
 
-                $price = $prices && isset($prices[$order_id]) ? intval($prices[$order_id]) : 0;
-                $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'];
+                $price = ($prices && isset($prices[$order_id])) ? intval($prices[$order_id]) : 0;
+                if($order['order_type'] == ORDER_RETURN) {
+                    $orders[$order_id]['turnover'] = $order['value_from'] * ($order['course_value'] / 100);
+                } else {
+                    $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'] * ($order['course_value'] / 100);
+                }
                 $orders[$order_id]['purchase'] = $price * ($order['course_value'] / 100);
                 $orders[$order_id]['profit'] = 0;
 
                 if ($order['has_to'] > 0) {
-                    $orders[$order_id]['profit'] = $orders[$order_id]['value_to']/* - $orders[$order_id]['purchase']*/
+                    $orders[$order_id]['profit'] = $order['value_to']/* - $orders[$order_id]['purchase']*/
                     ;
                 }
                 if ($order['has_from'] > 0) {
-                    $orders[$order_id]['profit'] -= ($orders[$order_id]['value_from']/* - $orders[$order_id]['purchase']*/);
+                    $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value']/ 100);
                 }
-                $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
+                if($order['order_type'] != ORDER_RETURN) {
+                    $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
+                }
 
                 $orders[$order_id]['avg'] = 0;
                 if ($orders[$order_id]['purchase'] == 0) {

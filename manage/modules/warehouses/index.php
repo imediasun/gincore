@@ -2508,6 +2508,13 @@ class warehouses
 
         // продаем изделие
         if ($act == 'sold-item') {
+            /** add to cart */
+            $_POST['item_ids'] = array(
+                $_POST['items']
+            );
+            $_POST['amount'] = array(
+                $_POST['price']
+            );
             $data = $this->all_configs['chains']->sold_items($_POST, $mod_id);
         }
 

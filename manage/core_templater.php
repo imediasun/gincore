@@ -87,23 +87,20 @@ $input['module'] = isset($all_configs['arrequest'][0]) ? $all_configs['arrequest
 
 $input_html['timer'] = timerout(0);
 
+$view = new View($all_configs);
+
 // селектим не закрытые напоминания для юзера
-$alarms = $all_configs['db']->query('SELECT id, text, order_id FROM {alarm_clock} '
-                                   .'WHERE for_user_id = ?i AND closed = 0 '
-                                         .'AND date_alarm < NOW()', array($ifauth['id']), 'assoc');
-$timer_alerts = '';
-foreach($alarms as $alarm){
-    $timer_alerts .= '
-        <div class="alert alert-danger">
-            '.$alarm['text'].($alarm['order_id'] ? ' <a href="'.$all_configs['prefix'].'orders/create/'.$alarm['order_id'].'">'.$alarm['order_id'].'</a>' : '').'
-            <button type="button" class="close close_alarm" data-dismiss="alert" data-alarm_id="'.$alarm['id'].'">×</button>
-        </div>
-    ';
-}
-$input_html['timer_alerts'] = $timer_alerts;
+$alarms = $all_configs['db']->query('SELECT ac.id, ac.text, ac.order_id, if(not u.fio = NULL, u.fio, u.login) as user, CHAR_LENGTH(ac.text) as len FROM {alarm_clock} ac'
+    . ' JOIN {users} u ON u.id=ac.user_id'
+    . ' WHERE for_user_id = ?i AND closed = 0 '
+    . ' AND date_alarm < NOW() ORDER by len ASC', array($ifauth['id']), 'assoc');
+
+$input_html['timer_alerts'] = $view->renderFile('messages/alarms', array(
+    'alarms' => $alarms
+));
 
 $input_html['mainmenu'] = $mainmenu;
-if (isset($infoblock)){
+if (isset($infoblock)) {
     $input_html['infoblock'] = $infoblock->genblock();
 }
 

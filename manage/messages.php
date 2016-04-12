@@ -336,55 +336,12 @@ if ($act == 'alarm-clock') {
 
     $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
 
-    $data['content'] = '<br />
-    <div class="panel-" id="accordion-alarms">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms" href="#accordion-alarm-add">
-                    ' . l('Добавить напоминание') . '
-                </a>
-            </div>
-            <div id="accordion-alarm-add" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <form method="post" id="add-alarm">
-                        <input type="hidden" name="order_id" value="' . $order_id . '" />
-                        <textarea class="form-control" name="text" placeholder="комментарий к напоминанию"></textarea>
-                        <div class="checkbox">
-                            <label>
-                                <input ' . ($order_id > 0 ? '' : 'disabled') . ' type="checkbox" name="text-to-private-comment">
-                                Продублировать в скрытый комментарий
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <input class="form-control datetimepicker" placeholder="Дата напоминания" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_alarm" value="" />
-                        </div>
-                        <div class="form-group">
-                            ' . typeahead($all_configs['db'], 'users', false, $user_id, 26, 'input-xlarge') . '
-                        </div>
-                        <input style="margin-left:0" type="button" class="btn btn-default" onclick="add_alarm(this)" value="'.l('Добавить').'" />
-                    </form>
-                </div>
-            </div>
-        </div>
-    ';
-    $data['content'] .= show_alarms($all_configs, $user_id);
-
-    $data['content'] .=
-        '<div class="panel-group" id="accordion-alarms-history">
-        <div class="panel-default panel">
-            <div class="panel-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-alarms-history" href="#accordion-alarm-show">
-                ' . l('История') . '
-            </a>
-        </div>
-        <div id="accordion-alarm-show" class="panel-collapse collapse">
-            <div class="panel-body">';
-    $data['content'] .=
-                show_alarms($all_configs, $user_id, true);
-    $data['content'] .=
-            '</div>
-        </div>
-    </div>';
+    require_once __DIR__.'/View.php';
+    $view = new View($all_configs);
+    $data['content'] = $view->renderFile('messages/alarm_clock_form', array(
+        'order_id' => $order_id,
+        'user_id' => $user_id,
+    ));
 
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
@@ -725,39 +682,6 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
             array($_GET['last_seconds'], 0, $user_id))->el();
     }
 
-    /*// достаем количество оппераций по табам
-    $q1 = $all_configs['manageModel']->suppliers_orders_query($_GET + array('type' => 'pay'));
-    $q2 = $all_configs['manageModel']->clients_orders_query($_GET + array('with_manager' => true));
-
-    //$data['tc_accountings_suppliers_orders'] = $all_configs['manageModel']->get_count_accounting_suppliers_orders();
-    $data['tc_accountings_suppliers_orders'] = $all_configs['manageModel']->get_count_suppliers_orders($q1['query']);
-    $data['tc_accountings_clients_orders'] = $all_configs['manageModel']->get_count_accounting_clients_orders();
-    if ( array_key_exists('manage-orders-shipping-tab', $all_configs['configs'])
-        && count($all_configs['configs']['manage-orders-shipping-tab']) > 0) {
-        $data['tc_logistics_clients_orders'] = 0;
-        foreach ($all_configs['configs']['manage-orders-shipping-tab'] as $tab) {
-            $data['tc_' . $tab['open']] = $all_configs['manageModel']->get_count_logistics_clients_orders($tab['query']);
-            $data['tc_logistics_clients_orders'] += $data['tc_' . $tab['open']];
-        }
-    } else {
-        $data['tc_logistics_clients_orders'] = $all_configs['manageModel']->get_count_logistics_clients_orders();
-    }
-    $data['tc_logistics_orders'] = $all_configs['manageModel']->get_count_logistics_orders();
-    //$my = $all_configs['oRole']->hasPrivilege('site-administration') ? false : true;
-    //$_GET['my'] = $my || (isset($_GET['my']) && $_GET['my'] == 1) ? true : false;
-    $data['tc_warehouses_clients_orders_bind'] = $all_configs['manageModel']->get_count_warehouses_clients_orders(1, $all_configs['chains']);
-    $data['tc_warehouses_clients_orders_issued'] = $all_configs['manageModel']->get_count_warehouses_clients_orders(2, $all_configs['chains']);
-    $data['tc_warehouses_clients_orders_accept'] = $all_configs['manageModel']->get_count_warehouses_clients_orders(3, $all_configs['chains']);
-    $data['tc_clients_orders'] = $all_configs['manageModel']->get_count_clients_orders($q2['query']);
-    $data['tc_sum_accountings_orders'] = $data['tc_accountings_suppliers_orders'] + $data['tc_accountings_clients_orders'];
-    $data['tc_sum_warehouses_orders'] = $data['tc_debit_suppliers_orders'] + $data['tc_warehouses_clients_orders_bind']
-        + $data['tc_warehouses_clients_orders_issued'] + $data['tc_warehouses_clients_orders_accept'];
-    $data['tc_tradein_orders'] = $all_configs['manageModel']->get_count_tradein_orders();
-    $data['tc_callback'] = $all_configs['manageModel']->get_count_callback();
-    $data['tc_accountings_noncash_orders_pre'] = $all_configs['manageModel']->get_count_accountings_noncash_orders_pre();
-    $data['tc_accountings_credit_orders_pre'] = $all_configs['manageModel']->get_count_accountings_credit_orders_pre();
-    $data['tc_sum_accountings_orders_pre'] = $data['tc_accountings_noncash_orders_pre'] + $data['tc_accountings_credit_orders_pre'];*/
-
     $q3 = $all_configs['manageModel']->suppliers_orders_query(array('opened' => true) + $_GET +
         ($all_configs['oRole']->hasPrivilege('site-administration') ? array() : array('my' => true)));
     $queries = $all_configs['manageModel']->suppliers_orders_query(array('type' => 'debit-work') + $_GET);
@@ -776,9 +700,11 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
     $data['tc_suppliers_orders'] = $data['tc_suppliers_orders_all'] = $all_configs['manageModel']->get_count_suppliers_orders($q3['query']);
 
     // напоминания к заказам
-    $alarms = $all_configs['db']->query('SELECT id, UNIX_TIMESTAMP(date_alarm) as date, order_id, COUNT(*) as qty,
-        GROUP_CONCAT(text, " <a href=\'' . $all_configs['prefix'] . 'orders/create/", order_id, "\'>", order_id, "</a>") as text
-        FROM {alarm_clock} WHERE IF(for_user_id>0, for_user_id=?i, true) AND date_alarm>NOW()
+    $alarms = $all_configs['db']->query('SELECT ac.id, UNIX_TIMESTAMP(ac.date_alarm) as date, ac.order_id, COUNT(*) as qty,
+        GROUP_CONCAT(ac.text, " <a href=\'' . $all_configs['prefix'] . 'orders/create/", ac.order_id, "\'>", ac.order_id, "</a><span  class=\'from\'>(", if(not u.fio = NULL, u.fio, u.login), ")</span>") as text
+        FROM {alarm_clock} ac'
+        .' JOIN {users} u ON u.id=ac.user_id'
+        .' WHERE IF(for_user_id>0, for_user_id=?i, true) AND date_alarm>NOW()
         GROUP BY order_id ORDER BY date_alarm', array($user_id))->assoc('order_id');
 
     if ($alarms && $alarms[key($alarms)] != 0) {

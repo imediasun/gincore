@@ -1311,7 +1311,7 @@ function timerout($order_id, $show_timer = false)
     global $all_configs;
     $html = '';
 
-    if ($all_configs['oRole']->hasPrivilege('alarm')) {
+//    if ($all_configs['oRole']->hasPrivilege('alarm')) {
         $onclick = 'onclick="alert_box(this, false, \'alarm-clock\', undefined, undefined, \'messages.php\')"';
         $hidden = $show_timer == false ? 'hidden' : '';
 
@@ -1322,7 +1322,7 @@ function timerout($order_id, $show_timer = false)
             $html .= '<span data-o_id="1" onclick="alert_box(this, false, \'get-messages\', undefined, undefined, \'messages.php\', event)" class="count-alarm-timer cursor-pointer label label-success"></span>';
         }
         $html .= '</a>';
-    }
+//    }
 
     return $html;
 }

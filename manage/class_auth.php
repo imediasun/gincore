@@ -31,7 +31,7 @@ class Auth { //класс авторизации
         if (!$login_unchk || !$pass_unchk) return false;
 
         $user = $this->db->query("SELECT id, state, avail, auth_cert_only FROM {users} "
-                                ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? ",
+                                ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? AND deleted = 0",
             array($login_unchk, $login_unchk, $pass_unchk), 'row');
 
         if ($user['avail'] != 1 || $user['auth_cert_only'] == 1) {
