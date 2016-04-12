@@ -8,7 +8,7 @@
                 <td><?= l('Фото') ?></td>
                 <td><i class="glyphicon glyphicon-envelope"></i></td>
                 <td><?= l('Логин') ?></td>
-                <td title="<?= l('Блокированый') ?>"><i class="fa fa-ban"></i></td>
+                <td title="<?= l('Заблокирован по условиям тарифа') ?>"><i class="fa fa-ban"></i></td>
                 <td title="<?= l('Активный') ?>"><i class="glyphicon glyphicon-off"></i></td>
                 <td><?= l('Пароль') ?></td>
                 <td><?= l('Роль') ?></td>

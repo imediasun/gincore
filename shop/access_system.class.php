@@ -147,7 +147,7 @@ class Role
     {
         $users = $this->all_configs['db']->query('SELECT u.id
                 FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id AND u.deleted=0',
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id AND u.deleted=0 AND u.blocked_by_tariff=0 AND u.avail=1',
             array(array('site-administration')))->assoc('id');
         if (!in_array($userId, array_keys($users))) {
             return false;

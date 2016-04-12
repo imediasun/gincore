@@ -375,12 +375,18 @@ class users
                     $cert_avail = 1;
                 }
                 if (intval($uid) > 0) {
-                    if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
+                    $isLastSuperuser = $this->all_configs['oRole']->isLastSuperuser(intval($uid));
+                    if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $isLastSuperuser) {
                         FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
                             FlashMessage::DANGER);
                         continue;
                     }
-
+                    $isBlocked = isset($post['blocked_by_tariff'][$uid]) && $post['blocked_by_tariff'][$uid] == 'on'? USER_DEACTIVATED_BY_TARIFF_MANUAL: USER_ACTIVATED_BY_TARIFF;
+                    if($isBlocked > 0 && $isLastSuperuser) {
+                        FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
+                            FlashMessage::DANGER);
+                        $isBlocked = 0;
+                    }
                     $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
                             auth_cert_serial=?, auth_cert_only=?, blocked_by_tariff=?i
                         WHERE id=?i',
@@ -393,7 +399,7 @@ class users
                             trim($post['email'][$uid]),
                             trim($post['auth_cert_serial'][$uid]),
                             $cert_avail,
-                            isset($post['blocked_by_tariff'][$uid]) && $post['blocked_by_tariff'][$uid] == 'on'? 1: 0,
+                            $isBlocked,
                             intval($uid)
                         ))->ar();
                     if (intval($ar) > 0) {

@@ -10,9 +10,9 @@ class Tariff
      */
     public static function current()
     {
-        return self::getSavedTariff(Session::getInstance());    
+        return self::getSavedTariff(Session::getInstance());
     }
-    
+
     /**
      * @param $api
      * @param $host
@@ -107,12 +107,11 @@ class Tariff
     public static function load($api, $host)
     {
         $session = Session::getInstance();
-        if (!$session->check('last_check_tariff') || $session->get('last_check_tariff') < strtotime('-1 hour')) {
+        if (!$session->check('last_check_tariff') || $session->get('last_check_tariff') < strtotime('-1 minutes')) {
             $response = self::get($api, $host, array('act' => 'load'));
             if (empty($response) || !self::validate($response)) {
                 throw new Exception('api error');
             }
-
             self::saveTariff($response);
         }
         return self::getSavedTariff($session);
@@ -215,6 +214,7 @@ class Tariff
             && isset($response['period'])
             && isset($response['number_of_users'])
             && isset($response['number_of_orders'])
+            && isset($response['key'])
         );
     }
 
@@ -235,6 +235,8 @@ class Tariff
                 json_encode($response),
             ));
         }
+        Session::getInstance()->set('last_check_tariff', time());
+        Session::getInstance()->set('tariff', $response);
     }
 
     /**
@@ -245,7 +247,7 @@ class Tariff
     private static function getSavedTariff($session)
     {
         if (!$session->check('tariff')) {
-            $response = db()->query("SELECT value FROM {settings} WHERE name='tariff'", array())->el();
+            $response = db()->query("SELECT `value` FROM {settings} WHERE name='tariff'", array())->el();
             if (empty($response)) {
                 $response = json_encode(array());
             }
@@ -274,7 +276,7 @@ class Tariff
         if (empty($result['signature'])) {
             return false;
         }
-        $signature = $result['signature'];
+        $signature = trim($result['signature']);
         unset($result['signature']);
         return strcmp($signature, self::getSignature($result)) === 0;
     }
@@ -297,4 +299,36 @@ class Tariff
         $session->set('api_key', $keyAPI);
         return $keyAPI;
     }
+    
+    /**
+     * @param $tariff
+     * @return array|mixed
+     */
+    public static function blockUsers($tariff)
+    {
+        /** выбираем ид незаблокированного активного суперюзера */
+        $adminId = db()->query('SELECT u.id
+                    FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
+                    WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id AND u.avail=1 AND u.deleted=0 AND u.blocked_by_tariff <> 2',
+            array(array('site-administration')))->el();
+        
+        /** сбрасываем блокировку всем юзерам, которые не блокировались в ручном режиме */
+        /** необходимо на случай если в новом тарифе допустимо большее число неблокированных юзеров */
+        db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE NOT blocked_by_tariff=?i",
+            array(USER_ACTIVATED_BY_TARIFF, USER_DEACTIVATED_BY_TARIFF_MANUAL));
+
+        /** выбираем активных юзеров которые не будут блокироваться в автоматическом режиме  */
+        $userIds = db()->query('SELECT id FROM {users} WHERE (deleted=0 AND avail=1 AND NOT id=?i) OR blocked_by_tariff=?i LIMIT ?i',
+            array($adminId, USER_DEACTIVATED_BY_TARIFF_MANUAL, $tariff['number_of_users']-1))->col();
+
+        $query = '';
+        if (!empty($userIds)) {
+            $query = db()->makeQuery('NOT id in (?li) AND', array($userIds));
+        }
+        
+        /** блокируем оставшихся */
+        db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE ?q NOT id=?i",
+            array(USER_DEACTIVATED_BY_TARIFF_AUTOMATIC, $query, $adminId));
+    }
+
 }

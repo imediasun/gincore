@@ -14,23 +14,23 @@
             <tbody>
             <tr>
                 <td><?= l('Использутся с') ?> </td>
-                <td> <?= date('d-m-Y', $tariff['start']) ?> </td>
+                <td> <?= $tariff['start'] ?> </td>
             </tr>
             <tr>
                 <td> <?= l('Максимальное число пользователей системой') ?> </td>
-                <td> <?= $tariff['number_of_users'] ?></td>
+                <td> <?= $tariff['number_of_users'] > 100? '&infin;': $tariff['number_of_users'] ?></td>
             </tr>
             <tr>
                 <td> <?= l('Текущее количество пользователей') ?> </td>
-                <td> <?= $usersCount ?></td>
+                <td> <?= $usersCount?></td>
             </tr>
             <tr>
                 <td> <?= l('Максимальное число заказов') ?> </td>
-                <td> <?= $tariff['number_of_orders'] ?></td>
+                <td> <?= $tariff['number_of_orders'] > 100? '&infin;': $tariff['number_of_orders']  ?></td>
             </tr>
             <tr>
                 <td> <?= l('Текущее количество заказов') ?> </td>
-                <td> <?= $ordersCount ?></td>
+                <td> <?= $orderCount ?></td>
             </tr>
             </tbody>
         </table>

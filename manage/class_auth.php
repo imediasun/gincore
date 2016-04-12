@@ -36,7 +36,7 @@ class Auth { //класс авторизации
                                 ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? AND deleted = 0",
             array($login_unchk, $login_unchk, $pass_unchk), 'row');
 
-        if($user['blocked_by_tariff'] == 1) {
+        if($user['blocked_by_tariff'] > 0) {
             FlashMessage::set(l('Ваша учетная запись заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
             return false;
         }
@@ -60,7 +60,7 @@ class Auth { //класс авторизации
             $hashed_cid = md5(get_ip()) . md5(substr($_COOKIE[$this->cookie_session_name], 0, 32));
             $user = $this->db->query("SELECT * FROM {users} WHERE cid = ?", array($hashed_cid), 'row');
 
-            if ( $user && $user['avail'] == 1 ) {
+            if ( $user && $user['avail'] == 1 &&  $user['blocked_by_tariff'] == 0) {
 
 
                 // сертификат расшифрован
@@ -88,6 +88,8 @@ class Auth { //класс авторизации
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['id'] = $user['id'];
                 return $user;
+            } elseif ($user['blocked_by_tariff'] > 0) {
+                FlashMessage::set(l('Ваша учетная запись заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
             }
         }
         return false;
