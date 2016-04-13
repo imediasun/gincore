@@ -25,7 +25,7 @@ class TariffMessages
     }
     
     private function getFio(){
-        return mb_ucfirst($this->admin['fio'], 'UTF-8');
+        return mb_ucfirst($this->admin['fio']?:$this->admin['login']);
     }
     
     private function usersMessage()
@@ -95,11 +95,11 @@ class TariffMessages
     
     private function makeHtml($text, $type = self::SUCCESS)
     {
-        return '
-            <div class="tariff_messages alert alert-'.$type.' m-b-none" role="alert">
-                '.$text.'
-            </div>
-        ';
+        return 
+            '<div class="tariff_messages alert alert-'.$type.' m-b-none" role="alert">'
+                .$text.
+            '</div>'
+        ;
     }
     
     public static function getInstance()

@@ -8,3 +8,4 @@ nbproject/
 /manage/img/avatars/*
 /manage/assets/*.js
 /manage/assets/*.css
+/manage/services/wh_helper/cache/
