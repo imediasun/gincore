@@ -6,3 +6,5 @@ nbproject/
 *_config-local.php
 *.csv
 /manage/img/avatars/*
+/manage/assets/*.js
+/manage/assets/*.css
