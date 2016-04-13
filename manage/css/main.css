@@ -971,3 +971,8 @@ legend span.tag {
     border-bottom: 1px dashed;
     font-size: 120%;
 }
+
+.btn-brd{
+    color: inherit !important;
+    background-color: transparent !important;
+}
