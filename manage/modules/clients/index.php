@@ -440,7 +440,7 @@ class clients
         header('Content-Disposition: attachment; filename=clients.csv');
         $out = fopen('php://output', 'w');
         foreach ($data as $row) {
-            fputcsv($out, $row);
+            fputcsv($out, $row, ';');
         }
         fclose($out);
         exit;
