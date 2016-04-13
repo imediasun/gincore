@@ -5,7 +5,11 @@ define('ORDER_RETURN', 1);
 define('ORDER_SELL', 3);
 define('ORDER_WRITE_OFF', 2);
 
-define('USER_STATE_DEACTIVATED_BY_TARIFF', 2);
+define('USER_ACTIVATED_BY_TARIFF', 0);
+define('USER_DEACTIVATED_BY_TARIFF_AUTOMATIC', 1);
+define('USER_DEACTIVATED_BY_TARIFF_MANUAL', 2);
+
+
 
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
