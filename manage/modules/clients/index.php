@@ -432,7 +432,7 @@ class clients
             $client_data[] = $client['id'];
             $client_data[] = $client['phones'];
             foreach ($export_fields as $exf) {
-                $client_data[] = $client[$exf];
+                $client_data[] = ($exf == 'fio') ? iconv('UTF-8', 'CP1251', $client[$exf]) : $client[$exf];
             }
             $data[] = $client_data;
         }
