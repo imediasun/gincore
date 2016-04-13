@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../manage/FlashMessage.php';
+
 class Auth { //класс авторизации
 #db settings
 
@@ -30,10 +32,14 @@ class Auth { //класс авторизации
     {
         if (!$login_unchk || !$pass_unchk) return false;
 
-        $user = $this->db->query("SELECT id, state, avail, auth_cert_only FROM {users} "
+        $user = $this->db->query("SELECT id, state, avail, auth_cert_only, blocked_by_tariff FROM {users} "
                                 ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? AND deleted = 0",
             array($login_unchk, $login_unchk, $pass_unchk), 'row');
 
+        if($user['blocked_by_tariff'] > 0) {
+            FlashMessage::set(l('Ваша учетная запись заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
+            return false;
+        }
         if ($user['avail'] != 1 || $user['auth_cert_only'] == 1) {
             return false;
         }
@@ -54,7 +60,7 @@ class Auth { //класс авторизации
             $hashed_cid = md5(get_ip()) . md5(substr($_COOKIE[$this->cookie_session_name], 0, 32));
             $user = $this->db->query("SELECT * FROM {users} WHERE cid = ?", array($hashed_cid), 'row');
 
-            if ( $user && $user['avail'] == 1 ) {
+            if ( $user && $user['avail'] == 1 &&  $user['blocked_by_tariff'] == 0) {
 
 
                 // сертификат расшифрован
@@ -82,13 +88,11 @@ class Auth { //класс авторизации
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['id'] = $user['id'];
                 return $user;
-            } else { #num_rows
-                return false;
+            } elseif ($user['blocked_by_tariff'] > 0) {
+                FlashMessage::set(l('Ваша учетная запись заблокирована из-за выбранного тарифа'), FlashMessage::DANGER);
             }
-
-        } else { #isset cookie
-            return false;
         }
+        return false;
     }
 
     public function IfAuthCert()
