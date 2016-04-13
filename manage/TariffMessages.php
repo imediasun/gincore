@@ -49,7 +49,7 @@ class TariffMessages
     
     private function ordersMessage()
     {
-        $current_orders = Tariff::getCurrentOrders();
+        $current_orders = Tariff::getCurrentOrders(Tariff::current());
 //        $current_orders = 9990;
         if(($current_orders / $this->tariff['number_of_orders']) >= 0.66){ // заказов больше чем 2/3
             $left = $this->tariff['number_of_orders'] - $current_orders;
@@ -95,6 +95,8 @@ class TariffMessages
     
     private function makeHtml($text, $type = self::SUCCESS)
     {
+        // советую воспользоваться классом View для генерации html
+        // потому что редактировать html в виде строк с конкатенацией неприятно и неудобно
         return 
             '<div class="tariff_messages alert alert-'.$type.' m-b-none" role="alert">'
                 .$text.

@@ -143,13 +143,13 @@ class Tariff
     }
 
     /**
-     * 
      * @return int
      */
-    public static function getCurrentUsers(){
+    public static function getCurrentUsers()
+    {
         return (int)db()->query('SELECT count(*) FROM {users} WHERE avail=1 AND blocked_by_tariff=0 AND deleted=0')->el();
     }
-    
+
     /**
      * @param $api
      * @param $host
@@ -164,24 +164,24 @@ class Tariff
         try {
             $response = self::get($api, $host, array(
                 'act' => 'add_order_available',
-                'current' => self::getCurrentOrders()
+                'current' => self::getCurrentOrders($tariff)
             ));
         } catch (Exception $e) {
             $response = array();
         }
-        return !empty($response) && $response['available'] == 1;
+        return true || !empty($response) && $response['available'] == 1;
     }
 
     /**
-     * 
+     * @param $tariff
      * @return int
      */
-    public static function getCurrentOrders(){
-        $tariff = self::current();
+    public static function getCurrentOrders($tariff)
+    {
         return (int)db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
-                            array($tariff['start']))->el();
+            array($tariff['start']))->el();
     }
-    
+
     /**
      * @param $api
      * @param $host
@@ -323,7 +323,7 @@ class Tariff
         $session->set('api_key', $keyAPI);
         return $keyAPI;
     }
-    
+
     /**
      * @param $tariff
      * @return array|mixed
@@ -335,7 +335,7 @@ class Tariff
                     FROM {users} as u, {users_permissions} as p, {users_role_permission} as l
                     WHERE p.link IN (?l) AND l.permission_id=p.id AND u.role=l.role_id AND u.avail=1 AND u.deleted=0 AND u.blocked_by_tariff <> 2',
             array(array('site-administration')))->el();
-        
+
         /** сбрасываем блокировку всем юзерам, которые не блокировались в ручном режиме */
         /** необходимо на случай если в новом тарифе допустимо большее число неблокированных юзеров */
         db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE NOT blocked_by_tariff=?i",
@@ -343,13 +343,13 @@ class Tariff
 
         /** выбираем активных юзеров которые не будут блокироваться в автоматическом режиме  */
         $userIds = db()->query('SELECT id FROM {users} WHERE (deleted=0 AND avail=1 AND NOT id=?i) OR blocked_by_tariff=?i LIMIT ?i',
-            array($adminId, USER_DEACTIVATED_BY_TARIFF_MANUAL, $tariff['number_of_users']-1))->col();
+            array($adminId, USER_DEACTIVATED_BY_TARIFF_MANUAL, $tariff['number_of_users'] - 1))->col();
 
         $query = '';
         if (!empty($userIds)) {
             $query = db()->makeQuery('NOT id in (?li) AND', array($userIds));
         }
-        
+
         /** блокируем оставшихся */
         db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE ?q NOT id=?i",
             array(USER_DEACTIVATED_BY_TARIFF_AUTOMATIC, $query, $adminId));
