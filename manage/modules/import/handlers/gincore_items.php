@@ -3,16 +3,17 @@
 require_once __DIR__ . '/abstract_import_provider.php';
 require_once __DIR__ . '/items_inteface.php';
 
-class tirika_items extends abstract_import_provider implements ItemsInterface
+class gincore_items extends abstract_import_provider implements ItemsInterface
 {
     public $cols = array(
-        '1' => 'категория товара',
-        '2' => 'наименование товара',
-        '3' => 'розничная цена',
-        '4' => 'валюта розничной цены',
-        '5' => 'остаток на складе',
-        '6' => 'закупочная цена',
-        '7' => 'валюта закупки',
+        0 => 'наименование товара',
+        1 => 'категория товара',
+        2 => 'подкатегория товара 1',
+        3 => 'подкатегория товара 2',
+        4 => 'подкатегория товара 3',
+        5 => 'подкатегория товара 4',
+        6 => 'розничная цена',
+        7 => 'закупочная цена',
     );
 
     /**
@@ -21,7 +22,7 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
      */
     function getTitle($data)
     {
-        return iconv('cp1251', 'utf8', trim($data[2]));
+        return iconv('cp1251', 'utf8', trim($data[0]));
     }
 
     /**
@@ -32,6 +33,20 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
     {
         $categories = explode('\\', $data[1]);
         return iconv('cp1251', 'utf8', trim($categories[0]));
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    function getSubcategories($data)
+    {
+        return array(
+            $data[2],
+            $data[3],
+            $data[4],
+            $data[5],
+        );
     }
 
     /**
@@ -57,7 +72,7 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
      */
     public function getPrice($data)
     {
-        return (int) $data['3'] * 100;
+        return (int)$data['6'] * 100;
     }
 
     /**
@@ -66,7 +81,7 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
      */
     public function getPurchase($data)
     {
-        return (int) $data['7'] * 100;
+        return (int)$data['7'] * 100;
     }
 
     /**
@@ -76,14 +91,5 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
     public function getWholesale($data)
     {
         return 0;
-    }
-
-    /**
-     * @param $data
-     * @return mixed
-     */
-    public function getSubcategories($data)
-    {
-        return array();
     }
 }

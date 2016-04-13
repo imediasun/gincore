@@ -16,6 +16,7 @@ class import
         'items' => array(
             'name' => 'Товары',
             'handlers' => array(
+                'gincore' => 'из унифицированного формата',
                 'vvs' => 'из VVS Склад-офис-магазин',
                 'tirika' => 'из базы "Тирика-Магазин"'
             )
@@ -23,13 +24,14 @@ class import
         'orders' => array(
             'name' => 'Заказы', // l() placeholders
             'handlers' => array(
+                'gincore' => 'из унифицированного формата',
                 'remonline' => 'Remonline'
             )
         ),
         'clients' => array(
             'name' => 'Клиенты',
             'handlers' => array(
-                'gincore' => 'Gincore',
+                'gincore' => 'из унифицированного формата',
                 'remonline' => 'Remonline',
                 'onec' => '1C (формат A)'
             )
