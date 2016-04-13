@@ -13,6 +13,7 @@ class Configs
             'host' => 'gincore.net',
             'canonical-host' => 'https://gincore.net',
             'shop-name' => 'Gincore',
+            'api_url' => 'https://gincore.net/manage/modules/gincore/api.php',
 
             /*
              * блок конфига для саас
