@@ -968,6 +968,6 @@ legend span.tag {
     background-color: #40A1E2;
 }
 .profile-tariff>span{
-    border-bottom: 1px solid;
+    border-bottom: 1px dashed;
     font-size: 120%;
 }
