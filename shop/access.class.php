@@ -962,6 +962,7 @@ class access
         $short_code = $phone_conf['short_code'];
         $short_code_length = strlen($short_code);
         foreach ($phones as $phone) {
+            print_r($phone);
             $phone = preg_replace("/[^0-9]/", "", $phone);
             $length = mb_strlen('' . $phone, 'UTF-8');
             if ($length == $phone_length) {
@@ -976,6 +977,7 @@ class access
                 $return[] = $phone;
             }
         }
+        print_r($return);
         $return = array_filter($return);
         return count($return) > 0 ? $return : false;
     }

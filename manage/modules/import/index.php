@@ -172,7 +172,8 @@ class import
         return $this->view->renderFile('import/get_import_form', array(
             'type' => $type,
             'options' => $this->upload_types,
-            'hasOrders' => $this->has_orders()
+            'hasOrders' => $this->has_orders(),
+            'handlers' => array_keys($this->upload_types[$type]['handlers'])
         ));
     }
 

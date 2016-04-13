@@ -1,7 +1,7 @@
 <?php if ($type): ?>
     <div class="form-group">
         <label><?= l('Провайдер') ?></label>
-        <input type="hidden" name="handler" value="<?= reset(array_keys($options[$type]['handlers'])) ?>"/>
+        <input type="hidden" name="handler" value="<?= reset($handlers) ?>"/>
         <?php if (false): ?>
             <?php // закоментировал возможность выбирать из списка провайдеров ?>
             <select class="form-control" name="handler">
