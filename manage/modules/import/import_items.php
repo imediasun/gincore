@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/abstract_import_handler.php';
 require_once $this->all_configs['sitepath'] . 'mail.php';
+require_once __DIR__ . '/../../Models/CategoriesTree.php';
 
 /**
  * Class import_items
@@ -11,7 +12,7 @@ require_once $this->all_configs['sitepath'] . 'mail.php';
 class import_items extends abstract_import_handler
 {
     /** @var  array */
-    protected $categories;
+    protected $categoriesTree;
     /** @var  array */
     protected $availableItems;
     protected $sendNotice = false;
@@ -25,7 +26,7 @@ class import_items extends abstract_import_handler
     public function __construct($all_configs, $provider, $import_settings)
     {
         parent::__construct($all_configs, $provider, $import_settings);
-        $this->categories = $this->getCategories();
+        $this->categoriesTree = $this->getCategoriesTree();
         $this->availableItems = $this->getAvailableItems();
         $this->userId = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $this->userAsManager = isset($this->import_settings['accepter_as_manager']) && $this->import_settings['accepter_as_manager'];
@@ -40,7 +41,7 @@ class import_items extends abstract_import_handler
         if (!empty($rows)) {
             foreach ($rows as $row) {
                 $title = $this->provider->getTitle($row);
-                $categoryId = $this->getCategoryId($this->provider->getCategory($row), $this->categories);
+                $categoryId = $this->getCategoryId($this->provider->getCategories($row), $this->categoriesTree);
                 if (!empty($categoryId) && $this->isValidTitle($title, $this->availableItems)) {
                     $this->createNewItem($this->userId, $row, $categoryId, $this->getManagerId());
                 }
@@ -53,30 +54,31 @@ class import_items extends abstract_import_handler
     }
 
     /**
-     * @param $category
+     * @param $itemCategories
      * @param $categories
      * @return int
      */
-    public function getCategoryId($category, $categories)
+    public function getCategoryId($itemCategories, $categories)
     {
-        $list = explode('>>', $category);
-        $parent = $list[0];
         $categoryId = null;
         try {
-            if (!isset($categories[$parent])) {
-                $categoryId = $this->createCategory($parent, '', 0);
-                if (!empty($list[1])) {
-                    $subcategory = $list[1];
-                    if (isset($categories[$parent]['subcategories'][$subcategory])) {
-                        $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
-                    } else {
-                        $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
-                    }
-                }
-            } else {
-                $categoryId = $categories[$parent]['id'];
+            foreach ($itemCategories as $category) {
 
             }
+//            if (!isset($categories[$parent])) {
+//                $categoryId = $this->createCategory($parent, '', 0);
+//                if (!empty($list[1])) {
+//                    $subcategory = $list[1];
+//                    if (isset($categories[$parent]['subcategories'][$subcategory])) {
+//                        $categoryId = $categories[$parent]['subcategories'][$subcategory]['id'];
+//                    } else {
+//                        $categoryId = $this->createCategory($subcategory, $parent, $categories[$parent]['id']);
+//                    }
+//                }
+//            } else {
+//                $categoryId = $categories[$parent]['id'];
+//
+//            }
         } catch (Exception $e) {
             // add exception message to log
         }
@@ -122,17 +124,10 @@ class import_items extends abstract_import_handler
     /**
      * @return array
      */
-    public function getCategories()
+    public function getCategoriesTree()
     {
-        $categories = $this->toFlatArray($this->all_configs['db']->query('SELECT {categories}.id, {categories}.title FROM {categories} WHERE parent_id=0')->assoc());
-        if (!empty($categories)) {
-            foreach ($categories as &$category) {
-                $subcategories = $this->toFlatArray($this->all_configs['db']->query('SELECT {categories}.id, {categories}.title FROM {categories} WHERE parent_id=?',
-                    array($category['id']))->assoc());
-                $category['subcategories'] = $subcategories;
-            }
-        }
-        return $categories;
+        $categoriesTree = new CategoriesTree();
+        return $categoriesTree->buildTreeWithTitle($categoriesTree->getCategoriesIdWithParent(), 0);
     }
 
     /**
@@ -315,6 +310,25 @@ class import_items extends abstract_import_handler
     }
 
     /**
+     * @param $categoriesTree
+     * @param $categoryId
+     * @return array
+     */
+    private function getBranch($categoriesTree, $categoryId)
+    {
+        foreach ($categoriesTree as &$category) {
+            if ($category['id'] == $categoryId) {
+                return $category;
+            }
+            $branch = $this->getBranch($category, $categoryId);
+            if (!empty($branch)) {
+                return $branch;
+            }
+        }
+        return array();
+    }
+
+    /**
      * @param $categoryId
      * @param $title
      * @param $parent
@@ -322,14 +336,19 @@ class import_items extends abstract_import_handler
     private function appendCategory($categoryId, $title, $parent)
     {
         if (empty($parent)) {
-            $this->categories[$title] = array(
+            $this->categoriesTree[$title] = array(
                 'id' => $categoryId,
                 'subcategories' => array()
             );
         } else {
-            $this->categories[$parent]['subcategories'][$title] = array(
-                'id' => $categoryId
-            );
+            $branch = $this->getBranch($this->categoriesTree, $parent);
+            if (!empty($branch)) {
+
+                $branch['subcategories'][$title] = array(
+                    'id' => $categoryId,
+                    'subcategories' => array()
+                );
+            }
         }
     }
 }

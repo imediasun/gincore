@@ -12,7 +12,14 @@ interface ItemsInterface
      * @param $data
      * @return mixed
      */
+    public function getCategories($data);
+    
+    /**
+     * @param $data
+     * @return mixed
+     */
     public function getCategory($data);
+    
     /**
      * @param $data
      * @return mixed

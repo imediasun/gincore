@@ -11,7 +11,7 @@ class CategoriesTree extends Model
      * @param $models
      * @return array
      */
-    protected function buildTree($categories, $parentId, $models)
+    public function buildTree($categories, $parentId, $models)
     {
         $result = [];
         foreach ($categories as $id => $category) {
@@ -19,6 +19,28 @@ class CategoriesTree extends Model
                 $id = $category['id'];
                 unset($categories[$id]);
                 $result[$id] = in_array($id, $models) ? array() : $this->buildTree($categories, $id, $models);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $categories
+     * @param $parentId
+     * @return array
+     */
+    public function buildTreeWithTitle($categories, $parentId)
+    {
+        $result = [];
+        foreach ($categories as $id => $category) {
+            if ($category['parent_id'] == $parentId) {
+                $id = $category['id'];
+                $title = isset($category['title'])? $category['title']: '';
+                unset($categories[$id]);
+                $result[$title] = array(
+                    'id' => $id, 
+                    'subcategories' => $this->buildTreeWithTitle($categories, $id)
+                );
             }
         }
         return $result;
@@ -81,7 +103,7 @@ class CategoriesTree extends Model
      */
     public function getCategoriesIdWithParent()
     {
-        return $this->query('SELECT id, parent_id FROM {categories} group by parent_id, id',
-            array())->assoc('parent_id');
+        return $this->query('SELECT id, parent_id, title FROM {categories} group by parent_id, id',
+            array())->assoc('id');
     }
 }

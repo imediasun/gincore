@@ -20,7 +20,7 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
      * @param $data
      * @return mixed
      */
-    function getTitle($data)
+    public function getTitle($data)
     {
         return iconv('cp1251', 'utf8', trim($data[0]));
     }
@@ -29,23 +29,14 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
      * @param $data
      * @return mixed
      */
-    function getCategory($data)
-    {
-        $categories = explode('\\', $data[1]);
-        return iconv('cp1251', 'utf8', trim($categories[0]));
-    }
-
-    /**
-     * @param $data
-     * @return array
-     */
-    function getSubcategories($data)
+    public function getCategories($data)
     {
         return array(
-            $data[2],
-            $data[3],
-            $data[4],
-            $data[5],
+            iconv('cp1251', 'utf8', trim($data[1])),
+            iconv('cp1251', 'utf8', trim($data[2])),
+            iconv('cp1251', 'utf8', trim($data[3])),
+            iconv('cp1251', 'utf8', trim($data[4])),
+            iconv('cp1251', 'utf8', trim($data[5])),
         );
     }
 
@@ -90,5 +81,23 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
     public function getWholesale($data)
     {
         return 0;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function getCategory($data)
+    {
+        // TODO: Implement getCategory() method.
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function getSubcategories($data)
+    {
+        // TODO: Implement getSubcategories() method.
     }
 }
