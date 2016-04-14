@@ -17,7 +17,6 @@ class import_orders extends abstract_import_handler
      */
     function run($rows)
     {
-        $this->rows = $rows;
         $this->acceptors = array();
         $this->acceptors_wh = array();
         $this->engineers = array();
@@ -25,13 +24,13 @@ class import_orders extends abstract_import_handler
         $this->categories = array();
         $this->devices = array();
 
-        $scan = $this->scan_accepters_and_engineers();
+        $scan = $this->scanAcceptorsAndEngineers($rows);
         if (!$scan['state']) {
             return $scan;
         }
 
         $results = array();
-        foreach ($this->rows as $row) {
+        foreach ($rows as $row) {
             $errors = array();
             $error_type = null;
             $id = $this->provider->get_id($row);
@@ -146,13 +145,14 @@ class import_orders extends abstract_import_handler
     }
 
     /**
+     * @param $rows
      * @return array
      */
-    private function scan_accepters_and_engineers()
+    private function scanAcceptorsAndEngineers($rows)
     {
         $not_found_acceptors = array();
         $not_found_engineers = array();
-        foreach ($this->rows as $row) {
+        foreach ($rows as $row) {
             $acceptor = import_helper::remove_whitespace($this->provider->get_acceptor($row));
             if ($acceptor && !array_key_exists($acceptor, $this->acceptors)) {
                 // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
@@ -179,16 +179,13 @@ class import_orders extends abstract_import_handler
             }
         }
         if ($not_found_acceptors || $not_found_engineers) {
-            $message = '';
-            if ($not_found_acceptors) {
-                $message .= '<label>' . l('Добавьте приемщиков') . '</label>:' .
-                    '<ol><li>' . implode('</li><li>', $not_found_acceptors) . '</li></ol>';
-            }
-            if ($not_found_engineers) {
-                $message .= '<label>' . l('Добавьте инженеров') . '</label>:' .
-                    '<ol><li>' . implode('</li><li>', $not_found_engineers) . '</li></ol>';
-            }
-            return array('state' => false, 'message' => $message);
+            return array(
+                'state' => false, 
+                'message' => $this->view->renderFile('import/acceptors_engineers_error', array(
+                    'acceptors' => $not_found_acceptors,
+                    'engineers' => $not_found_engineers
+                ))
+            );
         } else {
             return array('state' => true);
         }

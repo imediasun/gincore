@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../Core/View.php';
 
 abstract class abstract_import_handler
 {
@@ -8,6 +9,7 @@ abstract class abstract_import_handler
 
     /** @var  gincore_orders */
     protected $provider;
+    protected $view;
 
     /**
      * import_clients constructor.
@@ -20,6 +22,7 @@ abstract class abstract_import_handler
         $this->all_configs = $all_configs;
         $this->provider = $provider;
         $this->import_settings = $import_settings;
+        $this->view = new View($all_configs);
     }
 
     /**
@@ -28,19 +31,10 @@ abstract class abstract_import_handler
      */
     protected function gen_result_table($results)
     {
-        $rows = array();
-        foreach ($results as $row_result) {
-            $type = 'success';
-            if (isset($row_result['state']) && !$row_result['state']) {
-                $type = 'danger';
-            }
-            if (isset($row_result['state_type']) && $row_result['state_type'] === 1) {
-                $type = 'info';
-            }
-            $rows[] = "<tr class='{$type}'>" . $this->get_result_row($row_result) . "</tr>";
-        }
-        return '<h3>' . l('Результат импорта:') . '</h3>
-            <table class="table table-stripped table-hover">' . implode('', $rows) . '</table>';
+        return $this->view->renderFile('import/gen_result_table', array(
+            'results' => $results,
+            'controller' => $this
+        ));
     }
 
     /**
