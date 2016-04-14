@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/Session.php';
+require_once __DIR__ . '/Core/Session.php';
 require_once __DIR__ . '/../gincore/vendor/autoload.php';
 
 class Tariff

@@ -61,7 +61,7 @@ function replace_pattern($matches) {
 }
 
 ################################################################################
-require_once 'View.php';
+require_once 'Core/View.php';
 #загрузка файлов с хтмл-кодом
 $view = new View($all_configs);
 if ($html_header == 'html_header.html') {

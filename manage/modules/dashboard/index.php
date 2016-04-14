@@ -1,7 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
-require_once __DIR__ . '/../../Session.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Session.php';
+require_once __DIR__ . '/../../Models/CategoriesTree.php';
 
 class dashboard
 {
@@ -252,7 +253,8 @@ class dashboard
                 ))->assoc(), 'good');
         }
         if (!empty($selectedCategories)) {
-            $children = $this->getChildren($selectedCategories, $models);
+            $categoriesTree = new CategoriesTree();
+            $children = $categoriesTree->getChildren($selectedCategories, $models);
             if (!empty($children)) {
                 $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, c.parent_id as parent_id "
                     . " FROM {orders} o"
@@ -461,79 +463,6 @@ class dashboard
     }
 
     /**
-     * @param $categories
-     * @param $parentId
-     * @param $models
-     * @return array
-     */
-    function buildTree($categories, $parentId, $models)
-    {
-        $result = [];
-        foreach ($categories as $id => $category) {
-            if ($category['parent_id'] == $parentId) {
-                $id = $category['id'];
-                unset($categories[$id]);
-                $result[$id] = in_array($id, $models) ? array() : $this->buildTree($categories, $id, $models);
-            }
-        }
-        return $result;
-    }
-
-
-    /**
-     * @param $tree
-     * @return array
-     */
-    public function child($tree)
-    {
-        $result = array();
-        foreach ($tree as $id => $item) {
-            if (empty($item)) {
-                $result[] = $id;
-            } else {
-                $result += $this->child($item);
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * @param $tree
-     * @param $parent
-     * @return array
-     */
-    public function getChildBranch($tree, $parent)
-    {
-        $result = array();
-        foreach ($tree as $item) {
-            if (in_array($parent, array_keys($item))) {
-                $result += $this->child($item[$parent]);
-            } else {
-                $result += $this->getChildBranch($item, $parent);
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * @param $selectedCategories
-     * @param $models
-     * @return array
-     */
-    private function getChildren($selectedCategories, $models)
-    {
-        $categories = $this->db->query('SELECT id, parent_id FROM {categories} group by parent_id, id',
-            array())->assoc();
-        $tree = $this->buildTree($categories, 0, $models);
-
-        $result = array();
-        foreach ($selectedCategories as $selectedCategory) {
-            $result += $this->getChildBranch($tree, $selectedCategory);
-        }
-        return $result;
-    }
-
-    /**
      *
      */
     private function ajax()
@@ -669,19 +598,6 @@ class ChartUtils
     }
 
     /**
-     * @return array
-     */
-    public function getFilters()
-    {
-        $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
-        $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
-        return array(
-            'date_start' => $date_start,
-            'date_end' => $date_end
-        );
-    }
-
-    /**
      * @return mixed
      */
     public function getOrderOptions()
@@ -725,6 +641,19 @@ class ChartUtils
         $this->end = new DateTime($filters['date_end']);
         $this->end->modify('+1 day');
         $this->diff = $this->start->diff($this->end)->format('%a');
+    }
+
+    /**
+     * @return array
+     */
+    public function getFilters()
+    {
+        $date_start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? $_GET['ds'] : date('Y-m-01');
+        $date_end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? $_GET['de'] : date('Y-m-d');
+        return array(
+            'date_start' => $date_start,
+            'date_end' => $date_end
+        );
     }
 
     /**

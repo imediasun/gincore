@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
-require_once __DIR__ . '/../../FlashMessage.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/FlashMessage.php';
 
 $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');

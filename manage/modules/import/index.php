@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[133] = 'import';
 $modulemenu[133] = l('Импорт');

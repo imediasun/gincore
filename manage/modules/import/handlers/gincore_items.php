@@ -58,8 +58,7 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
     }
 
     /**
-     * @param $header_row
-     * @return bool
+     * @inheritdoc
      */
     public function check_format($header_row)
     {

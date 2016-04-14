@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Response.php';
 require_once __DIR__ . '/../../Tariff.php';
-require_once __DIR__ . '/../../Response.php';
 
 // настройки
 $modulename[110] = 'settings';
