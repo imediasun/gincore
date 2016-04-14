@@ -6,7 +6,7 @@ abstract class abstract_import_handler
     protected $import_settings;
     protected $rows = array();
 
-    /** @var abstract_import_provider */
+    /** @var  gincore_orders */
     protected $provider;
 
     /**

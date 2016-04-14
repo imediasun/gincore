@@ -156,7 +156,7 @@ class gincore_orders extends abstract_import_provider
      * @param $data
      * @return mixed
      */
-    function get_accepter($data)
+    function get_acceptor($data)
     {
         return $data[11];
     }
