@@ -961,23 +961,25 @@ class access
         $code_length = strlen($code);
         $short_code = $phone_conf['short_code'];
         $short_code_length = strlen($short_code);
+        $fullLength = $phone_length + $code_length;
         foreach ($phones as $phone) {
-            print_r($phone);
             $phone = preg_replace("/[^0-9]/", "", $phone);
             $length = mb_strlen('' . $phone, 'UTF-8');
-            if ($length == $phone_length) {
+            if ($length  == $phone_length) {
                 // без кода
-                $return[] = $code.$phone;
-            }elseif($length == $phone_length+$short_code_length && strpos(''.$phone, ''.$short_code) === 0){
+                $return[] = $code . $phone;
+            } elseif ($length == $phone_length + $short_code_length && strpos('' . $phone, '' . $short_code) === 0) {
                 // с коротким кодом - замена короткого на обычный
                 $phone_wo_short_code = substr($phone, $short_code_length);
-                $return[] = $code.$phone_wo_short_code;
-            }elseif($length == $phone_length+$code_length && strpos(''.$phone, ''.$code) === 0){
+                $return[] = $code . $phone_wo_short_code;
+            } elseif ($length == $fullLength && strpos('' . $phone, '' . $code) === 0) {
                 // с обычным кодом
                 $return[] = $phone;
+            } else {
+                $diff = $fullLength - $length;
+                $return[] = substr($code, 0, $diff) .$phone;
             }
         }
-        print_r($return);
         $return = array_filter($return);
         return count($return) > 0 ? $return : false;
     }
