@@ -22,7 +22,7 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
      */
     public function getTitle($data)
     {
-        return iconv('cp1251', 'utf8', trim($data[0]));
+        return trim($data[0]);
     }
 
     /**
@@ -32,11 +32,11 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
     public function getCategories($data)
     {
         return array(
-            iconv('cp1251', 'utf8', trim($data[1])),
-            iconv('cp1251', 'utf8', trim($data[2])),
-            iconv('cp1251', 'utf8', trim($data[3])),
-            iconv('cp1251', 'utf8', trim($data[4])),
-            iconv('cp1251', 'utf8', trim($data[5])),
+            trim($data[1]),
+            trim($data[2]),
+            trim($data[3]),
+            trim($data[4]),
+            trim($data[5]),
         );
     }
 
