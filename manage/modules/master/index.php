@@ -77,9 +77,13 @@ class master
 
         // страны
         $input_html['country_select'] = '';
-        sort($this->all_configs['configs']['countries'], SORT_REGULAR);
-        foreach ($this->all_configs['configs']['countries']  as $id => $country) {
-            $input_html['country_select'] .= '<option value="' . $id . '">' . $country['name'] . '</option>';
+        $countryIds = array();
+        foreach ($this->all_configs['configs']['countries'] as $id => $country) {
+            $countryIds[$country['name']] = $id;
+        }
+        ksort($countryIds, SORT_LOCALE_STRING );
+        foreach ($countryIds  as $title => $id) {
+            $input_html['country_select'] .= '<option value="' . $id . '">' . $title . '</option>';
         }
     }
 

@@ -667,6 +667,7 @@ input.row-input {
     position: fixed;
     z-index: 1000;
     right: 0;
+    top: 65px;
 }
 
 #save_all_fixed{
