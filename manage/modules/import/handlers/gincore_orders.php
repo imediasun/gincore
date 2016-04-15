@@ -4,6 +4,7 @@ require_once __DIR__ . '/abstract_import_provider.php';
 
 class gincore_orders extends abstract_import_provider
 {
+    protected $all_configs;
     private $cols = array(
         0 => "Номер заказа",
         1 => "Дата принятия заказа",
@@ -23,16 +24,6 @@ class gincore_orders extends abstract_import_provider
         15 => "Контактный телефон заказчикa"
     );
 
-    private $statuses = array(
-        'Новый' => 'order-status-new',
-        'Согласовано, передано в работу' => 'order-status-work',
-        'Мастер назначен' => 'order-status-waits',
-        'Клиент отказался' => 'order-status-refused',
-        'Не починится' => 'order-status-unrepairable',
-        'На выдачу' => 'order-status-ready',
-        'Согласовать с клиентом' => 'order-status-agreement'
-    );
-
     /**
      * remonline_orders constructor.
      * @param $all_configs
@@ -40,6 +31,14 @@ class gincore_orders extends abstract_import_provider
     function __construct($all_configs)
     {
         $this->all_configs = $all_configs;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function check_format($header_row)
+    {
+        return true;
     }
 
     /**
@@ -56,9 +55,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_id($data)
     {
-        preg_match_all('/A([0-9]+)\/?[0-9]*/', $data[0], $ids);
-        $id = $ids[1][0];
-        return $id;
+        return (int) $data[0];
     }
 
     /**
@@ -85,8 +82,13 @@ class gincore_orders extends abstract_import_provider
      */
     function get_status_id($data)
     {
-        $status_id = $this->all_configs['configs'][$this->statuses[import_helper::remove_whitespace($data[3])]];
-        return $status_id;
+        $value = mb_ucfirst(import_helper::remove_whitespace($data[3]));
+        foreach ($this->all_configs['configs']['order-status'] as $id => $status) {
+            if($status['name'] == $value) {
+                return $id;
+            }
+        }
+        return 0;
     }
 
     /**

@@ -10,6 +10,10 @@ class import_orders extends abstract_import_handler
     public $clients;
     public $categories;
     public $devices;
+    public $managers;
+    protected $not_found_acceptors;
+    protected $not_found_engineers;
+    protected $not_found_managers;
 
     /**
      * @param $rows
@@ -18,11 +22,12 @@ class import_orders extends abstract_import_handler
     function run($rows)
     {
         $this->acceptors = array();
+        $this->managers = array();
         $this->acceptors_wh = array();
         $this->engineers = array();
         $this->clients = array();
         $this->categories = array();
-        $this->devices = array();
+        $this->devices = db()->query('SELECT id, title FROM {goods}')->assoc('title');
 
         $scan = $this->scanAcceptorsAndEngineers($rows);
         if (!$scan['state']) {
@@ -35,11 +40,15 @@ class import_orders extends abstract_import_handler
             $error_type = null;
             $id = $this->provider->get_id($row);
             try {
+                if (empty($id)) {
+                    throw new Exception(l('Остутствует ид заказа.'));
+                }
                 $id_exists = db()->query("SELECT 1 FROM {orders} WHERE id = ?i", array($id), 'el');
                 if ($id_exists) {
                     $error_type = 1;
                     throw new Exception(l('Заказ с данным айди уже существует в системе'));
                 }
+
                 $date_add = import_helper::format_date($this->provider->get_date_add($row));
                 $date_end = import_helper::format_date($this->provider->get_date_end($row));
                 $acceptor_id = $this->getAcceptorId($row);
@@ -56,7 +65,6 @@ class import_orders extends abstract_import_handler
                 $client_id = $this->getClientId($client_fio, $client_phone);
                 $device = $this->getDevice($row);
                 $device_id = $this->getDeviceId($device);
-
 
                 // создаем заказа
                 $order = array(
@@ -103,7 +111,7 @@ class import_orders extends abstract_import_handler
      * @param $row
      * @return string
      */
-    protected function get_result_row($row)
+    public function get_result_row($row)
     {
         return '<td>id ' . $row['id'] . '</td> <td>' . $row['message'] . '</td>';
     }
@@ -150,40 +158,23 @@ class import_orders extends abstract_import_handler
      */
     private function scanAcceptorsAndEngineers($rows)
     {
-        $not_found_acceptors = array();
-        $not_found_engineers = array();
+        $this->not_found_acceptors = array();
+        $this->not_found_engineers = array();
+        $this->not_found_managers = array();
         foreach ($rows as $row) {
-            $acceptor = import_helper::remove_whitespace($this->provider->get_acceptor($row));
-            if ($acceptor && !array_key_exists($acceptor, $this->acceptors)) {
-                // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
-                $acceptor_id = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ?", array($acceptor),
-                    'el');
-                if (!$acceptor_id) {
-                    $not_found_acceptors[] = htmlspecialchars($acceptor);
-                } else {
-                    $a_whs = $this->all_configs['db']->query("SELECT wh_id,location_id FROM {warehouses_users} "
-                        . "WHERE user_id = ?i AND main = 1", array($acceptor_id), 'row');
-                    $this->acceptors_wh[$acceptor] = $a_whs;
-                }
-                $this->acceptors[$acceptor] = $acceptor_id;
-            }
-            $engineer = import_helper::remove_whitespace($this->provider->get_engineer($row));
-            if ($engineer && !array_key_exists($engineer, $this->engineers)) {
-                // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
-                $engineer_id = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ?", array($engineer),
-                    'el');
-                if (!$engineer_id) {
-                    $not_found_engineers[] = htmlspecialchars($engineer);
-                }
-                $this->engineers[$engineer] = $engineer_id;
+            $this->getAcceptorOrSetNotFound($row);
+            $this->getEngineerOrSetNotFound($row);
+            if (empty($this->import_settings['accepter_as_manager'])) {
+                $this->getManagerOrSetNotFound($row);
             }
         }
-        if ($not_found_acceptors || $not_found_engineers) {
+        if ($this->not_found_acceptors || $this->not_found_engineers || $this->not_found_managers) {
             return array(
-                'state' => false, 
+                'state' => false,
                 'message' => $this->view->renderFile('import/acceptors_engineers_error', array(
-                    'acceptors' => $not_found_acceptors,
-                    'engineers' => $not_found_engineers
+                    'acceptors' => $this->not_found_acceptors,
+                    'engineers' => $this->not_found_engineers,
+                    'managers' => $this->not_found_managers,
                 ))
             );
         } else {
@@ -283,5 +274,63 @@ class import_orders extends abstract_import_handler
             throw new Exception(l('Клиент не создан') . ': ' . $user['msg']);
         }
         return $user['id'];
+    }
+
+    /**
+     * @param $row
+     */
+    private function getAcceptorOrSetNotFound($row)
+    {
+        $acceptor = import_helper::remove_whitespace($this->provider->get_acceptor($row));
+        if ($acceptor && !array_key_exists($acceptor, $this->acceptors)) {
+            // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
+            $acceptorId = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ? OR login = ?",
+                array($acceptor, $acceptor),
+                'el');
+            if (!$acceptorId) {
+                $this->not_found_acceptors[] = htmlspecialchars($acceptor);
+            } else {
+                $a_whs = $this->all_configs['db']->query("SELECT wh_id,location_id FROM {warehouses_users} "
+                    . "WHERE user_id = ?i AND main = 1", array($acceptorId), 'row');
+                $this->acceptors_wh[$acceptorId] = $a_whs;
+            }
+            $this->acceptors[$acceptor] = $acceptorId;
+        }
+    }
+
+    /**
+     * @param $row
+     */
+    private function getEngineerOrSetNotFound($row)
+    {
+        $engineer = import_helper::remove_whitespace($this->provider->get_engineer($row));
+        if ($engineer && !array_key_exists($engineer, $this->engineers)) {
+            // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
+            $engineerId = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ? OR login = ?",
+                array($engineer, $engineer),
+                'el');
+            if (!$engineerId) {
+                $this->not_found_engineers[] = htmlspecialchars($engineer);
+            }
+            $this->engineers[$engineer] = $engineerId;
+        }
+    }
+
+    /**
+     * @param $row
+     */
+    private function getManagerOrSetNotFound($row)
+    {
+        $manager = import_helper::remove_whitespace($this->provider->get_manager($row));
+        if ($manager && !array_key_exists($manager, $this->managers)) {
+            // проверить есть ли чувак в базе, если не то добавляем в сообщение юзеру шоб добавил
+            $managerId = $this->all_configs['db']->query("SELECT id FROM {users} WHERE fio = ? OR login = ?",
+                array($manager, $manager),
+                'el');
+            if (!$managerId) {
+                $this->not_found_managers[] = htmlspecialchars($manager);
+            }
+            $this->managers[$manager] = $managerId;
+        }
     }
 }

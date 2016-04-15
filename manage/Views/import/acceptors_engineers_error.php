@@ -14,3 +14,11 @@
         <?php endforeach; ?>
     </ol>
 <?php endif; ?>
+<?php if ($managers): ?>
+    <label><?= l('Добавьте менеджеров') ?></label>:
+    <ol>
+        <?php foreach ($managers as $manager): ?>
+            <li><?= $manager ?></li>
+        <?php endforeach; ?>
+    </ol>
+<?php endif; ?>
