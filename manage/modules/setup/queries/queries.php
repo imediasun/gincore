@@ -64,7 +64,7 @@ $settingsArr[]=array('country', '', lq('Страна'), 1, '');
 $settingsArr[]=array('account_phone', '', lq('Ваш телефон'), 1, '');
 $settingsArr[]=array('account_business', '', lq('Ваш бизнес'), 1, '');
 $settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
-$settingsArr[]=array('time_zone', '+02:00', lq('Временная зона'), 0, lq('Временная зона, например +00:00'));
+$settingsArr[]=array('time_zone', 'Europe/Kiev', lq('Временная зона'), 0, lq('Временная зона, например Europe/Kiev'));
 
 foreach ($settingsArr as $ar) {
     db()->query("INSERT INTO `restore4_settings` (`name`, `value`, `ro`, `title`, `description`) 

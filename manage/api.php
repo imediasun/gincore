@@ -169,6 +169,10 @@ if ($data->act == 'change-tariff') {
     db()->query('UPDATE {users} SET blocked_by_tariff=0');
     returnSuccess(array('result' => $ar));
 }
+if ($data->act == 'set-time-zone') {
+    $ar = db()->query("UPDATE {settings} SET value=? WHERE name='time_zone'", array($data->time_zone))->ar();
+    returnSuccess(array('result' => $ar));
+}
 
 
 ### return
