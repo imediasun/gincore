@@ -67,9 +67,13 @@ $settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
 $settingsArr[]=array('time_zone', 'Europe/Kiev', lq('Временная зона'), 0, lq('Временная зона, например Europe/Kiev'));
 
 foreach ($settingsArr as $ar) {
+    $value = '';
+    if($ar[0] != 'time_zone'){
+        $value = "`value` = '".$ar[1]."',";
+    }
     db()->query("INSERT INTO `restore4_settings` (`name`, `value`, `ro`, `title`, `description`) 
             VALUES ('$ar[0]', '$ar[1]', '$ar[3]', '$ar[2]', '$ar[4]')
-            ON DUPLICATE KEY UPDATE `name` = '$ar[0]', `value` = '$ar[1]', "
+            ON DUPLICATE KEY UPDATE `name` = '$ar[0]', ".$value." "
                     . "`ro` = '$ar[3]', `title` = '$ar[2]', "
             . "`description` = '$ar[4]'; ");
 }
