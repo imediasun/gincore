@@ -12,7 +12,7 @@
             <span class="gcw_modal_close"></span>
         </div>
         <div class="gcw_modal_body">
-            <form class="gcw_form" action="<?= $widgets->get_requests_url('status') ?>" method="post">
+            <form class="gcw_form js-status-form" action="<?= $widgets->get_requests_url('status') ?>" method="post">
                 <input type="hidden" name="widget" value="status">
                 <input type="hidden" name="action" value="status_by_phone">
                 <div class="gcw_form_group">
