@@ -68,7 +68,7 @@ var gcw_feedback_widget = (function ($) {
       });
       $(window).resize(resize).resize();
 
-      $(document).on('submit', '.gcw_form', function (e) {
+      $(document).on('submit', '.js-feedback-form', function (e) {
         var $this = $(this),
           method = $this.find('input[name=action]').val(),
           data,
