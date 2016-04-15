@@ -48,7 +48,7 @@ class gincore_clients extends abstract_import_provider
      */
     public function get_fio($data)
     {
-        return $data[0];
+        return iconv('cp1251', 'utf8', $data[0]);
     }
 
     /**
@@ -66,7 +66,7 @@ class gincore_clients extends abstract_import_provider
      */
     function get_address($data)
     {
-        return $data[4];
+        return iconv('cp1251', 'utf8', $data[4]);
     }
 
     /**
