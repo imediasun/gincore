@@ -24,6 +24,7 @@ class translates
     protected $langs;
     /** @var View */
     protected $view;
+    protected $dbcfg;
 
     /**
      * translates constructor.
@@ -42,6 +43,7 @@ class translates
 
         global $input_html, $dbcfg;
 
+        $this->dbcfg = $dbcfg;
         $this->tbl_prefix = $dbcfg['_prefix'];
 
         $this->set_config();
@@ -58,7 +60,7 @@ class translates
     /**
      *
      */
-    private function set_config()
+    protected function set_config()
     {
         if (is_null($this->config)) {
             $this->url = __CLASS__;
@@ -169,7 +171,7 @@ class translates
 
                 if (isset($this->all_configs['arrequest'][2]) && !is_numeric($this->all_configs['arrequest'][2])) {
                     $_POST['translates'] = $translates;
-                    $this->check_post($_POST);
+                    $out = $this->check_post($_POST);
                 } else {
                     $out = $this->edit($config, $translates, $table, $languages);
                 }
@@ -213,7 +215,6 @@ class translates
         // add to table
         if ($this->all_configs['arrequest'][2] == 'add') {
             $out = $this->addToTable($post, $config, $languages);
-
         }
         if ($this->all_configs['arrequest'][2] == 'save') {
             $this->saveTable($post, $translates, $config);
