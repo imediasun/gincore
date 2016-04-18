@@ -33,11 +33,17 @@
                         <span class="form-group" style="display:block">
                             <label><?= $languages[$lng]['name'] ?>, <?= $lng ?></label>
                             <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
-                            <?php if (strlen($value) > 50): ?>
-                                <textarea class="form-control" style="height: 150px"
-                                          name="<?= $f_name ?>"><?= $value ?></textarea>
+                            <?php if ($textarea): ?>
+                                <div class="summernote">
+                                    <?= $value ?>
+                                </div>
                             <?php else: ?>
-                                <input class="form-control" type="text" name="<?= $f_name ?>" value="<?= $value ?>">
+                                <?php if (strlen($value) > 50): ?>
+                                    <textarea class="form-control" style="height: 150px"
+                                              name="<?= $f_name ?>"><?= $value ?></textarea>
+                                <?php else: ?>
+                                    <input class="form-control" type="text" name="<?= $f_name ?>" value="<?= $value ?>">
+                                <?php endif; ?>
                             <?php endif; ?>
                         </span>
                     <?php endforeach; ?>
@@ -48,3 +54,11 @@
         <input type="submit" class="save-btn btn btn-primary" value="<?= l('save') ?>">
     </fieldset>
 </form>
+
+<script type="text/javascript" src="<?=$this->all_configs['prefix'];?>js/summernote.js"></script>
+<link rel="stylesheet" href="<?= $this->all_configs['prefix'] ?>css/summernote.css" />
+<script>
+    $(document).ready(function(){
+       $('.summernote').summernote();
+    });
+</script>

@@ -414,20 +414,22 @@ class translates
     }
 
     /**
-     * @param $config
-     * @param $translates
-     * @param $table
-     * @param $languages
+     * @param      $config
+     * @param      $translates
+     * @param      $table
+     * @param      $languages
+     * @param bool $textarea
      * @return string
      */
-    protected function edit($config, $translates, $table, $languages)
+    protected function edit($config, $translates, $table, $languages, $textarea = false)
     {
         return $this->view->renderFile('translates/edit', array(
             'config' => $config,
             'translates' => $translates,
             'url' => $this->url,
             'table' => $table,
-            'languages' => $languages
+            'languages' => $languages,
+            'textarea' => $textarea
         ));
     }
 }
