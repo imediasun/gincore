@@ -977,3 +977,6 @@ legend span.tag {
     color: inherit !important;
     background-color: transparent !important;
 }
+.remove_currency{
+    cursor: pointer;
+}

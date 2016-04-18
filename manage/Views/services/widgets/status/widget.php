@@ -1,6 +1,6 @@
 <div class="gcw">
     <div class="gcw_title gcw_show_modal gcw_status_modal" data-id="gcw_status_modal">
-        <i class="fa">?</i>
+        <i class="fa fa-question-circle-o" style="color:black; font-size: 1.2em"></i>
         <?= l('Cтатус ремонта') ?>
     </div>
 </div>
@@ -12,7 +12,7 @@
             <span class="gcw_modal_close"></span>
         </div>
         <div class="gcw_modal_body">
-            <form class="gcw_form" action="<?= $widgets->get_requests_url('status') ?>" method="post">
+            <form class="gcw_form js-status-form" action="<?= $widgets->get_requests_url('status') ?>" method="post">
                 <input type="hidden" name="widget" value="status">
                 <input type="hidden" name="action" value="status_by_phone">
                 <div class="gcw_form_group">

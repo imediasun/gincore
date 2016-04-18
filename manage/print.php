@@ -497,7 +497,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
                     'domain' => array('value' => $_SERVER['HTTP_HOST'], 'name' => 'Домен сайта'),
                     'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
-                    'order_data' => array('value' => date('d/m/Y', $order['date_add']), 'name' => 'Дата создания заказа'),
+                    'order_data' => array('value' => date('d/m/Y', strtotime($order['date_add'])), 'name' => 'Дата создания заказа'),
                 );
                 $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
                 $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];

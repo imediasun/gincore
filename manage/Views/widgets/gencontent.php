@@ -2,6 +2,7 @@
 <?php if (!empty($widget)): ?>
     <pre>
         <?= htmlspecialchars(
+            '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">'.
             "<script>\n" .
             "    (function () {\n" .
             "        var s = document.createElement(\"script\");\n" .
