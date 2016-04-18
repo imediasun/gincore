@@ -27,7 +27,7 @@ class import_orders extends abstract_import_handler
         $this->engineers = array();
         $this->clients = array();
         $this->categories = array();
-        $this->devices = db()->query('SELECT id, title FROM {goods}')->assoc('title');
+        $this->devices = db()->query('SELECT id, title FROM {categories}')->assoc('title');
 
         $scan = $this->scanAcceptorsAndEngineers($rows);
         if (!$scan['state']) {
@@ -76,7 +76,7 @@ class import_orders extends abstract_import_handler
                     $client_fio,
                     $client_phone,
                     '',
-                    $device_id['id'],
+                    $device_id,
                     $serial,
                     $equipment,
                     $appearance,
@@ -128,7 +128,7 @@ class import_orders extends abstract_import_handler
         }
 
         if (!isset($this->devices[$device])) {
-            throw new Exception(l('Устройство отсутствует в базе'));
+            $this->devices[$device] = $this->addDevice($device);
         }
         return $this->devices[$device];
     }
@@ -193,7 +193,7 @@ class import_orders extends abstract_import_handler
             db()->query("INSERT INTO {orders} "
                 . "(id,date_add,accepter,status,user_id,fio,"
                 . " phone,courier,category_id,serial,equipment,"
-                . " comment, date_readiness, approximate_cost, "
+                . " comment, date_readiness, `sum`, "
                 . " prepay, defect, engineer, manager, title, wh_id, location_id) "
                 . " VALUES "
                 . " (?i, ?, ?i, ?i, ?i, ?,"
@@ -332,5 +332,21 @@ class import_orders extends abstract_import_handler
             }
             $this->managers[$manager] = $managerId;
         }
+    }
+
+    /**
+     * @param $device
+     * @return mixed
+     */
+    private function addDevice($device)
+    {
+        $url = transliturl($device);
+        $id = db()->query("SELECT id FROM {categories} "
+            . "WHERE title = ? OR url = ? LIMIT 1", array($device, $url), 'el');
+        if (empty($id)) {
+            $id = db()->query("INSERT INTO {categories} (title,parent_id,url,content,avail) "
+                . "VALUE (?,0,?,'',1)", array($device, $url), 'id');
+        }
+        return $id;
     }
 }

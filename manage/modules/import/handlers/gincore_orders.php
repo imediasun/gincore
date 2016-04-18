@@ -147,11 +147,11 @@ class gincore_orders extends abstract_import_provider
 
     /**
      * @param $data
-     * @return mixed
+     * @return integer
      */
     function get_summ($data)
     {
-        return $data[10];
+        return (int)$data[10];
     }
 
     /**

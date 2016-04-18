@@ -169,7 +169,7 @@ class Tariff
         } catch (Exception $e) {
             $response = array();
         }
-        return true || !empty($response) && $response['available'] == 1;
+        return   !empty($response) && $response['available'] == 1;
     }
 
     /**
