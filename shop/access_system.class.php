@@ -121,7 +121,7 @@ class Role
     {
         $count = $this->all_configs['db']->query('SELECT count(*)
                 FROM {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=? AND u.deleted=0',
+                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
             array(array('site-administration'), $roleId))->el();
         return $count == 1;
     }
