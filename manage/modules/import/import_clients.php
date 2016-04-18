@@ -152,7 +152,7 @@ class import_clients extends abstract_import_handler
     /**
      * @inheritdoc
      */
-    protected function get_result_row($row)
+    public function get_result_row($row)
     {
         return '<td ># ' . $row['num'] . ' ' . (!empty($row['fio']) ? '(' . htmlspecialchars($row['fio']) . ')' : '') . '</td>'
         . '<td>' . $row['message'] . '</td>';

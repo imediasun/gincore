@@ -59,5 +59,5 @@ abstract class abstract_import_handler
      * @param $row
      * @return string
      */
-    abstract protected function get_result_row($row);
+    abstract public function get_result_row($row);
 }

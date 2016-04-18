@@ -102,7 +102,7 @@ class import_items extends abstract_import_handler
      * @param $row
      * @return string
      */
-    protected function get_result_row($row)
+    public function get_result_row($row)
     {
         return "<td>" . $row . "</td>";
     }
