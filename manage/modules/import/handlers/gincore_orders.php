@@ -82,7 +82,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_status_id($data)
     {
-        $value = iconv('cp1251', 'utf8', mb_ucfirst(import_helper::remove_whitespace($data[3])));
+        $value = $this->codepage == 'utf-8' ? $data[3] : iconv('cp1251', 'utf8', mb_ucfirst(import_helper::remove_whitespace($data[3])));
         foreach ($this->all_configs['configs']['order-status'] as $id => $status) {
             if($status['name'] == $value) {
                 return $id;
@@ -97,7 +97,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_device($data)
     {
-        return iconv('cp1251', 'utf8', $data[4]);
+        return $this->codepage == 'utf-8' ? $data[4] : iconv('cp1251', 'utf8', $data[4]);
     }
 
     /**
@@ -106,7 +106,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_equipment($data)
     {
-        return iconv('cp1251', 'utf8', $data[5]);
+        return $this->codepage == 'utf-8' ? $data[5] : iconv('cp1251', 'utf8', $data[5]);
     }
 
     /**
@@ -124,7 +124,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_type_of_repair($data)
     {
-        return iconv('cp1251', 'utf8', $data[7]);
+        return $this->codepage == 'utf-8' ? $data[7] : iconv('cp1251', 'utf8', $data[7]);
     }
 
     /**
@@ -133,7 +133,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_defect($data)
     {
-        return iconv('cp1251', 'utf8', $data[8]);
+        return $this->codepage == 'utf-8' ? $data[8] : iconv('cp1251', 'utf8', $data[8]);
     }
 
     /**
@@ -142,7 +142,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_appearance($data)
     {
-        return iconv('cp1251', 'utf8', $data[9]);
+        return $this->codepage == 'utf-8' ? $data[9] : iconv('cp1251', 'utf8', $data[9]);
     }
 
     /**
@@ -160,7 +160,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_acceptor($data)
     {
-        return iconv('cp1251', 'utf8', $data[11]);
+        return $this->codepage == 'utf-8' ? $data[11] : iconv('cp1251', 'utf8', $data[11]);
     }
 
     /**
@@ -168,7 +168,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_manager($data)
     {
-        return iconv('cp1251', 'utf8', $data[12]);
+        return $this->codepage == 'utf-8' ? $data[12] : iconv('cp1251', 'utf8', $data[12]);
     }
 
     /**
@@ -177,7 +177,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_engineer($data)
     {
-        return iconv('cp1251', 'utf8', $data[13]);
+        return $this->codepage == 'utf-8' ? $data[13] : iconv('cp1251', 'utf8', $data[13]);
     }
 
 
@@ -187,7 +187,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_client_fio($data)
     {
-        return iconv('cp1251', 'utf8', $data[14]);
+        return $this->codepage == 'utf-8' ? $data[14] : iconv('cp1251', 'utf8', $data[14]);
     }
 
     /**

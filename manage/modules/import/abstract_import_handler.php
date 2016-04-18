@@ -44,6 +44,7 @@ abstract class abstract_import_handler
     public function check_format($row)
     {
         if (!empty($this->provider) && is_a($this->provider, 'abstract_import_provider')) {
+            $this->provider->define_codepage($row);
             return $this->provider->check_format($row);
         }
         return false;
