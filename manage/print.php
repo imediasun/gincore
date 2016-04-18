@@ -17,11 +17,15 @@
 include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
-global $all_configs;
+global $all_configs, $manage_lang;
 
 $langs = get_langs();
 
-$cur_lang = isset($_GET['lang']) ? trim($_GET['lang']) : $langs['def_lang'];
+if ($all_configs['configs']['manage-print-default-service-restore']) {
+    $cur_lang = isset($_GET['lang']) ? trim($_GET['lang']) : $langs['def_lang'];
+} else {
+    $cur_lang = $manage_lang;
+}
 
 $act = isset($_GET['act']) ? trim($_GET['act']) : '';
 $print_html = $variables = '';

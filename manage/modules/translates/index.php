@@ -133,6 +133,7 @@ class translates
 
         $out = l('Выберите таблицу слева.');
         if (isset($this->all_configs['arrequest'][1])) {
+            $tableName = $this->getTableName();
 
             if (isset($this->config[$this->all_configs['arrequest'][1]])) {
 
@@ -147,9 +148,9 @@ class translates
                         array($config['key'], $this->all_configs['arrequest'][2]));
                 }
                 $table = $this->all_configs['db']->query("SELECT * FROM ?q ?q",
-                    array($this->all_configs['arrequest'][1], $filter_query), 'assoc:id');
+                    array($tableName, $filter_query), 'assoc:id');
                 $table_translates = $this->all_configs['db']->query("SELECT * FROM ?q_strings ?q",
-                    array($this->all_configs['arrequest'][1], $filter_query_2), 'assoc');
+                    array($tableName, $filter_query_2), 'assoc');
 
                 $translates = array();
                 foreach ($table_translates as $trans) {
@@ -226,7 +227,7 @@ class translates
      * @param $translates
      * @param $config
      */
-    private function saveTable($post, $translates, $config)
+    protected function saveTable($post, $translates, $config)
     {
         foreach ($post['data'] as $id => $transl) {
             foreach ($transl as $lng => $fields) {
@@ -248,7 +249,7 @@ class translates
                     $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q 
                                               ON DUPLICATE KEY UPDATE ?q",
                         array(
-                            $this->all_configs['arrequest'][1],
+                            $this->getTableName(),
                             $config['key'],
                             implode(',', $all_fields),
                             $data_q,
@@ -269,6 +270,7 @@ class translates
      */
     private function copyLanguage($post, $languages, $config)
     {
+        $tableName = $this->getTableName();
         $success = false;
         if (isset($this->all_configs['arrequest'][3]) && $this->all_configs['arrequest'][3] == 'make_magic') {
             $from = isset($post['from']) ? $post['from'] : '';
@@ -287,7 +289,7 @@ class translates
                                             SELECT * FROM (SELECT ?q:key, ?q:fields1, ?:lang_to FROM ?q:tbl as t WHERE lang = ?:lang_from) as t
                                             ON DUPLICATE KEY UPDATE ?q:update",
                 array(
-                    'tbl' => $this->all_configs['arrequest'][1] . '_strings',
+                    'tbl' => $tableName . '_strings',
                     'lang_from' => $from,
                     'lang_to' => $to,
                     'key' => $config['key'],
@@ -314,6 +316,7 @@ class translates
      */
     private function addToTable($post, $config, $languages)
     {
+        $tableName = $this->getTableName();
         if (isset($this->all_configs['arrequest'][3]) && $this->all_configs['arrequest'][3] == 'save') {
             if ($post['data']) {
                 $f = implode(',', array_keys($post['data']));
@@ -322,10 +325,10 @@ class translates
                     $v[] = $this->all_configs['db']->makeQuery("?", array($d));
                 }
                 $id = $this->all_configs['db']->query("INSERT INTO ?q(?q) VALUES (?q)",
-                    array($this->all_configs['arrequest'][1], $f, implode(',', $v)), 'id');
+                    array($tableName, $f, implode(',', $v)), 'id');
             } else {
                 $id = $this->all_configs['db']->query("INSERT INTO ?q() VALUES ()",
-                    array($this->all_configs['arrequest'][1]), 'id');
+                    array($tableName), 'id');
             }
             $all_fields = array();
             $values = array();
@@ -343,7 +346,7 @@ class translates
 
             $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q",
                 array(
-                    $this->all_configs['arrequest'][1],
+                    $tableName,
                     $config['key'],
                     implode(',', $all_fields),
                     implode(',', $values)
@@ -431,5 +434,13 @@ class translates
             'languages' => $languages,
             'textarea' => $textarea
         ));
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getTableName()
+    {
+        return $this->all_configs['arrequest'][1];
     }
 }

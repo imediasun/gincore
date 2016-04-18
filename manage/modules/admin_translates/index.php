@@ -70,12 +70,11 @@ class admin_translates extends translates
                         array($config['key'], $this->all_configs['arrequest'][2]));
                 }
 
-                if(strpos($this->all_configs['arrequest'][1],'print_template_vars') !== false) {
-                    $table_name = $this->tbl_prefix.'template_vars';
+                if (strpos($this->all_configs['arrequest'][1], 'print_template_vars') !== false) {
                     if (!empty($filter_query)) {
-                       $filter_query =  $this->all_configs['db']->makeQuery(" ?q AND  var like '?e%' ",
-                        array($filter_query, 'print'));
-                        $filter_query_2 =  $this->all_configs['db']->makeQuery(" ?q AND  var like '?e%' ",
+                        $filter_query = $this->all_configs['db']->makeQuery(" ?q AND  var like '?e%' ",
+                            array($filter_query, 'print'));
+                        $filter_query_2 = $this->all_configs['db']->makeQuery(" ?q AND  var like '?e%' ",
                             array($filter_query_2, 'print'));
                     } else {
                         $filter_query = $this->all_configs['db']->makeQuery(" WHERE var like '?e%' ",
@@ -83,9 +82,9 @@ class admin_translates extends translates
                         $filter_query_2 = $this->all_configs['db']->makeQuery(" WHERE var like '?e%' ",
                             array('print'));
                     }
-                } else {
-                    $table_name = $this->all_configs['arrequest'][1];
                 }
+//                $table_name = $this->getTableName();
+                $table_name = $this->tbl_prefix . 'template_vars';
                 $table = $this->all_configs['db']->query("SELECT * FROM ?q ?q",
                     array($table_name, $filter_query), 'assoc:id');
                 $table_translates = $this->all_configs['db']->query("SELECT * FROM ?q_strings as ts JOIN ?q as tv ON tv.id = ts.var_id  ?q",
@@ -112,7 +111,8 @@ class admin_translates extends translates
                     $_POST['translates'] = $translates;
                     $out = $this->check_post($_POST);
                 } else {
-                    $out = $this->edit($config, $translates, $table, $languages, strpos($this->all_configs['arrequest'][1],'print_template_vars') !== false);
+                    $out = $this->edit($config, $translates, $table, $languages,
+                        strpos($this->all_configs['arrequest'][1], 'print_template_vars') !== false);
                 }
             } else {
                 switch ($this->all_configs['arrequest'][1]) {
@@ -126,4 +126,58 @@ class admin_translates extends translates
 
         return $out;
     }
+
+    /**
+     * @param $post
+     * @param $translates
+     * @param $config
+     */
+    protected function saveTable($post, $translates, $config)
+    {
+        foreach ($post['data'] as $id => $transl) {
+            foreach ($transl as $lng => $fields) {
+                $all_fields = array();
+                $vals = array();
+                $update_vals = array();
+                foreach ($fields as $field => $translate) {
+                    // обновляем поля только на которых были изменения
+                    if (isset($translates[$id][$lng][$field]) && $translates[$id][$lng][$field] != $translate) {
+                        $update_vals[] = $this->all_configs['db']->makeQuery($field . ' = ?',
+                            array($translate));
+                        $vals[] = $this->all_configs['db']->makeQuery('?', array($translate));
+                        $all_fields[] = $field;
+                    }
+                }
+                if ($update_vals) {
+                    $data_q = $this->all_configs['db']->makeQuery('(?, ?q, ?)',
+                        array($id, implode(',', $vals), $lng));
+                    $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q 
+                                              ON DUPLICATE KEY UPDATE ?q",
+                        array(
+                            $this->getTableName(),
+                            $config['key'],
+                            implode(',', $all_fields),
+                            $data_q,
+                            implode(',', $update_vals)
+                        ));
+                }
+            }
+        }
+
+        Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTableName()
+    {
+        if (strpos($this->all_configs['arrequest'][1], 'print_template_vars') !== false) {
+            $table_name = $this->tbl_prefix . 'template_vars';
+        } else {
+            $table_name = $this->all_configs['arrequest'][1];
+        }
+        return $table_name;
+    }
+
 }

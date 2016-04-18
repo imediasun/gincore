@@ -33,17 +33,11 @@
                         <span class="form-group" style="display:block">
                             <label><?= $languages[$lng]['name'] ?>, <?= $lng ?></label>
                             <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
-                            <?php if ($textarea): ?>
-                                <div class="summernote">
-                                    <?= $value ?>
-                                </div>
+                            <?php if ($textarea || strlen($value) > 50): ?>
+                                <textarea class="form-control <?= $textarea ? 'tinymce' : '' ?>" style="height: 150px"
+                                          name="<?= $f_name ?>"><?= $value ?></textarea>
                             <?php else: ?>
-                                <?php if (strlen($value) > 50): ?>
-                                    <textarea class="form-control" style="height: 150px"
-                                              name="<?= $f_name ?>"><?= $value ?></textarea>
-                                <?php else: ?>
-                                    <input class="form-control" type="text" name="<?= $f_name ?>" value="<?= $value ?>">
-                                <?php endif; ?>
+                                <input class="form-control" type="text" name="<?= $f_name ?>" value="<?= $value ?>">
                             <?php endif; ?>
                         </span>
                     <?php endforeach; ?>
@@ -55,10 +49,13 @@
     </fieldset>
 </form>
 
-<script type="text/javascript" src="<?=$this->all_configs['prefix'];?>js/summernote.js"></script>
-<link rel="stylesheet" href="<?= $this->all_configs['prefix'] ?>css/summernote.css" />
-<script>
-    $(document).ready(function(){
-       $('.summernote').summernote();
-    });
-</script>
+<?php if ($textarea): ?>
+    <script type="text/javascript" src="<?= $this->all_configs['prefix']; ?>js/tinymce/tinymce.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            tinymce.init({
+                selector: '.tinymce'
+            });
+        });
+    </script>
+<?php endif; ?>
