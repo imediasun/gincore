@@ -39,6 +39,7 @@ abstract class abstract_import_provider
             $sample = iconv($item, $item, $header_row[0]);
             if (md5($sample) == md5($header_row[0])) {
                 $this->codepage = $item;
+                break;
             }
         }
     }

@@ -48,7 +48,7 @@ class gincore_clients extends abstract_import_provider
      */
     public function get_fio($data)
     {
-        return $this->codepage == 'utf-8' ? $data[0] : iconv('cp1251', 'utf8', $data[0]);
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[0] : iconv('cp1251', 'utf8', $data[0]);
     }
 
     /**
@@ -66,7 +66,7 @@ class gincore_clients extends abstract_import_provider
      */
     function get_address($data)
     {
-        return $this->codepage == 'utf-8' ? $data[4] : iconv('cp1251', 'utf8', $data[4]);
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[4] : iconv('cp1251', 'utf8', $data[4]);
     }
 
     /**
@@ -75,7 +75,7 @@ class gincore_clients extends abstract_import_provider
      */
     public function get_contractor_id($data)
     {
-        $type = ucfirst($this->codepage == 'utf-8' ? $data[1] : iconv('CP1251', 'UTF-8', $data[1]));
+        $type = ucfirst((empty($this->codepage) || $this->codepage == 'utf-8') ? $data[1] : iconv('CP1251', 'UTF-8', $data[1]));
         if (in_array($type, $this->availableContractors) && isset($this->contractors[$type])) {
             return $this->contractors[$type]['id'];
         }
