@@ -123,7 +123,6 @@ class translates
         ));
     }
 
-
     /**
      * @return mixed|string
      */
