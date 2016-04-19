@@ -1,5 +1,5 @@
-<div class="form-group">
-    <label>
+<div class="form-group clearfix">
+    <label class="lh30">
         <span class="cursor-pointer glyphicon glyphicon-list"
               title="<?= $title ?>"
               data-o_id="<?= $order['id'] ?>"
@@ -7,7 +7,7 @@
         </span>
         <?= $title ?>:
     </label>
-    <select class="form-control" name="<?= $type ?>">
+    <select class="form-control block-right p60" name="<?= $type ?>">
         <option value=""><?= l('Выбрать') ?></option>
         <?php if ($users): ?>
             <?php foreach ($users as $user): ?>

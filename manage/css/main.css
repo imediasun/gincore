@@ -980,3 +980,20 @@ legend span.tag {
 .remove_currency{
     cursor: pointer;
 }
+.block-right {
+    float: right;
+    display: inline-block;
+}
+
+.p60 {
+    width: 60%;
+}
+.lh30 {
+    line-height:30px;
+}
+.bordered {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
