@@ -28,7 +28,7 @@ class import_orders extends abstract_import_handler
         $this->engineers = array();
         $this->clients = array();
         $this->categories = array();
-        $this->devices = db()->query('SELECT id, title FROM {categories}')->assoc('title');
+        $this->devices = db()->query('SELECT title, id FROM {categories}')->vars();
 
         $this->types = array_flip($this->all_configs['configs']['order-types']);
 
