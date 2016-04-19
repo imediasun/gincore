@@ -1974,8 +1974,9 @@ class warehouses
                                 <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' />" . l('Учитывать в свободном остатке') . "</label></div>
                                 <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' />" . l('Учитывать в общем остатке') . "</label></div>
                             </div>
-                            <div class='form-group'><label >" . l('Тип склада') . ": </label>
-                                {$warehouses_type}</div>
+                            <div class='form-group'>
+                            <input type='hidden' value='1' name='type' />
+                            </div>
                             <div class='form-group'><label>" . l('Принадлежность к Сервисному центру') . ": </label>
                                 {$warehouses_groups}</div>
                             <div class='form-group'><label>" . l('Категория') . ": </label>
