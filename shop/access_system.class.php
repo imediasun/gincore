@@ -119,11 +119,11 @@ class Role
      */
     public function isLastSuperuserRole($roleId)
     {
-        $count = $this->all_configs['db']->query('SELECT count(*)
+        $roleIds = $this->all_configs['db']->query('SELECT l.role_id 
                 FROM {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
-            array(array('site-administration'), $roleId))->el();
-        return $count == 1;
+                WHERE p.link IN (?l) AND l.permission_id=p.id',
+            array(array('site-administration')))->col();
+        return in_array($roleId, $roleIds) && count($roleIds) == 1;
     }
 
     /**
