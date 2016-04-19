@@ -47,5 +47,7 @@ function l($param, $placeholders = array(), $default_wrap = true)
 }
 // функция l() для вставки перевода в sql запрос
 function lq($param, $placeholders = array()){
-    return l($param, $placeholders, false);
+    $r = l($param, $placeholders, false);
+    $r = str_replace("'", "\'", $r);
+    return $r;
 }
