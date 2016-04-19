@@ -386,8 +386,7 @@ class warehouses
                 $this->all_configs['db']->query(
                     'INSERT IGNORE INTO {warehouses_groups} (name, color, user_id, address) VALUES (?, ?, ?i, ?)',
                     array(trim($post['name']), $color, $user_id, trim($post['address'])));
-//                $link = '<a href="'.$this->all_configs['prefix'].'warehouses#settings-warehouses" class="btn btn-primary">' . l('Перейти') . '</a>';
-                $link = '';
+                $link = '<a href="'.$this->all_configs['prefix'].'warehouses#settings-warehouses" class="btn btn-primary js-go-to" data-goto_id="#add_warehouses">' . l('Перейти') . '</a>';
                 FlashMessage::set(l('Вы добавили отделение') . ' ' . $post['name'] . '. ' . l('Теперь необходимо добавить склады и локации для данного отделения.') . $link,
                     FlashMessage::SUCCESS);
             }
@@ -894,7 +893,7 @@ class warehouses
 
             $admin_out .= '<ul class="nav nav-pills">';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="' . l('Создать') . '/' . l('редактировать группу склада') . '">' . l('Сервисные центры') . '</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" id="add_warehouses" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="' . l('Создать') . '/' . l('редактировать категорию склада') . '">' . l('Категории') . '</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="' . l('Закрепить администратора за кассой') . '">' . l('Администраторы') . '</a></li>';
             $admin_out .= '</ul>';
