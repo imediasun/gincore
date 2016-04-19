@@ -292,7 +292,7 @@ class master
                     // брак
                     $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id, 1, 0);
                     // клиент
-                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id, 0, 0);
+                    $this->create_warehouse(lq('Клиент'), '', '', 4, $id, 0, 0);
                     $added_services[$i] = array(
                             'id' => $id
                         ) + $main_wh;
