@@ -11,6 +11,7 @@ class import_orders extends abstract_import_handler
     public $categories;
     public $devices;
     public $managers;
+    public $types;
     protected $not_found_acceptors;
     protected $not_found_engineers;
     protected $not_found_managers;
@@ -28,6 +29,8 @@ class import_orders extends abstract_import_handler
         $this->clients = array();
         $this->categories = array();
         $this->devices = db()->query('SELECT id, title FROM {categories}')->assoc('title');
+
+        $this->types = array_flip($this->all_configs['configs']['order-types']);
 
         $scan = $this->scanAcceptorsAndEngineers($rows);
         if (!$scan['state']) {
@@ -65,6 +68,7 @@ class import_orders extends abstract_import_handler
                 $client_id = $this->getClientId($client_fio, $client_phone);
                 $device = $this->getDevice($row);
                 $device_id = $this->getDeviceId($device);
+                $typeId = $this->getTypeOfRepairId($this->provider->get_type_of_repair($row));
 
                 // создаем заказа
                 $order = array(
@@ -88,7 +92,8 @@ class import_orders extends abstract_import_handler
                     $manager_id,
                     $device,
                     $this->acceptors_wh[$acceptor_id]['wh_id'],
-                    $this->acceptors_wh[$acceptor_id]['location_id']
+                    $this->acceptors_wh[$acceptor_id]['location_id'],
+                    $typeId
                 );
                 $this->createNewOrder($order);
             } catch (Exception $e) {
@@ -194,11 +199,11 @@ class import_orders extends abstract_import_handler
                 . "(id,date_add,accepter,status,user_id,fio,"
                 . " phone,courier,category_id,serial,equipment,"
                 . " comment, date_readiness, `sum`, "
-                . " prepay, defect, engineer, manager, title, wh_id, location_id) "
+                . " prepay, defect, engineer, manager, title, wh_id, location_id, `repair`) "
                 . " VALUES "
                 . " (?i, ?, ?i, ?i, ?i, ?,"
                 . "  ?, ?, ?i, ?, ?, "
-                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i)",
+                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i, ?i)",
                 $order
             );
         } catch (Exception $e) {
@@ -348,5 +353,14 @@ class import_orders extends abstract_import_handler
                 . "VALUE (?,0,?,'',1)", array($device, $url), 'id');
         }
         return $id;
+    }
+
+    /**
+     * @param $typeOfRepair
+     * @return int
+     */
+    private function getTypeOfRepairId($typeOfRepair)
+    {
+        return isset($this->types[$typeOfRepair]) ? $this->types[$typeOfRepair] : 0;
     }
 }

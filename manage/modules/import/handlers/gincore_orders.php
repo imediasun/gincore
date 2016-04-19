@@ -124,7 +124,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_type_of_repair($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[7] : iconv('cp1251', 'utf8', $data[7]);
+        return mb_ucfirst((empty($this->codepage) || $this->codepage == 'utf-8') ? $data[7] : iconv('cp1251', 'utf8', $data[7]));
     }
 
     /**

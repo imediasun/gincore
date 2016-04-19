@@ -986,7 +986,11 @@ class Configs
                 'edit-chain-body' => l('Редактирование цепочка'),
                 'chain-body-update-serial' => l('Обновление серийника'),
             ),
-
+            'order-types'=> array(
+                0 => l('Платный'),
+                1 => l('Гарантийный'),
+                2 => l('Доработка')
+            ),
             'order-status-new' => 0,
             // новый заказ (принят в ремонт)
             'order-status-diagnosis' => 2,
