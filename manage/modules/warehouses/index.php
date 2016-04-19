@@ -432,7 +432,7 @@ class warehouses
 
         // чистим кеш складов
         get_service('wh_helper')->clear_cache();
-        
+
         header("Location:" . $_SERVER['REQUEST_URI']);
         exit;
     }
@@ -481,9 +481,9 @@ class warehouses
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
             $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
@@ -810,7 +810,7 @@ class warehouses
             $queries = $this->all_configs['manageModel']->suppliers_orders_query($_GET);
             $query = $queries['query'];
             $skip = $queries['skip'];
-			
+
             $count_on_page = $this->count_on_page;//$queries['count_on_page'];
 
             //$q = $this->all_configs['chains']->query_warehouses();
@@ -2031,8 +2031,8 @@ class warehouses
                         array((isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'], 'UTF-8')) > 0) ? trim($_POST['hashs']) : null)
                     );
                     $return = array(
-                        'html' =>  $function['html'], 
-                        'state' => true, 
+                        'html' =>  $function['html'],
+                        'state' => true,
                         'functions' => $function['functions']
                     );
                     if (isset($function['menu'])) {
@@ -2639,36 +2639,34 @@ class warehouses
     /**
      * @return array
      */
-    public static function get_submenu(){
-    return array(
-        array(
-            'click_tab' => true,
-            'url' => '#scanner_moves',
-            'name' => l('Перемещения')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#warehouses',
-            'name' => l('Склады')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#show_items',
-            'name' => l('Товары')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#orders',
-            'name' => l('Заказы')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#settings',
-            'name' => l('Настройки')
-        ), 
-    );
-}
-
-
-
+    public static function get_submenu()
+    {
+        return array(
+            array(
+                'click_tab' => true,
+                'url' => '#warehouses',
+                'name' => l('Склады')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#scanner_moves',
+                'name' => l('Перемещения')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#show_items',
+                'name' => l('Товары')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#orders',
+                'name' => l('Заказы')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#settings',
+                'name' => l('Настройки')
+            ),
+        );
+    }
 }
