@@ -867,7 +867,7 @@ function check_mess(last_time_query) {
             type: 'POST',
             data: 'act=global-ajax',
             success: function (msg) {
-
+console.log(msg);
                 if (msg) {
 
                     startcountdown(msg['alarms'] ? msg['alarms'] : null);

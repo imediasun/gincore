@@ -375,24 +375,6 @@ class warehouses
                 $this->all_configs['db']->query(
                     'DELETE FROM {warehouses_locations} WHERE wh_id=?i ?query', array($post['warehouse-id'], $query));
             } catch(Exception $e) {}
-            /*if (isset($_POST['location']) && is_array($_POST['location'])) {
-                try {
-                    $this->all_configs['db']->query(
-                        'DELETE FROM {warehouses_locations} WHERE wh_id=?i AND location NOT IN (?l)',
-                        array($post['warehouse-id'], array_values($_POST['location'])));
-                } catch(Exception $e) {}
-                foreach ($_POST['location'] as $location) {
-                    if (mb_strlen(trim($location), 'UTF-8') > 0) {
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
-                            array($post['warehouse-id'], trim($location)));
-                    }
-                }
-            } else {
-                try {
-                    $this->all_configs['db']->query(
-                        'DELETE FROM {warehouses_locations} WHERE wh_id=?i', array($post['warehouse-id']));
-                } catch(Exception $e) {}}*/
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'edit-warehouse', $mod_id, $post['warehouse-id']));
 
@@ -404,6 +386,10 @@ class warehouses
                 $this->all_configs['db']->query(
                     'INSERT IGNORE INTO {warehouses_groups} (name, color, user_id, address) VALUES (?, ?, ?i, ?)',
                     array(trim($post['name']), $color, $user_id, trim($post['address'])));
+//                $link = '<a href="'.$this->all_configs['prefix'].'warehouses#settings-warehouses" class="btn btn-primary">' . l('Перейти') . '</a>';
+                $link = '';
+                FlashMessage::set(l('Вы добавили отделение') . ' ' . $post['name'] . '. ' . l('Теперь необходимо добавить склады и локации для данного отделения.') . $link,
+                    FlashMessage::SUCCESS);
             }
         } elseif(isset($post['warehouse-type-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             if (isset($post['name']) && mb_strlen(trim($post['name']), 'UTF-8') > 0) {
