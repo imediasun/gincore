@@ -1,6 +1,6 @@
 <?php namespace services\crm;
 
-require_once __DIR__.'/../../../View.php';
+require_once __DIR__.'/../../../Core/View.php';
 
 
 class calls extends \service{

@@ -26,6 +26,19 @@
                 </div>
             </form>
         </div>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-3">
+            <div class="row" style="font-size: 3em; text-align: center">
+                <i class="glyphicon glyphicon-warning-sign"></i>
+            </div>
+            <p> <?= l('Рекомендуем импортировать файлы в слудующем порядке:') ?> </p>
+            <ol>
+                <li> <?= l('База клиентов') ?> </li>
+                <li> <?= l('Товары, категории') ?> </li>
+                <li> <?= l('Заказы') ?> </li>
+            </ol>
+        </div>
     </div>
     <div class="row row-15" id="upload_messages"></div>
 </div>

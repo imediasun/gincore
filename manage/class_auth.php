@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../manage/FlashMessage.php';
+require_once __DIR__.'/../manage/Core/FlashMessage.php';
 
 class Auth { //класс авторизации
 #db settings

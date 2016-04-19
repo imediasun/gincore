@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
-require_once __DIR__ . '/../../FlashMessage.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/FlashMessage.php';
 
 $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');
@@ -375,24 +375,6 @@ class warehouses
                 $this->all_configs['db']->query(
                     'DELETE FROM {warehouses_locations} WHERE wh_id=?i ?query', array($post['warehouse-id'], $query));
             } catch(Exception $e) {}
-            /*if (isset($_POST['location']) && is_array($_POST['location'])) {
-                try {
-                    $this->all_configs['db']->query(
-                        'DELETE FROM {warehouses_locations} WHERE wh_id=?i AND location NOT IN (?l)',
-                        array($post['warehouse-id'], array_values($_POST['location'])));
-                } catch(Exception $e) {}
-                foreach ($_POST['location'] as $location) {
-                    if (mb_strlen(trim($location), 'UTF-8') > 0) {
-                        $this->all_configs['db']->query(
-                            'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
-                            array($post['warehouse-id'], trim($location)));
-                    }
-                }
-            } else {
-                try {
-                    $this->all_configs['db']->query(
-                        'DELETE FROM {warehouses_locations} WHERE wh_id=?i', array($post['warehouse-id']));
-                } catch(Exception $e) {}}*/
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'edit-warehouse', $mod_id, $post['warehouse-id']));
 
@@ -404,6 +386,9 @@ class warehouses
                 $this->all_configs['db']->query(
                     'INSERT IGNORE INTO {warehouses_groups} (name, color, user_id, address) VALUES (?, ?, ?i, ?)',
                     array(trim($post['name']), $color, $user_id, trim($post['address'])));
+                $link = '<a href="'.$this->all_configs['prefix'].'warehouses#settings-warehouses" class="btn btn-primary js-go-to" data-goto_id="#add_warehouses">' . l('Перейти') . '</a>';
+                FlashMessage::set(l('Вы добавили отделение') . ' ' . $post['name'] . '. ' . l('Теперь необходимо добавить склады и локации для данного отделения.') . $link,
+                    FlashMessage::SUCCESS);
             }
         } elseif(isset($post['warehouse-type-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             if (isset($post['name']) && mb_strlen(trim($post['name']), 'UTF-8') > 0) {
@@ -432,7 +417,7 @@ class warehouses
 
         // чистим кеш складов
         get_service('wh_helper')->clear_cache();
-        
+
         header("Location:" . $_SERVER['REQUEST_URI']);
         exit;
     }
@@ -481,9 +466,9 @@ class warehouses
 
         $out = '<div class="tabbable"><ul class="nav nav-tabs">';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves"))
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[0]['url'].'">'.$this->mod_submenu[0]['name'].'</a></li>';
+            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[1]['url'].'">'.$this->mod_submenu[1]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
             $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="'.$this->mod_submenu[2]['url'].'">'.$this->mod_submenu[2]['name'].'</a></li>';
         if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics"))
@@ -810,7 +795,7 @@ class warehouses
             $queries = $this->all_configs['manageModel']->suppliers_orders_query($_GET);
             $query = $queries['query'];
             $skip = $queries['skip'];
-			
+
             $count_on_page = $this->count_on_page;//$queries['count_on_page'];
 
             //$q = $this->all_configs['chains']->query_warehouses();
@@ -908,7 +893,7 @@ class warehouses
 
             $admin_out .= '<ul class="nav nav-pills">';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="' . l('Создать') . '/' . l('редактировать группу склада') . '">' . l('Сервисные центры') . '</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
+            $admin_out .= '<li><a class="click_tab" id="add_warehouses" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="' . l('Создать') . '/' . l('редактировать категорию склада') . '">' . l('Категории') . '</a></li>';
             $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="' . l('Закрепить администратора за кассой') . '">' . l('Администраторы') . '</a></li>';
             $admin_out .= '</ul>';
@@ -1974,8 +1959,9 @@ class warehouses
                                 <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' />" . l('Учитывать в свободном остатке') . "</label></div>
                                 <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' />" . l('Учитывать в общем остатке') . "</label></div>
                             </div>
-                            <div class='form-group'><label >" . l('Тип склада') . ": </label>
-                                {$warehouses_type}</div>
+                            <div class='form-group'>
+                            <input type='hidden' value='1' name='type' />
+                            </div>
                             <div class='form-group'><label>" . l('Принадлежность к Сервисному центру') . ": </label>
                                 {$warehouses_groups}</div>
                             <div class='form-group'><label>" . l('Категория') . ": </label>
@@ -2030,8 +2016,8 @@ class warehouses
                         array((isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'], 'UTF-8')) > 0) ? trim($_POST['hashs']) : null)
                     );
                     $return = array(
-                        'html' =>  $function['html'], 
-                        'state' => true, 
+                        'html' =>  $function['html'],
+                        'state' => true,
                         'functions' => $function['functions']
                     );
                     if (isset($function['menu'])) {
@@ -2638,36 +2624,34 @@ class warehouses
     /**
      * @return array
      */
-    public static function get_submenu(){
-    return array(
-        array(
-            'click_tab' => true,
-            'url' => '#scanner_moves',
-            'name' => l('Перемещения')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#warehouses',
-            'name' => l('Склады')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#show_items',
-            'name' => l('Товары')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#orders',
-            'name' => l('Заказы')
-        ), 
-        array(
-            'click_tab' => true,
-            'url' => '#settings',
-            'name' => l('Настройки')
-        ), 
-    );
-}
-
-
-
+    public static function get_submenu()
+    {
+        return array(
+            array(
+                'click_tab' => true,
+                'url' => '#warehouses',
+                'name' => l('Склады')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#scanner_moves',
+                'name' => l('Перемещения')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#show_items',
+                'name' => l('Товары')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#orders',
+                'name' => l('Заказы')
+            ),
+            array(
+                'click_tab' => true,
+                'url' => '#settings',
+                'name' => l('Настройки')
+            ),
+        );
+    }
 }

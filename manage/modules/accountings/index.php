@@ -1,22 +1,15 @@
 <?php
 
-require_once __DIR__.'/../../View.php';
+require_once __DIR__.'/../../Core/Constructor.php';
 
 $modulename[30] = 'accountings';
 $modulemenu[30] = l('Бухгалтерия');
 $moduleactive[30] = !$ifauth['is_2'];
 
-class accountings
+class accountings extends Constructor
 {
-    /** @var View */
-    protected $view = null;
-    private $mod_submenu;
     protected $cashboxes = array();
     protected $contractors = array();
-
-    protected $all_configs;
-
-    public $count_on_page;
 
     protected $months = array(
         '01' => 'January',
@@ -36,38 +29,14 @@ class accountings
     protected $course_default = 100; // default course (uah) in cent
 
     /**
-     * accountings constructor.
-     * @param $all_configs
+     * @param array $arrequest
      */
-    function __construct(&$all_configs)
+    public function routing(Array $arrequest)
     {
-        $this->all_configs = $all_configs;
-        $this->mod_submenu = self::get_submenu($this->all_configs['oRole']);
-        $this->count_on_page = count_on_page();
-        $this->view = new View($all_configs);
-
-        global $input_html;
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-            $this->ajax();
-        }
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'export') {
+        parent::routing($arrequest);
+        if (isset($arrequest[1]) && $arrequest == 'export') {
             $this->export();
         }
-
-        if ($this->can_show_module() == false) {
-            return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') . '</p></div>';
-        }
-
-        // если отправлена форма
-        if (count($_POST) > 0) {
-            $this->check_post($_POST);
-        }
-
-        $input_html['mcontent'] = $this->gencontent();
-
     }
 
     /**
@@ -83,17 +52,9 @@ class accountings
     }
 
     /**
-     * @return string
-     */
-    public function getUserId()
-    {
-        return isset($_SESSION['id']) ? $_SESSION['id'] : '';
-    }
-
-    /**
      * @param $post
      */
-    function check_post($post)
+    function check_post(Array $post)
     {
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
         $user_id = $this->getUserId();

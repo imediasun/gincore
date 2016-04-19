@@ -336,7 +336,7 @@ if ($act == 'alarm-clock') {
 
     $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
 
-    require_once __DIR__.'/View.php';
+    require_once __DIR__.'/Core/View.php';
     $view = new View($all_configs);
     $data['content'] = $view->renderFile('messages/alarm_clock_form', array(
         'order_id' => $order_id,
@@ -720,7 +720,7 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
         'new_comments' => intval($qty_unread),
         'alarms' => $alarms,
     );
-    require_once __DIR__.'/FlashMessage.php';
+    require_once __DIR__.'/Core/FlashMessage.php';
     $flash = FlashMessage::show();
     if(!empty($flash)) {
         $result['flash'] = $flash;

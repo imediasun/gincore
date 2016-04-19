@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
-require_once __DIR__ . '/../../FlashMessage.php';
-require_once __DIR__ . '/../../Response.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/FlashMessage.php';
+require_once __DIR__ . '/../../Core/Response.php';
 // настройки
 $modulename[132] = 'widgets';
 $modulemenu[132] = l('Виджеты');  //карта сайта

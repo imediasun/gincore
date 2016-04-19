@@ -169,6 +169,13 @@ if ($data->act == 'change-tariff') {
     db()->query('UPDATE {users} SET blocked_by_tariff=0');
     returnSuccess(array('result' => $ar));
 }
+if ($data->act == 'set-time-zone') {
+//    $ar = db()->query("UPDATE {settings} SET value=? WHERE name='time_zone'", array($data->time_zone))->ar();
+    db()->query("INSERT INTO {settings} (`name`, `value`, `ro`, `title`, `description`) 
+                VALUES ('time_zone', ?, 0, 'Временная зона', ''Временная зона, например Europe/Kiev'')
+                ON DUPLICATE KEY UPDATE value=?", array($data->time_zone,$data->time_zone));
+    returnSuccess(array('result' => 1));
+}
 
 
 ### return
