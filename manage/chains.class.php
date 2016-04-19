@@ -1988,7 +1988,7 @@ class Chains
             $data['msg'] = 'Введите дату';
         }
 
-        if ($data['state'] == true && $client_order_id == 0/*$supplier_order_id > 0*/ && (($post['transaction_type'] == TRANSACTION_OUTPUT 
+        if ($data['state'] == true && $client_order_id == 0 && (($post['transaction_type'] == TRANSACTION_OUTPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
                 || ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
             && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)

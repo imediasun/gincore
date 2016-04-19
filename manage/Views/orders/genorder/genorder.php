@@ -299,8 +299,18 @@
                             <div class="form-group clearfix">
                                 <label><?= l('Номер возврата') ?>: </label>
                                 <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
-                                    <?= $order['id'] ?>-<input type="text" value="<?= $order['return_id'] ?>"
-                                                               name="return_id" class="form-control"/>
+                                    <?= $order['id'] ?>-
+                                    <?php if (!empty($returns)): ?>
+                                        <select name="return_id" class="form-control block-right p60">
+                                            <option value="-1"><?= l("Не выбрано") ?></option>
+                                            <?php foreach ($returns as $return): ?>
+                                                <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
+                                                    value="<?= $return['id'] ?>">
+                                                    <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' .viewCurrency() .")" ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <?= $order['id'] ?>-<?= $order['return_id']; ?>
                                 <?php endif; ?>
