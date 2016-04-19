@@ -9,7 +9,9 @@ define('USER_ACTIVATED_BY_TARIFF', 0);
 define('USER_DEACTIVATED_BY_TARIFF_AUTOMATIC', 1);
 define('USER_DEACTIVATED_BY_TARIFF_MANUAL', 2);
 
-
+define('TRANSACTION_OUTPUT', 1);
+define('TRANSACTION_INPUT', 2);
+define('TRANSACTION_TRANSFER', 3);
 
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
