@@ -1,6 +1,6 @@
 <?php namespace services\widgets;
 
-require_once __DIR__ . '/../../../View.php';
+require_once __DIR__ . '/../../../Core/View.php';
 
 class status extends \service
 {

@@ -13,7 +13,7 @@ class View
     {
         $this->all_configs = $all_configs;
         if (empty($this->all_configs)) {
-            $this->basePath = __DIR__;
+            $this->basePath = __DIR__.'/../';
         } else {
             $this->basePath = $all_configs['sitepath'] . 'manage';
         }

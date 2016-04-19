@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[133] = 'import';
 $modulemenu[133] = l('Импорт');
@@ -16,6 +16,7 @@ class import
         'items' => array(
             'name' => 'Товары',
             'handlers' => array(
+                'gincore' => 'из унифицированного формата',
                 'vvs' => 'из VVS Склад-офис-магазин',
                 'tirika' => 'из базы "Тирика-Магазин"'
             )
@@ -23,13 +24,14 @@ class import
         'orders' => array(
             'name' => 'Заказы', // l() placeholders
             'handlers' => array(
+                'gincore' => 'из унифицированного формата',
                 'remonline' => 'Remonline'
             )
         ),
         'clients' => array(
             'name' => 'Клиенты',
             'handlers' => array(
-                'gincore' => 'Gincore',
+                'gincore' => 'из унифицированного формата',
                 'remonline' => 'Remonline',
                 'onec' => '1C (формат A)'
             )
@@ -170,7 +172,7 @@ class import
         return $this->view->renderFile('import/get_import_form', array(
             'type' => $type,
             'options' => $this->upload_types,
-            'hasOrders' => $this->has_orders()
+            'handlers' => array_keys($this->upload_types[$type]['handlers'])
         ));
     }
 

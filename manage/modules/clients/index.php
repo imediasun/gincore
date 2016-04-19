@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');

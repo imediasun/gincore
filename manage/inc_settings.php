@@ -35,8 +35,19 @@ $all_configs['configs'] = Configs::getInstance()->get();
 $all_configs['settings'] = $all_configs['db']->query("SELECT name, value FROM {settings}")->vars();
 
 
-$systemTimeZone = isset($all_configs['settings']['time_zone']) ? $all_configs['settings']['time_zone'] : '+00:00'; 
-$all_configs['db']->query('SET @@session.time_zone = ?;', array($systemTimeZone))->ar();
+$systemTimeZone = isset($all_configs['settings']['time_zone']) ? $all_configs['settings']['time_zone'] : 'Europe/Kiev'; 
+//$all_configs['db']->query('SET @@session.time_zone = ?;', array($systemTimeZone))->ar();
+if(strpos($systemTimeZone, ':') !== false && strlen($systemTimeZone) <= 6){
+    list($hours, $minutes) = explode(':', $systemTimeZone);
+    $seconds = $hours * 60 * 60 + $minutes * 60;
+    $tz_abbr = timezone_name_from_abbr('', $seconds, 1);
+    if($tz_abbr === false) $tz_abbr = timezone_name_from_abbr('', $seconds, 0);
+    @date_default_timezone_set($tz_abbr);
+    $all_configs['db']->query("SET `time_zone`='".$systemTimeZone."'");
+}else{
+    @date_default_timezone_set($systemTimeZone);
+    $all_configs['db']->query("SET `time_zone`='".date('P')."'");
+}
 
 
 /* определяем языки админки */

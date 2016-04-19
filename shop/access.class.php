@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../manage/FlashMessage.php';
+require_once __DIR__.'/../manage/Core/FlashMessage.php';
 
 class access
 {
@@ -745,8 +745,11 @@ class access
 
 
                 $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
-                send_sms($phone,
-                    l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $host . '. ' . l('Vash kod clienta: ') . $result['id']);
+                $sendSms = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+                if ($sendSms) {
+                    send_sms($phone,
+                        l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $host . '. ' . l('Vash kod clienta: ') . $result['id']);
+                }
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';
             } catch (go\DB\Exceptions\Exception $e) {
@@ -757,28 +760,11 @@ class access
 
         if ($result['id'] > 0) {
 
-//            if (isset($post['delivery']) && !empty($post['delivery']) && trim($post['delivery']) > 0
-//                    && isset($post['city']) && isset($post['region']) && array_key_exists($post['region'], $this->all_configs['configs']['regions'])
-//                    && array_key_exists($post['city'], $this->all_configs['configs']['cities'][$post['region']])) {
-//                $this->all_configs['db']->query('INSERT IGNORE INTO {clients_delivery_addresses} (user_id, content, region, city) VALUES (?i, ?, ?i, ?i)',
-//                    array($result['id'], $post['delivery'], $post['region'], $post['city']));
-//            }
             $this->update_phones($phone, $result['id']);
             $this->update_email($email, $result['id']);
 
             if ($this->standart == false)
                 return $result;
-
-            /*if ($result['new'] == true) {
-                if ($email) {
-                    $mailer->group('register', $email, array('pass' => $pass, 'confirm' => $confirm, 'user_id' => $result['id']));
-                    $mailer->go();
-                }
-                if (isset($_SESSION['user_id'])) {
-                    $this->move_shopping_cart($result['id'], $_SESSION['user_id']);
-                }
-                $this->create_new($result['id']);
-            }*/
         }
 
         return $result;

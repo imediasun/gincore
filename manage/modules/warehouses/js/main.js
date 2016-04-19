@@ -1,7 +1,13 @@
 //var array_serial_inputs = {};
 
 $(document).ready(function() {
-    
+    $('.js-go-to').on('click', function(){
+        alert('test');
+       var id  = $(this).attr('data-goto_id');
+        if(id) {
+            $(id).click();
+        }
+    });
     $(document).on('click', 'input.colorpicker:not(.colorpicker-element)', function(){
         $(this).colorpicker({
             format: 'hex',

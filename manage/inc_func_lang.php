@@ -19,7 +19,7 @@ function get_manage_translates(){
     foreach($vars as $var_id => $var){
         $k_cur = $var_id.'_'.$manage_lang;
         $k_def = $var_id.'_'.$manage_def_lang;
-        $manage_translates[$var] = !empty($translates[$k_cur]['text']) ? $translates[$k_cur]['text'] : $translates[$k_def]['text'];
+        $manage_translates[$var] = !empty($translates[$k_cur]['text']) ? $translates[$k_cur]['text'] : (!empty($translates[$k_def]['text'])?$translates[$k_def]['text']:'');
         if(strpos($var, 'js_') === 0){
             $manage_translates_js[substr($var,3)] = $manage_translates[$var];
         }
@@ -47,5 +47,7 @@ function l($param, $placeholders = array(), $default_wrap = true)
 }
 // функция l() для вставки перевода в sql запрос
 function lq($param, $placeholders = array()){
-    return l($param, $placeholders, false);
+    $r = l($param, $placeholders, false);
+    $r = str_replace("'", "\'", $r);
+    return $r;
 }
