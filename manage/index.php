@@ -388,7 +388,7 @@ $input['show_contact_phones_class'] = $all_configs['configs']['manage-show-phone
 
 require_once __DIR__.'/TariffMessages.php';
 $input['tariff_message'] = TariffMessages::getInstance()->getMessage();
-
+$input['profile_tariff_caption'] = l('Ваш тариф:');
 $input['main'] = l('main');
 $input['exit'] = l('exit');
 $input['sign_in'] = l('sign_in');
