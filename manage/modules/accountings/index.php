@@ -386,20 +386,21 @@ class accountings extends Constructor
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
-                header("Location:" . $_SERVER['REQUEST_URI']);
-                exit;
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $title = trim($post['title']);
+            if (empty($title)) {
+                FlashMessage::set(l('Название склада не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
             }
             $cashboxes_type = 1;
-//            $avail = isset($post['avail']) ? 1 : null;
-//            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
-//            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
 
             $ar = $this->all_configs['db']->query('UPDATE {cashboxes} SET cashboxes_type=?i, avail=?n, avail_in_balance=?n, avail_in_orders=?n, name=?
                   WHERE id=?i',
-                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, trim($post['title']), $post['cashbox-id']))->ar();
+                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, $title, $post['cashbox-id']))->ar();
 
             $this->all_configs['db']->query('DELETE FROM {cashboxes_currencies} WHERE cashbox_id=?i AND id NOT IN(
                     SELECT cashboxes_currency_id_from as cc_id FROM {cashboxes_transactions}
