@@ -389,6 +389,17 @@ class Configs
                     'symbol' => '₪',
                     'currency-name' => ''
                 ),
+                16 => array(
+                    'rutils' => array(
+                        'words' => array(l('фунт'), l('фунта'), l('фунтов')),
+                        'gender' => 'male'
+                    ),
+                    'name' => l('Фунт стерлингов'),
+                    'shortName' => 'GBP',
+                    'viewName' => '£',
+                    'symbol' => '£',
+                    'currency-name' => ''
+                ),
             ),
 
             /**
