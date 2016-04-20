@@ -4,11 +4,11 @@
         <div class="col-sm-4">
             <div class="col-sm-12 control-group">
                 <div class="col-sm-12">
-                    <label class="control-label"><?= l('Электронная почта') ?>: </label>
+                    <label class="control-label"><?= l('Ф.И.О.') ?>: <b class="text-danger">*</b></label>
                 </div>
                 <div class="col-sm-12 controls">
-                    <input value="<?= (isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '') ?>"
-                           name="email" class="form-control"/>
+                    <input value="<?= (isset($_POST['fio']) ? htmlspecialchars($_POST['fio']) : '') ?>"
+                           name="fio" required class="form-control"/>
                 </div>
             </div>
             <div class="col-sm-12 control-group">
@@ -22,11 +22,20 @@
             </div>
             <div class="col-sm-12 control-group">
                 <div class="col-sm-12">
-                    <label class="control-label"><?= l('Ф.И.О.') ?>: <b class="text-danger">*</b></label>
+                    <label class="control-label"><?= l('Адрес') ?>: </label>
                 </div>
                 <div class="col-sm-12 controls">
-                    <input value="<?= (isset($_POST['fio']) ? htmlspecialchars($_POST['fio']) : '') ?>"
-                           name="fio" required class="form-control"/>
+                    <input value="<?= (isset($_POST['legal_address']) ? htmlspecialchars($_POST['legal_address']) : '') ?>"
+                           name="legal_address" class="form-control"/>
+                </div>
+            </div>
+            <div class="col-sm-12 control-group">
+                <div class="col-sm-12">
+                    <label class="control-label"><?= l('Электронная почта') ?>: </label>
+                </div>
+                <div class="col-sm-12 controls">
+                    <input value="<?= (isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '') ?>"
+                           name="email" class="form-control"/>
                 </div>
             </div>
             <div class="col-sm-12 control-group">
