@@ -1,7 +1,7 @@
 <?php namespace services\widgets;
 
-if (file_exists(__DIR__ . '/../../View.php')) {
-    require __DIR__ . '/../../View.php';
+if (file_exists(__DIR__ . '/../../Core/View.php')) {
+    require __DIR__ . '/../../Core/View.php';
 }
 
 require_once(ROOT_DIR . '/shop/access.class.php');

@@ -77,9 +77,13 @@ class master
 
         // страны
         $input_html['country_select'] = '';
-        sort($this->all_configs['configs']['countries'], SORT_REGULAR);
-        foreach ($this->all_configs['configs']['countries']  as $id => $country) {
-            $input_html['country_select'] .= '<option value="' . $id . '">' . $country['name'] . '</option>';
+        $countryIds = array();
+        foreach ($this->all_configs['configs']['countries'] as $id => $country) {
+            $countryIds[$country['name']] = $id;
+        }
+        ksort($countryIds, SORT_LOCALE_STRING );
+        foreach ($countryIds  as $title => $id) {
+            $input_html['country_select'] .= '<option value="' . $id . '">' . $title . '</option>';
         }
     }
 
@@ -288,7 +292,7 @@ class master
                     // брак
                     $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id, 1, 0);
                     // клиент
-                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id, 0, 0);
+                    $this->create_warehouse(lq('Клиент'), '', '', 4, $id, 0, 0);
                     $added_services[$i] = array(
                             'id' => $id
                         ) + $main_wh;

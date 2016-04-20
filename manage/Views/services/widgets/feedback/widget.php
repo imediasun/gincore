@@ -18,7 +18,7 @@
             <span class="gcw_modal_close"></span>
         </div>
         <div class="gcw_modal_body js-feedback-body" style="background-color: #f1f1f1">
-            <form class="gcw_form" data-action="<?= $widgets->get_requests_url('feedback') ?>" method="post">
+            <form class="gcw_form js-feedback-form" data-action="<?= $widgets->get_requests_url('feedback') ?>" method="post">
                 <input type="hidden" name="widget" value="feedback">
                 <input type="hidden" name="action" value="add">
                 <div class="gcw_form_group">

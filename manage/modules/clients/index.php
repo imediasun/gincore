@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../View.php';
+require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');
@@ -430,9 +430,9 @@ class clients
         foreach ($clients as $client) {
             $client_data = array();
             $client_data[] = $client['id'];
-            $client_data[] = $client['phones'];
+            $client_data[] =  't. '.$client['phones'];
             foreach ($export_fields as $exf) {
-                $client_data[] = $client[$exf];
+                $client_data[] = in_array($exf, array('fio', 'legal_address')) ? iconv('UTF-8', 'CP1251', $client[$exf]) : $client[$exf];
             }
             $data[] = $client_data;
         }
@@ -440,7 +440,7 @@ class clients
         header('Content-Disposition: attachment; filename=clients.csv');
         $out = fopen('php://output', 'w');
         foreach ($data as $row) {
-            fputcsv($out, $row, ';');
+            fputcsv($out, $row, ';', '"');
         }
         fclose($out);
         exit;

@@ -61,7 +61,7 @@ function replace_pattern($matches) {
 }
 
 ################################################################################
-require_once 'View.php';
+require_once 'Core/View.php';
 #загрузка файлов с хтмл-кодом
 $view = new View($all_configs);
 if ($html_header == 'html_header.html') {
@@ -117,7 +117,8 @@ if($curmod){
         $css_files = scandir($mod_path.'css/');
         foreach($css_files as $file){
             if($file != '.' && $file != '..'){
-                $css .= '<link type="text/css" rel="stylesheet" href="'.$mod_prefix.'css/'.$file.'?21">';
+                $atime = filemtime($mod_path.'css/'.$file);
+                $css .= '<link type="text/css" rel="stylesheet" href="'.$mod_prefix.'css/'.$file.'?'.$atime.'">';
             }
         }
     }
@@ -129,7 +130,8 @@ if($curmod){
         $main_js = '';
         foreach($js_files as $file){
             if($file != '.' && $file != '..'){
-                $link = '<script type="text/javascript" src="'.$mod_prefix.'js/'.$file.'?40"></script>';
+                $atime = filemtime($mod_path.'js/'.$file);
+                $link = '<script type="text/javascript" src="'.$mod_prefix.'js/'.$file.'?'.$atime.'"></script>';
                 if($file == 'main.js'){
                     $main_js = $link;
                     continue;
@@ -141,7 +143,7 @@ if($curmod){
         $js .= $main_js;
     }
     $input_js['module'] = $js;
-    
+
     if(file_exists($mod_path.'index.html')){
         $input_html['module_content'] = file_get_contents($mod_path.'index.html');
         $pattern = "/\{\-(txt|html)\-([a-zA-Z0-9_]{1,120})\}/";

@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../../Response.php';
-require_once __DIR__ . '/../../FlashMessage.php';
-require_once __DIR__ . '/../../View.php';
-require_once(__DIR__ . '/../../../shop/access.class.php');
+require_once __DIR__ . '/../../Core/Response.php';
+require_once __DIR__ . '/../../Core/FlashMessage.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Tariff.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
@@ -375,28 +375,43 @@ class users
                     $cert_avail = 1;
                 }
                 if (intval($uid) > 0) {
-                    if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
+                    $isLastSuperuser = $this->all_configs['oRole']->isLastSuperuser(intval($uid));
+                    if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $isLastSuperuser) {
                         FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
                             FlashMessage::DANGER);
-                    } else {
-                        $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
-                            auth_cert_serial=?, auth_cert_only=?
+                        continue;
+                    }
+                    $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL: USER_ACTIVATED_BY_TARIFF;
+                    if($isBlocked && $isLastSuperuser) {
+                        FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
+                            FlashMessage::DANGER);
+                        $isBlocked = 0;
+                        $avail = 1;
+                    }
+                    if($isBlocked && $uid == $user_id) {
+                        FlashMessage::set(l('Нельзя заблокировать текущую учетную запись'),
+                            FlashMessage::DANGER);
+                        $isBlocked = 0;
+                        $avail = 1;
+                    }
+                    $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
+                            auth_cert_serial=?, auth_cert_only=?, blocked_by_tariff=?i
                         WHERE id=?i',
-                            array(
-                                intval($role),
-                                $avail,
-                                trim($post['fio'][$uid]),
-                                trim($post['position'][$uid]),
-                                trim($post['phone'][$uid]),
-                                trim($post['email'][$uid]),
-                                trim($post['auth_cert_serial'][$uid]),
-                                $cert_avail,
-                                intval($uid)
-                            ))->ar();
-                        if (intval($ar) > 0) {
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'update-user', $mod_id, intval($uid)));
-                        }
+                        array(
+                            intval($role),
+                            $avail,
+                            trim($post['fio'][$uid]),
+                            trim($post['position'][$uid]),
+                            trim($post['phone'][$uid]),
+                            trim($post['email'][$uid]),
+                            trim($post['auth_cert_serial'][$uid]),
+                            $cert_avail,
+                            $isBlocked,
+                            intval($uid)
+                        ))->ar();
+                    if (intval($ar) > 0) {
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                            array($user_id, 'update-user', $mod_id, intval($uid)));
                     }
                 }
             }
@@ -484,23 +499,27 @@ class users
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
             FlashMessage::set(l('Роль успешно создана'));
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
-            $avail = 0;
-            if (isset($post['avail'])) {
-                $avail = 1;
-            }
-            if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
-                $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
-                $_SESSION['create-user-post'] = $post;
+            if(!Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
+                FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
             } else {
-                $email_or_login_exists =
-                    $this->all_configs['db']->query("SELECT 1 FROM {users} "
-                        . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
-                if ($email_or_login_exists) {
-                    FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
-                        FlashMessage::DANGER);
+                $avail = 0;
+                if (isset($post['avail'])) {
+                    $avail = 1;
+                }
+                if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
+                    $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
+                    $_SESSION['create-user-post'] = $post;
                 } else {
                     $access = new \access($this->all_configs, false);
                     $phones = $access->is_phone($post['phone']);
+
+                    $email_or_login_exists =
+                        $this->all_configs['db']->query("SELECT 1 FROM {users} "
+                            . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
+                    if ($email_or_login_exists) {
+                        FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
+                            FlashMessage::DANGER);
+                    } else {
                     $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email, send_over_sms, send_over_email) VALUES (?,?,?,?,?i,?,?,?,?,?)',
                         array(
                             $post['login'],
@@ -518,6 +537,7 @@ class users
                         array($user_id, 'add-user', $mod_id, intval($id)));
                     $this->saveUserRelations($id, $post);
                     FlashMessage::set(l('Добавлен новый пользователь'));
+                    }
                 }
             }
         } elseif (isset($post['update-user'])) {
@@ -578,9 +598,10 @@ class users
             'users' => $users,
             'activeRoles' => $this->get_active_roles(),
             'sortPosition' => $sort_position,
-            'controller' => $this
+            'controller' => $this,
+            'tariff' => Tariff::current()
         ));
-
+        
         // достаём все роли
         $permissions = $this->get_all_roles();
         $aRoles = $this->getRolesTree($permissions);
@@ -596,11 +617,6 @@ class users
             'permissions' => $permissions
         ));
 
-        $user = array();
-        if (!empty($_SESSION['create-user-error'])) {
-            $user = $_SESSION['create-user-post'];
-            unset($_SESSION['create-user-post']);
-        }
         $roles = array();
         $yet = 0;
         foreach ($permissions as $permission) {
@@ -611,7 +627,7 @@ class users
                 $roles[$permission['role_id']] = $permission['role_name'];
             }
         }
-        $users_html .= $this->createUserForm($user, $roles);
+        $users_html .= $this->createUserForm(array(), $roles);
 
         $users_html .= '</div>';
 
@@ -783,7 +799,8 @@ class users
             'cashboxes' => $this->getCashboxes(),
             'roles' => $roles,
             'controller' => $this,
-            'isEdit' => $isEdit
+            'isEdit' => $isEdit,
+            'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
         ));
     }
 

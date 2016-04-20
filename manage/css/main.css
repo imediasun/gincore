@@ -667,6 +667,7 @@ input.row-input {
     position: fixed;
     z-index: 1000;
     right: 0;
+    top: 65px;
 }
 
 #save_all_fixed{
@@ -948,4 +949,34 @@ legend span.tag {
     text-shadow: 0 1px 0 #fff;
     display: inline-block;
     padding: 0 5px 0 5px;
+}
+
+.tariff_messages{
+    font-size: 20px;
+    border-radius: 0;
+    text-align: center;
+}
+
+.profile-tariff{
+    cursor: pointer;
+    background-color: #3598DB;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0 7px 0;
+    line-height: 1.2;
+}
+.profile-tariff:hover{
+    background-color: #40A1E2;
+}
+.profile-tariff>span{
+    border-bottom: 1px dashed;
+    font-size: 120%;
+}
+
+.btn-brd{
+    color: inherit !important;
+    background-color: transparent !important;
+}
+.remove_currency{
+    cursor: pointer;
 }

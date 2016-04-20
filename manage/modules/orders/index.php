@@ -1,8 +1,9 @@
 <?php
 
-require_once __DIR__.'/../../Response.php';
-require_once __DIR__.'/../../View.php';
-require_once __DIR__.'/../../FlashMessage.php';
+require_once __DIR__.'/../../Core/Response.php';
+require_once __DIR__.'/../../Core/View.php';
+require_once __DIR__.'/../../Core/FlashMessage.php';
+require_once __DIR__ . '/../../Tariff.php';
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
@@ -819,7 +820,8 @@ class orders
                 'hide' => $this->getHideFieldsConfig(),
                 'tag' => $this->getTag($client_id),
                 'tags' => $this->getTags(),
-                'order_data' => $order_data
+                'order_data' => $order_data,
+                'available' => Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
             ));
         }
 
@@ -2611,7 +2613,13 @@ class orders
 
         // создать заказ
         if ($act == 'add-order') {
-            $data = $this->all_configs['chains']->add_order($_POST, $mod_id);
+            if(!Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
+                FlashMessage::set(l('Вы достигли предельного количества заказов. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
+                $data['state'] = false;
+            } else {
+                Tariff::addOrder($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
+                $data = $this->all_configs['chains']->add_order($_POST, $mod_id);
+            }
         }
 
         // создать заказ

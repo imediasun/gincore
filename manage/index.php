@@ -10,12 +10,25 @@ require_once 'inc_config.php';
 require_once 'inc_func.php';
 require_once 'inc_settings.php';
 require_once $all_configs['sitepath'].'inc_lang_func.php';
+require_once __DIR__.'/Tariff.php';
 
 if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_lang' && isset($all_configs['arrequest'][1])){
     $cotnent_lang_cookie = $dbcfg['_prefix'].'content_lang';
     setcookie($cotnent_lang_cookie, $all_configs['arrequest'][1], time() + 3600 * 24 * 30, $all_configs['prefix']);
     header('Location: '.$_SERVER['HTTP_REFERER']);
     exit;
+}
+
+if (!isset($all_configs['arrequest'][1]) || $all_configs['arrequest'][1] != 'ajax') {
+    try {
+        $usersCount = db()->query('SELECT count(*) FROM {users} u WHERE deleted=0 AND blocked_by_tariff=0')->el();
+        $tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
+        if (isset($tariff['number_of_users']) && $usersCount != $tariff['number_of_users']) {
+            Tariff::blockUsers($tariff);
+        }
+    } catch (Exception  $e) {
+    }
+    
 }
 
 if(empty($all_configs['configs']['settings-system-lang-select-enabled'])){
@@ -103,6 +116,7 @@ if(isset($all_configs['arrequest'][0])){
 
     if($all_configs['arrequest'][0] == 'logout' && $ifauth){
         $auth->Logout($all_configs);
+        session_destroy();
         header("Location: " . $all_configs['prefix']);
         exit;
     }
@@ -201,6 +215,7 @@ if (isset($_SESSION['id'])) {
 }
 $input['hide_sidebar'] = isset($_COOKIE['hide_menu']) && $_COOKIE['hide_menu'] ? 'hide-sidebar' : '';
 $input['homepage'] = l('Главная');
+$input['tariff'] = empty($tariff['name'])?l('Проблемы'): $tariff['name'];
 $modules = scandir('./modules/');
 
 if(empty($curmod)){
@@ -371,9 +386,13 @@ $input['show_contact_phones_class'] = $all_configs['configs']['manage-show-phone
 
 ################################################################################
 
+require_once __DIR__.'/TariffMessages.php';
+$input['tariff_message'] = TariffMessages::getInstance()->getMessage();
+$input['profile_tariff_caption'] = l('Ваш тариф:');
 $input['main'] = l('main');
 $input['exit'] = l('exit');
 $input['sign_in'] = l('sign_in');
+$input['flash'] = FlashMessage::show();
 $input['txtemail'] = l('email');
 $input['txtlogin'] = l('login');
 $input['password'] = l('password');
