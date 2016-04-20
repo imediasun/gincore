@@ -386,20 +386,21 @@ class accountings extends Constructor
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
-                header("Location:" . $_SERVER['REQUEST_URI']);
-                exit;
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $title = trim($post['title']);
+            if (empty($title)) {
+                FlashMessage::set(l('Название склада не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
             }
             $cashboxes_type = 1;
-//            $avail = isset($post['avail']) ? 1 : null;
-//            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
-//            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
 
             $ar = $this->all_configs['db']->query('UPDATE {cashboxes} SET cashboxes_type=?i, avail=?n, avail_in_balance=?n, avail_in_orders=?n, name=?
                   WHERE id=?i',
-                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, trim($post['title']), $post['cashbox-id']))->ar();
+                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, $title, $post['cashbox-id']))->ar();
 
             $this->all_configs['db']->query('DELETE FROM {cashboxes_currencies} WHERE cashbox_id=?i AND id NOT IN(
                     SELECT cashboxes_currency_id_from as cc_id FROM {cashboxes_transactions}
@@ -431,10 +432,16 @@ class accountings extends Constructor
             // создание категории
             $avail = isset($post['avail']) ? 1 : null;
             $parent_id = (isset($post['parent_id']) && $post['parent_id'] > 0) ? $post['parent_id'] : 0;
+            
+            $title = trim($post['title']);
+            if (empty($title)) {
+                FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
 
             $contractor_category = $this->all_configs['db']->query('INSERT INTO {contractors_categories}
-                (avail, parent_id, name, code_1c, transaction_type, comment) VALUES (?n, ?i, ?, ?, ?i, ?)',
-                array($avail, $parent_id, trim($post['title']), trim($post['code_1c']),
+                (avail, parent_id, name, code_1c, transaction_type, comment, is_system) VALUES (?n, ?i, ?, ?, ?i, ?, 0)',
+                array($avail, $parent_id, $title, trim($post['code_1c']),
                     $post['transaction_type'], trim($post['comment'])), 'id');
 
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
@@ -446,8 +453,12 @@ class accountings extends Constructor
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование категории
             if (!isset($post['contractor_category-id']) || $post['contractor_category-id'] == 0) {
-                header("Location:" . $_SERVER['REQUEST_URI']);
-                exit;
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $title = trim($post['title']);
+            if (empty($title)) {
+                FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
             }
 
             $avail = isset($post['avail']) ? 1 : null;
@@ -455,7 +466,7 @@ class accountings extends Constructor
 
             $ar = $this->all_configs['db']->query('UPDATE {contractors_categories}
                     SET avail=?n, parent_id=?i, name=?, code_1c=?, transaction_type=?i, comment=? WHERE id=?i',
-                array($avail, $parent_id, trim($post['title']), trim($post['code_1c']),
+                array($avail, $parent_id, $title, trim($post['code_1c']),
                     $post['transaction_type'], trim($post['comment']), $post['contractor_category-id']))->ar();
 
             if ($ar) {
@@ -499,7 +510,7 @@ class accountings extends Constructor
         $query_arrow = $arrow == true ? ', c.transaction_type as arrow' : '';
 
         // достаем все категории
-        return $this->all_configs['db']->query('SELECT c.id, c.name, c.avail, c.parent_id, c.code_1c,
+        return $this->all_configs['db']->query('SELECT c.id, c.is_system, c.name, c.avail, c.parent_id, c.code_1c,
               c.transaction_type, c.comment ?query FROM {contractors_categories} as c ?query',
             array($query_arrow, $query))->assoc();
     }
@@ -867,7 +878,9 @@ class accountings extends Constructor
             if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 $btn .= "<input type='hidden' name='contractor_category-id' value='{$contractor_category['id']}' />";
                 $btn .= "<input type='button' class='btn' onclick='$(\"form.form_contractor_category\").submit();' value='" . l('Редактировать') . "' />";
-                $btn .= "<input type='button' onclick='contractor_category_remove(this, \"{$contractor_category['id']}\")' class='btn btn-danger contractor_category-remove' value='" . l('Удалить') . "' />";
+                if(!$contractor_category['is_system']) {
+                    $btn .= "<input type='button' onclick='contractor_category_remove(this, \"{$contractor_category['id']}\")' class='btn btn-danger contractor_category-remove' value='" . l('Удалить') . "' />";
+                }
             }
         } else {
             $btn .= "<input type='button' class='btn' onclick='$(\"form.form_contractor_category\").submit();' value='" . l('Создать') . "' />";
