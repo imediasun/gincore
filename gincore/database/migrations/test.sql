@@ -49,3 +49,9 @@ INDEX(`user_id`),
 INDEX(`cashbox_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
+/*
+2016_04_20_055121_add_system_to_contractors_categories.php
+ */
+
+ALTER TABLE `restore4_contractors_categories` ADD COLUMN is_system tinyint(1) UNSIGNED DEFAULT 1;
+UPDATE `restore4_contractors_categories` SET is_system=0 WHERE id > 36;
