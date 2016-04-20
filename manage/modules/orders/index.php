@@ -376,119 +376,15 @@ class orders
             WHERE manager IS NULL OR manager=""', array())->el();
         $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
             WHERE user_id=?i AND type=?', array($_SESSION['id'], 'co'))->el();
-
-        $out = '';
         // индинеры
         $engineers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
             WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
             array('engineer'))->assoc();
-        $engineer_options = '';
-        foreach ($engineers as $engineer) {
-            $engineer_options .= '<option ' . ((isset($_GET['eng']) && in_array($engineer['id'], explode(',', $_GET['eng']))) ? 'selected' : '');
-            $engineer_options .= ' value="' . $engineer['id'] . '">' . htmlspecialchars($engineer['name']) . '</option>';
-        }
-        // приемщики
-        $accepter_options = '';
         $accepters = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
             WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
             array('create-clients-orders', 'site-administration'))->assoc();
-        foreach ($accepters as $accepter) {
-            $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'], explode(',', $_GET['acp'])))) ? 'selected' : '';
-            $accepter_options .= '<option ' . $selected . ' value="' . $accepter['id'] . '">' . htmlspecialchars($accepter['name']) . '</option>';
-        }
-        // статусы
-        $status_options = '';
-        foreach ($this->all_configs['configs']['order-status'] as $os_id=>$os_v) {
-            $status_options .= '<option ' . ((isset($_GET['st']) && in_array($os_id, explode(',', $_GET['st']))) ? 'selected' : '');
-            $status_options .= ' value="' . $os_id . '">' . htmlspecialchars($os_v['name']) . '</option>';
-        }
-        $out .= '
-        <form method="post" action="'.$link.'" class="">
-        <div class="clearfix theme_bg filters-box p-sm m-b-md">
-            <div class="row row-15">
-                <div class="col-sm-2 b-r">
-                    <div class="btn-group-vertical">
-                        <a class="btn btn-default ' . (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') . ' text-left" 
-                           href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">
-                               ' . l('Всего') . ': <span id="count-clients-orders">' . $count . '</span>
-                        </a>
-                        <a class="btn btn-default ' . (isset($_GET['fco']) && $_GET['fco'] == 'unworked' ? 'disabled' : '') . ' text-left" href="
-                            '.$this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?fco=unworked">
-                                ' . l('Необработано') . ': <span id="count-clients-untreated-orders">' . $count_unworked . '</span>
-                        </a>
-                        <a class="btn btn-default ' . (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') . ' text-left" href="
-                            '.$this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?marked=co#show_orders">
-                            ' . l('Отмеченные') . ': <span class="icons-marked star-marked-active"> </span> <span id="count-marked-co">' . $count_marked . '</span>
-                        </a>
-                    </div> <br><br>
-                    <input type="submit" name="filter-orders" class="btn btn-primary" value="'.l('Фильтровать').'">
-                </div>
-                <div class="col-sm-2 b-r">
-                    <div class="form-group">
-                        <input type="text" placeholder="'.l('Дата').'" name="date" class="daterangepicker form-control" value="' . $date . '" />
-                    </div>
-                    <div class="form-group">
-                        <input name="client" value="'.(isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '').'" type="text" class="form-control" placeholder="' . l('телефон') . '/' . l('ФИО клиента') . '">
-                    </div>
-                    <div class="form-group">
-                        <input name="order_id" value="'.(isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '').'" type="text" class="form-control" placeholder="' . l('номер заказа') . '">
-                    </div>
-                    <input type="text" name="serial" class="form-control" value="' . (isset($_GET['serial']) ? $_GET['serial'] : '') . '" placeholder="'. l('Серийный номер') . '">
-                </div>
-                <div class="col-sm-3 b-r">
-                    '.typeahead($this->all_configs['db'], 'categories-last', true, isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini', '', false, false, '', false, l('Модель')).'
-                    '.typeahead($this->all_configs['db'], 'goods-goods', true, isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini', '', false, false, '', false, l('Запчасть')).'
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="np" ' . (isset($_GET['np']) ? 'checked' : '') . ' />' . l('Принято через почту') . '</label>
-                    </div>
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="rf" '.(isset($_GET['rf']) ? 'checked' : '').' />' . l('Выдан подменный фонд') . '</label>
-                    </div>
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="nm" '.(isset($_GET['nm']) ? 'checked' : '').' />' . l('Не оплаченные') . '</label>
-                    </div>
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="ar" '.(isset($_GET['ar']) ? 'checked' : '').' />' . l('Принимались на доработку') . '</label>
-                    </div>
-                </div>
-                <div class="col-sm-2 b-r">
-                    <div>
-                        <div class="input-group">
-                            <p class="form-control-static">'. l('Инженер') . ':</p>
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]" multiple="multiple">
-                                '.$engineer_options.'
-                                </select>
-                            </span>
-                        </div>
-                    </div>
-                    '.$this->show_filter_manager(true).'
-                    <div>
-                        <div class="input-group">
-                            <p class="form-control-static">'.l('Приемщик').':</p>
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" ' . ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
-                                    ? 'disabled' : '') . ' class="multiselect btn-sm" name="accepter[]" multiple="multiple">
-                                    '.$accepter_options.'
-                                </select>
-                            </span>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="input-group">
-                            <p class="form-control-static">'.l('Статус').':</p>
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]" multiple="multiple">
-                                    '.$status_options.'
-                                </select>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-3" style="overflow:hidden">
-        ';
         // фильтр по складам (дерево)
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
             FROM {orders} as o, {warehouses} as w
@@ -510,33 +406,19 @@ class orders
                     $wfs['nogroups'][$wf['id']]['icon'] .= ' text-danger';
                 }
             }
-            $sw = isset($_GET['wh']) ? explode(',', $_GET['wh']) : array();
-            $out .= '<ul class="nav nav-list well" id="tree">';
-            foreach ($wfs['groups'] as $wf) {
-                $out .= '<li><label class="checkbox">';
-                $out .= '<input type="checkbox" />' . $wf['name'] . '</label><ul class="nav nav-list">';
-                $i = 1;
-                foreach ($wf['warehouses'] as $wh_id=>$wh) {
-                    $out .= '<li><label class="checkbox">' . $i . ' <i style="color:' . $wh['color'] . ';" class="' . $wh['icon'] . '"></i>&nbsp;';
-                    $out .= '<input ' . (in_array($wh_id, $sw) ? 'checked' : '') . ' name="warehouse[]" value="' . $wh_id . '" type="checkbox" />' . $wh['title'] . '</label></li>';
-                    $i++;
-                }
-                $out .= '</ul></li>';
-            }
-            foreach ($wfs['nogroups'] as $wh_id=>$wh) {
-                $out .= '<li><label class="checkbox"><i style="color:' . $wh['color'] . ';" class="' . $wh['icon'] . '"></i>&nbsp;';
-                $out .= '<input ' . (in_array($wh_id, $sw) ? 'checked' : '') . ' name="warehouse[]" value="' . $wh_id . '" type="checkbox" />' . $wh['title'] . '</label></li>';
-            }
-            $out .= '</ul>';
         }
 
-        $out .= '
-                </div>
-            </div>
-        </div>
-        </form>';
-
-        return $out;
+        return $this->view->renderFile('orders/clients_orders_menu', array(
+           'accepters' => $accepters,
+            'engineers' => $engineers,
+           'filter_manager' => $this->show_filter_manager(true),
+            'count' => $count,
+            'count_marked' => $count_marked,
+            'count_unworked' => $count_unworked,
+            'date' => $date,
+            'link' => $link,
+            'wfs' => isset($wfs)?$wfs:array()
+        ));
     }
 
     /**
@@ -2449,12 +2331,22 @@ class orders
                                 $_POST['manager']
                             ));
                         $order['manager'] = intval($_POST['manager']);
+                        if ($user['send_over_sms']) {
+                            send_sms("+{$user['phone']}",
+                                'Vi naznacheni otvetstvennim po zakazu #' . $this->all_configs['arrequest'][2]);
+                        }
+                        if ($user['send_over_email']) {
+                            require_once $this->all_configs['sitepath'] . 'mail.php';
+                            $mailer = new Mailer($this->all_configs);
+                            $mailer->group('order-manager', $user['email'], array('order_id' => $this->all_configs['arrequest'][2]));
+                            $mailer->go();
+                        }
                     }
                 }
 
                 // смена инженера
                 if (isset($_POST['engineer']) && intval($order['engineer']) != intval($_POST['engineer'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone FROM {users} WHERE id=?i AND deleted=0 AND avail=1',
+                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone, send_over_sms, send_over_email  FROM {users} WHERE id=?i AND deleted=0 AND avail=1',
                         array($_POST['engineer']))->row();
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
@@ -2468,6 +2360,17 @@ class orders
                                 get_user_name($user),
                                 $_POST['engineer']
                             ));
+                        if ($user['send_over_sms']) {
+                            send_sms("+{$user['phone']}",
+                                'Vi naznacheni otvetstvennim po zakazu #' . $this->all_configs['arrequest'][2]);
+                        }
+                        if ($user['send_over_email']) {
+                            require_once $this->all_configs['sitepath'] . 'mail.php';
+                            $mailer = new Mailer($this->all_configs);
+                            $mailer->group('order-manager', $user['email'], array('order_id' => $this->all_configs['arrequest'][2]));
+                            $mailer->go();
+
+                        }
                     }
                 }
 
