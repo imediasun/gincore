@@ -440,50 +440,11 @@ class products extends Controller
     /**
      * @return string
      */
-    function show_product_body()
+    public function show_product_body()
     {
-        $goods_html = '';
-
-        if (is_array($this->errors) && array_key_exists('error', $this->errors)) {
-            $goods_html .= '<div class="alert alert-error fade in">';
-            $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>';
-            $goods_html .= $this->errors['error'] . '</div>';
-        }
-        if (isset($_GET['error'])) {
-            if ($_GET['error'] == 'manager') {
-                $goods_html .= '<div class="alert alert-danger fade in">';
-                $goods_html .= '<button class="close" data-dismiss="alert" type="button">×</button>' . l('Закрепите менеджера за товаром или привяжите контрагента к клиенту') .'</div>';
-            }
-        }
-
-        $goods_html .= '<div class="tabbable"><ul class="nav nav-tabs">';
-        $goods_html .= '<li><a class="click_tab default" data-open_tab="products_main" onclick="click_tab(this, event)" data-toggle="tab" href="#main">' . l('Основные') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_additionally" onclick="click_tab(this, event)" data-toggle="tab" href="#additionally">' . l('Дополнительно') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_managers" onclick="click_tab(this, event)" data-toggle="tab" href="#managers">' . l('Менеджеры') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_financestock" onclick="click_tab(this, event)" data-toggle="tab" href="#financestock">Finance/Stock</a></li>';
-        if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt" onclick="click_tab(this, event)" data-toggle="tab" href="#omt" title="Outside marketing tools">OMT</a></li>';
-        }
-        $goods_html .= '</ul><div class="tab-content">';
-
-        $goods_html .= '<div class="tab-pane" id="main">';
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div class="tab-pane" id="additionally">';
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div class="tab-pane" id="managers">';
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div class="tab-pane" id="financestock">';
-        $goods_html .= '</div>';
-
-        if ($this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-            $goods_html .= '<div class="tab-pane" id="omt">';
-            $goods_html .= '</div>';
-        }
-
-        return $goods_html;
+        return $this->view->renderFile('products/show_product_body', array(
+            'errors' => $this->errors
+        ));
     }
 
     /**
@@ -867,6 +828,7 @@ class products extends Controller
      */
     private function genmenu()
     {
+       ================== 
         $categories = $this->get_categories();
 
         $categories_html = '
@@ -2622,7 +2584,7 @@ class products extends Controller
      * @param bool $option
      * @return string
      */
-    function click_filters($key, $values, $option = false)
+    public function click_filters($key, $values, $option = false)
     {
         $active = '';
         $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0];
