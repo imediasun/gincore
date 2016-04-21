@@ -1,12 +1,12 @@
 <?php
 
-require_once __DIR__.'/../../Core/Constructor.php';
+require_once __DIR__.'/../../Core/Controller.php';
 
 $modulename[30] = 'accountings';
 $modulemenu[30] = l('Бухгалтерия');
 $moduleactive[30] = !$ifauth['is_2'];
 
-class accountings extends Constructor
+class accountings extends Controller
 {
     protected $cashboxes = array();
     protected $contractors = array();
