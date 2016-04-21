@@ -166,8 +166,8 @@ use Assetic\AssetWriter;
         print_r($e->getMessage());
     }
     ?>
-        <script src="<?= $assetsDir ?>assets/scripts.js"></script>
-    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?9"/>
+        <script src="<?= $assetsDir ?>assets/scripts.js?10"></script>
+    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?10"/>
     <?php endif; ?>
 
     <script type="text/javascript">
