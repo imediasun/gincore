@@ -5,7 +5,7 @@ require_once __DIR__ . '/View.php';
 require_once __DIR__ . '/Session.php';
 require_once __DIR__ . '/Response.php';
 
-abstract class Constructor
+abstract class Controller
 {
     public $count_on_page;
     protected $all_configs;
@@ -26,8 +26,13 @@ abstract class Constructor
      */
     public function routing(Array $arrequest)
     {
-        if (isset($arrequest[1]) && $arrequest[1] == 'ajax') {
+        if ($this->isAjax($arrequest)) {
             $this->ajax();
+        }
+
+        // если отправлена форма
+        if (count($_POST) > 0) {
+            $this->check_post($_POST);
         }
     }
 
@@ -50,19 +55,29 @@ abstract class Constructor
 
         global $input_html;
 
+        if ($this->can_show_module() == false) {
+            if ($this->isAjax($this->all_configs['arrequest'])) {
+                Response::json(array('message' => l('Нет прав'), 'state' => false));
+            } else {
+                return $input_html['mcontent'] = $this->renderCanShowModuleError();
+            }
+        }
+
 
         $this->routing($this->all_configs['arrequest']);
 
-        if ($this->can_show_module() == false) {
-            return $input_html['mcontent'] = $this->renderCanShowModuleError();
+        if (empty($input_html['mcontent'])) {
+            $input_html['mcontent'] = $this->gencontent();
         }
+    }
 
-        // если отправлена форма
-        if (count($_POST) > 0) {
-            $this->check_post($_POST);
-        }
-
-        $input_html['mcontent'] = $this->gencontent();
+    /**
+     * @param $arrequest
+     * @return bool
+     */
+    public function isAjax($arrequest)
+    {
+        return isset($arrequest[1]) && $arrequest[1] == 'ajax';
     }
 
     /**
