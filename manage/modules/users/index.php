@@ -510,6 +510,10 @@ class users
                     $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
                     $_SESSION['create-user-post'] = $post;
                 } else {
+                    require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+                    $access = new \access($this->all_configs, false);
+                    $phones = $access->is_phone($post['phone']);
+
                     $email_or_login_exists =
                         $this->all_configs['db']->query("SELECT 1 FROM {users} "
                             . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
@@ -517,21 +521,23 @@ class users
                         FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
                             FlashMessage::DANGER);
                     } else {
-                        $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email) VALUES (?,?,?,?,?i,?,?,?)',
-                            array(
-                                $post['login'],
-                                $post['pass'],
-                                $post['fio'],
-                                $post['position'],
-                                $post['phone'],
-                                $avail,
-                                $post['role'],
-                                $post['email']
-                            ), 'id');
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'add-user', $mod_id, intval($id)));
-                        $this->saveUserRelations($id, $post);
-                        FlashMessage::set(l('Добавлен новый пользователь'));
+                    $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email, send_over_sms, send_over_email) VALUES (?,?,?,?,?i,?,?,?,?,?)',
+                        array(
+                            $post['login'],
+                            $post['pass'],
+                            $post['fio'],
+                            $post['position'],
+                            empty($phones[0]) ? '' : $phones[0],
+                            $avail,
+                            $post['role'],
+                            $post['email'],
+                            isset($post['over_sms']) && $post['over_sms'] == 'on',
+                            isset($post['over_email']) && $post['over_email'] == 'on'
+                        ), 'id');
+                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                        array($user_id, 'add-user', $mod_id, intval($id)));
+                    $this->saveUserRelations($id, $post);
+                    FlashMessage::set(l('Добавлен новый пользователь'));
                     }
                 }
             }
@@ -822,23 +828,27 @@ class users
             FlashMessage::set(l('Пожалуйста, заполните логин и эл. адрес'), FlashMessage::DANGER);
         } else {
             $id = intval($post['user_id']);
-            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($id));
+            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($id))->row();
             if (!empty($user)) {
                 require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
 //                $access = new access($this->all_configs, false);
 //                $password = empty($post['pass']) ? $user['pass']: $access->wrap_pass(trim($post['pass']));
                 $password = empty($post['pass']) ? $user['pass']: trim($post['pass']);
+                $access = new \access($this->all_configs, false);
+                $phones = $access->is_phone($post['phone']);
 
-                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?, pass=? WHERE id=?i',
+                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?, pass=?, send_over_sms=?, send_over_email=? WHERE id=?i',
                     array(
                         $post['login'],
                         $post['fio'],
                         $post['position'],
-                        $post['phone'],
+                        empty($phones[0]) ? $user['phone'] : $phones[0],
                         $avail,
                         $post['role'],
                         $post['email'],
                         $password,
+                        isset($post['over_sms']) && $post['over_sms'] == 'on',
+                        isset($post['over_email']) && $post['over_email'] == 'on',
                         $id
                     ), 'id');
                 $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',

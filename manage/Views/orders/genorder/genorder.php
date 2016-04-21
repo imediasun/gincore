@@ -303,30 +303,29 @@
                 </div>
                 <div class="span6">
                     <?php if ($notSale): ?>
-
                         <?php if ($order['return_id'] > 0 || $this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
                             <div class="form-group clearfix">
                                 <label><?= l('Номер возврата') ?>: </label>
                                 <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
-                                <label class="lh30" style="font-weight: normal">
-                                    <?= $order['id'] ?>-
-                                </label>
-                                <div class="tw100">
-                                    <?php if (!empty($returns)): ?>
-                                        <select name="return_id" class="form-control">
-                                            <option value="-1"><?= l("Не выбрано") ?></option>
-                                            <?php foreach ($returns as $return): ?>
-                                                <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
-                                                    value="<?= $return['id'] ?>">
-                                                    <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . viewCurrency() . ")" ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    <?php endif; ?>
-                                    <?php else: ?>
-                                        <?= $order['id'] ?>-<?= $order['return_id']; ?>
-                                    <?php endif; ?>
-                                </div>
+                                    <label class="lh30" style="font-weight: normal">
+                                        <?= $order['id'] ?>-
+                                    </label>
+                                    <div class="tw100">
+                                        <?php if (!empty($returns)): ?>
+                                            <select name="return_id" class="form-control">
+                                                <option value="-1"><?= l("Не выбрано") ?></option>
+                                                <?php foreach ($returns as $return): ?>
+                                                    <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
+                                                        value="<?= $return['id'] ?>">
+                                                        <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . viewCurrency() . ")" ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <?= $order['id'] ?>-<?= $order['return_id']; ?>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -405,9 +404,6 @@
                                       data-o_id="<?= $order['id'] ?>"
                                       title="<?= l('История изменений') ?>"></span>
                                 <?= l('Стоимость ремонта') ?>:
-                                <?php if ($order['cashless']): ?>
-                                    <span class="text-danger"><?= l('Безнал') ?></span>
-                                <?php endif; ?>
                             </label>
                             <div class="tw100">
                                 <div class="input-group input-group-sm">
@@ -432,16 +428,19 @@
                             </div>
                         </div>
                         <div class="row-fluid clearfix">
-                            <div class="col-sm-12" style="text-align: right">
-                            <span class="text-success">
-                                <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
-                                <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
-                            </span>
+                            <div class="col-sm-12" style="text-align: right; padding: 0">
+                                <?php if ($order['cashless']): ?>
+                                    <span class="text-danger"><?= l('Безнал') ?></span>
+                                <?php endif; ?>
                                 <?php if ($order['tag_id'] != 0): ?>
                                     <span class="tag" style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
                                     <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
                                 </span>
                                 <?php endif; ?>
+                                <span class="text-success">
+                                <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
+                                    <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                            </span>
                             </div>
                         </div>
                         <link type="text/css" rel="stylesheet"

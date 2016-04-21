@@ -173,6 +173,27 @@
                                 </div>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label><?= l('Отправлять сотруднику уведомления, если он будет назначен ответственным инженером или менеджером по заказу') ?></label>
+                                </div>
+                            </td>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label style="margin-right:20px">
+                                        <input type="checkbox"
+                                               name="over_email" <?= isset($form_data['send_over_email']) && $form_data['send_over_email'] ? 'checked' : '' ?>/>
+                                        <?= l('через email') ?>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox"
+                                               name="over_sms" <?= isset($form_data['send_over_sms']) && $form_data['send_over_sms'] ? 'checked' : '' ?>/>
+                                        <?= l('через SMS') ?>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -191,7 +212,8 @@
     <?php else: ?>
         <p><?= l('Создание новых пользователей запрещено условиями текущего тарифа') ?></p>
         <div class="form-group">
-            <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+            <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs" target="_blank"
+               class="btn btn-primary"><?= l('Изменить тариф') ?></a>
         </div>
     <?php endif; ?>
 </div>
