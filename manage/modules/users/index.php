@@ -510,6 +510,7 @@ class users
                     $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
                     $_SESSION['create-user-post'] = $post;
                 } else {
+                    require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
                     $access = new \access($this->all_configs, false);
                     $phones = $access->is_phone($post['phone']);
 
