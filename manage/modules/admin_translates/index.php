@@ -18,6 +18,9 @@ class admin_translates extends translates
         parent::__construct($all_configs, $manage_lang, $manage_def_lang, $manage_langs);
     }
 
+    /**
+     * 
+     */
     protected function set_config()
     {
         if (is_null($this->config)) {
@@ -31,9 +34,10 @@ class admin_translates extends translates
                         'text' => l('Значение')
                     )
                 ),
-                $this->tbl_prefix . 'print_template_vars' => array(
+                $this->tbl_prefix . 'template_vars' => array(
+                    'like' => 'print',
                     'name' => l('Переводы для печатных форм'),
-                    'add_link' => '<a href="' . $this->all_configs['prefix'] . '/admin_translates/' . $this->dbcfg['_prefix'] . 'print_translates/add">+</a>',
+                    'add_link' => '<a href="' . $this->all_configs['prefix'] . '/admin_translates/' . $this->dbcfg['_prefix'] . 'template_vars/add">+</a>',
                     'var' => 'var',
                     'key' => 'var_id',
                     'fields' => array(
@@ -57,8 +61,6 @@ class admin_translates extends translates
         if (isset($this->all_configs['arrequest'][1])) {
 
             if (isset($this->config[$this->all_configs['arrequest'][1]])) {
-
-
                 $config = $this->config[$this->all_configs['arrequest'][1]];
 
                 $filter_query = '';
@@ -70,21 +72,20 @@ class admin_translates extends translates
                         array($config['key'], $this->all_configs['arrequest'][2]));
                 }
 
-                if (strpos($this->all_configs['arrequest'][1], 'print_template_vars') !== false) {
+                if (isset($config['like'])) {
                     if (!empty($filter_query)) {
                         $filter_query = $this->all_configs['db']->makeQuery(" ?q AND  var like '?e%' ",
-                            array($filter_query, 'print'));
+                            array($filter_query, $config['like']));
                         $filter_query_2 = $this->all_configs['db']->makeQuery(" ?q AND  var like '?e%' ",
-                            array($filter_query_2, 'print'));
+                            array($filter_query_2, $config['like']));
                     } else {
                         $filter_query = $this->all_configs['db']->makeQuery(" WHERE var like '?e%' ",
-                            array('print'));
+                            array($config['like']));
                         $filter_query_2 = $this->all_configs['db']->makeQuery(" WHERE var like '?e%' ",
-                            array('print'));
+                            array($config['like']));
                     }
                 }
-//                $table_name = $this->getTableName();
-                $table_name = $this->tbl_prefix . 'template_vars';
+                $table_name = $this->getTableName();
                 $table = $this->all_configs['db']->query("SELECT * FROM ?q ?q",
                     array($table_name, $filter_query), 'assoc:id');
                 $table_translates = $this->all_configs['db']->query("SELECT * FROM ?q_strings as ts JOIN ?q as tv ON tv.id = ts.var_id  ?q",
@@ -166,18 +167,4 @@ class admin_translates extends translates
 
         Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
     }
-
-    /**
-     * @return string
-     */
-    protected function getTableName()
-    {
-        if (strpos($this->all_configs['arrequest'][1], 'print_template_vars') !== false) {
-            $table_name = $this->tbl_prefix . 'template_vars';
-        } else {
-            $table_name = $this->all_configs['arrequest'][1];
-        }
-        return $table_name;
-    }
-
 }

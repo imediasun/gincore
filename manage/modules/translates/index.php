@@ -268,7 +268,7 @@ class translates
      * @param $config
      * @return array
      */
-    private function copyLanguage($post, $languages, $config)
+    protected function copyLanguage($post, $languages, $config)
     {
         $tableName = $this->getTableName();
         $success = false;
@@ -314,7 +314,7 @@ class translates
      * @param $languages
      * @return string
      */
-    private function addToTable($post, $config, $languages)
+    protected function addToTable($post, $config, $languages)
     {
         $tableName = $this->getTableName();
         if (isset($this->all_configs['arrequest'][3]) && $this->all_configs['arrequest'][3] == 'save') {
@@ -439,7 +439,7 @@ class translates
     /**
      * @return mixed
      */
-    private function getTableName()
+    public function getTableName()
     {
         return $this->all_configs['arrequest'][1];
     }
