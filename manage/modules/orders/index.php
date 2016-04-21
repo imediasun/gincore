@@ -1805,7 +1805,17 @@ class orders
             $parts[] = htmlspecialchars($order['equipment']);
         }
 
-
+        $returns = $this->all_configs['db']->query('SELECT id, value_from 
+                FROM {cashboxes_transactions} 
+                WHERE transaction_type=?i 
+                AND (client_order_id IS NULL OR client_order_id=?i)
+                AND supplier_order_id IS NULL 
+                AND  contractor_category_link = 2', // возврат средст 
+            array(
+                TRANSACTION_OUTPUT,
+                $order['id']
+            )
+        )->assoc();
         $hasEditorPrivilege = $this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
         return $this->view->renderFile('orders/genorder/genorder', array(
             'order' => $order,
@@ -1829,7 +1839,8 @@ class orders
             'productTotal' => $productTotal,
             'parts' => $parts,
             'hide' => $this->getHideFieldsConfig(),
-            'tags' => $this->getTags()
+            'tags' => $this->getTags(),
+            'returns' => $returns
         ));
     }
 
@@ -2437,9 +2448,12 @@ class orders
                     }
                 }
 
-                if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && isset($_POST['return_id'])) {
+                if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && isset($_POST['return_id']) && $_POST['return_id'] > 0) {
                     $this->all_configs['db']->query('UPDATE {orders} SET return_id=?n WHERE id=?i',
                         array(mb_strlen($_POST['return_id'], 'UTF-8') > 0 ? trim($_POST['return_id']) : null, $this->all_configs['arrequest'][2]));
+
+                    $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=?n WHERE id=?i',
+                        array($this->all_configs['arrequest'][2], $_POST['return_id']));
                 }
                 unset($order['return_id']);
                 if(isset($_POST['color']) && array_key_exists($_POST['color'], $this->all_configs['configs']['devices-colors'])){

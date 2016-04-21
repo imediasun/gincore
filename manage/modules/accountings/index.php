@@ -367,22 +367,25 @@ class accountings extends Constructor
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
-            if(trim($post['title'])){
-                $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
+            $title = trim($post['title']);
+            if (empty($title)) {
+                FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
                     VALUES (?i, ?n, ?n, ?n, ?)',
-                    array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, trim($post['title'])), 'id');
+                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, $title), 'id');
 
-                if (isset($post['cashbox_currency'])) {
-                    foreach ($post['cashbox_currency'] as $cashbox_currency) {
-                        if ($cashbox_currency > 0 && array_key_exists($cashbox_currency, $currencies)) {
-                            $this->all_configs['db']->query('INSERT IGNORE INTO {cashboxes_currencies} (cashbox_id, currency, amount) VALUES (?i, ?i, ?i)',
-                                array($cashbox_id, $cashbox_currency, 0));
-                        }
+            if (isset($post['cashbox_currency'])) {
+                foreach ($post['cashbox_currency'] as $cashbox_currency) {
+                    if ($cashbox_currency > 0 && array_key_exists($cashbox_currency, $currencies)) {
+                        $this->all_configs['db']->query('INSERT IGNORE INTO {cashboxes_currencies} (cashbox_id, currency, amount) VALUES (?i, ?i, ?i)',
+                            array($cashbox_id, $cashbox_currency, 0));
                     }
                 }
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
             }
+            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
@@ -390,7 +393,7 @@ class accountings extends Constructor
             }
             $title = trim($post['title']);
             if (empty($title)) {
-                FlashMessage::set(l('Название склада не может быть пустым'), FlashMessage::DANGER);
+                FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
             $cashboxes_type = 1;
@@ -1083,10 +1086,10 @@ class accountings extends Constructor
         if ($act == 'contractor-amount') {
             if (isset($_POST['contractor_id']) && $_POST['contractor_id'] > 0) {
                 $amount = $this->all_configs['db']->query('SELECT
-                        SUM(IF(t.transaction_type=2, t.value_to, 0)) - SUM(IF(t.transaction_type=1, t.value_from, 0))
+                        SUM(IF(t.transaction_type=?i, t.value_to, 0)) - SUM(IF(t.transaction_type=?i, t.value_from, 0))
                       FROM {contractors_transactions} as t, {contractors_categories_links} as l
                       WHERE l.contractors_id=?i AND t.contractor_category_link=l.id',
-                    array($_POST['contractor_id']))->el();
+                    array(TRANSACTION_INPUT, TRANSACTION_OUTPUT, $_POST['contractor_id']))->el();
                 $data['message'] = show_price(1*$amount);
                 $data['state'] = true;
             }
@@ -1298,7 +1301,7 @@ class accountings extends Constructor
 
         // курс
         if ($act == 'get-course') {
-            if (isset($_POST['transaction_type']) && $_POST['transaction_type'] == 3) {
+            if (isset($_POST['transaction_type']) && $_POST['transaction_type'] == TRANSACTION_TRANSFER) {
                 $course_db_1 = $this->course_default; // default course
                 $course_db_2 = $this->course_default; // default course
 
@@ -1739,12 +1742,12 @@ class accountings extends Constructor
             $contractors_categories_inc = $this->all_configs['db']->query('SELECT cc.id, cc.name
                 FROM {contractors_categories} as cc, {contractors_categories_links} as l, {cashboxes_transactions} as t
                 WHERE t.contractor_category_link=l.id AND l.contractors_categories_id=cc.id AND t.transaction_type=?i
-                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(2, $year))->vars();
+                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(TRANSACTION_INPUT, $year))->vars();
             // расходы
             $contractors_categories_exp = $this->all_configs['db']->query('SELECT cc.id, cc.name
                 FROM {contractors_categories} as cc, {contractors_categories_links} as l, {cashboxes_transactions} as t
                 WHERE t.contractor_category_link=l.id AND l.contractors_categories_id=cc.id AND t.transaction_type=?i
-                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(1, $year))->vars();
+                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(TRANSACTION_OUTPUT, $year))->vars();
 
             // все транзакции касс кроме переводов(по месяцам, по типам транзакций, и по категориям)
             $transactions = $this->all_configs['db']->query('SELECT t.date_transaction as dt,
@@ -2402,8 +2405,8 @@ class accountings extends Constructor
                       SUM(IF(t.transaction_type=1, -t.value_from, 0)) AS amount
                     FROM {cashboxes_transactions} AS t, {contractors_categories_links} AS l, {cashboxes_currencies} AS cc
                     WHERE t.contractor_category_link=l.id ?query
-                      AND IF(t.transaction_type=1, cc.id=t.cashboxes_currency_id_from, NULL) ?query GROUP BY cc.currency',
-                array($ext_query, $query))->vars();
+                      AND IF(t.transaction_type=?, cc.id=t.cashboxes_currency_id_from, NULL) ?query GROUP BY cc.currency',
+                array($ext_query, TRANSACTION_OUTPUT, $query))->vars();
 
             $out .= '<p>' . l('Чистая прибыль') . ': <strong>';
             if (!$ext || !array_key_exists($cco, $ext)) {

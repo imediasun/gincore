@@ -1391,7 +1391,7 @@ class Chains
                 if ($data['state'] == true) {
                     // оплата
                     $tr_data = array(
-                        'transaction_type' => 2, // внесение
+                        'transaction_type' => TRANSACTION_INPUT, // внесение
                         'cashbox_from' => $this->all_configs['configs']['erp-cashbox-transaction'],
                         'cashbox_to' => $this->all_configs['configs']['erp-cashbox-transaction'],
                         'amount_from' => 0,
@@ -1758,7 +1758,7 @@ class Chains
             }
             // оплата
             $transaction = $this->create_transaction(array(
-                'transaction_type' => 2, // внесение
+                'transaction_type' => TRANSACTION_INPUT, // внесение
                 'cashbox_from' => $this->all_configs['configs']['erp-co-cashbox-write-off'],
                 'cashbox_to' => $this->all_configs['configs']['erp-co-cashbox-write-off'],
                 'amount_from' => 0,
@@ -1815,22 +1815,22 @@ class Chains
             $post['cashbox_from'] = $this->all_configs['configs']['erp-cashbox-transaction'];
         }
 
-        if ($data['state'] == true && (!isset($post['transaction_type']) || $post['transaction_type'] == 0 || $post['transaction_type'] > 3)) {
+        if ($data['state'] == true && (!isset($post['transaction_type']) || $post['transaction_type'] == 0 || $post['transaction_type'] > TRANSACTION_TRANSFER)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите тип транзакции';
         }
 
-        if ($data['state'] == true && ($post['transaction_type'] == 3 || $post['transaction_type'] == 1) && (!isset($post['cashbox_from']) || $post['cashbox_from'] == 0)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['cashbox_from']) || $post['cashbox_from'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите с какой кассы';
         }
 
-        if ($data['state'] == true && ($post['transaction_type'] == 3 || $post['transaction_type'] == 1) && (!isset($post['cashbox_currencies_from']) || $post['cashbox_currencies_from'] == 0)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['cashbox_currencies_from']) || $post['cashbox_currencies_from'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите валюты для кассы';
         }
 
-        if ($data['state'] == true && ($post['transaction_type'] == 3 || $post['transaction_type'] == 1)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT)) {
             $cashboxes_currency_id_from = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
                 array($post['cashbox_from'], $post['cashbox_currencies_from']))->el();
 
@@ -1840,17 +1840,17 @@ class Chains
             }
         }
 
-        if ($data['state'] == true && ($post['transaction_type'] == 3 || $post['transaction_type'] == 2) && (!isset($post['cashbox_to']) || $post['cashbox_to'] == 0)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_INPUT) && (!isset($post['cashbox_to']) || $post['cashbox_to'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите в какую кассу';
         }
 
-        if ($data['state'] == true && ($post['transaction_type'] == 3 || $post['transaction_type'] == 2) && (!isset($post['cashbox_currencies_to']) || $post['cashbox_currencies_to'] == 0)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_INPUT) && (!isset($post['cashbox_currencies_to']) || $post['cashbox_currencies_to'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите валюты для кассы';
         }
 
-        if ($data['state'] == true && ($post['transaction_type'] == 3 || $post['transaction_type'] == 2)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_INPUT)) {
             $cashboxes_currency_id_to = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
                 array($post['cashbox_to'], $post['cashbox_currencies_to']))->el();
 
@@ -1895,101 +1895,15 @@ class Chains
             $data['state'] = false;
             $data['msg'] = 'Сумма не может быть отрицательной';
         }
-        if ($data['state'] == true && isset($post['amount_to']) && $post['transaction_type'] == 1) {
+        if ($data['state'] == true && isset($post['amount_to']) && $post['transaction_type'] == TRANSACTION_OUTPUT) {
             $post['amount_to'] = 0;
         }
-        if ($data['state'] == true && isset($post['amount_from']) && $post['transaction_type'] == 2) {
+        if ($data['state'] == true && isset($post['amount_from']) && $post['transaction_type'] == TRANSACTION_INPUT) {
             $post['amount_from'] = 0;
         }
 
         // если транзакция на прием оплаты с заказа клиента
         if ($data['state'] == true && isset($post['client_order_id']) && $post['client_order_id'] > 0) {
-            /*if ((isset($post['b_id']) && $post['b_id'] > 0) || (isset($post['transaction_extra'])
-                    && ($post['transaction_extra'] == 'payment' || $post['transaction_extra'] == 'delivery'))) {
-                $query = '';
-                if (isset($post['b_id']) && $post['b_id'] > 0)
-                    $query = $this->all_configs['db']->makeQuery('b.id=?i AND', array($post['b_id']));
-                // оплата цепочки
-                $order = $this->all_configs['db']->query('SELECT og.price, og.warranties_cost, h.paid, h.goods_id,
-                              o.course_value, b.chain_id, c.contractor_id, o.delivery_paid, h.return, h.item_id,
-                              o.payment_cost, o.payment_paid, o.delivery_cost, b.previous_issued, b.number, b.wh_id,
-                              o.sum, o.sum_paid, h.order_goods_id, o.status
-                            FROM {orders_goods} as og, {chains_bodies} as b, {chains_headers} as h, {orders} as o
-                            LEFT JOIN(SELECT id, contractor_id FROM {clients})c ON c.id=o.user_id
-                            WHERE ?query h.order_id=?i AND b.chain_id=h.id AND og.goods_id=h.goods_id
-                              AND og.order_id=h.order_id AND o.id=h.order_id AND og.id=h.order_goods_id',
-                    array($query, $post['client_order_id']))->row();
-
-                if (isset($post['transaction_extra'])
-                        && ($post['transaction_extra'] == 'payment' || $post['transaction_extra'] == 'delivery'))
-                    $order['chain_id'] = null;
-
-                if ($order) {
-                    $order['price'] = $this->chain_price($order);
-                    $order['write_off'] = $this->all_configs['db']->query('SELECT wh_id FROM {chains_bodies}
-                          WHERE wh_id=?i AND chain_id=?i',
-                        array($this->all_configs['configs']['erp-write-off-warehouse'], $order['chain_id']))->el();
-                }
-            } else {
-                $_POST['confirm'] = true;
-                // создаем цепочку если надо
-                $this->create_chains_header_by_order($post['client_order_id'], $mod_id);
-
-                $chains = $this->all_configs['db']->query('SELECT og.price, og.warranties_cost, h.paid, b.id as b_id,
-                              o.delivery_paid, o.payment_cost, o.payment_paid, o.delivery_cost, o.sum, o.sum_paid, h.return
-                            FROM {orders_goods} as og, {chains_bodies} as b, {chains_headers} as h, {orders} as o
-                            LEFT JOIN(SELECT id, contractor_id FROM {clients})c ON c.id=o.user_id
-                            WHERE h.order_id=?i AND b.chain_id=h.id AND og.goods_id=h.goods_id
-                              AND og.order_id=h.order_id AND o.id=h.order_id AND og.id=h.order_goods_id',
-                    array($post['client_order_id']))->assoc();
-
-                if ($chains) {
-
-                    $sum = round((float)$post['amount_to'] * 100);
-
-                    foreach ($chains as $chain) {
-                        $og_price = $this->chain_price($chain);
-                        if ($chain['b_id'] > 0 && $sum > 0 && ($og_price - $chain['paid']) > 0) {
-                            if ($sum > ($og_price - $chain['paid'])) {
-                                $post['amount_to'] = ($og_price - $chain['paid']) / 100;
-                                $sum -= ($og_price - $chain['paid']);
-                            } else {
-                                $post['amount_to'] = $sum / 100;
-                                $sum = 0;
-                            }
-                            $post['b_id'] = $chain['b_id'];
-                            $data = $this->create_transaction($post, $mod_id);
-                        }
-                    }
-
-                    $post['b_id'] = null;
-                    if ($sum > 0 && ($chain['delivery_cost'] - $chain['delivery_paid']) > 0) {
-                        if ($sum > ($chain['delivery_cost'] - $chain['delivery_paid'])) {
-                            $post['amount_to'] = ($chain['delivery_cost'] - $chain['delivery_paid']) / 100;
-                            $sum -= ($chain['delivery_cost'] - $chain['delivery_paid']);
-                        } else {
-                            $post['amount_to'] = $sum / 100;
-                            $sum = 0;
-                        }
-                        $post['transaction_extra'] = 'delivery';
-                        $data = $this->create_transaction($post, $mod_id);
-                    }
-
-                    if ($sum > 0 && ($chain['payment_cost'] - $chain['payment_paid']) > 0) {
-                        if ($sum > ($chain['payment_cost'] - $chain['payment_paid'])) {
-                            $post['amount_to'] = ($chain['payment_cost'] - $chain['payment_paid']) / 100;
-                            //$sum -= ($chain['payment_cost'] - $chain['payment_paid']);
-                        } else {
-                            $post['amount_to'] = $sum / 100;
-                            //$sum = 0;
-                        }
-                        $post['transaction_extra'] = 'payment';
-                        $data = $this->create_transaction($post, $mod_id);
-                    }
-
-                    return $data;
-                }
-            }*/
 
             $order = $this->all_configs['db']->query('SELECT o.*, cl.contractor_id FROM {orders} as o
                 LEFT JOIN {clients} as cl ON cl.id=o.user_id WHERE o.id=?i', array($post['client_order_id']))->row();
@@ -2020,7 +1934,7 @@ class Chains
                     $data['state'] = false;
                     $data['msg'] = 'Заказ уже оплачен';
                 }
-                if ($post['transaction_type'] == 2) {
+                if ($post['transaction_type'] == TRANSACTION_INPUT) {
                     if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'prepay') {
                         $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_prepay'];
                         $post['comment'] = "Внесение предоплаты клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
@@ -2039,7 +1953,7 @@ class Chains
                         }
                     }
                 }
-                if ($post['transaction_type'] == 1) {
+                if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
                     $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
                     if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
                         $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
@@ -2049,44 +1963,15 @@ class Chains
                         $data['msg'] = 'Не больше чем ' . show_price(intval($order['sum_paid']) - intval($order['sum']));
                     }
                 }
-                /*if ($data['state'] == true && $order['return'] == 1 && intval($order['paid']) == 0) {
-                    $data['state'] = false;
-                    $data['msg'] = 'Выдано';
-                }
-                if ($order['return'] == 1 && round((float)$post['amount_from'] * 100) > intval($order['paid'])) {
-                    $data['state'] = false;
-                    $data['msg'] = 'Не больше чем ' . show_price($order['paid']);
-                }
-                if ($order['return'] == 0) {
-                    if ($data['state'] == true && isset($post['transaction_extra']) && $post['transaction_extra'] == 'payment'
-                            //&& array_key_exists('payment_cost', $order) && array_key_exists('payment_paid', $order)
-                            && (intval($order['payment_cost']) - intval($order['payment_paid'])) > 0
-                            && round((float)$post['amount_to'] * 100) > (intval($order['payment_cost']) - intval($order['payment_paid']))
-                    ) {
-                        $data['state'] = false;
-                        $data['msg'] = 'Не больше чем ' . show_price(intval($order['payment_cost']) - intval($order['payment_paid']));
-                    } elseif ($data['state'] == true && isset($post['transaction_extra']) && $post['transaction_extra'] == 'delivery'
-                            //&& array_key_exists('delivery_cost', $order) && array_key_exists('delivery_paid', $order)
-                            && (intval($order['delivery_cost']) - intval($order['delivery_paid'])) > 0
-                            && round((float)$post['amount_to'] * 100) > (intval($order['delivery_cost']) - intval($order['delivery_paid']))
-                    ) {
-                        $data['state'] = false;
-                        $data['msg'] = 'Не больше чем ' . show_price(intval($order['delivery_cost']) - intval($order['delivery_paid']));
-                    } elseif ($data['state'] == true && (intval($order['price']) - intval($order['paid'])) > 0
-                            && round((float)$post['amount_to'] * 100) > (intval($order['price']) - intval($order['paid']))) {
-                        $data['state'] = false;
-                        $data['msg'] = 'Не больше чем ' . show_price(intval($order['price']) - intval($order['paid']));
-                    }
-                }*/
 
-                if ($data['state'] == true && $post['transaction_type'] == 2 && (!array_key_exists($post['cashbox_currencies_to'],
+                if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_INPUT && (!array_key_exists($post['cashbox_currencies_to'],
                             $currencies)
                         || $post['cashbox_currencies_to'] != $this->all_configs['settings']['currency_orders'])
                 ) {
                     $data['state'] = false;
                     $data['msg'] = 'Выбранная Вами валюта не совпадает с валютой в заказе';
                 }
-                if ($data['state'] == true && $post['transaction_type'] == 1 && (!array_key_exists($post['cashbox_currencies_from'],
+                if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_OUTPUT && (!array_key_exists($post['cashbox_currencies_from'],
                             $currencies)
                         || $post['cashbox_currencies_from'] != $this->all_configs['settings']['currency_orders'])
                 ) {
@@ -2094,33 +1979,6 @@ class Chains
                     $data['msg'] = 'Выбранная Вами валюта не совпадает с основной валютой';
                 }
 
-                /*if ($order['return'] == 1) {
-                    $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
-                    $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
-                    if (array_key_exists('write_off', $order) && $order['write_off'] > 0
-                            && $order['write_off'] == $this->all_configs['configs']['erp-write-off-warehouse']) {
-                        $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_off_id_to'];
-                    }
-                    $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                        array($post['contractor_category_id_to'], $post['contractors_id']));
-                } else {
-                    if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'payment') {
-                        $post['comment'] = "Внесение денег клиентом за комиссию заказа " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_payment'];
-                    } elseif (isset($post['transaction_extra']) && $post['transaction_extra'] == 'delivery') {
-                        $post['comment'] = "Внесение денег клиентом за доставку заказа " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_delivery'];
-                    } else {
-                        $post['comment'] = "Внесение денег клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from'];
-                        if (array_key_exists('write_off', $order) && $order['write_off'] > 0 && $order['write_off'] == $this->all_configs['configs']['erp-write-off-warehouse']) {
-                            $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_off_id_from'];
-                            //$post['comment'] = "Списание заказа " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                        }
-                    }
-                    $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                        array($post['contractor_category_id_from'], $post['contractors_id']));
-                }*/
             }
         }
 
@@ -2130,51 +1988,40 @@ class Chains
             $data['msg'] = 'Введите дату';
         }
 
-        /*if ($data['state'] == true && $client_order_id == 0 && (($post['transaction_type'] == 1 &&
-                    ($this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from']
-                        && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)))
-                || ($post['transaction_type'] == 2 &&
-                    ($this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']
-                        && (!isset($post['without_contractor']) || $post['without_contractor'] == 0))))
-        ) {
-            $data['state'] = false;
-            $data['msg'] = 'Оплата производится только в долларах';
-        }*/
-        if ($data['state'] == true && $client_order_id == 0/*$supplier_order_id > 0*/ && (($post['transaction_type'] == 1
+        if ($data['state'] == true && $client_order_id == 0 && (($post['transaction_type'] == TRANSACTION_OUTPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
-                || ($post['transaction_type'] == 2 && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
+                || ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
             && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
         ) {
             $data['state'] = false;
             $data['msg'] = 'Оплата производится только в валюте ' . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name'];
         }
 
-        if ($data['state'] == true && $post['transaction_type'] == 1 && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
+        if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_OUTPUT && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите категорию';
         }
 
-        if ($data['state'] == true && $post['transaction_type'] == 2 && (!isset($post['contractor_category_id_from']) || $post['contractor_category_id_from'] == 0)) {
+        if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_INPUT && (!isset($post['contractor_category_id_from']) || $post['contractor_category_id_from'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите категорию';
         }
-        //$category_id = ($post['transaction_type'] == 1) ? $post['contractor_category_id_to'] : $post['contractor_category_id_from'];
 
-        if ($data['state'] == true && ($post['transaction_type'] == 2 || $post['transaction_type'] == 1) && (!isset($post['contractors_id']) || $post['contractors_id'] == 0)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['contractors_id']) || $post['contractors_id'] == 0)) {
             $data['state'] = false;
             $data['msg'] = 'Выберите контрагента';
         }
 
-        if ($data['state'] == true && $post['transaction_type'] == 3 && $post['cashbox_currencies_from'] == $post['cashbox_currencies_to']) {
+        if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_TRANSFER && $post['cashbox_currencies_from'] == $post['cashbox_currencies_to']) {
             $post['amount_to'] = $post['amount_from'];
         }
         $contractor_category_link = $category_id = null;
-        if ($data['state'] == true && ($post['transaction_type'] == 1 || $post['transaction_type'] == 2)) {
+        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_OUTPUT || $post['transaction_type'] == TRANSACTION_INPUT)) {
 
-            if ($post['transaction_type'] == 2 && isset($post['contractor_category_id_from'])) {
+            if ($post['transaction_type'] == TRANSACTION_INPUT && isset($post['contractor_category_id_from'])) {
                 $category_id = $post['contractor_category_id_from'];
             }
-            if ($post['transaction_type'] == 1 && isset($post['contractor_category_id_to'])) {
+            if ($post['transaction_type'] == TRANSACTION_OUTPUT && isset($post['contractor_category_id_to'])) {
                 $category_id = $post['contractor_category_id_to'];
             }
 
@@ -2305,16 +2152,16 @@ class Chains
         }
 
         // при выдаче и внесении создаем транзакцию контрагенту
-        if (($post['transaction_type'] == 1 || $post['transaction_type'] == 2)
+        if (($post['transaction_type'] == TRANSACTION_OUTPUT || $post['transaction_type'] == TRANSACTION_INPUT)
             && ((isset($post['client_contractor']) && $post['client_contractor'] == 1
                     && isset($post['client_order_id']) && $post['client_order_id'] > 0)
                 || (!isset($post['client_order_id']) || $post['client_order_id'] == 0))
             && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
         ) {
 
-            if (($post['transaction_type'] == 1
+            if (($post['transaction_type'] == TRANSACTION_OUTPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
-                || ($post['transaction_type'] == 2
+                || ($post['transaction_type'] == TRANSACTION_INPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to'])
             ) {
 
@@ -2327,11 +2174,11 @@ class Chains
 
                     $translate = $post;
                     $translate['type'] = 5;
-                    $translate['transaction_type'] = 3;
+                    $translate['transaction_type'] = TRANSACTION_TRANSFER;
                     $translate['cashbox_from'] = $this->all_configs['configs']['erp-cashbox-transaction'];
                     $translate['cashbox_to'] = $this->all_configs['configs']['erp-cashbox-transaction'];
-                    $translate['amount_from'] = ($post['transaction_type'] == 1) ? $post['amount_from'] : $post['amount_to'];
-                    $translate['amount_to'] = ($post['transaction_type'] == 1) ? $amount_from : $amount_to;
+                    $translate['amount_from'] = ($post['transaction_type'] == TRANSACTION_OUTPUT) ? $post['amount_from'] : $post['amount_to'];
+                    $translate['amount_to'] = ($post['transaction_type'] == TRANSACTION_OUTPUT) ? $amount_from : $amount_to;
                     $translate['cashbox_currencies_from'] = $this->all_configs['suppliers_orders']->currency_clients_orders;
                     $translate['cashbox_currencies_to'] = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
                     $translate['client_order_id'] = 0;
@@ -2341,13 +2188,13 @@ class Chains
                     $this->create_transaction($translate, $mod_id);
 
                     $transaction = $post;
-                    if ($post['transaction_type'] == 1) {
+                    if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
                         $transaction['type'] = 4;
-                        $transaction['transaction_type'] = 2;
+                        $transaction['transaction_type'] = TRANSACTION_INPUT;
                         //$transaction['comment'] = 'Списание с баланса контрагента, ' . date("Y-m-d H:i:s");
                     } else {
                         $transaction['type'] = 3;
-                        $transaction['transaction_type'] = 1;
+                        $transaction['transaction_type'] = TRANSACTION_OUTPUT;
                         //$transaction['comment'] = 'На баланса контрагента, ' . date("Y-m-d H:i:s");
                     }
                     $transaction['comment'] = 'Списание с баланса контрагента, за заказ ' . $client_order_id . ', ' . date("Y-m-d H:i:s");
@@ -2394,67 +2241,14 @@ class Chains
 
             $paid = 0;
             // если выдача
-            if ($post['transaction_type'] == 2) {
+            if ($post['transaction_type'] == TRANSACTION_INPUT) {
                 $paid = round((float)($post['amount_to'] * 100));
             }
             // если возврат
-            if ($post['transaction_type'] == 1) {
+            if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
                 $paid = -round((float)($post['amount_from'] * 100));
             }
 
-            // если нет цепочки в заказе
-            //if (!array_key_exists('chain_id', $order)) {
-            // статус частичной оплаты
-            /*if (($order['paid'] + $paid) == intval($order['price'])) {
-                // есть ид изделия
-                if ($item_id > 0) {
-                    // обновляем дату полной оплаты
-                    if ($order['return'] == 1) {
-                        $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET date_paid=null
-                            WHERE id=?i', array($item_id));
-                    } else {
-                        $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET date_paid=NOW()
-                            WHERE id=?i', array($item_id));
-                    }
-                }
-            }*/
-
-            /*$status = $order['status'];
-            // если статус заказа ожидаем оплату
-            if ($status == $this->all_configs['configs']['order-status-wait-pay'])
-                $status = $this->all_configs['configs']['order-status-part-pay'];
-            // если сумма вся (заказа)
-            if (($order['sum_paid'] + $paid) == intval($order['sum'])) {
-                // если статус заказ ожидаем оплату или частично оплачен и
-                if (($status == $this->all_configs['configs']['order-status-wait-pay']
-                        || $status == $this->all_configs['configs']['order-status-part-pay'])) {
-                    $status = $this->all_configs['configs']['order-status-work'];
-                }
-                // сообщение кладовщику
-                if ($order['number'] == 1) {
-                    $q = $this->query_warehouses();
-                    $query_for_my_warehouses = $this->all_configs['db']->makeQuery('RIGHT JOIN {warehouses_users} as wu ON wu.'
-                        . trim($q['query_for_my_warehouses']) . ' AND u.id=wu.user_id AND wu.wh_id=?i',
-                        array($order['wh_id']));
-
-                    // сообщение кладовщику
-                    include_once $this->all_configs['sitepath'] . 'mail.php';
-                    $messages = new Mailer($this->all_configs);
-                    $content = 'Необходимо привязать серийник в цепочке ';
-                    $content .= '<a href="' . $this->all_configs['prefix'] . 'warehouses#orders-clients_bind">№' . $chain_id . '</a>';
-                    $content .= ', заказ <a href="' . $this->all_configs['prefix'] . 'orders/create/' . $client_order_id . '">№';
-                    $content .= $client_order_id . '</a>';
-                    $messages->send_message($content, 'Привязать серийник в цепочке', 'mess-debit-clients-orders', 1, $query_for_my_warehouses);
-                }
-            }
-            // если новый статус то меняем
-            if ($order['status'] != $status) {
-                $status_id = $this->all_configs['db']->query('INSERT INTO {order_status} (status, order_id)
-                    VALUES (?i, ?i)', array($status, $client_order_id), 'id');
-
-                $this->all_configs['db']->query('UPDATE {orders} SET status=?i, status_id=?i WHERE id=?i',
-                    array($status, $status_id, $client_order_id));
-            }*/
             // вносим сумму в заказ
             $this->all_configs['db']->query('UPDATE {orders} SET sum_paid=sum_paid+?i WHERE id=?i',
                 array($paid, $client_order_id));
@@ -2481,30 +2275,9 @@ class Chains
                         array($paid, $chain_id));
                 }
             }
-            /*if ($post['b_id'] > 0) {
-                // если сумма вся то обновляем ячейку
-                if (($order['paid'] + $paid) == intval($order['price'])) {
-                    // обновляем дату принятия оплаты
-                    $this->all_configs['db']->query('UPDATE {chains_bodies} SET user_id_accept=?i, date_accept=NOW(),
-                            user_id_issued=?i, date_issued=NOW() WHERE id=?i',
-                        array($_SESSION['id'], $_SESSION['id'], $post['b_id']));
-                    // разрешаем привязку серийника (если надо)
-                    $this->all_configs['db']->query('UPDATE {chains_bodies} SET previous_issued=1
-                         WHERE chain_id=?i AND type=?i', array($chain_id, $this->chain_bind_item));
-                } else {
-                    // обновляем дату принятия оплаты
-                    $this->all_configs['db']->query('UPDATE {chains_bodies} SET user_id_accept=?i, date_accept=NOW()
-                        WHERE id=?i', array($_SESSION['id'], $post['b_id']));
-                }
-            }*/
-            //}
 
             // пробуем закрыть цепочку/заказ
             $this->close_order($client_order_id, $mod_id);
-            /*if ($chain_id > 0)
-                $this->close_chain($chain_id, $mod_id);
-            elseif ($post['client_order_id'] > 0)
-                $this->close_order($post['client_order_id'], $mod_id);*/
         }
 
         // обновляем сумму в кассах
