@@ -367,22 +367,25 @@ class accountings extends Constructor
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
-            if(trim($post['title'])){
-                $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
+            $title = trim($post['title']);
+            if (empty($title)) {
+                FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
                     VALUES (?i, ?n, ?n, ?n, ?)',
-                    array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, trim($post['title'])), 'id');
+                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, $title), 'id');
 
-                if (isset($post['cashbox_currency'])) {
-                    foreach ($post['cashbox_currency'] as $cashbox_currency) {
-                        if ($cashbox_currency > 0 && array_key_exists($cashbox_currency, $currencies)) {
-                            $this->all_configs['db']->query('INSERT IGNORE INTO {cashboxes_currencies} (cashbox_id, currency, amount) VALUES (?i, ?i, ?i)',
-                                array($cashbox_id, $cashbox_currency, 0));
-                        }
+            if (isset($post['cashbox_currency'])) {
+                foreach ($post['cashbox_currency'] as $cashbox_currency) {
+                    if ($cashbox_currency > 0 && array_key_exists($cashbox_currency, $currencies)) {
+                        $this->all_configs['db']->query('INSERT IGNORE INTO {cashboxes_currencies} (cashbox_id, currency, amount) VALUES (?i, ?i, ?i)',
+                            array($cashbox_id, $cashbox_currency, 0));
                     }
                 }
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
             }
+            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
@@ -390,7 +393,7 @@ class accountings extends Constructor
             }
             $title = trim($post['title']);
             if (empty($title)) {
-                FlashMessage::set(l('Название склада не может быть пустым'), FlashMessage::DANGER);
+                FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
             $cashboxes_type = 1;
