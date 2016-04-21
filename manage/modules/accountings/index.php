@@ -1086,10 +1086,10 @@ class accountings extends Constructor
         if ($act == 'contractor-amount') {
             if (isset($_POST['contractor_id']) && $_POST['contractor_id'] > 0) {
                 $amount = $this->all_configs['db']->query('SELECT
-                        SUM(IF(t.transaction_type=2, t.value_to, 0)) - SUM(IF(t.transaction_type=1, t.value_from, 0))
+                        SUM(IF(t.transaction_type=?i, t.value_to, 0)) - SUM(IF(t.transaction_type=?i, t.value_from, 0))
                       FROM {contractors_transactions} as t, {contractors_categories_links} as l
                       WHERE l.contractors_id=?i AND t.contractor_category_link=l.id',
-                    array($_POST['contractor_id']))->el();
+                    array(TRANSACTION_INPUT, TRANSACTION_OUTPUT, $_POST['contractor_id']))->el();
                 $data['message'] = show_price(1*$amount);
                 $data['state'] = true;
             }
@@ -1301,7 +1301,7 @@ class accountings extends Constructor
 
         // курс
         if ($act == 'get-course') {
-            if (isset($_POST['transaction_type']) && $_POST['transaction_type'] == 3) {
+            if (isset($_POST['transaction_type']) && $_POST['transaction_type'] == TRANSACTION_TRANSFER) {
                 $course_db_1 = $this->course_default; // default course
                 $course_db_2 = $this->course_default; // default course
 
@@ -1742,12 +1742,12 @@ class accountings extends Constructor
             $contractors_categories_inc = $this->all_configs['db']->query('SELECT cc.id, cc.name
                 FROM {contractors_categories} as cc, {contractors_categories_links} as l, {cashboxes_transactions} as t
                 WHERE t.contractor_category_link=l.id AND l.contractors_categories_id=cc.id AND t.transaction_type=?i
-                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(2, $year))->vars();
+                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(TRANSACTION_INPUT, $year))->vars();
             // расходы
             $contractors_categories_exp = $this->all_configs['db']->query('SELECT cc.id, cc.name
                 FROM {contractors_categories} as cc, {contractors_categories_links} as l, {cashboxes_transactions} as t
                 WHERE t.contractor_category_link=l.id AND l.contractors_categories_id=cc.id AND t.transaction_type=?i
-                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(1, $year))->vars();
+                  AND YEAR(t.date_transaction)<=?i GROUP BY cc.id', array(TRANSACTION_OUTPUT, $year))->vars();
 
             // все транзакции касс кроме переводов(по месяцам, по типам транзакций, и по категориям)
             $transactions = $this->all_configs['db']->query('SELECT t.date_transaction as dt,
@@ -2405,8 +2405,8 @@ class accountings extends Constructor
                       SUM(IF(t.transaction_type=1, -t.value_from, 0)) AS amount
                     FROM {cashboxes_transactions} AS t, {contractors_categories_links} AS l, {cashboxes_currencies} AS cc
                     WHERE t.contractor_category_link=l.id ?query
-                      AND IF(t.transaction_type=1, cc.id=t.cashboxes_currency_id_from, NULL) ?query GROUP BY cc.currency',
-                array($ext_query, $query))->vars();
+                      AND IF(t.transaction_type=?, cc.id=t.cashboxes_currency_id_from, NULL) ?query GROUP BY cc.currency',
+                array($ext_query, TRANSACTION_OUTPUT, $query))->vars();
 
             $out .= '<p>' . l('Чистая прибыль') . ': <strong>';
             if (!$ext || !array_key_exists($cco, $ext)) {
