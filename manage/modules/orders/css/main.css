@@ -591,3 +591,6 @@ input.visible-price {
 .btn-status .btn-info {
     background-color: #3498db;
 }
+.order-form-p-lg {
+    padding: 20px 5px 20px 15px !important;
+}

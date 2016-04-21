@@ -9,7 +9,7 @@
         </script>
     </div>
 
-    <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white p-lg">
+    <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
         <div class="span6">
@@ -58,8 +58,10 @@
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                                 <?= l('Заказчик') ?>:
                             </label>
-                            <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
-                                   class="form-control block-right p60"/>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
+                                       class="form-control"/>
+                            </div>
                         </div>
                         <div class="form-group clearfix">
                             <label class="lh30">
@@ -68,8 +70,11 @@
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                                 <?= l('Телефон') ?>:
                             </label>
-                            <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
-                                   class="form-control block-right p60"/></div>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
+                                       class="form-control"/>
+                            </div>
+                        </div>
                         <div class="form-group clearfix">
                             <label>
                             <span class="cursor-pointer glyphicon glyphicon-list" title="<?= l('История изменений') ?>"
@@ -84,17 +89,19 @@
                         </div>
                         <div class="form-group clearfix <?= !isset($hide['color']) ? 'hide-field' : '' ?>">
                             <label class="control-label lh30"><?= l('Цвет') ?>: </label>
-                            <select class="form-control block-right p60" name="color">
-                                <?php if (is_null($order['o_color'])): ?>
-                                    <option value="-1" selected disabled><?= l('Не выбран') ?></option>
-                                <?php endif; ?>
-                                <?php foreach ($this->all_configs['configs']['devices-colors'] as $id => $color): ?>
-                                    <option <?= (!is_null($order['o_color']) && $order['o_color'] == $id) ? 'selected' : '' ?>
-                                        value="<?= $id ?>">
-                                        <?= $color ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <div class="tw100">
+                                <select class="form-control" name="color">
+                                    <?php if (is_null($order['o_color'])): ?>
+                                        <option value="-1" selected disabled><?= l('Не выбран') ?></option>
+                                    <?php endif; ?>
+                                    <?php foreach ($this->all_configs['configs']['devices-colors'] as $id => $color): ?>
+                                        <option <?= (!is_null($order['o_color']) && $order['o_color'] == $id) ? 'selected' : '' ?>
+                                            value="<?= $id ?>">
+                                            <?= $color ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <?= htmlspecialchars($order['note']) ?>
@@ -110,8 +117,10 @@
                             </span>
                                     S/N:
                                 </label>
-                                <input type="text" value="<?= htmlspecialchars($order['serial']) ?>" name="serial"
-                                       class="form-control block-right p60"/>
+                                <div class="tw100">
+                                    <input type="text" value="<?= htmlspecialchars($order['serial']) ?>" name="serial"
+                                           class="form-control"/>
+                                </div>
                             </div>
                             <div class="form-group clearfix <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
                                 <label><?= l('Комлектация') ?>:</label><br>
@@ -299,21 +308,25 @@
                             <div class="form-group clearfix">
                                 <label><?= l('Номер возврата') ?>: </label>
                                 <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
+                                <label class="lh30" style="font-weight: normal">
                                     <?= $order['id'] ?>-
+                                </label>
+                                <div class="tw100">
                                     <?php if (!empty($returns)): ?>
-                                        <select name="return_id" class="form-control block-right p60">
+                                        <select name="return_id" class="form-control">
                                             <option value="-1"><?= l("Не выбрано") ?></option>
                                             <?php foreach ($returns as $return): ?>
                                                 <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
                                                     value="<?= $return['id'] ?>">
-                                                    <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' .viewCurrency() .")" ?>
+                                                    <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . viewCurrency() . ")" ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                     <?php endif; ?>
-                                <?php else: ?>
-                                    <?= $order['id'] ?>-<?= $order['return_id']; ?>
-                                <?php endif; ?>
+                                    <?php else: ?>
+                                        <?= $order['id'] ?>-<?= $order['return_id']; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -332,17 +345,20 @@
                         </div>
                     <?php else: ?>
                         <div class="form-group clearfix <?= !isset($hide['crm-order-code']) ? 'hide-field' : '' ?>">
-                            <label class="lh30" style="font-size: 0.95em">
+                            <label class="lh30">
                                 <span class="cursor-pointer glyphicon glyphicon-list"
                                       onclick="alert_box(this, false, 'changes:update-order-code')"
                                       data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
 
                                 </span>
-                                <?= l('Код скидки') ?>:</label>
-                            <input <?= (!$hasEditorPrivilege ? ' disabled' : '') ?> class="form-control block-right p60"
-                                                                                    type="text"
-                                                                                    name="code"
-                                                                                    value="<?= htmlspecialchars($order['code']) ?>"><br>
+                                <?= l('Код скидки') ?>:
+                            </label>
+                            <div class="tw100">
+                                <input <?= (!$hasEditorPrivilege ? ' disabled' : '') ?> class="form-control"
+                                                                                        type="text"
+                                                                                        name="code"
+                                                                                        value="<?= htmlspecialchars($order['code']) ?>">
+                            </div>
                         </div>
                         <div class="form-group clearfix <?= !isset($hide['referrer']) ? 'hide-field' : '' ?>">
                             <label class="lh30">
@@ -351,16 +367,18 @@
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                                 <?= l('Источник') ?>:
                             </label>
-                            <?= get_service('crm/calls')->get_referers_list($order['referer_id'], '',
-                                !$hasEditorPrivilege, 'block-right p60') ?>
-                            <br>
+
+                            <div class="tw100">
+                                <?= get_service('crm/calls')->get_referers_list($order['referer_id'], '',
+                                    !$hasEditorPrivilege, '') ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
             <?php if ($hasEditorPrivilege): ?>
                 <div class="row-fluid">
-                    <div class="span6">
+                    <div class="span3">
                         <?php
                         $hide = in_array($order['status'], $this->all_configs['configs']['order-status-issue-btn']) ? ''
                             : 'style="display:none;"';
@@ -379,47 +397,52 @@
                                    type="button" value="<?= l('Сохранить') ?>"/>
                         <?php endif; ?>
                     </div>
-                    <div class="span6">
+                    <div class="span9">
                         <div class="from-control clearfix">
-                        <span class="cursor-pointer glyphicon glyphicon-list"
-                              onclick="alert_box(this, false, 'changes:update-order-sum')"
-                              data-o_id="<?= $order['id'] ?>"
-                              title="<?= l('История изменений') ?>"></span>
-                            <label><?= l('Стоимость ремонта') ?>:
+                            <label class="lh30">
+                                <span class="cursor-pointer glyphicon glyphicon-list"
+                                      onclick="alert_box(this, false, 'changes:update-order-sum')"
+                                      data-o_id="<?= $order['id'] ?>"
+                                      title="<?= l('История изменений') ?>"></span>
+                                <?= l('Стоимость ремонта') ?>:
                                 <?php if ($order['cashless']): ?>
                                     <span class="text-danger"><?= l('Безнал') ?></span>
                                 <?php endif; ?>
                             </label>
-                            <div class="input-group input-group-sm">
-                                <input type="text" id="order-total" class="form-control"
-                                       value="<?= ($order['sum'] / 100) ?>"
-                                       name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
-                                <div class="input-group-addon"><?= viewCurrency() ?></div>
-                                <div class="input-group-btn">
-                                    <?php $pay_btn = ''; ?>
-                                    <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
-                                        <input type="button" class="btn btn-success btn-xs"
-                                               value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
-                                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
-                                    <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
-                                        <input type="button"
-                                               class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
-                                               value="<?= l('Принять оплату') ?>"
-                                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
-                                    <?php endif; ?>
+                            <div class="tw100">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" id="order-total" class="form-control"
+                                           value="<?= ($order['sum'] / 100) ?>"
+                                           name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
+                                    <div class="input-group-addon"><?= viewCurrency() ?></div>
+                                    <div class="input-group-btn">
+                                        <?php $pay_btn = ''; ?>
+                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
+                                            <input type="button" class="btn btn-success btn-xs"
+                                                   value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
+                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
+                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
+                                            <input type="button"
+                                                   class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
+                                                   value="<?= l('Принять оплату') ?>"
+                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
-                        <span class="text-success">
-                            <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
-                            (<?= l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) ?>
-                            )
-                        </span>
-                            <!--small id="product-total"><?= ($productTotal / 100) ?> <?= viewCurrency() ?></small-->
-                            <?php if ($order['tag_id'] != 0): ?>
-                                <span class="tag" style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
+                        </div>
+                        <div class="row-fluid clearfix">
+                            <div class="col-sm-12" style="text-align: right">
+                            <span class="text-success">
+                                <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
+                                <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                            </span>
+                                <?php if ($order['tag_id'] != 0): ?>
+                                    <span class="tag" style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
                                     <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
                                 </span>
-                            <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <link type="text/css" rel="stylesheet"
                               href="<?= $this->all_configs['prefix'] ?>modules/accountings/css/main.css?1">
@@ -433,7 +456,7 @@
                 <b class="text-success"><?= l('Заказ клиентом оплачен') ?></b>
             <?php endif; ?>
         </div>
-        <div class="span6">
+        <div class="span6" style="margin-left: 15px">
             <div class="row-fluid well well-small">
                 <?= $this->renderFile('orders/genorder/_public_comments', array(
                     'comments_public' => $comments_public,

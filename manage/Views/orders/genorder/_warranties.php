@@ -6,14 +6,16 @@
     </span>
         <?= l('Гарантия') ?>:
     </label>
-    <div class="input-group block-right p60" style="display:table">
-        <select class="form-control" name="warranty">
-            <option value=""><?= l('Без гарантии') ?></option>
-            <?php foreach ($orderWarranties as $warranty): ?>
-                <option <?= ($order['warranty'] == intval($warranty) ? 'selected' : '') ?>
-                    value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <div class="input-group-addon"><?= l('мес') ?></div>
+    <div class="tw100">
+        <div class="input-group">
+            <select class="form-control" name="warranty">
+                <option value=""><?= l('Без гарантии') ?></option>
+                <?php foreach ($orderWarranties as $warranty): ?>
+                    <option <?= ($order['warranty'] == intval($warranty) ? 'selected' : '') ?>
+                        value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <div class="input-group-addon"><?= l('мес') ?></div>
+        </div>
     </div>
 </div>

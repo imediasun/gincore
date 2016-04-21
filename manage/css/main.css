@@ -985,11 +985,15 @@ legend span.tag {
     display: inline-block;
 }
 
-.p60 {
-    width: 60%;
+.tw100 {
+    display: table-cell;
+    width: 100%;
+    padding-left:5px;
 }
 .lh30 {
-    line-height:30px;
+    vertical-align: middle;
+   white-space: nowrap;
+    display: table-cell;
 }
 .bordered {
     border: 1px solid #ddd;

@@ -7,15 +7,17 @@
         </span>
         <?= $title ?>:
     </label>
-    <select class="form-control block-right p60" name="<?= $type ?>">
-        <option value=""><?= l('Выбрать') ?></option>
-        <?php if ($users): ?>
-            <?php foreach ($users as $user): ?>
-                <option <?= $user['id'] == $order[$type] ? 'selected' : '' ?>
-                    value="<?= $user['id'] ?>">
-                    <?= get_user_name($user) ?>
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </select>
+    <div class="tw100">
+        <select class="form-control" name="<?= $type ?>">
+            <option value=""><?= l('Выбрать') ?></option>
+            <?php if ($users): ?>
+                <?php foreach ($users as $user): ?>
+                    <option <?= $user['id'] == $order[$type] ? 'selected' : '' ?>
+                        value="<?= $user['id'] ?>">
+                        <?= get_user_name($user) ?>
+                    </option>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </select>
+    </div>
 </div>
