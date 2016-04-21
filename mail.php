@@ -10,6 +10,10 @@ class Mailer extends PHPMailer
 
     public $mail_templates_folder = 'mail_templates/';
 
+    /**
+     * Mailer constructor.
+     * @param bool $all_configs
+     */
     function __construct($all_configs)
     {
         $all_configs['prefix'] = isset($all_configs['siteprefix']) ? $all_configs['siteprefix'] : $all_configs['prefix'];
@@ -22,18 +26,24 @@ class Mailer extends PHPMailer
         $this->IsHTML(true);
     }
 
-    function group( $subject, $email, $data = array(), $body = 'Новое письмо')
+    /**
+     * @param        $subject
+     * @param        $email
+     * @param array  $data
+     * @param string $body
+     */
+    function group($subject, $email, $data = array(), $body = 'Новое письмо')
     {
-        switch( $subject ) {
+        switch ($subject) {
             case('remind-pass'):
                 $this->Subject = 'Напоминание пароля';
                 $this->Body = 'simple.html';
-                $link = $this->host.'signin?user='.$data['user_id'].'&reminder='.$data['reminder'];
-                $data['msg'] = 
-                        '<div style="margin: 50px 0; text-align:left;">'
-                        .'Перейдите по ссылке для восстановления пароля '
-                        .'<a href="'.$link.'" target ="_blank">'.$link.'</a>'
-                        .'</div>';
+                $link = $this->host . 'signin?user=' . $data['user_id'] . '&reminder=' . $data['reminder'];
+                $data['msg'] =
+                    '<div style="margin: 50px 0; text-align:left;">'
+                    . 'Перейдите по ссылке для восстановления пароля '
+                    . '<a href="' . $link . '" target ="_blank">' . $link . '</a>'
+                    . '</div>';
 //                $data['body_link_2'] = $this->host.'signin?user='.$data['user_id'].'&reminder='.$data['reminder'];
                 break;
 
@@ -42,20 +52,20 @@ class Mailer extends PHPMailer
                 $this->Body = 'register.html';
                 $data['msg'] = 'Благодарим Вас за то, что выбрали наш магазин. Ваш аккаунт<br>
                         успешно создан. Для активации необходимо перейти по ссылке.';
-                $data['body_link_1'] = $this->host.'signin?confirm='.$data['confirm'];
+                $data['body_link_1'] = $this->host . 'signin?confirm=' . $data['confirm'];
                 $data['body_link_1_title'] = $data['body_link_1'];
                 break;
 
             case('new-pass'):
                 $this->Subject = 'Новый пароль';
-                $this->Body = '<div style="margin: 50px 0 70px;">'.$data['pass'].'</div>';
+                $this->Body = '<div style="margin: 50px 0 70px;">' . $data['pass'] . '</div>';
                 break;
 
             case('confirm'):
                 $this->Subject = 'Подтверждение';
                 $this->Body = 'simple.html';
                 $data['msg'] = "Нажмите на ссылку для подтверждения:";
-                $data['body_link_1'] = $this->host.'signin?user='.$data['user_id'].'&confirm='.$data['confirm'];
+                $data['body_link_1'] = $this->host . 'signin?user=' . $data['user_id'] . '&confirm=' . $data['confirm'];
                 $data['body_link_1_title'] = $data['body_link_1'];
                 break;
 
@@ -72,6 +82,11 @@ class Mailer extends PHPMailer
                 //$data['body_link_1_title'] = $data['body_link_1'];
                 break;
 
+            case('order-manager'):
+                $this->Subject = l('Вы назначены ответственным');
+                $this->Body = l('Вы назначены ответственным по заказу #') . $data['order_id'];
+                break;
+
             case('new-order'):
                 $this->Subject = 'Подтверждение заказа';
                 // for admin note
@@ -79,18 +94,18 @@ class Mailer extends PHPMailer
                     $this->Body = $body;
                     break;
                 }
-                
+
                 $this->Body = 'new_order.html';
-                $data['body_link_1'] = $this->host.'order?order_id='.$data['order_id'].'&amp;order_hash='.$data['order_hash'];
+                $data['body_link_1'] = $this->host . 'order?order_id=' . $data['order_id'] . '&amp;order_hash=' . $data['order_hash'];
                 $data['body_link_1_title'] = 'Перейти в личный кабинет.';
-                $data['body_link_2'] = $this->host.'coupons';
+                $data['body_link_2'] = $this->host . 'coupons';
                 $data['body_link_2_title'] = 'Подробнее';
-                $data['order_id'] = 'Заказ № '.$data['order_id'];
+                $data['order_id'] = 'Заказ № ' . $data['order_id'];
                 $data['coupons'] = $this->genCoupons();
 
 //                $this->AddEmbeddedImage($this->all_configs['path'] . 'images/logo.png', 'logoimg');
                 //$this->AddEmbeddedImage($this->all_configs['path'] . 'images/bg_3.jpg', 'bg_head');
-                
+
                 $delivery = $this->genDelivery($data);
                 $data['delivery_title'] = $delivery['title'];
                 $data['delivery_content'] = $delivery['content'];
@@ -118,14 +133,14 @@ class Mailer extends PHPMailer
                 $this->Body = $body;
                 break;
         }
-/*
-        $this->AddEmbeddedImage('images/logo.png',
-                'logoimg',
-                'logo.png',
-                "base64", 
-                "application/octet-stream"
-                );
-        */
+        /*
+                $this->AddEmbeddedImage('images/logo.png',
+                        'logoimg',
+                        'logo.png',
+                        "base64", 
+                        "application/octet-stream"
+                        );
+                */
         $data['email'] = $email;
         $this->AddEmbeddedImage($this->all_configs['path'] . 'images/logo.png', 'logoimg');
         $this->gen_body_vars($data);
@@ -135,10 +150,14 @@ class Mailer extends PHPMailer
 
     }
 
+    /**
+     * @throws phpmailerException
+     */
     function go()
     {
         $this->From = $this->all_configs['db']->query('SELECT value FROM {settings} WHERE name="email"', array())->el();
-        $this->FromName = $this->all_configs['db']->query('SELECT value FROM {settings} WHERE name="site_name"', array())->el();
+        $this->FromName = $this->all_configs['db']->query('SELECT value FROM {settings} WHERE name="site_name"',
+            array())->el();
 
         $this->Send();
         $this->ClearAddresses();
@@ -146,17 +165,35 @@ class Mailer extends PHPMailer
         $this->IsHTML(false);
     }
 
-    function send_message($content, $title, $user_destination, $auto = 0, $query = '', $type = 0, $prio = 1, $transporter = 1)
-    {
-        if ( $transporter == 1 ) {
+    /**
+     * @param        $content
+     * @param        $title
+     * @param        $user_destination
+     * @param int    $auto
+     * @param string $query
+     * @param int    $type
+     * @param int    $prio
+     * @param int    $transporter
+     */
+    function send_message(
+        $content,
+        $title,
+        $user_destination,
+        $auto = 0,
+        $query = '',
+        $type = 0,
+        $prio = 1,
+        $transporter = 1
+    ) {
+        if ($transporter == 1) {
 
             $current_user = (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null);
 
-            if ( $user_destination > 0 ) {
+            if ($user_destination > 0) {
                 $this->all_configs['db']->query('INSERT INTO {messages}
                       (`content`, `title`, `ip`, `user_id`, `user_id_destination`, `prio`, `auto`, `type`)
                       VALUES (?, ?, INET_ATON(?), ?n, ?i, ?i, ?i, ?i)',
-                    array($content, $title, get_ip(), $current_user, $user_destination , $prio, $auto, $type)
+                    array($content, $title, get_ip(), $current_user, $user_destination, $prio, $auto, $type)
                 );
             } else {
                 $users = $this->all_configs['db']->query('SELECT u.id FROM {users_permissions} as p
@@ -170,38 +207,46 @@ class Mailer extends PHPMailer
                         $this->all_configs['db']->query('INSERT INTO {messages}
                               (`content`, `title`, `ip`, `user_id`, `user_id_destination`, `prio`, `auto`, `type`)
                               VALUES (?, ?, INET_ATON(?), ?n, ?i, ?i, ?i, ?i)',
-                            array($content, $title, get_ip(), $current_user, $user['id'] , $prio, $auto, $type)
+                            array($content, $title, get_ip(), $current_user, $user['id'], $prio, $auto, $type)
                         );
                     }
                 }
             }
         }
     }
-    
-    function body_substitution() {
+
+    /**
+     * @return mixed|string
+     */
+    function body_substitution()
+    {
         $header = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html');
-        if (strpos($this->Body, '.html') && is_file($this->all_configs['path'] . $this->mail_templates_folder.$this->Body))
-            $body = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder.$this->Body);
-        else
+        if (strpos($this->Body,
+                '.html') && is_file($this->all_configs['path'] . $this->mail_templates_folder . $this->Body)
+        ) {
+            $body = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . $this->Body);
+        } else {
             $body = $this->Body;
-        $footer = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder.'mail_footer.html');
-        
-        $mail_content = ($header ? $header : ''). ($body ? $body : ''). ($footer ? $footer : '');
-        $pattern="/\{\-(mail_msg)\-([a-zA-Z0-9_]{1,20})\}/";
-        $mail_content=preg_replace_callback($pattern, array($this, "replace_pattern"), $mail_content);
+        }
+        $footer = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html');
+
+        $mail_content = ($header ? $header : '') . ($body ? $body : '') . ($footer ? $footer : '');
+        $pattern = "/\{\-(mail_msg)\-([a-zA-Z0-9_]{1,20})\}/";
+        $mail_content = preg_replace_callback($pattern, array($this, "replace_pattern"), $mail_content);
 
         return $mail_content;
     }
-    
+
     /**
      * replace pattern via $this->mail_msg
-     * 
+     *
      * @param type $matches
      * @return string
      */
-    function replace_pattern($matches) {
+    function replace_pattern($matches)
+    {
         $mail_msg = $this->mail_msg;
-        if ($matches[1]=='mail_msg') { // && !isset($input[$matches[2]])
+        if ($matches[1] == 'mail_msg') { // && !isset($input[$matches[2]])
             if (isset ($mail_msg[$matches[2]])) {
                 return $mail_msg[$matches[2]];
             } else {
@@ -209,16 +254,20 @@ class Mailer extends PHPMailer
             }
         }
     }
-    
-    function gen_body_vars($data) {
+
+    /**
+     * @param $data
+     */
+    function gen_body_vars($data)
+    {
         global $template_vars;
         $settings = $this->all_configs['settings'];
 
-        $contacts = 'тел.: '.strip_tags($template_vars['content_tel']).' | '
-                .'<a href="mailto:'.$settings['content_email'].'" title="'.$settings['content_email'].'">'.$settings['content_email'].'</a> | '
-                .'<a href="'.$this->host.'">'.$_SERVER['HTTP_HOST'].'</a>'
-                .'<p></p>';
-        
+        $contacts = 'тел.: ' . strip_tags($template_vars['content_tel']) . ' | '
+            . '<a href="mailto:' . $settings['content_email'] . '" title="' . $settings['content_email'] . '">' . $settings['content_email'] . '</a> | '
+            . '<a href="' . $this->host . '">' . $_SERVER['HTTP_HOST'] . '</a>'
+            . '<p></p>';
+
         // restricted: shipping, address, np_office, office
         $arr = $data;
         $arr['subject'] = $this->Subject;
@@ -227,17 +276,22 @@ class Mailer extends PHPMailer
         $arr['shop_name'] = $this->all_configs['configs']['shop-name'];
         $arr['site_link'] = $_SERVER['SERVER_NAME'];
         $arr['contacts'] = $contacts;
-        
+
         $this->mail_msg = $arr;
     }
-    
-    function genCoupons() {
+
+    /**
+     * @return string
+     */
+    function genCoupons()
+    {
         $coupons_html = '';
         $coupons = $this->all_configs['db']->query('SELECT url, image, name FROM {banners} WHERE block=4 AND active=1 ORDER BY prio LIMIT 0, 4')->assoc();
-        if ( $coupons ) {
+        if ($coupons) {
             $coupons_html .= '<ul style="list-style: none outside none; min-height: 150px; max-height: 150px; height: 150px; overflow: hidden; text-align: center; padding: 0;">';
-            foreach ( $coupons as $coupon ) {
-                $this->AddEmbeddedImage($this->all_configs['path'] . 'images/flayers/' . $coupon['image'], $coupon['image']);
+            foreach ($coupons as $coupon) {
+                $this->AddEmbeddedImage($this->all_configs['path'] . 'images/flayers/' . $coupon['image'],
+                    $coupon['image']);
 
                 $coupons_html .= '<li style="display:inline-block; margin:0 2px;"><a href="' . $this->host . 'coupons" title="купон-' . $coupon['name'] . '">' .
                     '<img src="cid:' . $coupon['image'] . '" alt="' . $coupon['name'] . '" />' .
@@ -247,29 +301,38 @@ class Mailer extends PHPMailer
         }
         return $coupons_html;
     }
-    
-    function genDelivery($data) {
+
+    /**
+     * @param $data
+     * @return array
+     */
+    function genDelivery($data)
+    {
         $m = '';
         $v = '';
-        if ( isset($data['shipping']) ) {
-            if ( $data['shipping'] == 'express' || $data['shipping'] == 'courier' || $data['shipping'] == 'courier_today' ) {
+        if (isset($data['shipping'])) {
+            if ($data['shipping'] == 'express' || $data['shipping'] == 'courier' || $data['shipping'] == 'courier_today') {
                 $m = 'Адрес доставки:';
                 $v = $data['address'];
             }
-            if ( $data['shipping'] == 'novaposhta_cash' || $data['shipping'] == 'novaposhta' ) {
+            if ($data['shipping'] == 'novaposhta_cash' || $data['shipping'] == 'novaposhta') {
                 $m = 'Отделение новой почты:';
                 $v = $data['np_office'];
             }
-            if ( $data['shipping'] == 'pickup' )  {
+            if ($data['shipping'] == 'pickup') {
                 $m = 'Отделение магазина:';
                 $v = $data['office'];
             }
         }
-        return array ('title' => $m, 'content' => $v);
+        return array('title' => $m, 'content' => $v);
     }
-    
-    function links_style () {
+
+    /**
+     *
+     */
+    function links_style()
+    {
         $color = 'orange';
-        $this->Body = str_replace('<a ', '<a style="color:'.$color.'" ', $this->Body);
+        $this->Body = str_replace('<a ', '<a style="color:' . $color . '" ', $this->Body);
     }
 }

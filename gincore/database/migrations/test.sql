@@ -55,3 +55,15 @@ INDEX(`cashbox_id`)
 
 ALTER TABLE `restore4_contractors_categories` ADD COLUMN is_system tinyint(1) UNSIGNED DEFAULT 1;
 UPDATE `restore4_contractors_categories` SET is_system=0 WHERE id > 36;
+
+/*
+2016_04_11_080606_block_user_by_tariff.php
+*/
+ALTER TABLE `restore4_users` ADD COLUMN blocked_by_tariff tinyint(1) UNSIGNED DEFAULT 0;
+/*
+2016_04_11_121328_add_over_email_to_users.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN send_over_email tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD COLUMN send_over_sms tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD INDEX send_over_email(send_over_email);
+ALTER TABLE `restore4_users` ADD INDEX send_over_sms(send_over_sms);
