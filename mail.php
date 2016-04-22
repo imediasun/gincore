@@ -76,14 +76,14 @@ class Mailer extends PHPMailer
 
             case('order-inform'):
                 $this->Subject = 'Статус заказа';
-                $this->Body = "Статус вашего заказа № <a href='{$this->host}orders/create/{$data['order_id']}' >{$data['order_id']}</a> изменился";
+                $this->Body = "Статус вашего заказа № {$data['order_id']} изменился";
                 unset($data['order_id']);
                 $this->IsHTML(true);
                 break;
 
             case('order-manager'):
                 $this->Subject = l('Вы назначены ответственным');
-                $this->Body = l('Вы назначены ответственным по заказу #') . $data['order_id'];
+                $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
                 break;
 
             case('new-order'):
@@ -145,7 +145,7 @@ class Mailer extends PHPMailer
      */
     function go()
     {
-        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="email"',
+        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="xontent_email"',
             array())->el();
         $this->FromName = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="site_name"',
             array())->el();
