@@ -150,6 +150,7 @@ class Mailer extends PHPMailer
         $this->FromName = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="site_name"',
             array())->el();
 
+        $this->SetFrom($this->From, $this->FromName);
         $this->Send();
         $this->ClearAddresses();
         $this->ClearAttachments();
