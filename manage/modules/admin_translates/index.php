@@ -112,8 +112,7 @@ class admin_translates extends translates
                     $_POST['translates'] = $translates;
                     $out = $this->check_post($_POST);
                 } else {
-                    $out = $this->edit($config, $translates, $table, $languages,
-                        strpos($this->all_configs['arrequest'][1], 'print_template_vars') !== false);
+                    $out = $this->edit($config, $translates, $table, $languages,  strpos($this->all_configs['arrequest'][1], 'template_vars') !== false);
                 }
             } else {
                 switch ($this->all_configs['arrequest'][1]) {
