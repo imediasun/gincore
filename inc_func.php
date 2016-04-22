@@ -857,7 +857,7 @@ function generate_xls_with_login_logs()
                 $sheet->setCellValueByColumnAndRow(
                     (int)$day,
                     (int)$id + 2,
-                    date('H:m', strtotime($log['stamp'])));
+                    date('H:i', strtotime($log['stamp'])));
             }
         }
     }
