@@ -26,6 +26,7 @@ class admin_translates extends translates
         if (is_null($this->config)) {
             $this->config = array(
                 $this->dbcfg['_prefix'] . 'admin_translates' => array(
+                    'table' => $this->dbcfg['_prefix'] . 'admin_translates',
                     'name' => l('Переводы для шаблонов'),
                     'add_link' => '<a href="' . $this->all_configs['prefix'] . '/admin_translates/' . $this->dbcfg['_prefix'] . 'admin_translates/add">+</a>',
                     'var' => 'var',
@@ -34,10 +35,11 @@ class admin_translates extends translates
                         'text' => l('Значение')
                     )
                 ),
-                $this->tbl_prefix . 'template_vars' => array(
+                $this->tbl_prefix . 'print_translates' => array(
+                    'table' => $this->dbcfg['_prefix'] . 'admin_translates',
                     'like' => 'print',
                     'name' => l('Переводы для печатных форм'),
-                    'add_link' => '<a href="' . $this->all_configs['prefix'] . '/admin_translates/' . $this->dbcfg['_prefix'] . 'template_vars/add">+</a>',
+                    'add_link' => '<a href="' . $this->all_configs['prefix'] . '/admin_translates/' . $this->dbcfg['_prefix'] . 'print_translates/add">+</a>',
                     'var' => 'var',
                     'key' => 'var_id',
                     'fields' => array(
@@ -112,7 +114,7 @@ class admin_translates extends translates
                     $_POST['translates'] = $translates;
                     $out = $this->check_post($_POST);
                 } else {
-                    $out = $this->edit($config, $translates, $table, $languages,  strpos($this->all_configs['arrequest'][1], 'template_vars') !== false);
+                    $out = $this->edit($config, $translates, $table, $languages,  isset($config['like']));
                 }
             } else {
                 switch ($this->all_configs['arrequest'][1]) {
