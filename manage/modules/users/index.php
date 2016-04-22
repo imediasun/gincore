@@ -923,7 +923,7 @@ class users
     {
         $users = $this->all_configs['db']->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
         foreach ($users as $id => $user) {
-           $users[$id]['logs'] = $this->all_configs['db']->query('SELECT * FROM {users_login_log} WHERE user_id=?i ORDER by created_at DESC', array($user['id']))->assoc(); 
+           $users[$id]['logs'] = $this->all_configs['db']->query('SELECT * FROM {users_login_log} WHERE user_id=?i ORDER by created_at DESC LIMIT 200', array($user['id']))->assoc();
         }
         return $this->view->renderFile('users/logins_log', array(
             'users' => $users
