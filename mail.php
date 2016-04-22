@@ -76,10 +76,9 @@ class Mailer extends PHPMailer
 
             case('order-inform'):
                 $this->Subject = 'Статус заказа';
-                $this->Body = 'Статус вашего заказа №' . $data['order_id'] . ' изменился';
+                $this->Body = "Статус вашего заказа № <a href='{$this->host}orders/create/{$data['order_id']}' >{$data['order_id']}</a> изменился";
                 unset($data['order_id']);
-                //$data['body_link_1'] = $this->host . 'account/orders?order_id=' . $data['order_id'];
-                //$data['body_link_1_title'] = $data['body_link_1'];
+                $this->IsHTML(true);
                 break;
 
             case('order-manager'):
@@ -133,19 +132,10 @@ class Mailer extends PHPMailer
                 $this->Body = $body;
                 break;
         }
-        /*
-                $this->AddEmbeddedImage('images/logo.png',
-                        'logoimg',
-                        'logo.png',
-                        "base64", 
-                        "application/octet-stream"
-                        );
-                */
         $data['email'] = $email;
         $this->AddEmbeddedImage($this->all_configs['path'] . 'images/logo.png', 'logoimg');
         $this->gen_body_vars($data);
         $this->Body = $this->body_substitution();
-//        $this->links_style();
         $this->AddAddress($email);
 
     }
@@ -155,8 +145,9 @@ class Mailer extends PHPMailer
      */
     function go()
     {
-        $this->From = $this->all_configs['db']->query('SELECT value FROM {settings} WHERE name="email"', array())->el();
-        $this->FromName = $this->all_configs['db']->query('SELECT value FROM {settings} WHERE name="site_name"',
+        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `nam`e="email"',
+            array())->el();
+        $this->FromName = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="site_name"',
             array())->el();
 
         $this->Send();

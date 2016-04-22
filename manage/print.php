@@ -17,11 +17,15 @@
 include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
-global $all_configs;
+global $all_configs, $manage_lang;
 
 $langs = get_langs();
 
-$cur_lang = isset($_GET['lang']) ? trim($_GET['lang']) : $langs['def_lang'];
+if ($all_configs['configs']['manage-print-default-service-restore']) {
+    $cur_lang = isset($_GET['lang']) ? trim($_GET['lang']) : $langs['def_lang'];
+} else {
+    $cur_lang = $manage_lang;
+}
 
 $act = isset($_GET['act']) ? trim($_GET['act']) : '';
 $print_html = $variables = '';
@@ -66,8 +70,6 @@ function generate_template($arr, $act)
     global $all_configs, $cur_lang, $manage_lang, $variables;
     $print_html = get_template($act);
     
-//    $print_html = isset($all_configs['settings']['print_template_' . $act]) ? $all_configs['settings']['print_template_' . $act] : '<br>';
-
     foreach ($arr as $k=>$v) {
         $variables .= '<p><b>{{' . $k . '}}</b> - ' . $v['name'] . '</p>';
     }
@@ -93,7 +95,6 @@ function generate_template($arr, $act)
         function ($m) use ($arr, &$variables) {
             $value = '';
             if (isset($arr[$m[1]])) {
-                //$variables .= '<p><b>{{' . $m[1] . '}}</b> - ' . $arr[$m[1]]['name'] . '</p>';
                 $value = $arr[$m[1]]['value'];
             }
             return '<span data-key="' . $m[1] . '" class="template">' . $value . '</span>';
@@ -135,9 +136,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $num = $all_configs['suppliers_orders']->supplier_order_number($product, null, false);
                 $print_html .= '<div class="label-box-order">' . $num . '</div>';
 
-                //$src = $all_configs['prefix'] . 'print.php?bartype=ean&barcode=' . $product['barcode'];
-                //$print_html .= '<div class="label-box-code"><img src="' . $src . '" alt="EAN" title="EAN" /></div>';
-
                 $print_html .= '</div>';
             }
         }
@@ -154,7 +152,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $src = $all_configs['prefix'] . 'print.php?bartype=sn&barcode=L-' . $location['id'];
                 $print_html .= '<div class="label-box-code"><img src="' . $src . '" alt="S/N" title="S/N" /></div>';
 
-                $print_html .= '<div style="font-size: 1.4em;" class="label-box-title">' ./* htmlspecialchars($location['title']) . ' ' .*/ htmlspecialchars($location['location']) . '</div>';
+                $print_html .= '<div style="font-size: 1.4em;" class="label-box-title">' .htmlspecialchars($location['location']) . '</div>';
 
                 $print_html .= '</div>';
             }
@@ -176,7 +174,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $products = $products_cost = $services = '';
                 $services_cost = array();
 
-//                $services_cost = $order['sum'] / 100;
 
                 // товары и услуги
                 $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
@@ -187,7 +184,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         if ($product['type'] == 0) {
                             $products .= htmlspecialchars($product['title']) . '<br/>';
                             $products_cost .= ($product['price'] / 100) . ' '.viewCurrency().'<br />';
-//                            $services_cost .= ($product['price'] / 100) . ' '.viewCurrency().'<br />';
                         }
                         if ($product['type'] == 1) {
                             $services .= htmlspecialchars($product['title']) . '<br/>';
@@ -267,7 +263,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                             'title' => htmlspecialchars($product['title']),
                             'price_view' => ($product['price'] / 100).' '.viewCurrency()
                         );
-//                        $summ += $product['price'];
                     }
                 }
                 $summ = $order['sum'];
@@ -288,8 +283,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $products_html = implode('</td></tr><tr><td>', $products_html_parts);
 
                 $editor = true;
-//                switch($manage_lang){
-//                    case 'ru':
                         include './classes/php_rutils/struct/TimeParams.php';
                         include './classes/php_rutils/Dt.php';
                         include './classes/php_rutils/Numeral.php';
@@ -298,18 +291,11 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                                                                                  $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
                                                                                  $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
                         $params = new \php_rutils\struct\TimeParams();
-                        $params->date = null; //default value, 'now'
+                        $params->date = null;
                         $params->format = 'd F Y';
                         $params->monthInflected = true;
                         $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
-//                    break;
-//                    default:
-//                        include __DIR__.'/classes/Numbers/Words.php';
-//                        $str_date = date("F j, Y");
-//                        $sum_in_words = Numbers_Words::toWords($summ / 100);
-//                    break;
-//                }
-                
+
                 
                 if($order['type'] == 0) {
                     $arr = array(
@@ -385,7 +371,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                             'title' => htmlspecialchars($product['title']),
                             'price_view' => ($product['price'] / 100).' '.viewCurrency()
                         );
-//                        $summ += $product['price'];
                         $sum_by_products_and_services += $product['price'];
                         if ($product['type'] == 0) {
                             $products .= htmlspecialchars($product['title']) . '<br/>';
@@ -424,7 +409,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                                                                  $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
                                                                  $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
                 $params = new \php_rutils\struct\TimeParams();
-                $params->date = null; //default value, 'now'
+                $params->date = null;
                 $params->format = 'd F Y';
                 $params->monthInflected = true;
                 $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
@@ -554,7 +539,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                             'title' => htmlspecialchars($product['title']),
                             'price_view' => ($product['price'] / 100).' '.viewCurrency()
                         );
-//                        $summ += $product['price'];
                     }
                 }
                 $summ = $order['sum'];
@@ -575,8 +559,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $products_html = implode('</td></tr><tr><td>', $products_html_parts);
 
                 $editor = true;
-//                switch($manage_lang){
-//                    case 'ru':
                         include './classes/php_rutils/struct/TimeParams.php';
                         include './classes/php_rutils/Dt.php';
                         include './classes/php_rutils/Numeral.php';
@@ -585,18 +567,11 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                                                                                  $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['gender'],
                                                                                  $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']]['rutils']['words']);
                         $params = new \php_rutils\struct\TimeParams();
-                        $params->date = null; //default value, 'now'
+                        $params->date = null;
                         $params->format = 'd F Y';
                         $params->monthInflected = true;
                         $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
-//                    break;
-//                    default:
-//                        include __DIR__.'/classes/Numbers/Words.php';
-//                        $str_date = date("F j, Y");
-//                        $sum_in_words = Numbers_Words::toWords($summ / 100);
-//                    break;
-//                }
-                
+
                 
                 if($order['type'] == 0) {
                     $arr = array(
@@ -809,9 +784,6 @@ if ($print_html) {?>
                         oninit: function(a) {
                             $('#saveRedactor').prop('disabled', false);
                             $('#print').prop('disabled', true);
-//                            $('.note-editor .note-editable').find('.template').replaceWith(function () {
-//                                return '{{' + $(this).data('key') + '}}';
-//                            });
                         }
                     });
                 });
@@ -892,9 +864,6 @@ function barcode_generate($barcode, $type)
         $code = new BCGcodabar();
     }
 
-//    $code->setScale(2);
-//    $code->setThickness(30);
-
     $code->setForegroundColor($color_black);
     $code->setBackgroundColor($color_white);
     $code->setFont($font);
@@ -911,8 +880,6 @@ function barcode_generate($barcode, $type)
     } catch(Exception $e) {
         $im = imagecreate(1, 1);
         $background_color = imagecolorallocate($im, 255, 255, 255);
-        //$text_color = imagecolorallocate($im, 0, 0, 0);
-        //imagestring($im, 3, 1, 1, strtoupper($type), $text_color);
         imagepng($im);
         imagedestroy($im);
     }
