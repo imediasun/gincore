@@ -127,6 +127,11 @@ class Mailer extends PHPMailer
                 $data['body_link_1_title'] = array_key_exists('title', $data) ? $data['title'] : $data['body_link_1'];
                 break;
 
+            case('send-excell'):
+                $this->Subject = l('Отчет по входам в систему');
+                $this->Body =  l('Отчет по входам в систему');
+                $this->AddAttachment($data['file'], "report.xls");
+                break;
             default:
                 $this->Subject = $subject;
                 $this->Body = $body;

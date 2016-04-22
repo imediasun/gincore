@@ -40,4 +40,9 @@
             </div>
         </div>
     <?php endif; ?>
+    <div class="row-fluid">
+        <div class="col-sm-6 text-right">
+            <a href="<?= $this->all_configs['prefix'] ?>users/generate_log_file"><i class="fa fa-download "></i>&nbsp;<?= l('Выгрузить отчет') ?></a>
+        </div>
+    </div>
 </div>

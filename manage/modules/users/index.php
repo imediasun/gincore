@@ -42,6 +42,11 @@ class users
             return true;
         }
 
+        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'generate_log_file') {
+            $this->generateLogFile();
+            return true;
+        }
+
         // если отправлена форма изменения продукта
         if (count($_POST) > 0) {
             $this->check_post($_POST);
@@ -928,5 +933,16 @@ class users
         return $this->view->renderFile('users/logins_log', array(
             'users' => $users
         ));
+    }
+
+    /**
+     *
+     */
+    public function generateLogFile() {
+        $objWriter = generate_xls_with_login_logs();
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="report.xls"');
+        $objWriter->save('php://output');
+        exit();
     }
 }
