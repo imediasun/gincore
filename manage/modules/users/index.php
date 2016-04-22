@@ -590,6 +590,13 @@ class users
                 <li><a data-toggle="tab" href="' . $this->mod_submenu[1]['url'] . '">' . $this->mod_submenu[1]['name'] . '</a></li>
                 <li><a data-toggle="tab" href="' . $this->mod_submenu[2]['url'] . '">' . $this->mod_submenu[2]['name'] . '</a></li>
                 <li><a data-toggle="tab" href="' . $this->mod_submenu[3]['url'] . '">' . $this->mod_submenu[3]['name'] . '</a></li>
+                ';
+        if($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) {
+            $users_html .= '
+                <li><a data-toggle="tab" href="' . $this->mod_submenu[4]['url'] . '">' . $this->mod_submenu[4]['name'] . '</a></li>
+            ';
+        }
+        $users_html .= '
             </ul>
             <div class="tab-content">';
 
@@ -629,6 +636,9 @@ class users
             }
         }
         $users_html .= $this->createUserForm(array(), $roles);
+        if($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) {
+            $users_html .= $this->loginsLog(); 
+        }
 
         $users_html .= '</div>';
 
@@ -714,7 +724,7 @@ class users
      */
     public static function get_submenu()
     {
-        return array(
+        $submenu = array(
             array(
                 'click_tab' => true,
                 'url' => '#edit_tab_users',
@@ -736,6 +746,15 @@ class users
                 'name' => l('Создать пользователя')
             ),
         );
+        global $all_configs;
+        if ($all_configs['oRole']->hasPrivilege('site-administration')) {
+            $submenu[] = array(
+                'click_tab' => true,
+                'url' => '#login_log',
+                'name' => l('Статистика входов в систему')
+            );
+        }
+        return $submenu;
     }
 
     /**
@@ -895,5 +914,19 @@ class users
                     . 'VALUES (?i,?i)', array($cashbox, $userId));
             }
         }
+    }
+
+    /**
+     * @return string
+     */
+    private function loginsLog()
+    {
+        $users = $this->all_configs['db']->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
+        foreach ($users as $id => $user) {
+           $users[$id]['logs'] = $this->all_configs['db']->query('SELECT * FROM {users_login_log} WHERE user_id=?i ORDER by created_at DESC', array($user['id']))->assoc(); 
+        }
+        return $this->view->renderFile('users/logins_log', array(
+            'users' => $users
+        ));
     }
 }

@@ -19,6 +19,8 @@ class LogOfUserLogin extends Migration
                 $table->integer('user_id')->integer(10)->unsigned();
                 $table->string('ip');
                 $table->timestamps();
+                $table->index('user_id');
+                $table->index('created_at');
             });
         }
     }
