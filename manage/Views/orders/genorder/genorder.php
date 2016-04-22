@@ -142,6 +142,10 @@
                                         break;
                                 } ?>
                             </div>
+                            <div class="form-group clearfix">
+                                <label><?= l('Сроки') ?>:</label>
+                                <?= ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) ?>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <div class="span6">
@@ -240,10 +244,6 @@
             <div class="row-fluid bordered">
                 <div class="span6">
                     <?php if ($notSale): ?>
-                        <div class="form-group clearfix">
-                            <label><?= l('Сроки') ?>:</label>
-                            <?= ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) ?>
-                        </div>
                         <div class="form-group clearfix <?= !isset($hide['available-date']) ? 'hide-field' : '' ?>">
                             <label><?= l('Ориентировочная дата готовности') ?>: </label>
                             <span title="<?= do_nice_date($order['date_readiness'],

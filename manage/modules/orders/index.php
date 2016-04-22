@@ -2343,8 +2343,10 @@ class orders
                             ));
                         $order['manager'] = intval($_POST['manager']);
                         if ($user['send_over_sms']) {
+                            $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
+                            $orderId = $this->all_configs['arrequest'][2];
                             send_sms("+{$user['phone']}",
-                                'Vi naznacheni otvetstvennim po zakazu #' . $this->all_configs['arrequest'][2]);
+                                'Vi naznacheni otvetstvennim po zakazu #' . "<a href='{$host}orders/create/{$orderId}' >{$orderId}</a>");
                         }
                         if ($user['send_over_email']) {
                             require_once $this->all_configs['sitepath'] . 'mail.php';
@@ -2372,8 +2374,10 @@ class orders
                                 $_POST['engineer']
                             ));
                         if ($user['send_over_sms']) {
+                            $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
+                            $orderId = $this->all_configs['arrequest'][2];
                             send_sms("+{$user['phone']}",
-                                'Vi naznacheni otvetstvennim po zakazu #' . $this->all_configs['arrequest'][2]);
+                                'Vi naznacheni otvetstvennim po zakazu #' . "<a href='{$host}orders/create/{$orderId}' >{$orderId}</a>");
                         }
                         if ($user['send_over_email']) {
                             require_once $this->all_configs['sitepath'] . 'mail.php';
