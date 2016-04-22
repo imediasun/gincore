@@ -66,7 +66,7 @@ class Role
 
     /**
      * @param          $arr
-     * @param int $all
+     * @param int      $all
      * @return array
      */
     public function get_users_by_permissions($arr, $all = self::ALL)
@@ -162,10 +162,11 @@ class Role
     public function hasCashierPermission($userId)
     {
         $hasAccounting = $this->hasPrivilege('accounting');
-        if(empty($userId)) {
+        if (empty($userId)) {
             return $hasAccounting;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i', array($userId))->el();
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i',
+            array($userId))->el();
         return $count > 0 || $hasAccounting;
     }
 }
