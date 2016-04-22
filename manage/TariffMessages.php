@@ -12,6 +12,7 @@ class TariffMessages
     private $all_configs;
     private $admin;
     private $manage_translates;
+    private $view;
     
     private function setTariff()
     {
@@ -22,6 +23,7 @@ class TariffMessages
         $this->all_configs = $all_configs;
         $this->admin = $admin;
         $this->manage_translates = $manage_translates;
+        $this->view = new View($this->all_configs);
     }
     
     private function getFio(){
@@ -81,27 +83,30 @@ class TariffMessages
         $message = false;
         switch($this->all_configs['curmod']){
             case 'users':
-                $message  = $this->usersMessage();
+                $message = $this->usersMessage();
             break;
             case 'orders':
                 $message = $this->ordersMessage();
             break;
         }
-        if($message === false){ // юзеры и ордеры в приоритете, если нету то проверяем дату тарифа
+        // юзеры и ордеры в приоритете, если нету то проверяем дату тарифа
+        if($message === false){ 
             $message = $this->tariffDateMessage();
+        }
+        // если нет никаких уведомлений и есть заблок сотрудники,
+        // то показываем сообщение о заблок сотрудниках везде
+        if($message === false && $this->all_configs['curmod'] != 'users'){ 
+            $message = $this->usersMessage();
         }
         return $message;
     }
     
     private function makeHtml($text, $type = self::SUCCESS)
     {
-        // советую воспользоваться классом View для генерации html
-        // потому что редактировать html в виде строк с конкатенацией неприятно и неудобно
-        return 
-            '<div class="tariff_messages alert alert-'.$type.' m-b-none" role="alert">'
-                .$text.
-            '</div>'
-        ;
+        return $this->view->renderFile('TariffMessages/message', array(
+                   'text' => $text,
+                   'type' => $type
+               ));
     }
     
     public static function getInstance()
