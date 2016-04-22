@@ -1567,15 +1567,19 @@ function generate_xls_with_login_logs()
     }
     $xls->removeSheetByIndex(0);
     foreach ($users as $id => $user) {
+        foreach (range(1, 12) as $item) {
+            $xls->setActiveSheetIndex((int)$item - 1);
+            $sheet = $xls->getActiveSheet();
+            $sheet->setCellValueByColumnAndRow(
+                0,
+                (int) $id + 2,
+                $user['login']);
+        }
         if (!empty($user['logs'])) {
             foreach ($user['logs'] as $log) {
                 list($day, $month, $year) = explode('-', $log['date_add']);
                 $xls->setActiveSheetIndex((int)$month - 1);
                 $sheet = $xls->getActiveSheet();
-                $sheet->setCellValueByColumnAndRow(
-                    0,
-                    (int) $id + 2,
-                    $user['login']);
                 $sheet->setCellValueByColumnAndRow(
                     (int)$day,
                     (int) $id + 2,
