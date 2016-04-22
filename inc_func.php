@@ -813,7 +813,8 @@ function generate_xls_with_login_logs()
     }
     $xls = new PHPExcel();
     $currentYear = date('Y');
-    foreach (range(1, 12) as $item) {
+    $currentMonth = date('m');
+    foreach (range(1, $currentMonth) as $item) {
         $xls->createSheet($item);
         $xls->setActiveSheetIndex($item);
         $sheet = $xls->getActiveSheet();
@@ -840,7 +841,7 @@ function generate_xls_with_login_logs()
     }
     $xls->removeSheetByIndex(0);
     foreach ($users as $id => $user) {
-        foreach (range(1, 12) as $item) {
+        foreach (range(1, $currentMonth) as $item) {
             $xls->setActiveSheetIndex((int)$item - 1);
             $sheet = $xls->getActiveSheet();
             $sheet->setCellValueByColumnAndRow(
