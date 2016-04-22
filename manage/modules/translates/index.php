@@ -66,6 +66,7 @@ class translates
             $this->url = __CLASS__;
             $this->config = array(
                 $this->tbl_prefix . 'map' => array(
+                    'table' => $this->tbl_prefix . 'map',
                     'name' => l('Переводы для карты сайта'),
                     //            'var' => 'url',
                     'key' => 'map_id',
@@ -76,6 +77,7 @@ class translates
                     )
                 ),
                 $this->tbl_prefix . 'forms' => array(
+                    'table' => $this->tbl_prefix . 'forms',
                     'name' => l('Переводы для форм'),
                     //            'var' => 'url',
                     'key' => 'forms_id',
@@ -86,6 +88,7 @@ class translates
                     )
                 ),
                 $this->tbl_prefix . 'reviews_marks' => array(
+                    'table' => $this->tbl_prefix . 'reviews_marks',
                     'name' => l('Переводы оценок отзывов'),
                     //            'var' => 'url',
                     'key' => 'mark_id',
@@ -94,6 +97,7 @@ class translates
                     )
                 ),
                 $this->tbl_prefix . 'template_vars' => array(
+                    'table' => $this->tbl_prefix . 'template_vars',
                     'name' => l('Переводы для шаблона сайта'),
                     'var' => 'var',
                     'key' => 'var_id',
@@ -102,6 +106,7 @@ class translates
                     )
                 ),
                 $this->tbl_prefix . 'sms_templates' => array(
+                    'table' => $this->tbl_prefix . 'sms_templates',
                     'name' => l('Шаблоны смс'),
                     'key' => 'sms_templates_id',
                     'fields' => array(
@@ -354,7 +359,7 @@ class translates
             Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
         }
         $columns = $this->all_configs['db']->query("SHOW COLUMNS FROM ?q",
-            array($this->all_configs['arrequest'][1]), 'assoc');
+            array($tableName), 'assoc');
         return $this->view->renderFile('translates/save_form', array(
             'columns' => $columns,
             'url' => $this->url,
@@ -371,10 +376,11 @@ class translates
         $query = '';
         $query_parts = array();
         foreach ($this->config as $table => $conf) {
+            $tableName = $conf['table'];
             $query_parts[] =
                 $this->all_configs['db']->makeQuery(
-                    "(SELECT " . $conf['key'] . " as id,lang,change_date,'" . $table . "' as tbl "
-                    . "FROM " . $table . "_strings WHERE change_date >= DATE_ADD(CURDATE(), INTERVAL -21 DAY))",
+                    "(SELECT " . $conf['key'] . " as id,lang,change_date,'" . $tableName . "' as tbl "
+                    . "FROM " . $tableName . "_strings WHERE change_date >= DATE_ADD(CURDATE(), INTERVAL -21 DAY))",
                     array());
         }
         $query .= implode(' UNION ', $query_parts) . ' ORDER BY change_date DESC';
@@ -441,6 +447,7 @@ class translates
      */
     public function getTableName()
     {
-        return $this->all_configs['arrequest'][1];
+        $config = $this->config[$this->all_configs['arrequest'][1]];
+        return $config['table'];
     }
 }
