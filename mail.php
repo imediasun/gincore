@@ -83,7 +83,7 @@ class Mailer extends PHPMailer
 
             case('order-manager'):
                 $this->Subject = l('Вы назначены ответственным');
-                $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
+                $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
                 break;
 
             case('new-order'):
