@@ -2377,7 +2377,7 @@ class orders
                             $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
                             $orderId = $this->all_configs['arrequest'][2];
                             send_sms("+{$user['phone']}",
-                                'Vi naznacheni otvetstvennim po zakazu #' . "<a href='{$host}orders/create/{$orderId}' >{$orderId}</a>");
+                                'Vi naznacheni otvetstvennim po zakazu #' . $orderId . "({$host}orders/create/{$orderId})");
                         }
                         if ($user['send_over_email']) {
                             require_once $this->all_configs['sitepath'] . 'mail.php';
