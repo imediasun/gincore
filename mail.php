@@ -145,7 +145,7 @@ class Mailer extends PHPMailer
      */
     function go()
     {
-        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `nam`e="email"',
+        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="email"',
             array())->el();
         $this->FromName = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="site_name"',
             array())->el();
