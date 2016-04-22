@@ -24,9 +24,6 @@ include 'manage/inc_func_lang.php';
 $all_configs = all_configs();
 require_once 'manage/core_langs.php';
 
-login_logs();
-exit;
-
 set_time_limit(14400); // 4 часа
 
 $date_begin = date("Y-m-d H:i:s");
@@ -380,9 +377,8 @@ function login_logs()
 {
     global $all_configs;
     $isNeedSend = db()->query("SELECT `value` FROM {settings} WHERE `name`='need_send_login_log'")->el();
-    if (true || $isNeedSend) {
+    if ($isNeedSend) {
         $email = db()->query("SELECT `value` FROM {settings} WHERE `name`='email_for_send_login_log'", array())->el();
-        $email = 'ilashyn@gmail.com';
         $objWriter = generate_xls_with_login_logs();
         $fileName = '/tmp/output.xls';
         $objWriter->save($fileName);
