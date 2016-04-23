@@ -21,11 +21,11 @@ global $all_configs, $manage_lang;
 
 $langs = get_langs();
 
-if ($all_configs['configs']['manage-print-default-service-restore']) {
+//if ($all_configs['configs']['manage-print-default-service-restore']) {
     $cur_lang = isset($_GET['lang']) ? trim($_GET['lang']) : $langs['def_lang'];
-} else {
-    $cur_lang = $manage_lang;
-}
+//} else {
+//    $cur_lang = $manage_lang;
+//}
 
 $act = isset($_GET['act']) ? trim($_GET['act']) : '';
 $print_html = $variables = '';
