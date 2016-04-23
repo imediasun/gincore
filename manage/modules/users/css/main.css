@@ -35,3 +35,7 @@
 #upload_avatar {
     z-index: 100000;
 }
+.scrolled-logs {
+    overflow: auto;
+    max-height: 400px;
+}

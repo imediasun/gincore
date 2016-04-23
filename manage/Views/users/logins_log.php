@@ -12,7 +12,7 @@
                             </h4>
                         </div>
                         <div id="collapse<?= $user['id'] ?>" class="panel-collapse collapse">
-                            <div class="panel-body">
+                            <div class="panel-body scrolled-logs">
                                 <?php if (empty($user['logs'])): ?>
                                     <?= l('Нет статистики') ?>
                                 <?php else: ?>
