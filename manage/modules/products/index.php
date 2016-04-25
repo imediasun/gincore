@@ -1944,7 +1944,7 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_additionally()
+    public function products_additionally()
     {
         $goods_html = '';
 
@@ -1957,7 +1957,7 @@ class products extends Controller
                 $selected_categories = $this->all_configs['db']->query('SELECT cg.category_id, cg.category_id
                         FROM {category_goods} as cg WHERE cg.goods_id=?i',
                     array($this->all_configs['arrequest'][2]))->vars();
-                
+
                 $goods_html = $this->view->renderFile('products/products_additionally', array(
                     'product' => $product,
                     'selected_categories' => $selected_categories,
@@ -1977,10 +1977,11 @@ class products extends Controller
      * @param string $hash
      * @return array
      */
-    function products_managers($hash = '#managers-managers')
+    public function products_managers($hash = '#managers-managers')
     {
-        if (trim($hash) == '#managers' || (trim($hash) != '#managers-managers' && trim($hash) != '#managers-history'))
+        if (trim($hash) == '#managers' || (trim($hash) != '#managers-managers' && trim($hash) != '#managers-history')) {
             $hash = '#managers-managers';
+        }
 
         $goods_html = '';
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
@@ -1988,18 +1989,9 @@ class products extends Controller
             $product = $this->all_configs['db']->query('SELECT id, author FROM {goods} WHERE id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
-            if ($product) {
-                $goods_html .= '<ul class="nav nav-pills">';
-                $goods_html .= '<li><a class="click_tab" data-open_tab="products_managers_managers" onclick="click_tab(this, event)" title="' . l('Уведомления') .'" href="#managers-managers">' . l('Менеджеры') .'</a></li>';
-                $goods_html .= '<li><a class="click_tab" data-open_tab="products_managers_history" onclick="click_tab(this, event)" title="' . l('Уведомления') .'" href="#managers-history">' . l('История изменений') . '</a></li>';
-                $goods_html .= '</ul><div class="pill-content">';
-
-                $goods_html .= '<div id="managers-managers" class="pill-pane">';
-                $goods_html .= '</div>';
-
-                $goods_html .= '<div id="managers-history" class="pill-pane">';
-                $goods_html .= '</div>';//</div>
-            }
+            $goods_html = $this->view->renderFile('products/products_managers', array(
+                'product' => $product,
+            ));
         }
         return array(
             'html' => $goods_html,
@@ -2085,33 +2077,16 @@ class products extends Controller
      * @param string $hash
      * @return array
      */
-    function products_financestock($hash = '#financestock-stock')
+    public function products_financestock($hash = '#financestock-stock')
     {
-        if (trim($hash) == '#financestock' || (trim($hash) != '#financestock-stock' && trim($hash) != '#financestock-finance'))
+        if (trim($hash) == '#financestock' || (trim($hash) != '#financestock-stock' && trim($hash) != '#financestock-finance')) {
             $hash = '#financestock-stock';
+        }
 
         $goods_html = '';
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
-
-            $goods_html .= '<ul class="nav nav-pills">';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_financestock_stock" onclick="click_tab(this, event)" title="' . l('Склады') .'" href="#financestock-stock">' . l('Склады') . '</a></li>';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_financestock_finance" onclick="click_tab(this, event)" title="' . l('Заказы поставщикам') .'" href="#financestock-finance">' . l('Заказы поставщикам') .'</a></li>';
-            $goods_html .= '</ul><div class="pill-content">';
-
-            $goods_html .= '<div id="financestock-main" class="pill-pane">';
-            $goods_html .= '</div><!--#financestock-main-->';
-
-            // склады
-            $goods_html .= '<div id="financestock-stock" class="pill-pane">';
-            $goods_html .= '</div><!--#financestock-stock-->';
-
-            // заказы поставщикам
-            $goods_html .= '<div id="financestock-finance" class="pill-pane">';
-            $goods_html .= '</div><!--#financestock-finance-->';
-
-            $goods_html .= '</div><!--.pill-content-->';
-            //}
+            $goods_html = $this->view->renderFile('products/products_financestock');
         }
 
         return array(
@@ -2123,7 +2098,7 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_financestock_stock()
+    public function products_financestock_stock()
     {
         $goods_html = '';
 
@@ -2136,27 +2111,9 @@ class products extends Controller
                     WHERE i.goods_id=?i AND w.id=i.wh_id AND w.consider_all=1 GROUP BY i.wh_id',
                 array($this->all_configs['arrequest'][2]))->assoc();
 
-            if ($counts) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>' . l('Склад') . '</td><td>' . l('Общий остаток') .'</td>';
-                $goods_html .= '<td>' . l('Свободный остаток') . '</td></tr></thead><tbody>';
-                $all_qty_wh = 0;
-                $all_qty_store = 0;
-                foreach ($counts as $vgw) {
-                    $vgw['qty_store'] = $vgw['qty_store'] > 0 ? $vgw['qty_store'] : 0;
-                    $all_qty_wh += intval($vgw['qty_wh']);
-                    $all_qty_store += intval($vgw['qty_store']);
-
-                    $url = $this->all_configs['prefix'] . 'warehouses?pid=' . $this->all_configs['arrequest'][2] . '&whs=' . $vgw['wh_id'] . '#show_items';
-                    $goods_html .= '<tr><td><a href="' . $url . '">' . htmlspecialchars($vgw['title']) . '</a></td>';
-                    $goods_html .= '<td>' . intval($vgw['qty_wh']) . '</td>';
-                    $goods_html .= '<td>' . intval($vgw['qty_store']) . '</td></tr>';
-                }
-                $goods_html .= '<tr><td><b>' . l('Всего') .'</b></td><td>' . $all_qty_wh . '</td>';
-                $goods_html .= '<td>' . $all_qty_store . '</td></tr></tbody></table>';
-            } else {
-                $goods_html .= '<p  class="text-error">' . l('Нет информации') .'</p>';
-            }
-
+            $goods_html = $this->view->renderFile('products/products_financestock_stock', array(
+                'counts' => $counts
+            ));
         }
 
         return array(
@@ -2170,6 +2127,7 @@ class products extends Controller
      */
     function products_financestock_finance()
     {
+       ============= 
         $goods_html = '';
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
@@ -2221,7 +2179,7 @@ class products extends Controller
      * @param string $hash
      * @return array
      */
-    function products_omt($hash = '#omt-notices')
+    public function products_omt($hash = '#omt-notices')
     {
         $goods_html = '';
 
@@ -2232,19 +2190,7 @@ class products extends Controller
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
             && $this->all_configs['oRole']->hasPrivilege('external-marketing')
         ) {
-
-            $goods_html .= '<ul class="nav nav-pills">';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_notices" onclick="click_tab(this, event)" href="#omt-notices" title="' . l('Уведомления') . '">' . l('Уведомления') . '</a></li>';
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_omt_procurement" onclick="click_tab(this, event)" href="#omt-procurement" title="' . l('Управление закупками') . '">' . l('Упр. закупками') . '</a></li>';
-            $goods_html .= '</ul><div class="pill-content">';
-
-            $goods_html .= '<div id="omt-notices" class="pill-pane">';
-            $goods_html .= '</div>';
-
-            $goods_html .= '<div id="omt-procurement" class="pill-pane">';
-            $goods_html .= '</div>';
-
-            $goods_html .= '</div>';
+            $goods_html = $this->view->renderFile('products/products_omt');
         }
 
         return array(
@@ -2256,27 +2202,19 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_omt_notices()
+    public function products_omt_notices()
     {
         $goods_html = '';
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
-            && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-
+            && $this->all_configs['oRole']->hasPrivilege('external-marketing')
+        ) {
             $user = $this->all_configs['db']->query('SELECT * FROM {users_notices} WHERE user_id=?i AND goods_id=?i',
                 array($_SESSION['id'], $this->all_configs['arrequest'][2]))->row();
-            $checked = '';
-            if ($user && $user['each_sale'] == 1) $checked = 'checked';
-            $goods_html .= '<form method="post" style="max-width:400px">';
-            $goods_html .= '<div class="form-group"><div class="checkbox"><label><input ' . $checked . ' type="checkbox" name="each_sale" /> ' . l('уведомлять меня о каждой продаже этого товара') .'</div></div>';
-            $checked = '';
-            if ($user && $user['by_balance'] == 1) $checked = 'checked';
-            $balance = '';
-            if ($user && $user['balance'] > 0) $balance = $user['balance'];
-            $goods_html .= '<div class="form-group"><label class="checkbox-inline"><input ' . $checked . ' type="checkbox" name="by_balance" /> уведомлять меня об остатке</label>
-                        <div class="input-group"><input placeholder="' . l('количество товаров') . '" value="' . $balance . '" type="text" class="form-control" onkeydown="return isNumberKey(event)" name="balance" /><div class="input-group-addon">' . l('или менее единиц.') . '</div></div>';
-            $goods_html .= $this->btn_save_product('omt_notices');
-            $goods_html .= '</form>';
+            $goods_html = $this->view->renderFile('products/products_omt_notices', array(
+                'user' => $user,
+                'btn_save' => $this->btn_save_product('omt_notices')
+            ));
         }
 
         return array(
@@ -2317,46 +2255,15 @@ class products extends Controller
                             'title2' => $market['title2'],
                             'content' => $market['content'],
                             'category_id' => $market['category_id'],
-                            'categories' => array($market['cid'] => $market['ctitle']));
+                            'categories' => array($market['cid'] => $market['ctitle'])
+                        );
                     }
                 }
-                foreach ($aMarkets as $m_id => $aMarket) {
-                    $checked = '';
-                    $title1 = '';
-                    $title2 = '';
-                    if ($aMarket['avail'] == 1)
-                        $checked = 'checked';
-                    if (isset($aMarket['title1']))
-                        $title1 = $aMarket['title1'];
-                    if (isset($aMarket['title2']))
-                        $title2 = $aMarket['title2'];
-                    $goods_html .= '<div class="control-group"><label class="control-label">' . htmlspecialchars($aMarket['title']) . '</label><div class="controls">';
-                    $goods_html .= '<input ' . $checked . ' class="span5" type="checkbox" name="market-avail[' . $m_id . ']" /></div></div>';
-                    $goods_html .= '<div class="control-group"><label class="control-label">' . l('Название') .' ' . htmlspecialchars($aMarket['title']) . '&nbsp;1:</label>';
-                    $goods_html .= '<div class="controls"><input class="span5" type="text" name="market-title1[' . $m_id . ']" value="' . htmlspecialchars($title1) . '" /></div></div>';
-                    $goods_html .= '<div class="control-group"><label class="control-label">' . l('Название') .' ' . htmlspecialchars($aMarket['title']) . '&nbsp;2:</label>';
-                    $goods_html .= '<div class="controls"><input class="span5" type="text" name="market-title2[' . $m_id . ']" value="' . htmlspecialchars($title2) . '" /></div></div>';
-                    $goods_html .= '<div class="controls"><textarea rows="5" name="market-content[' . $m_id . ']" class="span5">' . htmlspecialchars($aMarket['content']) . '</textarea></div></div>';
-                    $goods_html .= '<div class="control-group"><label class="control-label">' . l('Категория') .' ' . htmlspecialchars($aMarket['title']) . ':</label>';
-                    $goods_html .= '<div class="controls">';
-                    $goods_html .= '<select class="span5" id="market-category-' . $m_id . '" name="market-category[' . $m_id . ']"><option value=""></option>';
-                    if (isset($aMarket['categories']) && count($aMarket['categories']) > 0) {
-                        foreach ($aMarket['categories'] as $cat_id => $val) {
-
-                            if ($aMarket['category_id'] == $cat_id)
-                                $goods_html .= '<option selected value="' . $cat_id . '">' . htmlspecialchars($val) . '</option>';
-                            else
-                                $goods_html .= '<option value="' . $cat_id . '">' . htmlspecialchars($val) . '</option>';
-                        }
-                    }
-                    $goods_html .= '</select>';
-                    $goods_html .= '<input type="button" onclick="add_cat(this, \'' . $m_id . '\')" class="btn add-cat" value="' . l('Добавить категорию') . ' +" /></div></div><br><br><br>';
-                }
-
-            } else {
-                $goods_html .= '<p class="text-error">' . l('Нет ни одного магазина в базе данных') . '</p>';
             }
-            $goods_html .= $this->btn_save_product('omt_aggregators');
+            $goods_html = $this->view->renderFile('products/products_omt_procurement', array(
+                'aMarkets' => $aMarkets,
+                'btn_save' => $this->btn_save_product('omt_aggregators')
+            ));
         }
 
         return array(
@@ -2368,7 +2275,7 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_omt_procurement()
+    public function products_omt_procurement()
     {
         $out = '';
 
@@ -2396,13 +2303,14 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_omt_suppliers()
+    public function products_omt_suppliers()
     {
         $goods_html = '';
 
         if ($this->all_configs['configs']['manage-show-imports'] == true && $this->all_configs['arrequest'][2] > 0
             && $this->all_configs['oRole']->hasPrivilege('external-marketing')
-            && array_key_exists(2, $this->all_configs['arrequest'])) {
+            && array_key_exists(2, $this->all_configs['arrequest'])
+        ) {
 
             $goods_suppliers = $this->all_configs['db']->query('SELECT s.supplier_id, s.price, s.price_sell, s.qty, s.date_add, n.title
                 FROM {contractors_suppliers_goods_price} AS s
@@ -2410,20 +2318,9 @@ class products extends Controller
                 WHERE s.goods_id=?i ORDER BY s.price',
                 array($this->all_configs['arrequest'][2]))->assoc();
 
-            if ($goods_suppliers) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>' . l('Поставщик') . '</td>';
-                $goods_html .= '<td>' . l('Цена закупки') .'</td><td>' . l('Цена продажи') .'</td><td>' . l('Количество') .'</td><td>'.l('Дата').'</td></tr></thead><tbody>';
-                foreach ($goods_suppliers as $vgs) {
-                    $goods_html .= '<tr><td>' . htmlspecialchars($vgs['title']) . '</td>';
-                    $goods_html .= '<td>' . number_format($vgs['price'] / 100, 2, ',', ' ') . '</td>';
-                    $goods_html .= '<td>' . number_format($vgs['price_sell'] / 100, 2, ',', ' ') . '</td>';
-                    $goods_html .= '<td>' . htmlspecialchars($vgs['qty']) . '</td>';
-                    $goods_html .= '<td>' . do_nice_date($vgs['date_add']) . '</td></tr>';
-                }
-                $goods_html .= '</tbody></table>';
-            } else {
-                $goods_html .= '<p  class="text-error">' . l('Нет информации') .'</p>';
-            }
+            $goods_html = $this->view->renderFile('products/products_omt_suppliers', array(
+                'goods_suppliers' => $goods_suppliers
+            ));
         }
 
         return array(
@@ -2437,68 +2334,19 @@ class products extends Controller
      * @param string $hash
      * @return array
      */
-    function products_imt($hash = '#imt-main')
+    public function products_imt($hash = '#imt-main')
     {
         if (trim($hash) == '#imt' || (trim($hash) != '#imt-main' && trim($hash) != '#imt-comments' && trim($hash) != '#imt-warranties'
                 && trim($hash) != '#imt-related' && trim($hash) != '#imt-relatedgoods' && trim($hash) != '#imt-relatedservice'
-                && trim($hash) != '#imt-similar' && trim($hash) != '#imt-group' && trim($hash) != '#imt-comments_links'))
+                && trim($hash) != '#imt-similar' && trim($hash) != '#imt-group' && trim($hash) != '#imt-comments_links')
+        ) {
             $hash = '#imt-main';
-
-        $goods_html = '';
-
-        $goods_html .= '<div class="tabbable"><ul class="nav nav-pills">';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_main" onclick="click_tab(this, event)" href="#imt-main" title="">' . l('Основные') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_comments" onclick="click_tab(this, event)" href="#imt-comments" title="' . l('Отзывы') .'">' . l('Отзывы') .'</a></li>';
-        if ($this->all_configs['configs']['no-warranties'] == false)
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_warranties" onclick="click_tab(this, event)" href="#imt-warranties" title="' . l('Гарантийные пакеты') .'">' . l('') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_related" onclick="click_tab(this, event)" href="#imt-related" title="' . l('Сопутствующий') .'">' . l('Сопутствующий') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_relatedgoods" onclick="click_tab(this, event)" href="#imt-relatedgoods" title="' . l('Сопутствующие товары') .'">' . l('Сопут. товары') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_relatedservice" onclick="click_tab(this, event)" href="#imt-relatedservice" title="' . l('Сопутствующие услуги') .'">' . l('Сопут. услуги') .'</a></li>';
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_similar" onclick="click_tab(this, event)" href="#imt-similar" title="' . l('Аналогичные') .'">' . l('Аналогичные') .'</a></li>';
-        if ($this->all_configs['configs']['group-goods'] == true) {
-            $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_group" onclick="click_tab(this, event)" href="#imt-group" title="' . l('Группа') .'">' . l('Группа') .'</a></li>';
-        }
-        $goods_html .= '<li><a class="click_tab" data-open_tab="products_imt_comments_links" onclick="click_tab(this, event)" href="#imt-comments_links" title="' . l('Ссылки для парсинга') .'">' . l('Парсер') .'</a></li></ul>';
-
-        $goods_html .= '<div class="pill-content"><div id="imt-main" class="pill-pane">';
-        $goods_html .= '</div>';
-
-        // comment parse
-        $goods_html .= '<div id="imt-comments_links" class="pill-pane">';
-        $goods_html .= '</div>';
-
-        if ($this->all_configs['configs']['no-warranties'] == false) {
-            $goods_html .= '<div id="imt-warranties" class="pill-pane">';
-            $goods_html .= '</div>';
         }
 
-        $goods_html .= '<div id="imt-comments" class="pill-pane">';
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div id="imt-related" class="pill-pane">';
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div id="imt-relatedgoods" class="pill-pane">';
-        // временное решение
-        $products_imt_relatedgoods = $this->products_imt_relatedgoods();
-        $goods_html .= $products_imt_relatedgoods['html'];
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div id="imt-relatedservice" class="pill-pane">';
-        // временное решение
-        $products_imt_relatedservice = $this->products_imt_relatedservice();
-        $goods_html .= $products_imt_relatedservice['html'];
-        $goods_html .= '</div>';
-
-        $goods_html .= '<div id="imt-similar" class="pill-pane">';
-        $goods_html .= '</div>';
-
-        if ($this->all_configs['configs']['group-goods'] == true) {
-            $goods_html .= '<div id="imt-group" class="pill-pane">';
-            $goods_html .= '</div>';
-        }
-
-        $goods_html .= '</div></div>';
+        $goods_html = $this->view->renderFile('products/products_imt', array(
+            'products_imt_relatedgoods' => $this->products_imt_relatedgoods(),
+            'products_imt_relatedservice' => $this->products_imt_relatedservice(),
+        ));
 
         return array(
             'html' => $goods_html,
@@ -2510,21 +2358,11 @@ class products extends Controller
      * @param $tab
      * @return string
      */
-    function btn_save_product($tab)
+    public function btn_save_product($tab)
     {
-        $goods_html = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-            $goods_html .= '<div class="control-group"><div class="controls">';
-            $goods_html .= '<input class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '" name="edit-product-' . $tab . '">';
-            if ($this->all_configs['configs']['save_goods-export_to_1c'] == true && $this->all_configs['configs']['onec-use'] == true)
-                $goods_html .= '<label class="checkbox"><input type="checkbox" checked name="1c-export" />' . l('Отправить в 1с') .'</label>';
-            $goods_html .= '</div></div>';
-        } else {
-            $goods_html .= '<script>jQuery(document).ready(function($) {$(":input:not(:disabled)").prop("disabled",true)})</script>';
-        }
-
-        return $goods_html;
+        return $this->view->renderFile('products/btn_save_product', array(
+            'tab' => $tab
+        ));
     }
 
     /**
