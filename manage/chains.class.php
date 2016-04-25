@@ -3164,7 +3164,7 @@ class Chains
             $client = db()->query("SELECT * FROM {clients} WHERE id=?i", array($client['id']))->row();
             if(!empty($config) && $config == 'on' && $type === 0) {
                 send_sms("+{$client['phone']}",
-                    'Prosim vas ostavit` otziv o rabote mastera na saite ' . $host . ' Vash kod klienta:' . $this->getClientCode($client['id']));
+                    l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->getClientCode($client['id']));
             }
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
