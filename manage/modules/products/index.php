@@ -828,12 +828,8 @@ class products extends Controller
      */
     private function genmenu()
     {
-       ================== 
         $categories = $this->get_categories();
 
-        $categories_html = '
-            <div class="control-group">
-            </div>';
 
         $filters_html = $this->genfilter(); // список фильтров
         $data = array();
@@ -848,10 +844,11 @@ class products extends Controller
         }
 
         $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
-        $categories_html .= '<p class="label label-info">' . l('Категории') . '</p>';
-        $categories_html .= '<ul class="nav nav-list well well-white" id="tree">' . $this->categories_tree_menu($categories_tree) . '</ul>';
 
-        return $categories_html . '<p></p>' . $filters_html;
+        return $this->view->renderFile('products/genmeny', array(
+            'filter_html' => $filters_html,
+            'categories_tree_menu' => $this->categories_tree_menu($categories_tree)
+        ));
 
     }
 
@@ -1931,32 +1928,11 @@ class products extends Controller
                 FROM {goods} WHERE id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
-            if ($product) {
-                $goods_html .= '<form method="post">';
-                $goods_html .= '<div class="form-group"><label>' . l('Название') . ': </label>';
-                $goods_html .= '<input class="form-control" placeholder="' . l('введите название') . '" name="title" value="';
-                if (is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post']))
-                    $goods_html .= htmlspecialchars($this->errors['post']['title']);
-                else
-                    $goods_html .= htmlspecialchars($product['title']);
-                $goods_html .= '" /></div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Штрих код') .': </label>
-                            <input placeholder="' . l('штрих код') .'" class="form-control" name="barcode" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('title', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['barcode']) : $product['barcode']) . '" /></div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Приоритет') . ': </label>
-                            <input onkeydown="return isNumberKey(event)" class="form-control" name="prio" value="' . ((is_array($this->errors) && array_key_exists('post', $this->errors) && array_key_exists('prio', $this->errors['post'])) ? htmlspecialchars($this->errors['post']['prio']) : $product['prio']) . '" /></div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Розничная цена') .' ('.viewCurrency('shortName').'): </label>
-                            ' . number_format($product['price'] / 100, 2, '.', ' ') . '</div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Закупочная цена последней партии') .' ('.viewCurrencySuppliers('shortName').'): </label>
-                            ' . number_format($product['price_purchase'] / 100, 2, '.', ' ') . '</div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Оптовая цена') .' ('.viewCurrency('shortName').'): </label>
-                            ' . number_format($product['price_wholesale'] / 100, 2, '.', ' ') . '</div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Свободный остаток') .':</label>
-                            ' . intval($product['qty_store']) . '</div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Общий остаток') .':</label>
-                            ' . intval($product['qty_wh']) . '</div>';
-                $goods_html .= $this->btn_save_product('main');
-                $goods_html .= '</form>';
-            }
+            $goods_html = $this->view->renderFile('products/products_main', array(
+                'product' => $product, 
+                'errors' => $this->errors,
+                'btn_save' => $this->btn_save_product('main')
+            ));
         }
 
         return array(
@@ -1978,43 +1954,16 @@ class products extends Controller
                 array($this->all_configs['arrequest'][2]))->row();
 
             if ($product) {
-                // достаем все категории в которых лежит товар
-                $product_categories = $this->all_configs['db']->query('SELECT cg.category_id, c.title FROM {categories} as c, {category_goods} as cg
-                  WHERE cg.goods_id=?i AND c.id=cg.category_id', array($this->all_configs['arrequest'][2]))->assoc();
-
-                $cat_for_goods = array();
-                $categories_html = '';
-                foreach ($product_categories as $product_c) { //echo $product['title'];
-                    $cat_for_goods[$product_c['category_id']] = $product_c['title'];
-                    $categories_html .= '<tr><td>' . $product_c['category_id'] . '</td>';
-                    $categories_html .= '<td>' . htmlspecialchars($product_c['title']) . '</td>';
-                    $categories_html .= '<td><label class="checkbox">';
-                    $categories_html .= '<input type="checkbox" name="del-cat[' . $product_c['category_id'] . ']" /></label></td></tr>';
-                }
-
-                $checked = '';
-                if ($product['avail'] == 1)
-                    $checked = 'checked';
-                $goods_html .= '<form method="post" style="max-width:300px">';
-                $goods_html .= '<div class="form-group"><div class="checkbox">';
-                $goods_html .= '<label><input name="avail" ' . $checked . ' type="checkbox">' . l('Активность') . '</label></div></div>';
-                $checked = '';
-                if ($product['type'] == 1)
-                    $checked = 'checked';
-                $goods_html .= '<div class="form-group"><div class="checkbox">';
-                $goods_html .= '<label><input name="type" ' . $checked . ' type="checkbox">' . l('Услуга') . '</label></div></div>';
-                $goods_html .= '<div class="form-group"><label>' . l('Категории') . ': </label>';
-                $goods_html .= '';
-                $goods_html .= '<select class="multiselect form-control" multiple="multiple" name="categories[]">';
-                $categories = $this->get_categories();
                 $selected_categories = $this->all_configs['db']->query('SELECT cg.category_id, cg.category_id
                         FROM {category_goods} as cg WHERE cg.goods_id=?i',
                     array($this->all_configs['arrequest'][2]))->vars();
-                $goods_html .= build_array_tree($categories, array_keys($selected_categories));
-                $goods_html .= '</select>';
-                $goods_html .= '</div>';
-                $goods_html .= $this->btn_save_product('additionally');
-                $goods_html .= '</form>';
+                
+                $goods_html = $this->view->renderFile('products/products_additionally', array(
+                    'product' => $product,
+                    'selected_categories' => $selected_categories,
+                    'btn_save' => $this->btn_save_product('additionally'),
+                    'categories' => $this->get_categories()
+                ));
             }
         }
 
