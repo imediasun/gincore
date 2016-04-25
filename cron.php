@@ -384,7 +384,7 @@ function login_logs()
         $objWriter->save($fileName);
         require_once __DIR__ . '/mail.php';
         $messages = new Mailer($all_configs);
-        $messages->group('send_excell', $email, array('file' => $fileName));
+        $messages->group('send-excell', $email, array('file' => $fileName));
         $messages->go();
     }
 }
