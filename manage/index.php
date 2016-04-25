@@ -67,6 +67,8 @@ $langs = get_langs(); // языки контента
 #авторизация
 $auth = new Auth($all_configs['db'], $langs['lang'], $langs['def_lang'], $langs['langs']);
 $auth->cookie_session_name = $dbcfg['_prefix'].'cid';
+
+$auth->checkLastLogin();
 $ifauth = $auth->IfAuth();
 $ifadmin = $ifauth['is_adm'];
 //echo $ifauth['login'];
@@ -115,7 +117,7 @@ if(isset($all_configs['arrequest'][0])){
     }
 
     if($all_configs['arrequest'][0] == 'logout' && $ifauth){
-        $auth->Logout($all_configs);
+        $auth->Logout($ifauth);
         session_destroy();
         header("Location: " . $all_configs['prefix']);
         exit;

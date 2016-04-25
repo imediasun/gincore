@@ -801,3 +801,66 @@ function gen_breadcrumbs(){
 function seohide_html($html){
     return '<span class="hashed_data" data-content="'.base64_encode($html).'"></span>';
 }
+
+function generate_xls_with_login_logs()
+{
+    require_once(__DIR__ . '/manage/classes/PHPExcel.php');
+    require_once(__DIR__ . '/manage/classes/PHPExcel/Writer/Excel5.php');
+    $users = db()->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
+    foreach ($users as $id => $user) {
+        $users[$id]['logs'] = db()->query('SELECT DATE_FORMAT(created_at,\'%d-%m-%Y\') as date_add, MIN(created_at) as stamp FROM {users_login_log} WHERE user_id=?i AND created_at > ? GROUP by date_add ORDER by date_add ASC',
+            array($user['id'], date('1-1-Y', time())))->assoc();
+    }
+    $xls = new PHPExcel();
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    foreach (range(1, $currentMonth) as $item) {
+        $xls->createSheet($item);
+        $xls->setActiveSheetIndex($item);
+        $sheet = $xls->getActiveSheet();
+        $sheet->setTitle("{$item}-{$currentYear}");
+        $sheet->setCellValue("A1", 'Пользователь');
+        $sheet->getStyle('A1')->getFill()
+            ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+        $sheet->getStyle('A1')->getFill()
+            ->getStartColor()->setRGB('EEEEEE');
+        $sheet->getStyle('A1')->getAlignment()
+            ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+        foreach (range(1, 31) as $day) {
+            $cell = $sheet->setCellValueByColumnAndRow($day, 1, $day, true);
+            $sheet->getStyle($cell->getCoordinate())->getFill()
+                ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+            $sheet->getStyle($cell->getCoordinate())->getFill()
+                ->getStartColor()->setRGB('EEEEEE');
+            $sheet->getStyle($cell->getCoordinate())->getAlignment()
+                ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle($cell->getCoordinate())->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        }
+    }
+    $xls->removeSheetByIndex(0);
+    foreach ($users as $id => $user) {
+        foreach (range(1, $currentMonth) as $item) {
+            $xls->setActiveSheetIndex((int)$item - 1);
+            $sheet = $xls->getActiveSheet();
+            $sheet->setCellValueByColumnAndRow(
+                0,
+                (int)$id + 2,
+                $user['login']);
+        }
+        if (!empty($user['logs'])) {
+            foreach ($user['logs'] as $log) {
+                list($day, $month, $year) = explode('-', $log['date_add']);
+                $xls->setActiveSheetIndex((int)$month - 1);
+                $sheet = $xls->getActiveSheet();
+                $sheet->setCellValueByColumnAndRow(
+                    (int)$day,
+                    (int)$id + 2,
+                    date('H:i', strtotime($log['stamp'])));
+            }
+        }
+    }
+
+    return new PHPExcel_Writer_Excel5($xls);
+}

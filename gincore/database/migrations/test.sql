@@ -67,3 +67,17 @@ ALTER TABLE `restore4_users` ADD COLUMN send_over_email tinyint(1) UNSIGNED DEFA
 ALTER TABLE `restore4_users` ADD COLUMN send_over_sms tinyint(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_users` ADD INDEX send_over_email(send_over_email);
 ALTER TABLE `restore4_users` ADD INDEX send_over_sms(send_over_sms);
+
+/*
+2016_04_21_134400_log_of_user_login.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_users_login_log` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `user_id` int(10) UNSIGNED NOT NULL,
+    `ip` varchar(255) DEFAULT '' NOT NULL,
+    `created_at` timestamp default CURRENT_TIMESTAMP,
+    `updated_at` timestamp default 0,
+PRIMARY KEY (`id`),
+INDEX(`user_id`),
+INDEX(`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;

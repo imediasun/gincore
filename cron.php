@@ -373,6 +373,22 @@ function ratings_stats()
     }
 }
 
+function login_logs()
+{
+    global $all_configs;
+    $isNeedSend = db()->query("SELECT `value` FROM {settings} WHERE `name`='need_send_login_log'")->el();
+    if ($isNeedSend) {
+        $email = db()->query("SELECT `value` FROM {settings} WHERE `name`='email_for_send_login_log'", array())->el();
+        $objWriter = generate_xls_with_login_logs();
+        $fileName = ini_get('upload_tmp_dir') . 'report.xls';
+        $objWriter->save($fileName);
+        require_once __DIR__ . '/mail.php';
+        $messages = new Mailer($all_configs);
+        $messages->group('send-excell', $email, array('file' => $fileName));
+        $messages->go();
+    }
+}
+
 // имитация конфига
 function all_configs()
 {

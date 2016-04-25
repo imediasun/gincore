@@ -76,14 +76,14 @@ class Mailer extends PHPMailer
 
             case('order-inform'):
                 $this->Subject = 'Статус заказа';
-                $this->Body = "Статус вашего заказа № <a href='{$this->host}orders/create/{$data['order_id']}' >{$data['order_id']}</a> изменился";
+                $this->Body = "Статус вашего заказа № {$data['order_id']} изменился";
                 unset($data['order_id']);
                 $this->IsHTML(true);
                 break;
 
             case('order-manager'):
                 $this->Subject = l('Вы назначены ответственным');
-                $this->Body = l('Вы назначены ответственным по заказу #') . $data['order_id'];
+                $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
                 break;
 
             case('new-order'):
@@ -127,6 +127,11 @@ class Mailer extends PHPMailer
                 $data['body_link_1_title'] = array_key_exists('title', $data) ? $data['title'] : $data['body_link_1'];
                 break;
 
+            case('send-excell'):
+                $this->Subject = l('Отчет по входам в систему');
+                $this->Body = l('Отчет по входам в систему');
+                $this->AddAttachment($data['file'], "report.xls");
+                break;
             default:
                 $this->Subject = $subject;
                 $this->Body = $body;
@@ -145,11 +150,12 @@ class Mailer extends PHPMailer
      */
     function go()
     {
-        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `nam`e="email"',
+        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="xontent_email"',
             array())->el();
         $this->FromName = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="site_name"',
             array())->el();
 
+        $this->SetFrom($this->From, $this->FromName);
         $this->Send();
         $this->ClearAddresses();
         $this->ClearAttachments();
@@ -211,7 +217,11 @@ class Mailer extends PHPMailer
      */
     function body_substitution()
     {
-        $header = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html');
+        if (file_exists($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html')) {
+            $header = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html');
+        } else {
+            $header = '';
+        }
         if (strpos($this->Body,
                 '.html') && is_file($this->all_configs['path'] . $this->mail_templates_folder . $this->Body)
         ) {
@@ -219,7 +229,11 @@ class Mailer extends PHPMailer
         } else {
             $body = $this->Body;
         }
-        $footer = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html');
+        if (file_exists($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html')) {
+            $footer = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html');
+        } else {
+            $footer = '';
+        }
 
         $mail_content = ($header ? $header : '') . ($body ? $body : '') . ($footer ? $footer : '');
         $pattern = "/\{\-(mail_msg)\-([a-zA-Z0-9_]{1,20})\}/";

@@ -24,6 +24,7 @@ class Auth { //класс авторизации
         $cidgen = md5(mt_rand() + mt_rand() . get_ip());
         $hashed_cid = md5(get_ip()) . md5($cidgen);
         $sql = $this->db->query("UPDATE {users} SET cid = ?, uxt = UNIX_TIMESTAMP() WHERE id = ?i", array($hashed_cid, $user["id"]));
+        $this->db->query('INSERT INTO {users_login_log} SET user_id =?i, created_at=CURRENT_TIMESTAMP, ip=?', array($user['id'], isset($_SERVER['REMOTE_ADDR'])? $_SERVER['REMOTE_ADDR']: ''));
         setcookie($this->cookie_session_name, '', time() - $this->cookie_expired, '/');
         setcookie($this->cookie_session_name, $cidgen, time() + $this->cookie_expired, '/');
     }
@@ -32,7 +33,7 @@ class Auth { //класс авторизации
     {
         if (!$login_unchk || !$pass_unchk) return false;
 
-        $user = $this->db->query("SELECT id, state, avail, auth_cert_only, blocked_by_tariff FROM {users} "
+        $user = $this->db->query("SELECT id, state, avail, auth_cert_only, blocked_by_tariff, uxt FROM {users} "
                                 ."WHERE (BINARY email=? OR BINARY login=?) AND BINARY pass=? AND deleted = 0",
             array($login_unchk, $login_unchk, $pass_unchk), 'row');
 
@@ -61,8 +62,6 @@ class Auth { //класс авторизации
             $user = $this->db->query("SELECT * FROM {users} WHERE cid = ?", array($hashed_cid), 'row');
 
             if ( $user && $user['avail'] == 1 &&  $user['blocked_by_tariff'] == 0) {
-
-
                 // сертификат расшифрован
                 if ($this->CheckCert()){
 
@@ -82,7 +81,7 @@ class Auth { //класс авторизации
                     }
                 }
 
-                $this->db->query("UPDATE {users} SET uxt = UNIX_TIMESTAMP() WHERE id = ?i ", array($user["id"]));
+//                $this->db->query("UPDATE {users} SET uxt = UNIX_TIMESTAMP() WHERE id = ?i ", array($user["id"]));
                 if ( !isset($_SESSION) )
                     session_start();
                 $_SESSION['role'] = $user['role'];
@@ -93,6 +92,18 @@ class Auth { //класс авторизации
             }
         }
         return false;
+    }
+
+    public function checkLastLogin()
+    {
+        if (isset($_COOKIE[$this->cookie_session_name])) {
+            $hashed_cid = md5(get_ip()) . md5(substr($_COOKIE[$this->cookie_session_name], 0, 32));
+            $user = $this->db->query("SELECT * FROM {users} WHERE cid = ?", array($hashed_cid), 'row');
+            if (!empty($user) && $user['uxt'] < strtotime('+4 hours', strtotime('today'))) {
+                return $this->Logout($user);
+            }
+        }
+        return true;
     }
 
     public function IfAuthCert()
@@ -125,12 +136,10 @@ class Auth { //класс авторизации
             && $_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') ? true : false;
     }
 
-    function Logout($all_configs) {
-
-        $ifauth = $this->IfAuth($all_configs);
-        $id = $ifauth['id'];
+    function Logout($user) {
+        $id = $user['id'];
         if (is_numeric($id)) {
-            $all_configs['db']->query("UPDATE {users} SET cid = '' WHERE id = ?i", array($id));
+            $this->db->query("UPDATE {users} SET cid = '' WHERE id = ?i", array($id));
             setcookie($this->cookie_session_name, '', time() - $this->cookie_expired);
             if ( !isset($_SESSION) )
                 session_start();

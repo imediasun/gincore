@@ -42,6 +42,11 @@ class users
             return true;
         }
 
+        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'generate_log_file') {
+            $this->generateLogFile();
+            return true;
+        }
+
         // если отправлена форма изменения продукта
         if (count($_POST) > 0) {
             $this->check_post($_POST);
@@ -202,11 +207,11 @@ class users
             }
         }
 
-        if($act == 'ratings') {
+        if ($act == 'ratings') {
             $ratings = $this->all_configs['db']->query('SELECT ur.*, f.comment '
-            .' FROM {users_ratings} ur'
-            .' JOIN {feedback} f ON ur.order_id=f.order_id'
-            .' WHERE user_id=?i ORDER BY created_at DESC',
+                . ' FROM {users_ratings} ur'
+                . ' JOIN {feedback} f ON ur.order_id=f.order_id'
+                . ' WHERE user_id=?i ORDER BY created_at DESC',
                 array($user_id))->assoc();
             if (empty($ratings)) {
                 $data = array(
@@ -329,10 +334,10 @@ class users
             array($userId))->col();
         $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
             array($userId))->col();
-            $warehouses = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i',
+        $warehouses = $this->all_configs['db']->query('SELECT wh_id, location_id FROM {warehouses_users} WHERE main=1 AND user_id=?i',
             array($userId))->row();
         list($user['warehouse'], $user['location']) = array('', '');
-        if(!empty($warehouses)) {
+        if (!empty($warehouses)) {
             $user['warehouse'] = $warehouses['wh_id'];
             $user['location'] = $warehouses['location_id'];
         }
@@ -381,14 +386,14 @@ class users
                             FlashMessage::DANGER);
                         continue;
                     }
-                    $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL: USER_ACTIVATED_BY_TARIFF;
-                    if($isBlocked && $isLastSuperuser) {
+                    $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL : USER_ACTIVATED_BY_TARIFF;
+                    if ($isBlocked && $isLastSuperuser) {
                         FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
                             FlashMessage::DANGER);
                         $isBlocked = 0;
                         $avail = 1;
                     }
-                    if($isBlocked && $uid == $user_id) {
+                    if ($isBlocked && $uid == $user_id) {
                         FlashMessage::set(l('Нельзя заблокировать текущую учетную запись'),
                             FlashMessage::DANGER);
                         $isBlocked = 0;
@@ -499,8 +504,11 @@ class users
                 array($user_id, 'add-new-role', $mod_id, intval($role_id)));
             FlashMessage::set(l('Роль успешно создана'));
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
-            if(!Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host'])) {
-                FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'), FlashMessage::DANGER);
+            if (!Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'],
+                $this->all_configs['configs']['host'])
+            ) {
+                FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'),
+                    FlashMessage::DANGER);
             } else {
                 $avail = 0;
                 if (isset($post['avail'])) {
@@ -521,28 +529,40 @@ class users
                         FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
                             FlashMessage::DANGER);
                     } else {
-                    $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email, send_over_sms, send_over_email) VALUES (?,?,?,?,?i,?,?,?,?,?)',
-                        array(
-                            $post['login'],
-                            $post['pass'],
-                            $post['fio'],
-                            $post['position'],
-                            empty($phones[0]) ? '' : $phones[0],
-                            $avail,
-                            $post['role'],
-                            $post['email'],
-                            isset($post['over_sms']) && $post['over_sms'] == 'on',
-                            isset($post['over_email']) && $post['over_email'] == 'on'
-                        ), 'id');
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'add-user', $mod_id, intval($id)));
-                    $this->saveUserRelations($id, $post);
-                    FlashMessage::set(l('Добавлен новый пользователь'));
+                        $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email, send_over_sms, send_over_email) VALUES (?,?,?,?,?i,?,?,?,?,?)',
+                            array(
+                                $post['login'],
+                                $post['pass'],
+                                $post['fio'],
+                                $post['position'],
+                                empty($phones[0]) ? '' : $phones[0],
+                                $avail,
+                                $post['role'],
+                                $post['email'],
+                                isset($post['over_sms']) && $post['over_sms'] == 'on',
+                                isset($post['over_email']) && $post['over_email'] == 'on'
+                            ), 'id');
+                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                            array($user_id, 'add-user', $mod_id, intval($id)));
+                        $this->saveUserRelations($id, $post);
+                        FlashMessage::set(l('Добавлен новый пользователь'));
                     }
                 }
             }
         } elseif (isset($post['update-user'])) {
             $this->updateUser($post, $user_id, $mod_id);
+        } elseif (isset($post['save-send-log-email'])) {
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            $access = new \access($this->all_configs, false);
+            $email = $access->is_email($post['email']) ? $post['email'] : '';
+            $send = (int)isset($post['send_email']);
+            $this->all_configs['db']->query('UPDATE {settings} SET `value`=? WHERE `name`=?',
+                array($email, 'email_for_send_login_log'));
+            $this->all_configs['db']->query('UPDATE {settings} SET `value`=? WHERE `name`=?',
+                array($send, 'need_send_login_log'));
+            if ($send && !empty($email)) {
+                FlashMessage::set(l("Отчет будет отправляться ежедневно в 14-00"));
+            }
         }
 
         header("Location:" . $_SERVER['REQUEST_URI']);
@@ -590,6 +610,13 @@ class users
                 <li><a data-toggle="tab" href="' . $this->mod_submenu[1]['url'] . '">' . $this->mod_submenu[1]['name'] . '</a></li>
                 <li><a data-toggle="tab" href="' . $this->mod_submenu[2]['url'] . '">' . $this->mod_submenu[2]['name'] . '</a></li>
                 <li><a data-toggle="tab" href="' . $this->mod_submenu[3]['url'] . '">' . $this->mod_submenu[3]['name'] . '</a></li>
+                ';
+        if ($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) {
+            $users_html .= '
+                <li><a data-toggle="tab" href="' . $this->mod_submenu[4]['url'] . '">' . $this->mod_submenu[4]['name'] . '</a></li>
+            ';
+        }
+        $users_html .= '
             </ul>
             <div class="tab-content">';
 
@@ -602,7 +629,7 @@ class users
             'controller' => $this,
             'tariff' => Tariff::current()
         ));
-        
+
         // достаём все роли
         $permissions = $this->get_all_roles();
         $aRoles = $this->getRolesTree($permissions);
@@ -629,6 +656,9 @@ class users
             }
         }
         $users_html .= $this->createUserForm(array(), $roles);
+        if ($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) {
+            $users_html .= $this->loginsLog();
+        }
 
         $users_html .= '</div>';
 
@@ -714,7 +744,7 @@ class users
      */
     public static function get_submenu()
     {
-        return array(
+        $submenu = array(
             array(
                 'click_tab' => true,
                 'url' => '#edit_tab_users',
@@ -736,6 +766,15 @@ class users
                 'name' => l('Создать пользователя')
             ),
         );
+        global $all_configs;
+        if ($all_configs['oRole']->hasPrivilege('site-administration')) {
+            $submenu[] = array(
+                'click_tab' => true,
+                'url' => '#login_log',
+                'name' => l('Статистика входов в систему')
+            );
+        }
+        return $submenu;
     }
 
     /**
@@ -801,7 +840,8 @@ class users
             'roles' => $roles,
             'controller' => $this,
             'isEdit' => $isEdit,
-            'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']),
+            'available' => !empty($user) || Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'],
+                    $this->all_configs['configs']['host']),
         ));
     }
 
@@ -833,7 +873,7 @@ class users
                 require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
 //                $access = new access($this->all_configs, false);
 //                $password = empty($post['pass']) ? $user['pass']: $access->wrap_pass(trim($post['pass']));
-                $password = empty($post['pass']) ? $user['pass']: trim($post['pass']);
+                $password = empty($post['pass']) ? $user['pass'] : trim($post['pass']);
                 $access = new \access($this->all_configs, false);
                 $phones = $access->is_phone($post['phone']);
 
@@ -895,5 +935,38 @@ class users
                     . 'VALUES (?i,?i)', array($cashbox, $userId));
             }
         }
+    }
+
+    /**
+     * @return string
+     */
+    private function loginsLog()
+    {
+        $users = $this->all_configs['db']->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
+        foreach ($users as $id => $user) {
+            $users[$id]['logs'] = $this->all_configs['db']->query('SELECT * FROM {users_login_log} WHERE user_id=?i ORDER by created_at DESC LIMIT 200',
+                array($user['id']))->assoc();
+        }
+        $emailSettings = $this->all_configs['db']->query('SELECT `name`, `value` FROM {settings} WHERE `name`=? OR `name`=?',
+            array(
+                'email_for_send_login_log',
+                'need_send_login_log'
+            ))->assoc('name');
+        return $this->view->renderFile('users/logins_log', array(
+            'users' => $users,
+            'emailSettings' => $emailSettings
+        ));
+    }
+
+    /**
+     *
+     */
+    public function generateLogFile()
+    {
+        $objWriter = generate_xls_with_login_logs();
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="report.xls"');
+        $objWriter->save('php://output');
+        exit();
     }
 }
