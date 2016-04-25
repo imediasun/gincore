@@ -1076,16 +1076,20 @@ class products extends Controller
         }
 
         $goods = $this->goods;
-        
+
+        include_once __DIR__ . '/exports.php';
         $goods_html = $this->view->renderFile('products/products', array(
-            'goods'  => $goods,
+            'goods' => $goods,
+            'product_exports_form' => product_exports_form($this->all_configs),
+            'count_goods' => $this->count_goods,
+            'count_on_page' => $this->count_on_page,
+                                'managers' => $this->get_managers()
         ));
 
 
         if (count($goods) > 0) {
-            $count_page = ceil($this->count_goods / $this->count_on_page);
 
-
+================
             $serials = array();
             $data = $this->all_configs['db']->query(
                 'SELECT i.goods_id, w.title as wh_title, t.location, COUNT(i.goods_id) as `count`
@@ -1161,78 +1165,8 @@ class products extends Controller
                 </tr>';
             }
 
-            $goods_html .= '</tbody></table>';
-
-            // быстрое редактирование
-            if (isset($_GET['edit']) && !empty($_GET['edit'])) {
-                $goods_html .= '<input type="submit" name="quick-edit" value="' . l('Сохранить') . '" class="btn quick-edit-save_btn" />';
-                $goods_html .= '</form>';
-            }
-
-            // строим блок страниц
-            $goods_html .= page_block($count_page, $this->count_goods);
-            // строим блок настроек гарантии
-            if ($this->all_configs['configs']['no-warranties'] == false) {
-                $goods_html .= '</div><div id="settings" class="tab-pane">';
-                if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
-                    $goods_html .= '<form method="post">';
-                    $goods_html .= '<h4>' . l('При добавлении нового товара будут автоматически добавленны такие настройки') . ':</h4>';
-
-                    $is_warranty = array_key_exists('warranty', $this->all_configs['settings'])
-                    && $this->all_configs['settings']['warranty'] > 0 ? true : false;
-                    $goods_html .= '<div class="control-group"><label class="control-label">' . l('Гарантии') . ': </label><div class="controls">';
-                    $goods_html .= '<label class="radio"><input onclick="$(\'.default-warranty\').prop(\'disabled\', true);" ';
-                    $goods_html .= ($is_warranty ? '' : 'checked') . ' type="radio" name="warranty" value="0">' . l('Без гарантий') . '</label>';
-                    $goods_html .= '<label class="radio"><input onclick="$(\'.default-warranty\').prop(\'disabled\', false);" ';
-                    $goods_html .= ($is_warranty ? 'checked' : '') . ' type="radio" name="warranty" value="1">' . l('С гарантиями') . '</label>';
-                    $goods_html .= '<div class="well">';
-                    $config_warranties = array_key_exists('warranties', $this->all_configs['settings']) ?
-                        (array)unserialize($this->all_configs['settings']['warranties']) : array();
-
-                    foreach ($warranties as $m => $warranty) {
-                        $goods_html .= '<label class="checkbox">' . $m . ' ' . l('мес') . '';
-                        $goods_html .= '<input class="default-warranty" type="checkbox" value="' . $m . '" ';
-                        $goods_html .= (array_key_exists($m, $config_warranties) ? ' checked ' : '');
-                        $goods_html .= ($is_warranty ? '' : ' disabled ') . ' name="warranties[]"></label>';
-                    }
-                    $goods_html .= '</div></div></div>';
-                    $goods_html .= '<div class="control-group"><label class="control-label">' . l('manager') . ': </label>';
-                    $goods_html .= '<div class="controls"><select class="multiselect input-small" name="users">';
-                    // проверка на количество менеджеров у товара
-                    $managers = $this->get_managers();
-
-                    if ($managers && count($managers) > 0) {
-                        $m = array_key_exists('manager', $this->all_configs['settings'])
-                            ? $this->all_configs['settings']['manager'] : $_SESSION['id'];
-
-                        foreach ($managers as $manager) {
-                            $goods_html .= '<option value="' . $manager['id'] . '"';
-                            $goods_html .= $manager['id'] == $m ? ' selected ' : '';
-                            $goods_html .= '>' . $manager['login'] . '</option>';
-                        }
-                    }
-                    $goods_html .= '</select></div></div>';
-
-                    $goods_html .= '<div class="control-group"><div class="controls">';
-                    $goods_html .= '<input type="submit" value="' . l('Сохранить') . '" name="default-add-product" class="btn btn-primary" />';
-                    $goods_html .= '</div></div></form>';
-                } else {
-                    $goods_html .= '<p  class="text-error">' . l('У Вас нет прав для добавления новых товаров') . '</p>';
-                }
-            }
-        } else {
-            $goods_html .= '<p class="text-error">' . l('Нет ни одного продутка') . '</p>';
         }
-        $goods_html .= '</div>';
 
-        // экспорт товаров
-        if ($this->all_configs['oRole']->hasPrivilege('export-goods')) {
-            $goods_html .= '<div id="exports" class="tab-pane">';
-            include_once __DIR__ . '/exports.php';
-            $goods_html .= product_exports_form($this->all_configs);
-            $goods_html .= '</div>';
-        }
-        $goods_html .= '</div></div>';
 
         return $goods_html;
     }
