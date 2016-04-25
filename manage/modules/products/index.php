@@ -749,30 +749,12 @@ class products extends Controller
     private function genfilter()
     {
         $this->getGoods();
-        $filters_html = '<p class="label label-info">' . l('Отобразить') . '</p>';
-        $filters_html .= '<div class="well"><ul style="padding-left:25px"><li><label class="checkbox"><input type="checkbox" ';
-        $filters_html .= $this->click_filters('show', 'my') . '>' . l('Мои товары') . '</label></li>';
-        $filters_html .= '<li><label class="checkbox"><input type="checkbox" ' . $this->click_filters('show', 'empty');
-        $filters_html .= '>' . l('Не заполненные') . '</label></li>';
-        $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'noimage');
-        $filters_html .= '>' . l('Без картинок') . '</label></li>';
-        $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'services');
-        $filters_html .= '>' . l('Услуги') . '</label></li>';
-        $filters_html .= '<li><label class="checkbox"><input type="checkbox"' . $this->click_filters('show', 'items');
-        $filters_html .= '>' . l('Товары') . '</label></li></ul></div>';
-
-        $filters_html .= '<p class="label label-info">' . l('По складам') . '</p>';
-        $filters_html .= '<div class="well"><ul style="padding-left:25px">';//<label class="checkbox"><input type="checkbox" id="my_checkbox" value="my" name="my" ' . $this->my_checked . ' onclick="checkbox_select(this, \'' . $a . '\')">' . l('Мои товары') . '</label></li>';
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
-        if ($warehouses) {
-            foreach ($warehouses as $wh_id=>$wh_title) {
-                $filters_html .= '<li><label class="checkbox"><input type="checkbox" name="warehouse" value="' . $wh_id . '" ';
-                $filters_html .= $this->click_filters('wh', $wh_id) . '>' . htmlspecialchars($wh_title) . '</label></li>';
-            }
-        }
-        $filters_html .= '</ul></div>';
+        return $this->view->renderFile('products/genfilter', array(
+            'warehouses' => $warehouses,
+            'controller' => $this,
 
-        return $filters_html;
+        ));
     }
 
     /**
@@ -2042,7 +2024,7 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_managers_history()
+    public function products_managers_history()
     {
         $goods_html = '';
 
@@ -2053,18 +2035,9 @@ class products extends Controller
                                     LEFT JOIN (SELECT id, login FROM {users})u ON u.id=c.user_id
                                     WHERE c.map_id=?i AND c.object_id=?i ORDER BY c.date_add DESC',
                 array($mod_id, $this->all_configs['arrequest'][2]))->assoc();
-            if ($histories && count($histories) > 0) {
-                $goods_html .= '<table class="table table-striped"><thead><tr><td>' . l('Автор') . '</td><td>' . l('Редактирование') .'</td><td>'.l('Дата').'</td></tr></thead><tbody>';
-                foreach ($histories as $history) {
-                    $goods_html .= '<tr><td><a href="' . $this->all_configs['prefix'] . 'users">' . $history['login'] . '</a></td>';
-                    $goods_html .= '<td>' . $this->all_configs['configs']['changes'][$history['work']] . '</td>';
-                    $goods_html .= '<td><span title="' . do_nice_date($history['date_add'], false) . '">' . do_nice_date($history['date_add']) . '</span></td></tr>';
-                }
-                $goods_html .= '</tbody></table>';
-            } else {
-                $goods_html .= '<p  class="text-error">' . l('Нет ни одного изменения') .'</p>';
-            }
-            $goods_html .= '</div>';
+            $goods_html = $this->view->renderFile('products/products_managers_history', array(
+                'histories' => $histories,
+            ));
         }
 
         return array(
@@ -2125,48 +2098,25 @@ class products extends Controller
     /**
      * @return array
      */
-    function products_financestock_finance()
+    public function products_financestock_finance()
     {
-       ============= 
         $goods_html = '';
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
-            $goods_html .= '<form class="form-horizontal" method="post">';
-            $goods_html .= '<div class="well"><h4>' . l('Склады поставщиков Локально') .'</h4>';
             $goods_suppliers = $this->all_configs['db']->query('SELECT link FROM {goods_suppliers} WHERE goods_id=?i',
                 array($this->all_configs['arrequest'][2]))->assoc();
-            if ($goods_suppliers) {
-                foreach ($goods_suppliers as $product_supplier) {
-                    $goods_html .= '<input type="text" name="links[]" placeholder="' . l('гиперссылка') .'" class="form-control" value="' . $product_supplier['link'] . '" />';
-                }
-            }
-            $goods_html .= '<input type="text" name="links[]" placeholder="' . l('гиперссылка') .'" class="form-control" />';
-            $goods_html .= '<i class="glyphicon glyphicon-plus cursor-pointer" onclick="$(\'<input>\').attr({type: \'text\', name: \'links[]\', class: \'form-control\'}).insertBefore(this);"></i></div>';
-            $goods_html .= $this->btn_save_product('financestock_finance');
-            $goods_html .= '</form>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-                $goods_html .= '<div id="accordion_product_suppliers_orders"><div class="panel-group">';
-                $goods_html .= '<div class="panel panel-default"><div class="panel-heading">';
-                $goods_html .= '<a class="panel-toggle" href="#collapse_create_product_supplier_order" data-parent="#accordion_product_suppliers_orders" data-toggle="collapse">' . l('Создать заказ поставщику') .'</a>';
-                $goods_html .= '</div><div id="collapse_create_product_supplier_order" class="panel-body collapse"><div class="accordion-inner">';
-                $goods_html .= $this->all_configs['suppliers_orders']->create_order_block();
-                $goods_html .= '</div><!--.accordion-inner--></div></div><!--#collapse_create_product_supplier_order--></div><!--.accordion-group--></div><!--#accordion_product_suppliers_orders-->';
-            }
             $queries = $this->all_configs['manageModel']->suppliers_orders_query(array('by_gid' => $this->all_configs['arrequest'][2]));
             $query = $queries['query'];
             $skip = $queries['skip'];
             $count_on_page = $queries['count_on_page'];
-
             $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
-            $goods_html .= '<div class="table-responsive">'.
-                                $this->all_configs['suppliers_orders']->show_suppliers_orders($orders).
-                           '</div>';
-
-            $count = $this->all_configs['db']->query('SELECT count(id) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
-                array($this->all_configs['arrequest'][2]))->el();
-            if ($count > 10)
-                $goods_html .= '<a href="' . $this->all_configs['prefix'] . 'orders?goods=' . $this->all_configs['arrequest'][2] . '#show_suppliers_orders">' . l('Еще') .'</a>';
-
+            $goods_html = $this->view->renderFile('products/products_financestock_finance', array(
+                'goods_suppliers' => $goods_suppliers,
+                'btn_save' => $this->btn_save_product('financestock_finance'),
+                'count' => $this->all_configs['db']->query('SELECT count(id) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
+                    array($this->all_configs['arrequest'][2]))->el(),
+                'orders' => $orders
+            ));
         }
 
         return array(

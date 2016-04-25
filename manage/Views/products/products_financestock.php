@@ -1,4 +1,4 @@
-<ul class="nav nav-pills">';
+<ul class="nav nav-pills">
     <li>
         <a class="click_tab" data-open_tab="products_financestock_stock" onclick="click_tab(this, event)"
            title="<?= l('Склады') ?>" href="#financestock-stock">
