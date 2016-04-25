@@ -285,7 +285,6 @@ class users
         if ($act == 'update-user') {
             $result = array(
                 'state' => false,
-                'message' => l('Что-то пошло не так')
             );
             $uid = isset($_POST['id']) ? (int)$_POST['id'] : 0;
             try {
@@ -297,7 +296,8 @@ class users
                 unset($result['message']);
                 $result['state'] = true;
             } catch (Exception $e) {
-                $result['message'] = $e->getMessage();
+                $result['message'] = l('Что-то пошло не так');
+//                $result['message'] = $e->getMessage();
             }
             Response::json($result);
         }
