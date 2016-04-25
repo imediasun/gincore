@@ -3140,9 +3140,9 @@ class Chains
             isset($post['is_courier']) && isset($post['courier']) ? trim($post['courier']) : null,
             $wh['location_id'],
             $wh['wh_id'],
-            array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
             $code ? $this->all_configs['db']->makeQuery(" ? ", array($code)) : 'null',
             $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
+            array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
             $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             isset($post['warranty']) ? intval($post['warranty']) : 0,
             isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0
