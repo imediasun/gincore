@@ -820,6 +820,7 @@ function generate_xls_with_login_logs()
         $sheet = $xls->getActiveSheet();
         $sheet->setTitle("{$item}-{$currentYear}");
         $sheet->setCellValue("A1", 'Пользователь');
+        $sheet->getColumnDimensionByColumn(0)->setAutoSize(true);
         $sheet->getStyle('A1')->getFill()
             ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
         $sheet->getStyle('A1')->getFill()
@@ -830,6 +831,7 @@ function generate_xls_with_login_logs()
 
         foreach (range(1, 31) as $day) {
             $cell = $sheet->setCellValueByColumnAndRow($day, 1, $day, true);
+            $sheet->getColumnDimensionByColumn($day)->setAutoSize(true);
             $sheet->getStyle($cell->getCoordinate())->getFill()
                 ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
             $sheet->getStyle($cell->getCoordinate())->getFill()
