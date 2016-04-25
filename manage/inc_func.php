@@ -1535,8 +1535,8 @@ function generate_xls_with_login_logs()
     require_once(__DIR__ . '/classes/PHPExcel/Writer/Excel5.php');
     $users = db()->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
     foreach ($users as $id => $user) {
-        $users[$id]['logs'] = db()->query('SELECT DATE_FORMAT(created_at,\'%d-%m-%Y\') as date_add, MIN(created_at) as stamp FROM {users_login_log} WHERE user_id=?i AND created_at > ? GROUP by date_add ORDER by date_add ASC',
-            array($user['id'], date('1-1-Y', time())))->assoc();
+        $users[$id]['logs'] = db()->query('SELECT DATE_FORMAT(created_at,\'%d-%m-%Y\') as date_add, MIN(created_at) as stamp, ip FROM {users_login_log} WHERE user_id=?i AND created_at > ? GROUP by date_add ORDER by date_add ASC',
+            array($user['id'], date('Y-1-1', time())))->assoc();
     }
     $xls = new PHPExcel();
     $currentYear = date('Y');
@@ -1579,14 +1579,24 @@ function generate_xls_with_login_logs()
                 $user['login']);
         }
         if (!empty($user['logs'])) {
+            $last = '';
             foreach ($user['logs'] as $log) {
                 list($day, $month, $year) = explode('-', $log['date_add']);
                 $xls->setActiveSheetIndex((int)$month - 1);
                 $sheet = $xls->getActiveSheet();
-                $sheet->setCellValueByColumnAndRow(
+                $cell = $sheet->setCellValueByColumnAndRow(
                     (int)$day,
                     (int) $id + 2,
-                    date('H:i', strtotime($log['stamp'])));
+                    date('H:i', strtotime($log['stamp'])),
+                    true
+                );
+                if(!empty($last) && $log['ip'] != $last) {
+                    $sheet->getStyle($cell->getCoordinate())->getFill()
+                        ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+                    $sheet->getStyle($cell->getCoordinate())->getFill()
+                        ->getStartColor()->setRGB('FFEAEA');
+                }
+                $last = $log['ip'];
             }
         }
     }
