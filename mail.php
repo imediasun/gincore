@@ -129,7 +129,7 @@ class Mailer extends PHPMailer
 
             case('send-excell'):
                 $this->Subject = l('Отчет по входам в систему');
-                $this->Body =  l('Отчет по входам в систему');
+                $this->Body = l('Отчет по входам в систему');
                 $this->AddAttachment($data['file'], "report.xls");
                 break;
             default:
@@ -217,7 +217,11 @@ class Mailer extends PHPMailer
      */
     function body_substitution()
     {
-        $header = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html');
+        if (file_exists($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html')) {
+            $header = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_header.html');
+        } else {
+            $header = '';
+        }
         if (strpos($this->Body,
                 '.html') && is_file($this->all_configs['path'] . $this->mail_templates_folder . $this->Body)
         ) {
@@ -225,7 +229,11 @@ class Mailer extends PHPMailer
         } else {
             $body = $this->Body;
         }
-        $footer = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html');
+        if (file_exists($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html')) {
+            $footer = file_get_contents($this->all_configs['path'] . $this->mail_templates_folder . 'mail_footer.html');
+        } else {
+            $footer = '';
+        }
 
         $mail_content = ($header ? $header : '') . ($body ? $body : '') . ($footer ? $footer : '');
         $pattern = "/\{\-(mail_msg)\-([a-zA-Z0-9_]{1,20})\}/";
