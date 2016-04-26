@@ -208,10 +208,10 @@ class import_items extends abstract_import_handler
             if ($itemId > 0) {
                 $this->items[$itemId] = $this->provider->getTitle($row);
                 $this->setCategory($itemId, $categoryId);
-                $this->addToLog('create-goods', $userId, $modId, $itemId);
+                $this->addToLog($userId, 'create-goods', $modId, $itemId);
 
                 if (!empty($managerId) && $this->setManager($managerId, $itemId)) {
-                    $this->addToLog('add-manager', $userId, $modId, $managerId);
+                    $this->addToLog($userId, 'add-manager', $modId, $managerId);
                 }
                 $this->sendNotice($this->getContent($this->items));
                 return true;

@@ -13,6 +13,12 @@ class import
     protected $view;
     private $upload_path;
     private $upload_types = array(
+        'gincore_items' => array(
+            'name' => 'Товары из системы Gincore',
+            'handlers' => array(
+                'exported' => 'импорт из файла с ранее экспортированными из Gincore товарами',
+            )
+        ),
         'items' => array(
             'name' => 'Товары',
             'handlers' => array(

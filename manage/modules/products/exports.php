@@ -26,15 +26,12 @@ function product_exports_form($all_configs)
 
     $arr = array(
         array('label' => 'ID', 'name' => 'id'),
-        array('label' => 'Категория', 'name' => 'categories'),
-        array('label' => 'Наименование', 'name' => 'title'),
-//        array('label' => 'Ссылка на товар', 'name' => 'url'),
-//        array('label' => 'Фото', 'name' => 'image'),
-        array('label' => 'Цена закупки', 'name' => 'price_purchase'),
-        array('label' => 'Цена оптовая', 'name' => 'price_wholesale'),
-        array('label' => 'Цена розничная', 'name' => 'price'),
-        array('label' => 'Свободный остаток', 'name' => 'qty_store'),
-//        array('label' => 'Наличие у поставщика', 'name' => 'foreign_warehouse'),
+        array('label' => l('Категория'), 'name' => 'categories'),
+        array('label' => l('Наименование'), 'name' => 'title'),
+        array('label' => l('Цена закупки'), 'name' => 'price_purchase'),
+        array('label' => l('Цена оптовая'), 'name' => 'price_wholesale'),
+        array('label' => l('Цена розничная'), 'name' => 'price'),
+        array('label' => l('Свободный остаток'), 'name' => 'qty_store'),
         array('label' => l('manager'), 'name' => 'managers'),
     );
 
@@ -63,28 +60,27 @@ function exports_goods($all_configs, $ids)
     $goods = $select = array();
 
     // какие данные нужно
-    //if (isset($_GET['id']) && $_GET['id'] == 1)
-    $select[] = 'DISTINCT g.id';//обязательно
+    $select[] = 'DISTINCT g.id as ID';//обязательно
     if (isset($_GET['title']) && $_GET['title'] == 1) {
-        $select[] = 'g.title as `Наименование`';
+        $select[] = 'g.title as `' . l('Наименование') . '`';
     }
     if (isset($_GET['url']) && $_GET['url'] == 1) {
         $select[] = 'CONCAT("http://' . $_SERVER['HTTP_HOST'] . $all_configs['siteprefix'] . '", g.url, "/' . $all_configs['configs']['product-page'] . '/", g.id) as `Ссылка на товар`';
     }
     if (isset($_GET['price_purchase']) && $_GET['price_purchase'] == 1) {
-        $select[] = 'g.price_purchase/100 as `Цена закупки`';
+        $select[] = 'g.price_purchase/100 as `' . l('Цена закупки') . '`';
     }
     if (isset($_GET['price_wholesale']) && $_GET['price_wholesale'] == 1) {
-        $select[] = 'g.price_wholesale/100 as `Цена оптовая`';
+        $select[] = 'g.price_wholesale/100 as `' . l('Цена оптовая') . '`';
     }
     if (isset($_GET['price']) && $_GET['price'] == 1) {
-        $select[] = 'g.price/100 as `Цена розничная`';
+        $select[] = 'g.price/100 as `' . l('Цена розничная') . '`';
     }
     if (isset($_GET['qty_store']) && $_GET['qty_store'] == 1) {
-        $select[] = 'g.qty_store as `Свободный остаток`';
+        $select[] = 'g.qty_store as `' . l('Свободный остаток') . '`';
     }
     if (isset($_GET['foreign_warehouse']) && $_GET['foreign_warehouse'] == 1) {
-        $select[] = 'g.foreign_warehouse as `Наличие у поставщика`';
+        $select[] = 'g.foreign_warehouse as `' . l('Наличие у поставщика') . '`';
     }
     if (isset($_GET['warranties']) && $_GET['warranties'] == 1) {
         $select[] = 'g.warranties';
@@ -95,7 +91,7 @@ function exports_goods($all_configs, $ids)
         // достаем товары
         if (count($select) > 0) {
             $goods = $all_configs['db']->query('SELECT ?query FROM {goods} as g WHERE g.id IN (?li) AND g.avail=?i',
-                array(implode(', ', $select), array_keys($ids), 1))->assoc('id');
+                array(implode(', ', $select), array_keys($ids), 1))->assoc('ID');
             // удаляем ид
             if (!isset($_GET['id']) || $_GET['id'] != 1) {
                 array_walk($goods, function (&$v) {
@@ -156,7 +152,7 @@ function exports_goods($all_configs, $ids)
                 foreach ($categories as $category) {
                     if (isset($goods[$category['goods_id']])) {
                         $goods[$category['goods_id']][$isset($goods[$category['goods_id']],
-                            'Категория ')] = $category['title'];
+                            l('Категория '))] = $category['title'];
                     }
                 }
             }

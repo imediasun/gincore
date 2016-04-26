@@ -7,6 +7,13 @@ abstract class abstract_import_provider
     public $codepage;
 
     /**
+     * abstract_import_provider constructor.
+     */
+    public function __construct()
+    {
+    }
+
+    /**
      * @param $header_row
      * @return bool
      */

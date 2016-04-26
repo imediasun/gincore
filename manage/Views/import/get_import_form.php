@@ -13,10 +13,15 @@
         <?php endif; ?>
     </div>
     <div class="form-group">
-        <a href="<?= $this->all_configs['prefix'] ?>modules/import/templates/<?= $type ?>.csv">
-            <i class="fa fa-file-excel-o"
-               aria-hidden="true"></i>&nbsp;<?= l(sprintf('Скачать образец файла для импорта %s', $type)) ?>
-        </a>
+        <?php if ($type !== 'gincore_items'): ?>
+            <a href="<?= $this->all_configs['prefix'] ?>modules/import/templates/<?= $type ?>.csv">
+                <i class="fa fa-file-excel-o"
+                   aria-hidden="true"></i>&nbsp;<?= l(sprintf('Скачать образец файла для импорта %s', $type)) ?>
+            </a>
+        <?php else: ?>
+            <?= l('Для импорта принимаются только файлы XLS ранее экспортированные из базы Gincore.'); ?> <br>
+            <?= l('В файле обязательно должно присутствовать поле ID.'); ?>
+        <?php endif; ?>
     </div>
 <?php endif; ?>
 <?php switch ($type): ?>
