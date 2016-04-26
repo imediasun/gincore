@@ -1808,7 +1808,7 @@ class orders
         $returns = $this->all_configs['db']->query('SELECT id, value_from 
                 FROM {cashboxes_transactions} 
                 WHERE transaction_type=?i 
-                AND (client_order_id IS NULL OR client_order_id=?i)
+                AND (client_order_id IS NULL OR client_order_id=?i OR client_order_id = 0)
                 AND supplier_order_id IS NULL 
                 AND  contractor_category_link = 2', // возврат средст 
             array(
