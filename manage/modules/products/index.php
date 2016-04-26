@@ -1076,10 +1076,7 @@ class products extends Controller
         }
 
         $goods = $this->goods;
-
         $serials = array();
-
-
         if (count($goods) > 0) {
             $data = $this->all_configs['db']->query(
                 'SELECT i.goods_id, w.title as wh_title, t.location, COUNT(i.goods_id) as `count`
@@ -1101,7 +1098,8 @@ class products extends Controller
             'count_goods' => $this->count_goods,
             'count_on_page' => $this->count_on_page,
             'managers' => $this->get_managers(),
-           'serials' => $serials 
+            'serials' => $serials,
+            'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')
         ));
 
         return $goods_html;
