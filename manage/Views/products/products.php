@@ -7,6 +7,7 @@
             <?php endif; ?>
             <?php if ($this->all_configs['oRole']->hasPrivilege('export-goods')): ?>
                 <li><a data-toggle="tab" href="#exports"><?= l('Экспорт') ?></a></li>
+                <li><a data-toggle="tab" href="#imports"><?= l('Импорт') ?></a></li>
             <?php endif; ?>
         </ul>
         <div class="pull-right">
@@ -83,7 +84,10 @@
                                     <a href="?sort=title"><?= l('Название продукта') ?> </a>
                                 <?php endswitch; ?>
                         </td>
-                        <td colspan="2">
+                        <td></td>
+                        <td>
+                        </td>
+                        <td style='text-align: center;'>
                             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-goods')): ?>
                                 <div class="btn-group">
                                     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i
@@ -105,8 +109,8 @@
                                     </ul>
                                 </div>
                             <?php endif; ?>
+                            <?= $quick_edit_title ?>
                         </td>
-                        <td><?= $quick_edit_title ?></td>
                         <td>
                             <?php switch ($_GET['sort']): ?>
 <?php case 'avail': ?>
@@ -161,14 +165,6 @@
                     </thead>
                     <tbody>
                     <?php foreach ($goods as $id => $good): ?>
-
-                        <?php if (intval($good['price']) > 0): ?>
-                            $price_icon = '<i class="glyphicon glyphicon-shopping-cart"></i>';
-                        <?php endif; ?>
-
-                        $add_name = '';
-
-
                         <tr>
                             <td class="small_ids">
                                 <?= $good['id'] ?>
@@ -194,19 +190,28 @@
                                 <?php endif; ?>
                             </td>
                             <td></td>
-                            <td>
+                            <td class="edit-price">
                                 <?php if ($isEditable && ($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
+                                <label>
+                                    <?= l('Розн.') ?>
                                     <input class="input-small" onkeydown="return isNumberKey(event, this)" type="input"
                                            name="price[<?= $good['id'] ?>]"
                                            value="<?= number_format($good['price'] / 100, 2, '.', '') ?>"/>
+                                    </label>
+                                    <label>
+                                        <?= l('Опт.') ?>
+                                    <input class="input-small" onkeydown="return isNumberKey(event, this)" type="input"
+                                           name="price_wholesale[<?= $good['id'] ?>]"
+                                           value="<?= number_format($good['price_wholesale'] / 100, 2, '.', '') ?>"/>
+                                    </label>
                                 <?php endif; ?>
                             </td>
                             <td>
 
                                 <?php if ($isEditable && ($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')): ?>
                                     <div class="edit_active">
-                                        <label class="checkbox"><input
-                                                value="1" <?= ($good['avail'] == 1 ? 'checked' : '') ?>
+                                        <label class="checkbox">
+                                            <input value="1" <?= ($good['avail'] == 1 ? 'checked' : '') ?>
                                                 name="avail[<?= $good['id'] ?>]" type="radio"/>
                                             <?= l('Вкл') ?></label>
                                         <label class="checkbox">
@@ -216,7 +221,6 @@
                                         </label>
                                     </div>
                                 <?php else: ?>
-
                                     <?= $good['avail']; ?>
                                 <?php endif; ?>
                             </td>
@@ -310,6 +314,9 @@
         <?php if ($this->all_configs['oRole']->hasPrivilege('export-goods')): ?>
             <div id="exports" class="tab-pane">
                 <?= $product_exports_form; ?>
+            </div>
+            <div id="imports" class="tab-pane">
+                <?= $product_imports_form; ?>
             </div>
         <?php endif; ?>
     </div>

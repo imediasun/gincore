@@ -800,7 +800,7 @@ class products extends Controller
         // достаем описания товаров
         if (count($goods_ids) > 0) {
             $add_fields = array();
-            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.date_add, g.url,
+            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url,
                     g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q
                   FROM {goods} AS g WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
@@ -988,6 +988,18 @@ class products extends Controller
                     }
                 }
             }
+            // обновление оптовых цен
+            if (isset($_POST['price_wholesale']) && is_array($_POST['price_wholesale']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
+                foreach ($_POST['price_wholesale'] as $p_id => $p_price) {
+                    if ($p_id > 0) {
+                        $this->all_configs['db']->query('UPDATE {goods} g
+                                LEFT JOIN {goods_extended} e ON e.goods_id=g.id
+                                SET g.price_wholesale=?i
+                                WHERE g.id=?i AND (e.hotline_flag IS NULL OR e.hotline_flag=0)',
+                            array($p_price * 100, $p_id))->ar();
+                    }
+                }
+            }
 
             // обновление остатков
             if (isset($_POST['qty_store']) && is_array($_POST['qty_store']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')
@@ -1095,6 +1107,7 @@ class products extends Controller
         $goods_html = $this->view->renderFile('products/products', array(
             'goods' => $goods,
             'product_exports_form' => product_exports_form($this->all_configs),
+            'product_imports_form' => $this->productImportsForm(),
             'count_goods' => $this->count_goods,
             'count_on_page' => $this->count_on_page,
             'managers' => $this->get_managers(),
@@ -1103,6 +1116,11 @@ class products extends Controller
         ));
 
         return $goods_html;
+    }
+
+    public function productImportsForm()
+    {
+        return 'test';
     }
 
     /**

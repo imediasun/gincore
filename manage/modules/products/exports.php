@@ -28,14 +28,14 @@ function product_exports_form($all_configs)
         array('label' => 'ID', 'name' => 'id'),
         array('label' => 'Категория', 'name' => 'categories'),
         array('label' => 'Наименование', 'name' => 'title'),
-        array('label' => 'Ссылка на товар', 'name' => 'url'),
-        array('label' => 'Фото', 'name' => 'image'),
+//        array('label' => 'Ссылка на товар', 'name' => 'url'),
+//        array('label' => 'Фото', 'name' => 'image'),
         array('label' => 'Цена закупки', 'name' => 'price_purchase'),
+        array('label' => 'Цена оптовая', 'name' => 'price_wholesale'),
         array('label' => 'Цена розничная', 'name' => 'price'),
         array('label' => 'Свободный остаток', 'name' => 'qty_store'),
-        array('label' => 'Наличие у поставщика', 'name' => 'foreign_warehouse'),
+//        array('label' => 'Наличие у поставщика', 'name' => 'foreign_warehouse'),
         array('label' => l('manager'), 'name' => 'managers'),
-        //array('label' => 'Гарантия', 'name' => 'warranties'),
     );
 
     foreach ($arr as $item) {
@@ -73,6 +73,9 @@ function exports_goods($all_configs, $ids)
     }
     if (isset($_GET['price_purchase']) && $_GET['price_purchase'] == 1) {
         $select[] = 'g.price_purchase/100 as `Цена закупки`';
+    }
+    if (isset($_GET['price_wholesale']) && $_GET['price_wholesale'] == 1) {
+        $select[] = 'g.price_wholesale/100 as `Цена оптовая`';
     }
     if (isset($_GET['price']) && $_GET['price'] == 1) {
         $select[] = 'g.price/100 as `Цена розничная`';

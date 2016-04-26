@@ -594,3 +594,6 @@ input.visible-price {
 .order-form-p-lg {
     padding: 20px 5px 20px 15px !important;
 }
+.edit-price .input-small {
+    width: 70px;
+}
