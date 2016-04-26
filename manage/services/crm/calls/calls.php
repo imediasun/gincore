@@ -10,14 +10,18 @@ class calls extends \service{
     private static $instance = null;
 
     // id c АТС
-    private $call_types = array(
-        null => 'Завершен',
-        0 => 'Новый',
-        1 => 'Разговор',
-        2 => 'Принят',
-        3 => 'Пропущен',
-    );
+    private $call_types;
 
+    private function set_call_types(){
+        $this->call_types = array(
+            null => l('Завершен'),
+            0 => l('Новый'),
+            1 => l('Разговор'),
+            2 => l('Принят'),
+            3 => l('Пропущен'),
+        );
+    }
+    
     // форма и кнопка создания нового звонка
     public function create_call_form(){
         return $this->view($this->view->renderFile('services/crm/calls/create_call_form', array(
@@ -44,10 +48,10 @@ class calls extends \service{
                     <thead>
                         <tr>
                             <th>id</th>
-                            <th>Оператор</th>
+                            <th>'.l('Оператор').'</th>
                             <th>'.l('Статус').'</th>
-                            <th>Канал</th>
-                            <th>Код</th>
+                            <th>'.l('Канал').'</th>
+                            <th>'.l('Код').'</th>
                             <th>'.l('Дата').'</th>
                             <th>'.l('Создать заявку').'</th>
                         </tr>
@@ -237,7 +241,7 @@ class calls extends \service{
                     if(!$client_id && $phone){
                         if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                             $response['state'] = false;
-                            $response['msg'] = 'У Вас недостаточно прав для создания нового клиента';
+                            $response['msg'] = l('У Вас недостаточно прав для создания нового клиента');
                         }
                         require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
                         $access = new \access($this->all_configs, false);
@@ -247,7 +251,7 @@ class calls extends \service{
                             $client_id = $u['id'];
                         }else{
                             $response['state'] = false;
-                            $response['msg'] = 'Ошибка. Клиент не создан: '.$u['msg'];
+                            $response['msg'] = l('Ошибка. Клиент не создан:').' '.$u['msg'];
                         }
                     }
                     if($client_id){
@@ -284,7 +288,7 @@ class calls extends \service{
                         $changes[] = $this->all_configs['db']->makeQuery(
                             '(?i, ?, null, ?i, ?)',
                                 array($operator_id, 'crm-call-change-code', $call_id,
-                                      ($calls[$call_id]['code'] ?: 'нет').' ==> '.$new_code)
+                                      ($calls[$call_id]['code'] ?: l('нет')).' ==> '.$new_code)
                         );
                     }
                     if($changes){
@@ -329,6 +333,7 @@ class calls extends \service{
     public static function getInstanse(){
         if(is_null(self::$instance)){
             self::$instance = new self();
+            self::$instance->set_call_types();
         }
         return self::$instance;
     }

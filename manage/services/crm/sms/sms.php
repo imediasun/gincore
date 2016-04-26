@@ -56,7 +56,7 @@ class sms extends \service{
                             <input type="hidden" name="object_id" id="sms_object" value="">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">×</button>
-                                <h3>Отправить смс</h3>
+                                <h3>'.l('Отправить смс').'</h3>
                             </div>
                             <div class="modal-body">
                                 <div class="form-group">
@@ -95,7 +95,7 @@ class sms extends \service{
             $this->log($phone, $body, $sender_id, $type, $object_id, $send['state'], $send['msg']);
             return $send;
         }else{
-            return array('state' => false, 'msg' => 'Данное сообщение уже отправлено');
+            return array('state' => false, 'msg' => l('Данное сообщение уже отправлено'));
         }
     }
     
@@ -126,20 +126,20 @@ class sms extends \service{
                 $response['state'] = true;
                 if(!$phone){
                     $response['state'] = false;
-                    $response['msg'] = 'Введите телефон';
+                    $response['msg'] = l('Введите телефон');
                 }
                 if(!$sender_id){
                     $response['state'] = false;
-                    $response['msg'] = 'Выберите отправителя';
+                    $response['msg'] = l('Выберите отправителя');
                 }
                 if(!$body){
                     $response['state'] = false;
-                    $response['msg'] = 'Укажите текст смс';
+                    $response['msg'] = l('Укажите текст смс');
                 }
                 if($response['state']){
                     $send = $this->send_sms($phone, $body, $sender_id, $type, $object_id);
                     if($send['state']){
-                        $response['msg'] = 'Отправлено успешно';
+                        $response['msg'] = l('Отправлено успешно');
                     }else{
                         $response['state'] = false;
                         $response['msg'] = $send['msg'];

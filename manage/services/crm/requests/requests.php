@@ -5,56 +5,60 @@ class requests extends \service{
     private static $instance = null;
     // установить этот статус если заявка привязывается к ремонту
     const request_in_order_status = 2;
-    private $statuses = array(
-        0 => array(
-            'name' => 'Новая',
-            'active' => 1
-        ),
-        1 => array(
-            'name' => 'Пока нет денег',
-            'active' => 1
-        ),
-        11 => array(
-            'name' => 'Не нашли запчасть',
-            'active' => 1 
-        ),
-        2 => array(
-            'name' => 'Сдал в ремонт',
-            'active' => 0 //  0 - закрывалка заявки - поставив этот статус, заявку редактировать больше нельзя
-        ),
-        3 => array(
-            'name' => 'Отказ без объяснений',
-            'active' => 1 
-        ),
-        4 => array(
-            'name' => 'Нашел дешевле',
-            'active' => 1 
-        ),
-        5 => array(
-            'name' => 'Нашел ближе к дому',
-            'active' => 1 
-        ),
-        6 => array(
-            'name' => 'Передумал ремонтировать',
-            'active' => 1 
-        ),
-        7 => array(
-            'name' => 'В другом городе, не хочет отправлять',
-            'active' => 1
-        ),
-        8 => array(
-            'name' => 'Не устроили сроки ожидания запчасти',
-            'active' => 1 
-        ),
-        9 => array(
-            'name' => 'Не устроили сроки выполнения ремонта',
-            'active' => 1 
-        ),
-        10 => array(
-            'name' => 'Закрыта',
-            'active' => 0 
-        ),
-    );
+    private $statuses;
+    
+    private function set_statuses(){
+        $this->statuses = array(
+            0 => array(
+                'name' => l('Новая'),
+                'active' => 1
+            ),
+            1 => array(
+                'name' => l('Пока нет денег'),
+                'active' => 1
+            ),
+            11 => array(
+                'name' => l('Не нашли запчасть'),
+                'active' => 1 
+            ),
+            2 => array(
+                'name' => l('Сдал в ремонт'),
+                'active' => 0 //  0 - закрывалка заявки - поставив этот статус, заявку редактировать больше нельзя
+            ),
+            3 => array(
+                'name' => l('Отказ без объяснений'),
+                'active' => 1 
+            ),
+            4 => array(
+                'name' => l('Нашел дешевле'),
+                'active' => 1 
+            ),
+            5 => array(
+                'name' => l('Нашел ближе к дому'),
+                'active' => 1 
+            ),
+            6 => array(
+                'name' => l('Передумал ремонтировать'),
+                'active' => 1 
+            ),
+            7 => array(
+                'name' => l('В другом городе, не хочет отправлять'),
+                'active' => 1
+            ),
+            8 => array(
+                'name' => l('Не устроили сроки ожидания запчасти'),
+                'active' => 1 
+            ),
+            9 => array(
+                'name' => l('Не устроили сроки выполнения ремонта'),
+                'active' => 1 
+            ),
+            10 => array(
+                'name' => l('Закрыта'),
+                'active' => 0 
+            )
+        );
+    }
     
     public function get_statuses(){
         return $this->statuses;
@@ -180,7 +184,7 @@ class requests extends \service{
                                 .'№'.$request['order_id'].
                             '</a>' : 
 //                                'не принято'.($request['active'] ? ' <a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>' : '')).'
-                                'не&nbsp;принято&nbsp;<a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>').'
+                                '<nobr>'.l('не принято').'</nobr>&nbsp;<a href="#add_order_to_request" class="add_order_to_request_btn" data-id="'.$request['id'].'" data-toggle="modal"><i class="fa fa-plus"></i></a>').'
                 </td>
                 <td style="text-align:center">
                     '.get_service('crm/sms')->get_form_btn($request['phone'], $request['id'], 'requests').'
@@ -381,13 +385,13 @@ class requests extends \service{
                         <thead>
                             <tr>
                                 <th>id</th>
-                                <th>оператор</th>
-                                <th>дата заявки</th>
+                                <th>'.l('оператор').'</th>
+                                <th>'.l('дата заявки').'</th>
                                 <th>'.l('Статус').'</th>
-                                <th>ссылка</th>
-                                <th>устройство</th>
-                                <th>комментарий</th>
-                                <th>№ ремонта</th>
+                                <th>'.l('ссылка').'</th>
+                                <th>'.l('устройство').'</th>
+                                <th>'.l('комментарий').'</th>
+                                <th>'.l('№ ремонта').'</th>
                                 <th style="text-align:center">SMS</th>
                             </tr>
                         </thead>
@@ -401,7 +405,7 @@ class requests extends \service{
                 '.get_service('crm/sms')->get_form('requests').'
             ';
         }else{
-            $requests = '<br><div class="center">Заявок нет</div>';
+            $requests = '<br><div class="center">'.l('Заявок нет').'</div>';
         }
         /* //убрали форму создания звонка, убираем пустое место заменой шаблона
         $list = '
@@ -434,15 +438,15 @@ class requests extends \service{
                             <input type="hidden" name="action" value="requests_to_order">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title">Привязать заявку к заказу</h4>
+                                <h4 class="modal-title">'.l('Привязать заявку к заказу').'</h4>
                             </div>
                             <div class="modal-body">
-                                Введите номер заказа: <br>
+                                '.l('Введите номер заказа').': <br>
                                 <input type="hidden" name="request_id" id="order_to_request_id" value="">
                                 <input type="text" name="order_id" class="form-control">
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Привязать</button>
+                                <button type="submit" class="btn btn-primary">'.l('Привязать').'</button>
                             </div>
                         </form>
                     </div>
@@ -467,7 +471,7 @@ class requests extends \service{
                     <div class="span4">'
                         .typeahead($this->all_configs['db'], 'categories-last', true, $request_data ? $request_data['product_id'] : 0, 3, 'input-medium popover-info', '')
                         .'<span class="request_product">'
-                            . ($request_data['product_id'] ? ' <a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($request_data['product_id'])).'" target="_blank">на&nbsp;сайте</a>' : '')
+                            . ($request_data['product_id'] ? ' <a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($request_data['product_id'])).'" target="_blank">'.l('на сайте').'</a>' : '')
                         .'</span>'
                     . '</div>
                     <div class="span4">
@@ -477,7 +481,7 @@ class requests extends \service{
                         <textarea class="form-control" name="comment" rows="2" cols="35">'.($request_data ? htmlspecialchars($request_data['comment']) : '').'</textarea>
                     </div>
                     '.($request_data['id'] && !$request_data['order_id'] ? '
-                            <a href="'.$this->all_configs['prefix'].'orders?on_request='.$request_data['id'].'#create_order" class="create_order_on_request btn btn-success btn-small">Создать заказ</a>
+                            <a href="'.$this->all_configs['prefix'].'orders?on_request='.$request_data['id'].'#create_order" class="create_order_on_request btn btn-success btn-small">'.l('Создать заказ').'</a>
                     ' : ($request_data['order_id'] ? '<a href="'.$this->all_configs['prefix'].'orders/create/'.$request_data['order_id'].'" class="create_order_on_request">Заказ №'.$request_data['order_id'].'</a>' : '')).'
                 </div>
             </form>
@@ -492,13 +496,13 @@ class requests extends \service{
             <h3>Заявки</h3>
             <div class="row-fluid">
                 <div class="span4">
-                    <b>Устройство</b>
+                    <b>'.l('Устройство').'</b>
                 </div>
                 <div class="span4">
                     <b>'.l('Статус').'</b>
                 </div>
                 <div class="span4">
-                    <b>Комментарий</b>
+                    <b>'.l('Комментарий').'</b>
                 </div>
             </div>
             '.$exists_requests.'
@@ -564,25 +568,25 @@ class requests extends \service{
         $requests = $this->get_requests($client_id, $product_id, true, true);
         $response = '';
         if($requests){
-            $txt = $client_id ? ' клиенту' : '';
-            $txt = $product_id ? ' устройству' : $txt;
-            $txt = $product_id && $client_id ? ' устройству у клиента' : $txt;
-            $list = 'Заявки по данному '.$txt.':<br>
+            $txt = $client_id ? ' '.l('клиенту').'' : '';
+            $txt = $product_id ? ' '.l('устройству').'' : $txt;
+            $txt = $product_id && $client_id ? ' '.l('устройству у клиента').'' : $txt;
+            $list = ''.l('Заявки по данному').' '.$txt.':<br>
                      <table class="table table-bordered table-condensed table-hover" style="max-width: 1100px">
                          <thead><tr>
                             <td>
                                 <div class="radio">
                                     <label>
                                         <input'.(!$active_request ? ' checked' : '').' type="radio" name="crm_request" value="0">
-                                        без заявки
+                                        '.l('без заявки').'
                                     </label>
                                 </div>
                             </td>
                             <!--<td>Звонок</td>-->
-                            <td>Клиент</td>
+                            <td>'.l('Клиент').'</td>
                             <td>' . l('Устройство') . '</td>
-                            <td>Оператор</td>
-                            <td>Комментарий</td>
+                            <td>'.l('Оператор').'</td>
+                            <td>'.l('Комментарий').'</td>
                         </tr></thead><tbody>';
             foreach($requests as $req){
                 $client = $this->all_configs['db']->query(
@@ -656,11 +660,11 @@ class requests extends \service{
                 $comment = isset($data['comment']) ? $data['comment'] : null;
                 if(!$call_id){
                     $response['state'] = false;
-                    $response['msg'] = 'Выберите звонок';
+                    $response['msg'] = l('Выберите звонок');
                 }
                 if($response['state'] && !$product_id){
                     $response['state'] = false;
-                    $response['msg'] = 'Выберите устройство';
+                    $response['msg'] = l('Выберите устройство');
                 }
                 if($response['state']){
                     if($request_id){
@@ -681,7 +685,7 @@ class requests extends \service{
                            ), 'id'
                         );
                         $response['create_order_btn'] = '
-                            <a href="'.$this->all_configs['prefix'].'orders?on_request='.$response['request_id'].'#create_order" class="create_order_on_request btn btn-success btn-small">Создать заказ</a>
+                            <a href="'.$this->all_configs['prefix'].'orders?on_request='.$response['request_id'].'#create_order" class="create_order_on_request btn btn-success btn-small">'.l('Создать заказ').'</a>
                         ';
                         if(!isset($data['no_redirect'])){
                             $response['redirect'] = $this->all_configs['prefix'].'clients/create/'.$data['client_id'].'?update='.time().'#requests';
@@ -690,7 +694,7 @@ class requests extends \service{
                         }
                     }
                     if($product_id){
-                        $response['product_site_url'] = ' <a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($product_id)).'" target="_blank">на&nbsp;сайте</a>';
+                        $response['product_site_url'] = ' <a href="'.$this->all_configs['siteprefix'].gen_full_link(getMapIdByProductId($product_id)).'" target="_blank">'.l('на сайте').'</a>';
                     }
                     $response['state'] = true;
                 }
@@ -757,7 +761,7 @@ class requests extends \service{
                          WHERE ch.object_id=?i AND work=? ORDER BY ch.date_add DESC',
                         array($data['object_id'], $data['type']))->assoc();
                     if ($changes) {
-                        $c = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>'.l('Дата').'</td><td>Изменение</td></tr></thead><tbody>';
+                        $c = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>'.l('Дата').'</td><td>'.l('Изменение').'</td></tr></thead><tbody>';
                         foreach ($changes as $change) {
                             $c .= '<tr><td>' . get_user_name($change) . '</td>'.
                                   '<td><span title="' . do_nice_date($change['date_add'], false) . '">' . do_nice_date($change['date_add']) . '</span></td>'.
@@ -766,7 +770,7 @@ class requests extends \service{
                         $c .= '</tbody></table>';
                         $response['content'] = $c;
                     }else{
-                        $response['content'] = 'История не найдена';
+                        $response['content'] = l('История не найдена');
                     }
                 }
             break;
@@ -781,7 +785,7 @@ class requests extends \service{
                     $response['content'] = $get[1];
                 }else{
                     $response['has_requests'] = 0;
-                    $response['content'] = 'Заявок нет.';
+                    $response['content'] = l('Заявок нет.');
                 }
             break;
             // привязываем заявку к заказу
@@ -801,16 +805,16 @@ class requests extends \service{
                                 $this->attach_to_order($order_id, $request_id);
                                 $response['redirect'] = $this->all_configs['prefix'].'orders/create/'.$order_id;
                             }else{
-                                $response['msg'] = 'Устройство в заказе и заявке должно быть одно и то же';
+                                $response['msg'] = l('Устройство в заказе и заявке должно быть одно и то же');
                             }
                         }else{
-                            $response['msg'] = 'Клиент заявки не совпадает с клиентом в заказе';
+                            $response['msg'] = l('Клиент заявки не совпадает с клиентом в заказе');
                         }
                     }else{
-                        $response['msg'] = 'Заказ не найден или уже имеет заявку';
+                        $response['msg'] = l('Заказ не найден или уже имеет заявку');
                     }
                 }else{
-                    $response['msg'] = 'Заявка не найдена';// или закрыта';
+                    $response['msg'] = l('Заявка не найдена');// или закрыта';
                 }
             break;
         }
@@ -831,6 +835,7 @@ class requests extends \service{
     public static function getInstanse(){
         if(is_null(self::$instance)){
             self::$instance = new self();
+            self::$instance->set_statuses();
         }
         return self::$instance;
     }
