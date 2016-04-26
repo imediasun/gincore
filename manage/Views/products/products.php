@@ -160,7 +160,60 @@
                     </tr>
                     </thead>
                     <tbody>
-                    P
+                    <?php foreach ($goods as $id => $good): ?>
+                    $edit = ''; // быстрое редактирование
+                    $price_icon = ''; // нет цены
+                    $image_icon = ''; // нет картинки
+                    $avail = $good['avail'];
+                    $qty_store = intval($good['qty_store']);
+
+                    <?php if (isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')): ?>
+                    <?php if (($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
+                    $edit = '<input class="input-small" onkeydown="return isNumberKey(event, this)" type="input" name="price[';
+                        $edit .= $good['id'] . ']" value="' . number_format($good['price'] / 100, 2, '.', '') . '" />';
+                    <?php endif; ?>
+                    <?php if (($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')): ?>
+                    $avail = '<div class="edit_active"><label class="checkbox"><input value="1" ' . ($good['avail'] == 1 ? 'checked' : '') . ' name="avail[' . $good['id'] . ']" type="radio" />' . l('Вкл') . '</label>';
+                        $avail .= '<label class="checkbox"><input value="0" ' . ($good['avail'] == 1 ? '' : 'checked') . ' name="avail[' . $good['id'] . ']" type="radio" />' . l('Выкл') . '</label></div>';
+                    <?php endif; ?>
+                    <?php if (($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')
+                    && $this->all_configs['configs']['erp-use'] == false && $this->all_configs['configs']['onec-use'] == false
+                    ): ?>
+                    $qty_store = '<input class="input-mini" onkeydown="return isNumberKey(event)" type="input" name="qty_store[';
+                        $qty_store .= $good['id'] . ']" value="' . intval($good['qty_store']) . '" />';
+                    <?php endif; ?>
+                        <?php endif; ?>
+                    <?php if ($good['image_set'] == 1): ?>
+                    $image_icon = '<i class="glyphicon glyphicon-picture"></i>';
+                        <?php endif; ?>
+                    <?php if (intval($good['price']) > 0): ?>
+                    $price_icon = '<i class="glyphicon glyphicon-shopping-cart"></i>';
+                        <?php endif; ?>
+
+                    $add_name = '';
+
+                    $img = '';
+                    <?php if (array_key_exists('image', $good)): ?>
+                    $path_parts = full_pathinfo($good['image']);
+                    $image = $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension'];
+                    $url = $this->all_configs['siteprefix'] . $this->all_configs['configs']['goods-images-path'] . $good['id'] . '/' . $image;
+                    $img = ' <img src="' . $url . '">';
+                        <?php endif; ?>
+
+                    $content = '<i class="glyphicon glyphicon-move popover-info" data-content="' . (isset($serials[$id]) ? $serials[$id] : l('Нет на складе')) . '" data-original-title=""></i>';
+                    $goods_html .= '<tr>
+                        <td class="small_ids">' . $good['id'] . $img . '</td>
+                        <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . $add_name . '</a> ' . $content . '</td>
+                        <td>' . $image_icon . '</td>
+                        <td></td>
+                        <td>' . $edit . '</td>
+                        <td>' . $avail . '</td>
+                        <td>' . number_format($good['price'] / 100, 2, ',', ' ') . '</td>
+                        <td><span title="' . do_nice_date($good['date_add'],
+                        false) . '">' . do_nice_date($good['date_add']) . '</span></td>
+                        <td>' . intval($good['qty_wh']) . '</td><td>' . $qty_store . '</td>
+                    </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
                 <?= page_block($count_page, $count_goods); ?>

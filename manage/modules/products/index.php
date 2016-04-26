@@ -1077,20 +1077,10 @@ class products extends Controller
 
         $goods = $this->goods;
 
-        include_once __DIR__ . '/exports.php';
-        $goods_html = $this->view->renderFile('products/products', array(
-            'goods' => $goods,
-            'product_exports_form' => product_exports_form($this->all_configs),
-            'count_goods' => $this->count_goods,
-            'count_on_page' => $this->count_on_page,
-                                'managers' => $this->get_managers()
-        ));
+        $serials = array();
 
 
         if (count($goods) > 0) {
-
-================
-            $serials = array();
             $data = $this->all_configs['db']->query(
                 'SELECT i.goods_id, w.title as wh_title, t.location, COUNT(i.goods_id) as `count`
                 FROM {warehouses_goods_items} as i, {warehouses} as w, {warehouses_locations} as t
@@ -1102,71 +1092,17 @@ class products extends Controller
                     $serials[$i['goods_id']] = (isset($serials[$i['goods_id']]) ? $serials[$i['goods_id']] : '') . htmlspecialchars($i['wh_title']) . ' - ' . htmlspecialchars($i['location']) . ' - ' . $i['count'] . '<br />';
                 }
             }
-
-            foreach ($goods as $id => $good) {
-                $edit = ''; // быстрое редактирование
-                $price_icon = ''; // нет цены
-                $image_icon = ''; // нет картинки
-                $avail = $good['avail'];
-                $qty_store = intval($good['qty_store']);
-
-                // быстрое редактирование
-                if (isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-                    // редактирование цены
-                    if (($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-                        //$disabled_row = $good['hotline_flag'] == 0 ? '' : 'disabled';
-                        $edit = '<input class="input-small" onkeydown="return isNumberKey(event, this)" type="input" name="price[';
-                        $edit .= $good['id'] . ']" value="' . number_format($good['price'] / 100, 2, '.', '') . '" />';
-                    }
-                    // редактирование активности
-                    if (($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')) {
-                        $avail = '<div class="edit_active"><label class="checkbox"><input value="1" ' . ($good['avail'] == 1 ? 'checked' : '') . ' name="avail[' . $good['id'] . ']" type="radio" />' . l('Вкл') . '</label>';
-                        $avail .= '<label class="checkbox"><input value="0" ' . ($good['avail'] == 1 ? '' : 'checked') . ' name="avail[' . $good['id'] . ']" type="radio" />' . l('Выкл') . '</label></div>';
-                    }
-                    // редактирование свободного остатка
-                    if (($_GET['edit'] == 'set_active' || $_GET['edit'] == 'active_price')
-                        && $this->all_configs['configs']['erp-use'] == false && $this->all_configs['configs']['onec-use'] == false
-                    ) {
-                        $qty_store = '<input class="input-mini" onkeydown="return isNumberKey(event)" type="input" name="qty_store[';
-                        $qty_store .= $good['id'] . ']" value="' . intval($good['qty_store']) . '" />';
-                    }
-                }
-                if ($good['image_set'] == 1) {
-                    $image_icon = '<i class="glyphicon glyphicon-picture"></i>';
-                }
-                if (intval($good['price']) > 0) {
-                    $price_icon = '<i class="glyphicon glyphicon-shopping-cart"></i>';
-                }
-
-                $add_name = '';
-
-                $img = '';
-                if (array_key_exists('image', $good)) {
-                    $path_parts = full_pathinfo($good['image']);
-                    $image = $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension'];
-                    $url = $this->all_configs['siteprefix'] . $this->all_configs['configs']['goods-images-path'] . $good['id'] . '/' . $image;
-                    $img = ' <img src="' . $url . '">';
-                }
-
-                $content = '<i class="glyphicon glyphicon-move popover-info" data-content="' . (isset($serials[$id]) ? $serials[$id] : l('Нет на складе')) . '" data-original-title=""></i>';
-                $goods_html .= '<tr>
-                    <td class="small_ids">' . $good['id'] . $img . '</td>
-                    <!--<td><a href="' . $this->all_configs['siteprefix'] . htmlspecialchars($good['url']) . '/' . $this->all_configs['configs']['product-page'] . '/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a></td>
-                        -->
-                    <td><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . $add_name . '</a> ' . $content . '</td>
-                    <td>' . $image_icon . '</td>
-                    <td><!--' . $price_icon . '--></td>
-                    <td>' . $edit . '</td>
-                    <td>' . $avail . '</td>
-                    <td>' . number_format($good['price'] / 100, 2, ',', ' ') . '</td>
-                    <td><span title="' . do_nice_date($good['date_add'],
-                        false) . '">' . do_nice_date($good['date_add']) . '</span></td>
-                    <td>' . intval($good['qty_wh']) . '</td><td>' . $qty_store . '</td>
-                </tr>';
-            }
-
         }
 
+        include_once __DIR__ . '/exports.php';
+        $goods_html = $this->view->renderFile('products/products', array(
+            'goods' => $goods,
+            'product_exports_form' => product_exports_form($this->all_configs),
+            'count_goods' => $this->count_goods,
+            'count_on_page' => $this->count_on_page,
+            'managers' => $this->get_managers(),
+           'serials' => $serials 
+        ));
 
         return $goods_html;
     }
