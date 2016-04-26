@@ -1707,6 +1707,22 @@ class Chains
     }
 
     /**
+     * сбрасываем цену товара для возвратов
+     * 
+     * @param $items
+     * @return mixed
+     */
+    public function convertItemsPrice($items)
+    {
+        if(!empty($items)) {
+            foreach ($items as &$item) {
+                $item['price'] = 0;
+            }
+        }
+        return $items;
+    }
+
+    /**
      * @param $post
      * @param $mod_id
      * @return array
@@ -1724,7 +1740,7 @@ class Chains
             // изделия
             $itemIds = isset($post['items']) && count(array_filter(explode(',',
                 $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
-            $items = $this->getItems($itemIds);
+            $items = $this->convertItemsPrice($this->getItems($itemIds));
 
             // склад куда списать
             $wh_id = $this->getWriteOffWarehouseId();
@@ -3140,9 +3156,9 @@ class Chains
             isset($post['is_courier']) && isset($post['courier']) ? trim($post['courier']) : null,
             $wh['location_id'],
             $wh['wh_id'],
-            array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
             $code ? $this->all_configs['db']->makeQuery(" ? ", array($code)) : 'null',
             $referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($referer_id)) : 'null',
+            array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
             $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             isset($post['warranty']) ? intval($post['warranty']) : 0,
             isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0
