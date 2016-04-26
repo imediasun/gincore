@@ -1707,6 +1707,22 @@ class Chains
     }
 
     /**
+     * сбрасываем цену товара для возвратов
+     * 
+     * @param $items
+     * @return mixed
+     */
+    public function convertItemsPrice($items)
+    {
+        if(!empty($items)) {
+            foreach ($items as &$item) {
+                $item['price'] = 0;
+            }
+        }
+        return $items;
+    }
+
+    /**
      * @param $post
      * @param $mod_id
      * @return array
@@ -1724,7 +1740,7 @@ class Chains
             // изделия
             $itemIds = isset($post['items']) && count(array_filter(explode(',',
                 $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
-            $items = $this->getItems($itemIds);
+            $items = $this->convertItemsPrice($this->getItems($itemIds));
 
             // склад куда списать
             $wh_id = $this->getWriteOffWarehouseId();
