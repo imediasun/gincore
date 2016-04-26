@@ -49,3 +49,35 @@ INDEX(`user_id`),
 INDEX(`cashbox_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
+/*
+2016_04_20_055121_add_system_to_contractors_categories.php
+ */
+
+ALTER TABLE `restore4_contractors_categories` ADD COLUMN is_system tinyint(1) UNSIGNED DEFAULT 1;
+UPDATE `restore4_contractors_categories` SET is_system=0 WHERE id > 36;
+
+/*
+2016_04_11_080606_block_user_by_tariff.php
+*/
+ALTER TABLE `restore4_users` ADD COLUMN blocked_by_tariff tinyint(1) UNSIGNED DEFAULT 0;
+/*
+2016_04_11_121328_add_over_email_to_users.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN send_over_email tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD COLUMN send_over_sms tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD INDEX send_over_email(send_over_email);
+ALTER TABLE `restore4_users` ADD INDEX send_over_sms(send_over_sms);
+
+/*
+2016_04_21_134400_log_of_user_login.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_users_login_log` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `user_id` int(10) UNSIGNED NOT NULL,
+    `ip` varchar(255) DEFAULT '' NOT NULL,
+    `created_at` timestamp default CURRENT_TIMESTAMP,
+    `updated_at` timestamp default 0,
+PRIMARY KEY (`id`),
+INDEX(`user_id`),
+INDEX(`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;

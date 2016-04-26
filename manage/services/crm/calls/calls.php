@@ -1,6 +1,6 @@
 <?php namespace services\crm;
 
-require_once __DIR__.'/../../../View.php';
+require_once __DIR__.'/../../../Core/View.php';
 
 
 class calls extends \service{
@@ -23,6 +23,9 @@ class calls extends \service{
     }
     
     // форма и кнопка создания нового звонка
+    /**
+     * @return string
+     */
     public function create_call_form(){
         return $this->view($this->view->renderFile('services/crm/calls/create_call_form', array(
             'all_configs' => $this->all_configs
@@ -30,6 +33,10 @@ class calls extends \service{
     }
 
     // таблиица звонков юзера
+    /**
+     * @param $client_id
+     * @return string
+     */
     public function calls_list_table($client_id){
         $list_items = $this->calls_list($client_id, function($call){
             return $this->view->renderFile('services/crm/calls/user_calls_list', array(
@@ -73,6 +80,9 @@ class calls extends \service{
     }
 
     // таблица всех звонков
+    /**
+     * @return string
+     */
     public function get_all_calls_list(){
         $count_on_page = count_on_page();
         $referrers = $this->get_referers();
@@ -96,6 +106,9 @@ class calls extends \service{
     }
 
     // массив источников
+    /**
+     * @return mixed
+     */
     public function get_referers(){
         $r = $this->all_configs['db']->query("SELECT id, name FROM {crm_referers} ORDER BY name")->vars();
         $r[0] = $r[''] = 'нет';
@@ -103,7 +116,14 @@ class calls extends \service{
     }
 
     // выпадающий список источников
-    public function get_referers_list($active = 0, $multi = '', $disabled = false){
+    /**
+     * @param int    $active
+     * @param string $multi
+     * @param bool   $disabled
+     * @param string $addClass
+     * @return string
+     */
+    public function get_referers_list($active = 0, $multi = '', $disabled = false, $addClass = ''){
         $statuses_opts = '<option value="0">' . l('нет') . '</option>';
         $referers = $this->get_referers();
         foreach($referers as $id => $name){
@@ -111,10 +131,15 @@ class calls extends \service{
                 $statuses_opts .= '<option'.($active == $id ? ' selected' : '').' value="'.$id.'">'.$name.'</option>';
             }
         }
-        return '<select'.($disabled ? ' disabled' : '').' name="referer_id'.($multi ? '['.$multi.']' : '').'" class="form-control">'.$statuses_opts.'</select>';
+        return '<select' . ($disabled ? ' disabled' : '') . ' name="referer_id' . ($multi ? '[' . $multi . ']' : '') . '" class="form-control ' . $addClass . '">' . $statuses_opts . '</select>';
     }
 
     // выпадающий список звонков клиента
+    /**
+     * @param      $client_id
+     * @param null $call_id
+     * @return string
+     */
     public function calls_list_select($client_id, $call_id = null){
         $list_items = $this->calls_list($client_id, function($call) use ($call_id){
             return '<option'.($call_id == $call['id'] ? ' selected' : '').' value="'.$call['id'].'">id '.$call['id'].', '.$call['date'].'</option>';
@@ -123,6 +148,10 @@ class calls extends \service{
     }
 
     // массив данных о звонке
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function get_call($id){
         return $this->all_configs['db']->query("SELECT c.*, IF(u.fio = '',u.email,u.fio) as operator_fio "
                                               ."FROM {crm_calls} as c "
@@ -131,6 +160,11 @@ class calls extends \service{
     }
 
     // массив звонков клиента или всех если клиент нулл
+    /**
+     * @param      $client_id
+     * @param bool $use_pages
+     * @return array
+     */
     private function get_calls($client_id, $use_pages = false){
         if($use_pages){
             $count_on_page = count_on_page();
@@ -164,6 +198,12 @@ class calls extends \service{
         }
     }
 
+    /**
+     * @param          $client_id
+     * @param callable $callback
+     * @param bool     $use_pages
+     * @return array|string
+     */
     private function calls_list($client_id, callable $callback, $use_pages = false){
         $calls = $this->get_calls($client_id, $use_pages);
         if($use_pages){
@@ -181,6 +221,13 @@ class calls extends \service{
         }
     }
 
+    /**
+     * @param        $client_id
+     * @param string $call_type
+     * @param string $phone
+     * @param bool   $set_operator
+     * @return mixed
+     */
     public function create_call($client_id, $call_type = 'null', $phone = '', $set_operator = true){
         $operator_id = $set_operator && isset($_SESSION['id']) ? $_SESSION['id'] : '';
         return $this->all_configs['db']->query(
@@ -188,6 +235,11 @@ class calls extends \service{
                        ."VALUES (?,?q,?i,?i,NOW())", array($phone,$call_type,$client_id,$operator_id), 'id');
     }
 
+    /**
+     * @param        $phone
+     * @param string $call_type
+     * @return bool|mixed
+     */
     public function create_call_by_phone($phone, $call_type = 'null'){
         require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
         $access = new \access($this->all_configs, false);
@@ -213,6 +265,10 @@ class calls extends \service{
         return false;
     }
 
+    /**
+     * @param $code
+     * @return bool
+     */
     public function code_exists($code){
         $c = mb_strtoupper($code, 'UTF-8');
         $code_exists = $this->all_configs['db']->query(
@@ -226,6 +282,10 @@ class calls extends \service{
         return !!$code_exists;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function ajax($data){
         $response = array();
         $operator_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -314,6 +374,10 @@ class calls extends \service{
         return $response;
     }
 
+    /**
+     * @param $content
+     * @return string
+     */
     private function view($content){
         if(!isset($this->assets_added)){
             $this->assets_added = true;
@@ -322,6 +386,9 @@ class calls extends \service{
         return $content;
     }
 
+    /**
+     * @return string
+     */
     public function assets(){
         return '
             <link rel="stylesheet" href="'.$this->all_configs['prefix'].'services/crm/calls/css/main.css?1">
@@ -330,6 +397,9 @@ class calls extends \service{
         ';
     }
 
+    /**
+     * @return null|calls
+     */
     public static function getInstanse(){
         if(is_null(self::$instance)){
             self::$instance = new self();
@@ -338,6 +408,9 @@ class calls extends \service{
         return self::$instance;
     }
 
+    /**
+     * calls constructor.
+     */
     private function __construct(){
         $this->view = new \View();
     }

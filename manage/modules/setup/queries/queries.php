@@ -65,6 +65,8 @@ $settingsArr[]=array('account_phone', '', lq('Ваш телефон'), 1, '');
 $settingsArr[]=array('account_business', '', lq('Ваш бизнес'), 1, '');
 $settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
 $settingsArr[]=array('time_zone', 'Europe/Kiev', lq('Временная зона'), 0, lq('Временная зона, например Europe/Kiev'));
+$settingsArr[]=array('need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 0, lq('Отправлять ежедневные логи входа на email'));
+$settingsArr[]=array('email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 0, lq('email на который будут отправлять логи входов в систему'));
 
 foreach ($settingsArr as $ar) {
     $value = '';

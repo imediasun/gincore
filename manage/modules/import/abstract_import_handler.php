@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../Core/View.php';
 
 abstract class abstract_import_handler
 {
@@ -6,8 +7,9 @@ abstract class abstract_import_handler
     protected $import_settings;
     protected $rows = array();
 
-    /** @var abstract_import_provider */
+    /** @var  gincore_orders */
     protected $provider;
+    protected $view;
 
     /**
      * import_clients constructor.
@@ -20,6 +22,7 @@ abstract class abstract_import_handler
         $this->all_configs = $all_configs;
         $this->provider = $provider;
         $this->import_settings = $import_settings;
+        $this->view = new View($all_configs);
     }
 
     /**
@@ -28,19 +31,10 @@ abstract class abstract_import_handler
      */
     protected function gen_result_table($results)
     {
-        $rows = array();
-        foreach ($results as $row_result) {
-            $type = 'success';
-            if (isset($row_result['state']) && !$row_result['state']) {
-                $type = 'danger';
-            }
-            if (isset($row_result['state_type']) && $row_result['state_type'] === 1) {
-                $type = 'info';
-            }
-            $rows[] = "<tr class='{$type}'>" . $this->get_result_row($row_result) . "</tr>";
-        }
-        return '<h3>' . l('Результат импорта:') . '</h3>
-            <table class="table table-stripped table-hover">' . implode('', $rows) . '</table>';
+        return $this->view->renderFile('import/gen_result_table', array(
+            'results' => $results,
+            'controller' => $this
+        ));
     }
 
     /**
@@ -50,6 +44,7 @@ abstract class abstract_import_handler
     public function check_format($row)
     {
         if (!empty($this->provider) && is_a($this->provider, 'abstract_import_provider')) {
+            $this->provider->define_codepage($row);
             return $this->provider->check_format($row);
         }
         return false;
@@ -65,5 +60,5 @@ abstract class abstract_import_handler
      * @param $row
      * @return string
      */
-    abstract protected function get_result_row($row);
+    abstract public function get_result_row($row);
 }

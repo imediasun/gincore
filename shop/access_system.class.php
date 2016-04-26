@@ -66,7 +66,7 @@ class Role
 
     /**
      * @param          $arr
-     * @param int $all
+     * @param int      $all
      * @return array
      */
     public function get_users_by_permissions($arr, $all = self::ALL)
@@ -119,11 +119,11 @@ class Role
      */
     public function isLastSuperuserRole($roleId)
     {
-        $count = $this->all_configs['db']->query('SELECT count(*)
+        $roleIds = $this->all_configs['db']->query('SELECT l.role_id 
                 FROM {users_permissions} as p, {users_role_permission} as l
-                WHERE p.link IN (?l) AND l.permission_id=p.id AND l.role_id=?',
-            array(array('site-administration'), $roleId))->el();
-        return $count == 1;
+                WHERE p.link IN (?l) AND l.permission_id=p.id',
+            array(array('site-administration')))->col();
+        return in_array($roleId, $roleIds) && count($roleIds) == 1;
     }
 
     /**
@@ -162,10 +162,11 @@ class Role
     public function hasCashierPermission($userId)
     {
         $hasAccounting = $this->hasPrivilege('accounting');
-        if(empty($userId)) {
+        if (empty($userId)) {
             return $hasAccounting;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i', array($userId))->el();
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes_users} WHERE user_id=?i',
+            array($userId))->el();
         return $count > 0 || $hasAccounting;
     }
 }

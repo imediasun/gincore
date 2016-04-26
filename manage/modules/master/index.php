@@ -233,14 +233,17 @@ class master
         $cashbox_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(1,1,1,1,1,'" . lq('Основная') . "')")->id();
+        $cashbox_id = 1;
         // создаем кассу на которой будет происходить переводы валюты для контрагентов
         $cashbox_c_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(2,1,1,1,1,'" . lq('Транзитная') . "')")->id();
+        $cashbox_c_id = 2;
         // создаем кассу терминал
         $cashbox_t_id = $this->db->query("INSERT IGNORE INTO {cashboxes}(id,cashboxes_type,avail,"
             . "avail_in_balance,avail_in_orders,name) "
             . "VALUES(3,1,1,1,1,'" . lq('Терминал') . "')")->id();
+        $cashbox_t_id = 3;
 
         $this->db->query("UPDATE {settings} SET value = ? "
             . "WHERE name = 'currency_suppliers_orders'", array($contractors_currency));
@@ -292,7 +295,7 @@ class master
                     // брак
                     $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id, 1, 0);
                     // клиент
-                    $this->create_warehouse(lq('Клиент') . ' ' . $service['name'], '', '', 4, $id, 0, 0);
+                    $this->create_warehouse(lq('Клиент'), '', '', 4, $id, 0, 0);
                     $added_services[$i] = array(
                             'id' => $id
                         ) + $main_wh;

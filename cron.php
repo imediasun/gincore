@@ -1,8 +1,8 @@
 <?php
 
 if (!isLocalRequest()) {
-	header("HTTP/1.0 404 Not Found");
-	exit;
+    header("HTTP/1.0 404 Not Found");
+    exit;
 }
 
 /**
@@ -11,7 +11,7 @@ if (!isLocalRequest()) {
  */
 function isLocalRequest()
 {
-	return $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] || $_SERVER['SERVER_ADDR'] == '127.0.0.1';
+    return $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] || $_SERVER['SERVER_ADDR'] == '127.0.0.1';
 }
 
 echo "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>";
@@ -75,6 +75,7 @@ function warranties_left_days($params)
         }
     }
 }
+
 // автоматическое добавление комментарий
 //cron.php?act=auto_orders_comments
 function auto_orders_comments($params)
@@ -115,7 +116,7 @@ function auto_orders_comments($params)
             }
 
             if ($d['id'] > 0 && $text && $interval && $date) {
-                $date_add = date("Y-m-d H:i:s", (time() - rand(1, (60*60*4)))); // сейчас - rand(0 - 4 часа)
+                $date_add = date("Y-m-d H:i:s", (time() - rand(1, (60 * 60 * 4)))); // сейчас - rand(0 - 4 часа)
                 $all_configs['db']->query(
                     'INSERT INTO {orders_comments} (text, order_id, auto, date_add) VALUES (?, ?i, ?i, ?)',
                     array($text, $d['id'], $auto, $date_add));
@@ -131,8 +132,9 @@ function warehouses_goods_remains($params)
     global $all_configs;
 
     // проверяем на включенность использования системы учета
-    if ($all_configs['configs']['erp-use'] == false)
+    if ($all_configs['configs']['erp-use'] == false) {
         return;
+    }
 
     // чистим табличку количества товаров на складе и ихнюю сумму
     $all_configs['db']->query('TRUNCATE TABLE {warehouses_goods_amount}');
@@ -250,7 +252,8 @@ function balance_goods($params)
     $goods = $all_configs['db']->query('
         SELECT n.balance, n.by_balance, n.user_id, g.title, g.qty_store, n.goods_id, n.id FROM {users_notices} as n
         RIGHT JOIN {goods} as g ON g.id=n.goods_id AND g.avail=1 AND g.qty_store<=n.balance
-        WHERE n.balance>=0 AND n.by_balance=1 AND n.goods_id>0 #AND n.last_balance_send<>g.qty_store', array())->assoc();
+        WHERE n.balance>=0 AND n.by_balance=1 AND n.goods_id>0 #AND n.last_balance_send<>g.qty_store',
+        array())->assoc();
 
     if ($goods && count($goods) > 0) {
         foreach ($goods as $product) {
@@ -269,7 +272,8 @@ function alarm($params)
 {
     global $all_configs;
 
-    $alarms = $all_configs['db']->query('SELECT * FROM {alarm_clock} WHERE send=0 AND date_alarm<NOW()', array())->assoc();
+    $alarms = $all_configs['db']->query('SELECT * FROM {alarm_clock} WHERE send=0 AND date_alarm<NOW()',
+        array())->assoc();
 
     if ($alarms) {
         include_once $all_configs['path'] . 'mail.php';
@@ -280,7 +284,8 @@ function alarm($params)
             if ($alarm['order_id'] > 0) {
                 $content .= ' по заказу <a href="' . $all_configs['prefix'] . 'orders/create/' . $alarm['order_id'] . '">№' . $alarm['order_id'] . '</a>';
             }
-            $messages->send_message($content, 'Напоминание', ($alarm['for_user_id'] > 0 ? $alarm['for_user_id'] : 'alarm'), 1, '', 1);
+            $messages->send_message($content, 'Напоминание',
+                ($alarm['for_user_id'] > 0 ? $alarm['for_user_id'] : 'alarm'), 1, '', 1);
 
             $all_configs['db']->query('UPDATE {alarm_clock} SET send=1 WHERE id=?i', array($alarm['id']));
         }
@@ -299,7 +304,8 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
 
         if (mb_strlen($serial, 'UTF-8') == 0) {
             if ($order['item_id'] > 0) {
-                $serial = $all_configs['configs']['erp-serial-prefix'] . str_pad('', (7 - strlen($order['item_id'])), 0) . $order['item_id'];
+                $serial = $all_configs['configs']['erp-serial-prefix'] . str_pad('', (7 - strlen($order['item_id'])),
+                        0) . $order['item_id'];
             } elseif (array_key_exists('last_item_id', $order) && $order['last_item_id'] > 0) {
                 $order = $all_configs['db']->query(
                     'SELECT i.id as item_id, i.serial FROM {warehouses_goods_items} as i WHERE i.id=?i',
@@ -312,7 +318,9 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
     } else {
         $serial = trim($order['serial']);
         //if ($all_configs['configs']['erp-serial-prefix'] == substr($serial, 0, strlen($all_configs['configs']['erp-serial-prefix']))) {
-        if (preg_match('/^(' . $all_configs['configs']['erp-serial-prefix'] . ')([0-9]{' . $all_configs['configs']['erp-serial-count-num'] . '})$/', $serial) == 1) {
+        if (preg_match('/^(' . $all_configs['configs']['erp-serial-prefix'] . ')([0-9]{' . $all_configs['configs']['erp-serial-count-num'] . '})$/',
+                $serial) == 1
+        ) {
             $serial = preg_replace("|[^0-9]|i", "", $serial);
             $serial = intval($serial);
         } else {
@@ -320,34 +328,36 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
         }
     }
 
-    if ($link == true && $generate == true)
+    if ($link == true && $generate == true) {
         return '<a class="' . $class . '" href="' . $all_configs['manageprefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
-    else
+    } else {
         return $serial;
+    }
 }
 
 // сохраняем статитстику заказов /manage/orders#orders_manager
 // каждый день в 23:59
-function orders_manager_stats(){
+function orders_manager_stats()
+{
     global $all_configs;
-    
+
     $ifauth = null;
-    require $all_configs['path'].'manage/modules/orders/index.php';
+    require $all_configs['path'] . 'manage/modules/orders/index.php';
     $orders_class = new orders($all_configs, false);
-    
+
     $orders = $orders_class->get_orders_for_orders_manager();
     $save_query = array();
-    foreach($orders as $order){
+    foreach ($orders as $order) {
         $status = $order['status'];
-        if($orders_class->check_if_order_fail_in_orders_manager($order)){
+        if ($orders_class->check_if_order_fail_in_orders_manager($order)) {
             $status = -1;
         }
-        $save_query[] = $all_configs['db']->makeQuery("(?i,NOW(),?i,?i,?i)", 
-                                                        array($status,$order['id'],$order['manager'],$order['group_id']));
+        $save_query[] = $all_configs['db']->makeQuery("(?i,NOW(),?i,?i,?i)",
+            array($status, $order['id'], $order['manager'], $order['group_id']));
     }
-    if($save_query){
+    if ($save_query) {
         $all_configs['db']->query("INSERT IGNORE INTO {orders_manager_history}(status,date,`order`,manager,group_id) "
-                                 ."VALUES ?q", array(implode(',',$save_query)));
+            . "VALUES ?q", array(implode(',', $save_query)));
     }
 }
 
@@ -373,6 +383,26 @@ function ratings_stats()
     }
 }
 
+function login_logs()
+{
+    global $all_configs;
+    // send report only if current hour equal 14 
+    if (date('H') == 14) {
+        $isNeedSend = db()->query("SELECT `value` FROM {settings} WHERE `name`='need_send_login_log'")->el();
+        if ($isNeedSend) {
+            $email = db()->query("SELECT `value` FROM {settings} WHERE `name`='email_for_send_login_log'",
+                array())->el();
+            $objWriter = generate_xls_with_login_logs();
+            $fileName = ini_get('upload_tmp_dir') . 'report.xls';
+            $objWriter->save($fileName);
+            require_once __DIR__ . '/mail.php';
+            $messages = new Mailer($all_configs);
+            $messages->group('send-excell', $email, array('file' => $fileName));
+            $messages->go();
+        }
+    }
+}
+
 // имитация конфига
 function all_configs()
 {
@@ -381,7 +411,7 @@ function all_configs()
     // обновляем для языка
     Configs::getInstance()->set_configs();
     $configs = Configs::getInstance()->get();
-    
+
     $settings = $db->query("SELECT name, value FROM {settings}", array())->vars();
 
     return array(

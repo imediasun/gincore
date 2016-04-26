@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/Session.php';
+require_once __DIR__ . '/Core/Session.php';
 require_once __DIR__ . '/../gincore/vendor/autoload.php';
 
 class Tariff
@@ -169,7 +169,7 @@ class Tariff
         } catch (Exception $e) {
             $response = array();
         }
-        return true || !empty($response) && $response['available'] == 1;
+        return !empty($response) && $response['available'] == 1;
     }
 
     /**

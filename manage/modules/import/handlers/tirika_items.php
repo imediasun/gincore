@@ -77,4 +77,22 @@ class tirika_items extends abstract_import_provider implements ItemsInterface
     {
         return 0;
     }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function getSubcategories($data)
+    {
+        return array();
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function getCategories($data)
+    {
+        // TODO: Implement getCategories() method.
+    }
 }

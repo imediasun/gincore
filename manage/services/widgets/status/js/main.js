@@ -1,7 +1,7 @@
 var gcw_status_widget = (function($){
 
     function resize(){
-        var $modal = $('.gcw_modal');
+        var $modal = $('#gcw_status_modal .gcw_modal');
         if($modal.is(':visible')){
             var w = $modal.width(),
                 h = $modal.height();
@@ -40,7 +40,7 @@ var gcw_status_widget = (function($){
             $(window).resize(resize).resize();
             
             var form_msg_timeout;
-            $(document).on('submit', '.gcw_form', function(e){
+            $(document).on('submit', '.js-status-form', function(e){
                 var $this = $(this),
                     $error_msg = $this.find('.gcw_form_error'),
                     method = $this.find('input[name=action]').val(),

@@ -1,22 +1,33 @@
 <?php
 
-require_once __DIR__.'/abstract_import_provider.php';
+require_once __DIR__ . '/abstract_import_provider.php';
 
 class gincore_clients extends abstract_import_provider
 {
+    protected $contractors;
     private $cols = array(
-        0 => 'id',
-        1 => 'phones',
-        2 => 'email',
-        3 => 'fio',
+        0 => 'fio',
+        1 => 'contragent type',
+        2 => 'phone',
+        3 => 'email',
         4 => 'legal_address',
-        5 => 'date_add',
+    );
+
+    public function __construct()
+    {
+        $this->contractors = db()->query('SELECT id, title FROM {contractors}', array())->assoc('title');
+    }
+
+    private $availableContractors = array(
+        'Поставщик',
+        'Сотрудник',
+        'Покупатель'
     );
 
     /**
      * @return array
      */
-    function get_cols()
+    public function get_cols()
     {
         return $this->cols;
     }
@@ -25,16 +36,26 @@ class gincore_clients extends abstract_import_provider
      * @param $data
      * @return array
      */
-    function get_phones($data)
+    public function get_phones($data)
     {
-        return explode(',', $data[1]);
+        $phones = $data[2];
+        return explode(',', preg_replace('/[\+\-\(\)]/', '', $phones));
     }
 
     /**
      * @param $data
      * @return mixed
      */
-    function get_fio($data)
+    public function get_fio($data)
+    {
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[0] : iconv('cp1251', 'utf8', $data[0]);
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function get_email($data)
     {
         return $data[3];
     }
@@ -43,17 +64,29 @@ class gincore_clients extends abstract_import_provider
      * @param $data
      * @return mixed
      */
-    function get_email($data)
+    function get_address($data)
     {
-        return $data[2];
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[4] : iconv('cp1251', 'utf8', $data[4]);
     }
 
     /**
      * @param $data
      * @return mixed
      */
-    function get_address($data)
+    public function get_contractor_id($data)
     {
-        return $data[4];
+        $type = ucfirst((empty($this->codepage) || $this->codepage == 'utf-8') ? $data[1] : iconv('CP1251', 'UTF-8', $data[1]));
+        if (in_array($type, $this->availableContractors) && isset($this->contractors[$type])) {
+            return $this->contractors[$type]['id'];
+        }
+        return '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function check_format($row)
+    {
+        return true;
     }
 }

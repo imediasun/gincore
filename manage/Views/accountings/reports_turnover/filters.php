@@ -87,13 +87,7 @@
                 <?= l('не гарантийные') ?>
             </label>
         </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" value="1"
-                       name="return" <?= (isset($_GET['rtrn']) && $_GET['rtrn'] == 1) ? 'checked' : ''; ?>>
-                <?= l('Не учитывать возвраты поставщику и списание товаров'); ?>
-            </label>
-        </div>
+        <input type="hidden" value="1" name="return">
     </div>
     <div class="form-group"><input class="btn btn-primary" type="submit" name="filters" value="<?= l('Применить') ?>"/>
     </div>

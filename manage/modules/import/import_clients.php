@@ -32,7 +32,8 @@ class import_clients extends abstract_import_handler
                 $fio = $client_data['fio'];
                 $email = $client_data['email'];
                 $address = $client_data['address'];
-                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num);
+                $contractor_id = $client_data['contractor_id'];
+                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num, $contractor_id);
                 $num++;
             }
         } else {
@@ -41,7 +42,8 @@ class import_clients extends abstract_import_handler
                 $fio = import_helper::remove_whitespace($this->provider->get_fio($row));
                 $email = import_helper::remove_whitespace($this->provider->get_email($row));
                 $address = import_helper::remove_whitespace($this->provider->get_address($row));
-                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num);
+                $contractor_id = import_helper::remove_whitespace($this->provider->get_contractor_id($row));;
+                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num, $contractor_id);
                 $num++;
             }
         }
@@ -57,9 +59,10 @@ class import_clients extends abstract_import_handler
      * @param $email
      * @param $address
      * @param $num
+     * @param $contractor_id
      * @return array
      */
-    private function process_client_data($phones, $fio, $email, $address, $num)
+    private function process_client_data($phones, $fio, $email, $address, $num, $contractor_id)
     {
         $errors = array();
         $error_type = 0;
@@ -72,7 +75,7 @@ class import_clients extends abstract_import_handler
         if (!$errors) {
             // берем первый телефон как основной
             $phone = $phones[0];
-            $create = $this->create_client($phone, $fio, $email, $address);
+            $create = $this->create_client($phone, $fio, $email, $address, $contractor_id);
             if (!$create['state']) {
                 $errors[] = $create['message'];
             } else {
@@ -103,13 +106,14 @@ class import_clients extends abstract_import_handler
     }
 
     /**
-     * @param $client_phone
-     * @param $client_fio
-     * @param $client_email
-     * @param $client_address
+     * @param        $client_phone
+     * @param        $client_fio
+     * @param        $client_email
+     * @param        $client_address
+     * @param string $contractor_id
      * @return array
      */
-    private function create_client($client_phone, $client_fio, $client_email, $client_address)
+    private function create_client($client_phone, $client_fio, $client_email, $client_address, $contractor_id='')
     {
         $state_type = 0;
         $phone_part = substr(import_helper::clear_phone($client_phone), -9);
@@ -123,7 +127,8 @@ class import_clients extends abstract_import_handler
                 'email' => $client_email,
                 'phone' => $client_phone,
                 'fio' => $client_fio,
-                'legal_address' => $client_address
+                'legal_address' => $client_address,
+                'contractor_id' => $contractor_id
             ));
             if ($data['id'] > 0) {
                 $client_id = $data['id'];
@@ -147,7 +152,7 @@ class import_clients extends abstract_import_handler
     /**
      * @inheritdoc
      */
-    protected function get_result_row($row)
+    public function get_result_row($row)
     {
         return '<td ># ' . $row['num'] . ' ' . (!empty($row['fio']) ? '(' . htmlspecialchars($row['fio']) . ')' : '') . '</td>'
         . '<td>' . $row['message'] . '</td>';
