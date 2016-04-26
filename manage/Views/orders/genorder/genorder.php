@@ -317,7 +317,7 @@
                                                 <?php foreach ($returns as $return): ?>
                                                     <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
                                                         value="<?= $return['id'] ?>">
-                                                        <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . viewCurrency() . ")" ?>
+                                                        <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . $this->all_configs['configs']['currencies'][$return['currency']]['name'] . ")" ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
