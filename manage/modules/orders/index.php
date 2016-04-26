@@ -2896,8 +2896,8 @@ class orders
             if (empty($current)) {
                 $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-manager-configs', ?, ?, ?, 1)",
                     array(
-                        'Настройки менеджера заказов',
-                        'Настройки менеджера заказов',
+                        l('Настройки менеджера заказов'),
+                        l('Настройки менеджера заказов'),
                         json_encode($configs)
                     ));
 

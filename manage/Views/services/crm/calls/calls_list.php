@@ -10,7 +10,7 @@
     <td>
         <?php if ($call['open_requests']): ?>
             <a href="<?= $all_configs['prefix'] ?>clients/create/<?= $call['client_id'] ?> #requests">
-                <span title="Кол-во открытых заявок на звонок №<?= $call['id'] ?>"> <?= $call['open_requests'] ?></span>
+                <span title="<?= l('Кол-во открытых заявок на звонок') ?> №<?= $call['id'] ?>"> <?= $call['open_requests'] ?></span>
             </a>
         <?php endif; ?>
     </td>

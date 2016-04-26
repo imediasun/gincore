@@ -20,13 +20,16 @@ class Infoblock
 
     function genblock()
     {
+        global $manage_lang;
         if(isset($this->all_configs['configs']['manage-show-glossary']) && $this->all_configs['configs']['manage-show-glossary'] 
                 && isset($this->all_configs['configs']['manage-glossary-url'])){
+            $gu = parse_url($this->all_configs['configs']['manage-glossary-url']);
+            $url = $gu['scheme'].'://'.$gu['host'].'/'.$manage_lang.$gu['path'].'?'.$gu['query'];
             $info_block = '
                 <button data-title="'.l('intro_glossary_btn_hint').'" id="show_glossary" type="button" class="show_glossary btn btn-info" style="padding: 5px 10px">
                     <i class="fa fa-info"></i>
                 </button>
-                <div class="glossary" id="glossary" data-url="'.$this->all_configs['configs']['manage-glossary-url'].($this->all_configs['curmod'] ? '&mod='.$this->all_configs['curmod'] : '').'">
+                <div class="glossary" id="glossary" data-url="'.$url.($this->all_configs['curmod'] ? '&mod='.$this->all_configs['curmod'] : '').'">
                     <div class="glossary_close">
                         <button id="glossary_close" type="button" class="close">×</button>
                     </div>
