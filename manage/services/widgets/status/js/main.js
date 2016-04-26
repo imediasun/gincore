@@ -1,7 +1,7 @@
 var gcw_status_widget = (function($){
 
     function resize(){
-        var $modal = $('.gcw_modal');
+        var $modal = $('#gcw_status_modal .gcw_modal');
         if($modal.is(':visible')){
             var w = $modal.width(),
                 h = $modal.height();
