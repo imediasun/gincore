@@ -238,7 +238,14 @@ function load_repair_chart(_this) {
         success: function (data) {
             if (data.state) {
                 $('.js-repair-chart').html(data.html);
-                init_multiselect();
+                $('#repair-chart-form .multiselect').each(function(){
+                    var $this = $(this),
+                      opts = multiselect_options;
+                    if(typeof $this.attr('data-numberDisplayed') !== 'undefined'){
+                        opts.numberDisplayed = $this.attr('data-numberDisplayed');
+                    }
+                    $this.multiselect(opts);
+                });
             }
         }
     });
