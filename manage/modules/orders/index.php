@@ -1805,12 +1805,13 @@ class orders
             $parts[] = htmlspecialchars($order['equipment']);
         }
 
-        $returns = $this->all_configs['db']->query('SELECT id, value_from 
-                FROM {cashboxes_transactions} 
+        $returns = $this->all_configs['db']->query('SELECT ct.id as id, value_from, currency
+                FROM {cashboxes_transactions} ct
+                JOIN {cashboxes_currencies} cc ON  ct.cashboxes_currency_id_from=cc.id
                 WHERE transaction_type=?i 
                 AND (client_order_id IS NULL OR client_order_id=?i OR client_order_id = 0)
                 AND supplier_order_id IS NULL 
-                AND  contractor_category_link = 2', // возврат средст 
+                AND contractor_category_link IN (SELECT id FROM {contractors_categories_links} WHERE contractors_categories_id = 2)', // возврат средст
             array(
                 TRANSACTION_OUTPUT,
                 $order['id']
@@ -2452,12 +2453,19 @@ class orders
                     }
                 }
 
-                if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && isset($_POST['return_id']) && $_POST['return_id'] > 0) {
-                    $this->all_configs['db']->query('UPDATE {orders} SET return_id=?n WHERE id=?i',
-                        array(mb_strlen($_POST['return_id'], 'UTF-8') > 0 ? trim($_POST['return_id']) : null, $this->all_configs['arrequest'][2]));
+                if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && isset($_POST['return_id']) && $_POST['return_id'] != $order['return_id']) {
+                    $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=NULL WHERE id=?i',
+                        array($order['return_id']));
+                    if ($_POST['return_id'] > 0) {
+                        $this->all_configs['db']->query('UPDATE {orders} SET return_id=?n WHERE id=?i',
+                            array(
+                                mb_strlen($_POST['return_id'], 'UTF-8') > 0 ? trim($_POST['return_id']) : null,
+                                $this->all_configs['arrequest'][2]
+                            ));
 
-                    $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=?n WHERE id=?i',
-                        array($this->all_configs['arrequest'][2], $_POST['return_id']));
+                        $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=?n WHERE id=?i',
+                            array($this->all_configs['arrequest'][2], $_POST['return_id']));
+                    }
                 }
                 unset($order['return_id']);
                 if(isset($_POST['color']) && array_key_exists($_POST['color'], $this->all_configs['configs']['devices-colors'])){
