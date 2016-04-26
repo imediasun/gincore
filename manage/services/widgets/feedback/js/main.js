@@ -2,7 +2,6 @@ var gcw_feedback_widget = (function ($) {
 
   function resize() {
     var $modal = $('#gcw_feedback_modal .gcw_modal');
-    alert('this');
     if ($modal.is(':visible')) {
       var w = $modal.width(),
         h = $modal.height();
