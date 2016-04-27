@@ -20,7 +20,7 @@
 }
 .gcw_title{
     padding: 10px 15px;
-    background-color:#FFCD5A;
+    background-color: #FDEA08;
     /*text-shadow: 0 1px 1px #fff;*/
     cursor: pointer;
     transition: background-color .1s linear;
@@ -190,7 +190,7 @@
     margin-bottom: 20px;
 }
 .gcw_feedback_modal {
-    background-color: #FFB60E;
+    background-color: #D9E9E6;
     color: black;
     margin-left: 170px;
     width: 140px;
