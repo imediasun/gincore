@@ -175,7 +175,9 @@ class translates
                 }
 
                 if (isset($this->all_configs['arrequest'][2]) && !is_numeric($this->all_configs['arrequest'][2])) {
-                    $_POST['translates'] = $translates;
+                    if ($this->all_configs['arrequest'][2] != 'add') {
+                        $_POST['translates'] = $translates;
+                    }
                     $out = $this->check_post($_POST);
                 } else {
                     $out = $this->edit($config, $translates, $table, $languages);
@@ -329,11 +331,13 @@ class translates
                 foreach ($post['data'] as $fld => $d) {
                     $v[] = $this->all_configs['db']->makeQuery("?", array($d));
                 }
+                $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?', array($tableName, $post['data']['var']))->el();
+                if (!empty($id)) {
+                    FlashMessage::set(l('Переменная уже существует'), FlashMessage::INFO);
+                    Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
+                }
                 $id = $this->all_configs['db']->query("INSERT INTO ?q(?q) VALUES (?q)",
                     array($tableName, $f, implode(',', $v)), 'id');
-            } else {
-                $id = $this->all_configs['db']->query("INSERT INTO ?q() VALUES ()",
-                    array($tableName), 'id');
             }
             $all_fields = array();
             $values = array();

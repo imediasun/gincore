@@ -111,7 +111,9 @@ class admin_translates extends translates
                 }
 
                 if (isset($this->all_configs['arrequest'][2]) && !is_numeric($this->all_configs['arrequest'][2])) {
-                    $_POST['translates'] = $translates;
+                    if ($this->all_configs['arrequest'][2] != 'add') {
+                        $_POST['translates'] = $translates;
+                    }
                     $out = $this->check_post($_POST);
                 } else {
                     $out = $this->edit($config, $translates, $table, $languages,  isset($config['like']));

@@ -21,13 +21,8 @@ global $all_configs, $manage_lang;
 
 $langs = get_langs();
 
-if ($all_configs['configs']['manage-print-default-service-restore']) {
-    $cur_lang = getRestoreLang();
-    $templateTable = getRestoreTable();
-} else {
-    $cur_lang = $manage_lang;
-    $templateTable = 'admin_translates';
-}
+$cur_lang = getRestoreLang();
+$templateTable = getRestoreTable();
 
 $act = isset($_GET['act']) ? trim($_GET['act']) : '';
 $print_html = $variables = '';
@@ -49,6 +44,10 @@ if (isset($_GET['ajax']) && $all_configs['oRole']->hasPrivilege('site-administra
             $return['state'] = true;
             $var_id = $all_configs['db']->query("SELECT id FROM {?q} WHERE var = 'print_template_" . $save_act . "'",
                 array($templateTable))->el();
+            if(empty($var_id)) {
+                $var_id = $all_configs['db']->query("INSERT INTO {?q} (var) VALUES (?)",
+                    array($templateTable, 'print_template_' . $save_act), 'id');
+            }
             $all_configs['db']->query("INSERT INTO {?q_strings}(var_id,text,lang) "
                 . "VALUES(?i,?,?) ON DUPLICATE KEY UPDATE text = VALUES(text)",
                 array($templateTable, $var_id, $value, $cur_lang));
@@ -73,7 +72,7 @@ function getRestoreTable()
 
 function get_template($act)
 {
-    global $all_configs, $cur_lang, $templateTable;
+    global $all_configs, $cur_lang, $templateTable, $manage_lang;
     $template = $all_configs['db']->query("SELECT text FROM {?q_strings} as s "
         . "LEFT JOIN {?q} as t ON t.id = s.var_id "
         . "WHERE s.lang = ? AND t.var = ?",
@@ -82,7 +81,7 @@ function get_template($act)
         $template = $all_configs['db']->query("SELECT text FROM {?q_strings} as s "
             . "LEFT JOIN {?q} as t ON t.id = s.var_id "
             . "WHERE s.lang = ? AND t.var = ?",
-            array(getRestoreTable(), getRestoreTable(), getRestoreLang(), 'print_template_' . $act), 'el');
+            array('admin_translates', 'admin_translates', $manage_lang, 'print_template_' . $act), 'el');
     }
     return $template;
 }
@@ -634,7 +633,6 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                     LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
                     WHERE o.id = ?i", array($object))->row();
             }
-
 
             if ($order) {
 
