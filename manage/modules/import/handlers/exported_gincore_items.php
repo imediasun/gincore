@@ -88,7 +88,7 @@ class exported_gincore_items extends abstract_import_provider
         }
         $method = 'get_' . $name;
         if (method_exists($this, $method)) {
-            return call_user_func_array($method, $arguments);
+            return call_user_func_array(array($this, $method), $arguments);
         }
         if (isset($this->cols[$name])) {
             return $this->getColValue($name, $arguments[0]);
