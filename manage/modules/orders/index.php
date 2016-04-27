@@ -1,90 +1,75 @@
 <?php
 
-require_once __DIR__.'/../../Core/Response.php';
-require_once __DIR__.'/../../Core/View.php';
-require_once __DIR__.'/../../Core/FlashMessage.php';
-require_once __DIR__ . '/../../Tariff.php';
+require_once __DIR__.'/../../Core/Controller.php';
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
 
-class orders
+class orders extends Controller
 {
-    /** @var View */
-    protected $view = null;
-    private $mod_submenu;
-    protected $all_configs;
-    public $count_on_page;
-
     /**
      * orders constructor.
      * @param      $all_configs
      * @param bool $gen_module
      */
-    function __construct(&$all_configs, $gen_module = true)
+    public function __construct(&$all_configs, $gen_module = true)
     {
-        $this->mod_submenu = self::get_submenu();
+        parent::__construct($all_configs);
 
-        $this->all_configs = $all_configs;
-        $this->view = new View($this->all_configs);
+        require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
+        require_once($this->all_configs['sitepath'] . 'shop/cart.class.php');
+        require_once($this->all_configs['sitepath'] . 'mail.php');
 
-        if($gen_module){
-            $this->count_on_page = count_on_page();
-
-            global $input_html;
-
-            require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
-            require_once($this->all_configs['sitepath'] . 'shop/cart.class.php');
-            require_once($this->all_configs['sitepath'] . 'mail.php');
-
-            if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-                $this->ajax();
-            }
-
-            if ($this->can_show_module() == false) {
-                return $input_html['mcontent'] = '<div class="span3"></div>
-                    <div class="span9"><p  class="text-danger">'.l('У Вас нет прав для управления заказами').'</p></div>';
-            }
-
-            // если отправлена форма
-            if (!empty($_POST))
-                $this->check_post($_POST);
-
-
-            if ( isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0 ) {
-                $input_html['mcontent'] = $this->genorder();
-            } else {
-                $input_html['mcontent'] = $this->gencontent();
-            }
+        if (!$gen_module) {
+            return;
         }
+
     }
 
+    /**
+     * @param array $arrequest
+     * @return string
+     */
+    public function routing(Array $arrequest)
+    {
+        global $input_html;
+
+        $result = parent::routing($arrequest);
+        if ( isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0 ) {
+            $input_html['mcontent'] = $this->genorder();
+        }
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function renderCanShowModuleError()
+    {
+        return '<div class="span3"></div>
+                    <div class="span9"><p  class="text-danger">'.l('У Вас нет прав для управления заказами').'</p></div>';
+
+    }
     /**
      * @return bool
      */
     function can_show_module()
     {
-        if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
+        return ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
                 || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
                 || $this->all_configs['oRole']->hasPrivilege('edit-tradein-orders')
                 || $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
-                || $this->all_configs['oRole']->hasPrivilege('orders-manager')) {
-            return true;
-        } else {
-            return false;
-        }
+                || $this->all_configs['oRole']->hasPrivilege('orders-manager'));
     }
 
     /**
-     * @param $post
+     * @param array $post
      */
-    function check_post ($post)
+    public function check_post (Array $post)
     {
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-
-
+        $user_id = $this->getUserId();
 
         // фильтруем заказы клиентов
         if (isset($post['filter-orders'])) {
@@ -272,26 +257,9 @@ class orders
                 $url .= 'serial=' . trim($post['serial']);
             }
 
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
-            header('Location: ' . $url);
-            exit;
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url));
         }
 
-        /*if ( isset($post['edit-callback']) && $this->all_configs['oRole']->hasPrivilege('mess-callback')) {
-            // управление обратным звонком
-            if ( isset($post['callback']) && is_array($post['callback']) && count($post['callback']) ) {
-                foreach ( $post['callback'] as $order_id=>$status ) {
-                    $this->all_configs['db']->query('UPDATE {callback} SET status=?i WHERE id=?i', array($status, $order_id));
-                }
-            }
-        } elseif ( isset($post['edit-tradein']) && $this->all_configs['oRole']->hasPrivilege('edit-tradein-orders') ) {
-            // управление скупками
-            if ( isset($post['tradein']) && is_array($post['tradein']) && count($post['tradein']) ) {
-                foreach ( $post['tradein'] as $order_id=>$status ) {
-                    $this->all_configs['db']->query('UPDATE {tradein} SET status=?i WHERE id=?i', array($status, $order_id));
-                }
-            }
-        }*/
         // принимаем заказ
         if (isset($post['accept-manager']) == 1 && isset($post['id']) && $post['id'] > 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
             $this->all_configs['db']->query('UPDATE {orders} SET manager=?i WHERE id=?i AND (manager IS NULL OR manager=0 OR manager="")',
@@ -321,17 +289,14 @@ class orders
                 $url .= 'tso=' . intval($post['tso']);
             }
 
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
-            header('Location: ' . $url);
-            exit;
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url));
         }
 
         if(isset($_POST['hide-fields'])) {
             $this->order_fields_setup();
         }
 
-        header("Location:" . $_SERVER['REQUEST_URI']);
-        exit;
+            Response::redirect($_SERVER['REQUEST_URI']);
     }
 
     /**
@@ -366,7 +331,6 @@ class orders
         }else{
             $link = '';
         }
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
@@ -457,13 +421,11 @@ class orders
             $hash = '#show_orders-orders';
         }
 
-        $orders_html = $this->view->renderFile('orders/orders_show_orders', array(
-            'clientsOrdersNavigation' => $this->clients_orders_navigation(),
-            'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
-        ));
-
         return array(
-            'html' => $orders_html,
+            'html' => $this->view->renderFile('orders/orders_show_orders', array(
+                'clientsOrdersNavigation' => $this->clients_orders_navigation(),
+                'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
+            )),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')', 'reset_multiselect()', 'gen_tree()'),
         );
     }
@@ -504,7 +466,7 @@ class orders
      */
     function show_orders_orders()
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $filters = array('type' => ORDER_REPAIR);
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
@@ -536,45 +498,20 @@ class orders
     /**
      * @return array
      */
-    function show_orders_sold()
+    public function show_orders_sold()
     {
-        $orders_html = '';
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_SELL) + $_GET);
         $query = $queries['query'];
-        $skip = $queries['skip'];
-        $count_on_page = $this->count_on_page;
 
         // достаем заказы
-        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
-
-        if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
-            }
-            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
-            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
-
-            foreach ($orders as $order) {
-                $orders_html .= display_client_order($order);
-            }
-            $orders_html .= '</tbody></table>';
-
-            // количество заказов клиентов
-            $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
-
-            $count_page = ceil($count / $count_on_page);
-
-            // строим блок страниц
-            $orders_html .= page_block($count_page, $count, '#show_orders');
-
-        } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
-        }
+        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $queries['skip'], $this->count_on_page, 'co');
 
         return array(
-            'html' => $orders_html,
+            'html' => $this->view->renderFile('orders/show_orders_sold', array(
+               'orders' => $orders,
+               'count'  => empty($orders)? 0: $this->all_configs['manageModel']->get_count_clients_orders($query, 'co'),
+                'count_on_page' => $this->count_on_page
+            )),
             'functions' => array(),
         );
     }
@@ -582,45 +519,20 @@ class orders
     /**
      * @return array
      */
-    function show_orders_return()
+    public function show_orders_return()
     {
-        $orders_html = '';
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_RETURN) + $_GET);
         $query = $queries['query'];
-        $skip = $queries['skip'];
-        $count_on_page = $this->count_on_page;
 
         // достаем заказы
-        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
-
-        if ($orders && count($orders) > 0) {
-            $orders_html .= '<div id="show_orders"><table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
-            }
-            $orders_html .= '<td>' . l('Клиент') . '</td><td>Контактный тел</td>';
-            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
-
-            foreach ($orders as $order) {
-                $orders_html .= display_client_order($order);
-            }
-            $orders_html .= '</tbody></table></div>';
-
-            // количество заказов клиентов
-            $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
-
-            $count_page = ceil($count / $count_on_page);
-
-            // строим блок страниц
-            $orders_html .= page_block($count_page, $count, '#show_orders');
-
-        } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
-        }
+        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $queries['skip'], $this->count_on_page, 'co');
 
         return array(
-            'html' => $orders_html,
+            'html' => $this->view->renderFile('orders/show_orders_return', array(
+                'orders' => $orders,
+                'count'  => empty($orders)? 0: $this->all_configs['manageModel']->get_count_clients_orders($query, 'co'),
+                'count_on_page' => $this->count_on_page
+            )),
             'menu' => $this->clients_orders_menu(),
             'functions' => array('reset_multiselect()','gen_tree()'),
         );
@@ -629,45 +541,20 @@ class orders
     /**
      * @return array
      */
-    function show_orders_writeoff()
+    public function show_orders_writeoff()
     {
-        $orders_html = '';
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_WRITE_OFF) + $_GET);
         $query = $queries['query'];
-        $skip = $queries['skip'];
-        $count_on_page = $this->count_on_page;
 
         // достаем заказы
-        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
-
-        if ($orders && count($orders) > 0) {
-            $orders_html .= '<table class="table"><thead><tr><td></td><td>' . l('номер заказа') . '</td><td>'.l('Дата').'</td>';
-            $orders_html .= '<td>'.l('Приемщик').'</td><td>' . l('manager') . '</td><td>'.l('Статус').'</td><td>' . l('Устройство') . '</td>';
-            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                $orders_html .= '<td>' . l('Стоимость') . '</td><td>' . l('Оплачено') . '</td>';
-            }
-            $orders_html .= '<td>' . l('Клиент') . '</td><td>' . l('Контактный тел') . '</td>';
-            $orders_html .= '<td>' . l('Сроки') . '</td><td>' . l('Склад') . '</td></tr></thead><tbody id="table_clients_orders">';
-
-            foreach ($orders as $order) {
-                $orders_html .= display_client_order($order);
-            }
-            $orders_html .= '</tbody></table>';
-
-            // количество заказов клиентов
-            $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
-
-            $count_page = ceil($count / $count_on_page);
-
-            // строим блок страниц
-            $orders_html .= page_block($count_page, $count, '#show_orders');
-
-        } else {
-            $orders_html .= '<div class="span9"><p  class="text-danger">' . l('Заказов не найдено') . '</p></div>';
-        }
+        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $queries['skip'], $this->count_on_page, 'co');
 
         return array(
-            'html' => $orders_html,
+            'html' => $this->view->renderFile('orders/show_orders_return', array(
+                'orders' => $orders,
+                'count'  => empty($orders)? 0: $this->all_configs['manageModel']->get_count_clients_orders($query, 'co'),
+                'count_on_page' => $this->count_on_page
+            )),
             'functions' => array(),
         );
     }
@@ -676,7 +563,7 @@ class orders
      * @return array
      * @throws Exception
      */
-    function orders_create_order()
+    public function orders_create_order()
     {
         $orders_html = '';
         if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
@@ -699,6 +586,7 @@ class orders
                 )),
                 'order' => $order_data,
                 'orderForSaleForm' => $this->order_for_sale_form($client_id),
+                'orderEshopForm' => $this->order_for_sale_over_eshop_form($client_id),
                 'hide' => $this->getHideFieldsConfig(),
                 'tag' => $this->getTag($client_id),
                 'tags' => $this->getTags(),
@@ -713,6 +601,23 @@ class orders
         );
     }
 
+    /**
+     * @param null $clientId
+     * @return string
+     */
+    public function order_for_sale_over_eshop_form($clientId = null)
+    {
+        $order_data = null;
+        $client_fields_for_sale = client_double_typeahead();
+        return $this->view->renderFile('orders/order_for_sale_over_eshop_form', array(
+            'client' => $client_fields_for_sale,
+            'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
+                $this->all_configs['settings']['order_warranties']) : array(),
+            'tags' => $this->getTags(),
+            'tag' => empty($clientId)? array():$this->getTag($clientId),
+        ));
+    }
+    
     /**
      * @param null $clientId
      * @return string
@@ -787,6 +692,7 @@ class orders
      */
     function orders_show_suppliers_orders_wait()
     {
+        ==========
         $orders_html = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
@@ -814,7 +720,6 @@ class orders
 
             $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
 
-            //$orders_html .= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders);
             if ($orders) {
                 $orders_html .= '<table class="show-suppliers-orders table"><thead><tr><td></td><td>' . l('Дата созд.') . '</td>
                     <td>Код</td><td>' . l('Наименование') . '</td><td>' . l('Кол-во') . '</td><td>' . l('Оприх.') . '</td><td>' . l('Склад') . '</td><td>' . l('Локация') . '</td>
@@ -885,10 +790,9 @@ class orders
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
-        $categories = $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
         return $this->view->renderFile('orders/menu_recommendations_procurement', array(
             'date' => $date,
-            'categories' => $categories,
+            'categories' => $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc(),
 
         ));
     }
@@ -1080,20 +984,10 @@ class orders
                             $amounts[$p_id]['qty_demand'] = '<span class="popover-info" data-content="' . $str . '" data-original-title="' . l('шт / к-во недель') .' * 4">' . $amounts[$p_id]['qty_demand'] . '</span>';
 
 
-                            //$debug = print_r($matrix, true);
-
                             // вычисляем рекомендации к заказу
                             ksort($matrix, SORT_NUMERIC);
                             $k = $numerator = $denominator = $b = $prev = 0;
 
-                            /* #вариант 1
-                            foreach ($matrix as $v) {
-                                $k++; // i
-                                $numerator += $k * $v; // i * y
-                                $denominator += $k * $k; // i * x
-                            }
-                            $b = $denominator > 0 ? $numerator / $denominator : 0;
-                            */
 
                             if (count($matrix) > 0) {
 
@@ -1118,66 +1012,6 @@ class orders
                                 $amounts[$p_id]['qty_forecast'] = $average * ($qty_weeks * 2) * $percent;
 
                                 $debug .= "1m = ".$first_priv. ", 2m = ".$first_priv2 . "  diff=".($first_priv-$first_priv2)." avr=".($average*$qty_weeks)." \n" ;
-
-                                #Вариант 1 (не подходит)
-                                /**
-                                // if avg(b) < b ? - : +
-                                $b = $denominator > 0 && ($numerator / count($matrix)) / ($denominator / count($matrix)) < $b ? $b : - $b;
-
-                                $k++;
-                                //reset($matrix);$x = 1;
-                                //$y = current($matrix);
-                                $y = array_sum($matrix) / count($matrix);
-                                $x = round(count($matrix) / 2);
-                                $a = $y - $b * $x;
-                                $y = $a + $b * $k;
-                                $amounts[$p_id]['qty_forecast'] = $y * $qty_weeks * 2;
-
-                                $str = '<a href=\'https://www.google.com/webhp?q=y%3D' . $a . '%2B+' . $b . '*x#q=y%3D' . $a . '%2B' . $b . '*x\'>a = ' . round($a, 2) . '; b = ' . round($b, 2) . ';</a>';
-                                $str .= '<br />x = ' . $k . '; y = ' . round($y, 2) . ';';
-
-                                 */
-
-                                #Варант 2 (не подходит)
-                                /*if (array_sum($matrix) < 5 || array_sum($matrix) / count($matrix) * 4 < 1) {
-                                    end($matrix);
-                                    $x = count($matrix);
-                                    $use_log = false;
-                                    //
-                                    $k++;
-                                    $a = current($matrix) - $b ;
-                                    $str = '<a href=\'https://www.google.com/webhp?q=y%3D' . $a . '%2B+' . $b . '*x#q=y%3D' . $a . '%2B' . $b . '*x\'>a = ' . round($a, 4) . '; b = ' . round($b, 4) . ';</a>';
-                                    // обеспечиваем на следующие $qty_weeks * 2 недель
-                                    for ($i = 1; $i <= $qty_weeks * 2; $i++) {
-                                        $k++;
-                                        // week < 1
-                                        // y = a + b * i
-                                        $y = $a + $b * ($use_log ? log($k) : $k);
-                                        $amounts[$p_id]['qty_forecast'] += $y;
-                                        $str .= '<br />x = ' . $k . '; y = ' . round($y, 2) . ';';
-                                    }
-                                } else {
-                                    $x = round(count($matrix) / 2);
-                                    //$x = 1;
-                                    $y = array_sum($matrix) / count($matrix);
-                                    reset($matrix);
-                                    //$y = current($matrix);
-                                    $use_log = true;
-
-                                    // a = qty - b * 1
-                                    $a = $y - $b ;
-                                    $a = $a > 0 ? $a : 0;
-                                    $str = '<a href=\'https://www.google.com/webhp?q=y%3D' . $a . '%2B+' . $b . '*ln(x)#q=y%3D' . $a . '%2B' . $b . '*ln(x)\'>a = ' . round($a, 4) . '; b = ' . round($b, 4) . ';</a>';
-                                    // обеспечиваем на следующие $qty_weeks * 2 недель
-                                    for ($i = 1; $i <= $qty_weeks * 2; $i++) {
-                                        $k++;
-                                        // week < 1
-                                        // y = a + b * i
-                                        $y = $a + $b * ($use_log ? log($k) : $k);
-                                        $amounts[$p_id]['qty_forecast'] += $y;
-                                        $str .= '<br />x = ' . $k . '; y = ' . round($y, 2) . ';';
-                                    }
-                                }*/
 
                                 $str = '% = '.($percent*100).'<br>week = '.$qty_weeks
                                         .'<br>ave = '.round($average, 2)
@@ -1214,7 +1048,9 @@ class orders
                 $orders_html .= '<p class="text-danger">' . l('Для правильности рассчетов укажите сроки доставки заказа поставщику') . '</p>';
             }
         }
-        if (!isset($debug)) $debug = '';
+        if (!isset($debug)) {
+            $debug = '';
+        }
         return array(
             'html' => $orders_html,
             'menu' => $this->menu_recommendations_procurement(),
@@ -1344,7 +1180,7 @@ class orders
      * @return mixed
      */
     function get_orders_for_orders_manager($filters_query = ''){
-        $orders = db()->query(
+        return db()->query(
                 'SELECT o.status, o.date_add, o.id, s.date, o.accept_wh_id, o.manager, w.group_id, SUM(IF ((
                     (l.id IS NOT NULL AND g.item_id IS NULL AND so.count_debit>0 AND DATE_ADD(l.date_add, INTERVAL 2 day)<NOW()) ||
                     (so.id IS NOT NULL AND so.date_wait<NOW() AND g.id IS NOT NULL AND g.item_id IS NULL AND so.supplier>0 AND so.count_debit=0) ||
@@ -1360,16 +1196,17 @@ class orders
                 GROUP BY o.id ORDER BY o.date_add',
                 array($this->all_configs['configs']['order-status-waits'], $filters_query, array(1),
                     $this->all_configs['configs']['order-statuses-manager'], (time() - 60*60*24*90)))->assoc();
-        return $orders;
     }
 
     /**
      * @return float|int
      */
     function get_orders_manager_fail_percent(){
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $orders = $this->get_orders_manager_stats($user_id);
-        if($orders){
+        if(empty($orders)){
+            return 0;
+        }
             $qty_fail = 0;
             foreach ($orders as $order) {
                 if($this->check_if_order_fail_in_orders_manager($order)){
@@ -1377,9 +1214,6 @@ class orders
                 }
             }
             return round($qty_fail / count($orders) * 100, 2);
-        }else{
-            return 0;
-        }
     }
 
     /**
@@ -1603,11 +1437,6 @@ class orders
                                        ."WHERE c.client_order_id = ?i AND c.goods_id = ?i",
                                             array($product['order_id'], $product['goods_id']), 'row');
         $confirm_remove_supplier_order = $supplier_order['count'] == 1 && $supplier_order['confirm'] != 1 ? ', 1' : '';
-        /*$count = '<select id="product_count-' . $product['goods_id'] . '" class="input-mini" onchange="order_products(this, ' . $product['goods_id'] . ', 1)">';
-        for ($i = 1; $i <= 99; $i++) {
-            $count .= '<option ' . ($i == $qty ? 'selected' : '') . ' value="' . $i . '">' . $i . '</option>';
-        }
-        $count .= '</select>';*/
 
         $url = $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'];
 
@@ -1905,7 +1734,7 @@ class orders
      */
     private function insert_image_to_order($imgname, $order_id)
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
 
         $img_id = $this->all_configs['db']->query(
@@ -1939,7 +1768,7 @@ class orders
      */
     function ajax()
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
         $act = isset($_GET['act']) ? trim($_GET['act']) : '';
         $data = array('state' => false);
@@ -1947,9 +1776,7 @@ class orders
 
         // проверка доступа
         if ($this->can_show_module() == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
-            exit;
+            Response::json(array('message' => l('Нет прав'), 'state' => false));
         }
 
         if($act == 'manager-setup') {
@@ -1963,8 +1790,6 @@ class orders
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
-                //$this->preload();
-                header("Content-Type: application/json; charset=UTF-8");
 
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
@@ -1986,11 +1811,10 @@ class orders
                     if (isset($function['menu'])) {
                         $return['menu'] = $function['menu'];
                     }
-                    echo json_encode($return);
                 } else {
-                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
+                        $rturn = array('message' => l('Не найдено'), 'state' => false);
                 }
-                exit;
+                Response::json($return);
             }
         }
 
@@ -2043,7 +1867,6 @@ class orders
                     $data['content'] .= '<img data-toggle="lightbox" href="#order-image-' . $image['id'] . '" src="' . $src . '" />';
                     $data['content'] .= '<div id="order-image-' . $image['id'] . '" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">';
                     $data['content'] .= '<div class="lightbox-content"><img src="' . $src . '"></div></div></div>';
-                    //$data['content'] .= '<div class="lightbox-caption"></div>';
                 }
             }
             $data['content'] .= '</div><div class="span8">';
@@ -2052,16 +1875,13 @@ class orders
             $data['content'] .= $webcam->gen_html_body();
             $data['content'] .= '</div></div>';
 
-            //if ($this->all_configs['oRole']->hasPrivilege('client-order-photo')) {
                 $data['btns'] = '<input type="button" class="btn btn-info btn-show-webcam" value="' . l('Открыть вебкамеру') . '">';
                 $data['btns'] .= '<input type="button" style="display: none;" class="btn btn-info btn-capture" value="' . l('Сфотографировать') .'" data-loading-text="' . l('Фотографирование') .'...">';
                 $data['btns'] .= '<input data-order_id="' . $order_id . '" type="button" style="display: none;" class="btn btn-success" id="btn-upload-and-crop" value="' . l('Загрузить и прикрепить') .'">';
-            //}
         }
 
         // фото
         if ($act == 'webcam_upload' ) {
-            //if ($this->all_configs['oRole']->hasPrivilege('client-order-photo')) {
                 require_once $this->all_configs['path'] . 'class_webcam.php';
 
                 $webcam = new Products_webcam($this->all_configs);
@@ -2084,9 +1904,6 @@ class orders
                 } else {
                     $data['msg'] = 'Заказ не найден';
                 }
-            /*} else {
-                $data['msg'] = 'Нет прав';
-            }*/
         }
 
         // управление заказами поставщика
@@ -2154,9 +1971,6 @@ class orders
                 $data['msg'] = 'Укажите цену больше 0';
             } else {
                 $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
-                if ($data['state'] == true) {
-                    //$data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#create_supplier_order';
-                }
             }
         }
 
@@ -2297,8 +2111,6 @@ class orders
                 // принимаем заказ
                 if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $order['manager'] = $user_id;
-//                    $this->all_configs['db']->query('UPDATE {orders} SET manager=?i WHERE id=?i AND (manager IS NULL OR manager=0 OR manager="")',
-//                        array($user_id, $order_id));
                     $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                         array($user_id, 'manager-accepted-order', $mod_id, $order_id));
                 }
@@ -2597,9 +2409,6 @@ class orders
         // создание клента
         if ($act == 'create-client') {
             $data['state'] = true;
-            /*$orders_html .= '<div class="control-group"><label class="control-label">Выберите клиента: </label><div class="controls">';
-            $orders_html .= typeahead($this->all_configs['db'], 'clients', false, 0, 2, 'input-xlarge', 'input-medium') . '</div></div>';
-           */
             $data['content'] = '<form id="form-create-client" method="post">';
             $data['content'] .= '<div class="form-group"><label>' . l('Электронная почта') . ': </label>';
             $data['content'] .= '<input type="text" class="form-control" name="email" value="" placeholder="' . l('Электронная почта') . '" /></div>';
@@ -2614,9 +2423,7 @@ class orders
         // добавление нового клиента
         if ($act =='add_user') {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
             }
 
             require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
@@ -2710,14 +2517,10 @@ class orders
         if ($act == 'client-bind') {
 
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
             }
             if ( !isset($_POST['user_id']) || $_POST['user_id'] < 1 || !isset($_POST['order_id']) || $_POST['order_id'] < 1 ) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Такого клиента не существует'), 'error'=>true));
-                exit;
+                Response::json(array('message' => l('Такого клиента не существует'), 'error'=>true));
             }
 
             $u = $this->all_configs['db']->query('SELECT email, id FROM {clients}
@@ -2727,60 +2530,12 @@ class orders
                 WHERE id=?i', array($_POST['order_id']))->row();
 
             if ( !$u || !$o || $u['email'] != $o['email'] ) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Такого клиента не существует'), 'error'=>true));
-                exit;
+                Response::json(array('message' => l('Такого клиента не существует'), 'error'=>true));
             }
             $this->all_configs['db']->query('UPDATE {orders} SET user_id=?i WHERE id=?i', array($_POST['user_id'], $_POST['order_id']));
             $data['message'] = l('Заказ успешно привязан');
         }
 
-        /*// выгрузка заказа
-        if ( $act == 'export_order' && $this->all_configs['configs']['onec-use'] == true ) {
-            if ( !isset($_POST['order_id']) || $_POST['order_id'] < 1 ) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Такого заказа не существует', 'error'=>true));
-                exit;
-            }
-
-            $uploaddir = $this->all_configs['sitepath'].'1c/orders/';
-            if ( !is_dir($uploaddir) ) {
-                if( mkdir($uploaddir))  {
-                    chmod( $uploaddir, 0777 );
-                } else {
-                    header("Content-Type: application/json; charset=UTF-8");
-                    echo json_encode(array('message' => 'Нет доступа к директории ' . $uploaddir, 'error'=>true));
-                    exit;
-                }
-            }
-
-            $order = $this->all_configs['db']->query('SELECT o.`id`, o.`sum`, o.`comment`, c.`fio`, c.`id` as user_id, o.`date_add` as date, o.`course_value`
-                FROM {orders} as o
-
-                LEFT JOIN (SELECT `fio`, `id` FROM {clients})c ON c.id=o.user_id
-
-                WHERE o.id=?i', array($_POST['order_id']))->row();
-
-            if ( !$order ) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Такого заказа не существует', 'error'=>true));
-                exit;
-            }
-
-            $goods = $this->all_configs['db']->query('SELECT `goods_id`, `title`, `price`, `count`, code_1c, warranties_cost, warranties FROM {orders_goods} WHERE order_id=?i', array($order['id']))->assoc();
-
-            if ( $goods )
-                $order['goods'] = $goods;
-
-            $this->all_configs['suppliers_orders']->exportOrder($order);
-
-            $mod_id = $this->all_configs['configs']['orders-manage-page'];
-
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'export-order', $mod_id, $order['id']));
-
-            $data['message'] = 'Заказ успешно выгружен';
-        }*/
 
         // удаление заказа поставщика
         if ( $act == 'remove-supplier-order' ) {
@@ -2811,15 +2566,14 @@ class orders
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
-    public static function get_submenu(){
+    public static function get_submenu($oRole = null)
+    {
         global $all_configs;
         $submenu = array(
             array(

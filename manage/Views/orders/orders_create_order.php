@@ -365,7 +365,7 @@
     </div>
     <div class="tab-pane" id="eshop">
         <?php if ($available): ?>
-            <?= $orderForSaleForm ?>
+            <?= $orderEshopForm ?>
         <?php else: ?>
             <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
             <div class="form-group">

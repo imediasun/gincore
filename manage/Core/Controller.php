@@ -24,17 +24,19 @@ abstract class Controller
 
     /**
      * @param array $arrequest
+     * @return string
      */
     public function routing(Array $arrequest)
     {
         if ($this->isAjax($arrequest)) {
-            $this->ajax();
+            return $this->ajax();
         }
 
         // если отправлена форма
         if (count($_POST) > 0) {
-            $this->check_post($_POST);
+            return $this->check_post($_POST);
         }
+        return '';
     }
 
     /**
