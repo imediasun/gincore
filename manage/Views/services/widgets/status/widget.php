@@ -1,6 +1,6 @@
 <div class="gcw">
     <div class="gcw_title gcw_show_modal gcw_status_modal" data-id="gcw_status_modal">
-        <i class="fa fa-question-circle" style="color:black; font-size: 1.2em"></i>
+        <i class="fa fa-question-circle" style="color:white; font-size: 1.2em; margin-right: 5px"></i>
         <?= l('Cтатус ремонта') ?>
     </div>
 </div>
