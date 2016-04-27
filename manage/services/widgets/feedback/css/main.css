@@ -192,7 +192,8 @@
 .gcw_feedback_modal {
     background-color: #0099e5;
     color: black;
-    margin-left: 144px;
+    margin-left: 160px;
+    width: 130px;
 }
 .gcw_feedback_modal >i.fa {
    color:white;
