@@ -190,7 +190,7 @@
     margin-bottom: 20px;
 }
 .gcw_feedback_modal {
-    background-color: #0099e5;
+    background-color: #5ae866;
     color: black;
 }
 .gcw_feedback_modal >i.fa {
@@ -212,5 +212,5 @@
     width: 140px;
 }
 .gcw_status_modal:hover {
-    background-color: #0099e5;
+    background-color: #5ae866;
 }
