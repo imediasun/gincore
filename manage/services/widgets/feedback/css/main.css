@@ -1,5 +1,4 @@
 .gcw{
-    box-shadow: 0 0 3px rgba(0,0,0,.4);
     position: fixed;
     left: 0;
     bottom: 0;
@@ -30,8 +29,9 @@
     -ms-transition: background-color .1s linear;
     -webkit-transition: background-color .1s linear;
     /*border-top-left-radius: 3px;*/
+    box-shadow: 0 0 3px rgba(0,0,0,.4);
 }
-.gcw_title:hover{
+.gcw_feedback_modal:hover{
     background-color: #ffc90e;
 }
 .gcw_body{
@@ -192,8 +192,8 @@
 .gcw_feedback_modal {
     background-color: #0099e5;
     color: black;
-    margin-left: 160px;
-    width: 130px;
+    margin-left: 170px;
+    width: 140px;
 }
 .gcw_feedback_modal >i.fa {
    color:white;
