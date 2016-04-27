@@ -34,7 +34,7 @@ class TariffMessages
     {
         $current_users = Tariff::getCurrentUsers();
         $blocked_users = $this->all_configs['db']->query("SELECT count(*) FROM {users} "
-                                         ."WHERE blocked_by_tariff>=1 AND avail=1")->el();
+                                         ."WHERE blocked_by_tariff>=1 AND avail=1 AND deleted = 0")->el();
 //        $blocked_users = 0;
         if($blocked_users > 0){
             // l_tariff_message_blocked_users
