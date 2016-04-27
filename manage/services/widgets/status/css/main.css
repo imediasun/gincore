@@ -1,5 +1,4 @@
 .gcw{
-    box-shadow: 0 0 3px rgba(0,0,0,.4);
     position: fixed;
     left: 0;
     bottom: 0;
@@ -21,7 +20,7 @@
 }
 .gcw_title{
     padding: 10px 15px;
-    background-color: #ffc90e;
+    background-color: #FDEA08;
     /*text-shadow: 0 1px 1px #fff;*/
     cursor: pointer;
     transition: background-color .1s linear;
@@ -30,6 +29,7 @@
     -ms-transition: background-color .1s linear;
     -webkit-transition: background-color .1s linear;
     /*border-top-left-radius: 3px;*/
+    box-shadow: 0 0 3px rgba(0,0,0,.4);
 }
 .gcw_title:hover{
     background-color: #ffc90e;
@@ -190,7 +190,7 @@
     margin-bottom: 20px;
 }
 .gcw_feedback_modal {
-    background-color: #0099e5;
+    background-color: #D9E9E6;
     color: black;
 }
 .gcw_feedback_modal >i.fa {
@@ -209,5 +209,8 @@
     padding-right: 20px;
 }
 .gcw_status_modal {
-    width: 130px;
+    width: 140px;
+}
+.gcw_status_modal:hover {
+    background-color: #FFB60E;
 }

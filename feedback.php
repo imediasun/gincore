@@ -23,11 +23,6 @@
             document.getElementsByTagName("head")[0].appendChild(s);
         })();
     </script>
-    <style>
-        .gcw_feedback_modal .gcw_title {
-            background-color: #b3c7e1  !important;
-        }
-    </style>
 </head>
 <body>
 
