@@ -16,6 +16,9 @@
     <li role="presentation">
         <a href="#sale" role="tab" data-toggle="tab"><?= l('Заказ на продажу') ?></a>
     </li>
+    <li role="presentation">
+        <a href="#eshop" role="tab" data-toggle="tab"><?= l('Интернет-магазин') ?></a>
+    </li>
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="repair">
@@ -351,6 +354,16 @@
         <?php endif; ?>
     </div>
     <div class="tab-pane" id="sale">
+        <?php if ($available): ?>
+            <?= $orderForSaleForm ?>
+        <?php else: ?>
+            <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
+            <div class="form-group">
+                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+            </div>
+        <?php endif; ?>
+    </div>
+    <div class="tab-pane" id="eshop">
         <?php if ($available): ?>
             <?= $orderForSaleForm ?>
         <?php else: ?>
