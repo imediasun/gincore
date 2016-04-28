@@ -60,3 +60,6 @@
     top: 170px;
     z-index: 1000;
 }
+td.edit-price .input-small {
+    width: 70px;
+}
