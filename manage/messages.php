@@ -300,14 +300,10 @@ if ($act == 'add-alarm') {
     $text = isset($_POST['text']) ? trim($_POST['text']) : '';
     $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
-    /*if ($data['state'] == true && mb_strlen($text, 'UTF-8') == 0) {
-        $data['state'] = false;
-        $data['msg'] = 'Укажите комментарий';
-    }*/
-    if (!$all_configs['oRole']->hasPrivilege('alarm')) {
-        $data['state'] = false;
-        $data['msg'] = 'Нет прав';
-    }
+//    if (!$all_configs['oRole']->hasPrivilege('alarm')) {
+//        $data['state'] = false;
+//        $data['msg'] = 'Нет прав';
+//    }
     if ($data['state'] == true && strtotime($date) < time()) {
         $data['state'] = false;
         $data['msg'] = 'Укажите дату (в будущем)';
