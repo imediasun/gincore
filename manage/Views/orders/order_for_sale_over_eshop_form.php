@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <form method="post" id="sale-over-eshop-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
                 <?= $client['id'] ?>

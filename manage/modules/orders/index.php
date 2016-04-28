@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../Core/Controller.php';
+require_once __DIR__ . '/../../Models/Cashboxes.php';
 
 $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
@@ -660,6 +661,7 @@ class orders extends Controller
      */
     public function order_for_sale_form($clientId = null)
     {
+        $Cashboxes = new Cashboxes();
         $order_data = null;
         $client_fields_for_sale = client_double_typeahead();
         return $this->view->renderFile('orders/order_for_sale_form', array(
@@ -668,6 +670,7 @@ class orders extends Controller
                 $this->all_configs['settings']['order_warranties']) : array(),
             'tags' => $this->getTags(),
             'tag' => empty($clientId) ? array() : $this->getTag($clientId),
+            'cashboxes' => $Cashboxes->getPreparedCashboxes($this->getUserId())
         ));
     }
 

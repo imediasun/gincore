@@ -5,10 +5,13 @@ abstract class Model
 
     /** @var  \go\DB\DB */
     protected $db;
+    protected $all_configs;
 
     public function __construct()
     {
+        global $all_configs;
         $this->db = db();
+        $this->all_configs = $all_configs;
     }
 
     /**

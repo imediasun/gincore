@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__.'/../../Core/Controller.php';
+require_once __DIR__.'/../../Models/Cashboxes.php';
 
 $modulename[30] = 'accountings';
 $modulemenu[30] = l('Бухгалтерия');
@@ -29,14 +30,15 @@ class accountings extends Controller
     protected $course_default = 100; // default course (uah) in cent
 
     /**
-     * @param array $arrequest
+     * @inheritdoc
      */
     public function routing(Array $arrequest)
     {
-        parent::routing($arrequest);
+        $result = parent::routing($arrequest);
         if (isset($arrequest[1]) && $arrequest == 'export') {
-            $this->export();
+            $result = $this->export();
         }
+        return $result; 
     }
 
     /**
@@ -523,16 +525,8 @@ class accountings extends Controller
      */
     function get_cashboxes_amounts()
     {
-        // достаем все кассы
-        $cashboxes = $this->all_configs['db']->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
-              cr.name as cur_name, cr.short_name, cr.course, cr.currency
-            FROM {cashboxes} as c
-            LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
-            LEFT JOIN (SELECT currency, name, short_name, course FROM {cashboxes_courses})cr ON cr.currency=cc.currency
-            ORDER BY c.id')->assoc();
-        return $this->calculateCashboxesAmount($cashboxes);
-
-
+        $Cashboxes = new Cashboxes();
+        return $this->calculateCashboxesAmount($Cashboxes->getCashboxes());
     }
 
     /**
@@ -899,49 +893,13 @@ class accountings extends Controller
      */
     function form_contractor_category($type, $contractor_category = null)
     {
+        $categories = $this->get_contractors_categories($type);
 
-        if ($contractor_category) {
-            $name = htmlspecialchars($contractor_category['name']);
-            $category_html = "<select class='multiselect' name='parent_id'><option value=''>" . l('Высшая') . "</option>";
-            $categories = $this->get_contractors_categories($type);
-            $category_html .= build_array_tree($categories, $contractor_category['parent_id']) . "</select>";
-            $avail = '';
-            if ($contractor_category['avail'] == 1)
-                $avail = 'checked';
-            $id_html = '<div class="form-group"><label>ID: ' . $contractor_category['id'] . '</label></div>';
-            $comment = htmlspecialchars($contractor_category['comment']);
-            $id_html .= "<input type='hidden' name='contractor_category-edit' value='1' />";
-            $id_html .= "<input type='hidden' name='contractor_category-id' value='{$contractor_category['id']}' />";
-
-        } else {
-            $category_html = "<select class='multiselect' name='parent_id'><option value=''>" . l('Высшая') . "</option>";
-            $categories = $this->get_contractors_categories($type);
-            $category_html .= build_array_tree($categories) . "</select>";
-            $name = '';
-            $avail = 'checked';
-            $id_html = '';
-            $comment = '';
-            $id_html .= "<input type='hidden' name='contractor_category-add' value='1' />";
-        }
-
-        $out = "
-            <form method='POST' class='form_contractor_category form-horizontal'>
-                <input type='hidden' name='transaction_type' value='{$type}' />
-
-                {$id_html}
-
-                <div class='form-group'><label>" . l('Статья') . ": </label>
-                    <input class='form-control' placeholder='" . l('введите название статьи') . "' name='title' value='{$name}' /></div></div>
-                <div class='form-group'><label>" . l('Родительская статья') . ": </label>
-                    {$category_html}</div></div>
-                <div class='form-group'><label>" . l('Комментарий') . ": </label><div class='controls'>
-                    <textarea class='form-control' name='comment' placeholder='" . l('введите комментарий к статье') . "'>{$comment}</textarea></div></div>
-                <div class='form-group'>
-                    <div class='checkbox'><label><input type='checkbox' {$avail} class='btn' name='avail' value='1' />" . l('Отображать') . "</label></div></div>
-
-            </form>";
-
-        return $out;
+        return $this->view->renderFile('accountings/form_contractor_category', array(
+            'categories' => $categories,
+            'contractor_category' => $contractor_category,
+            'type' => $type
+        ));
     }
 
     /**
@@ -1015,15 +973,11 @@ class accountings extends Controller
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
 
-
-
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
         // проверка доступа
         if ($this->can_show_module() == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Нет прав', 'state' => false));
-            exit;
+            Response::json(array('message' => 'Нет прав', 'state' => false));
         }
 
         $this->preload();
@@ -1031,7 +985,6 @@ class accountings extends Controller
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
-                header("Content-Type: application/json; charset=UTF-8");
 
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
@@ -1042,11 +995,10 @@ class accountings extends Controller
                     if (isset($function['menu'])) {
                         $return['menu'] = $function['menu'];
                     }
-                    echo json_encode($return);
                 } else {
-                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
+                        $return = array('message' => l('Не найдено'), 'state' => false);
                 }
-                exit;
+                Response::json($return);
             }
         }
 
@@ -1072,15 +1024,6 @@ class accountings extends Controller
             //$array = $this->all_configs['suppliers_orders']->get_transactions($currencies);
             //table_to_excel($this->all_configs['path'], 'cashboxes_transactions');
         }
-        /*
-        // транзакций касс
-        if (isset($_POST['table']) && $_POST['table'] == 'cashboxes_transactions') {
-            //
-        }
-        // транзакций контрагентов
-        if (isset($_POST['table']) && $_POST['table'] == 'contractors_transactions') {
-            //$this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true);
-        }*/
 
         // сумма по транзакциям у контрагента
         if ($act == 'contractor-amount') {
@@ -1159,46 +1102,34 @@ class accountings extends Controller
         // Кредит Отказ
         if ($act == 'accounting-credit-denied') {
             if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Кредит уже отказан'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Кредит уже отказан'), 'error' => true));
             }
             $order = $this->all_configs['db']->query('SELECT id, status FROM {orders} WHERE id=?i',
                 array($_POST['order_id']))->row();
 
             if (!$order || $order['status'] != $this->all_configs['configs']['order-status-loan-wait']) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Кредит уже отказан'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Кредит уже отказан'), 'error' => true));
             }
 
             $this->all_configs['db']->query('UPDATE {orders} SET status=?i WHERE id=?i', array($this->all_configs['configs']['order-status-loan-denied'], $_POST['order_id']));
 
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Успешно')));
-            exit;
+            Response::json(array('message' => l('Успешно')));
         }
 
         // Кредит одобрен, документы готовы
         if ($act == 'accounting-credit-approved') {
             if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Кредит уже одобрен'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Кредит уже одобрен'), 'error' => true));
             }
             $order = $this->all_configs['db']->query('SELECT id, status FROM {orders} WHERE id=?i', array($_POST['order_id']))->row();
 
             if (!$order || $order['status'] != $this->all_configs['configs']['order-status-loan-wait']) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Кредит уже одобрен'), 'error' => true));
-                exit;
+                    Response::json(array('message' => l('Кредит уже одобрен'), 'error' => true));
             }
 
             $this->all_configs['db']->query('UPDATE {orders} SET status=?i WHERE id=?i', array($this->all_configs['configs']['order-status-loan-approved'], $_POST['order_id']));
 
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Успешно')));
-            exit;
+                Response::json(array('message' => l('Успешно')));
         }
 
         // достаем всех котрагентов по категории
@@ -1432,10 +1363,7 @@ class accountings extends Controller
             $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
         }
 
-
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
     }
 
     /**
@@ -2671,8 +2599,6 @@ class accountings extends Controller
      */
     function accountings_contractors()
     {
-        ini_set('error_reporting', E_ALL);
-        ini_set('display_errors', 1);
         return array(
             'html' => $this->view->renderFile('accountings/accountings_contractors', array(
                 'contractors' => $this->contractors
@@ -2786,19 +2712,12 @@ class accountings extends Controller
      */
     function accountings_settings_categories_expense()
     {
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            // создать статью расход
-            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-expense\')" type="button">' . l('Создать статью расход') . '</button>';
-
-            // списсок статей
-            $categories = $this->get_contractors_categories(1);
-            $out .= '<br /><br /><div class="three-column" id="create-cat-expense">' . build_array_tree($categories, array(), 3) . '</div>';
-        }
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_settings_categories', array(
+                'categories' => $this->get_contractors_categories(1),
+                'title' => l('Создать статью расход'),
+                'categories_type' => 'expense'
+            )),
             'functions' => array(),
         );
     }
@@ -2808,19 +2727,12 @@ class accountings extends Controller
      */
     function accountings_settings_categories_income()
     {
-        $out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            // создать статью приход
-            $out = '<button class="btn btn-primary" onclick="alert_box(this, false, \'create-cat-income\')" type="button">' . l('Создать статью приход') . '</button>';
-
-            // списсок статей
-            $categories = $this->get_contractors_categories(2);
-            $out .= '<br /><br /><div class="three-column" id="create-cat-income">' . build_array_tree($categories, array(), 3) . '</div>';
-        }
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('accountings/accountings_settings_categories', array(
+                'categories' => $this->get_contractors_categories(2),
+                'title' => l('Создать статью приход'),
+                'categories_type' => 'income'
+            )),
             'functions' => array(),
         );
     }
@@ -2905,7 +2817,7 @@ class accountings extends Controller
     {
         $this->all_configs['db']->query('
             INSERT INTO  restore4_contractors_categories_links (contractors_categories_id, contractors_id)
-            SELECT ?, contractors_id FROM restore4_contractors_categories_links WHERE contractors_categories_id = ?
+            SELECT ?, contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id = ?
             ', array($contractor_category,$parent_id))->ar();
     }
 
@@ -3358,41 +3270,8 @@ class accountings extends Controller
      */
     protected function getCashboxes($userId)
     {
-        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            return $this->cashboxes;
-        }
-        $cashboxes = $this->all_configs['db']->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
-              cr.name as cur_name, cr.short_name, cr.course, cr.currency
-            FROM {cashboxes} as c
-            LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
-            LEFT JOIN (SELECT currency, name, short_name, course FROM {cashboxes_courses})cr ON cr.currency=cc.currency
-            WHERE c.id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i)
-            ORDER BY c.id', array($userId))->assoc();
-
-        $result = array();
-        if ($cashboxes) {
-            foreach ($cashboxes as $cashbox) {
-                if (!isset($result[$cashbox['id']])) {
-                    $result[$cashbox['id']] = array(
-                        'id' => $cashbox['id'],
-                        'name' => $cashbox['name'],
-                        'avail' => $cashbox['avail'],
-                        'avail_in_balance' => $cashbox['avail_in_balance'],
-                        'avail_in_orders' => $cashbox['avail_in_orders'],
-                        'currencies' => array()
-                    );
-                }
-                if ($cashbox['currency'] > 0) {
-                    $result[$cashbox['id']]['currencies'][$cashbox['currency']] = array(
-                        'amount' => $cashbox['amount'],
-                        'cur_name' => $cashbox['cur_name'],
-                        'short_name' => $cashbox['short_name'],
-                        //'course' => $cashbox['course'],
-                    );
-                }
-            }
-        }
-        return $result;
+        $Cashboxes = new Cashboxes();
+        return $Cashboxes->getPreparedCashboxes($userId);
     }
 
     /**
@@ -3401,48 +3280,8 @@ class accountings extends Controller
      */
     private function calculateCashboxesAmount($cashboxes)
     {
-// суммы по валютам
-        $amounts = array('all' => 0, 'cashboxes' => array());
-        if ($cashboxes) {
-
-            //usort($cashboxes, array('accountings', 'akcsort'));
-
-            foreach ($cashboxes as $cashbox) {
-
-                if (!array_key_exists($cashbox['currency'], $amounts['cashboxes'])) {
-                    $amounts['cashboxes'][$cashbox['currency']] = array(
-                        'short_name' => $cashbox['short_name'],
-                        'amount' => $cashbox['amount'],
-                        'course' => $cashbox['course'],
-                        'currency' => $cashbox['currency'],
-                    );
-                } else {
-                    $amounts['cashboxes'][$cashbox['currency']]['amount'] += $cashbox['amount'];
-                }
-
-                $amounts['all'] += ($cashbox['amount'] * ($cashbox['course'] / 100));
-
-                if (!array_key_exists($cashbox['id'], $this->cashboxes)) {
-                    $this->cashboxes[$cashbox['id']] = array(
-                        'id' => $cashbox['id'],
-                        'name' => $cashbox['name'],
-                        'avail' => $cashbox['avail'],
-                        'avail_in_balance' => $cashbox['avail_in_balance'],
-                        'avail_in_orders' => $cashbox['avail_in_orders'],
-                        'currencies' => array()
-                    );
-                }
-                if ($cashbox['currency'] > 0) {
-                    $this->cashboxes[$cashbox['id']]['currencies'][$cashbox['currency']] = array(
-                        'amount' => $cashbox['amount'],
-                        'cur_name' => $cashbox['cur_name'],
-                        'short_name' => $cashbox['short_name'],
-                        //'course' => $cashbox['course'],
-                    );
-                }
-            }
-        }
-
-        return $amounts;
+        $Cashboxes = new Cashboxes();
+        $this->cashboxes = $Cashboxes->prepareCashboxes($cashboxes);
+        return $Cashboxes->calculateAmount($cashboxes);
     }
 }

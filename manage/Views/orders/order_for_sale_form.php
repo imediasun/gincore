@@ -3,35 +3,6 @@
         <div class="col-sm-6">
             <form method="post" id="sale-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
-                <?= $client['id'] ?>
-                <fieldset>
-                    <legend><?= l('Клиент') ?></legend>
-                    <div class="form-group">
-                        <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
-                        <div class="row row-15">
-                            <div class="col-sm-4" style="padding-right:0px">
-                                <?= $client['phone'] ?>
-                            </div>
-                            <div class="col-sm-2" style="line-height: 34px; ">
-                                    <span class="tag"
-                                          style="background-color: <?= !empty($tag) ? $tag['color'] : (isset($tags[$client['tag_id']]['color']) ? $tags[$client['tag_id']]['color'] : '') ?>">
-                                        <?= htmlspecialchars(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title']) ? $tags[$client['tag_id']]['title'] : '')) ?>
-                                    </span>
-                            </div>
-                            <div class="col-sm-6">
-                                <?= $client['fio'] ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label style="padding-top:0"><?= l('Код на скидку') ?>: </label>
-                        <input type="text" name="code" class="form-control call_code_mask">
-                    </div>
-                    <div class="form-group">
-                        <label><?= l('Рекламный канал') ?> (<?= l('источник') ?>): </label>
-                        <?= get_service('crm/calls')->get_referers_list() ?>
-                    </div>
-                </fieldset>
                 <fieldset>
                     <div class="container-fluid items-container">
                         <div class="row">
@@ -59,7 +30,7 @@
                                 </div>
                                 <ul id="sale_product_cost_error" class="parsley-errors-list filled"
                                     style="display: none">
-                                    <li class="parsley-required">Обязательное поле.</li>
+                                    <li class="parsley-required"><?= l('Обязательное поле') ?></li>
                                 </ul>
                             </div>
 
@@ -76,8 +47,9 @@
                                 <table class="table table-items" style="display:none">
                                     <thead>
                                     <tr>
-                                        <th class="col-sm-7"><?= l('Товар') ?></th>
-                                        <th class="col-sm-4"><?= l('Цена') ?></th>
+                                        <th class="col-sm-6"><?= l('Товар') ?></th>
+                                        <th class="col-sm-3"><?= l('Цена') ?></th>
+                                        <th class="col-sm-3"><?= l('Гарантия') ?></th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -94,6 +66,17 @@
                                                 <input type="text" class="form-control js-price"
                                                        onkeyup="recalculate_amount();" value="" name=""/>
                                                 <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group col-sm-12">
+                                                <select class="form-control js-warranty" name="">
+                                                    <option value=""><?= l('Без гарантии') ?></option>
+                                                    <?php foreach ($orderWarranties as $warranty): ?>
+                                                        <option value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <div class="input-group-addon"><?= l('мес') ?></div>
                                             </div>
                                         </td>
                                         <td>
@@ -122,6 +105,7 @@
                                                 <input type="checkbox" name="cashless" class="cashless-toggle">
                                             </div>
                                         </td>
+                                        <td></td>
                                     </tr>
                                     </tfoot>
                                 </table>
@@ -146,7 +130,50 @@
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
                     </div>
                 </fieldset>
-                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="<?= l('Добавить') ?>"/>
+
+                <div class="btn-group dropup">
+                    <input id="add-client-order" class="btn btn-primary submit-from-btn"
+                           type="button"
+                           onclick="sale_order(this)"
+                           value="<?= l('Добавить') ?>"/>
+                    <button type="button" class="btn btn-info dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" onclick="sale_order(this, 'print_check'); return false;">
+                                <?= l('Добавить и распечатать чек') ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="sale_order(this, 'print_warranty'); return false;">
+                                <?= l('Добавить и распечатать чек и гарантийный талон') ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                               onclick="sale_order(this, 'print_invoice'); return false;">
+                                <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label>
+
+                    <input type="checkbox">
+                        <?= l('Автоматически принять деньги в кассу'); ?>
+                        <select>
+                            <option value="0"><?= l('Выбрать') ?></option>
+                        </select>
+                        <?= l('и закрыть заказ') ?>
+                    </label>
+                </div>
+<!--                <input class="btn btn-primary" type="button" onclick="" value="--><?//= l('Добавить') ?><!--"/>-->
             </form>
             <div class="col-sm-6 relative"></div>
         </div>

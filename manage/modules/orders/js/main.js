@@ -2,30 +2,6 @@ function gen_tree() {
     $("[id='tree']").Tree();
 }
 
-/*function add_supplier_form(_this) {
-
-    if ( typeof add_supplier_form.counter == 'undefined' ) {
-        add_supplier_form.counter = 0;
-    }
-
-    $.ajax({
-        url: prefix + module + '/ajax/?act=add-supplier-form',
-        type: 'POST',
-        data: '&counter=' + ++add_supplier_form.counter,
-        success: function(msg) {
-            if (msg['state'] == false && msg['message']) {
-                alert(msg['message'])
-            }
-            if(msg['state'] == true && msg['html']) {
-                $('#for-new-supplier-order').replaceWith(msg['html']);
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.responseText);
-        }
-    });
-}*/
-
 function orders_quick_search(_this, param){
     var query = $.trim($('#orders_quick_search_query').val());
     if(query){
@@ -352,17 +328,6 @@ function order_item(_this) {
                 if (msg['state'] == false && msg['msg']) {
                     alert(msg['msg']);
                 }
-                 /*if (msg['close']) {
-                    $('#close-order').show();
-                }
-                if (msg['sms']) {
-                    $('#send-sms').click();
-                    $(_this).button('reset');
-                    return;
-                }
-                if (msg['location']) {
-                    //window.location.href = msg['location'];
-                }*/
                 if (msg['state'] == true || msg['reload'] == true) {
                     click_tab_hash();
                     close_alert_box();
@@ -450,11 +415,6 @@ function add_new_order(_this, next, from) {
                     if (msg['prompt']) {
                         alert_box(undefined, (msg['msg'] || msg['message']));
                         $('.bootbox-alert .modal-footer').prepend(msg['btn']);
-                        /*var order_id = prompt(msg['msg']);
-                        if (order_id != '' && order_id != null) {
-                            $('input#serial-id').val(order_id);
-                            $(_this).click();
-                        }*/
                     } else {
                         alert((msg['msg'] || msg['message']));
                     }
@@ -484,8 +444,6 @@ function add_new_order(_this, next, from) {
 
 function order_products(_this, product_id, order_product_id, cfm, remove, show_confirm_for_remove) {
 
-    //var count = $('#product_count-' + order_product_id).length ? $('#product_count-' + order_product_id).val() : 1;
-
     var close_supplier_order = '';
     var order_id = arrequest()[2] || $('#update-order').data('order_id');
 
@@ -505,9 +463,8 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
             (remove == 1 ? '&remove=' + 1 : '') + close_supplier_order,
         success: function(msg) {
             if (msg) {
-                if (msg['confirm'] /*&& confirm(msg['confirm'])*/) {
+                if (msg['confirm']) {
                     alert_box('undefined', msg['confirm']);
-                    //order_products(_this, product_id, order_product_id, 1);
                 }
                 if (msg['goods']) {
                     $('#goods-table').append(msg['goods']);
@@ -515,9 +472,6 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
                 if (msg['service']) {
                     $('#service-table').append(msg['service']);
                 }
-                /*if (msg['psum']) {
-                    $('#product_sum-' + order_product_id).html(msg['psum']);
-                }*/
                 if (msg['msg']) {
                     alert(msg['msg']);
                 }
@@ -611,14 +565,6 @@ function change_crm_request($this){
         client_id = $this.data('client_id'),
         referer_id = $this.data('referer_id'),
         code = $this.data('code');
-//    if(!$this.attr('data-client_fio')){
-//       var new_fio = show_fio_prompt(false, true);
-//       if(new_fio){
-//           $('input[name=crm_request][data-client_id='+client_id+']').attr('data-client_fio', new_fio);
-//       }
-//    }else{
-//       $('#client_fio_hidden').val($this.attr('data-client_fio'));
-//    }
     if(product_id && client_id){
        $('input[name="clients"]').val(client_id);
        $('input[name="categories-last"]').val(product_id);
@@ -769,6 +715,7 @@ function add_item_to_table() {
         $clone.addClass('row-item');
         $clone.find('.js-item-name').first().val(title + '(' + serial + ')').attr('title', title + '(' + serial + ')');
         $clone.find('input.js-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
+        $clone.find('select.js-warranty').first().val(id).attr('name', 'warranty[' + rnd + ']');
         $clone.find('.js-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
         $('#sale_poduct_cost').val('');
         $('input[name="serials-value"]').val('').attr('data-required', 'false');
