@@ -909,7 +909,7 @@ class products extends Controller
         $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
 
         return $this->view->renderFile('products/genmeny', array(
-            'filter_html' => $filters_html,
+            'filters_html' => $filters_html,
             'categories_tree_menu' => $this->categories_tree_menu($categories_tree)
         ));
 
