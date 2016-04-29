@@ -6,11 +6,13 @@ include 'inc_settings.php';
 
 global $all_configs;
 
-if (!isset($_SESSION))
+if (!isset($_SESSION)) {
     session_start();
+}
 
-if (!isset($_SESSION['id']) || $_SESSION['id'] == 0)
+if (!isset($_SESSION['id']) || $_SESSION['id'] == 0) {
     return false;
+}
 
 $user_id = $_SESSION['id'];
 
@@ -51,10 +53,11 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
 
     $limit = isset($_POST['act']) && $_POST['act'] > 0 && $_POST['act'] < 150 ? intval($_POST['limit']) : 30;
     $is_double = isset($_POST['double']) && $_POST['double'] ? true : false;
-    
+
     if (isset($_POST['query']) && !empty($_POST['query']) && isset($_POST['table']) && !empty($_POST['table'])) {
 
-        $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim(preg_replace('/ {1,}/', ' ', mb_strtolower($_POST['query'], 'UTF-8'))));
+        $s = str_replace(array("\xA0", '&nbsp;', ' '), '%',
+            trim(preg_replace('/ {1,}/', ' ', mb_strtolower($_POST['query'], 'UTF-8'))));
 
         if ($_POST['table'] == 'categories' || $_POST['table'] == 'categories-last' || $_POST['table'] == 'categories-goods') {
             $query = '';
@@ -73,10 +76,15 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             }
             if ($_POST['table'] == 'categories-goods') {
                 $_POST['table'] = 'categories';
-                $query = $all_configs['db']->makeQuery('?query AND scg.id IS NULL AND cg.id NOT IN (?li) AND cg.avail=1', array($query, array(
-                    $all_configs['configs']['erp-co-category-write-off'],
-                    $all_configs['configs']['erp-co-category-return'],
-                    $all_configs['configs']['erp-co-category-sold'])));
+                $query = $all_configs['db']->makeQuery('?query AND scg.id IS NULL AND cg.id NOT IN (?li) AND cg.avail=1',
+                    array(
+                        $query,
+                        array(
+                            $all_configs['configs']['erp-co-category-write-off'],
+                            $all_configs['configs']['erp-co-category-return'],
+                            $all_configs['configs']['erp-co-category-sold']
+                        )
+                    ));
                 $join = $all_configs['db']->makeQuery('LEFT JOIN {categories} as scg ON scg.parent_id=cg.id', array());
             }
             $data = $all_configs['db']->query('SELECT cg.id, cg.title FROM {categories} as cg ?query
@@ -153,17 +161,19 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
         }
         if ($_POST['table'] == 'serials') {
             if (preg_match("/{$all_configs['configs']['erp-serial-prefix']}0*/", $s)) {
-                list($prefix, $length) = prepare_for_serial_search($all_configs['configs']['erp-serial-prefix'], $s, $all_configs['configs']['erp-serial-count-num']);
+                list($prefix, $length) = prepare_for_serial_search($all_configs['configs']['erp-serial-prefix'], $s,
+                    $all_configs['configs']['erp-serial-count-num']);
                 $query = $all_configs['db']->makeQuery('id REGEXP "^?e[0-9]?e$"', array($prefix, "{0,{$length}}"));
             } else {
-                $query = $all_configs['db']->makeQuery('id LIKE "%?e%"', array(intval(preg_replace('/[^0-9]/', '', $s))));
+                $query = $all_configs['db']->makeQuery('id LIKE "%?e%"',
+                    array(intval(preg_replace('/[^0-9]/', '', $s))));
             }
 
             $data = $all_configs['db']->query('SELECT id as item_id, serial FROM {warehouses_goods_items}
                     WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL) AND order_id IS NULL) LIMIT ?i',
                 array($s, $query, $limit))->assoc();
             if ($data) {
-                foreach ($data as $k=>$v) {
+                foreach ($data as $k => $v) {
                     $data[$k] = array('title' => suppliers_order_generate_serial($v), 'id' => $v['item_id']);
                 }
             }
@@ -300,10 +310,10 @@ if ($act == 'add-alarm') {
     $text = isset($_POST['text']) ? trim($_POST['text']) : '';
     $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
-    if (!$all_configs['oRole']->hasPrivilege('alarm')) {
-        $data['state'] = false;
-        $data['msg'] = 'Нет прав';
-    }
+//    if (!$all_configs['oRole']->hasPrivilege('alarm')) {
+//        $data['state'] = false;
+//        $data['msg'] = 'Нет прав';
+//    }
     if ($data['state'] == true && strtotime($date) < time()) {
         $data['state'] = false;
         $data['msg'] = 'Укажите дату (в будущем)';
@@ -332,7 +342,7 @@ if ($act == 'alarm-clock') {
 
     $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
 
-    require_once __DIR__.'/Core/View.php';
+    require_once __DIR__ . '/Core/View.php';
     $view = new View($all_configs);
     $data['content'] = $view->renderFile('messages/alarm_clock_form', array(
         'order_id' => $order_id,
@@ -357,8 +367,10 @@ function show_alarms($all_configs, $user_id, $old = false)
 
     if ($alarms) {
         foreach ($alarms as $alarm) {
-            $html .= '<tr><td><span title="' . do_nice_date($alarm['date_add'], false) . '">' . do_nice_date($alarm['date_add']) . '</span></td>';
-            $html .= '<td><span title="' . do_nice_date($alarm['date_alarm'], false) . '">' . do_nice_date($alarm['date_alarm']) . '</span></td>';
+            $html .= '<tr><td><span title="' . do_nice_date($alarm['date_add'],
+                    false) . '">' . do_nice_date($alarm['date_add']) . '</span></td>';
+            $html .= '<td><span title="' . do_nice_date($alarm['date_alarm'],
+                    false) . '">' . do_nice_date($alarm['date_alarm']) . '</span></td>';
             $html .= '<td>' . get_user_name($alarm) . '</td><td>';
             if ($alarm['order_id'] > 0) {
                 $href = $all_configs['prefix'] . 'orders/create/' . $alarm['order_id'];
@@ -425,7 +437,8 @@ if ($act == 'move-order') {
         if ($order) {
             // обновляем статус заказа
             if ($all_configs['oRole']->hasPrivilege('edit-clients-orders') && isset($_POST['status'])
-                && intval($_POST['status']) >= 0 && intval($_POST['status']) != $order['status']) {
+                && intval($_POST['status']) >= 0 && intval($_POST['status']) != $order['status']
+            ) {
                 $reload = true;
                 $response = update_order_status($order, intval($_POST['status']));
                 if (!isset($response['state']) || $response['state'] == false) {
@@ -436,12 +449,14 @@ if ($act == 'move-order') {
             // добавляем публичный комментарий
             if (isset($_POST['public_comment']) && mb_strlen(trim($_POST['public_comment']), 'UTF-8') > 0) {
                 $data['reload'] = true;
-                $all_configs['suppliers_orders']->add_client_order_comment($order['id'], trim($_POST['public_comment']), 0);
+                $all_configs['suppliers_orders']->add_client_order_comment($order['id'], trim($_POST['public_comment']),
+                    0);
             }
             // добавляем приватный комментарий
             if (isset($_POST['private_comment']) && mb_strlen(trim($_POST['private_comment']), 'UTF-8') > 0) {
                 $data['reload'] = true;
-                $all_configs['suppliers_orders']->add_client_order_comment($order['id'], trim($_POST['private_comment']), 1);
+                $all_configs['suppliers_orders']->add_client_order_comment($order['id'],
+                    trim($_POST['private_comment']), 1);
             }
             if ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('engineer')) {
                 // пробуем переместить
@@ -478,7 +493,7 @@ if ($act == 'get-product-title' || $act == 'get-product-title-and-price') {
     if ($product) {
         $data['state'] = true;
         $data['msg'] = htmlspecialchars($product['title']) . ' ' . ($product['price'] / 100) . '(' . ($product['wholesale'] / 100) . ')';
-        if($act == 'get-product-title-and-price'){
+        if ($act == 'get-product-title-and-price') {
             $data['price'] = $product['price'] / 100;
             $data['id'] = $item_ids;
         }
@@ -539,7 +554,7 @@ if ($act == 'stock_move-order') {
     $order = array('id' => $order ? intval($order['id']) : '', 'status' => $order ? intval($order['status']) : '');
     $rand = rand(1000, 9999);
     $data['content'] = $all_configs['chains']->moving_item_form(0, null, null, $order, false, $rand);
-    $data['btns'] = '<input onclick="move_order(this, ' . $rand . ')" type="button" value="'.l('Сохранить').'" class="btn" />';
+    $data['btns'] = '<input onclick="move_order(this, ' . $rand . ')" type="button" value="' . l('Сохранить') . '" class="btn" />';
     $data['state'] = true;
     $data['functions'] = array('reset_multiselect()');
 
@@ -549,46 +564,46 @@ if ($act == 'stock_move-order') {
 }
 
 // смена контактных телефонов
-if ($act == 'show_contact_phones'){
-	$data['state'] = true;
-	// detect current state
-    if($all_configs['settings']['content_alarm']){
-		$html = 'включено отображение аварийных контактных телефонов :<br>';
-		$html .= ($all_configs['settings']['content_phone_mob_alarm'] ? ', ' .$all_configs['settings']['content_phone_mob_alarm'] : '');
-		$data['btns'] = '<input onclick="alert_box(this, false, \'usually_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить обычные телефоны " class="btn" />';
-	}
-	else{
-		$html = 'включено отображение обычных контактных телефонов :<br>';
-		$data['btns'] = '<input onclick="alert_box(this, false, \'alarm_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить аварийные телефоны " class="btn" />';
-	}
-	$data['content'] = $html;
+if ($act == 'show_contact_phones') {
+    $data['state'] = true;
+    // detect current state
+    if ($all_configs['settings']['content_alarm']) {
+        $html = 'включено отображение аварийных контактных телефонов :<br>';
+        $html .= ($all_configs['settings']['content_phone_mob_alarm'] ? ', ' . $all_configs['settings']['content_phone_mob_alarm'] : '');
+        $data['btns'] = '<input onclick="alert_box(this, false, \'usually_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить обычные телефоны " class="btn" />';
+    } else {
+        $html = 'включено отображение обычных контактных телефонов :<br>';
+        $data['btns'] = '<input onclick="alert_box(this, false, \'alarm_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить аварийные телефоны " class="btn" />';
+    }
+    $data['content'] = $html;
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
     exit;
 }
 
 // переключение на аварийные телефоны
-if ($act == 'alarm_contact_phones'){
-	$data['state'] = true;
-	$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('1','content_alarm'));
-	$data['content'] = 'Телефон переключен на аварийный';
+if ($act == 'alarm_contact_phones') {
+    $data['state'] = true;
+    $all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?', array('1', 'content_alarm'));
+    $data['content'] = 'Телефон переключен на аварийный';
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
     exit;
 }
 
 // переключение на обычные телефоны
-if ($act == 'usually_contact_phones'){
-	$data['state'] = true;
-	$all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',array('0','content_alarm'));
-	$data['content'] = 'Телефон переключен на обычный';
+if ($act == 'usually_contact_phones') {
+    $data['state'] = true;
+    $all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?', array('0', 'content_alarm'));
+    $data['content'] = 'Телефон переключен на обычный';
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
     exit;
 }
 
 // количество не прочтенных сообщений
-function count_unread_messages($type = null) {
+function count_unread_messages($type = null)
+{
     global $all_configs;
     $user_id = $_SESSION['id'];
 
@@ -625,19 +640,20 @@ function get_messages($type = null)
             $read = $message['is_read'] == 1 ? 'class="accordion-toggle muted"' : 'class="accordion-toggle" onClick="read_mess(this, ' . $message['id'] . ')"';
             $html .=
                 '<div class="panel panel-default" style="margin-bottom:5px;">
-                    <div class="panel-heading '. ($message['is_read'] == 1?'panel-white':'') .'">
+                    <div class="panel-heading ' . ($message['is_read'] == 1 ? 'panel-white' : '') . '">
                         <div class="pull-right">
-                            <span title="' . do_nice_date($message['date_add'], false) . '">' . do_nice_date($message['date_add']) . '</span>
+                            <span title="' . do_nice_date($message['date_add'],
+                    false) . '">' . do_nice_date($message['date_add']) . '</span>
                             <i onclick="remove_message(this, ' . $message['id'] . ', ' . $message['type'] . ')" class="glyphicon glyphicon-remove cursor-pointer"></i>
                         </div>
                         <a ' . $read . ' data-toggle="collapse" data-parent="#accordion-messages" href="#collapse-messages-' . $message['id'] . '">' .
-                              htmlspecialchars($message['title']) .
-                        '</a>
+                htmlspecialchars($message['title']) .
+                '</a>
                     </div>
                     <div id="collapse-messages-' . $message['id'] . '" class="panel-collapse collapse">
                         <div class="panel-body">' .
-                            $content .
-                        '</div>
+                $content .
+                '</div>
                     </div>
                 </div>';
         }
@@ -653,7 +669,7 @@ if ($act == 'get-messages') {
     $type = isset($_POST['object_id']) ? intval($_POST['object_id']) : null;
     $data['content'] = get_messages($type);
     $onclick = 'onclick="remove_message(this, \'all\'' . ($type === null ? '' : ', ' . $type) . ')"';
-    $data['btns'] = '<input ' . $onclick . ' type="button" class="btn btn-danger" value="' . l('Удалить все') .'" />';
+    $data['btns'] = '<input ' . $onclick . ' type="button" class="btn btn-danger" value="' . l('Удалить все') . '" />';
 
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
@@ -661,7 +677,7 @@ if ($act == 'get-messages') {
 }
 
 // аякс
-if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
+if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
 
     if (!isset($_SESSION['id']) || $_SESSION['id'] == 0) {
         return false;
@@ -689,8 +705,10 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
     $q1 = $all_configs['manageModel']->suppliers_orders_query($_GET + array('type' => 'pay'));
     $data['tc_accountings_suppliers_orders'] = $all_configs['manageModel']->get_count_suppliers_orders($q1['query']);
     $data['tc_sum_accountings_orders'] = $data['tc_accountings_suppliers_orders'] + $data['tc_accountings_clients_orders'];
-    $data['tc_warehouses_clients_orders_bind'] = $all_configs['chains']->get_operations(1, array('open' => true) + $_GET, true);
-    $data['tc_warehouses_clients_orders_unbind'] = $all_configs['chains']->get_operations(4, array('open' => true) + $_GET, true);
+    $data['tc_warehouses_clients_orders_bind'] = $all_configs['chains']->get_operations(1,
+        array('open' => true) + $_GET, true);
+    $data['tc_warehouses_clients_orders_unbind'] = $all_configs['chains']->get_operations(4,
+        array('open' => true) + $_GET, true);
     $data['tc_debit_suppliers_orders'] = $all_configs['manageModel']->get_count_suppliers_orders($queries['query']);
     $data['tc_sum_warehouses_orders'] = $data['tc_warehouses_clients_orders_bind'] + $data['tc_warehouses_clients_orders_unbind'] + $data['tc_debit_suppliers_orders'];
     $data['tc_suppliers_orders'] = $data['tc_suppliers_orders_all'] = $all_configs['manageModel']->get_count_suppliers_orders($q3['query']);
@@ -699,8 +717,8 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
     $alarms = $all_configs['db']->query('SELECT ac.id, UNIX_TIMESTAMP(ac.date_alarm) as date, ac.order_id, COUNT(*) as qty,
         GROUP_CONCAT(ac.text, " <a href=\'' . $all_configs['prefix'] . 'orders/create/", ac.order_id, "\'>", ac.order_id, "</a><span  class=\'from\'>(", if(not u.fio = NULL, u.fio, u.login), ")</span>") as text
         FROM {alarm_clock} ac'
-        .' JOIN {users} u ON u.id=ac.user_id'
-        .' WHERE IF(for_user_id>0, for_user_id=?i, true) AND date_alarm>NOW()
+        . ' JOIN {users} u ON u.id=ac.user_id'
+        . ' WHERE IF(for_user_id>0, for_user_id=?i, true) AND date_alarm>NOW()
         GROUP BY order_id ORDER BY date_alarm', array($user_id))->assoc('order_id');
 
     if ($alarms && $alarms[key($alarms)] != 0) {
@@ -716,9 +734,9 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
         'new_comments' => intval($qty_unread),
         'alarms' => $alarms,
     );
-    require_once __DIR__.'/Core/FlashMessage.php';
+    require_once __DIR__ . '/Core/FlashMessage.php';
     $flash = FlashMessage::show();
-    if(!empty($flash)) {
+    if (!empty($flash)) {
         $result['flash'] = $flash;
     }
     header("Content-Type: application/json; charset=UTF-8");
@@ -727,43 +745,43 @@ if ( isset($_POST['act']) && $_POST['act'] == 'global-ajax' ) {
 }
 
 // закрываем аларм
-if ( isset($_POST['act']) && $_POST['act'] == 'close-alarm' ) {
+if (isset($_POST['act']) && $_POST['act'] == 'close-alarm') {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : '';
-    if($id){
+    if ($id) {
         $all_configs['db']->query("UPDATE {alarm_clock} SET closed = 1 "
-                                 ."WHERE id = ?i AND for_user_id = ?i", array($id, $user_id));
+            . "WHERE id = ?i AND for_user_id = ?i", array($id, $user_id));
     }
 }
 
 // отправляем сообщение
-if ( isset($_POST['act']) && $_POST['act'] == 'send_message' ) {
+if (isset($_POST['act']) && $_POST['act'] == 'send_message') {
 
-    if ( !isset($_POST['send-mess-user']) || !is_array($_POST['send-mess-user']) || count($_POST['send-mess-user']) < 1) {
+    if (!isset($_POST['send-mess-user']) || !is_array($_POST['send-mess-user']) || count($_POST['send-mess-user']) < 1) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Выберите пользователя', 'error'=>true));
+        echo json_encode(array('message' => 'Выберите пользователя', 'error' => true));
         exit;
     }
 
-    if ( !isset($_POST['text']) ) {
+    if (!isset($_POST['text'])) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите текст', 'error'=>true));
+        echo json_encode(array('message' => 'Введите текст', 'error' => true));
         exit;
     }
-    if ( !isset($_POST['title']) ) {
+    if (!isset($_POST['title'])) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите заглавие', 'error'=>true));
+        echo json_encode(array('message' => 'Введите заглавие', 'error' => true));
         exit;
     }
     $text = trim($_POST['text']);
     $title = trim($_POST['title']);
-    if ( empty($text) ) {
+    if (empty($text)) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите сообщение', 'error'=>true));
+        echo json_encode(array('message' => 'Введите сообщение', 'error' => true));
         exit;
     }
-    if ( empty($title) ) {
+    if (empty($title)) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите заглавие', 'error'=>true));
+        echo json_encode(array('message' => 'Введите заглавие', 'error' => true));
         exit;
     }
     $array = array();
@@ -780,8 +798,9 @@ if ( isset($_POST['act']) && $_POST['act'] == 'send_message' ) {
 
 
 // работа с infobox
-if ( isset($_POST['act']) && $_POST['act'] == 'infobox' && isset($_POST['do'])
-    && isset($_POST['hash']) ) {
+if (isset($_POST['act']) && $_POST['act'] == 'infobox' && isset($_POST['do'])
+    && isset($_POST['hash'])
+) {
 
     require_once 'classes/infoblock.class.php';
     $infoblock = new Infoblock($all_configs);
@@ -799,7 +818,8 @@ if ( isset($_POST['act']) && $_POST['act'] == 'infobox' && isset($_POST['do'])
 }
 
 if (isset($_POST['pk']['act']) && $_POST['pk']['act'] == 'infobox'
-    && isset($_POST['pk']['do']) && isset($_POST['value']) && isset($_POST['pk']['hash'])) {
+    && isset($_POST['pk']['do']) && isset($_POST['value']) && isset($_POST['pk']['hash'])
+) {
 
     require_once 'classes/infoblock.class.php';
     $infoblock = new Infoblock($all_configs);
@@ -811,7 +831,6 @@ if (isset($_POST['pk']['act']) && $_POST['pk']['act'] == 'infobox'
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode(array("msg" => ''));
     }
-
 
 
 }
