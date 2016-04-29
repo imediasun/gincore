@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../Core/Model.php';
+require_once __DIR__ . '/../Core/AModel.php';
 
-class Cashboxes extends Model
+class Cashboxes extends AModel
 {
     public $table = '{cashboxes}';
 

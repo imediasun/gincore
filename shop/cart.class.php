@@ -170,7 +170,7 @@ class Cart
 
     function get_count_and_price ($order = null)
     {
-        $model = new Model();
+        $model = new AModel();
 
         $sc = $this->exist_cart(null, $order);
 
@@ -883,7 +883,7 @@ class Cart
     {
         $ar = null;
         $order_id = 0;
-        $model = new Model();
+        $model = new AModel();
 
         if ( isset($data['order_id']) && $data['order_id'] > 0 )
             $order_id = $data['order_id'];
@@ -1146,7 +1146,7 @@ class Cart
                 $scg[2][] = $product;
         }
         ksort($scg, SORT_NUMERIC);
-        $model = new Model();
+        $model = new AModel();
         $course = $this->course();
 
         // если нет товаров в заказе
@@ -1678,7 +1678,7 @@ class Cart
 
     function show_order ($order, $footer, $arrequest)
     {
-        $model = new Model();
+        $model = new AModel();
         $orders_html = '';
 
         $orders_html .= '<h2 class="account_title">Заказ №'.$order['id'].' <span>от '.date('d.m.Y H:i:s', strtotime($order['date_add'])).'</span></h2>';
@@ -1869,7 +1869,7 @@ class Cart
     function show_product_in_order($good, $order, $admin_panel, $edit = true, $oRole = null)
     {
         //global $path;
-        $model = new Model();
+        $model = new AModel();
         $hw = '';
 
         if ($admin_panel > 0 && $edit == true) {
@@ -2176,7 +2176,7 @@ class Cart
     {
         $d = $edit == true ? '' : 'disabled';
 
-        $model = new Model();
+        $model = new AModel();
 
         $installment_form = '';
 

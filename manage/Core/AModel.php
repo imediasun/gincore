@@ -1,6 +1,6 @@
 <?php
 
-abstract class Model
+abstract class AModel
 {
 
     /** @var  \go\DB\DB */

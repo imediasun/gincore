@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../Core/Model.php';
+require_once __DIR__ . '/../Core/AModel.php';
 
-class CategoriesTree extends Model
+class CategoriesTree extends AModel
 {
     public $table = '{categories}';
 

@@ -1682,7 +1682,7 @@ class products extends Controller
                 $product = $this->all_configs['db']->query("SELECT id, price / 100 as price, title, article, content "
                     . "FROM {goods} WHERE id = ?i", array($product_id), 'row');
                 $data['state'] = true;
-                $model = new Model($this->all_configs['db'], $this->all_configs['configs']);
+                $model = new AModel($this->all_configs['db'], $this->all_configs['configs']);
                 $filters = $this->all_configs['db']->query('SELECT nv.*, fv.*
                     FROM {filter_name_value} as nv, {filter_value} as fv
                     WHERE nv.fname_id=?i AND nv.fvalue_id=fv.id AND fv.value != ""

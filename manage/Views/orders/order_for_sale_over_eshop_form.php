@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-10">
             <form method="post" id="sale-over-eshop-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
                 <?= $client['id'] ?>
@@ -40,18 +40,22 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-6">
-                                <label class="control-label">
-                                    <?= l('Код товара') ?> (<?= l('серийный номер') ?>) <b class="text-danger">*</b>:
-                                </label>
-                                <?= typeahead($this->all_configs['db'], 'serials', false, '', 4,
-                                    'input-medium clone_clear_val',
-                                    '', 'display_serial_product_title_and_price', false, true) ?>
-                                <small class="clone_clear_html product-title"></small>
-                                <input type="hidden" name="items" id="item_id" value="">
+                            <div class="form-group col-sm-2">
+                                    <label class="control-label">
+                                        <?= l('Выберите устройство') ?> <b class="text-danger">*</b>:
+                                    </label>
+                                <div class="form-group ">
+                                    <?= typeahead($this->all_configs['db'], 'categories-last', false,
+                                        (!empty($order_data) ?
+                                            $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
+                                        'display_service_information,get_requests', false, false, '', false,
+                                        l('Введите'),
+                                        array(
+                                        )) ?>
+                                </div>
                             </div>
-                            <div class="form-group col-sm-4">
-                                <label><?= l('Цена продажи') ?> <b class="text-danger">*</b>: </label>
+                            <div class="form-group col-sm-2">
+                                <label><?= l('Цена') ?> <b class="text-danger">*</b>: </label>
                                 <div class="input-group">
                                     <input type="text" id="sale_poduct_cost" class="form-control" value=""
                                            name="price"/>
@@ -59,7 +63,35 @@
                                 </div>
                                 <ul id="sale_product_cost_error" class="parsley-errors-list filled"
                                     style="display: none">
-                                    <li class="parsley-required">Обязательное поле.</li>
+                                    <li class="parsley-required"><?= l('Обязательное поле.') ?></li>
+                                </ul>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label>
+                                    <?= l('Скидка') ?>
+                                </label>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="discount" />
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label>
+                                    <?= l('Кол-во') ?>
+                                </label>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="quantity" />
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label><?= l('Сумма') ?> <b class="text-danger">*</b>: </label>
+                                <div class="input-group">
+                                    <input type="text" id="sale_poduct_sum" class="form-control" value=""
+                                           name="sum"/>
+                                    <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                </div>
+                                <ul id="sale_product_cost_error" class="parsley-errors-list filled"
+                                    style="display: none">
+                                    <li class="parsley-required"><?= l('Обязательное поле.') ?></li>
                                 </ul>
                             </div>
 
@@ -79,6 +111,9 @@
                                         <th class="col-sm-7"><?= l('Товар') ?></th>
                                         <th class="col-sm-4"><?= l('Цена') ?></th>
                                         <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -97,6 +132,23 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <div class="input-group col-sm-12">
+                                                <input type="text" class="form-control js-discount" value=""/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group col-sm-12">
+                                                <input type="text" class="form-control js-quantity" value=""/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group col-sm-12">
+                                                <input type="text" class="form-control js-sum" readonly
+                                                       onkeyup="recalculate_amount();" value="" name=""/>
+                                                <span class="input-group-addon"><?= viewCurrency() ?></span>
+                                            </div>
+                                        </td>
+                                        <td>
                                             <a href="#" onclick="return remove_row(this);">
                                                 <i class="glyphicon glyphicon-remove"></i>
                                             </a>
@@ -110,6 +162,8 @@
                                                 <label><?= l('Итоговая стоимость:') ?></label>
                                             </div>
                                         </td>
+                                        <td></td>
+                                        <td></td>
                                         <td>
                                             <div class="input-group col-sm-12">
                                                 <input type="text" readonly class="form-control js-total" value=""/>
@@ -122,6 +176,7 @@
                                                 <input type="checkbox" name="cashless" class="cashless-toggle">
                                             </div>
                                         </td>
+                                        <td></td>
                                     </tr>
                                     </tfoot>
                                 </table>
@@ -145,8 +200,44 @@
                         <label><?= l('Скрытый комментарий к заказу') ?>: </label>
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label><?= l('Способ доставки') ?>: </label><br>
+                        <label class="radio-inline">
+                            <input type="radio" checked value="0" name="repair"/><?= l('Самовывоз') ?>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" value="1" name="repair" onclick="alert('click');" /><?= l('Курьером') ?>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" value="2" name="repair" onclick="alert('click');" /><?= l('Почтой') ?>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="address" class='form-control hidden' value="" placeholder="<?= l('Укажите адрес') ?>"/>
+                    </div>
                 </fieldset>
-                <input class="btn btn-primary" type="button" onclick="sale_order(this)" value="<?= l('Добавить') ?>"/>
+                <div class="row-fluid">
+                    <div class="btn-group dropup col-sm-3" style="padding-left: 0">
+                        <input id="add-client-order" class="btn btn-primary submit-from-btn"
+                               type="button"
+                               onclick="sale_order(this)"
+                               value="<?= l('Добавить') ?>"/>
+                        <button type="button" class="btn btn-info dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="#" onclick="sale_order(this, 'print_check'); return false;">
+                                    <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </form>
             <div class="col-sm-6 relative"></div>
         </div>

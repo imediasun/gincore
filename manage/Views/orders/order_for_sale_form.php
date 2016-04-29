@@ -73,7 +73,8 @@
                                                 <select class="form-control js-warranty" name="">
                                                     <option value=""><?= l('Без гарантии') ?></option>
                                                     <?php foreach ($orderWarranties as $warranty): ?>
-                                                        <option value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
+                                                        <option
+                                                            value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <div class="input-group-addon"><?= l('мес') ?></div>
@@ -130,50 +131,56 @@
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
                     </div>
                 </fieldset>
-
-                <div class="btn-group dropup">
-                    <input id="add-client-order" class="btn btn-primary submit-from-btn"
-                           type="button"
-                           onclick="sale_order(this)"
-                           value="<?= l('Добавить') ?>"/>
-                    <button type="button" class="btn btn-info dropdown-toggle"
-                            data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" onclick="sale_order(this, 'print_check'); return false;">
-                                <?= l('Добавить и распечатать чек') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="sale_order(this, 'print_warranty'); return false;">
-                                <?= l('Добавить и распечатать чек и гарантийный талон') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               onclick="sale_order(this, 'print_invoice'); return false;">
-                                <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="form-group">
-                    <label>
-
-                    <input type="checkbox">
-                        <?= l('Автоматически принять деньги в кассу'); ?>
-                        <select>
+                <div class="row-fluid">
+                    <div class="btn-group dropup col-sm-3" style="padding-left: 0">
+                        <input id="add-client-order" class="btn btn-primary submit-from-btn"
+                               type="button"
+                               onclick="sale_order(this)"
+                               value="<?= l('Добавить') ?>"/>
+                        <button type="button" class="btn btn-info dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="#" onclick="sale_order(this, 'print_check'); return false;">
+                                    <?= l('Добавить и распечатать чек') ?>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" onclick="sale_order(this, 'print_warranty'); return false;">
+                                    <?= l('Добавить и распечатать чек и гарантийный талон') ?>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                   onclick="sale_order(this, 'print_invoice'); return false;">
+                                    <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-group col-sm-9 form-inline">
+                        <label>
+                            <input type="checkbox" value="auto-cash">
+                            <?= l('Автоматически принять деньги в кассу'); ?>
+                        </label>
+                        <select name="cachbox" class="form-control">
                             <option value="0"><?= l('Выбрать') ?></option>
+                            <?php foreach ($cashboxes as $cashbox): ?>
+                                <option value="<?= $cashbox['id'] ?>"><?= $cashbox['name'] ?></option>
+                            <?php endforeach; ?>
                         </select>
-                        <?= l('и закрыть заказ') ?>
-                    </label>
+                        <label>
+                            <?= l('и закрыть заказ') ?>
+                        </label>
+                    </div>
                 </div>
-<!--                <input class="btn btn-primary" type="button" onclick="" value="--><?//= l('Добавить') ?><!--"/>-->
+                <!--                <input class="btn btn-primary" type="button" onclick="" value="-->
+                <? //= l('Добавить') ?><!--"/>-->
             </form>
             <div class="col-sm-6 relative"></div>
         </div>
