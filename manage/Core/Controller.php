@@ -4,7 +4,9 @@ require_once __DIR__ . '/FlashMessage.php';
 require_once __DIR__ . '/View.php';
 require_once __DIR__ . '/Session.php';
 require_once __DIR__ . '/Response.php';
+require_once __DIR__ . '/../Models/History.php';
 require_once __DIR__ . '/../Tariff.php';
+
 
 abstract class Controller
 {
@@ -13,6 +15,8 @@ abstract class Controller
     protected $mod_submenu;
     /** @var View */
     protected $view;
+    /** @var History  */
+    protected $history;
 
     abstract public function ajax();
 
@@ -55,6 +59,7 @@ abstract class Controller
         $this->count_on_page = count_on_page();
         $this->view = new View($all_configs);
         $this->session = Session::getInstance();
+        $this->history = new History();
 
         global $input_html;
 

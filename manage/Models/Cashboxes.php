@@ -13,12 +13,12 @@ class Cashboxes extends AModel
     {
         return $this->db->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
               cr.name as cur_name, cr.short_name, cr.course, cr.currency
-            FROM {cashboxes} as c
+            FROM ?q as c
             LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
             LEFT JOIN (SELECT currency, name, short_name, course FROM {cashboxes_courses})cr ON cr.currency=cc.currency
-            ?q ORDER BY c.id', array($query))->assoc();
+            ?q ORDER BY c.id', array($this->table, $query))->assoc();
     }
-    
+
     /**
      * @param $userId
      * @return array
@@ -27,11 +27,12 @@ class Cashboxes extends AModel
     {
         $query = '';
         if (!$this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $query = $this->db->makeQuery(" WHERE c.id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i) ", array($userId));
+            $query = $this->db->makeQuery(" WHERE c.id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i) ",
+                array($userId));
         }
         return $this->prepareCashboxes($this->getCashboxes($query));
     }
-    
+
     /**
      * @param $cashboxes
      * @return array
@@ -90,5 +91,20 @@ class Cashboxes extends AModel
         }
 
         return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function columns()
+    {
+        return array(
+            'id',
+            'cashboxes_type',
+            'avail',
+            'avail_in_balance',
+            'avail_in_orders',
+            'name',
+        );
     }
 }

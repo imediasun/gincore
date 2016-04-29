@@ -142,8 +142,7 @@ class products extends Controller
                                 VALUES (?i, ?i)', array($new_cat, $id));
                         }
                     }
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'create-goods', $mod_id, $id));
+                    $this->history->save('create-goods', $mod_id, $id);
 
                     include $this->all_configs['sitepath'] . 'mail.php';
                     $messages = new Mailer($this->all_configs);
@@ -156,8 +155,7 @@ class products extends Controller
                                     array(intval($user), $id))->ar();
 
                                 if ($ar) {
-                                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                        array($user_id, 'add-manager', $mod_id, intval($user)));
+                                    $this->history->save('add-manager', $mod_id, intval($user));
                                 }
                             }
                         }
@@ -191,8 +189,7 @@ class products extends Controller
                 }
             }
             if (intval($ar) > 0) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'update-goods-title-image', $mod_id, $product_id));
+                $this->history->save('update-goods-title-image', $mod_id, $product_id);
             }
             $ar = 0;
             // редактируем приоритет картинок
@@ -203,8 +200,7 @@ class products extends Controller
                 }
             }
             if (intval($ar) > 0) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'update-goods-image-prio', $mod_id, $product_id));
+                $this->history->save('update-goods-image-prio', $mod_id, $product_id);
             }
 
             //если нужно удаляeм картинку с базы и с папки
@@ -266,8 +262,7 @@ class products extends Controller
                             array(0, $product_id));
                     }
                 }
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'delete-goods-image', $mod_id, $product_id));
+                $this->history->save('delete-goods-image', $mod_id, $product_id);
             }
 
             if (isset($post['youtube'])) {
@@ -317,8 +312,7 @@ class products extends Controller
                     ))->ar();
 
                 if (intval($ar) > 0) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'edit-goods', $mod_id, $product_id));
+                    $this->history->save('edit-goods', $mod_id, $product_id);
                 }
             }
 
@@ -330,8 +324,8 @@ class products extends Controller
                     array(isset($post['avail']) ? 1 : 0, isset($post['type']) ? 1 : 0, $product_id))->ar();
 
                 if (intval($ar) > 0) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'edit-goods', $mod_id, $product_id));
+                    $this->history->save('edit-goods', $mod_id, $product_id);
+
                 }
 
                 $query = '';
@@ -908,7 +902,7 @@ class products extends Controller
 
         $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
 
-        return $this->view->renderFile('products/genmeny', array(
+        return $this->view->renderFile('products/genmenu', array(
             'filter_html' => $filters_html,
             'categories_tree_menu' => $this->categories_tree_menu($categories_tree)
         ));
@@ -973,8 +967,7 @@ class products extends Controller
                             array($p_avail, $p_id))->ar();
 
                         if ($ar) {
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'edit-product-avail', $mod_id, $p_id));
+                            $this->history->save('edit-product-avail', $mod_id, $p_id);
                         }
                     }
                 }
@@ -1044,8 +1037,7 @@ class products extends Controller
                             UPDATE market_yandex_id=VALUES(market_yandex_id)', array($value, $gid))->ar();
 
                         if ($ar) {
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'edit-ym_id', $mod_id, $gid));
+                            $this->history->save('edit-ym_id', $mod_id, $gid);
                         }
                     }
                 }
@@ -1083,8 +1075,7 @@ class products extends Controller
                 $ar = $this->all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',
                     array(serialize($w), 'warranties'))->ar();
                 if (intval($ar) > 0) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'edit-warranties-add', $mod_id, 0));
+                    $this->history->save('edit-warranties-add', $mod_id, 0);
                 }
             }
 
@@ -1477,8 +1468,7 @@ class products extends Controller
 
                 $img_id = $this->all_configs['db']->query('INSERT IGNORE INTO {goods_images} (image, goods_id, type) VALUE (?, ?i, ?i)',
                     array($result['filename'], intval($_GET['product']), 1), 'id');
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'add-image-goods', $mod_id, intval($_GET['product'])));
+                $this->history->save('add-image-goods', $mod_id, intval($_GET['product']));
 
                 // копируем картинку всем аналогичным товарам по secret_title
                 if (isset($_GET['oist']) && $_GET['oist'] == 'true' && $this->all_configs['configs']['one-image-secret_title'] == true && mb_strlen(trim($product['secret_title']),
@@ -1560,8 +1550,7 @@ class products extends Controller
                 exit;
             }
 
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-market-category', $mod_id, $id));
+            $this->history->save('add-market-category', $mod_id, $id);
 
             $result = $id;
             $data = htmlspecialchars(json_encode($result), ENT_NOQUOTES);
@@ -1682,7 +1671,7 @@ class products extends Controller
                 $product = $this->all_configs['db']->query("SELECT id, price / 100 as price, title, article, content "
                     . "FROM {goods} WHERE id = ?i", array($product_id), 'row');
                 $data['state'] = true;
-                $model = new AModel($this->all_configs['db'], $this->all_configs['configs']);
+                $model = new Model($this->all_configs['db'], $this->all_configs['configs']);
                 $filters = $this->all_configs['db']->query('SELECT nv.*, fv.*
                     FROM {filter_name_value} as nv, {filter_value} as fv
                     WHERE nv.fname_id=?i AND nv.fvalue_id=fv.id AND fv.value != ""
@@ -1754,9 +1743,7 @@ class products extends Controller
                         array($filename, $r['id'], 1), 'id');
                     // флаг наличия картинки
                     $this->all_configs['db']->query('UPDATE {goods} SET image_set=?i WHERE id=?i', array(1, $r['id']));
-                    // история
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'add-image-goods', $mod_id, $r['id']));
+                    $this->history->save('add-image-goods', $mod_id, $r['id']);
                 }
             }
         }
@@ -1796,8 +1783,7 @@ class products extends Controller
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-            array($user_id, 'export-order', $mod_id, $product['id']));
+        $this->history->save('export-order', $mod_id, $product['id']);
     }
 
     /**
@@ -1935,10 +1921,7 @@ class products extends Controller
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
             $mod_id = $this->all_configs['configs']['products-manage-page'];
 
-            $histories = $this->all_configs['db']->query('SELECT c.date_add, c.work, u.login FROM {changes} as c
-                                    LEFT JOIN (SELECT id, login FROM {users})u ON u.id=c.user_id
-                                    WHERE c.map_id=?i AND c.object_id=?i ORDER BY c.date_add DESC',
-                array($mod_id, $this->all_configs['arrequest'][2]))->assoc();
+            $histories = $this->history->getProductsManagersChanges($mod_id, $this->all_configs['arrequest'][2]);
             $goods_html = $this->view->renderFile('products/products_managers_history', array(
                 'histories' => $histories,
             ));

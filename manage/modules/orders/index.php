@@ -291,8 +291,7 @@ class orders extends Controller
         if (isset($post['accept-manager']) == 1 && isset($post['id']) && $post['id'] > 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
             $this->all_configs['db']->query('UPDATE {orders} SET manager=?i WHERE id=?i AND (manager IS NULL OR manager=0 OR manager="")',
                 array($user_id, $post['id']));
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'manager-accepted-order', $mod_id, $post['id']));
+            $this->history->save('manager-accepted-order', $mod_id, $post['id']);
         }
 
         // фильтрация рекомендаций к закупкам
@@ -1621,7 +1620,6 @@ class orders extends Controller
      */
     private function insert_image_to_order($imgname, $order_id)
     {
-        $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
 
         $img_id = $this->all_configs['db']->query(
@@ -1629,8 +1627,7 @@ class orders extends Controller
             array(trim($imgname), intval($order_id)), 'id');
 
         if ($img_id) {
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-image-goods', $mod_id, intval($order_id)));
+            $this->history->save('add-image-goods', $mod_id, intval($order_id));
         }
 
         return $img_id;
@@ -1898,10 +1895,7 @@ class orders extends Controller
             $data['content'] = l('История изменений не найдена');
 
             if (isset($_POST['object_id'])) {
-                $changes = $this->all_configs['db']->query(
-                    'SELECT u.login, u.email, u.fio, u.phone, ch.change, ch.date_add FROM {changes} as ch
-                     LEFT JOIN {users} as u ON u.id=ch.user_id WHERE ch.object_id=?i AND ch.map_id=?i AND work=? ORDER BY ch.date_add DESC',
-                    array($_POST['object_id'], $mod_id, trim($arr[1])))->assoc();
+                $changes = $this->history->getChanges(trim($arr[1]), $mod_id, $_POST['object_id']);
                 if ($changes) {
                     $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>' . l('Дата') . '</td><td>' . l('Изменение') . '</td></tr></thead><tbody>';
                     foreach ($changes as $change) {
@@ -2337,8 +2331,7 @@ class orders extends Controller
                 // принимаем заказ
                 if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $order['manager'] = $user_id;
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'manager-accepted-order', $mod_id, $order_id));
+                    $this->history->save('manager-accepted-order', $mod_id, $order_id);
                 }
 
                 // меняем статус
@@ -2355,28 +2348,15 @@ class orders extends Controller
                 ) {
                     $change_id = isset($_POST['is_replacement_fund']) ? 1 : 0;
                     $change = $change_id == 1 ? $_POST['replacement_fund'] : '';
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, `work`=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                        array(
-                            $user_id,
-                            'update-order-replacement_fund',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            $change,
-                            $change_id
-                        ));
+                    $this->history->save('update-order-replacement_fund', $mod_id, $this->all_configs['arrequest'][2],
+                        $change, $change_id);
                 }
 
                 // устройство у клиента
                 if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                        array(
-                            $user_id,
-                            'update-order-client_took',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'),
-                            isset($_POST['client_took']) ? 1 : 0
-                        ));
+                    $this->history->save('update-order-client_took', $mod_id, $this->all_configs['arrequest'][2],
+                        isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'),
+                        isset($_POST['client_took']) ? 1 : 0);
                 }
 
                 // смена менеджера
@@ -2386,15 +2366,8 @@ class orders extends Controller
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
                     } else {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                            array(
-                                $user_id,
-                                'update-order-manager',
-                                $mod_id,
-                                $this->all_configs['arrequest'][2],
-                                get_user_name($user),
-                                $_POST['manager']
-                            ));
+                        $this->history->save('update-order-manager', $mod_id, $this->all_configs['arrequest'][2],
+                            get_user_name($user), $_POST['manager']);
                         $order['manager'] = intval($_POST['manager']);
                         if ($user['send_over_sms']) {
                             $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
@@ -2419,15 +2392,13 @@ class orders extends Controller
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
                     } else {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                            array(
-                                $user_id,
-                                'update-order-engineer',
-                                $mod_id,
-                                $this->all_configs['arrequest'][2],
-                                get_user_name($user),
-                                $_POST['engineer']
-                            ));
+                        $this->history->save(
+                            'update-order-engineer',
+                            $mod_id,
+                            $this->all_configs['arrequest'][2],
+                            get_user_name($user),
+                            $_POST['engineer']
+                        );
                         if ($user['send_over_sms']) {
                             $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
                             $orderId = $this->all_configs['arrequest'][2];
@@ -2447,53 +2418,44 @@ class orders extends Controller
 
                 // смена Неисправность со слов клиента
                 if (isset($_POST['defect']) && trim($order['defect']) != trim($_POST['defect'])) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-defect',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            trim($_POST['defect'])
-                        ));
+                    $this->history->save(
+                        'update-order-defect',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        trim($_POST['defect'])
+                    );
                     $order['defect'] = trim($_POST['defect']);
                 }
 
                 // смена Примечание/Внешний вид
                 if (isset($_POST['comment']) && trim($order['comment']) != trim($_POST['comment'])) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-comment',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            trim($_POST['comment'])
-                        ));
+                    $this->history->save(
+                        'update-order-comment',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        trim($_POST['comment'])
+                    );
                     $order['comment'] = trim($_POST['comment']);
                 }
 
                 // смена серийника
                 if (isset($_POST['serial']) && trim($order['serial']) != trim($_POST['serial'])) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-serial',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            trim($_POST['serial'])
-                        ));
+                    $this->history->save('update-order-serial',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        trim($_POST['serial'])
+                    );
                     $order['serial'] = trim($_POST['serial']);
                 }
 
                 // смена фио
                 if (isset($_POST['fio']) && trim($order['fio']) != trim($_POST['fio'])) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-fio',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            trim($_POST['fio'])
-                        ));
+                    $this->history->save(
+                        'update-order-fio',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        trim($_POST['fio'])
+                    );
                     $order['fio'] = trim($_POST['fio']);
                     // апдейтим также клиенту фио
                     $this->all_configs['db']->query("UPDATE {clients} SET fio = ? WHERE id = ?i",
@@ -2508,28 +2470,24 @@ class orders extends Controller
                     $phone = $phone ? current($phone) : '';
 
                     if ($order['phone'] != $phone) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                            array(
-                                $user_id,
-                                'update-order-phone',
-                                $mod_id,
-                                $this->all_configs['arrequest'][2],
-                                $phone
-                            ));
+                        $this->history->save(
+                            'update-order-phone',
+                            $mod_id,
+                            $this->all_configs['arrequest'][2],
+                            $phone
+                        );
                         $order['phone'] = $phone;
                     }
                 }
 
                 // смена телефона
                 if (isset($_POST['warranty']) && intval($order['warranty']) != intval($_POST['warranty'])) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-warranty',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            trim($_POST['warranty'])
-                        ));
+                    $this->history->save(
+                        'update-order-warranty',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        trim($_POST['warranty'])
+                    );
                     $order['warranty'] = intval($_POST['warranty']);
                 }
 
@@ -2540,15 +2498,13 @@ class orders extends Controller
                     if ($category) {
                         $order['title'] = $category;
                         $order['category_id'] = intval($_POST['categories-goods']);
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?, change_id=?i',
-                            array(
-                                $user_id,
-                                'update-order-category',
-                                $mod_id,
-                                $this->all_configs['arrequest'][2],
-                                $category,
-                                intval($_POST['categories-goods'])
-                            ));
+                        $this->history->save(
+                            'update-order-category',
+                            $mod_id,
+                            $this->all_configs['arrequest'][2],
+                            $category,
+                            intval($_POST['categories-goods'])
+                        );
                     }
                 }
 
@@ -2605,27 +2561,22 @@ class orders extends Controller
                 unset($order['status_id']);
                 // смена кода
                 if (isset($_POST['code']) && $_POST['code'] != $order['code']) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-code',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            $order['code'] . ' ==> ' . trim($_POST['code'])
-                        ));
+                    $this->history->save('update-order-code',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        $order['code'] . ' ==> ' . trim($_POST['code'])
+                    );
                     $order['code'] = $_POST['code'];
                 }
                 // смена источника
                 if (isset($_POST['referer_id']) && $_POST['referer_id'] != $order['referer_id']) {
                     $referers = get_service("crm/calls")->get_referers();
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-referer_id',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            $referers[$order['referer_id']] . ' ==> ' . $referers[$_POST['referer_id']]
-                        ));
+                    $this->history->save(
+                        'update-order-referer_id',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        $referers[$order['referer_id']] . ' ==> ' . $referers[$_POST['referer_id']]
+                    );
                     $order['referer_id'] = $_POST['referer_id'];
                 }
                 // обновляем заказ
@@ -2635,17 +2586,14 @@ class orders extends Controller
                 if ($ar) {
                     // сумма
                     if ($_order['sum'] != $order['sum']) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                            array(
-                                $user_id,
-                                'update-order-sum',
-                                $mod_id,
-                                $this->all_configs['arrequest'][2],
-                                ($order['sum'] / 100)
-                            ));
+                        $this->history->save(
+                            'update-order-sum',
+                            $mod_id,
+                            $this->all_configs['arrequest'][2],
+                            ($order['sum'] / 100)
+                        );
                     }
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'update-order', $mod_id, $this->all_configs['arrequest'][2]));
+                    $this->history->save('update-order', $mod_id, $this->all_configs['arrequest'][2]);
 
                     $get = '?' . get_to_string($_GET);
                     $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . $get . '#show_orders';
@@ -2675,14 +2623,12 @@ class orders extends Controller
             $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
                 array((int)$set, $sum, $_POST['id']))->ar();
             if ($sum != $order['sum']) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                    array(
-                        $user_id,
-                        'update-order-sum',
-                        $mod_id,
-                        $_POST['id'],
-                        ($sum / 100)
-                    ));
+                $this->history->save(
+                    'update-order-sum',
+                    $mod_id,
+                    $_POST['id'],
+                    ($sum / 100)
+                );
             }
             $data = array(
                 'state' => $ar > 0,
@@ -2717,14 +2663,12 @@ class orders extends Controller
                 if ($sum != $order['sum']) {
                     $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
                         array($sum, $order['id']))->ar();
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i, `change`=?',
-                        array(
-                            $user_id,
-                            'update-order-sum',
-                            $mod_id,
-                            $order['id'],
-                            ($sum / 100)
-                        ));
+                    $this->history->save(
+                        'update-order-sum',
+                        $mod_id,
+                        $order['id'],
+                        ($sum / 100)
+                    );
                 }
             }
             $data['msg'] = l('Цена изменилась');

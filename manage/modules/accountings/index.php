@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__.'/../../Core/Controller.php';
-require_once __DIR__.'/../../Models/Cashboxes.php';
+require_once __DIR__ . '/../../Core/Controller.php';
+require_once __DIR__ . '/../../Models/Cashboxes.php';
 
 $modulename[30] = 'accountings';
 $modulemenu[30] = l('Бухгалтерия');
@@ -38,7 +38,7 @@ class accountings extends Controller
         if (isset($arrequest[1]) && $arrequest == 'export') {
             $result = $this->export();
         }
-        return $result; 
+        return $result;
     }
 
     /**
@@ -76,71 +76,81 @@ class accountings extends Controller
 
             if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям товаров
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'g_cg=' . intval($post['categories']);
             }
 
             if (isset($post['goods']) && $post['goods'] > 0) {
                 // фильтр по товару
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'by_gid=' . intval($post['goods']);
             }
 
             if (isset($post['managers']) && !empty($post['managers'])) {
                 // фильтр по менеджерам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'mg=' . implode(',', $post['managers']);
             }
 
             if (isset($post['suppliers']) && !empty($post['suppliers'])) {
                 // фильтр по поставщикам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'sp=' . implode(',', $post['suppliers']);
             }
 
             if (isset($post['client-order']) && !empty($post['client-order'])) {
                 // фильтр клиенту/заказу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'co=' . urlencode(trim($post['client-order']));
             }
 
             if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
                 // фильтр по заказу частичный
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'pso_id=' . $post['supplier_order_id_part'];
             }
 
             if (isset($post['so-status']) && $post['so-status'] > 0) {
                 // фильтр по статусу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'sst=' . intval($post['so-status']);
             }
 
             if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
                 // фильтр по заказу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'so_id=' . $post['supplier_order_id'];
             }
 
             if (isset($post['so_st']) && $post['so_st'] > 0) {
                 // фильтр клиенту/заказу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'so_st=' . $post['so_st'];
             }
 
             if (isset($post['my']) && !empty($post['my'])) {
                 // фильтр клиенту/заказу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'my=1';
             }
 
@@ -169,29 +179,33 @@ class accountings extends Controller
 
             if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям товаров
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'g_cg=' . intval($post['categories']);
             }
 
             if (isset($post['goods']) && $post['goods'] > 0) {
                 // фильтр по товару
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'by_gid=' . intval($post['goods']);
             }
 
             if (isset($post['managers']) && !empty($post['managers'])) {
                 // фильтр по менеджерам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'mg=' . implode(',', $post['managers']);
             }
 
             if (isset($post['accepters']) && !empty($post['accepters'])) {
                 // фильтр по менеджерам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'acp=' . implode(',', $post['accepters']);
             }
             if (isset($post['states']) && !empty($post['states'])) {
@@ -204,92 +218,105 @@ class accountings extends Controller
 
             if (isset($post['engineers']) && !empty($post['engineers'])) {
                 // фильтр по менеджерам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'eng=' . implode(',', $post['engineers']);
             }
 
             if (isset($post['suppliers']) && !empty($post['suppliers'])) {
                 // фильтр по поставщикам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'sp=' . implode(',', $post['suppliers']);
             }
 
             if (isset($post['client-order_id']) && $post['client-order_id'] > 0) {
                 // фильтр по поставщикам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'co_id=' . $post['client-order_id'];
             }
 
             if (isset($post['status']) && !empty($post['status'])) {
                 // фильтр по статусу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'st=' . implode(',', $post['status']);
             }
 
             if (isset($post['client-order']) && !empty($post['client-order'])) {
                 // фильтр клиенту/заказу
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'co=' . urlencode(trim($post['client-order']));
             }
 
             if (isset($post['categories-last']) && intval($post['categories-last']) > 0) {
                 // фильтр категория
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'dev=' . intval($post['categories-last']);
             }
 
             if (isset($post['g_categories']) && !empty($post['g_categories'])) {
                 // фильтр по категориям товаров
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'g_cg=' . implode(',', $post['g_categories']);
             }
 
             if (isset($post['operators']) && !empty($post['operators'])) {
                 // фильтр по операторам
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'op=' . implode(',', $post['operators']);
             }
 
             if (!isset($post['commission'])) {
                 // фильтр по комиссии
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'cms=1';
             }
 
             if (isset($post['novaposhta'])) {
                 // фильтр по доставке
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'np=1';
             }
 
             if (isset($post['warranties'])) {
                 // фильтр по доставке
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'wrn=1';
             }
 
             if (isset($post['nowarranties'])) {
                 // фильтр по доставке
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'nowrn=1';
             }
 
             if (isset($post['return'])) {
                 // фильтр по доставке
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'rtrn=1';
             }
 
@@ -310,8 +337,9 @@ class accountings extends Controller
 
             // фильтр по кассам
             if (isset($post['cashboxes']) && !empty($post['cashboxes'])) {
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'cb=' . implode(',', $post['cashboxes']);
                 // искючить
                 if (isset($post['include_cashboxes']) && $post['include_cashboxes'] == -1) {
@@ -321,8 +349,9 @@ class accountings extends Controller
 
             // фильтр по категориям
             if (isset($post['categories']) && !empty($post['categories'])) {
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'cg=' . implode(',', $post['categories']);
                 // искючить
                 if (isset($post['include_categories']) && $post['include_categories'] == -1) {
@@ -332,8 +361,9 @@ class accountings extends Controller
 
             // фильтр по контрагентам
             if (isset($post['contractors']) && !empty($post['contractors'])) {
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'ct=' . implode(',', $post['contractors']);
                 // искючить
                 if (isset($post['include_contractors']) && $post['include_contractors'] == -1) {
@@ -343,14 +373,16 @@ class accountings extends Controller
 
             // фильтр по контрагентам
             if (isset($post['by']) && !empty($post['by']) && isset($post['by_id']) && $post['by_id'] > 0) {
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= $post['by'] . '=' . $post['by_id'];
             }
             // фильтр по контрагентам
             if (!isset($post['group']) || $post['group'] != 1) {
-                if (!empty($url))
+                if (!empty($url)) {
                     $url .= '&';
+                }
                 $url .= 'grp=1';
             }
 
@@ -386,8 +418,7 @@ class accountings extends Controller
                     }
                 }
             }
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-cashbox', $mod_id, $cashbox_id));
+            $this->history->save('add-cashbox', $mod_id, $cashbox_id);
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
@@ -429,15 +460,14 @@ class accountings extends Controller
                 }
             }
             if ($ar) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'edit-cashbox', $mod_id, $post['cashbox-id']));
+                $this->history->save('edit-cashbox', $mod_id, $post['cashbox-id']);
             }
 
         } elseif (isset($post['contractor_category-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создание категории
             $avail = isset($post['avail']) ? 1 : null;
             $parent_id = (isset($post['parent_id']) && $post['parent_id'] > 0) ? $post['parent_id'] : 0;
-            
+
             $title = trim($post['title']);
             if (empty($title)) {
                 FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
@@ -446,13 +476,18 @@ class accountings extends Controller
 
             $contractor_category = $this->all_configs['db']->query('INSERT INTO {contractors_categories}
                 (avail, parent_id, name, code_1c, transaction_type, comment, is_system) VALUES (?n, ?i, ?, ?, ?i, ?, 0)',
-                array($avail, $parent_id, $title, trim($post['code_1c']),
-                    $post['transaction_type'], trim($post['comment'])), 'id');
+                array(
+                    $avail,
+                    $parent_id,
+                    $title,
+                    trim($post['code_1c']),
+                    $post['transaction_type'],
+                    trim($post['comment'])
+                ), 'id');
 
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-contractor_category', $mod_id, $contractor_category));
-            if($parent_id > 0) {
-            $this->addContractorCategoryForUsers($parent_id, $contractor_category);
+            $this->history->save('add-contractor_category', $mod_id, $contractor_category);
+            if ($parent_id > 0) {
+                $this->addContractorCategoryForUsers($parent_id, $contractor_category);
             }
 
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -471,12 +506,18 @@ class accountings extends Controller
 
             $ar = $this->all_configs['db']->query('UPDATE {contractors_categories}
                     SET avail=?n, parent_id=?i, name=?, code_1c=?, transaction_type=?i, comment=? WHERE id=?i',
-                array($avail, $parent_id, $title, trim($post['code_1c']),
-                    $post['transaction_type'], trim($post['comment']), $post['contractor_category-id']))->ar();
+                array(
+                    $avail,
+                    $parent_id,
+                    $title,
+                    trim($post['code_1c']),
+                    $post['transaction_type'],
+                    trim($post['comment']),
+                    $post['contractor_category-id']
+                ))->ar();
 
             if ($ar) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'edit-contractor_category', $mod_id, $post['contractor_category-id']));
+                $this->history->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
             }
         } elseif (isset($post['cashboxes-currencies-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование валюты
@@ -486,11 +527,11 @@ class accountings extends Controller
                 exit;
             }
             foreach ($courses as $curr_id => $course) {
-                if(array_key_exists($curr_id, $this->all_configs['configs']['currencies'])){
+                if (array_key_exists($curr_id, $this->all_configs['configs']['currencies'])) {
                     $course *= 100;
                     db()->query("UPDATE {cashboxes_courses} "
-                                       ."SET course = ?f WHERE currency = ?i",
-                                    array($course, $curr_id));
+                        . "SET course = ?f WHERE currency = ?i",
+                        array($course, $curr_id));
                 }
             }
         }
@@ -552,14 +593,19 @@ class accountings extends Controller
         // для транзакций
         if ($operation == true) {
             if (array_key_exists('erp-use-id-for-accountings-operations', $this->all_configs['configs'])
-                && count($this->all_configs['configs']['erp-use-id-for-accountings-operations']) > 0) {
+                && count($this->all_configs['configs']['erp-use-id-for-accountings-operations']) > 0
+            ) {
 
                 $query_or = $this->all_configs['db']->makeQuery('k.id IN (?li) OR',
                     array($this->all_configs['configs']['erp-use-id-for-accountings-operations']));
             }
 
             $query = $this->all_configs['db']->makeQuery('?query AND (?query k.type IN (?li))',
-                array($query, $query_or, array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])));
+                array(
+                    $query,
+                    $query_or,
+                    array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])
+                ));
         }
 
         // достаем всех контрагентов
@@ -584,7 +630,8 @@ class accountings extends Controller
 
         if (array_key_exists('erp-use-for-accountings-operations', $this->all_configs['configs'])
             && count($this->all_configs['configs']['erp-use-for-accountings-operations']) > 0
-            && $contractor_category_id > 0) {
+            && $contractor_category_id > 0
+        ) {
 
             $contractors = $this->get_contractors(1, $contractor_category_id, true);
         }
@@ -638,7 +685,9 @@ class accountings extends Controller
                         'transaction_type' => $contractor['transaction_type'],
                         'name' => $contractor['contractor_name'],
                     );
-                    if (!array_key_exists($contractor['transaction_type'], $this->contractors[$contractor['id']]['transaction_types'])) {
+                    if (!array_key_exists($contractor['transaction_type'],
+                        $this->contractors[$contractor['id']]['transaction_types'])
+                    ) {
                         $this->contractors[$contractor['id']]['transaction_types'][$contractor['transaction_type']] = array($contractor['contractors_categories_id']);
                     } else {
                         $this->contractors[$contractor['id']]['transaction_types'][$contractor['transaction_type']][] = $contractor['contractors_categories_id'];
@@ -677,7 +726,9 @@ class accountings extends Controller
             foreach ($cashboxes_currencies as $currency) {
                 $checked = '';
 
-                if (array_key_exists('currencies', $cashbox) && array_key_exists($currency['currency'], $cashbox['currencies'])) {
+                if (array_key_exists('currencies', $cashbox) && array_key_exists($currency['currency'],
+                        $cashbox['currencies'])
+                ) {
                     $c_t = $this->all_configs['db']->query('
                         SELECT COUNT(*) FROM {cashboxes_currencies} as cc
                         LEFT JOIN (SELECT cashboxes_currency_id_from, cashboxes_currency_id_to FROM {contractors_transactions})ct_t ON
@@ -690,10 +741,11 @@ class accountings extends Controller
                           cb_t.cashboxes_currency_id_to
                         ', array($currency['currency'], $cashbox['id']))->el();
 
-                    if ($c_t && $c_t > 0)
+                    if ($c_t && $c_t > 0) {
                         $checked = "checked readonly";
-                    else
+                    } else {
                         $checked = "checked";
+                    }
 
                 }
 
@@ -703,10 +755,13 @@ class accountings extends Controller
         } else {
 
             foreach ($cashboxes_currencies as $currency) {
-                if (array_key_exists($currency['id'], $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$currency['id']]['currency-name'] == $this->all_configs['configs']['default-currency'])
+                if (array_key_exists($currency['id'],
+                        $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$currency['id']]['currency-name'] == $this->all_configs['configs']['default-currency']
+                ) {
                     $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' checked value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label></div>";
-                else
+                } else {
                     $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label></div>";
+                }
             }
             $btn = "<input type='submit' class='btn btn-primary' name='cashbox-add' value='" . l('Создать') . "' />";
             $title = '';
@@ -769,7 +824,7 @@ class accountings extends Controller
             $out .= '"><div class="panel-body">';
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
-            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '').'<div class="form-group">';
+            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '') . '<div class="form-group">';
             $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': </label>';
             $out .= '<select id="contractor_type_select" class="form-control" name="type"><option value=""></option>';
             foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
@@ -779,8 +834,9 @@ class accountings extends Controller
                 }
                 $cats_1 = $this->all_configs['configs']['erp-contractors-type-categories'][$c_id][1];
                 $cats_2 = $this->all_configs['configs']['erp-contractors-type-categories'][$c_id][2];
-                $out .= '<option'.$sel.' data-categories_1="['.implode(',',$cats_1).']" '
-                        .'data-categories_2="['.implode(',',$cats_2).']" value="' . $c_id . '">' . $c_name . '</option>';
+                $out .= '<option' . $sel . ' data-categories_1="[' . implode(',', $cats_1) . ']" '
+                    . 'data-categories_2="[' . implode(',',
+                        $cats_2) . ']" value="' . $c_id . '">' . $c_name . '</option>';
             }
             $out .= '</select></div>';
             $out .= '<label>' . l('Укажите статьи расходов для контрагента') . ' <small>(' . l('за что мы платим контрагенту') . ')</small>: </label>';
@@ -809,14 +865,14 @@ class accountings extends Controller
             $out .= '<textarea class="form-control" name="comment" placeholder="' . l('введите комментарий к контрагенту') . '">' . $comment . '</textarea>';
             $out .= '';
             if ($contractor) {
-                if($contractor['comment'] == 'system'){
+                if ($contractor['comment'] == 'system') {
                     // системного низя менять
                     $out .= "
                         <div class='form-group'>
                             <p class='text-info'>" . l('Технический контрагент - не подлежит редактированию') . "</p>
                         </div>
                     ";
-                }else{
+                } else {
                     if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
                         $out .= "
                             <div class='form-group'>
@@ -828,19 +884,19 @@ class accountings extends Controller
                     }
                 }
                 $client_contr = $this->all_configs['db']->query("SELECT id FROM {clients} "
-                                                    . "WHERE contractor_id = ?i", array($contractor['id']), 'el');
+                    . "WHERE contractor_id = ?i", array($contractor['id']), 'el');
                 $out .= "
                     <div class='form-group'>
-                        <label>" . l('Клиент') . ":</label> ".
-                            ($client_contr ?
-                                '<a href="'.$this->all_configs['prefix'].'clients/create/'.$client_contr.'">'.
-                                    $client_contr.
-                                '</a>' :
-                                    '<span class="text-danger">' . l('Не привязан') . '</span>')
-                            ."
+                        <label>" . l('Клиент') . ":</label> " .
+                    ($client_contr ?
+                        '<a href="' . $this->all_configs['prefix'] . 'clients/create/' . $client_contr . '">' .
+                        $client_contr .
+                        '</a>' :
+                        '<span class="text-danger">' . l('Не привязан') . '</span>')
+                    . "
                     </div></div>
                 ";
-            }else{
+            } else {
                 $out .= '
                     <div class="form-group">
                         <label>' . l('Телефон') . '</label>
@@ -852,7 +908,7 @@ class accountings extends Controller
                     </div>
                 ';
             }
-            if(!$wrap_form){
+            if (!$wrap_form) {
                 $out .= '</form>';
             }
         }
@@ -875,7 +931,7 @@ class accountings extends Controller
             if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 $btn .= "<input type='hidden' name='contractor_category-id' value='{$contractor_category['id']}' />";
                 $btn .= "<input type='button' class='btn' onclick='$(\"form.form_contractor_category\").submit();' value='" . l('Редактировать') . "' />";
-                if(!$contractor_category['is_system']) {
+                if (!$contractor_category['is_system']) {
                     $btn .= "<input type='button' onclick='contractor_category_remove(this, \"{$contractor_category['id']}\")' class='btn btn-danger contractor_category-remove' value='" . l('Удалить') . "' />";
                 }
             }
@@ -924,7 +980,7 @@ class accountings extends Controller
             array($cashbox_id))->vars();
 
         if ($_currencies) {
-            foreach ($_currencies as $id=>$name) {
+            foreach ($_currencies as $id => $name) {
                 $currencies_html .= '<option value="' . $id . '">' . htmlspecialchars($name) . '</option>';
             }
         }
@@ -989,14 +1045,21 @@ class accountings extends Controller
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
                         array($this, $_POST['tab']),
-                        array((isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'], 'UTF-8')) > 0) ? trim($_POST['hashs']) : null)
+                        array(
+                            (isset($_POST['hashs']) && mb_strlen(trim($_POST['hashs'],
+                                    'UTF-8')) > 0) ? trim($_POST['hashs']) : null
+                        )
                     );
-                    $return = array('html' => $function['html'], 'state' => true, 'functions' => $function['functions']);
+                    $return = array(
+                        'html' => $function['html'],
+                        'state' => true,
+                        'functions' => $function['functions']
+                    );
                     if (isset($function['menu'])) {
                         $return['menu'] = $function['menu'];
                     }
                 } else {
-                        $return = array('message' => l('Не найдено'), 'state' => false);
+                    $return = array('message' => l('Не найдено'), 'state' => false);
                 }
                 Response::json($return);
             }
@@ -1033,7 +1096,7 @@ class accountings extends Controller
                       FROM {contractors_transactions} as t, {contractors_categories_links} as l
                       WHERE l.contractors_id=?i AND t.contractor_category_link=l.id',
                     array(TRANSACTION_INPUT, TRANSACTION_OUTPUT, $_POST['contractor_id']))->el();
-                $data['message'] = show_price(1*$amount);
+                $data['message'] = show_price(1 * $amount);
                 $data['state'] = true;
             }
         }
@@ -1050,7 +1113,8 @@ class accountings extends Controller
         // форма создания транзакции
         if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3'
             || $act == 'begin-transaction-1-co' || $act == 'begin-transaction-2-co'
-            || $act == 'begin-transaction-1-so' || $act == 'begin-transaction-2-so') {
+            || $act == 'begin-transaction-1-so' || $act == 'begin-transaction-2-so'
+        ) {
             $data = $this->createTransactionForm($data, $user_id, $act);
         }
 
@@ -1083,20 +1147,19 @@ class accountings extends Controller
         }
 
         // форма создания контрагента
-        if ($act == 'create-contractor-form' ) {
+        if ($act == 'create-contractor-form') {
             $data['state'] = true;
             $data['content'] = $this->form_contractor();
             $data['functions'] = array('reset_multiselect()');
-            $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this".(isset($_POST['callback']) ? ', '.htmlspecialchars($_POST['callback']): '').")' value='" . l('Создать') . "' />";
+            $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this" . (isset($_POST['callback']) ? ', ' . htmlspecialchars($_POST['callback']) : '') . ")' value='" . l('Создать') . "' />";
         }
 
-        if ($act == 'create-contractor-form-no-modal' ) {
+        if ($act == 'create-contractor-form-no-modal') {
             $data['state'] = true;
             $data['html'] =
-                $this->form_contractor(null,null,true)
-                ."<input type='button' class='btn btn-success' onclick='contractor_create(this,new_quick_create_supplier_callback)' value='" . l('Создать') . "' />"
-                .'&nbsp;<button type="button" class="btn btn-default hide_typeahead_add_form">'.l('Отмена').'</button>'
-            ;
+                $this->form_contractor(null, null, true)
+                . "<input type='button' class='btn btn-success' onclick='contractor_create(this,new_quick_create_supplier_callback)' value='" . l('Создать') . "' />"
+                . '&nbsp;<button type="button" class="btn btn-default hide_typeahead_add_form">' . l('Отмена') . '</button>';
         }
 
         // Кредит Отказ
@@ -1111,7 +1174,8 @@ class accountings extends Controller
                 Response::json(array('message' => l('Кредит уже отказан'), 'error' => true));
             }
 
-            $this->all_configs['db']->query('UPDATE {orders} SET status=?i WHERE id=?i', array($this->all_configs['configs']['order-status-loan-denied'], $_POST['order_id']));
+            $this->all_configs['db']->query('UPDATE {orders} SET status=?i WHERE id=?i',
+                array($this->all_configs['configs']['order-status-loan-denied'], $_POST['order_id']));
 
             Response::json(array('message' => l('Успешно')));
         }
@@ -1121,15 +1185,17 @@ class accountings extends Controller
             if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
                 Response::json(array('message' => l('Кредит уже одобрен'), 'error' => true));
             }
-            $order = $this->all_configs['db']->query('SELECT id, status FROM {orders} WHERE id=?i', array($_POST['order_id']))->row();
+            $order = $this->all_configs['db']->query('SELECT id, status FROM {orders} WHERE id=?i',
+                array($_POST['order_id']))->row();
 
             if (!$order || $order['status'] != $this->all_configs['configs']['order-status-loan-wait']) {
-                    Response::json(array('message' => l('Кредит уже одобрен'), 'error' => true));
+                Response::json(array('message' => l('Кредит уже одобрен'), 'error' => true));
             }
 
-            $this->all_configs['db']->query('UPDATE {orders} SET status=?i WHERE id=?i', array($this->all_configs['configs']['order-status-loan-approved'], $_POST['order_id']));
+            $this->all_configs['db']->query('UPDATE {orders} SET status=?i WHERE id=?i',
+                array($this->all_configs['configs']['order-status-loan-approved'], $_POST['order_id']));
 
-                Response::json(array('message' => l('Успешно')));
+            Response::json(array('message' => l('Успешно')));
         }
 
         // достаем всех котрагентов по категории
@@ -1144,13 +1210,16 @@ class accountings extends Controller
         // достаем все валюты кассы
         if ($act == 'get-cashbox-currencies') {
             $data['state'] = true;
-            $data['currencies'] = $this->get_cashbox_currencies(array_key_exists('cashbox_id', $_POST) ? $_POST['cashbox_id'] : 0);
+            $data['currencies'] = $this->get_cashbox_currencies(array_key_exists('cashbox_id',
+                $_POST) ? $_POST['cashbox_id'] : 0);
         }
 
         // добавление валюты
         if ($act == 'add-currency') {
 
-            if (!isset($_POST['currency_id']) || $_POST['currency_id'] == 0 || !array_key_exists($_POST['currency_id'], $this->all_configs['suppliers_orders']->currencies)) {
+            if (!isset($_POST['currency_id']) || $_POST['currency_id'] == 0 || !array_key_exists($_POST['currency_id'],
+                    $this->all_configs['suppliers_orders']->currencies)
+            ) {
                 $data['msg'] = l('Нет такой валюты');
             } else {
 
@@ -1163,8 +1232,7 @@ class accountings extends Controller
 
                 // история
                 if ($ar) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'add-to-cashbox-currency', $mod_id, $_POST['currency_id']));
+                    $this->history->save('add-to-cashbox-currency', $mod_id, $_POST['currency_id']);
                 }
 
                 $courses_html = $this->gen_currency_table();
@@ -1200,14 +1268,15 @@ class accountings extends Controller
             }
 
             if ($check == true) {
-                $this->all_configs['db']->query('DELETE FROM {cashboxes_currencies} WHERE currency=?i', array($_POST['currency_id']));
-                $ar = $this->all_configs['db']->query('DELETE FROM {cashboxes_courses} WHERE currency=?i', array($_POST['currency_id']))->ar();
+                $this->all_configs['db']->query('DELETE FROM {cashboxes_currencies} WHERE currency=?i',
+                    array($_POST['currency_id']));
+                $ar = $this->all_configs['db']->query('DELETE FROM {cashboxes_courses} WHERE currency=?i',
+                    array($_POST['currency_id']))->ar();
                 $data['state'] = true;
 
                 // история
                 if ($ar) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'remove-global-cashbox-course', $mod_id, $_POST['currency_id']));
+                    $this->history->save('remove-global-cashbox-course', $mod_id, $_POST['currency_id']);
                 }
 
                 $new_courses = $this->all_configs['suppliers_orders']->currencies;
@@ -1215,8 +1284,9 @@ class accountings extends Controller
                 $cashboxes_currencies = $this->cashboxes_courses();
 
                 foreach ($cashboxes_currencies as $cashbox_currency) {
-                    if (array_key_exists($cashbox_currency['currency'], $new_courses))
+                    if (array_key_exists($cashbox_currency['currency'], $new_courses)) {
                         unset($new_courses[$cashbox_currency['currency']]);
+                    }
                 }
 
                 // добавить валюту
@@ -1259,7 +1329,8 @@ class accountings extends Controller
                 }
 
                 if (isset($_GET['course-from-post']) && $_GET['course-from-post'] == 1
-                    && isset($_POST['cashbox_course_from']) && isset($_POST['cashbox_course_to'])) {
+                    && isset($_POST['cashbox_course_from']) && isset($_POST['cashbox_course_to'])
+                ) {
                     $course_1 = $_POST['cashbox_course_from'] * 100;
                     $course_2 = $_POST['cashbox_course_to'] * 100;
                 } else {
@@ -1288,18 +1359,20 @@ class accountings extends Controller
             } else {
                 $data['state'] = true;
                 $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
-                                                            ."WHERE id = ?i AND comment = 'system'", array($_POST['contractor_id']), 'el');
-                if($is_system){
+                    . "WHERE id = ?i AND comment = 'system'", array($_POST['contractor_id']), 'el');
+                if ($is_system) {
                     $data['state'] = false;
                     $data['msg'] = l('Системный контрагент - не подлежит редактированию');
-                }else{
+                } else {
                     $count_t = 0;
                     // количество транзакций
                     if (array_key_exists('erp-use-for-accountings-operations', $this->all_configs['configs'])
-                        && count($this->all_configs['configs']['erp-use-for-accountings-operations']) > 0) {
+                        && count($this->all_configs['configs']['erp-use-for-accountings-operations']) > 0
+                    ) {
                         $query = '';
                         if (array_key_exists('erp-use-id-for-accountings-operations', $this->all_configs['configs'])
-                            && count($this->all_configs['configs']['erp-use-id-for-accountings-operations']) > 0) {
+                            && count($this->all_configs['configs']['erp-use-id-for-accountings-operations']) > 0
+                        ) {
                             $query = $this->all_configs['db']->makeQuery('c.id IN (?li) OR',
                                 array($this->all_configs['configs']['erp-use-id-for-accountings-operations']));
                         }
@@ -1307,19 +1380,22 @@ class accountings extends Controller
                                 FROM {cashboxes_transactions} as t, {contractors_categories_links} as l, {contractors} as c
                                 WHERE t.contractor_category_link=l.id AND l.contractors_id=c.id AND c.id=?i
                                   AND (?query c.type IN (?li))',
-                            array($_POST['contractor_id'], $query,
-                                array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])))->el();
+                            array(
+                                $_POST['contractor_id'],
+                                $query,
+                                array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])
+                            ))->el();
                     }
 
                     if ($count_t > 0) {
                         $data['msg'] = l('Контрагент содержит операции, его нельзя удалить');
                     } else {
-                        $ar = $this->all_configs['db']->query('DELETE FROM {contractors} WHERE id=?i', array($_POST['contractor_id']))->ar();
+                        $ar = $this->all_configs['db']->query('DELETE FROM {contractors} WHERE id=?i',
+                            array($_POST['contractor_id']))->ar();
 
                         // история
                         if ($ar) {
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'remove-contractor', $mod_id, $_POST['contractor_id']));
+                            $this->history->save('remove-contractor', $mod_id, $_POST['contractor_id']);
                         }
 
                         $data['state'] = true;
@@ -1334,23 +1410,27 @@ class accountings extends Controller
                 $data['msg'] = l('Такой статьи не существует');
             } else {
                 // количество подкатегорий
-                $count_c = $this->all_configs['db']->query('SELECT count(id) FROM {contractors_categories} WHERE parent_id=?i', array($_POST['category_id']))->el();
+                $count_c = $this->all_configs['db']->query('SELECT count(id) FROM {contractors_categories} WHERE parent_id=?i',
+                    array($_POST['category_id']))->el();
                 // количество транзакций
                 $count_t = $this->all_configs['db']->query('SELECT count(t.id) FROM {cashboxes_transactions} as t, {contractors_categories_links} as l, {contractors_categories} as c
-                    WHERE t.contractor_category_link=l.id AND l.contractors_categories_id=c.id AND c.id=?i', array($_POST['category_id']))->el();
+                    WHERE t.contractor_category_link=l.id AND l.contractors_categories_id=c.id AND c.id=?i',
+                    array($_POST['category_id']))->el();
 
                 if ($count_c > 0 || $count_t > 0) {
-                    if ($count_c > 0)
+                    if ($count_c > 0) {
                         $data['msg'] = l('Статья содержит подстатьи, чтобы удалить перенесите их в другие статьи');
-                    if ($count_t > 0)
+                    }
+                    if ($count_t > 0) {
                         $data['msg'] = l('Статья содержит операции, ее нельзя удалить');
+                    }
                 } else {
-                    $ar = $this->all_configs['db']->query('DELETE FROM {contractors_categories} WHERE id=?i', array($_POST['category_id']))->ar();
+                    $ar = $this->all_configs['db']->query('DELETE FROM {contractors_categories} WHERE id=?i',
+                        array($_POST['category_id']))->ar();
 
                     // история
                     if ($ar) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'remove-contractors-category', $mod_id, $_POST['category_id']));
+                        $this->history->save('remove-contractors-category', $mod_id, $_POST['category_id']);
                     }
 
                     $data['state'] = true;
@@ -1510,9 +1590,11 @@ class accountings extends Controller
         $out = '';
         $sum = array();
 
-        if (array_key_exists('cashboxes', $amounts) && is_array($amounts['cashboxes']) && count($amounts['cashboxes']) > 0) {
+        if (array_key_exists('cashboxes',
+                $amounts) && is_array($amounts['cashboxes']) && count($amounts['cashboxes']) > 0
+        ) {
 
-            usort($amounts['cashboxes'], array('accountings','akcsort'));
+            usort($amounts['cashboxes'], array('accountings', 'akcsort'));
 
             foreach ($amounts['cashboxes'] as $amount) {
                 if ($amount['amount'] != 0) {
@@ -1593,7 +1675,8 @@ class accountings extends Controller
         $out = '';
 
         if ($this->all_configs['oRole']->hasCashierPermission($this->getUserId()) ||
-                $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')) {
+            $this->all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')
+        ) {
 
             // допустимые валюты
             $currencies = $this->all_configs['suppliers_orders']->currencies;
@@ -1610,11 +1693,13 @@ class accountings extends Controller
                     if ($contractor) {
                         // выводим инфу контрагента
                         $contractor_html = '<h4 class="well">' . $contractor[0]['title'] . ', ' . show_price($contractor[0]['amount']) . '$';
-                        $contractor_html .= (array_key_exists($contractor[0]['type'], $this->all_configs['configs']['erp-contractors-types']) ? '<br />' . $this->all_configs['configs']['erp-contractors-types'][$contractor[0]['type']] : '') . '<br />';
+                        $contractor_html .= (array_key_exists($contractor[0]['type'],
+                                $this->all_configs['configs']['erp-contractors-types']) ? '<br />' . $this->all_configs['configs']['erp-contractors-types'][$contractor[0]['type']] : '') . '<br />';
                         foreach ($contractor as $k => $contractor_category) {
                             $contractor_html .= $contractor_category['name'];
-                            if (($k + 1) < count($contractor))
+                            if (($k + 1) < count($contractor)) {
                                 $contractor_html .= ', ';
+                            }
                         }
                         $contractor_html .= '</h4>';
                     }
@@ -1711,34 +1796,45 @@ class accountings extends Controller
 
                     // до текущего года
                     if ($y < $year) {
-                        $cumulative_total[$t['cr']] = (array_key_exists($t['cr'], $cumulative_total) ? $cumulative_total[$t['cr']] : 0) + ($t['inc'] - $t['exp']);
+                        $cumulative_total[$t['cr']] = (array_key_exists($t['cr'],
+                                $cumulative_total) ? $cumulative_total[$t['cr']] : 0) + ($t['inc'] - $t['exp']);
                     }
 
                     // текущий год
                     if ($y == $year) {
                         // доходы
                         if ($t['tt'] == 2) {
-                            $m_inc[$m][$t['cr']] = (array_key_exists($m, $m_inc) && array_key_exists($t['cr'], $m_inc[$m])
+                            $m_inc[$m][$t['cr']] = (array_key_exists($m, $m_inc) && array_key_exists($t['cr'],
+                                    $m_inc[$m])
                                     ? $m_inc[$m][$t['cr']] : 0) + $t['inc'];
-                            $total[$m][$t['cr']] = (array_key_exists($m, $total) && array_key_exists($t['cr'], $total[$m])
+                            $total[$m][$t['cr']] = (array_key_exists($m, $total) && array_key_exists($t['cr'],
+                                    $total[$m])
                                     ? $total[$m][$t['cr']] : 0) + $t['inc'];
                             $inc_ct[$t['cid']][$m][$t['cr']] = (array_key_exists($t['cid'], $inc_ct)
-                                && array_key_exists($m, $inc_ct[$t['cid']]) && array_key_exists($t['cr'], $inc_ct[$t['cid']][$m])
+                                && array_key_exists($m, $inc_ct[$t['cid']]) && array_key_exists($t['cr'],
+                                    $inc_ct[$t['cid']][$m])
                                     ? $inc_ct[$t['cid']][$m][$t['cr']] : 0) + $t['inc'];
-                            $total_inc[$t['cr']] = (array_key_exists($t['cr'], $total_inc) ? $total_inc[$t['cr']] : 0) + $t['inc'];
-                            $total_total[$t['cr']] = (array_key_exists($t['cr'], $total_total) ? $total_total[$t['cr']] : 0) + $t['inc'];
+                            $total_inc[$t['cr']] = (array_key_exists($t['cr'],
+                                    $total_inc) ? $total_inc[$t['cr']] : 0) + $t['inc'];
+                            $total_total[$t['cr']] = (array_key_exists($t['cr'],
+                                    $total_total) ? $total_total[$t['cr']] : 0) + $t['inc'];
                         }
                         // расходы
                         if ($t['tt'] == 1) {
-                            $m_exp[$m][$t['cr']] = (array_key_exists($m, $m_exp) && array_key_exists($t['cr'], $m_exp[$m])
+                            $m_exp[$m][$t['cr']] = (array_key_exists($m, $m_exp) && array_key_exists($t['cr'],
+                                    $m_exp[$m])
                                     ? $m_exp[$m][$t['cr']] : 0) + $t['exp'];
-                            $total[$m][$t['cr']] = (array_key_exists($m, $total) && array_key_exists($t['cr'], $total[$m])
+                            $total[$m][$t['cr']] = (array_key_exists($m, $total) && array_key_exists($t['cr'],
+                                    $total[$m])
                                     ? $total[$m][$t['cr']] : 0) - $t['exp'];
                             $exp_ct[$t['cid']][$m][$t['cr']] = (array_key_exists($t['cid'], $exp_ct)
-                                && array_key_exists($m, $exp_ct[$t['cid']]) && array_key_exists($t['cr'], $exp_ct[$t['cid']][$m])
+                                && array_key_exists($m, $exp_ct[$t['cid']]) && array_key_exists($t['cr'],
+                                    $exp_ct[$t['cid']][$m])
                                     ? $exp_ct[$t['cid']][$m][$t['cr']] : 0) + $t['exp'];
-                            $total_exp[$t['cr']] = (array_key_exists($t['cr'], $total_exp) ? $total_exp[$t['cr']] : 0) + $t['exp'];
-                            $total_total[$t['cr']] = (array_key_exists($t['cr'], $total_total) ? $total_total[$t['cr']] : 0) - $t['exp'];
+                            $total_exp[$t['cr']] = (array_key_exists($t['cr'],
+                                    $total_exp) ? $total_exp[$t['cr']] : 0) + $t['exp'];
+                            $total_total[$t['cr']] = (array_key_exists($t['cr'],
+                                    $total_total) ? $total_total[$t['cr']] : 0) - $t['exp'];
                         }
                     }
                 }
@@ -1751,12 +1847,12 @@ class accountings extends Controller
             $out_exp = '<tr class="well"><td><a href="" onclick="toggle_report_cashflow(this, event, \'exp\')" class="none-decoration">';
             $out_exp .= '<i class="glyphicon glyphicon-chevron-down"></i></a>' . l('Расходы') . '</td>';
             $out_total = '<tr class="well"><td>' . l('Итого') . '</td>';
-            $out_cumulative_total = '<tr><td>'.  l('Нарастающий итог') . '</td>';
+            $out_cumulative_total = '<tr><td>' . l('Нарастающий итог') . '</td>';
 
             $crs = $this->all_configs['suppliers_orders']->currencies;
             $out_inc_ct = ''; // доходы по категориям (статьям)
             if ($contractors_categories_inc) {
-                foreach ($contractors_categories_inc as $cid=>$ct) {
+                foreach ($contractors_categories_inc as $cid => $ct) {
                     $total_inc_ct = array();
                     $out_inc_ct .= '<tr class="report-cashflow-inc"><td>' . htmlspecialchars($ct) . '</td>';
                     foreach ($this->months as $number => $name) {
@@ -1774,7 +1870,7 @@ class accountings extends Controller
 
             $out_exp_ct = ''; // расходы по категориям (статьям)
             if ($contractors_categories_exp) {
-                foreach ($contractors_categories_exp as $cid=>$ct) {
+                foreach ($contractors_categories_exp as $cid => $ct) {
                     $total_exp_ct = array();
                     $out_exp_ct .= '<tr class="report-cashflow-exp"><td>' . htmlspecialchars($ct) . '</td>';
                     foreach ($this->months as $number => $name) {
@@ -1796,12 +1892,15 @@ class accountings extends Controller
                     $this->array_sum_values($cumulative_total, $total[$number]) : $cumulative_total;
 
                 $out .= '<td>' . htmlspecialchars($name) . '</td>';
-                $out_inc .= '<td>' . (array_key_exists($number, $m_inc) ? show_price($m_inc[$number], 2, ' ', ',', 100, $crs) : '') . '</td>';
-                $out_exp .= '<td>' . (array_key_exists($number, $m_exp) ? show_price($m_exp[$number], 2, ' ', ',', 100, $crs) : '') . '</td>';
-                $out_total .= '<td>' . (array_key_exists($number, $total) ? show_price($total[$number], 2, ' ', ',', 100, $crs) : '') .  '</td>';
+                $out_inc .= '<td>' . (array_key_exists($number, $m_inc) ? show_price($m_inc[$number], 2, ' ', ',', 100,
+                        $crs) : '') . '</td>';
+                $out_exp .= '<td>' . (array_key_exists($number, $m_exp) ? show_price($m_exp[$number], 2, ' ', ',', 100,
+                        $crs) : '') . '</td>';
+                $out_total .= '<td>' . (array_key_exists($number, $total) ? show_price($total[$number], 2, ' ', ',',
+                        100, $crs) : '') . '</td>';
                 $out_cumulative_total .= '<td>' . show_price($cumulative_total, 2, ' ', ',', 100, $crs) . '</td>';
             }
-            $out .= '<td>' . l('Всего') .'</td></tr></thead><tbody>';
+            $out .= '<td>' . l('Всего') . '</td></tr></thead><tbody>';
             $out .= $out_inc . '<td>' . show_price($total_inc, 2, ' ', ',', 100, $crs) . '</td></tr>' . $out_inc_ct;
             $out .= $out_exp . '<td>' . show_price($total_exp, 2, ' ', ',', 100, $crs) . '</td></tr>' . $out_exp_ct;
 
@@ -1819,7 +1918,8 @@ class accountings extends Controller
     /**
      * @return array|mixed
      */
-    function array_sum_values() {
+    function array_sum_values()
+    {
         $return = array();
         //$intArgs = func_num_args();
         $arrArgs = func_get_args();
@@ -1829,9 +1929,9 @@ class accountings extends Controller
                 reset($arrArgs);
                 $return = current($arrArgs);
             } else {
-                foreach($arrArgs as $arrItem) {
+                foreach ($arrArgs as $arrItem) {
                     if (is_array($arrItem) && count($arrItem) > 0) {
-                        foreach($arrItem as $k => $v) {
+                        foreach ($arrItem as $k => $v) {
                             $return[$k] = (array_key_exists($k, $return) ? $return[$k] : 0) + $v;
                         }
                     }
@@ -1895,7 +1995,8 @@ class accountings extends Controller
                     // текущий год
                     if ($y == $year) {
                         $m_tr_cb[$t['cid']][$m][$t['cr']] = (array_key_exists($t['cid'], $m_tr_cb)
-                            && array_key_exists($m, $m_tr_cb[$t['cid']]) && array_key_exists($t['cr'], $m_tr_cb[$t['cid']][$m])
+                            && array_key_exists($m, $m_tr_cb[$t['cid']]) && array_key_exists($t['cr'],
+                                $m_tr_cb[$t['cid']][$m])
                                 ? $m_tr_cb[$t['cid']][$m][$t['cr']] : 0) + ($t['inc'] - $t['exp']);
                     }
                 }
@@ -1906,7 +2007,7 @@ class accountings extends Controller
 
             $out_cb = '';
             if ($cashboxes) {
-                foreach ($cashboxes as $cid=>$c) {
+                foreach ($cashboxes as $cid => $c) {
                     $out_cb .= '<tr><td class="text-right">' . htmlspecialchars($c) . '</td>';
 
                     foreach ($this->months as $number => $name) {
@@ -1930,7 +2031,8 @@ class accountings extends Controller
             $out_total = ''; // итого
             foreach ($this->months as $number => $name) {
                 $out .= '<td>' . htmlspecialchars($name) . '</td>';
-                $out_total .= '<td>' . (array_key_exists($number, $total) ? show_price($total[$number], 2, ' ', ',', 100, $crs) : '') . '</td>';
+                $out_total .= '<td>' . (array_key_exists($number, $total) ? show_price($total[$number], 2, ' ', ',',
+                        100, $crs) : '') . '</td>';
             }
             $out .= '</tr></thead><tbody>' . $out_cb;
             //$out .= '<tr><td>Наличные</td>' . $out_total_tr . '</tr>';
@@ -2018,10 +2120,12 @@ class accountings extends Controller
 
             // баланс поставщиков
             foreach ($this->contractors as $contractor) {
-                if ($contractor['amount'] > 0)
+                if ($contractor['amount'] > 0) {
                     $s_balance['exp'] -= $contractor['amount'];
-                if ($contractor['amount'] < 0)
+                }
+                if ($contractor['amount'] < 0) {
                     $s_balance['inv'] -= $contractor['amount'];
+                }
                 $s_balance['html'] -= $contractor['amount'];
                 $s_balance['amount'][$cso] -= $contractor['amount'];
             }
@@ -2048,7 +2152,8 @@ class accountings extends Controller
             $total['amount'] = $this->sum_by_currency($cost_of['amount'], $assets['amount'], $s_balance['amount'],
                 $total_cashboxes['amount']);
             if (is_array($total['amount']) && count($total['amount']) > 0) {
-                $total['html'] = ''; $i = 1;
+                $total['html'] = '';
+                $i = 1;
                 foreach ($total['amount'] as $k => $a) {
                     $total['html'] .= show_price($a, 2, ' ');
                     $total['html'] .= array_key_exists($k, $currencies) ? ' ' . $currencies[$k]['shortName'] : '';
@@ -2074,7 +2179,8 @@ class accountings extends Controller
 
             // расчет долевого участия контрагентов
             if (array_key_exists('erp-contractors-founders', $this->all_configs['configs'])
-                && count($this->all_configs['configs']['erp-contractors-founders']) > 0) {
+                && count($this->all_configs['configs']['erp-contractors-founders']) > 0
+            ) {
 
                 $cfs = (array)$this->all_configs['configs']['erp-contractors-founders'];
 
@@ -2094,14 +2200,16 @@ class accountings extends Controller
                 //(итого Контрагент1/ 2) – (итого Контрагент2 / 2) - ...
                 if ($total_by_ctr) {
 
-                    usort($total_by_ctr, array('accountings','akcsort'));
+                    usort($total_by_ctr, array('accountings', 'akcsort'));
 
                     foreach ($total_by_ctr as $ct) {
                         if ($ct['currency'] > 0) {
                             if (!array_key_exists($ct['ctr_id'], $ctr_total)
                                 || !array_key_exists('amounts', $ctr_total[$ct['ctr_id']])
-                                || !array_key_exists($ct['currency'], $ctr_total[$ct['ctr_id']]['amounts']))
+                                || !array_key_exists($ct['currency'], $ctr_total[$ct['ctr_id']]['amounts'])
+                            ) {
                                 $ctr_total[$ct['ctr_id']]['amounts'][$ct['currency']] = 0;
+                            }
 
                             $ctr_total[$ct['ctr_id']]['title'] = $ct['title'];
                             $ctr_total[$ct['ctr_id']]['amounts'][$ct['currency']] += $ct['amount'] / 2;
@@ -2109,10 +2217,10 @@ class accountings extends Controller
                         }
                     }
 
-                    foreach ($ctr_total as $ctr_id=>$v) {
-                        foreach ($ctr_total as $sctr_id=>$sv) {
+                    foreach ($ctr_total as $ctr_id => $v) {
+                        foreach ($ctr_total as $sctr_id => $sv) {
                             if ($ctr_id != $sctr_id) {
-                                foreach ($v['amounts'] as $cc=>$a) {
+                                foreach ($v['amounts'] as $cc => $a) {
                                     if (array_key_exists($cc, $sv['amounts'])) {
                                         $ctr_total[$ctr_id]['amounts'][$cc] -= $sv['ba'][$cc];
                                     }
@@ -2122,7 +2230,7 @@ class accountings extends Controller
                     }
                 }
 
-                foreach ($ctr_total as $ctr_id=>$ctr) {
+                foreach ($ctr_total as $ctr_id => $ctr) {
                     $out .= '<tr><td><strong>' . htmlspecialchars($ctr['title']) . ':</strong></td>';
                     $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?ct=' . $ctr_id;
                     $out .= '<td><a href="' . $url . '#transactions-cashboxes">';
@@ -2171,7 +2279,7 @@ class accountings extends Controller
         $amounts = $this->all_configs['manageModel']->profit_margin($_GET);
 
         if ($amounts && is_array($amounts['orders']) && count($amounts['orders']) > 0) {
-            foreach ($amounts['orders'] as $k=>$p) {
+            foreach ($amounts['orders'] as $k => $p) {
                 $array[$k]['№ Заказа'] = $p['order_id'];
                 $array[$k]['Устройство'] = $p['title'];
 
@@ -2298,7 +2406,7 @@ class accountings extends Controller
                      <div class="input-group">
                         <input type="text" name="date" value="' . $date . '" class="form-control daterangepicker" />
                         <span class="input-group-btn">
-                            <input class="btn" type="submit" name="filters" value="' . l('Применить') .'" />
+                            <input class="btn" type="submit" name="filters" value="' . l('Применить') . '" />
                         </span>
                      </div>';
             $out .= '</form><br>';
@@ -2308,10 +2416,12 @@ class accountings extends Controller
             // фильтр по дате
             $day_from = 1 . date(".m.Y") . ' 00:00:00';
             $day_to = 31 . date(".m.Y") . ' 23:59:59';
-            if (array_key_exists('df', $_GET) && strtotime($_GET['df']) > 0)
+            if (array_key_exists('df', $_GET) && strtotime($_GET['df']) > 0) {
                 $day_from = $_GET['df'] . ' 00:00:00';
-            if (array_key_exists('dt', $_GET) && strtotime($_GET['dt']) > 0)
+            }
+            if (array_key_exists('dt', $_GET) && strtotime($_GET['dt']) > 0) {
                 $day_to = $_GET['dt'] . ' 23:59:59';
+            }
 
             $query = $this->all_configs['db']->makeQuery('AND t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
                 AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($day_from, $day_to));
@@ -2430,14 +2540,18 @@ class accountings extends Controller
             $orders = $this->all_configs['db']->query('SELECT o.id, c.fio, c.email, c.phone, o.status, c.contractor_id FROM {orders} as o
                     LEFT JOIN (SELECT id, fio, email, phone, contractor_id FROM {clients})c ON c.id=o.user_id
                     WHERE o.status=?i OR o.status=?i OR o.status=?i ORDER BY o.status, o.date_add DESC',
-                array($this->all_configs['configs']['order-status-loan-approved'], $this->all_configs['configs']['order-status-loan-wait'],
-                    $this->all_configs['configs']['order-status-loan-denied']))->assoc();
+                array(
+                    $this->all_configs['configs']['order-status-loan-approved'],
+                    $this->all_configs['configs']['order-status-loan-wait'],
+                    $this->all_configs['configs']['order-status-loan-denied']
+                ))->assoc();
 
             if ($orders && count($orders) > 0) {
                 $out .= '<table class="table table-striped"><thead><tr><td>' . l('ФИО клиента') . '</td><td>' . l('Товар') . '</td><td>' . l('Кредит одобрен') . ',<br />' . l('документы готовы') . '</td><td>Отказ</td></tr></thead><tbody>';
                 foreach ($orders as $order) {
                     $goods_html = '';
-                    $goods = $this->all_configs['db']->query('SELECT title FROM {orders_goods} WHERE order_id=?i', array($order['id']))->assoc();
+                    $goods = $this->all_configs['db']->query('SELECT title FROM {orders_goods} WHERE order_id=?i',
+                        array($order['id']))->assoc();
                     if ($goods && count($goods) > 0) {
                         foreach ($goods as $product) {
                             $goods_html .= '<p>' . htmlspecialchars($product['title']) . '</p>';
@@ -2454,7 +2568,9 @@ class accountings extends Controller
                         $denied_status = 'checked';
                         $disabled = 'disabled';
                     }
-                    $fio = (mb_strlen(trim($order['fio']), 'UTF-8') > 0) ? trim($order['fio']) : ((mb_strlen(trim($order['phone']), 'UTF-8') > 0) ? trim($order['phone']) : trim($order['email']));
+                    $fio = (mb_strlen(trim($order['fio']),
+                            'UTF-8') > 0) ? trim($order['fio']) : ((mb_strlen(trim($order['phone']),
+                            'UTF-8') > 0) ? trim($order['phone']) : trim($order['email']));
                     $out .= '
                         <tr>
                             <td>' . htmlspecialchars($fio) . '</td>
@@ -2499,7 +2615,8 @@ class accountings extends Controller
         $out = '';
         $fitlers = '';
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $fitlers = $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false,true,false,'a_orders-suppliers');
+            $fitlers = $this->all_configs['suppliers_orders']->show_filters_suppliers_orders(false, true, false,
+                'a_orders-suppliers');
             $out .= '<h4>' . l('Заказы поставщику которые ждут оплаты') . '</h4><br />';
             $_GET['type'] = 'pay';
             $queries = $this->all_configs['manageModel']->suppliers_orders_query($_GET);
@@ -2663,7 +2780,8 @@ class accountings extends Controller
     /**
      * @return string
      */
-    function gen_currency_table(){
+    function gen_currency_table()
+    {
         return $this->view->renderFile('accountings/gen_currency_table', array(
             'cashboxes_currencies' => $this->cashboxes_courses()
         ));
@@ -2675,20 +2793,21 @@ class accountings extends Controller
      * @param bool $show_default
      * @return string
      */
-    function gen_new_currency_options($show_all = true, $current = null, $show_default = true){
-        if(!$show_all){
+    function gen_new_currency_options($show_all = true, $current = null, $show_default = true)
+    {
+        if (!$show_all) {
             $cashboxes_currencies = $this->cashboxes_courses();
         }
         $new_courses = $this->all_configs['suppliers_orders']->currencies;
         $out = '';
-        if($show_default){
+        if ($show_default) {
             $out .= '<option value="">' . l('Выберите валюту') . '</option>';
         }
         foreach ($new_courses as $new_course_id => $new_course) {
-            if ($show_all || !array_key_exists($new_course_id, $cashboxes_currencies)){
+            if ($show_all || !array_key_exists($new_course_id, $cashboxes_currencies)) {
                 $sel = $current == $new_course_id ? ' selected' : '';
-                $data = ' data-shortname="'.$new_course['shortName'].'"';
-                $out .= "<option".$sel.$data." value='{$new_course_id}'>{$new_course['name']} [{$new_course['shortName']}]</option>";
+                $data = ' data-shortname="' . $new_course['shortName'] . '"';
+                $out .= "<option" . $sel . $data . " value='{$new_course_id}'>{$new_course['name']} [{$new_course['shortName']}]</option>";
             }
         }
         return $out;
@@ -2768,7 +2887,7 @@ class accountings extends Controller
                 'name' => l('Транзакции')
             ),
         );
-        if(empty($oRole)) {
+        if (empty($oRole)) {
             global $all_configs;
             $oRole = $all_configs['oRole'];
         }
@@ -2818,7 +2937,7 @@ class accountings extends Controller
         $this->all_configs['db']->query('
             INSERT INTO  restore4_contractors_categories_links (contractors_categories_id, contractors_id)
             SELECT ?, contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id = ?
-            ', array($contractor_category,$parent_id))->ar();
+            ', array($contractor_category, $parent_id))->ar();
     }
 
     /**
@@ -2866,8 +2985,7 @@ class accountings extends Controller
                 ))->ar();
 
             if ($ar) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'edit-contractor', $mod_id, $this->all_configs['arrequest'][2]));
+                $this->history->save('edit-contractor', $mod_id, $this->all_configs['arrequest'][2]);
             }
 
             $contractor_categories_id = $this->all_configs['db']->query('SELECT contractors_categories_id
@@ -2950,8 +3068,7 @@ class accountings extends Controller
                             array($contractor_category_id, $contractor_id))->ar();
                     }
                 }
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'add-contractor', $mod_id, $contractor_id));
+                $this->history->save('add-contractor', $mod_id, $contractor_id);
 
                 // создаем клиента для контрагента
                 //email проверяется чуть выше

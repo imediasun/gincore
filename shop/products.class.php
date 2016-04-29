@@ -12,7 +12,7 @@ class Products
         $this->configs = Configs::getInstance()->get();
 
         require_once('shop/model.class.php');
-        $this->model = new AModel;
+        $this->model = new Model;
 
     }
 

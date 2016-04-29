@@ -35,10 +35,10 @@ class CategoriesTree extends AModel
         foreach ($categories as $id => $category) {
             if ($category['parent_id'] == $parentId) {
                 $id = $category['id'];
-                $title = isset($category['title'])? $category['title']: '';
+                $title = isset($category['title']) ? $category['title'] : '';
                 unset($categories[$id]);
                 $result[$title] = array(
-                    'id' => $id, 
+                    'id' => $id,
                     'subcategories' => $this->buildTreeWithTitle($categories, $id)
                 );
             }
@@ -103,7 +103,35 @@ class CategoriesTree extends AModel
      */
     public function getCategoriesIdWithParent()
     {
-        return $this->query('SELECT id, parent_id, title FROM {categories} group by parent_id, id',
-            array())->assoc('id');
+        return $this->query('SELECT id, parent_id, title FROM ?q group by parent_id, id',
+            array($this->table))->assoc('id');
+    }
+
+    /**
+     * @return array
+     */
+    public function columns()
+    {
+        return array(
+            'id',
+            'title',
+            'parent_id',
+            'avail',
+            'url',
+            'prio',
+            'content',
+            'thumbs',
+            'image',
+            'cat-image',
+            'page_content',
+            'page_title',
+            'page_description',
+            'page_keywords',
+            'date_add',
+            'warehouses_suppliers',
+            'information',
+            'rating',
+            'votes',
+        );
     }
 }

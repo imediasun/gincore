@@ -6,12 +6,84 @@ abstract class AModel
     /** @var  \go\DB\DB */
     protected $db;
     protected $all_configs;
+    public $table = '';
 
     public function __construct()
     {
         global $all_configs;
         $this->db = db();
         $this->all_configs = $all_configs;
+    }
+
+    /**
+     * @return array
+     */
+    abstract public function columns();
+    
+    /**
+     * @param $options
+     * @return bool|int
+     */
+    public function insert($options)
+    {
+        if (empty($options)) {
+            return false;
+        }
+        $values = array();
+        $params = array(
+            0 => $this->table,
+            1 => implode(',', array_keys($options)),
+            2 => ''
+        );
+        foreach ($options as $field => $value) {
+            if(!in_array($field, $this->columns())) {
+                continue;
+            }
+            switch (true) {
+                case is_numeric($value):
+                    $values[] = '?i';
+                    break;
+                case $value == 'null':
+                    $values[] = '?q';
+                    break;
+                default:
+                    $values[] = '?';
+            }
+            $params[] = $value;
+        }
+        $params[2] = implode(',', $values);
+
+        return $this->query('INSERT INTO ?q (?q) VALUES (?q)', $params)->id();
+    }
+
+    /**
+     * @param $conditions
+     * @param $options
+     * @return bool|int
+     */
+    public function update($conditions, $options)
+    {
+        if (empty($options)) {
+            return false;
+        }
+        $values = array();
+        foreach ($options as $field => $value) {
+            if(!in_array($field, $this->columns())) {
+                continue;
+            }
+            switch (true) {
+                case is_numeric($value):
+                    $values[] = $this->makeQuery('?q=?i', array($field, $value));
+                    break;
+                case $value == 'null':
+                    $values[] = $this->makeQuery('?q=?q', array($field, $value));
+                    break;
+                default:
+                    $values[] = $this->makeQuery('?q=?', array($field, $value));
+            }
+        }
+
+        return $this->query('UPDATE ?q SET ?q WHERE ?q', array($this->table, implode(',', $values), $conditions))->id();
     }
 
     /**
@@ -77,5 +149,13 @@ abstract class AModel
     public function plainQuery($query, $fetch = null)
     {
         return $this->db->plainQuery($query, $fetch);
+    }
+    
+    /**
+     * @return string
+     */
+    protected function getUserId()
+    {
+        return isset($_SESSION['id']) ? $_SESSION['id'] : '';
     }
 }
