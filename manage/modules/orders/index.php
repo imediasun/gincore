@@ -291,7 +291,7 @@ class orders extends Controller
         if (isset($post['accept-manager']) == 1 && isset($post['id']) && $post['id'] > 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
             $this->all_configs['db']->query('UPDATE {orders} SET manager=?i WHERE id=?i AND (manager IS NULL OR manager=0 OR manager="")',
                 array($user_id, $post['id']));
-            $this->history->save('manager-accepted-order', $mod_id, $post['id']);
+            $this->History->save('manager-accepted-order', $mod_id, $post['id']);
         }
 
         // фильтрация рекомендаций к закупкам
@@ -1627,7 +1627,7 @@ class orders extends Controller
             array(trim($imgname), intval($order_id)), 'id');
 
         if ($img_id) {
-            $this->history->save('add-image-goods', $mod_id, intval($order_id));
+            $this->History->save('add-image-goods', $mod_id, intval($order_id));
         }
 
         return $img_id;
@@ -1895,7 +1895,7 @@ class orders extends Controller
             $data['content'] = l('История изменений не найдена');
 
             if (isset($_POST['object_id'])) {
-                $changes = $this->history->getChanges(trim($arr[1]), $mod_id, $_POST['object_id']);
+                $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $_POST['object_id']);
                 if ($changes) {
                     $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>' . l('Дата') . '</td><td>' . l('Изменение') . '</td></tr></thead><tbody>';
                     foreach ($changes as $change) {
@@ -2331,7 +2331,7 @@ class orders extends Controller
                 // принимаем заказ
                 if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                     $order['manager'] = $user_id;
-                    $this->history->save('manager-accepted-order', $mod_id, $order_id);
+                    $this->History->save('manager-accepted-order', $mod_id, $order_id);
                 }
 
                 // меняем статус
@@ -2348,13 +2348,13 @@ class orders extends Controller
                 ) {
                     $change_id = isset($_POST['is_replacement_fund']) ? 1 : 0;
                     $change = $change_id == 1 ? $_POST['replacement_fund'] : '';
-                    $this->history->save('update-order-replacement_fund', $mod_id, $this->all_configs['arrequest'][2],
+                    $this->History->save('update-order-replacement_fund', $mod_id, $this->all_configs['arrequest'][2],
                         $change, $change_id);
                 }
 
                 // устройство у клиента
                 if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
-                    $this->history->save('update-order-client_took', $mod_id, $this->all_configs['arrequest'][2],
+                    $this->History->save('update-order-client_took', $mod_id, $this->all_configs['arrequest'][2],
                         isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'),
                         isset($_POST['client_took']) ? 1 : 0);
                 }
@@ -2366,7 +2366,7 @@ class orders extends Controller
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
                     } else {
-                        $this->history->save('update-order-manager', $mod_id, $this->all_configs['arrequest'][2],
+                        $this->History->save('update-order-manager', $mod_id, $this->all_configs['arrequest'][2],
                             get_user_name($user), $_POST['manager']);
                         $order['manager'] = intval($_POST['manager']);
                         if ($user['send_over_sms']) {
@@ -2392,7 +2392,7 @@ class orders extends Controller
                     if (empty($user)) {
                         FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
                     } else {
-                        $this->history->save(
+                        $this->History->save(
                             'update-order-engineer',
                             $mod_id,
                             $this->all_configs['arrequest'][2],
@@ -2418,7 +2418,7 @@ class orders extends Controller
 
                 // смена Неисправность со слов клиента
                 if (isset($_POST['defect']) && trim($order['defect']) != trim($_POST['defect'])) {
-                    $this->history->save(
+                    $this->History->save(
                         'update-order-defect',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
@@ -2429,7 +2429,7 @@ class orders extends Controller
 
                 // смена Примечание/Внешний вид
                 if (isset($_POST['comment']) && trim($order['comment']) != trim($_POST['comment'])) {
-                    $this->history->save(
+                    $this->History->save(
                         'update-order-comment',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
@@ -2440,7 +2440,7 @@ class orders extends Controller
 
                 // смена серийника
                 if (isset($_POST['serial']) && trim($order['serial']) != trim($_POST['serial'])) {
-                    $this->history->save('update-order-serial',
+                    $this->History->save('update-order-serial',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
                         trim($_POST['serial'])
@@ -2450,7 +2450,7 @@ class orders extends Controller
 
                 // смена фио
                 if (isset($_POST['fio']) && trim($order['fio']) != trim($_POST['fio'])) {
-                    $this->history->save(
+                    $this->History->save(
                         'update-order-fio',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
@@ -2470,7 +2470,7 @@ class orders extends Controller
                     $phone = $phone ? current($phone) : '';
 
                     if ($order['phone'] != $phone) {
-                        $this->history->save(
+                        $this->History->save(
                             'update-order-phone',
                             $mod_id,
                             $this->all_configs['arrequest'][2],
@@ -2482,7 +2482,7 @@ class orders extends Controller
 
                 // смена телефона
                 if (isset($_POST['warranty']) && intval($order['warranty']) != intval($_POST['warranty'])) {
-                    $this->history->save(
+                    $this->History->save(
                         'update-order-warranty',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
@@ -2498,7 +2498,7 @@ class orders extends Controller
                     if ($category) {
                         $order['title'] = $category;
                         $order['category_id'] = intval($_POST['categories-goods']);
-                        $this->history->save(
+                        $this->History->save(
                             'update-order-category',
                             $mod_id,
                             $this->all_configs['arrequest'][2],
@@ -2561,7 +2561,7 @@ class orders extends Controller
                 unset($order['status_id']);
                 // смена кода
                 if (isset($_POST['code']) && $_POST['code'] != $order['code']) {
-                    $this->history->save('update-order-code',
+                    $this->History->save('update-order-code',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
                         $order['code'] . ' ==> ' . trim($_POST['code'])
@@ -2571,7 +2571,7 @@ class orders extends Controller
                 // смена источника
                 if (isset($_POST['referer_id']) && $_POST['referer_id'] != $order['referer_id']) {
                     $referers = get_service("crm/calls")->get_referers();
-                    $this->history->save(
+                    $this->History->save(
                         'update-order-referer_id',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
@@ -2586,14 +2586,14 @@ class orders extends Controller
                 if ($ar) {
                     // сумма
                     if ($_order['sum'] != $order['sum']) {
-                        $this->history->save(
+                        $this->History->save(
                             'update-order-sum',
                             $mod_id,
                             $this->all_configs['arrequest'][2],
                             ($order['sum'] / 100)
                         );
                     }
-                    $this->history->save('update-order', $mod_id, $this->all_configs['arrequest'][2]);
+                    $this->History->save('update-order', $mod_id, $this->all_configs['arrequest'][2]);
 
                     $get = '?' . get_to_string($_GET);
                     $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . $get . '#show_orders';
@@ -2623,7 +2623,7 @@ class orders extends Controller
             $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
                 array((int)$set, $sum, $_POST['id']))->ar();
             if ($sum != $order['sum']) {
-                $this->history->save(
+                $this->History->save(
                     'update-order-sum',
                     $mod_id,
                     $_POST['id'],
@@ -2663,7 +2663,7 @@ class orders extends Controller
                 if ($sum != $order['sum']) {
                     $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
                         array($sum, $order['id']))->ar();
-                    $this->history->save(
+                    $this->History->save(
                         'update-order-sum',
                         $mod_id,
                         $order['id'],

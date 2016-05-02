@@ -1,17 +1,31 @@
 <?php
 
+require_once __DIR__ . '/Core/Object.php';
 require_once __DIR__ . '/Core/View.php';
-require_once __DIR__ . '/Models/History.php';
-require_once __DIR__ . '/Models/OrderBase.php';
-require_once __DIR__ . '/Models/Settings.php';
-require_once __DIR__ . '/Models/Clients.php';
+require_once __DIR__ . '/Core/Exceptions.php';
 
-class Chains
+/**
+ * @property MHistory     History
+ * @property MOrderBase   Orders
+ * @property MSettings    Settings
+ * @property MWarehouses  Warehouses
+ * @property MClients     Clients
+ * @property MOrdersGoods OrdersGoods
+ */
+class Chains extends Object
 {
     /** @var View */
     protected $view = null;
     protected $all_configs;
-
+    public $uses = array(
+        'History',
+        'Orders',
+        'Settings',
+        'Warehouses',
+        'Clients',
+        'OrdersGoods'
+    );
+    
     //////* типы перемещений *//////
     public $chain_types = array(1, 2, 3, 4);
     public $chain_bind_item = 1;// 1 - кладовщик привязывает серийник и выдает
@@ -46,8 +60,6 @@ class Chains
         10 => 10,
         // предоплата
     );
-    /** @var History  */
-    protected $history;
 
     /**
      * Chains constructor.
@@ -57,8 +69,7 @@ class Chains
     {
         $this->all_configs = $all_configs;
         $this->view = new View($all_configs);
-        $this->history = new MHistory();
-        $this->settings = new MSettings();
+        $this->applyUses();
     }
 
     /**
@@ -66,17 +77,13 @@ class Chains
      * @param $mod_id
      * @return bool
      */
-    function close_order($order_id, $mod_id)
+    public function close_order($order_id, $mod_id)
     {
         $status = false;
 
         if ($order_id > 0) {
-            // достаем склад Клиент из группы текущего склада и перемещаем на него (как в мир)
-            $current_wh = $this->all_configs['db']->query("SELECT wh_id "
-                . "FROM {orders} WHERE id = ?i", array($order_id), 'el');
-            $wh_client = $this->all_configs['db']->query("SELECT w.id as w_id,l.id as l_id FROM {warehouses} as w "
-                . "LEFT JOIN {warehouses_locations} as l ON l.wh_id = w.id "
-                . "WHERE w.group_id = ?i AND w.type = 4", array($current_wh), 'row');
+            $order = $this->Orders->getClosed($order_id);
+            $wh_client = $this->Warehouses->getByGroupId($order['wh_id']);
             // продажа
             $arr = array(
                 'order_id' => $order_id,
@@ -84,21 +91,16 @@ class Chains
                 'location' => $wh_client['l_id'] ?: $this->all_configs['configs']['erp-location-type-mir'],
             );
 
-            // достаем заказ
-            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i AND status IN (?li)',
-                array($order_id, $this->all_configs['configs']['order-statuses-closed']))->row();
-
             if ($order && $order['location_id'] != $arr['location']) {
                 // списание
                 if ($order['type'] == 2) {
-                    $arr['wh_id_destination'] = $this->getWriteOffWarehouseId();
-                    $arr['location'] = $this->getLocationId($arr['wh_id_destination']);
+                    $arr['wh_id_destination'] = $this->Warehouses->getWriteOffWarehouseId();
+                    $arr['location'] = $this->Warehouses->getLocationId($arr['wh_id_destination']);
                 }
                 // пробуем переместить
                 $result = $this->move_item_request($arr, $mod_id);
                 // достаем заказ
-                $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i AND status IN (?li)',
-                    array($order_id, $this->all_configs['configs']['order-statuses-closed']))->row();
+                $order = $this->Orders->getClosed($order_id);
             }
 
             if ($order && $order['location_id'] == $arr['location']) {
@@ -207,7 +209,6 @@ class Chains
      */
     function bind_item_serial($data, $mod_id, $send = true)
     {
-        $user_id = $this->getUserId();
         $result = array('state' => true, 'message' => 'Серийник привязан');
 
         $order_product_id = isset($data['order_product_id']) ? $data['order_product_id'] : 0;
@@ -232,30 +233,30 @@ class Chains
             LEFT JOIN {contractors_suppliers_orders} as o ON o.id=i.supplier_order_id WHERE ?query',
             array($query))->row();
 
-        // проверяем ид изделия
-        if ($result['state'] == true && !$item) {
-            $result = array('message' => 'Укажите существующее изделие', 'state' => false, 'class' => '');
-        }
+        try {
+            // проверяем ид изделия
+            if (empty($item)) {
+                throw new ExceptionWithMsg(l('Укажите существующее изделие'));
+            }
 
-        $order_product = $this->all_configs['db']->query(
-            'SELECT g.id as order_goods_id, o.wh_id, o.location_id, g.order_id as id, g.goods_id, l.id as link,
+            $order_product = $this->all_configs['db']->query(
+                'SELECT g.id as order_goods_id, o.wh_id, o.location_id, g.order_id as id, g.goods_id, l.id as link,
               l.supplier_order_id, o.status, o.phone, o.manager, g.title
             FROM {orders} as o, {orders_goods} as g
             LEFT JOIN {orders_suppliers_clients} as l ON l.order_goods_id=g.id
             WHERE g.id=?i AND g.order_id=o.id',
-            array($order_product_id))->row();
+                array($order_product_id))->row();
 
-        // проверяем ид изделия
-        if ($result['state'] == true && (!$order_product || $order_product_id == 0)) {
-            $result = array('message' => 'Заказ не найден', 'state' => false, 'class' => '');
-        }
+            // проверяем ид изделия
+            if ((!$order_product || $order_product_id == 0)) {
+                throw new ExceptionWithMsg(l('Заказ не найден'));
+            }
 
-        // проверяем есть ли заявка
-        if ($result['state'] == true && $order_product['link'] == 0 && (!isset($data['unlink']) || $data['unlink'] == false)) {
-            $result = array('message' => 'Заявка не найдена', 'state' => false, 'class' => '');
-        }
+            // проверяем есть ли заявка
+            if ($order_product['link'] == 0 && (!isset($data['unlink']) || $data['unlink'] == false)) {
+                throw new ExceptionWithMsg(l('Заявка не найдена'));
+            }
 
-        if ($result['state'] == true) {
             // проверяем есть ли заявки на изделие
             $count_free = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id) - COUNT(DISTINCT l.id) as qty,
                 GROUP_CONCAT(l.client_order_id) as orders FROM {warehouses} as w, {warehouses_goods_items} as i
@@ -265,11 +266,7 @@ class Chains
                 GROUP BY i.goods_id', array($order_product['id'], 1, $item['supplier_order_id']))->row();
 
             if ($count_free && $count_free['qty'] < 1) {
-                $result = array(
-                    'message' => 'Изделие зарезервировано под другие заказы на ремонт: ' . $count_free['orders'],
-                    'state' => false,
-                    'class' => ''
-                );
+                throw new ExceptionWithMsg(l('Изделие зарезервировано под другие заказы на ремонт: '). $count_free['orders']);
             } elseif ($order_product['supplier_order_id'] > 0 && $order_product['supplier_order_id'] != $item['supplier_order_id']) {
                 if (isset($data['confirm']) && $data['confirm'] == 1) {
                     // замена партии
@@ -278,143 +275,146 @@ class Chains
                         array($item['supplier_order_id'], $order_product['order_goods_id']));
                     return $this->bind_item_serial($data, $mod_id, $send);
                 } else {
-                    $result = array(
-                        'message' => 'Запчасть предназначена для другого ремонта, заменить партию?',
+                    return array(
+                        'message' => l('Запчасть предназначена для другого ремонта, заменить партию?'),
                         'state' => false,
                         'class' => '',
                         'confirm' => true
                     );
                 }
             }
-        }
 
-        // проверяем доступ
-        if ($result['state'] == true && !$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
-            && !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
-            && !$this->all_configs['oRole']->hasPrivilege('logistics')
-            && !$this->all_configs['oRole']->hasPrivilege('scanner-moves')
-        ) {
-            $result = array('message' => 'У Вас нет доступа', 'state' => false);
-        }
+            // проверяем доступ
+            if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
+                && !$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
+                && !$this->all_configs['oRole']->hasPrivilege('logistics')
+                && !$this->all_configs['oRole']->hasPrivilege('scanner-moves')
+            ) {
+                throw new ExceptionWithMsg(l('У Вас нет доступа'));
+            }
 
-        // проверяем не привязан ли этот серийник в какуюто цепочку
-        if ($result['state'] == true && !$this->can_use_item($item['id'], $order_product['id'])) {
-            $result = array(
-                'message' => 'Серийный номер привязан к другому заказу на ремонт. Возможно не оприходован заказ поставщику.',
-                'state' => false
-            );
-        }
+            // проверяем не привязан ли этот серийник в какуюто цепочку
+            if (!$this->can_use_item($item['id'], $order_product['id'])) {
+                throw new ExceptionWithMsg(l('Серийный номер привязан к другому заказу на ремонт. Возможно не оприходован заказ поставщику.'));
+            }
 
-        // проверяем не привязан ли этот серийник в какуюто цепочку
-        if ($result['state'] == true && !$item) {
-            $result = array('message' => 'Выберите серийник', 'state' => false);
-        }
+            // проверяем не привязан ли этот серийник в какуюто цепочку
+            if (!$item) {
+                throw new ExceptionWithMsg(l('Выберите серийник'));
+            }
+            if ($order_product) {
 
-        if ($result['state'] == true && $order_product && $item) {
+                // устанавливаем дату проверки если необходимо
+                $query = strtolower($item['date_check']) > 0 ? $this->all_configs['db']->makeQuery(', date_checked=NOW()',
+                    array()) : '';
 
-            // устанавливаем дату проверки если необходимо
-            $query = strtolower($item['date_check']) > 0 ? $this->all_configs['db']->makeQuery(', date_checked=NOW()',
-                array()) : '';
+                $ar1 = $this->all_configs['db']->query(
+                    'UPDATE {warehouses_goods_items} SET order_id=?i, date_sold=NOW() ?query WHERE id=?i',
+                    array($order_product['id'], $query, $item['id']));
+                $this->all_configs['db']->query(
+                    'UPDATE {orders_goods} SET item_id=?i, last_item_id=?i, unbind_request=null WHERE id=?i',
+                    array($item['id'], $item['id'], $order_product['order_goods_id']));
 
-            $ar1 = $this->all_configs['db']->query(
-                'UPDATE {warehouses_goods_items} SET order_id=?i, date_sold=NOW() ?query WHERE id=?i',
-                array($order_product['id'], $query, $item['id']));
-            $this->all_configs['db']->query(
-                'UPDATE {orders_goods} SET item_id=?i, last_item_id=?i, unbind_request=null WHERE id=?i',
-                array($item['id'], $item['id'], $order_product['order_goods_id']));
+                // обновляем местонахождение изделия
+                $ar2 = $this->all_configs['db']->query(
+                    'UPDATE {warehouses_goods_items} SET wh_id=?n, location_id=?n WHERE id=?i',
+                    array($order_product['wh_id'], $order_product['location_id'], $item['id']))->ar();
 
-            // обновляем местонахождение изделия
-            $ar2 = $this->all_configs['db']->query(
-                'UPDATE {warehouses_goods_items} SET wh_id=?n, location_id=?n WHERE id=?i',
-                array($order_product['wh_id'], $order_product['location_id'], $item['id']))->ar();
-
-            if ($ar1 || $ar2) {
-                if ($order_product['manager'] && $send == true) {
-                    $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
-                    $content = 'Запчасть только что была отгружена, под заказ <a href="' . $href . '">№' . $order_product['id'] . '</a>';
-                    $this->notification('Запчасть отгружена под ремонт', $content, $order_product['manager']);
-                }
-
-                // уведомлять о каждой продаже этого товара
-                $users = $this->all_configs['db']->query(
-                    'SELECT user_id FROM {users_notices} WHERE goods_id=?i AND each_sale=?i',
-                    array($order_product['goods_id'], 1))->vars();
-                if ($users) {
-                    $href = $this->all_configs['prefix'] . 'products/create/' . $order_product['goods_id'];
-                    $content = 'Запчасть <a href="' . $href . '">№' . $order_product['title'] . '</a> только что была продана';
-                    foreach ($users as $user) {
-                        $this->notification('Продана запчасть', $content, $user);
+                if ($ar1 || $ar2) {
+                    if ($order_product['manager'] && $send == true) {
+                        $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
+                        $content = 'Запчасть только что была отгружена, под заказ <a href="' . $href . '">№' . $order_product['id'] . '</a>';
+                        $this->notification('Запчасть отгружена под ремонт', $content, $order_product['manager']);
                     }
-                }
 
-                // добавляем комментарий
-                $text = 'Запчасть отгружена под ремонт';
-                $this->all_configs['suppliers_orders']->add_client_order_comment($order_product['id'], $text);
+                    // уведомлять о каждой продаже этого товара
+                    $users = $this->all_configs['db']->query(
+                        'SELECT user_id FROM {users_notices} WHERE goods_id=?i AND each_sale=?i',
+                        array($order_product['goods_id'], 1))->vars();
+                    if ($users) {
+                        $href = $this->all_configs['prefix'] . 'products/create/' . $order_product['goods_id'];
+                        $content = 'Запчасть <a href="' . $href . '">№' . $order_product['title'] . '</a> только что была продана';
+                        foreach ($users as $user) {
+                            $this->notification('Продана запчасть', $content, $user);
+                        }
+                    }
 
-                $this->all_configs['manageModel']->move_product_item(
-                    $item['wh_id'],
-                    $item['location_id'],
-                    $order_product['goods_id'],
-                    $item['id'],
-                    null,//$order_product['id'],
-                    null,
-                    'Перемещение на склад к заказу',
-                    null,
-                    1
-                );
-                $this->all_configs['manageModel']->move_product_item(
-                    $order_product['wh_id'],
-                    $order_product['location_id'],
-                    $order_product['goods_id'],
-                    $item['id'],
-                    $order_product['id'],
-                    null,
-                    'Перемещен на склад к заказу',
-                    null,
-                    2
-                );
-                // если заявка на другой заказ поставщику
-                if ($order_product['supplier_order_id'] != $item['supplier_order_id']) {
-                    // обновляем заявку на другой заказ поставщику
-                    $ar = $this->all_configs['db']->query(
-                        'UPDATE {orders_suppliers_clients} SET supplier_order_id=?i WHERE order_goods_id=?i',
-                        array($item['supplier_order_id'], $order_product['order_goods_id']))->ar();
+                    // добавляем комментарий
+                    $text = 'Запчасть отгружена под ремонт';
+                    $this->all_configs['suppliers_orders']->add_client_order_comment($order_product['id'], $text);
 
-                    if ($ar) {
-                        // достаем заказ поставщику и количество заявок
-                        $so = $this->all_configs['db']->query(
-                            'SELECT COUNT(l.id) as count_ordered, IF(o.count_come>0, o.count_come, o.count) as count_free
+                    $this->all_configs['manageModel']->move_product_item(
+                        $item['wh_id'],
+                        $item['location_id'],
+                        $order_product['goods_id'],
+                        $item['id'],
+                        null,//$order_product['id'],
+                        null,
+                        'Перемещение на склад к заказу',
+                        null,
+                        1
+                    );
+                    $this->all_configs['manageModel']->move_product_item(
+                        $order_product['wh_id'],
+                        $order_product['location_id'],
+                        $order_product['goods_id'],
+                        $item['id'],
+                        $order_product['id'],
+                        null,
+                        'Перемещен на склад к заказу',
+                        null,
+                        2
+                    );
+                    // если заявка на другой заказ поставщику
+                    if ($order_product['supplier_order_id'] != $item['supplier_order_id']) {
+                        // обновляем заявку на другой заказ поставщику
+                        $ar = $this->all_configs['db']->query(
+                            'UPDATE {orders_suppliers_clients} SET supplier_order_id=?i WHERE order_goods_id=?i',
+                            array($item['supplier_order_id'], $order_product['order_goods_id']))->ar();
+
+                        if ($ar) {
+                            // достаем заказ поставщику и количество заявок
+                            $so = $this->all_configs['db']->query(
+                                'SELECT COUNT(l.id) as count_ordered, IF(o.count_come>0, o.count_come, o.count) as count_free
                             FROM {contractors_suppliers_orders} as o
                             LEFT JOIN {orders_suppliers_clients} as l ON l.supplier_order_id=o.id
                             WHERE o.id=?i', array($item['supplier_order_id']))->row();
 
-                        if ($so && $so['count_ordered'] > $so['count_free']) {
-                            // обновляем заявку
-                            $this->all_configs['db']->query('UPDATE {orders_suppliers_clients} as l
+                            if ($so && $so['count_ordered'] > $so['count_free']) {
+                                // обновляем заявку
+                                $this->all_configs['db']->query('UPDATE {orders_suppliers_clients} as l
                                   SET l.supplier_order_id=?i WHERE l.order_goods_id=(SELECT g.id FROM {orders_goods} as g
                                   WHERE g.id=l.order_goods_id AND g.item_id IS NULL AND l.supplier_order_id=?i LIMIT ?i)',
-                                array($order_product['supplier_order_id'], $item['supplier_order_id'], 1));
+                                    array($order_product['supplier_order_id'], $item['supplier_order_id'], 1));
+                            }
                         }
                     }
                 }
+
+                $products = $this->all_configs['db']->query(
+                    'SELECT count(id) as goods, count(item_id) as items FROM {orders_goods} WHERE order_id=?i',
+                    array($order_product['id']))->row();
+
+                if ($products && $products['goods'] == $products['items']) {
+                    update_order_status($order_product, $this->all_configs['configs']['order-status-work']);
+                }
+
+                // уведомление о продаже более одной запчасти под ремонт
+                if ($products && $products['items'] > 1) {
+                    $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
+                    $content = 'Продажа более одной запчасти на ремонт <a href="' . $href . '">№' . $order_product['id'] . '</a>';
+                    $this->notification('Продажа более одной запчасти на ремонт', $content, 'site-administration');
+                }
+
+                $this->History->save('chain-body-update-serial', $mod_id, $item['id']);
             }
 
-            $products = $this->all_configs['db']->query(
-                'SELECT count(id) as goods, count(item_id) as items FROM {orders_goods} WHERE order_id=?i',
-                array($order_product['id']))->row();
-
-            if ($products && $products['goods'] == $products['items']) {
-                update_order_status($order_product, $this->all_configs['configs']['order-status-work']);
-            }
-
-            // уведомление о продаже более одной запчасти под ремонт
-            if ($products && $products['items'] > 1) {
-                $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
-                $content = 'Продажа более одной запчасти на ремонт <a href="' . $href . '">№' . $order_product['id'] . '</a>';
-                $this->notification('Продажа более одной запчасти на ремонт', $content, 'site-administration');
-            }
-
-            $this->history->save('chain-body-update-serial', $mod_id, $item['id']);
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+              'state' => false,
+                'message' => $e->getMessage(),
+                'class' => ''
+            );
         }
 
         return $result;
@@ -730,7 +730,7 @@ class Chains
             }
         }
 
-        $out = $this->view->renderFile('chains.class/show_stockman_operation', array(
+        return $this->view->renderFile('chains.class/show_stockman_operation', array(
             'item' => $item,
             'type' => $type,
             'global_class' => $global_class,
@@ -741,8 +741,6 @@ class Chains
             'controller' => $this,
             'serials' => $serials
         ));
-
-        return $out;
     }
 
     /**
@@ -807,12 +805,12 @@ class Chains
         if ($chain == true) {
             $query = $q['query_for_create_chain_body_logistic'];
         } else {
-            if ($logistic == true) {
+            if ($logistic) {
                 $query = $q['query_for_move_item_logistic'];
             } else {
                 $query = $q['query_for_move_item'];
             }
-            if ($only_logistic == true) {
+            if ($only_logistic) {
                 $query .= ' AND w.type=3';
             }
         }
@@ -829,16 +827,6 @@ class Chains
                     }
                     $out .= htmlspecialchars($warehouse['title']);
                     // количество изделий на складе
-                    if ($h_id > 0) {
-                        /*$count = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id) as qty,
-                                COUNT(DISTINCT IF(i.order_id IS NULL AND (h.id IS NULL OR (h.date_closed IS NOT NULL
-                                  AND h.return=0) OR (h.date_return IS NOT NULL AND h.return=1)), i.id, null)) as qty_free
-                                FROM {warehouses_goods_items} as i
-                                LEFT JOIN {chains_headers} as h ON h.item_id=i.id
-                                WHERE i.wh_id=?i AND i.goods_id=(SELECT goods_id FROM {chains_headers} WHERE id=?i)',
-                            array($warehouse['id'], $h_id))->row();
-                        $out .= is_array($count) ? ' ' . intval($count['qty_free']) . ' (' . intval($count['qty']) . ')' : ' 0 (0)';*/
-                    }
                     $out .= '</option>';
                 }
             }
@@ -858,7 +846,7 @@ class Chains
 
         if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
             $out = $this->view->renderFile('chains.class/form_write_off_items', array(
-               'can' =>  $item_id > 0 ? $this->can_use_item($item_id) : true,
+                'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
                 'item_id' => $item_id
             ));
         }
@@ -878,7 +866,7 @@ class Chains
         if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
             // проверяем можем ли продать
             $out = $this->view->renderFile('chains.class/form_sold_items', array(
-                'db' =>$this->all_configs['db'],
+                'db' => $this->all_configs['db'],
                 'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
                 'item_id' => $item_id
             ));
@@ -952,11 +940,11 @@ class Chains
                     // удаляем
                     $ar = $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE id=?i',
                         array($order_product_id));
-                    $supplier_order = $this-> all_configs['db'] ->query("
+                    $supplier_order = $this->all_configs['db']->query("
                             SELECT supplier_order_id as id, o.count, o.supplier "
-                            . "FROM {orders_suppliers_clients} as c "
-                            . "LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
-                            . "WHERE order_goods_id=?i", array($order_product_id), 'row');
+                        . "FROM {orders_suppliers_clients} as c "
+                        . "LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
+                        . "WHERE order_goods_id=?i", array($order_product_id), 'row');
                     $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE order_goods_id=?i',
                         array($order_product_id));
                     // удалить заказ поставщику
@@ -981,25 +969,23 @@ class Chains
                     $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
                     $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
                     $arr = array(
-                        $wh_type,
-                        $this->getUserId(),
-                        $product['goods_id'],
-                        $product['article'],
-                        $product['title'],
-                        $product['content'],
-                        (isset($post['price']) ? $post['price'] * 100 : $product['price']),
-                        $count,
-                        $order_id,
-                        $product['secret_title'],
-                        $product['url'],
-                        $product['foreign_warehouse'],
-                        $product['type'],
+                        'warehouse_type' => $wh_type,
+                        'user_id' => $this->getUserId(),
+                        'goods_id' => $product['goods_id'],
+                        'article' => $product['article'],
+                        'title' => $product['title'],
+                        'content' => $product['content'],
+                        'price' => (isset($post['price']) ? $post['price'] * 100 : $product['price']),
+                        '`count`' => $count,
+                        'order_id' => $order_id,
+                        'secret_title' => $product['secret_title'],
+                        'url' => $product['url'],
+                        'foreign_warehouse' => $product['foreign_warehouse'],
+                        '`type`' => $product['type'],
                     );
 
                     // пытаемся добавить товар
-                    $data['id'] = $this->all_configs['db']->query('INSERT INTO {orders_goods} (warehouse_type, user_id, goods_id,
-                    article, title, content, price, `count`, order_id, secret_title, url, foreign_warehouse, `type`)
-                    VALUES (?i, ?n, ?i, ?, ?, ?, ?i, ?i, ?i, ?, ?, ?i, ?i)', $arr, 'id');
+                    $data['id'] = $this->OrdersGoods->insert($arr);
 
                     if ($data['id'] > 0 && $order_class) {
                         // делаем сразу заказ поставщику (если товара нету на складе)
@@ -1026,7 +1012,7 @@ class Chains
                     }
                 }
                 // сумма товаров
-                $this->setOrderSum($order, $mod_id);
+                $this->Orders->setOrderSum($order, $mod_id);
                 $data['product-total'] = $this->all_configs['db']->query(
                         'SELECT SUM(`count` * price) FROM {orders_goods} WHERE order_id=?i',
                         array($order_id))->el() / 100;
@@ -1073,7 +1059,7 @@ class Chains
         }
 
         try {
-            $client = $this->getClient($post);
+            $client = $this->Clients->getClient($post);
 
             // достаем категорию
             $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
@@ -1221,7 +1207,7 @@ class Chains
      * @param null $order_id
      * @return bool
      */
-    function can_use_item($items, $order_id = null/*, $chain_id = null*/)
+    function can_use_item($items, $order_id = null)
     {
         $id = null;
         $query = '';
@@ -1236,7 +1222,7 @@ class Chains
                 array($items, $query))->el();
         }
 
-        return $id > 0 ? false : true;
+        return $id <= 0;
     }
 
     /**
@@ -1385,7 +1371,7 @@ class Chains
                     $data['location'] = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
                 } else {
                     // чистим если что-то произошло не так
-                    $this->remove_order($order);
+                    $this->Orders->rollback($order);
                 }
             }
         }
@@ -1400,8 +1386,8 @@ class Chains
      */
     public function sold_items($post, $mod_id)
     {
-        $price = function($prices) {
-            return array_reduce($prices, function($carry, $item) {
+        $price = function ($prices) {
+            return array_reduce($prices, function ($carry, $item) {
                 return $carry + $item;
             }, 0);
         };
@@ -1413,7 +1399,7 @@ class Chains
          * @param $amounts
          * @return array
          */
-        $prepareItems = function($items, $itemIds, $amounts) {
+        $prepareItems = function ($items, $itemIds, $amounts) {
             $ids = array_flip($itemIds);
             $result = array();
             foreach ($items as $item) {
@@ -1426,8 +1412,9 @@ class Chains
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg('Вы не добавили изделие в корзину');
             }
-            $items = $prepareItems($this->getItems(array_values($post['item_ids'])), $post['item_ids'], $post['amount']);
-            $client = $this->getClient($post);
+            $items = $prepareItems($this->getItems(array_values($post['item_ids'])), $post['item_ids'],
+                $post['amount']);
+            $client = $this->Clients->getClient($post);
 
             // создаем заказ
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
@@ -1457,14 +1444,14 @@ class Chains
                 'msg' => $e->getMessage(),
             );
             // чистим если что-то произошло не так
-            $this->remove_order($order);
+            $this->Orders->rollback($order);
         } catch (ExceptionWithURL $e) {
             $data = array(
                 'state' => false,
                 'location' => $e->getMessage(),
             );
             // чистим если что-то произошло не так
-            $this->remove_order($order);
+            $this->Orders->rollback($order);
         }
 
         return $data;
@@ -1640,13 +1627,13 @@ class Chains
 
     /**
      * сбрасываем цену товара для возвратов
-     * 
+     *
      * @param $items
      * @return mixed
      */
     public function convertItemsPrice($items)
     {
-        if(!empty($items)) {
+        if (!empty($items)) {
             foreach ($items as &$item) {
                 $item['price'] = 0;
             }
@@ -1675,7 +1662,7 @@ class Chains
             $items = $this->convertItemsPrice($this->getItems($itemIds));
 
             // склад куда списать
-            $wh_id = $this->getWriteOffWarehouseId();
+            $wh_id = $this->Warehouses->getWriteOffWarehouseId();
 
             // создаем заказ
             $post = array(
@@ -1725,14 +1712,14 @@ class Chains
                 'message' => $e->getMessage()
             );
             // чистим если что-то произошло не так
-            $this->remove_order($order);
+            $this->Orders->rollback($order);
         } catch (ExceptionWithURL $e) {
             $data = array(
                 'state' => false,
                 'location' => $e->getMessage(),
             );
             // чистим если что-то произошло не так
-            $this->remove_order($order);
+            $this->Orders->rollback($order);
         }
 
         return $data;
@@ -1754,8 +1741,7 @@ class Chains
         $client_order_id = null;
         $order = null;
 
-        if (/*$data['state'] == true && */
-            isset($post['client_order_id']) && $post['client_order_id'] > 0
+        if ( isset($post['client_order_id']) && $post['client_order_id'] > 0
             && isset($post['client_contractor']) && $post['client_contractor'] == 1
         ) {
             // кассы списание на/с баланс/а контрагента
@@ -1763,65 +1749,54 @@ class Chains
             $post['cashbox_from'] = $this->all_configs['configs']['erp-cashbox-transaction'];
         }
 
-        if ($data['state'] == true && (!isset($post['transaction_type']) || $post['transaction_type'] == 0 || $post['transaction_type'] > TRANSACTION_TRANSFER)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите тип транзакции';
-        }
-
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['cashbox_from']) || $post['cashbox_from'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите с какой кассы';
-        }
-
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['cashbox_currencies_from']) || $post['cashbox_currencies_from'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите валюты для кассы';
-        }
-
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT)) {
-            $cashboxes_currency_id_from = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
-                array($post['cashbox_from'], $post['cashbox_currencies_from']))->el();
-
-            if (!$cashboxes_currency_id_from) {
-                $data['state'] = false;
-                $data['msg'] = 'Такой валюты нет у кассы';
+        try {
+            if (!isset($post['transaction_type']) || $post['transaction_type'] == 0 || $post['transaction_type'] > TRANSACTION_TRANSFER) {
+                throw new ExceptionWithMsg(l('Выберите тип транзакции'));
             }
-        }
 
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_INPUT) && (!isset($post['cashbox_to']) || $post['cashbox_to'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите в какую кассу';
-        }
-
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_INPUT) && (!isset($post['cashbox_currencies_to']) || $post['cashbox_currencies_to'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите валюты для кассы';
-        }
-
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_INPUT)) {
-            $cashboxes_currency_id_to = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
-                array($post['cashbox_to'], $post['cashbox_currencies_to']))->el();
-
-            if (!$cashboxes_currency_id_to) {
-                $data['state'] = false;
-                $data['msg'] = 'Такой валюты нет у кассы';
+            if (($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['cashbox_from']) || $post['cashbox_from'] == 0)) {
+                throw new ExceptionWithMsg(l('Выберите с какой кассы'));
             }
-        }
 
-        // если транзакция на заказ поставщику
-        if ($data['state'] == true && isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
-            $order = $this->all_configs['db']->query('SELECT o.id, o.count_come, o.price, o.number, o.parent_id,
+            if (($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['cashbox_currencies_from']) || $post['cashbox_currencies_from'] == 0)) {
+                throw new ExceptionWithMsg(l('Выберите валюты для кассы'));
+            }
+
+            if ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) {
+                $cashboxes_currency_id_from = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
+                    array($post['cashbox_from'], $post['cashbox_currencies_from']))->el();
+
+                if (!$cashboxes_currency_id_from) {
+                    throw new ExceptionWithMsg(l('Такой валюты нет у кассы'));
+                }
+            }
+            if (!isset($post['amount_from']) || !isset($post['amount_to'])) {
+                throw new ExceptionWithMsg(l('Введите сумму'));
+            }
+
+            if ($post['amount_from'] < 0 || $post['amount_to'] < 0) {
+                throw new ExceptionWithMsg(l('Сумма не может быть отрицательной'));
+            }
+            if (isset($post['amount_to']) && $post['transaction_type'] == TRANSACTION_OUTPUT) {
+                $post['amount_to'] = 0;
+            }
+            if (isset($post['amount_from']) && $post['transaction_type'] == TRANSACTION_INPUT) {
+                $post['amount_from'] = 0;
+            }
+
+            // если транзакция на заказ поставщику
+            if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
+                $order = $this->all_configs['db']->query('SELECT o.id, o.count_come, o.price, o.number, o.parent_id,
                       o.supplier, o.sum_paid, o.goods_id,
                       (o.count_come-o.count_debit) as count, o.wh_id, w.title as wh_title
                     FROM {contractors_suppliers_orders} as o
                     LEFT JOIN (SELECT id, title FROM {warehouses})w ON o.wh_id=w.id
                     WHERE (o.sum_paid=0 OR o.sum_paid IS NULL) AND o.id=?i',
-                array($post['supplier_order_id']))->row();
+                    array($post['supplier_order_id']))->row();
 
-            if (!$order) {
-                $data['state'] = false;
-                $data['msg'] = 'Этот заказ уже оплачен';
-            } else {
+                if (empty($order)) {
+                    throw new ExceptionWithMsg(l('Этот заказ уже оплачен'));
+                }
                 $post['amount_to'] = 0;
                 $post['amount_from'] = intval($order['price']) * intval($order['count_come']) / 100;
                 $supplier_order_id = $order['id'];
@@ -1832,187 +1807,154 @@ class Chains
                 $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
                     array($post['contractor_category_id_to'], $post['contractors_id']));
             }
-        }
+            // если транзакция на прием оплаты с заказа клиента
+            if (isset($post['client_order_id']) && $post['client_order_id'] > 0) {
 
-        if ($data['state'] == true && (!isset($post['amount_from']) || !isset($post['amount_to']))) {
-            $data['state'] = false;
-            $data['msg'] = 'Введите сумму';
-        }
-
-        if ($data['state'] == true && ($post['amount_from'] < 0 || $post['amount_to'] < 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Сумма не может быть отрицательной';
-        }
-        if ($data['state'] == true && isset($post['amount_to']) && $post['transaction_type'] == TRANSACTION_OUTPUT) {
-            $post['amount_to'] = 0;
-        }
-        if ($data['state'] == true && isset($post['amount_from']) && $post['transaction_type'] == TRANSACTION_INPUT) {
-            $post['amount_from'] = 0;
-        }
-
-        // если транзакция на прием оплаты с заказа клиента
-        if ($data['state'] == true && isset($post['client_order_id']) && $post['client_order_id'] > 0) {
-
-            $order = $this->all_configs['db']->query('SELECT o.*, cl.contractor_id FROM {orders} as o
+                $order = $this->all_configs['db']->query('SELECT o.*, cl.contractor_id FROM {orders} as o
                 LEFT JOIN {clients} as cl ON cl.id=o.user_id WHERE o.id=?i', array($post['client_order_id']))->row();
 
-            if (!$order) {
-                $data['state'] = false;
-                $data['msg'] = 'Заказ не найден';
-            } else {
-                $post['date_transaction'] = date("Y-m-d H:i:s", time());
-                $client_order_id = $post['client_order_id'];
+                if (!$order) {
+                    throw new ExceptionWithMsg(l('Заказ не найден'));
+                } 
+                    $post['date_transaction'] = date("Y-m-d H:i:s", time());
+                    $client_order_id = $post['client_order_id'];
 
-                if (isset($post['client_contractor']) && $post['client_contractor'] == 1) {
-                    if (!isset($order['contractor_id']) || $order['contractor_id'] == 0) {
-                        $data['state'] = false;
-                        $data['msg'] = 'Клиент не привязан к контрагенту';
+                    if (isset($post['client_contractor']) && $post['client_contractor'] == 1) {
+                        if (!isset($order['contractor_id']) || $order['contractor_id'] == 0) {
+                            throw new ExceptionWithMsg(l('Клиент не привязан к контрагенту'));
+                        } 
+                            $post['contractors_id'] = $order['contractor_id'];
                     } else {
-                        $post['contractors_id'] = $order['contractor_id'];
+                        $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_id_from'];
+                        if (array_key_exists('write_off', $order) && $order['write_off'] > 0
+                            && $order['write_off'] == $this->Warehouses->getWriteOffWarehouseId()
+                        ) {
+                            $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_off_id_from'];
+                        }
                     }
-                } else {
-                    $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_id_from'];
-                    if (array_key_exists('write_off', $order) && $order['write_off'] > 0
-                        && $order['write_off'] == $this->getWriteOffWarehouseId()
+                    if ($order['sum'] == $order['sum_paid']) {
+                        throw new ExceptionWithMsg(l('Заказ уже оплачен'));
+                    }
+                    if ($post['transaction_type'] == TRANSACTION_INPUT) {
+                        if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'prepay') {
+                            $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_prepay'];
+                            $post['comment'] = "Внесение предоплаты клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
+                            if (round((float)$post['amount_to'] * 100) > $order['prepay'] - $order['sum_paid']) {
+                                throw new ExceptionWithMsg(l('Не больше чем '). show_price(intval($order['prepay']) - intval($order['sum_paid'])));
+                            }
+                        } else {
+                            $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from'];
+                            $post['comment'] = "Внесение денег клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
+                            if (!isset($post['confirm']) && round((float)$post['amount_to'] * 100) > $order['sum'] - $order['sum_paid']) {
+                                $exception = new ExceptionWithMsg(l('Сума для оплаты составляет '. show_price(intval($order['sum']) - intval($order['sum_paid'])) .l('. Подтверждаете?') ));
+                                $exception->confirm = 1;
+                                throw $exception;
+                            }
+                        }
+                    }
+                    if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
+                        $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
+                        if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
+                            $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
+                        }
+                        if (round((float)$post['amount_from'] * 100) > $order['sum_paid'] - $order['sum']) {
+                            throw new ExceptionWithMsg(l('Не больше чем ') . show_price(intval($order['sum_paid']) - intval($order['sum'])));
+                        }
+                    }
+
+                    if ($post['transaction_type'] == TRANSACTION_INPUT && (!array_key_exists($post['cashbox_currencies_to'], $currencies)
+                            || $post['cashbox_currencies_to'] != $this->all_configs['settings']['currency_orders'])
                     ) {
-                        $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_off_id_from'];
+                        throw new ExceptionWithMsg(l('Выбранная Вами валюта не совпадает с валютой в заказе'));
                     }
-                }
-                if ($data['state'] == true && $order['sum'] == $order['sum_paid']) {
-                    $data['state'] = false;
-                    $data['msg'] = 'Заказ уже оплачен';
-                }
-                if ($post['transaction_type'] == TRANSACTION_INPUT) {
-                    if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'prepay') {
-                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_prepay'];
-                        $post['comment'] = "Внесение предоплаты клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                        if ($data['state'] == true && round((float)$post['amount_to'] * 100) > $order['prepay'] - $order['sum_paid']) {
-                            $data['state'] = false;
-                            $data['msg'] = 'Не больше чем ' . show_price(intval($order['prepay']) - intval($order['sum_paid']));
-                        }
-                    } else {
-                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from'];
-                        $post['comment'] = "Внесение денег клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                        if ($data['state'] == true && !isset($post['confirm']) && round((float)$post['amount_to'] * 100) > $order['sum'] - $order['sum_paid']) {
-                            $data['state'] = false;
-                            //$data['msg'] = 'Не больше чем ' . show_price(intval($order['sum']) - intval($order['sum_paid']));
-                            $data['msg'] = 'Сума для оплаты составляет ' . show_price(intval($order['sum']) - intval($order['sum_paid'])) . '. Подтверждаете?';
-                            $data['confirm'] = 1;
-                        }
+                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && (!array_key_exists($post['cashbox_currencies_from'], $currencies)
+                            || $post['cashbox_currencies_from'] != $this->all_configs['settings']['currency_orders'])
+                    ) {
+                        throw new ExceptionWithMsg(l('Выбранная Вами валюта не совпадает с основной валютой'));
                     }
-                }
-                if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
-                    $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
-                    if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
-                        $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
-                    }
-                    if ($data['state'] == true && round((float)$post['amount_from'] * 100) > $order['sum_paid'] - $order['sum']) {
-                        $data['state'] = false;
-                        $data['msg'] = 'Не больше чем ' . show_price(intval($order['sum_paid']) - intval($order['sum']));
-                    }
-                }
-
-                if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_INPUT && (!array_key_exists($post['cashbox_currencies_to'],
-                            $currencies)
-                        || $post['cashbox_currencies_to'] != $this->all_configs['settings']['currency_orders'])
-                ) {
-                    $data['state'] = false;
-                    $data['msg'] = 'Выбранная Вами валюта не совпадает с валютой в заказе';
-                }
-                if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_OUTPUT && (!array_key_exists($post['cashbox_currencies_from'],
-                            $currencies)
-                        || $post['cashbox_currencies_from'] != $this->all_configs['settings']['currency_orders'])
-                ) {
-                    $data['state'] = false;
-                    $data['msg'] = 'Выбранная Вами валюта не совпадает с основной валютой';
-                }
-
-            }
-        }
-
-        if ($data['state'] == true && !array_key_exists('date_transaction', $post)) {
-            $data['state'] = false;
-            //$post['date_transaction'] = date("Y-m-d H:i:s");
-            $data['msg'] = 'Введите дату';
-        }
-
-        if ($data['state'] == true && $client_order_id == 0 && (($post['transaction_type'] == TRANSACTION_OUTPUT
-                    && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
-                || ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
-            && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
-        ) {
-            $data['state'] = false;
-            $data['msg'] = 'Оплата производится только в валюте ' . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name'];
-        }
-
-        if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_OUTPUT && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите категорию';
-        }
-
-        if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_INPUT && (!isset($post['contractor_category_id_from']) || $post['contractor_category_id_from'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите категорию';
-        }
-
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['contractors_id']) || $post['contractors_id'] == 0)) {
-            $data['state'] = false;
-            $data['msg'] = 'Выберите контрагента';
-        }
-
-        if ($data['state'] == true && $post['transaction_type'] == TRANSACTION_TRANSFER && $post['cashbox_currencies_from'] == $post['cashbox_currencies_to']) {
-            $post['amount_to'] = $post['amount_from'];
-        }
-        $contractor_category_link = $category_id = null;
-        if ($data['state'] == true && ($post['transaction_type'] == TRANSACTION_OUTPUT || $post['transaction_type'] == TRANSACTION_INPUT)) {
-
-            if ($post['transaction_type'] == TRANSACTION_INPUT && isset($post['contractor_category_id_from'])) {
-                $category_id = $post['contractor_category_id_from'];
-            }
-            if ($post['transaction_type'] == TRANSACTION_OUTPUT && isset($post['contractor_category_id_to'])) {
-                $category_id = $post['contractor_category_id_to'];
             }
 
-            if ($category_id > 0) {
-                $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
+            if (!array_key_exists('date_transaction', $post)) {
+                throw new ExceptionWithMsg(l('Введите дату'));
+            }
+
+            if ($client_order_id == 0 && (($post['transaction_type'] == TRANSACTION_OUTPUT
+                        && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
+                    || ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
+                && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
+            ) {
+                throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+            }
+
+            if ($post['transaction_type'] == TRANSACTION_OUTPUT && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
+                throw new ExceptionWithMsg(l('Выберите категорию'));
+            }
+
+            if ($post['transaction_type'] == TRANSACTION_INPUT && (!isset($post['contractor_category_id_from']) || $post['contractor_category_id_from'] == 0)) {
+                throw new ExceptionWithMsg(l('Выберите категорию'));
+            }
+
+            if (($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_OUTPUT) && (!isset($post['contractors_id']) || $post['contractors_id'] == 0)) {
+                throw new ExceptionWithMsg(l('Выберите контрагента'));
+            }
+
+            if ($post['transaction_type'] == TRANSACTION_TRANSFER && $post['cashbox_currencies_from'] == $post['cashbox_currencies_to']) {
+                $post['amount_to'] = $post['amount_from'];
+            }
+            $contractor_category_link = $category_id = null;
+            if (($post['transaction_type'] == TRANSACTION_OUTPUT || $post['transaction_type'] == TRANSACTION_INPUT)) {
+
+                if ($post['transaction_type'] == TRANSACTION_INPUT && isset($post['contractor_category_id_from'])) {
+                    $category_id = $post['contractor_category_id_from'];
+                }
+                if ($post['transaction_type'] == TRANSACTION_OUTPUT && isset($post['contractor_category_id_to'])) {
+                    $category_id = $post['contractor_category_id_to'];
+                }
+
+                if ($category_id > 0) {
+                    $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
                   (contractors_id, contractors_categories_id) VALUES (?i, ?i)',
-                    array(intval($post['contractors_id']), $category_id));
+                        array(intval($post['contractors_id']), $category_id));
 
-                $contractor_category_link = $this->all_configs['db']->query('SELECT id
+                    $contractor_category_link = $this->all_configs['db']->query('SELECT id
                       FROM {contractors_categories_links}
                       WHERE contractors_id=?i AND contractors_categories_id=?i',
-                    array(intval($post['contractors_id']), $category_id))->el();
+                        array(intval($post['contractors_id']), $category_id))->el();
+                }
+
+                if (!$contractor_category_link) {
+                    throw new ExceptionWithMsg(l('Выберите категорию и контрагента'));
+                }
             }
 
-            if ($data['state'] == true && !$contractor_category_link) {
-                $data['state'] = false;
-                $data['msg'] = 'Выберите категорию и контрагента';
+            // проверка комментария
+            if ($this->all_configs['configs']['manage-transact-comment'] == true && mb_strlen(trim($post['comment']),
+                    'UTF-8') == 0
+            ) {
+                throw new ExceptionWithMsg(l('Введите комментарий'));
+            }
+
+            // проверка даты на будущее
+            if (time() < strtotime($post['date_transaction'])) {
+                throw new ExceptionWithMsg(l('Некорректная дата'));
+            }
+
+            // транзакция
+                $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
+                    $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
+
+            $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
+            $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
+
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'msg' => $e->getMessage(),
+            );
+            if(isset($e->confirm)) {
+                $data['confirm'] = $e->confirm;
             }
         }
-
-        // проверка комментария
-        if ($data['state'] == true && $this->all_configs['configs']['manage-transact-comment'] == true && mb_strlen(trim($post['comment']),
-                'UTF-8') == 0
-        ) {
-            $data['msg'] = 'Введите комментарий';
-            $data['state'] = false;
-        }
-
-        // проверка даты на будущее
-        if ($data['state'] == true && time() < strtotime($post['date_transaction'])) {
-            $data['msg'] = 'Некорректная дата';
-            $data['state'] = false;
-        }
-
-        // транзакция
-        if ($data['state'] == true) {
-            $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
-                $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
-        }
-
-        $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
-        $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
-
         return $data;
     }
 
@@ -2240,46 +2182,9 @@ class Chains
                 array($post['cashbox_to'], $post['cashbox_currencies_to'], intval($post['amount_to'] * 100)));
         }
 
-        $this->history->save('add-transaction', $mod_id, $transaction_id);
+        $this->History->save('add-transaction', $mod_id, $transaction_id);
 
         return $order;
-    }
-
-    /**
-     * @todo по уму заменить бы на откат транзакции
-     *
-     * @param $order
-     */
-    public function remove_order($order)
-    {
-        if (!empty($order) && array_key_exists('id', $order) && $order['id'] > 0) {
-            /*$chains_id = $this->all_configs['db']->query('SELECT id FROM {chains_headers} WHERE order_id=?i',
-                array($order['id']))->el();
-            // удаляем цепочку и ячейки
-            if ($chains_id > 0) {
-                $this->all_configs['db']->query('DELETE FROM {chains_bodies} WHERE chain_id=?i', array($chains_id));
-                $this->all_configs['db']->query('DELETE FROM {chains_headers} WHERE id=?i', array($chains_id));
-            }*/
-            // удаляем заявки
-            $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE client_order_id=?i',
-                array($order['id']));
-            // удаяем перемещения
-            $this->all_configs['db']->query('DELETE FROM {warehouses_stock_moves} WHERE order_id=?i',
-                array($order['id']));
-            // удалить номер заказа с item
-            $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET order_id=null WHERE order_id=?i',
-                array($order['id']));
-            // удаляем транзакции
-            $this->all_configs['db']->query('DELETE FROM {cashboxes_transactions} WHERE client_order_id=?i',
-                array($order['id']));
-            // удаляем связку заказов
-            $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE client_order_id=?i',
-                array($order['id']));
-            // удаляем товары
-            $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE order_id=?i', array($order['id']));
-            // удаляем заказ
-            $this->all_configs['db']->query('DELETE FROM {orders} WHERE id=?i', array($order['id']));
-        }
     }
 
     /**
@@ -2288,29 +2193,10 @@ class Chains
      */
     public function return_supplier_order_form($item_id = null)
     {
-        $out = '';
-
-        if ($this->all_configs['configs']['erp-use'] == true
-            && $this->all_configs['oRole']->hasPrivilege('return-items-suppliers')
-        ) {
-
-            $out .= '<div class="well"><h4>' . l('Возврат поставщику') . '</h4>';
-            // проверяем можем ли списать
-            $can = $item_id > 0 ? $this->can_use_item($item_id) : true;
-
-            $out .= '<form class="form-horizontal" method="post">';
-            if ($item_id === 0) {
-                $out .= '<p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>';
-            }
-            if ($can) {
-                $out .= '<input type="button" class="btn" onclick="return_item(this, ' . $item_id . ')" value="' . l('Вернуть') . '" />';
-            } else {
-                $out .= '<input disabled type="submit" class="btn" value="' . l('Вернуть') . '" />';
-            }
-            $out .= '</form></div>';
-        }
-
-        return $out;
+        return $this->view->renderFile('chains.class/return_supplier_order_form', array(
+            'canUse' => $item_id > 0 ? $this->can_use_item($item_id) : true,
+            'item_id' => $item_id
+        ));
     }
 
     /**
@@ -2330,11 +2216,8 @@ class Chains
         $show_btn = true,
         $rand = null
     ) {
-        $out = '';
-
-        if ($this->all_configs['configs']['erp-use'] == true) {
-            $out = $this->view->renderFile('chains.class/moving_item_form', array(
-               'rand' =>  $rand ? $rand : rand(1000, 9999),
+            return $this->view->renderFile('chains.class/moving_item_form', array(
+                'rand' => $rand ? $rand : rand(1000, 9999),
                 'item_id' => $item_id,
                 'goods_id' => $goods_id,
                 'order' => $order,
@@ -2343,30 +2226,18 @@ class Chains
                 'controller' => $this,
                 'show_btn' => $show_btn,
             ));
-        }
-
-        return $out;
     }
 
     /**
      * @param $active
      * @return string
      */
-    function order_status($active)
+    public function order_status($active)
     {
-        $order_html = '<select class="order-status form-control" name="status">';
-        if (!is_integer($active)) {
-            $order_html .= '<option value="-1">' . l('Поменять') . '</option>';
-        }
-        foreach ($this->all_configs['configs']['order-status'] as $k => $status) {
-            $selected = $k === $active ? 'selected' : '';
-            $style = 'style="color:#' . htmlspecialchars($status['color']) . '"';
-            $name = htmlspecialchars($status['name']);
-            $order_html .= '<option ' . $selected . ' ' . $style . 'value="' . $k . '">' . $name . '</option>';
-        }
-        $order_html .= '</select>';
-
-        return $order_html;
+        return $this->view->renderFile('chains.class/order-status', array(
+            'orderStates' => $this->all_configs['configs']['order-status'],
+            'active' => $active
+        ));
     }
 
     /**
@@ -2381,66 +2252,56 @@ class Chains
     {
         $data = array('state' => true);
 
-        if ($item_id == 0 && $order_id == 0) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите номер изделия или ремонта';
-        }
+        try {
+            if ($item_id == 0 && $order_id == 0) {
+                throw new ExceptionWithMsg(l('Укажите номер изделия или ремонта'));
+            }
 
-        if ($wh_id == 0) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите склад куда';
-        }
+            if ($wh_id == 0) {
+                throw new ExceptionWithMsg(l('Укажите склад куда'));
+            }
 
-        if ($location_id == 0) {
-            $data['state'] = false;
-            $data['message'] = 'Укажите локацию';
-        }
+            if ($location_id == 0) {
+                throw new ExceptionWithMsg(l('Укажите локацию'));
+            }
 
-        ///!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') ||
-        if ($this->all_configs['configs']['erp-use'] == false) {
-            $data['state'] = false;
-            $data['message'] = 'Нет прав';
-        }
-
-        if ($data['state'] == true) {
+            if ($this->all_configs['configs']['erp-use'] == false) {
+                throw new ExceptionWithMsg(l('Нет прав'));
+            }
 
             if ($order_id > 0) {
                 // достаем заказ
                 $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i',
                     array($order_id))->row();
-                if ($order) {
-                    $items = $this->all_configs['db']->query('SELECT id FROM {warehouses_goods_items} WHERE order_id=?i',
-                        array($order_id))->vars();
-                    if ($items && !$this->can_use_item($items, $order_id)) {
-                        // проверяем не привязан ли этот серийник в какуюто цепочку
-                        return array(
-                            'message' => 'Серийный номер привязан к другому заказу на ремонт.',
-                            'state' => false
-                        );
-                    }
+                if (empty($order)) {
+                    throw new ExceptionWithMsg(l('Заказ не найден.'));
+                }
+                $items = $this->all_configs['db']->query('SELECT id FROM {warehouses_goods_items} WHERE order_id=?i',
+                    array($order_id))->vars();
+                if ($items && !$this->can_use_item($items, $order_id)) {
+                    // проверяем не привязан ли этот серийник в какуюто цепочку
+                    throw new ExceptionWithMsg(l('Серийный номер привязан к другому заказу на ремонт.'));
+                }
 
-                    $chain = $this->get_move_chain_id(null, $order_id, $order['wh_id'], $order['location_id'], $wh_id,
-                        $location_id);
-                    $chain_id = $chain && isset($chain['chain_id']) && $chain['chain_id'] > 0 ? $chain['chain_id'] : null;
-                    $chain_body_id_to = $chain && isset($chain['chain_body_id_to']) && $chain['chain_body_id_to'] > 0 ? $chain['chain_body_id_to'] : null;
-                    // перемещаем заказ
-                    $this->all_configs['manageModel']->stock_moves(null, $order_id, $wh_id, $location_id, $chain_id,
-                        'Перемещение на склад', $chain_body_id_to, 2);
-                    if ($this->all_configs['oRole']->hasPrivilege('logistics-mess')) {
-                        // достаем цепочку
-                        $chain_id = $this->all_configs['db']->query('SELECT h.id FROM {chains_headers} as h, {chains_bodies} as b
+                $chain = $this->get_move_chain_id(null, $order_id, $order['wh_id'], $order['location_id'], $wh_id,
+                    $location_id);
+                $chain_id = $chain && isset($chain['chain_id']) && $chain['chain_id'] > 0 ? $chain['chain_id'] : null;
+                $chain_body_id_to = $chain && isset($chain['chain_body_id_to']) && $chain['chain_body_id_to'] > 0 ? $chain['chain_body_id_to'] : null;
+                // перемещаем заказ
+                $this->all_configs['manageModel']->stock_moves(null, $order_id, $wh_id, $location_id, $chain_id,
+                    'Перемещение на склад', $chain_body_id_to, 2);
+                if ($this->all_configs['oRole']->hasPrivilege('logistics-mess')) {
+                    // достаем цепочку
+                    $chain_id = $this->all_configs['db']->query('SELECT h.id FROM {chains_headers} as h, {chains_bodies} as b
                             WHERE h.avail=1 AND h.id=b.chain_id AND b.number=1 AND b.type=?i AND b.wh_id=?i AND b.location_id=?i',
-                            array($this->chain_warehouse, $wh_id, $location_id))->el();
-                        if ($chain_id) {
-                            $href1 = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
-                            $href2 = $this->all_configs['prefix'] . 'logistics?o_id=' . $order['id'] . '#motions';
-                            $content = 'Заказ <a href="' . $href1 . '">№' . $order['id'] . '</a> попал на склад и создалась <a href="' . $href2 . '">цепочка</a> (запрос) на перемещение';
-                            $this->notification(l('Создалась цепочка на перемещение заказа'), $content,
-                                'logistics-mess');
-                        }
+                        array($this->chain_warehouse, $wh_id, $location_id))->el();
+                    if ($chain_id) {
+                        $href1 = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
+                        $href2 = $this->all_configs['prefix'] . 'logistics?o_id=' . $order['id'] . '#motions';
+                        $content = 'Заказ <a href="' . $href1 . '">№' . $order['id'] . '</a> попал на склад и создалась <a href="' . $href2 . '">цепочка</a> (запрос) на перемещение';
+                        $this->notification(l('Создалась цепочка на перемещение заказа'), $content,
+                            'logistics-mess');
                     }
-                } else {
-                    return array('message' => 'Заказ не найден.', 'state' => false);
                 }
             } else {
                 $items = (array)$item_id;
@@ -2453,19 +2314,12 @@ class Chains
                           FROM {warehouses_goods_items} as i WHERE i.id=?i', array($item_id))->row();
 
                     $data['serial'] = $item ? suppliers_order_generate_serial($item) : '';
-                    /*if (!$item) {
-                        $check = false;
-                    }*/
                     // проверяем не привязан ли этот серийник в какуюто цепочку
                     if (!$this->can_use_item($item_id, $order_id)) {
-                        $data['state'] = false;
-                        $data['message'] = 'Серийный номер привязан к другому заказу на ремонт. Возможно не оприходован заказ поставщику.';
-                        return $data;
+                        throw new ExceptionWithMsg(l('Серийный номер привязан к другому заказу на ремонт. Возможно не оприходован заказ поставщику.'));
                     }
                     // двигаем товар
-                    if (/*$check == true && */
-                    $item
-                    ) {
+                    if ($item) {
 
                         $chain = $this->get_move_chain_id($item_id, null, $item['wh_id'], $item['location_id'], $wh_id,
                             $location_id);
@@ -2479,7 +2333,6 @@ class Chains
                             array($wh_id, $location_id, $item_id))->ar();
 
                         // история перемещений
-                        //if ($ar) {
                         // обновляем передвижение (склад откуда)
                         $this->all_configs['manageModel']->move_product_item(
                             $item['wh_id'],
@@ -2522,7 +2375,7 @@ class Chains
 
                         // история
                         if ($mod_id) {
-                                $this->history->save('move-item', $mod_id, $item_id);
+                            $this->History->save('move-item', $mod_id, $item_id);
                         }
 
                         // количество свободных изделий у заказа , количество не обработанных заявок на этот заказ
@@ -2551,10 +2404,14 @@ class Chains
                             }
                         }
                         $data['state'] = true;
-                        //}
                     }
                 }
             }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
         }
 
         return $data;
@@ -2569,7 +2426,7 @@ class Chains
      * @param $location_to_id
      * @return mixed
      */
-    function get_move_chain_id($item_id, $order_id, $wh_from_id, $location_from_id, $wh_to_id, $location_to_id)
+    public function get_move_chain_id($item_id, $order_id, $wh_from_id, $location_from_id, $wh_to_id, $location_to_id)
     {
         // order or item
         $query = $order_id ? $this->all_configs['db']->makeQuery('m.order_id=?i', array($order_id)) :
@@ -2633,10 +2490,9 @@ class Chains
      */
     public function stock_moves($order_id = null, $item_id = null)
     {
-        $html = '<p>Перемещений не найдено</p>';
-
         $where = '';
 
+        $moves = array();
         if ($order_id > 0) {
             $where = $this->all_configs['db']->makeQuery(
                 'm.order_id=?i AND l.id=m.location_id AND m.item_id IS NULL AND ?query',
@@ -2656,21 +2512,11 @@ class Chains
                 LEFT JOIN {users} as u ON u.id=m.user_id WHERE ?query w.id=m.wh_id ORDER BY m.date_move DESC',
                 array($where))->assoc();
 
-            if ($moves) {//<td>Комментарий</td>
-                $html = '<table class="table"><thead><tr><td>' . l('Дата') . '</td><td>' . l('Менeджер') . '</td><td>' . l('Склад') . '</td><td>' . l('Локация') . '</td></tr></thead>';
-                foreach ($moves as $move) {
-                    $html .= '<tr><td><span title="' . do_nice_date($move['date_move'],
-                            false) . '">' . do_nice_date($move['date_move']) . '</span></td>';
-                    $html .= '<td>' . get_user_name($move) . '</td>';
-                    //$html .= '<td>' . htmlspecialchars($move['comment']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($move['title']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($move['location']) . '</td></tr>';
-                }
-                $html .= '<table>';
-            }
         }
 
-        return $html;
+        return $this->view->renderFile('cahins.class/stock_moves', array(
+            'moves' => $moves 
+        ));
     }
 
     /**
@@ -2808,66 +2654,6 @@ class Chains
     }
 
     /**
-     * @param $clientId
-     * @return string
-     */
-    public function getClientCode($clientId) {
-        $Clients  = new MClients();
-        return $Clients->getClientCode($clientId);
-    }
-
-    /**
-     * @param $post
-     * @return array
-     * @throws Exception
-     */
-    protected function getClient($post)
-    {
-        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-        $access = new \access($this->all_configs, false);
-        $client_phone_filtered = $access->is_phone($post['client_phone']);
-        
-        if (!$this->all_configs['oRole']->hasPrivilege('create-clients-orders')) {
-            throw new ExceptionWithMsg('У Вас нет прав');
-        }
-        $clientId = isset($post['client_id']) ? intval($post['client_id']) :
-            (isset($post['clients']) ? intval($post['clients']) : 0);
-        if (isset($post['clients']) && $clientId != 0) {
-            return $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
-                array($clientId))->row();
-        }
-        if (empty($post['client_fio']) && empty($_POST['client_fio'])) {
-            throw new ExceptionWithMsg(l('Укажите ФИО клиента'));
-        }
-        if (empty($post['client_phone']) && empty($_POST['client_phone'])) {
-            throw new ExceptionWithMsg(l('Укажите телефон клиента'));
-        }
-        // создать клиента
-        if (!$client_phone_filtered) {
-            throw new ExceptionWithMsg(l('Введите номер телефона в формате вашей страны'));
-        }
-        $info = array(
-            'phone' => $client_phone_filtered[0],
-            'fio' => $_POST['client_fio']
-        );
-        if (!empty($_POST['address'])) {
-            $info['legal_address'] = $_POST['address'];
-        }
-        if (!empty($_POST['email'])) {
-            $info['email'] = $_POST['email'];
-        }
-        $u = $access->registration($info);
-        if ($u['id'] <= 0) {
-            throw new ExceptionWithMsg(isset($u['msg']) ? $u['msg'] : l('Ошибка создания клиента'));
-        }
-        return array(
-            'id' => $u['id'],
-            'phone' => $client_phone_filtered[0],
-            'fio' => $_POST['client_fio']
-        );
-    }
-
-    /**
      * @param $post
      * @param $modId
      * @param $clientId
@@ -2885,7 +2671,7 @@ class Chains
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
-            'cashless' => isset($post['cashless'])?trim($post['cashless']):''
+            'cashless' => isset($post['cashless']) ? trim($post['cashless']) : ''
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -2946,7 +2732,7 @@ class Chains
                     array($orderId, $so['id'], $item['goods_id'], $product['id']), 'ar');
                 $this->deleteOnePack($orderId, $ar, $so);
             }
-            $this->setOrderSum($orderId, $modId);
+            $this->Orders->setOrderSum($orderId, $modId);
         }
     }
 
@@ -3041,7 +2827,8 @@ class Chains
             'accepter' => $this->getUserId(),
             'title' => trim($category['title']),
             'note' => isset($post['serials']) ? trim($post['serials']) : '',
-            'serial' => isset($post['serial']) && mb_strlen(trim($post['serial']), 'UTF-8') > 0 ? trim($post['serial']) : null,
+            'serial' => isset($post['serial']) && mb_strlen(trim($post['serial']),
+                'UTF-8') > 0 ? trim($post['serial']) : null,
             'battery' => isset($post['battery']) ? 1 : 0,
             'charger' => isset($post['charger']) ? 1 : 0,
             'cover' => isset($post['cover']) ? 1 : 0,
@@ -3080,16 +2867,15 @@ class Chains
 
         // создаем заказ
         try {
-            $Order = new MOrderBase();
-            $id = $Order->save($params);
-            
-            $config = $this->settings->getByName('order-send-sms-with-client-code');
-            $host = $this->settings->getByName('site-for-add-rating');
-            
-            $client = db()->query("SELECT * FROM {clients} WHERE id=?i", array($client['id']))->row();
-            if(!empty($config) && $config == 'on' && $type === 0) {
+            $id = $this->Orders->save($params);
+
+            $config = $this->Settings->getByName('order-send-sms-with-client-code');
+            $host = $this->Settings->getByName('site-for-add-rating');
+
+            $client = $this->Clients->getById($client['id']);
+            if (!empty($config) && $config == 'on' && $type === 0) {
                 send_sms("+{$client['phone']}",
-                    l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->getClientCode($client['id']));
+                    l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->Clients->getClientCode($client['id']));
             }
         } catch (Exception $e) {
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
@@ -3129,7 +2915,6 @@ class Chains
         $crm_request
     ) {
 // скрытый камент
-        $userId = $this->getUserId();
         $private_comment = $part_quality_comment . (isset($post['private_comment']) ? trim($post['private_comment']) : '');
         if ($private_comment) {
             $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], $private_comment, 1);
@@ -3138,49 +2923,51 @@ class Chains
         if (isset($post['crm_request'])) {
             get_service('crm/requests')->attach_to_order($data['id'], $crm_request);
         }
-        // сумма
-        if ($sum > 0) {
-                $this->history->save('update-order-sum', $mod_id, $data['id'], ($sum / 100));
-        }
         // предоплата
         if ($sum_paid > 0 && $send == true) {
             $this->accountantNotification(l('Необходимо принять предоплату'), $data['id'], $sum_paid / 100);
-        }
-        // подменный фонд
-        if (isset($post['is_replacement_fund'])) {
-            $this->history->save( 'update-order-replacement_fund', $mod_id, $data['id'], trim($post['replacement_fund']), 1 );
         }
         // адрес в скрытый комментарий
         if (isset($post['is_courier']) && isset($post['courier'])) {
             $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'],
                 l('Курьер забрал устройство у клиента по адресу') . ': ' . trim($post['courier']), 1);
         }
+        // сумма
+        if ($sum > 0) {
+            $this->History->save('update-order-sum', $mod_id, $data['id'], ($sum / 100));
+        }
+        // подменный фонд
+        if (isset($post['is_replacement_fund'])) {
+            $this->History->save('update-order-replacement_fund', $mod_id, $data['id'], trim($post['replacement_fund']),
+                1);
+        }
         // устройство у клиента
         if (isset($post['client_took'])) {
-                $this->history->save( 'update-order-client_took', $mod_id, $data['id'], l('Устройство у клиента'), 1 );
+            $this->History->save('update-order-client_took', $mod_id, $data['id'], l('Устройство у клиента'), 1);
         }
         // Неисправность со слов клиента
         if (isset($post['defect']) && mb_strlen(trim($post['defect']), 'UTF-8') > 0) {
-            $this->history->save('update-order-defect', $mod_id, $data['id'], trim($post['defect']));
+            $this->History->save('update-order-defect', $mod_id, $data['id'], trim($post['defect']));
         }
         // Примечание/Внешний вид
         if (isset($post['comment']) && mb_strlen(trim($post['comment']), 'UTF-8') > 0) {
-            $this->history->save('update-order-comment', $mod_id, $data['id'], trim($post['comment']));
+            $this->History->save('update-order-comment', $mod_id, $data['id'], trim($post['comment']));
         }
         // серийник
         if (isset($post['serial']) && mb_strlen(trim($post['serial']), 'UTF-8') > 0) {
-            $this->history->save('update-order-serial', $mod_id, $data['id'], trim($post['serial']));
+            $this->History->save('update-order-serial', $mod_id, $data['id'], trim($post['serial']));
         }
         // фио
         if (mb_strlen($client['fio'], 'UTF-8') > 0) {
-                $this->history->save('update-order-fio', $mod_id, $data['id'], trim($client['fio']));
+            $this->History->save('update-order-fio', $mod_id, $data['id'], trim($client['fio']));
         }
         // телефон
         if (mb_strlen($client['phone'], 'UTF-8') > 0) {
-                $this->history->save('update-order-phone', $mod_id, $data['id'], trim($client['phone']));
+            $this->History->save('update-order-phone', $mod_id, $data['id'], trim($client['phone']));
         }
         // устройство
-        $this->history->save( 'update-order-category', $mod_id, $data['id'], trim($category['title']), intval($category['id']) );
+        $this->History->save('update-order-category', $mod_id, $data['id'], trim($category['title']),
+            intval($category['id']));
         // статус
         update_order_status(array('id' => $data['id']), $status);
 
@@ -3231,96 +3018,5 @@ class Chains
         }
         return $data;
     }
-
-    /**
-     * @return string
-     */
-    protected function getUserId()
-    {
-        return isset($_SESSION['id']) ? $_SESSION['id'] : '';
-    }
-
-    /**
-     * @param $order
-     * @return int
-     */
-    public function getTotalSum($order)
-    {
-        $notSale = $order['type'] != 3;
-        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
-
-        $productTotal = 0;
-        if(!empty($goods)) {
-            foreach ($goods as $product) {
-                $productTotal += $product['price'] * $product['count'];
-            }
-        }
-        if(!empty($services)) {
-            foreach ($services as $product) {
-                $productTotal += $product['price'] * $product['count'];
-            }
-        }
-        return $productTotal;
-    }
-
-    /**
-     * @param $order
-     * @param $modId
-     * @return mixed
-     */
-    protected function setOrderSum($order, $modId)
-    {
-
-        if (is_numeric($order)) {
-            $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
-                array($order))->row();
-        }
-        if ($order['total_as_sum']) {
-            $sum = $this->getTotalSum($order);
-            if ($sum != $order['sum']) {
-                $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
-                    array($sum, $order['id']))->ar();
-                $this->history->save( 'update-order-sum', $modId, $order['id'], ($sum / 100) );
-                $order['sum'] = $sum;
-            }
-        }
-        return $order;
-    }
-
-    /**
-     * @return mixed
-     * @throws ExceptionWithMsg
-     */
-    public function getWriteOffWarehouseId()
-    {
-        $warehouse = $this->all_configs['db']->query('SELECT * FROM {warehouses}  WHERE type=2 LIMIT 1', array())->row();
-        if(empty($warehouse)) {
-            throw new ExceptionWithMsg(l('Склад списания не найден'));
-        }
-        return $warehouse['id'];
-    }
-
-    /**
-     * @param $warehouseId
-     * @return mixed
-     * @throws ExceptionWithMsg
-     */
-    private function getLocationId($warehouseId)
-    {
-        $location = $this->all_configs['db']->query('SELECT * FROM {warehouses_locations}  WHERE wh_id=?i LIMIT 1',
-            array($warehouseId))->row();
-        if (empty($location)) {
-            throw new ExceptionWithMsg(l('Локация списания не найдена'));
-        }
-        return $location['id'];
-    }
 }
 
-class ExceptionWithMsg extends Exception
-{
-}
-
-class ExceptionWithURL extends Exception
-{
-}

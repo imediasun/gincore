@@ -418,7 +418,7 @@ class accountings extends Controller
                     }
                 }
             }
-            $this->history->save('add-cashbox', $mod_id, $cashbox_id);
+            $this->History->save('add-cashbox', $mod_id, $cashbox_id);
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
@@ -460,7 +460,7 @@ class accountings extends Controller
                 }
             }
             if ($ar) {
-                $this->history->save('edit-cashbox', $mod_id, $post['cashbox-id']);
+                $this->History->save('edit-cashbox', $mod_id, $post['cashbox-id']);
             }
 
         } elseif (isset($post['contractor_category-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -485,7 +485,7 @@ class accountings extends Controller
                     trim($post['comment'])
                 ), 'id');
 
-            $this->history->save('add-contractor_category', $mod_id, $contractor_category);
+            $this->History->save('add-contractor_category', $mod_id, $contractor_category);
             if ($parent_id > 0) {
                 $this->addContractorCategoryForUsers($parent_id, $contractor_category);
             }
@@ -517,7 +517,7 @@ class accountings extends Controller
                 ))->ar();
 
             if ($ar) {
-                $this->history->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
+                $this->History->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
             }
         } elseif (isset($post['cashboxes-currencies-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование валюты
@@ -1232,7 +1232,7 @@ class accountings extends Controller
 
                 // история
                 if ($ar) {
-                    $this->history->save('add-to-cashbox-currency', $mod_id, $_POST['currency_id']);
+                    $this->History->save('add-to-cashbox-currency', $mod_id, $_POST['currency_id']);
                 }
 
                 $courses_html = $this->gen_currency_table();
@@ -1276,7 +1276,7 @@ class accountings extends Controller
 
                 // история
                 if ($ar) {
-                    $this->history->save('remove-global-cashbox-course', $mod_id, $_POST['currency_id']);
+                    $this->History->save('remove-global-cashbox-course', $mod_id, $_POST['currency_id']);
                 }
 
                 $new_courses = $this->all_configs['suppliers_orders']->currencies;
@@ -1395,7 +1395,7 @@ class accountings extends Controller
 
                         // история
                         if ($ar) {
-                            $this->history->save('remove-contractor', $mod_id, $_POST['contractor_id']);
+                            $this->History->save('remove-contractor', $mod_id, $_POST['contractor_id']);
                         }
 
                         $data['state'] = true;
@@ -1430,7 +1430,7 @@ class accountings extends Controller
 
                     // история
                     if ($ar) {
-                        $this->history->save('remove-contractors-category', $mod_id, $_POST['category_id']);
+                        $this->History->save('remove-contractors-category', $mod_id, $_POST['category_id']);
                     }
 
                     $data['state'] = true;
@@ -2985,7 +2985,7 @@ class accountings extends Controller
                 ))->ar();
 
             if ($ar) {
-                $this->history->save('edit-contractor', $mod_id, $this->all_configs['arrequest'][2]);
+                $this->History->save('edit-contractor', $mod_id, $this->all_configs['arrequest'][2]);
             }
 
             $contractor_categories_id = $this->all_configs['db']->query('SELECT contractors_categories_id
@@ -3068,7 +3068,7 @@ class accountings extends Controller
                             array($contractor_category_id, $contractor_id))->ar();
                     }
                 }
-                $this->history->save('add-contractor', $mod_id, $contractor_id);
+                $this->History->save('add-contractor', $mod_id, $contractor_id);
 
                 // создаем клиента для контрагента
                 //email проверяется чуть выше

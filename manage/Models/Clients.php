@@ -32,14 +32,14 @@ class MClients extends AModel
                     $clientCode = implode('', array_merge((array)array_pop($clientCodeAsArray), $clientCodeAsArray));
                 }
 
-                $has = $this->query('SELECT count(*) FROM ?q WHERE client_code=?',
+                $has = $this->query('SELECT count(*) FROM ?t WHERE client_code=?',
                     array($this->table, $clientCode))->el();
             } while ($has != 0);
             $this->query('UPDATE ?q SET client_code=?i WHERE id=?i', array($this->table, $clientCode, $clientId));
         }
         return $clientCode;
     }
-
+    
     /**
      * @param $post
      * @return array
@@ -47,7 +47,7 @@ class MClients extends AModel
      */
     public function getClient($post)
     {
-        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        require_once($this->all_configs['sitepath'] . '/shop/access.class.php');
         $access = new \access($this->all_configs, false);
         $client_phone_filtered = $access->is_phone($post['client_phone']);
 
@@ -57,8 +57,7 @@ class MClients extends AModel
         $clientId = isset($post['client_id']) ? intval($post['client_id']) :
             (isset($post['clients']) ? intval($post['clients']) : 0);
         if (isset($post['clients']) && $clientId != 0) {
-            return $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
-                array($clientId))->row();
+            return $this->getById($clientId);
         }
         if (empty($post['client_fio']) && empty($_POST['client_fio'])) {
             throw new ExceptionWithMsg(l('Укажите ФИО клиента'));

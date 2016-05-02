@@ -1,22 +1,25 @@
 <?php
 
+require_once __DIR__ . '/Object.php';
 require_once __DIR__ . '/FlashMessage.php';
 require_once __DIR__ . '/View.php';
 require_once __DIR__ . '/Session.php';
 require_once __DIR__ . '/Response.php';
+require_once __DIR__ . '/Exceptions.php';
 require_once __DIR__ . '/../Models/History.php';
 require_once __DIR__ . '/../Tariff.php';
 
 
-abstract class Controller
+abstract class Controller extends Object
 {
     public $count_on_page;
     protected $all_configs;
     protected $mod_submenu;
     /** @var View */
     protected $view;
-    /** @var History  */
-    protected $history;
+    /** @var MHistory  */
+    protected $History;
+    public $uses = array();
 
     abstract public function ajax();
 
@@ -59,7 +62,7 @@ abstract class Controller
         $this->count_on_page = count_on_page();
         $this->view = new View($all_configs);
         $this->session = Session::getInstance();
-        $this->history = new MHistory();
+        $this->History = new MHistory();
 
         global $input_html;
 
@@ -96,13 +99,5 @@ abstract class Controller
         return '<div class="span3"></div>
                 <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') . '</p></div>';
 
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserId()
-    {
-        return isset($_SESSION['id']) ? $_SESSION['id'] : '';
     }
 }

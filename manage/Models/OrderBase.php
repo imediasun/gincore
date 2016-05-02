@@ -1,9 +1,18 @@
 <?php
 require_once __DIR__ . '/../Core/AModel.php';
 
+/**
+ * Class MOrderBase
+ *
+ * @property  MHistory   $History
+ */
 class MOrderBase extends AModel
 {
     public $table = 'orders';
+
+    public $uses = array(
+        'History'
+    );
 
     /**
      * @param $options
@@ -13,7 +22,110 @@ class MOrderBase extends AModel
     {
         return $this->insert($options);
     }
-    
+
+    /**
+     * @param null $orderId
+     * @return array
+     */
+    public function getClosed($orderId = null)
+    {
+        $conditions = $this->makeQuery('status IN (?li)',
+            array($this->all_configs['configs']['order-statuses-closed']));
+        if (!empty($orderId)) {
+            $conditions = $this->makeQuery('?q AND id=?i', array($conditions, $orderId));
+        }
+        // достаем заказ
+        return $this->query('SELECT * FROM ?t WHERE ?q', array($this->table, $conditions))->row();
+    }
+
+    /**
+     * @param $orderId
+     * @return \go\DB\Result
+     */
+    public function getById($orderId)
+    {
+        return $this->query("SELECT * FROM ?t WHERE id = ?i", array($this->table, $orderId), 'row');
+        
+    }
+
+    /**
+     * @param $order
+     * @param $modId
+     * @return mixed
+     */
+    public function setOrderSum($order, $modId)
+    {
+
+        if (is_numeric($order)) {
+            $order = $this->all_configs['db']->query('SELECT o.* FROM ?t o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
+                array($this->table, $order))->row();
+        }
+        if ($order['total_as_sum']) {
+            $sum = $this->getTotalSum($order);
+            if ($sum != $order['sum']) {
+                $this->all_configs['db']->query('UPDATE ?t SET `sum`=?i  WHERE id=?i',
+                    array($this->table, $sum, $order['id']))->ar();
+                $this->History->save('update-order-sum', $modId, $order['id'], ($sum / 100));
+                $order['sum'] = $sum;
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @return int
+     */
+    public function getTotalSum($order)
+    {
+        $notSale = $order['type'] != 3;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+
+        $productTotal = 0;
+        if (!empty($goods)) {
+            foreach ($goods as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        if (!empty($services)) {
+            foreach ($services as $product) {
+                $productTotal += $product['price'] * $product['count'];
+            }
+        }
+        return $productTotal;
+    }
+
+    /**
+     * @todo по уму заменить бы на откат транзакции
+     *
+     * @param $order
+     */
+    public function rollback($order)
+    {
+        if (!empty($order) && array_key_exists('id', $order) && $order['id'] > 0) {
+            // удаляем заявки
+            $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE client_order_id=?i',
+                array($order['id']));
+            // удаяем перемещения
+            $this->all_configs['db']->query('DELETE FROM {warehouses_stock_moves} WHERE order_id=?i',
+                array($order['id']));
+            // удалить номер заказа с item
+            $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET order_id=null WHERE order_id=?i',
+                array($order['id']));
+            // удаляем транзакции
+            $this->all_configs['db']->query('DELETE FROM {cashboxes_transactions} WHERE client_order_id=?i',
+                array($order['id']));
+            // удаляем связку заказов
+            $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE client_order_id=?i',
+                array($order['id']));
+            // удаляем товары
+            $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE order_id=?i', array($order['id']));
+            // удаляем заказ
+            $this->all_configs['db']->query('DELETE FROM ?t WHERE id=?i', array($this->table, $order['id']));
+        }
+    }
+
     /**
      * @return array
      */
@@ -80,4 +192,5 @@ class MOrderBase extends AModel
 
         );
     }
+
 }

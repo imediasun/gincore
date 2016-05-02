@@ -142,7 +142,7 @@ class products extends Controller
                                 VALUES (?i, ?i)', array($new_cat, $id));
                         }
                     }
-                    $this->history->save('create-goods', $mod_id, $id);
+                    $this->History->save('create-goods', $mod_id, $id);
 
                     include $this->all_configs['sitepath'] . 'mail.php';
                     $messages = new Mailer($this->all_configs);
@@ -155,7 +155,7 @@ class products extends Controller
                                     array(intval($user), $id))->ar();
 
                                 if ($ar) {
-                                    $this->history->save('add-manager', $mod_id, intval($user));
+                                    $this->History->save('add-manager', $mod_id, intval($user));
                                 }
                             }
                         }
@@ -189,7 +189,7 @@ class products extends Controller
                 }
             }
             if (intval($ar) > 0) {
-                $this->history->save('update-goods-title-image', $mod_id, $product_id);
+                $this->History->save('update-goods-title-image', $mod_id, $product_id);
             }
             $ar = 0;
             // редактируем приоритет картинок
@@ -200,7 +200,7 @@ class products extends Controller
                 }
             }
             if (intval($ar) > 0) {
-                $this->history->save('update-goods-image-prio', $mod_id, $product_id);
+                $this->History->save('update-goods-image-prio', $mod_id, $product_id);
             }
 
             //если нужно удаляeм картинку с базы и с папки
@@ -262,7 +262,7 @@ class products extends Controller
                             array(0, $product_id));
                     }
                 }
-                $this->history->save('delete-goods-image', $mod_id, $product_id);
+                $this->History->save('delete-goods-image', $mod_id, $product_id);
             }
 
             if (isset($post['youtube'])) {
@@ -312,7 +312,7 @@ class products extends Controller
                     ))->ar();
 
                 if (intval($ar) > 0) {
-                    $this->history->save('edit-goods', $mod_id, $product_id);
+                    $this->History->save('edit-goods', $mod_id, $product_id);
                 }
             }
 
@@ -324,7 +324,7 @@ class products extends Controller
                     array(isset($post['avail']) ? 1 : 0, isset($post['type']) ? 1 : 0, $product_id))->ar();
 
                 if (intval($ar) > 0) {
-                    $this->history->save('edit-goods', $mod_id, $product_id);
+                    $this->History->save('edit-goods', $mod_id, $product_id);
 
                 }
 
@@ -967,7 +967,7 @@ class products extends Controller
                             array($p_avail, $p_id))->ar();
 
                         if ($ar) {
-                            $this->history->save('edit-product-avail', $mod_id, $p_id);
+                            $this->History->save('edit-product-avail', $mod_id, $p_id);
                         }
                     }
                 }
@@ -1037,7 +1037,7 @@ class products extends Controller
                             UPDATE market_yandex_id=VALUES(market_yandex_id)', array($value, $gid))->ar();
 
                         if ($ar) {
-                            $this->history->save('edit-ym_id', $mod_id, $gid);
+                            $this->History->save('edit-ym_id', $mod_id, $gid);
                         }
                     }
                 }
@@ -1075,7 +1075,7 @@ class products extends Controller
                 $ar = $this->all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?',
                     array(serialize($w), 'warranties'))->ar();
                 if (intval($ar) > 0) {
-                    $this->history->save('edit-warranties-add', $mod_id, 0);
+                    $this->History->save('edit-warranties-add', $mod_id, 0);
                 }
             }
 
@@ -1468,7 +1468,7 @@ class products extends Controller
 
                 $img_id = $this->all_configs['db']->query('INSERT IGNORE INTO {goods_images} (image, goods_id, type) VALUE (?, ?i, ?i)',
                     array($result['filename'], intval($_GET['product']), 1), 'id');
-                $this->history->save('add-image-goods', $mod_id, intval($_GET['product']));
+                $this->History->save('add-image-goods', $mod_id, intval($_GET['product']));
 
                 // копируем картинку всем аналогичным товарам по secret_title
                 if (isset($_GET['oist']) && $_GET['oist'] == 'true' && $this->all_configs['configs']['one-image-secret_title'] == true && mb_strlen(trim($product['secret_title']),
@@ -1550,7 +1550,7 @@ class products extends Controller
                 exit;
             }
 
-            $this->history->save('add-market-category', $mod_id, $id);
+            $this->History->save('add-market-category', $mod_id, $id);
 
             $result = $id;
             $data = htmlspecialchars(json_encode($result), ENT_NOQUOTES);
@@ -1743,7 +1743,7 @@ class products extends Controller
                         array($filename, $r['id'], 1), 'id');
                     // флаг наличия картинки
                     $this->all_configs['db']->query('UPDATE {goods} SET image_set=?i WHERE id=?i', array(1, $r['id']));
-                    $this->history->save('add-image-goods', $mod_id, $r['id']);
+                    $this->History->save('add-image-goods', $mod_id, $r['id']);
                 }
             }
         }
@@ -1783,7 +1783,7 @@ class products extends Controller
         $mod_id = $this->all_configs['configs']['orders-manage-page'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
-        $this->history->save('export-order', $mod_id, $product['id']);
+        $this->History->save('export-order', $mod_id, $product['id']);
     }
 
     /**
@@ -1921,7 +1921,7 @@ class products extends Controller
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
             $mod_id = $this->all_configs['configs']['products-manage-page'];
 
-            $histories = $this->history->getProductsManagersChanges($mod_id, $this->all_configs['arrequest'][2]);
+            $histories = $this->History->getProductsManagersChanges($mod_id, $this->all_configs['arrequest'][2]);
             $goods_html = $this->view->renderFile('products/products_managers_history', array(
                 'histories' => $histories,
             ));

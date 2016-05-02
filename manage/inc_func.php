@@ -1366,12 +1366,6 @@ function update_order_status($order, $new_status)
 
             $return['state'] = true;
 
-            // уведомление
-            /*if (isset($order['email']) && $order['email'] && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $mailer = new Mailer($all_configs);
-                $mailer->group('order-inform', $email, array('order_id' => $order_id));
-                $mailer->go();
-            }*/
             // смс
             if (isset($order['phone']) && isset($order['notify']) && $order['notify'] == 1) {
                 $name = htmlspecialchars($all_configs['configs']['order-status'][$new_status]['name']);

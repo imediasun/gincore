@@ -1,25 +1,29 @@
 <?php
 
-abstract class AModel
-{
+require_once __DIR__ . '/Exceptions.php';
+require_once __DIR__ . '/Object.php';
 
+abstract class AModel extends Object
+{
     /** @var  \go\DB\DB */
     protected $db;
     protected $all_configs;
     public $table = '';
+    public $uses = array();
 
     public function __construct()
     {
         global $all_configs;
         $this->db = db();
         $this->all_configs = $all_configs;
+        $this->applyUses();
     }
 
     /**
      * @return array
      */
     abstract public function columns();
-    
+
     /**
      * @param $options
      * @return bool|int
@@ -36,7 +40,7 @@ abstract class AModel
             2 => ''
         );
         foreach ($options as $field => $value) {
-            if(!in_array($field, $this->columns())) {
+            if (!in_array($field, $this->columns())) {
                 continue;
             }
             switch (true) {
@@ -68,7 +72,7 @@ abstract class AModel
         }
         $values = array();
         foreach ($options as $field => $value) {
-            if(!in_array($field, $this->columns())) {
+            if (!in_array($field, $this->columns())) {
                 continue;
             }
             switch (true) {
@@ -149,13 +153,5 @@ abstract class AModel
     public function plainQuery($query, $fetch = null)
     {
         return $this->db->plainQuery($query, $fetch);
-    }
-    
-    /**
-     * @return string
-     */
-    protected function getUserId()
-    {
-        return isset($_SESSION['id']) ? $_SESSION['id'] : '';
     }
 }
