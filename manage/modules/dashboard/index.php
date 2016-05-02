@@ -253,7 +253,7 @@ class dashboard
                 ))->assoc(), 'good');
         }
         if (!empty($selectedCategories)) {
-            $categoriesTree = new CategoriesTree();
+            $categoriesTree = new MCategoriesTree();
             $children = $categoriesTree->getChildren($selectedCategories, $models);
             if (!empty($children)) {
                 $ordersByCategory = $this->prepare($this->db->query("SELECT ?q, count(*) as c, c.parent_id as parent_id "

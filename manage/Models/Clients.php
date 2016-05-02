@@ -1,9 +1,10 @@
 <?php
+
 require_once __DIR__ . '/../Core/AModel.php';
 
-class Clients extends AModel
+class MClients extends AModel
 {
-    public $table = '{clients}';
+    public $table = 'clients';
 
     /**
      * @param $id
@@ -11,7 +12,7 @@ class Clients extends AModel
      */
     public function getById($id)
     {
-        return $this->query("SELECT * FROM ?q WHERE id=?i", array($this->table, $id))->row();
+        return $this->query("SELECT * FROM ?t WHERE id=?i", array($this->table, $id))->row();
     }
 
     /**
@@ -20,7 +21,7 @@ class Clients extends AModel
      */
     public function getClientCode($clientId)
     {
-        $clientCode = $this->query('SELECT client_code FROM ?q WHERE id=?i', array($this->table, $clientId))->el();
+        $clientCode = $this->query('SELECT client_code FROM ?t WHERE id=?i', array($this->table, $clientId))->el();
         if (empty($clientCode)) {
             do {
                 /** @todo алогоритм предложен Vitaly */

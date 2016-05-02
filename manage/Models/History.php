@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../Core/AModel.php';
 
-class History extends AModel
+class MHistory extends AModel
 {
-    public $table = '{changes}';
+    public $table = 'changes';
 
     /**
      * @param      $work
@@ -28,7 +28,7 @@ class History extends AModel
         if (!empty($changeId)) {
             $fields = $this->makeQuery('?q, `change_id`=?i', array($fields, $changeId));
         }
-        return $this->query('INSERT INTO ?q SET ?q', array($this->table, $fields))->ar();
+        return $this->query('INSERT INTO ?t SET ?q', array($this->table, $fields))->ar();
     }
 
     /**
@@ -41,7 +41,7 @@ class History extends AModel
     {
         return $this->query(
             'SELECT u.login, u.email, u.fio, u.phone, ch.change, ch.date_add 
-              FROM ?q as ch
+              FROM ?t as ch
               LEFT JOIN {users} as u ON u.id=ch.user_id 
               WHERE ch.object_id=?i AND ch.map_id=?i AND work=? 
               ORDER BY ch.date_add DESC',
@@ -57,7 +57,7 @@ class History extends AModel
     {
         return $this->all_configs['db']->query(
             'SELECT c.date_add, c.work, u.login 
-              FROM ?q as c
+              FROM ?t as c
               LEFT JOIN (SELECT id, login FROM {users})u ON u.id=c.user_id
               WHERE c.map_id=?i AND c.object_id=?i 
               ORDER BY c.date_add DESC',

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/OrderQuickSale.php';
 
-class OrderSaleFromWarehouse extends OrderQuickSale
+class MOrderSaleFromWarehouse extends MOrderQuickSale
 {
 }

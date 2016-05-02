@@ -59,7 +59,7 @@ abstract class Controller
         $this->count_on_page = count_on_page();
         $this->view = new View($all_configs);
         $this->session = Session::getInstance();
-        $this->history = new History();
+        $this->history = new MHistory();
 
         global $input_html;
 

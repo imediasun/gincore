@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../Core/AModel.php';
 
-class Settings extends AModel
+class MSettings extends AModel
 {
-    public $table = '{settings}';
+    public $table = 'settings';
     protected $settings = array();
 
     /**
@@ -24,7 +24,7 @@ class Settings extends AModel
      */
     public function save($name, $value, $title, $description, $ro = 0)
     {
-        $this->query("INSERT INTO ?q (description, `name`, `value`, title, ro) VALUES (?, ?, ?, ?, ?)", array(
+        $this->query("INSERT INTO ?t (description, `name`, `value`, title, ro) VALUES (?, ?, ?, ?, ?)", array(
             $this->table,
             $description,
             $name,
@@ -66,7 +66,7 @@ class Settings extends AModel
      */
     public function setByName($name, $value)
     {
-        return $this->query("UPDATE ?q SET `value`=? WHERE `name`=?", array(
+        return $this->query("UPDATE ?t SET `value`=? WHERE `name`=?", array(
             $this->table,
             $value,
             $name
@@ -80,7 +80,7 @@ class Settings extends AModel
      */
     public function setById($id, $value)
     {
-        return $this->query("UPDATE ?q SET `value`=? WHERE `id`=?", array(
+        return $this->query("UPDATE ?t SET `value`=? WHERE `id`=?", array(
             $this->table,
             $value,
             $id
@@ -107,7 +107,7 @@ class Settings extends AModel
         if (!empty($condition)) {
             $query = $this->makeQuery('?q AND ?q', array($query, $condition));
         }
-        return $this->query("SELECT * FROM ?q WHERE ?q", array($this->table, $query))->assoc();
+        return $this->query("SELECT * FROM ?t WHERE ?q", array($this->table, $query))->assoc();
     }
 
     /**

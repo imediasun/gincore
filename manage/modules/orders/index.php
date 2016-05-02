@@ -660,7 +660,7 @@ class orders extends Controller
      */
     public function order_for_sale_form($clientId = null)
     {
-        $Cashboxes = new Cashboxes();
+        $Cashboxes = new MCashboxes();
         $order_data = null;
         $client_fields_for_sale = client_double_typeahead();
         return $this->view->renderFile('orders/order_for_sale_form', array(

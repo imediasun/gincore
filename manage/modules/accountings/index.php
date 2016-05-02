@@ -566,7 +566,7 @@ class accountings extends Controller
      */
     function get_cashboxes_amounts()
     {
-        $Cashboxes = new Cashboxes();
+        $Cashboxes = new MCashboxes();
         return $this->calculateCashboxesAmount($Cashboxes->getCashboxes());
     }
 
@@ -3387,7 +3387,7 @@ class accountings extends Controller
      */
     protected function getCashboxes($userId)
     {
-        $Cashboxes = new Cashboxes();
+        $Cashboxes = new MCashboxes();
         return $Cashboxes->getPreparedCashboxes($userId);
     }
 
@@ -3397,7 +3397,7 @@ class accountings extends Controller
      */
     private function calculateCashboxesAmount($cashboxes)
     {
-        $Cashboxes = new Cashboxes();
+        $Cashboxes = new MCashboxes();
         $this->cashboxes = $Cashboxes->prepareCashboxes($cashboxes);
         return $Cashboxes->calculateAmount($cashboxes);
     }

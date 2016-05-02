@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../Core/AModel.php';
 
-class Cashboxes extends AModel
+class MCashboxes extends AModel
 {
-    public $table = '{cashboxes}';
+    public $table = 'cashboxes';
 
     /**
      * @param string $query
@@ -13,7 +13,7 @@ class Cashboxes extends AModel
     {
         return $this->db->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
               cr.name as cur_name, cr.short_name, cr.course, cr.currency
-            FROM ?q as c
+            FROM ?t as c
             LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
             LEFT JOIN (SELECT currency, name, short_name, course FROM {cashboxes_courses})cr ON cr.currency=cc.currency
             ?q ORDER BY c.id', array($this->table, $query))->assoc();

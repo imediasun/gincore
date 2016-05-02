@@ -129,7 +129,7 @@ class import_items extends abstract_import_handler
      */
     public function getCategoriesTree()
     {
-        $categoriesTree = new CategoriesTree();
+        $categoriesTree = new MCategoriesTree();
         return $categoriesTree->buildTreeWithTitle($categoriesTree->getCategoriesIdWithParent(), 0);
     }
 

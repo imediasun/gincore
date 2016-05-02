@@ -57,8 +57,8 @@ class Chains
     {
         $this->all_configs = $all_configs;
         $this->view = new View($all_configs);
-        $this->history = new History();
-        $this->settings = new Settings();
+        $this->history = new MHistory();
+        $this->settings = new MSettings();
     }
 
     /**
@@ -2812,7 +2812,7 @@ class Chains
      * @return string
      */
     public function getClientCode($clientId) {
-        $Clients  = new Clients();
+        $Clients  = new MClients();
         return $Clients->getClientCode($clientId);
     }
 
@@ -3080,7 +3080,7 @@ class Chains
 
         // создаем заказ
         try {
-            $Order = new OrderBase();
+            $Order = new MOrderBase();
             $id = $Order->save($params);
             
             $config = $this->settings->getByName('order-send-sms-with-client-code');

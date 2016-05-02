@@ -53,7 +53,7 @@ abstract class AModel
         }
         $params[2] = implode(',', $values);
 
-        return $this->query('INSERT INTO ?q (?q) VALUES (?q)', $params)->id();
+        return $this->query('INSERT INTO ?t (?q) VALUES (?q)', $params)->id();
     }
 
     /**
@@ -83,7 +83,7 @@ abstract class AModel
             }
         }
 
-        return $this->query('UPDATE ?q SET ?q WHERE ?q', array($this->table, implode(',', $values), $conditions))->id();
+        return $this->query('UPDATE ?t SET ?q WHERE ?q', array($this->table, implode(',', $values), $conditions))->id();
     }
 
     /**

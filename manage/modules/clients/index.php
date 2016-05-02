@@ -6,7 +6,7 @@ $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');
 $moduleactive[20] = !$ifauth['is_2'];
 
-class clients
+class Clients
 {
     /** @var View */
     protected $view;

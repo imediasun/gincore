@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../Core/AModel.php';
 
-class CategoriesTree extends AModel
+class MCategoriesTree extends AModel
 {
-    public $table = '{categories}';
+    public $table = 'categories';
 
     /**
      * @param $categories
@@ -103,7 +103,7 @@ class CategoriesTree extends AModel
      */
     public function getCategoriesIdWithParent()
     {
-        return $this->query('SELECT id, parent_id, title FROM ?q group by parent_id, id',
+        return $this->query('SELECT id, parent_id, title FROM ? group by parent_id, id',
             array($this->table))->assoc('id');
     }
 

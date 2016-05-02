@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../Core/AModel.php';
 
-class OrderBase extends AModel
+class MOrderBase extends AModel
 {
-    public $table = '{orders}';
+    public $table = 'orders';
 
     /**
      * @param $options
