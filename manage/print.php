@@ -917,7 +917,23 @@ if ($print_html) { ?>
         </style>
 
         <script type="text/javascript">
-
+            function sendFile(file, editor) {
+                var data = new FormData();
+                data.append("file", file);
+                $.ajax({
+                    data: data,
+                    type: "POST",
+                    url: '<?= $all_configs['prefix'] ?>print/ajax?act=upload',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function(objFile) {
+                        editor.summernote('insertImage', objFile.folder+objFile.file);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                    }
+                });
+            }
             $(function () {
                 $('#lang_change').change(function () {
                     window.location = $(this).parent().attr('action') + '?' + $(this).parent().serialize();
@@ -933,7 +949,10 @@ if ($print_html) { ?>
                         oninit: function (a) {
                             $('#saveRedactor').prop('disabled', false);
                             $('#print').prop('disabled', true);
-                        }
+                        },
+                            onImageUpload: function(files) {
+                                sendFile(files[0], $(this));
+                            }
                     });
                 });
 
