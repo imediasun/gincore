@@ -34,7 +34,7 @@ class accountings extends Controller
     public function routing(Array $arrequest)
     {
         parent::routing($arrequest);
-        if (isset($arrequest[1]) && $arrequest == 'export') {
+        if (isset($arrequest[1]) && $arrequest[1] == 'export') {
             $this->export();
         }
     }
@@ -996,7 +996,6 @@ class accountings extends Controller
         if ($act == 'reports-turnover') {
             $array = $this->accountings_reports_turnover_array();
         }
-
         include_once $this->all_configs['sitepath'] . 'shop/exports.class.php';
         $exports = new Exports();
         $exports->build($array);
@@ -1014,8 +1013,6 @@ class accountings extends Controller
 
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
-
-
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
