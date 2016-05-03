@@ -25,7 +25,7 @@ class Chains extends Object
         'Clients',
         'OrdersGoods'
     );
-    
+
     //////* типы перемещений *//////
     public $chain_types = array(1, 2, 3, 4);
     public $chain_bind_item = 1;// 1 - кладовщик привязывает серийник и выдает
@@ -162,7 +162,7 @@ class Chains extends Object
 
         $goods_id = (array_key_exists('goods_id', $post) && $post['goods_id'] > 0) ? $post['goods_id'] : null;
         // проверяем галочку логистики или запрос на перемещение с товара или если не кладовщик(администратор)
-        if ((isset($post['logistic']) && $post['logistic'] == 1)/* || $goods_id > 0 || !$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')*/) {
+        if ((isset($post['logistic']) && $post['logistic'] == 1)) {
 
             $count = array_key_exists('count', $post) && $post['count'] > 0 ? intval($post['count']) : 1;
             $parent = null;
@@ -266,7 +266,7 @@ class Chains extends Object
                 GROUP BY i.goods_id', array($order_product['id'], 1, $item['supplier_order_id']))->row();
 
             if ($count_free && $count_free['qty'] < 1) {
-                throw new ExceptionWithMsg(l('Изделие зарезервировано под другие заказы на ремонт: '). $count_free['orders']);
+                throw new ExceptionWithMsg(l('Изделие зарезервировано под другие заказы на ремонт: ') . $count_free['orders']);
             } elseif ($order_product['supplier_order_id'] > 0 && $order_product['supplier_order_id'] != $item['supplier_order_id']) {
                 if (isset($data['confirm']) && $data['confirm'] == 1) {
                     // замена партии
@@ -335,7 +335,7 @@ class Chains extends Object
                         $href = $this->all_configs['prefix'] . 'products/create/' . $order_product['goods_id'];
                         $content = 'Запчасть <a href="' . $href . '">№' . $order_product['title'] . '</a> только что была продана';
                         foreach ($users as $user) {
-                            $this->notification('Продана запчасть', $content, $user);
+                            $this->notification(l('Продана запчасть'), $content, $user);
                         }
                     }
 
@@ -350,7 +350,7 @@ class Chains extends Object
                         $item['id'],
                         null,//$order_product['id'],
                         null,
-                        'Перемещение на склад к заказу',
+                        l('Перемещение на склад к заказу'),
                         null,
                         1
                     );
@@ -361,7 +361,7 @@ class Chains extends Object
                         $item['id'],
                         $order_product['id'],
                         null,
-                        'Перемещен на склад к заказу',
+                        l('Перемещен на склад к заказу'),
                         null,
                         2
                     );
@@ -403,7 +403,7 @@ class Chains extends Object
                 if ($products && $products['items'] > 1) {
                     $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
                     $content = 'Продажа более одной запчасти на ремонт <a href="' . $href . '">№' . $order_product['id'] . '</a>';
-                    $this->notification('Продажа более одной запчасти на ремонт', $content, 'site-administration');
+                    $this->notification(l('Продажа более одной запчасти на ремонт'), $content, 'site-administration');
                 }
 
                 $this->History->save('chain-body-update-serial', $mod_id, $item['id']);
@@ -411,7 +411,7 @@ class Chains extends Object
 
         } catch (ExceptionWithMsg $e) {
             $result = array(
-              'state' => false,
+                'state' => false,
                 'message' => $e->getMessage(),
                 'class' => ''
             );
@@ -485,10 +485,10 @@ class Chains extends Object
 
             // обновление свободных остатков товара
             $this->all_configs['manageModel']->update_product_free_qty($item['goods_id']);
-            
+
         } catch (ExceptionWithMsg $e) {
             $result = array(
-                'state' => false, 
+                'state' => false,
                 'message' => $e->getMessage()
             );
         }
@@ -548,14 +548,12 @@ class Chains extends Object
             }
         }
         // открытый
-        //if (isset($filters['open']) && $filters['open'] == true) {
         if ($type == 1) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND i.id IS NULL', array($filters_query));
         }
         if ($type == 4) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND i.id IS NOT NULL', array($filters_query));
         }
-        //}
         $operations = null;
         $skip = (isset($filters['p']) && $filters['p'] > 0) ? ($count_on_page * ($filters['p'] - 1)) : 0;
 
@@ -817,27 +815,9 @@ class Chains extends Object
                 $query .= ' AND w.type=3';
             }
         }
-        $warehouses = $this->warehouses($query);
-
-        $out = '<option value=""></option>';
-        if (!empty($warehouses)) {
-            foreach ($warehouses as $warehouse) {
-                if (($exclude > 0 && $exclude != $warehouse['id']) || $exclude == 0) {
-                    $hide = ($warehouse['id'] == $this->all_configs['configs']['erp-warehouse-type-mir']) ? 'create-chain-cell-type' : '';
-                    if ($wh_id && $wh_id == $warehouse['id']) {
-                        $out .= '<option class="' . $hide . '" selected value="' . $warehouse['id'] . '">';
-                    } else {
-                        $out .= '<option class="' . $hide . '" value="' . $warehouse['id'] . '">';
-                    }
-                    $out .= htmlspecialchars($warehouse['title']);
-                    // количество изделий на складе
-                    $out .= '</option>';
-                }
-            }
-        }
 
         return $this->view->renderFile('chains.class/get_options_for_move_item_form', array(
-            'warehouses' => $warehouses,
+            'warehouses' => $this->warehouses($query),
             'wh_id' => $wh_id,
             'exclude' => $exclude
         ));
@@ -869,18 +849,11 @@ class Chains extends Object
      */
     public function form_sold_items($item_id = null, $status = null)
     {
-        $out = '';
-
-        if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
-            // проверяем можем ли продать
-            $out = $this->view->renderFile('chains.class/form_sold_items', array(
-                'db' => $this->all_configs['db'],
-                'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-                'item_id' => $item_id
-            ));
-        }
-
-        return $out;
+        return $this->view->renderFile('chains.class/form_sold_items', array(
+            'db' => $this->all_configs['db'],
+            'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
+            'item_id' => $item_id
+        ));
     }
 
     /**
@@ -1253,39 +1226,31 @@ class Chains extends Object
                     LEFT JOIN {clients} as cl ON cl.contractor_id=i.supplier_id
                     LEFT JOIN {contractors} as ct ON ct.id=i.supplier_id
                     WHERE i.id IN (?li) AND w.id=i.wh_id AND i.order_id IS NULL GROUP BY i.id',
-                array($items/*, 1*/))->assoc(); // AND w.consider_all=?i 
+                array($items))->assoc();
         }
-        // права
-        if (!$this->all_configs['oRole']->hasPrivilege('return-items-suppliers')) {
-            $data['state'] = false;
-            $data['message'] = l('У Вас нет прав');
-        }
-        // изделий не найдено
-        if ($data['state'] == true && !$items) {
-            $data['state'] = false;
-            $data['message'] = l('Свободные изделия для возврата не найдены или они находятся не в общем остатке (на складе у которого не включена опция учета в свободном остатке)');
-        }
+        try {
+            // права
+            if (!$this->all_configs['oRole']->hasPrivilege('return-items-suppliers')) {
+                throw new ExceptionWithMsg(l('У Вас нет прав'));
+            }
+            // изделий не найдено
+            if (!$items) {
+                throw new ExceptionWithMsg(l('Свободные изделия для возврата не найдены или они находятся не в общем остатке (на складе у которого не включена опция учета в свободном остатке)'));
+            }
 
-        if ($data['state'] == true) {
-            foreach ($items as $k => $item) {
-                // нет менеджера
-                if ($item['manager_id'] == 0) {
-                    $data['state'] = false;
-                    $data['location'] = $this->all_configs['prefix'] . "products/create/" . $item['goods_id'] . "?error=manager#managers";
-                    break;
-                }
-                // нет поставщика
-                if ($item['contractor_id'] == 0) {
-                    $data['state'] = false;
-                    $data['message'] = 'Привяжите к клиенту контрагента "' . htmlspecialchars($item['contractor_title']) . '"';
-                    break;
+            if ($data['state'] == true) {
+                foreach ($items as $k => $item) {
+                    // нет менеджера
+                    if ($item['manager_id'] == 0) {
+                        throw new ExceptionWithURL($this->all_configs['prefix'] . "products/create/" . $item['goods_id'] . "?error=manager#managers");
+                    }
+                    // нет поставщика
+                    if ($item['contractor_id'] == 0) {
+                        throw new ExceptionWithMsg(l('Привяжите к клиенту контрагента "' . htmlspecialchars($item['contractor_title']) . '"'));
+                    }
                 }
             }
-        }
-
-        $course_value = getCourse($this->all_configs['settings']['currency_suppliers_orders']);
-
-        if ($data['state'] == true) {
+            $course_value = getCourse($this->all_configs['settings']['currency_suppliers_orders']);
             foreach ($items as $item) {
                 // создаем заказ
                 $arr = array(
@@ -1299,90 +1264,93 @@ class Chains extends Object
                 $order = $this->add_order($arr, $mod_id, false);
 
                 // ошибка при создании заказа
-                if ($data['state'] == true && (!isset($order['id']) || $order['id'] == 0)) {
-                    $data['state'] = false;
-                    $data['message'] = $order && array_key_exists('msg', $order) ? $order['msg'] : 'Заказ не создан';
+                if (!isset($order['id']) || $order['id'] == 0) {
+                    throw new ExceptionWithMsg($order && array_key_exists('msg',
+                        $order) ? $order['msg'] : l('Заказ не создан'));
                 }
 
-                if ($data['state'] == true) {
-                    try {
-                        $_item = $item;
-                        $_item['price'] = 0;
-                        $this->addSpares(array($_item), $order['id'], $mod_id);
-                    } catch (ExceptionWithMsg $e) {
-                        $data['state'] = false;
-                        $data['message'] = $e->getMessage();
-                    }
-                }
-                if ($data['state'] == true) {
-                    // оплата
-                    $tr_data = array(
-                        'transaction_type' => TRANSACTION_INPUT, // внесение
-                        'cashbox_from' => $this->all_configs['configs']['erp-cashbox-transaction'],
-                        'cashbox_to' => $this->all_configs['configs']['erp-cashbox-transaction'],
-                        'amount_from' => 0,
+                $_item = $item;
+                $_item['price'] = 0;
+                $this->addSpares(array($_item), $order['id'], $mod_id);
+                // оплата
+                $tr_data = array(
+                    'transaction_type' => TRANSACTION_INPUT, // внесение
+                    'cashbox_from' => $this->all_configs['configs']['erp-cashbox-transaction'],
+                    'cashbox_to' => $this->all_configs['configs']['erp-cashbox-transaction'],
+                    'amount_from' => 0,
 
-                        // Первоначальный вариант:
-                        // 'amount_to' => ($course_value * $item['price']) / 100,
-                        //
-                        // В реализации метода create_transaction это значение сравнивается с суммами, сохраненными в
-                        // заказе в текущем методе выше
-                        //
-                        // if ( ... round((float)$post['amount_to'] * 100) > $order['sum'] - $order['sum_paid']) {
-                        //
-                        // Сумма заказа ($order['sum']) формируются не арифметическим округлением, а отбрасыванием
-                        // незначащих знаков (3+ после нуля) в методе  $this->add_product_order, а amount_to может
-                        // содержать более 2 знаков после запятой
-                        // Учитывая то, что методы этого класса add_product_order , create_transaction
-                        // используются (вызываются) из других методов (не только возврат товара), целесообразно сначала
-                        // определиться с правильностью выбора и применения методики округлений, поэтому значение
-                        // параметра amount_to приведено в соответствие со значениями сумм, сохраненных в заказе,
-                        // соответствующем этому возврату (2 знака после запятой с простым отбрасыванием
-                        // оставшихся знаков)
-                        'amount_to' => (floor($course_value * $item['price']) * 100) / 10000,
+                    // Первоначальный вариант:
+                    // 'amount_to' => ($course_value * $item['price']) / 100,
+                    //
+                    // В реализации метода create_transaction это значение сравнивается с суммами, сохраненными в
+                    // заказе в текущем методе выше
+                    //
+                    // if ( ... round((float)$post['amount_to'] * 100) > $order['sum'] - $order['sum_paid']) {
+                    //
+                    // Сумма заказа ($order['sum']) формируются не арифметическим округлением, а отбрасыванием
+                    // незначащих знаков (3+ после нуля) в методе  $this->add_product_order, а amount_to может
+                    // содержать более 2 знаков после запятой
+                    // Учитывая то, что методы этого класса add_product_order , create_transaction
+                    // используются (вызываются) из других методов (не только возврат товара), целесообразно сначала
+                    // определиться с правильностью выбора и применения методики округлений, поэтому значение
+                    // параметра amount_to приведено в соответствие со значениями сумм, сохраненных в заказе,
+                    // соответствующем этому возврату (2 знака после запятой с простым отбрасыванием
+                    // оставшихся знаков)
+                    'amount_to' => (floor($course_value * $item['price']) * 100) / 10000,
 
-                        'cashbox_currencies_from' => null,
-                        'cashbox_currencies_to' => $this->all_configs['suppliers_orders']->currency_clients_orders,
-                        'client_order_id' => $order['id'],
-                        //'b_id' => $chain_body_a['b_id'],
-                        'client_contractor' => 1,
-                        'date_transaction' => date("Y-m-d H:i:s"),
-                        'type' => 3,
-                    );
-                    if (isset($post['confirm'])) {
-                        $tr_data['confirm'] = $post['confirm'];
-                    }
-                    $transaction = $this->create_transaction($tr_data, $mod_id);
-                    // ошибка при создании транзакции
-                    if (!$transaction && !isset($transaction['state']) || $transaction['state'] == false) {
-                        $data['state'] = false;
-                        $data['message'] = $transaction && array_key_exists('msg',
-                            $transaction) ? $transaction['msg'] : 'Транзакция не создана';
-                        if (isset($transaction['confirm'])) {
-                            $data['confirm'] = $transaction['confirm'];
-                        }
-                    }
+                    'cashbox_currencies_from' => null,
+                    'cashbox_currencies_to' => $this->all_configs['suppliers_orders']->currency_clients_orders,
+                    'client_order_id' => $order['id'],
+                    //'b_id' => $chain_body_a['b_id'],
+                    'client_contractor' => 1,
+                    'date_transaction' => date("Y-m-d H:i:s"),
+                    'type' => 3,
+                );
+                if (isset($post['confirm'])) {
+                    $tr_data['confirm'] = $post['confirm'];
                 }
-                if ($data['state'] == true) {
-                    // статус выдан
-                    $status = update_order_status(array(
-                        'id' => $order['id'],
-                        'status' => $this->all_configs['configs']['order-status-new']
-                    ), $this->all_configs['configs']['order-status-issued']);
-                    if (!$status || !isset($status['closed']) || $status['closed'] == false) {
-                        $data['state'] = false;
-                        $data['message'] = $status && array_key_exists('msg',
-                            $status) ? $status['msg'] : 'Заказ не закрыт';
+                $transaction = $this->create_transaction($tr_data, $mod_id);
+                // ошибка при создании транзакции
+                if (!$transaction && !isset($transaction['state']) || $transaction['state'] == false) {
+                    $exception = new ExceptionWithMsg($transaction && array_key_exists('msg',
+                        $transaction) ? $transaction['msg'] : l('Транзакция не создана'));
+                    if (isset($transaction['confirm'])) {
+                        $exception->confirm = $transaction['confirm'];
                     }
-                }
-                if ($data['state'] == true) {
-                    $data['location'] = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
-                } else {
-                    // чистим если что-то произошло не так
-                    $this->Orders->rollback($order);
+                    throw $exception;
                 }
             }
+            // статус выдан
+            $status = update_order_status(array(
+                'id' => $order['id'],
+                'status' => $this->all_configs['configs']['order-status-new']
+            ), $this->all_configs['configs']['order-status-issued']);
+            if (!$status || !isset($status['closed']) || $status['closed'] == false) {
+                throw new ExceptionWithMsg($status && array_key_exists('msg',
+                    $status) ? $status['msg'] : l('Заказ не закрыт'));
+            }
+            $data['location'] = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+            if (isset($e->confirm)) {
+                $data['confirm'] = $e->confirm;
+            }
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
+        } catch (ExceptionWithURL $e) {
+            $data = array(
+                'state' => false,
+                'location' => $e->getMessage()
+            );
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
         }
+
 
         return $data;
     }
@@ -1452,14 +1420,18 @@ class Chains extends Object
                 'msg' => $e->getMessage(),
             );
             // чистим если что-то произошло не так
-            $this->Orders->rollback($order);
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
         } catch (ExceptionWithURL $e) {
             $data = array(
                 'state' => false,
                 'location' => $e->getMessage(),
             );
             // чистим если что-то произошло не так
-            $this->Orders->rollback($order);
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
         }
 
         return $data;
@@ -1608,11 +1580,14 @@ class Chains extends Object
             'SELECT g.unbind_request, g.id, g.order_id, o.status FROM {orders_goods} as g, {orders} as o
             WHERE o.id=g.order_id AND g.item_id=?i', array($item_id))->row();
 
-        if ($product && in_array($product['status'], $this->all_configs['configs']['order-statuses-orders'])) {
-            $data['msg'] = l('Вы не можете отвязать запчасть, так как заказ закрыт. Предаврительно измените его статус.');
-            $data['state'] = false;
-        } else {
-            if ($item && $product && !strtotime($product['unbind_request'])) {
+        try {
+            if ($product && in_array($product['status'], $this->all_configs['configs']['order-statuses-orders'])) {
+                throw new ExceptionWithMsg(l('Вы не можете отвязать запчасть, так как заказ закрыт. Предаврительно измените его статус.'));
+            }
+            if (empty($item)) {
+                throw new ExceptionWithMsg(l('Изделие не найдено'));
+            }
+            if ($product && !strtotime($product['unbind_request'])) {
                 // запрос отправлен
                 $this->all_configs['db']->query('UPDATE {orders_goods} SET unbind_request=NOW() WHERE item_id=?i AND id=?i',
                     array($item['item_id'], $product['id']));
@@ -1622,12 +1597,12 @@ class Chains extends Object
                 $href = $this->all_configs['prefix'] . 'warehouses?con=' . $product['order_id'] . '#orders-clients_unbind';
                 $content = 'Изделие <a href="' . $href . '">' . $serial . '</a> освободилось, отгрузите его на склад';
                 $this->notification(l('Необходимо принять изделие'), $content, 'mess-debit-clients-orders');
-            } else {
-                if (!$item) {
-                    $data['msg'] = 'Изделие не найдено';
-                    $data['state'] = false;
-                }
             }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'msg' => $e->getMessage(),
+            );
         }
 
         return $data;
@@ -1662,7 +1637,7 @@ class Chains extends Object
         try {
             // права
             if (($this->all_configs['configs']['erp-use'] == false || !$this->all_configs['oRole']->hasPrivilege('write-off-items'))) {
-                throw new ExceptionWithMsg('У Вас нет прав');
+                throw new ExceptionWithMsg(l('У Вас нет прав'));
             }
             // изделия
             $itemIds = isset($post['items']) && count(array_filter(explode(',',
@@ -1686,7 +1661,7 @@ class Chains extends Object
             // ошибка при создании заказа
             if (empty($order['id'])) {
                 throw new ExceptionWithMsg($order && array_key_exists('msg',
-                    $order) ? $order['msg'] : 'Заказ не создан');
+                    $order) ? $order['msg'] : l('Заказ не создан'));
             }
 
             $this->addSpares($items, $order['id'], $mod_id);
@@ -1697,7 +1672,7 @@ class Chains extends Object
             ), $this->all_configs['configs']['order-status-issued']);
             if (!$status || !isset($status['closed']) || $status['closed'] == false) {
                 throw new ExceptionWithMsg($status && array_key_exists('msg',
-                    $status) ? $status['msg'] : 'Заказ не закрыт');
+                    $status) ? $status['msg'] : l('Заказ не закрыт'));
             }
             // оплата
             $transaction = $this->create_transaction(array(
@@ -1720,14 +1695,18 @@ class Chains extends Object
                 'message' => $e->getMessage()
             );
             // чистим если что-то произошло не так
-            $this->Orders->rollback($order);
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
         } catch (ExceptionWithURL $e) {
             $data = array(
                 'state' => false,
                 'location' => $e->getMessage(),
             );
             // чистим если что-то произошло не так
-            $this->Orders->rollback($order);
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
         }
 
         return $data;
@@ -1749,7 +1728,7 @@ class Chains extends Object
         $client_order_id = null;
         $order = null;
 
-        if ( isset($post['client_order_id']) && $post['client_order_id'] > 0
+        if (isset($post['client_order_id']) && $post['client_order_id'] > 0
             && isset($post['client_contractor']) && $post['client_contractor'] == 1
         ) {
             // кассы списание на/с баланс/а контрагента
@@ -1823,63 +1802,65 @@ class Chains extends Object
 
                 if (!$order) {
                     throw new ExceptionWithMsg(l('Заказ не найден'));
-                } 
-                    $post['date_transaction'] = date("Y-m-d H:i:s", time());
-                    $client_order_id = $post['client_order_id'];
+                }
+                $post['date_transaction'] = date("Y-m-d H:i:s", time());
+                $client_order_id = $post['client_order_id'];
 
-                    if (isset($post['client_contractor']) && $post['client_contractor'] == 1) {
-                        if (!isset($order['contractor_id']) || $order['contractor_id'] == 0) {
-                            throw new ExceptionWithMsg(l('Клиент не привязан к контрагенту'));
-                        } 
-                            $post['contractors_id'] = $order['contractor_id'];
+                if (isset($post['client_contractor']) && $post['client_contractor'] == 1) {
+                    if (!isset($order['contractor_id']) || $order['contractor_id'] == 0) {
+                        throw new ExceptionWithMsg(l('Клиент не привязан к контрагенту'));
+                    }
+                    $post['contractors_id'] = $order['contractor_id'];
+                } else {
+                    $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_id_from'];
+                    if (array_key_exists('write_off', $order) && $order['write_off'] > 0
+                        && $order['write_off'] == $this->Warehouses->getWriteOffWarehouseId()
+                    ) {
+                        $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_off_id_from'];
+                    }
+                }
+                if ($order['sum'] == $order['sum_paid']) {
+                    throw new ExceptionWithMsg(l('Заказ уже оплачен'));
+                }
+                if ($post['transaction_type'] == TRANSACTION_INPUT) {
+                    if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'prepay') {
+                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_prepay'];
+                        $post['comment'] = "Внесение предоплаты клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
+                        if (round((float)$post['amount_to'] * 100) > $order['prepay'] - $order['sum_paid']) {
+                            throw new ExceptionWithMsg(l('Не больше чем ') . show_price(intval($order['prepay']) - intval($order['sum_paid'])));
+                        }
                     } else {
-                        $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_id_from'];
-                        if (array_key_exists('write_off', $order) && $order['write_off'] > 0
-                            && $order['write_off'] == $this->Warehouses->getWriteOffWarehouseId()
-                        ) {
-                            $post['contractors_id'] = $this->all_configs['configs']['erp-co-contractor_off_id_from'];
+                        $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from'];
+                        $post['comment'] = "Внесение денег клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
+                        if (!isset($post['confirm']) && round((float)$post['amount_to'] * 100) > $order['sum'] - $order['sum_paid']) {
+                            $exception = new ExceptionWithMsg(l('Сума для оплаты составляет ' . show_price(intval($order['sum']) - intval($order['sum_paid'])) . l('. Подтверждаете?')));
+                            $exception->confirm = 1;
+                            throw $exception;
                         }
                     }
-                    if ($order['sum'] == $order['sum_paid']) {
-                        throw new ExceptionWithMsg(l('Заказ уже оплачен'));
+                }
+                if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
+                    $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
+                    if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
+                        $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
                     }
-                    if ($post['transaction_type'] == TRANSACTION_INPUT) {
-                        if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'prepay') {
-                            $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_prepay'];
-                            $post['comment'] = "Внесение предоплаты клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                            if (round((float)$post['amount_to'] * 100) > $order['prepay'] - $order['sum_paid']) {
-                                throw new ExceptionWithMsg(l('Не больше чем '). show_price(intval($order['prepay']) - intval($order['sum_paid'])));
-                            }
-                        } else {
-                            $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from'];
-                            $post['comment'] = "Внесение денег клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
-                            if (!isset($post['confirm']) && round((float)$post['amount_to'] * 100) > $order['sum'] - $order['sum_paid']) {
-                                $exception = new ExceptionWithMsg(l('Сума для оплаты составляет '. show_price(intval($order['sum']) - intval($order['sum_paid'])) .l('. Подтверждаете?') ));
-                                $exception->confirm = 1;
-                                throw $exception;
-                            }
-                        }
+                    if (round((float)$post['amount_from'] * 100) > $order['sum_paid'] - $order['sum']) {
+                        throw new ExceptionWithMsg(l('Не больше чем ') . show_price(intval($order['sum_paid']) - intval($order['sum'])));
                     }
-                    if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
-                        $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
-                        if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
-                            $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
-                        }
-                        if (round((float)$post['amount_from'] * 100) > $order['sum_paid'] - $order['sum']) {
-                            throw new ExceptionWithMsg(l('Не больше чем ') . show_price(intval($order['sum_paid']) - intval($order['sum'])));
-                        }
-                    }
+                }
 
-                    if ($post['transaction_type'] == TRANSACTION_INPUT && (!array_key_exists($post['cashbox_currencies_to'], $currencies)
-                            || $post['cashbox_currencies_to'] != $this->all_configs['settings']['currency_orders'])
-                    ) {
-                        throw new ExceptionWithMsg(l('Выбранная Вами валюта не совпадает с валютой в заказе'));
-                    }
-                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && (!array_key_exists($post['cashbox_currencies_from'], $currencies)
-                            || $post['cashbox_currencies_from'] != $this->all_configs['settings']['currency_orders'])
-                    ) {
-                        throw new ExceptionWithMsg(l('Выбранная Вами валюта не совпадает с основной валютой'));
-                    }
+                if ($post['transaction_type'] == TRANSACTION_INPUT && (!array_key_exists($post['cashbox_currencies_to'],
+                            $currencies)
+                        || $post['cashbox_currencies_to'] != $this->all_configs['settings']['currency_orders'])
+                ) {
+                    throw new ExceptionWithMsg(l('Выбранная Вами валюта не совпадает с валютой в заказе'));
+                }
+                if ($post['transaction_type'] == TRANSACTION_OUTPUT && (!array_key_exists($post['cashbox_currencies_from'],
+                            $currencies)
+                        || $post['cashbox_currencies_from'] != $this->all_configs['settings']['currency_orders'])
+                ) {
+                    throw new ExceptionWithMsg(l('Выбранная Вами валюта не совпадает с основной валютой'));
+                }
             }
 
             if (!array_key_exists('date_transaction', $post)) {
@@ -1948,8 +1929,8 @@ class Chains extends Object
             }
 
             // транзакция
-                $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
-                    $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
+            $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
+                $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
 
             $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
             $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
@@ -1959,7 +1940,7 @@ class Chains extends Object
                 'state' => false,
                 'msg' => $e->getMessage(),
             );
-            if(isset($e->confirm)) {
+            if (isset($e->confirm)) {
                 $data['confirm'] = $e->confirm;
             }
         }
@@ -2224,16 +2205,16 @@ class Chains extends Object
         $show_btn = true,
         $rand = null
     ) {
-            return $this->view->renderFile('chains.class/moving_item_form', array(
-                'rand' => $rand ? $rand : rand(1000, 9999),
-                'item_id' => $item_id,
-                'goods_id' => $goods_id,
-                'order' => $order,
-                'with_logistic' => (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0),
-                'wh_id' => $wh_id,
-                'controller' => $this,
-                'show_btn' => $show_btn,
-            ));
+        return $this->view->renderFile('chains.class/moving_item_form', array(
+            'rand' => $rand ? $rand : rand(1000, 9999),
+            'item_id' => $item_id,
+            'goods_id' => $goods_id,
+            'order' => $order,
+            'with_logistic' => (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0),
+            'wh_id' => $wh_id,
+            'controller' => $this,
+            'show_btn' => $show_btn,
+        ));
     }
 
     /**
@@ -2523,7 +2504,7 @@ class Chains extends Object
         }
 
         return $this->view->renderFile('cahins.class/stock_moves', array(
-            'moves' => $moves 
+            'moves' => $moves
         ));
     }
 
@@ -2650,7 +2631,7 @@ class Chains extends Object
         }
         // изделий не найдено
         if (empty($items)) {
-            throw  new ExceptionWithMsg('Свободные изделия не найдены');
+            throw  new ExceptionWithMsg(l('Свободные изделия не найдены'));
         }
         foreach ($items as $k => $item) {
             // нет менеджера
@@ -2685,7 +2666,7 @@ class Chains extends Object
         // ошибка при создании заказа
         if (empty($order['id'])) {
             throw new ExceptionWithMsg($order && array_key_exists('msg',
-                $order) ? $order['msg'] : 'Заказ не создан');
+                $order) ? $order['msg'] : l('Заказ не создан'));
         }
         return $order;
     }
@@ -2711,7 +2692,7 @@ class Chains extends Object
             // ошибка при добавлении запчасти
             if (!$product || (!isset($product['id']) || $product['id'] == 0)) {
                 throw new ExceptionWithMsg($product && array_key_exists('msg',
-                    $product) ? $product['msg'] : 'Деталь на добавлена');
+                    $product) ? $product['msg'] : l('Деталь на добавлена'));
             }
             // выдаем изделие
             $arr = array(
@@ -2723,7 +2704,7 @@ class Chains extends Object
             // ошибка при выдачи
             if (!$bind || (!isset($bind['state']) || $bind['state'] == false)) {
                 throw new ExceptionWithMsg($bind && array_key_exists('message',
-                    $bind) ? $bind['message'] : 'Деталь не выдана');
+                    $bind) ? $bind['message'] : l('Деталь не выдана'));
             }
 
             // достаем заказ поставщику
