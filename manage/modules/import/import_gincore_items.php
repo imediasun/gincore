@@ -39,11 +39,24 @@ class import_gincore_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
+            $goods = db()->query('SELECT * FROM {goods}')->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
                 if (!empty($id)) {
                     $data = $this->getItemData($row);
-                    $results[] = $this->updateItem($id, $data);
+                    if(isset($goods[$id])) {
+                        $good = $goods[$id];
+                        if($this->isGoodChanged($good, $data)) {
+                            $results[] = $this->updateItem($id, $data);
+                        } else {
+                            $results[] = array(
+                                'state' => true,
+                                'id' => $id,
+                                'message' => l('Данные товара не изменились')
+                            );
+                            $this->updateItem($id, $data);
+                        }
+                    }
                 }
             }
         }
@@ -129,5 +142,22 @@ class import_gincore_items extends abstract_import_handler
             }
         }
         return $data;
+    }
+
+
+    /**
+     * @param $good
+     * @param $data
+     * @return bool
+     */
+    private function isGoodChanged($good, $data)
+    {
+        $cols = $this->provider->get_cols();
+        foreach ($cols as $field => $title) {
+            if(isset($data[$field]) && $good[$field] != $data[$field]) {
+                return true;
+            }
+        }
+        return false;
     }
 }

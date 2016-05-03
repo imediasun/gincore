@@ -48,7 +48,8 @@ class import_class
         $file = fopen($filename, "r");
         $counter = 0;
         $rows = array();
-        while (($row = fgetcsv($file, 1000, $this->csv_delimeter($filename))) !== false) {
+        $delimiter = $this->csv_delimeter($filename);
+        while (($row = fgetcsv($file, 1000, $delimiter)) !== false) {
             if (!$counter) {
                 if (!$this->import_handler->check_format($row)) {
                     return array(
