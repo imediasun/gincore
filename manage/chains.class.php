@@ -440,34 +440,32 @@ class Chains extends Object
             'SELECT unbind_request, order_id FROM {orders_goods} WHERE item_id=?i && unbind_request IS NOT NULL',
             array($item_id))->row();
 
-        if ($result['state'] == true && !$product) {
-            $result = array('message' => 'Заявка на отвязку этого серийника не найдена', 'state' => false);
-        }
+        try {
+            if (!$product) {
+                throw  new ExceptionWithMsg(l('Заявка на отвязку этого серийника не найдена'));
+            }
 
-        if ($result['state'] == true && $product && $item && $product['order_id'] != $item['order_id']) {
-            $result = array('message' => 'Заявка из другого заказа', 'state' => false);
-        }
+            if ($product && $item && $product['order_id'] != $item['order_id']) {
+                throw  new ExceptionWithMsg(l('Заявка из другого заказа'));
+            }
 
-        // проверяем не привязан ли этот серийник в какуюто цепочку
-        if ($result['state'] == true && !$item) {
-            $result = array('message' => 'Серийник не найден', 'state' => false);
-        }
+            // проверяем не привязан ли этот серийник в какуюто цепочку
+            if (!$item) {
+                throw  new ExceptionWithMsg(l('Серийник не найден'));
+            }
 
-        if ($result['state'] == true && (!isset($data['location']) || $data['location'] == 0)) {
-            $result = array('message' => 'Укажите локацию', 'state' => false);
-        }
+            if (!isset($data['location']) || $data['location'] == 0) {
+                throw  new ExceptionWithMsg(l('Укажите локацию'));
+            }
 
-        if ($result['state'] == true && (!isset($data['wh_id_destination']) || $data['wh_id_destination'] == 0)) {
-            $data['wh_id_destination'] = $this->all_configs['db']->query(
-                'SELECT wh_id FROM {warehouses_locations} WHERE id=?i', array($data['location']))->el();
-        }
+            if (!isset($data['wh_id_destination']) || $data['wh_id_destination'] == 0) {
+                $data['wh_id_destination'] = $this->all_configs['db']->query(
+                    'SELECT wh_id FROM {warehouses_locations} WHERE id=?i', array($data['location']))->el();
+            }
 
-        if ($result['state'] == true && $data['wh_id_destination'] == 0) {
-            $result = array('message' => 'Укажите склад', 'state' => false);
-        }
-
-        if ($result['state'] == true) {
-
+            if ($data['wh_id_destination'] == 0) {
+                throw  new ExceptionWithMsg(l('Укажите склад'));
+            }
 
             $this->all_configs['db']->query(
                 'UPDATE {warehouses_goods_items} SET order_id=null, date_sold=null WHERE id=?i', array($item_id));
@@ -487,6 +485,12 @@ class Chains extends Object
 
             // обновление свободных остатков товара
             $this->all_configs['manageModel']->update_product_free_qty($item['goods_id']);
+            
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false, 
+                'message' => $e->getMessage()
+            );
         }
 
         return $result;
@@ -799,10 +803,9 @@ class Chains extends Object
         $h_id = null,
         $only_logistic = false
     ) {
-        $out = '<option value=""></option>';
         $q = $this->query_warehouses($goods_id);
 
-        if ($chain == true) {
+        if ($chain) {
             $query = $q['query_for_create_chain_body_logistic'];
         } else {
             if ($logistic) {
@@ -816,7 +819,8 @@ class Chains extends Object
         }
         $warehouses = $this->warehouses($query);
 
-        if ($warehouses && count($warehouses) > 0) {
+        $out = '<option value=""></option>';
+        if (!empty($warehouses)) {
             foreach ($warehouses as $warehouse) {
                 if (($exclude > 0 && $exclude != $warehouse['id']) || $exclude == 0) {
                     $hide = ($warehouse['id'] == $this->all_configs['configs']['erp-warehouse-type-mir']) ? 'create-chain-cell-type' : '';
@@ -832,7 +836,11 @@ class Chains extends Object
             }
         }
 
-        return $out;
+        return $this->view->renderFile('chains.class/get_options_for_move_item_form', array(
+            'warehouses' => $warehouses,
+            'wh_id' => $wh_id,
+            'exclude' => $exclude
+        ));
     }
 
     /**
