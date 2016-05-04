@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Core/AModel.php';
 class MWarehouses extends AModel
 {
     public $table = 'warehouses';
+    const WH_CLIENT_TYPE = 4;
 
     /**
      * @return mixed
@@ -20,14 +21,13 @@ class MWarehouses extends AModel
     }
 
     /**
-     * @param $groupId
      * @return \go\DB\Result
      */
-    public function getByGroupId($groupId)
+    public function getClientWarehouses()
     {
         return $this->query("SELECT w.id as w_id,l.id as l_id FROM ?t as w "
             . "LEFT JOIN {warehouses_locations} as l ON l.wh_id = w.id "
-            . "WHERE w.group_id = ?i AND w.type = 4", array($this->table, $groupId), 'row');
+            . "WHERE w.type = ?i LIMIT 1", array($this->table, self::WH_CLIENT_TYPE) , 'row');
     }
 
     /**
