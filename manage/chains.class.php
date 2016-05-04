@@ -83,7 +83,7 @@ class Chains extends Object
 
         if ($order_id > 0) {
             $order = $this->Orders->getClosed($order_id);
-            $wh_client = $this->Warehouses->getByGroupId($order['wh_id']);
+            $wh_client = $this->Warehouses->getClientWarehouses();
             // продажа
             $arr = array(
                 'order_id' => $order_id,
