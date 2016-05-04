@@ -17,6 +17,7 @@
 include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
+require_once __DIR__.'/Core/Response.php';
 global $all_configs, $manage_lang;
 
 $langs = get_langs();
@@ -27,6 +28,9 @@ $templateTable = getRestoreTable();
 $act = isset($_GET['act']) ? trim($_GET['act']) : '';
 $print_html = $variables = '';
 $editor = false;
+
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
 
 if (!$all_configs['oRole']->is_active()) {
     header('Location: ' . $all_configs['prefix']);
@@ -44,7 +48,7 @@ if (isset($_GET['ajax']) && $all_configs['oRole']->hasPrivilege('site-administra
             $return['state'] = true;
             $var_id = $all_configs['db']->query("SELECT id FROM {?q} WHERE var = 'print_template_" . $save_act . "'",
                 array($templateTable))->el();
-            if(empty($var_id)) {
+            if (empty($var_id)) {
                 $var_id = $all_configs['db']->query("INSERT INTO {?q} (var) VALUES (?)",
                     array($templateTable, 'print_template_' . $save_act), 'id');
             }
@@ -53,10 +57,15 @@ if (isset($_GET['ajax']) && $all_configs['oRole']->hasPrivilege('site-administra
                 array($templateTable, $var_id, $value, $cur_lang));
         }
     }
+    // загрузка картинки
+    if ($_GET['ajax'] == 'upload') {
+        $return = array(
+            'file' => upload()
+        );
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($return);
-    exit;
+    }
+
+    Response::json($return);
 }
 
 function getRestoreLang()
@@ -917,20 +926,20 @@ if ($print_html) { ?>
         </style>
 
         <script type="text/javascript">
-            function sendFile(file, editor) {
+            function sendFile(file, editor, welEditable) {
                 var data = new FormData();
                 data.append("file", file);
                 $.ajax({
                     data: data,
                     type: "POST",
-                    url: '<?= $all_configs['prefix'] ?>print/ajax?act=upload',
+                    url: '<?= $all_configs['prefix'] ?>print.php?ajax=upload',
                     cache: false,
                     contentType: false,
                     processData: false,
-                    success: function(objFile) {
-                        editor.summernote('insertImage', objFile.folder+objFile.file);
+                    success: function (objFile) {
+                        editor.insertImage(welEditable, objFile.file);
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
+                    error: function (jqXHR, textStatus, errorThrown) {
                     }
                 });
             }
@@ -950,9 +959,9 @@ if ($print_html) { ?>
                             $('#saveRedactor').prop('disabled', false);
                             $('#print').prop('disabled', true);
                         },
-                            onImageUpload: function(files) {
-                                sendFile(files[0], $(this));
-                            }
+                        onImageUpload: function (files, editor, $editable) {
+                            sendFile(files[0], editor, $editable);
+                        }
                     });
                 });
 
@@ -1052,4 +1061,25 @@ function barcode_generate($barcode, $type)
         imagedestroy($im);
     }
 
+}
+
+function upload()
+{
+    $filename = '';
+    if (isset($_FILES['file']) && trim($_FILES['file']['name'])) {
+        $filename = pathinfo($_FILES['file']['name']);
+        $ext = $filename['extension'];
+        if (in_array($filename['extension'], array('JPG', 'jpg', 'GIF', 'gif', 'PNG', 'png', 'JPEG', 'jpeg'))) {
+            $file_hash = substr(md5(microtime()), 0, 15);
+            $filename = $file_hash . '.' . $ext;
+            $path_to_directory = __DIR__ . "/img/upload/";
+            $source = $_FILES['file']['tmp_name'];
+            $destination = $path_to_directory . $filename;
+            if (move_uploaded_file($source, $destination)) {
+                chmod($destination, 0777);
+                $filename = '/manage/img/upload/'.$filename;
+            }
+        }
+    }
+    return $filename;
 }
