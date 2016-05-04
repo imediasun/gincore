@@ -937,7 +937,8 @@ if ($print_html) { ?>
                     contentType: false,
                     processData: false,
                     success: function (objFile) {
-                        editor.insertImage(welEditable, objFile.file);
+                        fileName = '<?= $all_configs['prefix'] ?>' + objFile.file;
+                        editor.insertImage(welEditable, fileName);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                     }
@@ -1077,7 +1078,7 @@ function upload()
             $destination = $path_to_directory . $filename;
             if (move_uploaded_file($source, $destination)) {
                 chmod($destination, 0777);
-                $filename = '/manage/img/upload/'.$filename;
+                $filename = '/img/upload/'.$filename;
             }
         }
     }
