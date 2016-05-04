@@ -35,7 +35,7 @@ class accountings extends Controller
     public function routing(Array $arrequest)
     {
         $result = parent::routing($arrequest);
-        if (isset($arrequest[1]) && $arrequest == 'export') {
+        if (isset($arrequest[1]) && $arrequest[1] == 'export') {
             $result = $this->export();
         }
         return $result;

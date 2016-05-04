@@ -2646,10 +2646,6 @@ class orders extends Controller
      */
     protected function changeVisiblePrices($data, $user_id, $mod_id)
     {
-        if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            return array('msg' => l('Нет прав'));
-
-        }
         $data['msg'] = l('Укажите новую цену');
         if (!empty($_POST['id']) && !empty($_POST['price']) && is_numeric($_POST['price'])) {
             $this->all_configs['db']->query('UPDATE {orders_goods} SET price=? WHERE id=?i',
