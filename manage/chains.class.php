@@ -63,12 +63,10 @@ class Chains
         $status = false;
 
         if ($order_id > 0) {
-            // достаем склад Клиент из группы текущего склада и перемещаем на него (как в мир)
-            $current_wh = $this->all_configs['db']->query("SELECT wh_id "
-                . "FROM {orders} WHERE id = ?i", array($order_id), 'el');
+            // достаем склад Клиент из группы и перемещаем на него (как в мир)
             $wh_client = $this->all_configs['db']->query("SELECT w.id as w_id,l.id as l_id FROM {warehouses} as w "
                 . "LEFT JOIN {warehouses_locations} as l ON l.wh_id = w.id "
-                . "WHERE w.group_id = ?i AND w.type = 4", array($current_wh), 'row');
+                . "WHERE w.type = 4 LIMIT 1", array(), 'row');
             // продажа
             $arr = array(
                 'order_id' => $order_id,
