@@ -1008,7 +1008,7 @@ class accountings extends Controller
     {
         $data = array(
             'state' => false,
-            'message' => l('Не известная ошибка')
+            'message' => l('Неизвестная ошибка')
         );
 
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
