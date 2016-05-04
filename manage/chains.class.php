@@ -900,75 +900,23 @@ class Chains extends Object
                 WHERE o.count_debit=0 AND o.goods_id=?i AND (o.supplier IS NULL OR
                 (SELECT COUNT(id) FROM {orders_suppliers_clients} as l WHERE l.supplier_order_id=o.id) < IF(o.count_come>0, o.count_come, o.count))',
                     array($product['goods_id']))->row();
-                $data['confirm']['content'] = 'Товара нет в наличии, подтвердить?';
-                $data['confirm']['btns'] = "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 1);close_alert_box();'>
-                Заказать локально<br /><small>срок 1-3 дня (" . ($qty ? $qty['qty_1'] : '0') . ")</small></button>";
-                $data['confirm']['btns'] .= "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 2);close_alert_box();'>
-                Заказать за границей<br /><small>срок 2-3 недели (" . ($qty ? $qty['qty_2'] : '0') . ")</small></button>";
+                $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?');
+                $data['confirm']['btns'] = $this->view->renderFile('chains.class/add_product_order_confirm', array(
+                   'qty' => $qty,
+                    'product' => $product
+                ));
                 $data['state'] = false;
                 return $data;
             }
 
             if ($product && $order) {
                 if (isset($post['remove'])) {
-                    $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
-                    $item_id = $this->all_configs['db']->query(
-                        'SELECT item_id FROM {orders_goods} WHERE id=?i AND item_id IS NOT NULL',
-                        array($order_product_id))->el();
-                    if ($item_id > 0) {
-                        throw new ExceptionWithMsg('Отвяжите серийный номер');
-                    }
-                    // удаляем
-                    $ar = $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE id=?i',
-                        array($order_product_id));
-                    $supplier_order = $this->all_configs['db']->query("
-                            SELECT supplier_order_id as id, o.count, o.supplier "
-                        . "FROM {orders_suppliers_clients} as c "
-                        . "LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
-                        . "WHERE order_goods_id=?i", array($order_product_id), 'row');
-                    $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE order_goods_id=?i',
-                        array($order_product_id));
-                    // удалить заказ поставщику
-                    // если он для одного устройства
-                    if (isset($post['close_supplier_order']) && $post['close_supplier_order']) {
-                        $this->all_configs['db']->query("UPDATE {contractors_suppliers_orders} SET avail = 0 "
-                            . "WHERE id = ?i", array($supplier_order['id']));
-                    }
-                    // поменять статус заказа с ожидает запчастей на принят в ремонт
-                    // если запчастей все запчасти отвязаны c заказа
-                    $orders_goods = $this->all_configs['db']->query("SELECT count(*) "
-                        . "FROM {orders_goods} "
-                        . "WHERE order_id = ?i", array($order['id']), 'el');
-                    if (!$orders_goods) {
-                        update_order_status($order, $this->all_configs['configs']['order-status-new']);
-                        $data['reload'] = 1;
-                    }
-                    if (!$ar) {
-                        throw new ExceptionWithMsg('Изделие не найдено');
-                    }
+                    $data = $this->removeSpareOrder($post, $order, $data);
                 } else {
-                    $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
-                    $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
-                    $arr = array(
-                        'warehouse_type' => $wh_type,
-                        'user_id' => $this->getUserId(),
-                        'goods_id' => $product['goods_id'],
-                        'article' => $product['article'],
-                        'title' => $product['title'],
-                        'content' => $product['content'],
-                        'price' => (isset($post['price']) ? $post['price'] * 100 : $product['price']),
-                        '`count`' => $count,
-                        'order_id' => $order_id,
-                        'secret_title' => $product['secret_title'],
-                        'url' => $product['url'],
-                        'foreign_warehouse' => $product['foreign_warehouse'],
-                        '`type`' => $product['type'],
-                    );
-
-                    // пытаемся добавить товар
-                    $data['id'] = $this->OrdersGoods->insert($arr);
+                    $data = $this->addSpareOrder($post, $product, $order_id, $data, $order);
 
                     if ($data['id'] > 0 && $order_class) {
+                        $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
                         // делаем сразу заказ поставщику (если товара нету на складе)
                         if ($wh_type) {
                             $dt = array(
@@ -978,8 +926,7 @@ class Chains extends Object
                             $create_supplier_order = $this->order_item($this->all_configs['configs']['orders-manage-page'],
                                 $dt);
                             if (!$create_supplier_order['state']) {
-                                $data['state'] = false;
-                                $data['msg'] = $create_supplier_order['msg'];
+                                throw new ExceptionWithMsg($create_supplier_order['msg']);
                             }
                         }
                         // достаем товар в корзине
@@ -3005,6 +2952,58 @@ class Chains extends Object
                 $this->notification(l('Можно проверить запчасти'), $content, $userId);
             }
         }
+        return $data;
+    }
+
+    /**
+     * @param $post
+     * @param $order
+     * @param $data
+     * @return mixed
+     * @throws ExceptionWithMsg
+     */
+    protected function removeSpareOrder($post, $order, $data)
+    {
+        $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
+        $close_supplier_order = isset($post['close_supplier_order']) && $post['close_supplier_order'];
+        $result = $this->OrdersGoods->remove($order_product_id, $order, $close_supplier_order);
+        if(isset($result['reload'])) {
+            $data['reload'] = 1;
+        }
+        return $data;
+    }
+
+    /**
+     * @param $post
+     * @param $product
+     * @param $order_id
+     * @param $data
+     * @return mixed
+     * @throws ExceptionWithMsg
+     */
+    protected function addSpareOrder($post, $product, $order_id, $data)
+    {
+        $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
+        $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
+        $arr = array(
+            'warehouse_type' => $wh_type,
+            'user_id' => $this->getUserId(),
+            'goods_id' => $product['goods_id'],
+            'article' => $product['article'],
+            'title' => $product['title'],
+            'content' => $product['content'],
+            'price' => (isset($post['price']) ? $post['price'] * 100 : $product['price']),
+            '`count`' => $count,
+            'order_id' => $order_id,
+            'secret_title' => $product['secret_title'],
+            'url' => $product['url'],
+            'foreign_warehouse' => $product['foreign_warehouse'],
+            '`type`' => $product['type'],
+        );
+
+        // пытаемся добавить товар
+        $data['id'] = $this->OrdersGoods->insert($arr);
+
         return $data;
     }
 }
