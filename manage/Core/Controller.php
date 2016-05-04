@@ -70,20 +70,18 @@ abstract class Controller extends Object
      */
     public function render()
     {
-        global $input_html;
-
         if ($this->can_show_module() == false) {
             if ($this->isAjax($this->all_configs['arrequest'])) {
                 Response::json(array('message' => l('Нет прав'), 'state' => false));
             } else {
-                return $input_html['mcontent'] = $this->renderCanShowModuleError();
+                return  $this->renderCanShowModuleError();
             }
         }
 
 
         $result = $this->routing($this->all_configs['arrequest']);
 
-        if (empty($$result)) {
+        if (empty($result)) {
             $result = $this->gencontent();
         }
         return $result;

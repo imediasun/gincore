@@ -33,11 +33,9 @@ class orders extends Controller
      */
     public function routing(Array $arrequest)
     {
-        global $input_html;
-
         $result = parent::routing($arrequest);
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0) {
-            $input_html['mcontent'] = $this->genorder();
+        if (empty($result) && isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'create' && isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0) {
+            $result = $this->genorder();
         }
         return $result;
     }
@@ -2305,8 +2303,7 @@ class orders extends Controller
             }
         } else {
 
-            if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order/* || $order['manager'] != $_SESSION['id']*/)) {
-                //$data['msg'] = 'Вы не являетесь менеджером этого заказа';
+            if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order)) {
                 $data['msg'] = l('У Вас нет прав');
                 $data['state'] = false;
             }
