@@ -382,7 +382,7 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                         ),
                         'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
                         'order_data' => array(
-                            'value' => date('d/m/Y', $order['date_add']),
+                            'value' => date('d/m/Y', strtotime($order['date_add'])),
                             'name' => 'Дата создания заказа'
                         ),
                     );
