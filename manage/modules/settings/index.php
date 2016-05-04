@@ -297,6 +297,9 @@ class settings extends Controller
             try {
                 foreach ($sql as $pp) {
                     $pp = array_values($pp);
+                    if($pp[0] == 'id') {
+                        continue;
+                    }
                     $value = trim($post[$pp[0]]);
                     if (empty($value)) {
                         throw new Exception (l('Поле не может быть пустым'));
@@ -305,9 +308,9 @@ class settings extends Controller
                         $sql_cols[] = $pp[0];
                         $sql_values[] = $value;
                     }
-                    $this->all_configs['db']->query("INSERT INTO `?q` (?cols) VALUES (?l)",
-                        array($table, $sql_cols, $sql_values));
                 }
+                $this->all_configs['db']->query("INSERT INTO `?q` (?cols) VALUES (?l)",
+                    array($table, $sql_cols, $sql_values));
             } catch (Exception $e) {
                 FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
             }
