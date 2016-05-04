@@ -25,7 +25,6 @@ class orders extends Controller
         if (!$gen_module) {
             return;
         }
-
     }
 
     /**

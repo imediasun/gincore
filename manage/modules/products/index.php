@@ -40,10 +40,17 @@ class products extends Controller
      */
     public function __construct($all_configs)
     {
-        global $input_html;
         parent::__construct($all_configs);
         require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
 
+    }
+
+    /**
+     * @return string
+     */
+    public function render()
+    {
+        global $input_html;
         if (!empty($input_html['mmenu'])) {
             $input_html['menu_span'] = 'col-sm-3';
             $input_html['content_span'] = 'col-sm-9';
@@ -51,6 +58,7 @@ class products extends Controller
             $input_html['menu_span'] = '';
             $input_html['content_span'] = 'col-sm-10 col-sm-offset-1';
         }
+        return parent::render(); 
     }
 
     /**

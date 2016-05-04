@@ -700,10 +700,9 @@ class accountings extends Controller
     /**
      * @return string
      */
-    function gencontent()
+    public function gencontent()
     {
         $this->preload();
-
         return $this->view->renderFile('accountings/gencontent', array(
             'mod_submenu' => $this->mod_submenu,
             'isCashier' => $this->all_configs['oRole']->hasCashierPermission($this->getUserId())
@@ -991,7 +990,7 @@ class accountings extends Controller
     /**
      *
      */
-    function export()
+    public function export()
     {
         $array = array();
         $act = isset($_GET['act']) ? $_GET['act'] : '';
@@ -1014,6 +1013,7 @@ class accountings extends Controller
         include_once $this->all_configs['sitepath'] . 'shop/exports.class.php';
         $exports = new Exports();
         $exports->build($array);
+        return '';
     }
 
     /**
@@ -1021,6 +1021,7 @@ class accountings extends Controller
      */
     function ajax()
     {
+
         $data = array(
             'state' => false,
             'message' => l('Не известная ошибка')

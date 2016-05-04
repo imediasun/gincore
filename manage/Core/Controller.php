@@ -63,7 +63,13 @@ abstract class Controller extends Object
         $this->view = new View($all_configs);
         $this->session = Session::getInstance();
         $this->History = new MHistory();
+    }
 
+    /**
+     * @return string
+     */
+    public function render()
+    {
         global $input_html;
 
         if ($this->can_show_module() == false) {
@@ -75,11 +81,12 @@ abstract class Controller extends Object
         }
 
 
-        $this->routing($this->all_configs['arrequest']);
+        $result = $this->routing($this->all_configs['arrequest']);
 
-        if (empty($input_html['mcontent'])) {
-            $input_html['mcontent'] = $this->gencontent();
+        if (empty($$result)) {
+            $result = $this->gencontent();
         }
+        return $result;
     }
 
     /**

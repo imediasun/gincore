@@ -20,12 +20,16 @@ class settings extends Controller
     {
         global $dbcfg;
         $this->dbcfg = $dbcfg;
-        global $input_html;
 
         parent::__construct($all_configs);
-        $input_html['mmenu'] = $this->genmenu();
     }
 
+    public function render()
+    {
+        global $input_html;
+        $input_html['mmenu'] = $this->genmenu();
+        return parent::render(); 
+    }
     /**
      * @return string
      */

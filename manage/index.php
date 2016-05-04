@@ -357,11 +357,14 @@ $all_configs['curmod'] = null;
 if($ifauth){
     if($curmod){
         $all_configs['curmod'] = $curmod;
-        new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+        $module = new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
     }else{
         $curmod = $all_configs['curmod'] = 'dashboard';
         require_once $all_configs['path'].'modules/dashboard/index.php';
-        new dashboard($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+        $module = new dashboard($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+    }
+    if(method_exists($module, 'render')) {
+        $input_html['mcontent'] = $module->render();
     }
 }
 
