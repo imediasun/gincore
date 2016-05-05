@@ -695,8 +695,8 @@ function resizeInput() {
     change_input_width(this, length, true);
 }
 
-function add_item_to_table() {
-    var $row = $('tr.js-row-cloning'),
+function add_quick_item_to_table() {
+    var $row = $('tr.js-quick-row-cloning'),
       cost = $('#sale_poduct_cost').val(),
       title = $('.product-title').html(),
       id = $('input[name="items"]').val(),
@@ -711,46 +711,105 @@ function add_item_to_table() {
         $('#sale_product_cost_error').hide();
     }
     if (cost > 0 && title.length > 0 && id.length > 0) {
-        $clone = $row.clone().removeClass('js-row-cloning');
+        $clone = $row.clone().removeClass('js-quick-row-cloning');
         $clone.addClass('row-item');
-        $clone.find('.js-item-name').first().val(title + '(' + serial + ')').attr('title', title + '(' + serial + ')');
-        $clone.find('input.js-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
-        $clone.find('select.js-warranty').first().val(id).attr('name', 'warranty[' + rnd + ']');
-        $clone.find('.js-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
+        $clone.find('.js-quick-item-name').first().val(title + '(' + serial + ')').attr('title', title + '(' + serial + ')');
+        $clone.find('input.js-quick-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
+        $clone.find('select.js-quick-warranty').first().val(id).attr('name', 'warranty[' + rnd + ']');
+        $clone.find('.js-quick-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
         $('#sale_poduct_cost').val('');
         $('input[name="serials-value"]').val('').attr('data-required', 'false');
         $('.product-title').html('');
         $('#item_id').val('');
         $clone.show();
         $row.parent().append($clone);
-        recalculate_amount();
-        $('table.table-items').show();
+        recalculate_amount_quick();
+        $('table.quick-table-items').show();
     }
     return false;
 }
 
-function recalculate_amount() {
+function recalculate_amount_quick() {
     var amount = 0,
-      $body = $('.table-items > tbody');
+      $body = $('.quick-table-items > tbody');
 
     $body.children('tr.row-item').each(function() {
-       amount += parseInt($(this).find('.js-price').first().val());
+        amount += parseInt($(this).find('.js-quick-price').first().val());
     });
     if(amount == 0) {
         $body.parent().hide();
         $('input[name="serials-value"]').attr('data-required', 'true');
     }
-    $('.js-total').val(amount);
+    $('.js-quick-total').val(amount);
     if(amount > 0) {
-        $('.js-pay-button').removeClass('disabled');
+        $('.js-quick-pay-button').removeClass('disabled');
     } else {
-        $('.js-pay-button').addClass('disabled');
+        $('.js-quick-pay-button').addClass('disabled');
     }
 }
 
-function remove_row(_this) {
+function remove_row_quick(_this) {
     $(_this).parent().parent().remove();
-    recalculate_amount();
+    recalculate_amount_quick();
+    return false;
+}
+
+function add_eshop_item_to_table() {
+    var $row = $('tr.js-eshop-row-cloning'),
+      cost = $('#eshop_sale_poduct_cost').val(),
+      title = $('.product-title').html(),
+      id = $('input[name="items"]').val(),
+      serial = $('input[name="serials"]').val(),
+      rnd = parseInt(Math.random() * 1000);
+
+    if(cost == 0) {
+        $('#eshop_sale_poduct_cost').addClass('parsley-error');
+        $('#eshop_sale_product_cost_error').show();
+    } else {
+        $('#eshop_sale_poduct_cost').removeClass('parsley-error');
+        $('#eshop_sale_product_cost_error').hide();
+    }
+    if (cost > 0 && title.length > 0 && id.length > 0) {
+        $clone = $row.clone().removeClass('js-eshop-row-cloning');
+        $clone.addClass('row-item');
+        $clone.find('.js-eshop-item-name').first().val(title + '(' + serial + ')').attr('title', title + '(' + serial + ')');
+        $clone.find('input.js-eshop-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
+        $clone.find('select.js-eshop-warranty').first().val(id).attr('name', 'warranty[' + rnd + ']');
+        $clone.find('.js-eshop-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
+        $('#eshop_sale_poduct_cost').val('');
+        $('input[name="serials-value"]').val('').attr('data-required', 'false');
+        $('.product-title').html('');
+        $('#item_id').val('');
+        $clone.show();
+        $row.parent().append($clone);
+        recalculate_amount_eshop();
+        $('table.eshop-table-items').show();
+    }
+    return false;
+}
+
+function recalculate_amount_eshop() {
+    var amount = 0,
+      $body = $('.eshop-table-items > tbody');
+
+    $body.children('tr.row-item').each(function() {
+       amount += parseInt($(this).find('.js-eshop-price').first().val());
+    });
+    if(amount == 0) {
+        $body.parent().hide();
+        $('input[name="serials-value"]').attr('data-required', 'true');
+    }
+    $('.js-eshop-total').val(amount);
+    if(amount > 0) {
+        $('.js-eshop-pay-button').removeClass('disabled');
+    } else {
+        $('.js-eshop-pay-button').addClass('disabled');
+    }
+}
+
+function remove_row_eshop(_this) {
+    $(_this).parent().parent().remove();
+    recalculate_amount_eshop();
     return false;
 }
 

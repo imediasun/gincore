@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-6">
-            <form method="post" id="sale-form" parsley-validate>
+            <form method="post" id="quick-sale-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
                 <fieldset>
                     <div class="container-fluid items-container">
@@ -36,96 +36,18 @@
 
                             <div class="form-group col-sm-2" style="padding: 0px">
                                 <label>&nbsp;</label><br>
-                                <button class="btn-sm btn-primary class" onclick="return add_item_to_table();"
+                                <button class="btn-sm btn-primary class" onclick="return add_quick_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
                                     <span class="small"> <?= l('В&nbsp;корзину') ?> </span>
                                 </button>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <table class="table table-items" style="display:none">
-                                    <thead>
-                                    <tr>
-                                        <th class="col-sm-6"><?= l('Товар') ?></th>
-                                        <th class="col-sm-3"><?= l('Цена') ?></th>
-                                        <th class="col-sm-3"><?= l('Гарантия') ?></th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr class="js-row-cloning" style="display: none">
-                                        <td>
-                                            <div class="input-group col-sm-12">
-                                                <input type="hidden" class="form-control js-item-id" name="" value="">
-                                                <input type="text" readonly class="form-control js-item-name" value=""/>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group col-sm-12">
-                                                <input type="text" class="form-control js-price"
-                                                       onkeyup="recalculate_amount();" value="" name=""/>
-                                                <span class="input-group-addon"><?= viewCurrency() ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group col-sm-12">
-                                                <select class="form-control js-warranty" name="">
-                                                    <option value=""><?= l('Без гарантии') ?></option>
-                                                    <?php foreach ($orderWarranties as $warranty): ?>
-                                                        <option
-                                                            value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                                <div class="input-group-addon"><?= l('мес') ?></div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <a href="#" onclick="return remove_row(this);">
-                                                <i class="glyphicon glyphicon-remove"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                    <tfoot>
-                                    <tr class="row-amount">
-                                        <td>
-                                            <div class="input-group col-sm-12">
-                                                <label><?= l('Итоговая стоимость:') ?></label>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group col-sm-12">
-                                                <input type="text" readonly class="form-control js-total" value=""/>
-                                                <span class="input-group-addon"><?= viewCurrency() ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="input-group"
-                                                 title="<?= l('Отфильтровать все безналичные счета для сверки Вы можете в разделе: Бухгалтерия-Заказы-Заказы клиентов') ?>">
-                                                <input type="checkbox" name="cashless" class="cashless-toggle">
-                                            </div>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
+                        <?= $this->renderFile('orders/_cart_items_table', array(
+                            'prefix' => 'quick',
+                            'orderWarranties' => $orderWarranties                            
+                        )) ?>
                     </div>
 
-                    <div class="form-group">
-                        <label><?= l('Гарантия') ?>: </label>
-                        <div class="input-group">
-                            <select class="form-control" name="warranty">
-                                <option value=""><?= l('Без гарантии') ?></option>
-                                <?php foreach ($orderWarranties as $warranty): ?>
-                                    <option value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="input-group-addon"><?= l('мес') ?></div>
-                        </div>
-                    </div>
                     <div class="form-group">
                         <label><?= l('Скрытый комментарий к заказу') ?>: </label>
                         <textarea name="private_comment" class="form-control" rows="3"></textarea>
@@ -135,7 +57,7 @@
                     <div class="btn-group dropup col-sm-3" style="padding-left: 0">
                         <input id="add-client-order" class="btn btn-primary submit-from-btn"
                                type="button"
-                               onclick="sale_order(this)"
+                               onclick="quick_sale(this)"
                                value="<?= l('Добавить') ?>"/>
                         <button type="button" class="btn btn-info dropdown-toggle"
                                 data-toggle="dropdown"
@@ -146,18 +68,18 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="#" onclick="sale_order(this, 'print_check'); return false;">
+                                <a href="#" onclick="quick_sale(this, 'print_check'); return false;">
                                     <?= l('Добавить и распечатать чек') ?>
                                 </a>
                             </li>
                             <li>
-                                <a href="#" onclick="sale_order(this, 'print_warranty'); return false;">
+                                <a href="#" onclick="quick_sale(this, 'print_warranty'); return false;">
                                     <?= l('Добавить и распечатать чек и гарантийный талон') ?>
                                 </a>
                             </li>
                             <li>
                                 <a href="#"
-                                   onclick="sale_order(this, 'print_invoice'); return false;">
+                                   onclick="quick_sale(this, 'print_invoice'); return false;">
                                     <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
                                 </a>
                             </li>

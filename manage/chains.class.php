@@ -1302,6 +1302,16 @@ class Chains extends Object
         return $data;
     }
 
+    public function quick_sold_items($post, $mod_id)
+    {
+        return $this->sold_items($post, $mod_id);
+    }
+
+    public function eshop_sold_items($post, $mod_id)
+    {
+        return $this->sold_items($post, $mod_id);
+    }
+
     /**
      * @param $post
      * @param $mod_id

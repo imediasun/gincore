@@ -1880,9 +1880,14 @@ class orders extends Controller
             }
         }
 
-        // создать заказ
+        // создать заказ на быструю продажу
         if ($act == 'sale-order') {
-            $data = $this->all_configs['chains']->sold_items($_POST, $mod_id);
+            $data = $this->all_configs['chains']->quick_sold_items($_POST, $mod_id);
+        }
+        
+        // создать заказ из интернет магазина
+        if ($act == 'sale-order') {
+            $data = $this->all_configs['chains']->eshop_sold_items($_POST, $mod_id);
         }
 
         preg_match('/changes:(.+)/', $act, $arr);
