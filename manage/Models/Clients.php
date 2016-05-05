@@ -56,6 +56,7 @@ class MClients extends AModel
         }
         $clientId = isset($post['client_id']) ? intval($post['client_id']) :
             (isset($post['clients']) ? intval($post['clients']) : 0);
+        
         if (isset($post['clients']) && $clientId != 0) {
             return $this->getById($clientId);
         }

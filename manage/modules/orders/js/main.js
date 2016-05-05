@@ -852,7 +852,7 @@ function recalculate_amount_eshop() {
 function sum_calculate() {
    var
      price = parseInt($('#eshop_sale_poduct_cost').val()) || 0,
-     discount = parseInt($('#eshop_sale_poduct_discount').val()) || 1,
+     discount = parseInt($('#eshop_sale_poduct_discount').val()) || 0,
      quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0;
 
     $('#eshop_sale_poduct_sum').val(price * (1 - discount/ 100) * quantity);

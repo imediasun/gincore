@@ -915,7 +915,7 @@ class Chains extends Object
                 } else {
                     $data = $this->addSpareOrder($post, $product, $order_id, $data);
 
-                    if ($data['id'] > 0 && $order_class) {
+                    if ($data['id'] > 0) {
                         $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
                         // делаем сразу заказ поставщику (если товара нету на складе)
                         if ($wh_type) {
@@ -932,7 +932,7 @@ class Chains extends Object
                         // достаем товар в корзине
                         $product = $this->all_configs['manageModel']->order_goods($order['id'], $product['type'],
                             $data['id']);
-                        if ($product) {
+                        if ($product && $order_class) {
                             // выводим
                             $data[($product['type'] == 0 ? 'goods' : 'service')] = $order_class->show_product($product);
                             $data['reload'] = 1;
@@ -1302,13 +1302,15 @@ class Chains extends Object
         return $data;
     }
 
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
     public function quick_sold_items($post, $mod_id)
     {
-        return $this->sold_items($post, $mod_id);
-    }
-
-    public function eshop_sold_items($post, $mod_id)
-    {
+        $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
+        $post['clients'] = $post['client_id'];
         return $this->sold_items($post, $mod_id);
     }
 
@@ -1317,7 +1319,18 @@ class Chains extends Object
      * @param $mod_id
      * @return array
      */
-    public function sold_items($post, $mod_id)
+    public function eshop_sold_items($post, $mod_id)
+    {
+        require_once __DIR__ . '/Models/OrderEshopSale.php';
+        return $this->sold_items($post, $mod_id, new MOrderEshopSale());
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    public function sold_items($post, $mod_id, $OrderModel = null)
     {
         $price = function ($prices) {
             return array_reduce($prices, function ($carry, $item) {
@@ -1333,10 +1346,12 @@ class Chains extends Object
          * @return array
          */
         $prepareItems = function ($items, $itemIds, $amounts) {
-            $ids = array_flip($itemIds);
             $result = array();
-            foreach ($items as $item) {
-                $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+            if (!empty($items)) {
+                $ids = array_flip($itemIds);
+                foreach ($items as $item) {
+                    $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+                }
             }
             return $result;
         };
@@ -1345,14 +1360,24 @@ class Chains extends Object
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg('Вы не добавили изделие в корзину');
             }
-            $items = $prepareItems($this->getItems(array_values($post['item_ids'])), $post['item_ids'],
-                $post['amount']);
+
+            if($OrderModel !== null && method_exists($OrderModel, 'getItems')) {
+                $items = $prepareItems($OrderModel->getItems(array_values($post['item_ids'])), $post['item_ids'],
+                    $post['amount']);
+            } else {
+                $items = $prepareItems($this->Orders->getItems(array_values($post['item_ids'])), $post['item_ids'],
+                    $post['amount']);
+            }
             $client = $this->Clients->getClient($post);
 
             // создаем заказ
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
 
-            $this->addSpares($items, $order['id'], $mod_id);
+            if(!empty($items)) {
+                $this->addSpares($items, $order['id'], $mod_id);
+            } else {
+                $this->addProducts($post['item_ids'], $order['id'], $mod_id);
+            }
 
             // статус выдан
             $status = update_order_status(array(
@@ -2569,36 +2594,6 @@ class Chains extends Object
         return "<script type='text/javascript' src='{$this->all_configs['prefix']}js/chains-orders.js?3'></script>";
     }
 
-
-    /**
-     * @param $itemIds
-     * @return array
-     * @throws ExceptionWithMsg
-     * @throws ExceptionWithURL
-     */
-    protected function getItems($itemIds)
-    {
-        $items = array();
-        if (!empty($itemIds)) {
-            $items = $this->all_configs['db']->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price
-                    FROM {warehouses} as w, {warehouses_goods_items} as i
-                    LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
-                    WHERE i.id IN (?li) AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id',
-                array($itemIds, 1))->assoc();
-        }
-        // изделий не найдено
-        if (empty($items)) {
-            throw  new ExceptionWithMsg(l('Свободные изделия не найдены'));
-        }
-        foreach ($items as $k => $item) {
-            // нет менеджера
-            if ($item['user_id'] == 0) {
-                throw new ExceptionWithURL($this->all_configs['prefix'] . "products/create/" . $item['goods_id'] . "?error=manager#managers");
-            }
-        }
-        return $items;
-    }
-
     /**
      * @param $post
      * @param $modId
@@ -3016,6 +3011,21 @@ class Chains extends Object
         $data['id'] = $this->OrdersGoods->insert($arr);
 
         return $data;
+    }
+
+    private function addProducts($items, $orderId, $modId)
+    {
+        foreach ($items as $item) {
+            $post = array(
+                'confirm' => 1,
+                'order_product_id' => null,
+                'order_id' => $orderId,
+                'product_id' => $item
+            );
+            $this->add_product_order($post, $modId);
+        }
+        print_r($items);
+        exit;
     }
 }
 

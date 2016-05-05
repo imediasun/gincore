@@ -5,13 +5,15 @@ require_once __DIR__ . '/../Core/AModel.php';
  * Class MOrders
  *
  * @property  MHistory   $History
+ * @property  MWarehouses Warehouses
  */
 class MOrders extends AModel
 {
     public $table = 'orders';
 
     public $uses = array(
-        'History'
+        'History',
+        'Warehouses'
     );
 
     /**
@@ -124,6 +126,28 @@ class MOrders extends AModel
             // удаляем заказ
             $this->all_configs['db']->query('DELETE FROM ?t WHERE id=?i', array($this->table, $order['id']));
         }
+    }
+
+    /**
+     * @param $itemIds
+     * @return array
+     * @throws ExceptionWithMsg
+     * @throws ExceptionWithURL
+     */
+    public function getItems($itemIds)
+    {
+        $items = $this->Warehouses->getAvailableItems($itemIds);
+        // изделий не найдено
+        if (empty($items)) {
+            throw  new ExceptionWithMsg(l('Свободные изделия не найдены'));
+        }
+        foreach ($items as $k => $item) {
+            // нет менеджера
+            if ($item['user_id'] == 0) {
+                throw new ExceptionWithURL($this->all_configs['prefix'] . "products/create/" . $item['goods_id'] . "?error=manager#managers");
+            }
+        }
+        return $items;
     }
 
     /**
