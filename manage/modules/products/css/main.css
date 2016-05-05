@@ -60,3 +60,16 @@
     top: 170px;
     z-index: 1000;
 }
+
+td.edit-price {
+    width: 250px;
+}
+td.edit-price label {
+    float:right;
+}
+td.edit-price .input-small {
+    width: 70px;
+}
+.edit_active {
+    white-space: nowrap;
+}

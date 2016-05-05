@@ -24,7 +24,7 @@ class exported_gincore_items extends abstract_import_provider
             'price_purchase' => l('Цена закупки'),
             'price_wholesale' => l('Цена оптовая'),
             'price' => l('Цена розничная'),
-            'manager_id' => l('manager')
+//            'manager_id' => l('manager')
         );
     }
 
