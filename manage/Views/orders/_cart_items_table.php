@@ -4,13 +4,13 @@
             <thead>
             <tr>
                 <th class="col-sm-6"><?= l('Товар') ?></th>
-                <th class="col-sm-3"><?= l('Цена') ?></th>
+                <th class="<?= $prefix == 'quick'? 'col-sm-3': '' ?>"><?= l('Цена') ?></th>
                 <?php if ($prefix == 'eshop'): ?>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    <th><?= l('Скидка') ?></th>
+                    <th><?= l('Количество') ?></th>
+                    <th><?= l('Сумма') ?></th>
                 <?php endif; ?>
-                <th class="col-sm-3"><?= l('Гарантия') ?></th>
+                <th class="<?= $prefix == 'quick'? 'col-sm-3': '' ?>"><?= l('Гарантия') ?></th>
                 <th></th>
             </tr>
             </thead>

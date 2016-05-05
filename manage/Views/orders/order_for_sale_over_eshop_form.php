@@ -44,7 +44,7 @@
                                     <label class="control-label">
                                         <?= l('Выберите устройство') ?> <b class="text-danger">*</b>:
                                     </label>
-                                <div class="form-group ">
+                                <div class="form-group" id="categories-selected">
                                     <?= typeahead($this->all_configs['db'], 'categories-last', false,
                                         (!empty($order_data) ?
                                             $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
@@ -58,7 +58,7 @@
                                 <label><?= l('Цена') ?> <b class="text-danger">*</b>: </label>
                                 <div class="input-group">
                                     <input type="text" id="eshop_sale_poduct_cost" class="form-control" value=""
-                                           name="price"/>
+                                           name="price" onkeyup="return sum_calculate();"/>
                                     <span class="input-group-addon"><?= viewCurrency() ?></span>
                                 </div>
                                 <ul id="eshop_sale_product_cost_error" class="parsley-errors-list filled"
@@ -71,7 +71,7 @@
                                     <?= l('Скидка') ?>
                                 </label>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="discount" />
+                                    <input type="text" id="eshop_sale_poduct_discount" class="form-control" name="discount"  onkeyup="return sum_calculate();"/>
                                 </div>
                             </div>
                             <div class="form-group col-sm-2">
@@ -79,7 +79,7 @@
                                     <?= l('Кол-во') ?>
                                 </label>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="quantity" />
+                                    <input type="text" id="eshop_sale_poduct_quantity" class="form-control" name="quantity"  onkeyup="return sum_calculate();"/>
                                 </div>
                             </div>
                             <div class="form-group col-sm-2">

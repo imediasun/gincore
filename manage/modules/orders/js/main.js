@@ -45,14 +45,41 @@ function pay_client_order(_this, tt, order_id, b_id, extra) {
     return false;
 }
 
-function sale_order(_this, item) {
-    if (false === $('#sale-form').parsley().validate())
+function quick_sale(_this, item) {
+    if (false === $('#quick-sale-form').parsley().validate())
     return;
 
     $(_this).button('loading');
     var data = $(_this).parents('form').serializeArray();
     $.ajax({
-        url: prefix + module + '/ajax/?act=sale-order',
+        url: prefix + module + '/ajax/?act=quick-sale-order',
+        type: 'POST',
+        dataType: "json",
+        data: data,
+        success: function(msg) {
+            if (msg) {
+                if (msg['state'] == false) {
+                    if (msg['message']) {
+                        alert(msg['message']);
+                    }
+                }
+                if (msg['location']) {
+                    window.location = msg['location'];
+                }
+
+                $(_this).button('reset');
+            }
+        }
+    });
+}
+function eshop_sale(_this, item) {
+    if (false === $('#eshop-sale-form').parsley().validate())
+        return;
+
+    $(_this).button('loading');
+    var data = $(_this).parents('form').serializeArray();
+    $.ajax({
+        url: prefix + module + '/ajax/?act=eshop-sale-order',
         type: 'POST',
         dataType: "json",
         data: data,
@@ -756,11 +783,20 @@ function remove_row_quick(_this) {
 
 function add_eshop_item_to_table() {
     var $row = $('tr.js-eshop-row-cloning'),
-      cost = $('#eshop_sale_poduct_cost').val(),
-      title = $('.product-title').html(),
-      id = $('input[name="items"]').val(),
-      serial = $('input[name="serials"]').val(),
+      cost = $('#eshop_sale_poduct_sum').val(),
+      title = $('#categories-selected > ul.dropdown-menu > li.active > a').html(),
+      id = $('input[name="categories-last"]').val(),
+      price = $('#eshop_sale_poduct_cost').val(),
+      discount = $('#eshop_sale_poduct_discount').val(),
+      quantity = $('#eshop_sale_poduct_quantity').val(),
       rnd = parseInt(Math.random() * 1000);
+
+    console.log(cost);
+    console.log(title);
+    console.log(id);
+    console.log(price);
+    console.log(discount);
+    console.log(quantity);
 
     if(cost == 0) {
         $('#eshop_sale_poduct_cost').addClass('parsley-error');
@@ -772,14 +808,20 @@ function add_eshop_item_to_table() {
     if (cost > 0 && title.length > 0 && id.length > 0) {
         $clone = $row.clone().removeClass('js-eshop-row-cloning');
         $clone.addClass('row-item');
-        $clone.find('.js-eshop-item-name').first().val(title + '(' + serial + ')').attr('title', title + '(' + serial + ')');
+        $clone.find('.js-eshop-item-name').first().val(title).attr('title', title);
         $clone.find('input.js-eshop-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
-        $clone.find('select.js-eshop-warranty').first().val(id).attr('name', 'warranty[' + rnd + ']');
-        $clone.find('.js-eshop-price').first().val(cost).attr('name', 'amount[' + rnd + ']');
+        $clone.find('select.js-eshop-warranty').first().attr('name', 'warranty[' + rnd + ']');
+        $clone.find('.js-eshop-sum').first().val(cost).attr('name', 'amount[' + rnd + ']');
+        $clone.find('.js-eshop-price').first().val(price).attr('name', 'price[' + rnd + ']');
+        $clone.find('.js-eshop-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']');
+        $clone.find('.js-eshop-discount').first().val(discount).attr('name', 'discount[' + rnd + ']');
         $('#eshop_sale_poduct_cost').val('');
-        $('input[name="serials-value"]').val('').attr('data-required', 'false');
-        $('.product-title').html('');
-        $('#item_id').val('');
+
+        $('#categories-selected > ul.dropdown-menu > li.active > a').html('');
+        $('input[name="categories-last"]').val('');
+        $('#eshop_sale_poduct_sum').val('');
+        $('#eshop_sale_poduct_discount').val('');
+        $('#eshop_sale_poduct_quantity').val('');
         $clone.show();
         $row.parent().append($clone);
         recalculate_amount_eshop();
@@ -793,7 +835,7 @@ function recalculate_amount_eshop() {
       $body = $('.eshop-table-items > tbody');
 
     $body.children('tr.row-item').each(function() {
-       amount += parseInt($(this).find('.js-eshop-price').first().val());
+       amount += parseInt($(this).find('.js-eshop-sum').first().val());
     });
     if(amount == 0) {
         $body.parent().hide();
@@ -805,6 +847,15 @@ function recalculate_amount_eshop() {
     } else {
         $('.js-eshop-pay-button').addClass('disabled');
     }
+}
+
+function sum_calculate() {
+   var
+     price = parseInt($('#eshop_sale_poduct_cost').val()) || 0,
+     discount = parseInt($('#eshop_sale_poduct_discount').val()) || 1,
+     quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0;
+
+    $('#eshop_sale_poduct_sum').val(price * (1 - discount/ 100) * quantity);
 }
 
 function remove_row_eshop(_this) {

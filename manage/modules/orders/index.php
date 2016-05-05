@@ -1881,12 +1881,12 @@ class orders extends Controller
         }
 
         // создать заказ на быструю продажу
-        if ($act == 'sale-order') {
+        if ($act == 'quick-sale-order') {
             $data = $this->all_configs['chains']->quick_sold_items($_POST, $mod_id);
         }
         
         // создать заказ из интернет магазина
-        if ($act == 'sale-order') {
+        if ($act == 'eshop-sale-order') {
             $data = $this->all_configs['chains']->eshop_sold_items($_POST, $mod_id);
         }
 
