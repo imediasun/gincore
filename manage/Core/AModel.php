@@ -33,31 +33,32 @@ abstract class AModel extends Object
         if (empty($options)) {
             return false;
         }
-        $values = array();
+        $placeholders = array();
+        $fields = array();
         $params = array(
             0 => $this->table,
-            1 => implode(',', array_keys($options)),
-            2 => ''
+            1 => '',
         );
         foreach ($options as $field => $value) {
-            if (!in_array($field, $this->columns())) {
+            $onlyName = preg_replace('/`/', '', $field);
+            if (!in_array($onlyName, $this->columns())) {
                 continue;
             }
+            $fields[] = $field;
             switch (true) {
                 case is_numeric($value):
-                    $values[] = '?i';
+                    $placeholders[] = '?i';
                     break;
                 case $value == 'null':
-                    $values[] = '?q';
+                    $placeholders[] = '?q';
                     break;
                 default:
-                    $values[] = '?';
+                    $placeholders[] = '?';
             }
             $params[] = $value;
         }
-        $params[2] = implode(',', $values);
-
-        return $this->query('INSERT INTO ?t (?q) VALUES (?q)', $params)->id();
+        $params[1] = implode(',', $fields);
+        return $this->query("INSERT INTO ?t (?q) VALUES (". implode(',', $placeholders).")", $params)->id();
     }
 
     /**

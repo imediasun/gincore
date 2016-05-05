@@ -6,7 +6,7 @@ require_once __DIR__ . '/Core/Exceptions.php';
 
 /**
  * @property MHistory     History
- * @property MOrderBase   Orders
+ * @property MOrders   Orders
  * @property MSettings    Settings
  * @property MWarehouses  Warehouses
  * @property MClients     Clients
@@ -913,7 +913,7 @@ class Chains extends Object
                 if (isset($post['remove'])) {
                     $data = $this->removeSpareOrder($post, $order, $data);
                 } else {
-                    $data = $this->addSpareOrder($post, $product, $order_id, $data, $order);
+                    $data = $this->addSpareOrder($post, $product, $order_id, $data);
 
                     if ($data['id'] > 0 && $order_class) {
                         $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
@@ -2814,6 +2814,7 @@ class Chains extends Object
                     l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->Clients->getClientCode($client['id']));
             }
         } catch (Exception $e) {
+            print_r($e->getMessage());
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
         }
     }
@@ -2998,7 +2999,7 @@ class Chains extends Object
             'secret_title' => $product['secret_title'],
             'url' => $product['url'],
             'foreign_warehouse' => $product['foreign_warehouse'],
-            '`type`' => $product['type'],
+            '`type`' => (int) $product['type'],
         );
 
         // пытаемся добавить товар

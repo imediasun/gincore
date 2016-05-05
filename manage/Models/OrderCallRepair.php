@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/OrderRepair.php';
+require_once __DIR__ . '/Orders.php';
 
-class MOrderCallRepair extends MOrderRepair
+class MOrderCallRepair extends MOrders
 {
 }

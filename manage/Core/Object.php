@@ -11,8 +11,8 @@ abstract class Object
         if (!empty($this->uses)) {
             foreach ($this->uses as $use) {
                 $class = 'M' . $use;
-                if (file_exists(__DIR__ . "/{$use}.php")) {
-                    require_once __DIR__ . "/{$use}.php";
+                if (file_exists(__DIR__ . "/../Models/{$use}.php")) {
+                    require_once __DIR__ . "/../Models/{$use}.php";
                     $this->$use = new $class();
                 }
             }

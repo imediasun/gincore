@@ -2,11 +2,11 @@
 require_once __DIR__ . '/../Core/AModel.php';
 
 /**
- * Class MOrderBase
+ * Class MOrders
  *
  * @property  MHistory   $History
  */
-class MOrderBase extends AModel
+class MOrders extends AModel
 {
     public $table = 'orders';
 
