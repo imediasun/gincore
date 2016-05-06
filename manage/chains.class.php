@@ -1306,6 +1306,100 @@ class Chains extends Object
     }
 
     /**
+     * заполняем цены товара в соответствии с данными запроса
+     *
+     * @param $items
+     * @param $itemIds
+     * @param $amounts
+     * @return array
+     */
+    protected function prepareEshopSoldItems($items, $itemIds, $amounts)
+    {
+        $result = array();
+        if (!empty($items)) {
+            $ids = array_flip($itemIds);
+            foreach ($items as $item) {
+                $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+            }
+        }
+        return $result;
+    }
+
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    public function eshop_sold_items($post, $mod_id)
+    {
+        require_once __DIR__ . '/Models/OrderEshopSale.php';
+        $OrderModel = new MOrderEshopSale();
+
+        try {
+            $post['price'] = $this->priceCalculate($post['sum']);
+            if (empty($post['amount']) || ($post['price'] == 0)) {
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
+            }
+            $client = $this->Clients->getClient($post);
+            $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
+            
+            $items = array();
+            if(method_exists($OrderModel, 'getItems')) {
+                $items = $this->prepareEshopSoldItems($OrderModel->getAvailableItems(array_values($post['item_ids'])), $post['item_ids'],
+                    $post['amount']);
+            }
+
+            $cart = $this->prepareCartInfo($post);
+            $setStatus = $this->all_configs['configs']['order-status-new'];
+            
+            
+            if(!empty($items)) {
+                foreach ($items as $item) {
+                    if(isset($cart[$item['id']]['quantity'])) {
+                    $this->addSpares(array($item), $order['id'], $mod_id);
+                    }
+                    $cart[$item['id']]['quantity'] -= 1;
+                    if($cart[$item['id']]['quantity'] == 0) {
+                       unset($cart[$item['id']]); 
+                    }
+                }
+            }
+            if(!empty($cart)) {
+                $setStatus = $this->all_configs['configs']['order-status-waits'];
+                $this->addProducts($cart, $order['id'], $mod_id);
+            }
+            
+            $this->changeOrderStatus($order, $setStatus, $post);
+
+            $data = array(
+                'state' => true,
+                'location' => $this->all_configs['prefix'] . 'orders/create/' . $order['id'],
+                'id' => $order['id']
+            );
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage(),
+                'msg' => $e->getMessage(),
+            );
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
+        } catch (ExceptionWithURL $e) {
+            $data = array(
+                'state' => false,
+                'location' => $e->getMessage(),
+            );
+            if (isset($order)) {
+                $this->Orders->rollback($order);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * @param $post
      * @param $mod_id
      * @return array
@@ -1318,83 +1412,58 @@ class Chains extends Object
     }
 
     /**
-     * @param $post
-     * @param $mod_id
+     * заполняем цены товара в соответствии с данными запроса
+     *
+     * @param $items
+     * @param $itemIds
+     * @param $amounts
      * @return array
      */
-    public function eshop_sold_items($post, $mod_id)
+    protected function prepareQuickSoldItems($items, $itemIds, $amounts)
     {
-        require_once __DIR__ . '/Models/OrderEshopSale.php';
-        return $this->sold_items($post, $mod_id, new MOrderEshopSale());
+        $result = array();
+        if (!empty($items)) {
+            $ids = array_flip($itemIds);
+            foreach ($items as $item) {
+                $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+            }
+        }
+        return $result;
     }
 
+    /**
+     * @param $prices
+     * @return mixed
+     */
+    protected function priceCalculate($prices)
+    {
+        return array_reduce($prices, function ($carry, $item) {
+            return $carry + $item;
+        }, 0);
+    }
+    
     /**
      * @param $post
      * @param $mod_id
      * @return array
      */
-    public function sold_items($post, $mod_id, $OrderModel = null)
+    public function sold_items($post, $mod_id)
     {
-        $price = function ($prices) {
-            return array_reduce($prices, function ($carry, $item) {
-                return $carry + $item;
-            }, 0);
-        };
-        /**
-         * заполняем цены товара в соответствии с данными запроса
-         *
-         * @param $items
-         * @param $itemIds
-         * @param $amounts
-         * @return array
-         */
-        $prepareItems = function ($items, $itemIds, $amounts) {
-            $result = array();
-            if (!empty($items)) {
-                $ids = array_flip($itemIds);
-                foreach ($items as $item) {
-                    $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
-                }
-            }
-            return $result;
-        };
         try {
-            $post['price'] = $price($post['amount']);
+            $post['price'] = $this->priceCalculate($post['amount']);
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
-
-            if($OrderModel !== null && method_exists($OrderModel, 'getItems')) {
-                $items = $prepareItems($OrderModel->getItems(array_values($post['item_ids'])), $post['item_ids'],
-                    $post['amount']);
-            } else {
-                $items = $prepareItems($this->Orders->getItems(array_values($post['item_ids'])), $post['item_ids'],
-                    $post['amount']);
-            }
             $client = $this->Clients->getClient($post);
-
-            // создаем заказ
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
+
+            $items = $this->prepareQuickSoldItems($this->Orders->getAvailableItems(array_values($post['item_ids'])), $post['item_ids'],
+                $post['amount']);
 
             if(!empty($items)) {
                 $this->addSpares($items, $order['id'], $mod_id);
-                $setStatus = $this->all_configs['configs']['order-status-issued'];
-            } else {
-                $this->addProducts($post['item_ids'], $order['id'], $mod_id);
-                $setStatus = $this->all_configs['configs']['order-status-waits'];
             }
-            // статус выдан
-            $status = update_order_status(array(
-                'id' => $order['id'],
-                'status' => $this->all_configs['configs']['order-status-new']
-            ), $setStatus);
-            if (empty($status) || $status['state'] != 1) {
-                if (!isset($status['closed']) || $status['closed'] == false) {
-                    throw  new ExceptionWithMsg($status && array_key_exists('msg',
-                        $status) ? $status['msg'] : l('Заказ не закрыт'));
-                }
-            }
-            $this->accountantNotification(l('Необходимо принять оплату'), $order['id'], $post['price']);
+            $this->changeOrderStatus($order, $this->all_configs['configs']['order-status-issued'], $post);
 
             $data = array(
                 'state' => true,
@@ -1525,6 +1594,7 @@ class Chains extends Object
                             'so_co' => array($order_id),
                             'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
                             'warehouse_type' => $product['warehouse_type'],
+                            'warehouse-order-count' => isset($post['count'])?$post['count']: 1
                         );
                         $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $arr);
                         if ($data['id'] > 0) {
@@ -2990,6 +3060,16 @@ class Chains extends Object
      */
     protected function addSpareOrder($post, $product, $order_id, $data)
     {
+        /**
+         * post = array(
+         * count,
+         * price,
+         * warranty,
+         * discount,
+         * confirm
+         * )
+         */
+
         $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
         $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
         $arr = array(
@@ -3006,6 +3086,8 @@ class Chains extends Object
             'url' => $product['url'],
             'foreign_warehouse' => $product['foreign_warehouse'],
             '`type`' => (int) $product['type'],
+            'warranty' => isset($post['warranty'])? $post['warranty']: 0,
+            'discount' => isset($post['discount'])? $post['discount']: 0,
         );
 
         // пытаемся добавить товар
@@ -3026,10 +3108,85 @@ class Chains extends Object
                 'confirm' => 1,
                 'order_product_id' => null,
                 'order_id' => $orderId,
-                'product_id' => $item
+                'product_id' => $item['id'],
+                'price' => $item['price'],
+                'warranty' => $item['warranty'],
+                'discount' => $item['discount'],
+                'count' => $item['count']
             );
             $this->add_product_order($post, $modId);
         }
+    }
+
+    /**
+     * @param $order
+     * @param $setStatus
+     * @param $post
+     * @throws ExceptionWithMsg
+     */
+    protected function changeOrderStatus($order, $setStatus, $post)
+    {
+        $status = update_order_status(array(
+            'id' => $order['id'],
+            'status' => $this->all_configs['configs']['order-status-new']
+        ), $setStatus);
+        if (empty($status) || $status['state'] != 1) {
+            if (!isset($status['closed']) || $status['closed'] == false) {
+                throw  new ExceptionWithMsg($status && array_key_exists('msg',
+                    $status) ? $status['msg'] : l('Заказ не закрыт'));
+            }
+        }
+        $this->accountantNotification(l('Необходимо принять оплату'), $order['id'], $post['price']);
+    }
+
+    /**
+    Array
+    (
+    [amount] => Array
+    (
+    [590] => 100
+    )
+    [discount] => Array
+    (
+    [590] => 0
+    )
+    [quantity] => Array
+    (
+    [590] => 10
+    )
+    [item_ids] => Array
+    (
+    [590] => 18
+    )
+    [warranty] => Array
+    (
+    [590] =>
+    )
+    )
+     */
+    /**
+     * @param $post
+     * @return array
+     */
+    private function prepareCartInfo($post)
+    {
+        $cart = array();
+        
+        if(!emptY($post['item_ids'])) {
+            foreach ($post['item_ids'] as $key => $item_id) {
+                if(empty($cart[$item_id])) {
+                    $cart[$item_id] = array(
+                        'quantity' =>  0,
+                        'id' => $item_id
+                    );
+                }
+                $cart[$item_id]['quantity'] += $post['quantity'][$key];
+                $cart[$item_id]['price'] = $post['amount'][$key];
+                $cart[$item_id]['warranty'] = $post['warranty'][$key];
+                $cart[$item_id]['discount'] = $post['discount'][$key];
+            }
+        }
+        return $cart;
     }
 }
 

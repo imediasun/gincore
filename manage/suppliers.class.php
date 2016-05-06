@@ -354,7 +354,6 @@ class Suppliers extends Object
             'orders' => $orders,
             'only_debit' => $only_debit,
             'only_pay' => $only_pay,
-
         ));
     }
 
@@ -1317,8 +1316,7 @@ class Suppliers extends Object
         $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
             array(intval($_POST['order_id'])));
 
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-            array($_SESSION['id'], 'remove-supplier-order', $mod_id, intval($_POST['order_id'])));
+        $this->History->save ('remove-supplier-order', $mod_id, intval($_POST['order_id']));
 
         Response::json(array('message' => 'Заказ успешно удален'));
     }
@@ -1440,8 +1438,7 @@ class Suppliers extends Object
             ));
 
         // история
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-            array($_SESSION['id'], 'accept-supplier-order', $mod_id, intval($_POST['order_id'])));
+        $this->History->save('accept-supplier-order', $mod_id, intval($_POST['order_id']));
 
         $cos_id = $this->all_configs['db']->query(
             'SELECT id, client_order_id FROM {orders_suppliers_clients} WHERE supplier_order_id=?i AND goods_id=?i',
@@ -1651,9 +1648,7 @@ class Suppliers extends Object
     function debit_order($post, $mod_id)
     {
         if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') && $this->all_configs['configs']['erp-use'] == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('msg' => 'У Вас недостаточно прав', 'state' => false));
-            exit;
+            Response::json(array('msg' => 'У Вас недостаточно прав', 'state' => false));
         }
 
         $order_id = isset($post['order_id']) ? intval($post['order_id']) : 0;
@@ -1669,30 +1664,22 @@ class Suppliers extends Object
         $print = isset($post['print']) ? (array)$post['print'] : array();
 
         if (count($serials) == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array(
+            Response::json(array(
                 'msg' => 'Ведите серийный номер или установите галочку сгенерировать',
                 'state' => false
             ));
-            exit;
         }
 
         if (!$order || $order['count_come'] - $order['count_debit'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('msg' => 'Заказ уже полностю приходован', 'state' => false));
-            exit;
+            Response::json(array('msg' => 'Заказ уже полностю приходован', 'state' => false));
         }
 
         if ($order['supplier'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('msg' => 'У заказа не найден поставщик', 'state' => false));
-            exit;
+            Response::json(array('msg' => 'У заказа не найден поставщик', 'state' => false));
         }
 
         if ($order['avail'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('msg' => 'Заказ отменен', 'state' => false));
-            exit;
+            Response::json(array('msg' => 'Заказ отменен', 'state' => false));
         }
 
         $clear_serials = array_filter($serials);
@@ -1701,16 +1688,12 @@ class Suppliers extends Object
                 'SELECT GROUP_CONCAT(serial) FROM {warehouses_goods_items} WHERE serial IN (?li)',
                 array($clear_serials))->el();
             if ($s) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('msg' => 'Серийники уже используются: ' . $s, 'state' => false));
-                exit;
+                Response::json(array('msg' => 'Серийники уже используются: ' . $s, 'state' => false));
             }
         }
 
         if (count($clear_serials) + count($auto) != $order['count_come']) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('msg' => 'Частичное приходование запрещено', 'state' => false));
-            exit;
+            Response::json(array('msg' => 'Частичное приходование запрещено', 'state' => false));
         }
 
         $html = '';
@@ -1788,9 +1771,7 @@ class Suppliers extends Object
                 }
             }
             // обновляем количество в заказе поставщику
-            $this->all_configs['db']->query(
-                'UPDATE {contractors_suppliers_orders} SET count_debit=count_debit+?i WHERE id=?i',
-                array(count($debit_items), $order['id']));
+            $this->ContractorsSuppliersOrders->increase('count_debit', count($debit_items), array('id' => $order['id']));
             // обновление цены закупки в товаре
             $this->all_configs['db']->query('UPDATE {goods} SET price_purchase=?i WHERE id=?i',
                 array($order['price'], $order['goods_id']));
@@ -1805,9 +1786,7 @@ class Suppliers extends Object
         // пробуем закрыть заказ
         $this->close_order($order_id, $mod_id);
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('result' => $msg, 'print_link' => $print_link, 'html' => $html));
-        exit;
+        Response::json(array('result' => $msg, 'print_link' => $print_link, 'html' => $html));
     }
 
     /**
@@ -1870,8 +1849,7 @@ class Suppliers extends Object
             );
 
             // история
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($_SESSION['id'], 'debit-supplier-order', $mod_id, intval($order['id'])));
+            $this->History->save ('debit-supplier-order', $mod_id, intval($order['id']));
         }
 
         return $item_id;

@@ -124,7 +124,7 @@ class MOrders extends AModel
      * @throws ExceptionWithMsg
      * @throws ExceptionWithURL
      */
-    public function getItems($itemIds)
+    public function getAvailableItems($itemIds)
     {
         $items = $this->Warehouses->getAvailableItems($itemIds);
         // изделий не найдено

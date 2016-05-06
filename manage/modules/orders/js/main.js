@@ -93,7 +93,7 @@ function eshop_sale(_this, item) {
                 if (msg['location']) {
                     window.location = msg['location'];
                 }
-
+            
                 $(_this).button('reset');
             }
         }
@@ -811,8 +811,8 @@ function add_eshop_item_to_table() {
         $clone.find('.js-eshop-item-name').first().val(title).attr('title', title);
         $clone.find('input.js-eshop-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
         $clone.find('select.js-eshop-warranty').first().attr('name', 'warranty[' + rnd + ']');
-        $clone.find('.js-eshop-sum').first().val(cost).attr('name', 'amount[' + rnd + ']');
-        $clone.find('.js-eshop-price').first().val(price).attr('name', 'price[' + rnd + ']');
+        $clone.find('.js-eshop-sum').first().val(cost).attr('name', 'sum[' + rnd + ']');
+        $clone.find('.js-eshop-price').first().val(price).attr('name', 'amount[' + rnd + ']');
         $clone.find('.js-eshop-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']');
         $clone.find('.js-eshop-discount').first().val(discount).attr('name', 'discount[' + rnd + ']');
         $('#eshop_sale_poduct_cost').val('');
