@@ -39,9 +39,8 @@ class MOrdersGoods extends AModel
         }
         // поменять статус заказа с ожидает запчастей на принят в ремонт
         // если запчастей все запчасти отвязаны c заказа
-        $orders_goods = $this->query("SELECT count(*) "
-            . "FROM ?t "
-            . "WHERE order_id = ?i", array($this->table, $order['id']), 'el');
+        $orders_goods = $this->query("SELECT count(*) FROM ?t WHERE order_id = ?i", array($this->table, $order['id']),
+            'el');
         if (!$orders_goods) {
             update_order_status($order, $this->all_configs['configs']['order-status-new']);
             $data['reload'] = 1;
@@ -79,6 +78,7 @@ class MOrdersGoods extends AModel
             'last_item_id',
             'unbind_request',
             'warehouse_type',
+            'warranty'
         );
     }
 }

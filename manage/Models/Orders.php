@@ -41,16 +41,6 @@ class MOrders extends AModel
     }
 
     /**
-     * @param $orderId
-     * @return \go\DB\Result
-     */
-    public function getById($orderId)
-    {
-        return $this->query("SELECT * FROM ?t WHERE id = ?i", array($this->table, $orderId), 'row');
-        
-    }
-
-    /**
      * @param $order
      * @param $modId
      * @return mixed

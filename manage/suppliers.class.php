@@ -1,7 +1,15 @@
 <?php
 
-require_once __DIR__.'/Core/View.php';
-class Suppliers
+require_once __DIR__ . '/Core/View.php';
+require_once __DIR__ . '/Core/Object.php';
+require_once __DIR__ . '/Core/Response.php';
+
+/**
+ * @property MGoods                      Goods
+ * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
+ * @property MHistory     History
+ */
+class Suppliers extends Object
 {
     protected $all_configs;
 
@@ -9,8 +17,13 @@ class Suppliers
 
     public $currency_suppliers_orders; // валюта заказов поставщикам
     public $currency_clients_orders; // валюта заказов клиентов
-    /** @var View  */
+    /** @var View */
     protected $view;
+    public $uses = array(
+        'Goods',
+        'ContractorsSuppliersOrders',
+        'History'
+    );
 
     /**
      * Suppliers constructor.
@@ -23,11 +36,8 @@ class Suppliers
         $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
         $this->currencies = $this->all_configs['configs']['currencies'];
         $currencies = $this->currencies;
-//        foreach ($currencies as $k=>$currency) {
-//            if ($currency['currency-name'] == $this->all_configs['configs']['default-currency']) {
-                $this->currency_clients_orders = $this->all_configs['settings']['currency_orders'];
-//            }
-//        }
+        $this->currency_clients_orders = $this->all_configs['settings']['currency_orders'];
+        $this->applyUses();
     }
 
     /**
@@ -41,7 +51,7 @@ class Suppliers
 
         $count = isset($post['warehouse-order-count']) && $post['warehouse-order-count'] > 0 ? $post['warehouse-order-count'] : 1;
         $supplier = isset($post['warehouse-supplier']) && $post['warehouse-supplier'] > 0 ? $post['warehouse-supplier'] : null;
-        $date = 86399+strtotime(isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y"));
+        $date = 86399 + strtotime(isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y"));
         $price = isset($post['warehouse-order-price']) ? intval($post['warehouse-order-price'] * 100) : 0;
         $comment = isset($post['comment-supplier']) ? $post['comment-supplier'] : '';
         $orders = isset($post['so_co']) && is_array($post['so_co']) ? array_filter(array_unique($post['so_co'])) : array();
@@ -50,92 +60,76 @@ class Suppliers
         //$order['sum_paid'] == 0 && $order['count_debit'] != $order['count_come']
         $warehouse = isset($post['warehouse']) && $post['warehouse'] > 0 ? $post['warehouse'] : null;
         $location = isset($post['location']) && $post['location'] > 0 ? $post['location'] : null;
-        $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']), 'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
+        $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']),
+            'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
         $warehouse_type = isset($post['warehouse_type']) ? intval($post['warehouse_type']) : 0;
         $its_warehouse = null;
         $links = array();
 
         // достаем заказ
         // достаем заказ поставщику
-        /*$so = $this->all_configs['db']->query('SELECT o.*, g.title, g.type
-                FROM {contractors_suppliers_orders} as o, {goods} as g WHERE o.id=?i AND g.id=o.goods_id',
-            array($so_id))->row();*/
-        $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
-            array($order_id))->row();
+        $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
         $user_id = $supplier && $order && $order['user_id'] == 0 ? $_SESSION['id'] : ($order['user_id'] > 0 ? $order['user_id'] : null);
         // достаем товар
-        $product = $this->all_configs['db']->query('SELECT * FROM {goods} WHERE id=?i', array($product_id))->row();
+        $product = $this->Goods->getByPk($product_id);
 
-        if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            $data['state'] = false;
-            $data['msg'] = 'У Вас нет прав';
-        }
-        if ($data['state'] == true && !$product) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите деталь';
-        }
-        if ($data['state'] == true && !$order) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ не найден';
-        }
-        /*// проверяем доступ
-        if (($order['user_id'] == $_SESSION['id'] && $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
-                && $order['sum_paid'] == 0 && $order['count_come'] == 0 && $order['confirm'] != 1) ||
-                ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] != 1) ) {
-        }*/
-        if ($data['state'] == true && $order['confirm'] == 1) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ закрыт';
-        }
-        if ($order['avail'] == 0) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ отменен';
-        }
-        if ($data['state'] == true && $product['type'] == 1) {
-            $data['state'] = false;
-            $data['msg'] = 'На услугу заказ создать нельзя';
-        }
-        if ($data['state'] == true && count($orders) > $count) {
-            $data['state'] = false;
-            $data['msg'] = 'Ремонтов не может быть больше чем количество в заказе';
-        }
-        // проверка на создание заказа с ценой 0
-        if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите цену больше 0';
-        }
+        try {
+            if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
+                throw new ExceptionWithMsg(l('У Вас нет прав'));
+            }
+            if (!$product) {
+                throw new ExceptionWithMsg(l('Укажите деталь'));
+            }
+            if (!$order) {
+                throw new ExceptionWithMsg(l('Заказ не найден'));
+            }
+            if ($order['confirm'] == 1) {
+                throw new ExceptionWithMsg(l('Заказ закрыт'));
+            }
+            if ($order['avail'] == 0) {
+                throw new ExceptionWithMsg(l('Заказ отменен'));
+            }
+            if ($product['type'] == 1) {
+                throw new ExceptionWithMsg(l('На услугу заказ создать нельзя'));
+            }
+            if (count($orders) > $count) {
+                throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
+            }
+            // проверка на создание заказа с ценой 0
+            if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
+                throw new ExceptionWithMsg(l('Укажите цену больше 0'));
+            }
 
-        if ($data['state'] == true) {
             // редактируем заказ
             try {
-                $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET price=?i, date_wait=?, supplier=?n,
-                    its_warehouse=?n, goods_id=?i, user_id=?n, count=?i, comment=?, wh_id=?n, location_id=?n, num=?n, warehouse_type=?i WHERE id=?i',
-                    array($price, date("Y-m-d H:i:s", $date), $supplier, $its_warehouse, $product_id,
-                        $user_id, $count, $comment, $warehouse, $location, $num, $warehouse_type, $order_id));
-            } catch(Exception $e) {
-                $data['state'] = false;
-                $data['msg'] = 'Заказ с таким номером уже существует';
+                $this->ContractorsSuppliersOrders->update(array(
+                    'price' => $price,
+                    'date_wait' => date("Y-m-d H:i:s", $date),
+                    'supplier' => $supplier,
+                    'its_warehouse' => $its_warehouse,
+                    'goods_id' => $product_id,
+                    'user_id' => $user_id,
+                    '`count`' => $count,
+                    'comment' => $comment,
+                    'wh_id' => $warehouse,
+                    'location_id' => $location,
+                    'num' => $num,
+                    'warehouse_type' => $warehouse_type,
+                ), array('id' => $order_id));
+            } catch (Exception $e) {
+                throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
             }
-            if ($data['state'] == true) {
-                $this->exportSupplierOrder($order_id, 3);
+            $this->exportSupplierOrder($order_id, 3);
 
-                // обновляем дату поставки товара
-                $this->all_configs['manageModel']->update_product_wait($product);
-                // история
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($_SESSION['id'], 'edit-warehouse-order', $mod_id, $order_id));
-            }
-        }
+            // обновляем дату поставки товара
+            $this->all_configs['manageModel']->update_product_wait($product);
+            $this->History->save('edit-warehouse-order', $mod_id, $order_id);
 
-        if ($data['state'] == true) {
             // связь между заказами
             $result = $this->orders_link($order_id, $orders, intval($order['supplier']));
 
             if (!isset($result['state']) || $result['state'] == false) {
-                $data['msg'] = isset($result['msg']) ? $result['msg'] : 'Заявка уже создана';
-                $data['state'] = false;
-            } else {
-                $links = $result['links'];
+                throw new ExceptionWithMsg(isset($result['msg']) ? $result['msg'] : l('Заявка уже создан'));
             }
 
             // Уведомлять менеджера, который ответственный за ремонт о том что сроки поставки запчасти изменились
@@ -143,7 +137,7 @@ class Suppliers
                 include_once $this->all_configs['sitepath'] . 'mail.php';
                 $messages = new Mailer($this->all_configs);
 
-                foreach($result['links'] as $link) {
+                foreach ($result['links'] as $link) {
                     if (isset($link['id']) && $link['id'] > 0 && isset($link['manager']) && $link['manager'] > 0) {
                         $href = $this->all_configs['prefix'] . 'orders/create/' . $link['id'];
                         $content = 'Сроки поставки запчасти "' . htmlspecialchars($link['title']) . '" заказа <a href="' . $href . '">№' . $link['id'] . '</a> изменились';
@@ -154,6 +148,12 @@ class Suppliers
 
             // сообщение что типа сохранено
             $_SESSION['suppliers_edit_order_msg'] = 'Сохранено успешно';
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage(),
+                'msg' => $e->getMessage(),
+            );
         }
 
         return $data;
@@ -164,7 +164,7 @@ class Suppliers
      * @param $post
      * @return array
      */
-    function create_order($mod_id, $post)
+    public function create_order($mod_id, $post)
     {
         $data = array('state' => true, 'id' => 0);
 
@@ -178,77 +178,69 @@ class Suppliers
         $orders = isset($post['so_co']) && is_array($post['so_co']) ? array_filter(array_unique($post['so_co'])) : array();
         $product_id = isset($post['goods-goods']) ? $post['goods-goods'] : 0;
         $its_warehouse = $group_parent_id = null;
-        $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']), 'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
+        $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']),
+            'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
 
         // достаем товар
-        $product = $this->all_configs['db']->query('SELECT * FROM {goods} WHERE id=?i', array($product_id))->row();
+        $product = $this->Goods->getByPk($product_id);
 
-        //if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-        //    $data['state'] = false;
-        //    $data['msg'] = 'У Вас нет прав';
-        //}
-        if ($data['state'] == true && !$product) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите деталь';
-        }
-        if ($data['state'] == true && $product['type'] == 1) {
-            $data['state'] = false;
-            $data['msg'] = 'На услугу заказ создать нельзя';
-        }
-        if ($data['state'] == true && count($orders) > $count) {
-            $data['state'] = false;
-            $data['msg'] = 'Ремонтов не может быть больше чем количество в заказе';
-        }
-        // проверка на создание заказа с ценой 0
-        if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите цену больше 0';
-        }
-
-        if ($data['state'] == true && $product) {
-            // создаем заказ
-            try {
-                $id = $this->all_configs['db']->query('INSERT INTO {contractors_suppliers_orders}
-                        (price, date_wait, supplier, its_warehouse, goods_id, user_id, count, comment, group_parent_id, num, warehouse_type)
-                        VALUES (?i, ?, ?n, ?n, ?i, ?n, ?i, ?, ?n, ?n, ?i)',
-                    array($price, date("Y-m-d H:i:s", 86399 + strtotime($date)), $supplier, $its_warehouse,
-                        $product_id, $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type), 'id');
-                FlashMessage::set(l('Заказ успешно создан'));
-            } catch (Exception $e) {
-                $data['state'] = false;
-                $data['msg'] = 'Заказ с таким номером уже существует';
-                $id = 0;
+        try {
+            if (!$product) {
+                throw new ExceptionWithMsg(l('Укажите деталь'));
             }
-            if ($data['state'] == true && $id > 0) {
-                /*if ($num == 0) {
-                    try {
-                        $this->all_configs['db']->query(
-                            'UPDATE {contractors_suppliers_orders} SET num=?i WHERE id=?i', array($id, $id));
-                    } catch(Exception $e) {}
-                }*/
-                $data['id'] = $id;
-                $data['state'] = true;
-                /*if ($group_parent_id === null) {
-                    $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders}
-                            SET group_parent_id=?i WHERE id=?i', array($id, $id));
-                    $group_parent_id = $id;
+            if ($product['type'] == 1) {
+                throw new ExceptionWithMsg(l('На услугу заказ создать нельзя'));
+            }
+            if (count($orders) > $count) {
+                throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
+            }
+            // проверка на создание заказа с ценой 0
+            if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
+                throw new ExceptionWithMsg(l('Укажите цену больше 0'));
+            }
+
+            if ($product) {
+                // создаем заказ
+                try {
+                    $id = $this->ContractorsSuppliersOrders->insert(array(
+                        'price' => $price,
+                        'date_wait' => date("Y-m-d H:i:s", 86399 + strtotime($date)),
+                        'supplier' => $supplier,
+                        'its_warehouse' => $its_warehouse,
+                        'goods_id' => $product_id,
+                        'user_id' => $user_id,
+                        '`count`' => $count,
+                        'comment' => $comment,
+                        'group_parent_id' => $group_parent_id,
+                        'num' => $num,
+                        'warehouse_type' => $warehouse_type
+                    ));
+                    FlashMessage::set(l('Заказ успешно создан'));
+                } catch (Exception $e) {
+                    throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
                 }
+                if ($id > 0) {
+                    $data['id'] = $id;
+                    $data['state'] = true;
 
-                $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET parent_id=?i WHERE id=?i',
-                    array($id, $id));*/
+                    // обновляем дату поставки товара
+                    $this->all_configs['manageModel']->update_product_wait($product_id);
 
-                // обновляем дату поставки товара
-                $this->all_configs['manageModel']->update_product_wait($product_id);
+                    // связь между заказами
+                    $this->orders_link($id, $orders);
 
-                // связь между заказами
-                $this->orders_link($id, $orders);
+                    $this->History->save('add-warehouse-order', $mod_id, intval($id));
 
-                // изменения
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($_SESSION['id'], 'add-warehouse-order', $mod_id, intval($id)));
-
-                $this->buildESO($id);
+                    $this->buildESO($id);
+                }
             }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage(),
+                'msg' => $e->getMessage(),
+            );
+
         }
 
         return $data;
@@ -283,7 +275,6 @@ class Suppliers
             // смс
             if (isset($order['notify']) && $order['notify'] == 1 && $private == 0) {
                 $data = send_sms($order['phone'], $text);
-                //$return['msg'] = $result['msg'];
             }
         }
 
@@ -293,12 +284,14 @@ class Suppliers
     /**
      * @return string
      */
-    function show_filter_service_center(){
-        $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id', array())->assoc();
+    function show_filter_service_center()
+    {
+        $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id',
+            array())->assoc();
         $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> ';
         $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
         $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) :
-                  (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());
+            (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());
         foreach ($wh_groups as $wh_group) {
             $orders_html .= '<option ' . ($wg_get && in_array($wh_group['id'], $wg_get) ? 'selected' : '');
             $orders_html .= ' value="' . $wh_group['id'] . '">' . $wh_group['name'] . '</option>';
@@ -314,20 +307,25 @@ class Suppliers
      * @param string $hash
      * @return string
      */
-    function show_filters_suppliers_orders($show_my = false ,$show_nav = true,$inner_wrapper = true,$hash='show_suppliers_orders')
-    {
+    function show_filters_suppliers_orders(
+        $show_my = false,
+        $show_nav = true,
+        $inner_wrapper = true,
+        $hash = 'show_suppliers_orders'
+    ) {
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : '')
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : '');
 
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}', array())->el();
-        $query = !array_key_exists('manage-qty-so-only-debit', $this->all_configs['configs']) || $this->all_configs['configs']['manage-qty-so-only-debit'] == false ? 'confirm=0' : 'count_come<>count_debit AND count_come > 0';
+        $query = !array_key_exists('manage-qty-so-only-debit',
+            $this->all_configs['configs']) || $this->all_configs['configs']['manage-qty-so-only-debit'] == false ? 'confirm=0' : 'count_come<>count_debit AND count_come > 0';
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {contractors_suppliers_orders}
             WHERE ?query', array($query))->el();
         $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
             WHERE user_id=?i AND type=?', array($_SESSION['id'], 'so'))->el();
-            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
-                array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
+        $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
+            array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
 
         return $this->view->renderFile('suppliers.class/show_filters_suppliers_orders', array(
             'show_my' => $show_my,
@@ -338,7 +336,7 @@ class Suppliers
             'count' => $count,
             'count_marked' => $count_marked,
             'count_unworked' => $count_unworked,
-            'date' => $date, 
+            'date' => $date,
             'hash' => $hash
         ));
     }
@@ -356,7 +354,7 @@ class Suppliers
             'orders' => $orders,
             'only_debit' => $only_debit,
             'only_pay' => $only_pay,
-            
+
         ));
     }
 
@@ -510,32 +508,31 @@ class Suppliers
         $data['content'] = '<h5 class="text-danger">Заказ не найден</h5>';
 
         if ($order_id > 0) {
-            $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
-                array($order_id))->row();
+            $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
 
             if ($order) {
-                $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="'.l('Сохранить').'" />';
+                $data['btns'] = '<input onclick="orders_link(this, \'.btn-open-orders-link-' . $order_id . '\')" class="btn" type="button" value="' . l('Сохранить') . '" />';
 
-                $data['content'] = '<h6>' . l('Ремонты ожидающие данную запчасть') . '</h6>';
-                $data['content'] .= '<form id="form-orders-links" method="post">';
-                $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
 
                 // звязки заказов
                 $clients_orders = (array)$this->all_configs['db']->query(
                     'SELECT id, client_order_id FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
                     array($order_id))->vars();
 
+                $data['content'] = '<h6>' . l('Ремонты ожидающие данную запчасть') . '</h6>';
+                $data['content'] .= '<form id="form-orders-links" method="post">';
+                $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
                 $data['content'] .= '<div class="form-group"><label class="control-label">' . l('Номер ремонта') . ': </label>';
                 for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
                     $co_id = current($clients_orders);
                     $data['content'] .= '
-                        <div class="'.($co_id ? 'input-group ' : '').'form-group">
+                        <div class="' . ($co_id ? 'input-group ' : '') . 'form-group">
                             <input class="clone_clear_val form-control" type="text" value="' . $co_id . '" name="so_co[]">
-                            '.($co_id ? '
+                            ' . ($co_id ? '
                                 <span class="input-group-addon">
-                                    <a target="_blank" href="'.$this->all_configs['prefix'].'orders/create/'.$co_id.'">' . l('перейти в заказ клиента') . '</a>
+                                    <a target="_blank" href="' . $this->all_configs['prefix'] . 'orders/create/' . $co_id . '">' . l('перейти в заказ клиента') . '</a>
                                 </span>'
-                              : '').'
+                            : '') . '
                         </div>
                     ';
                     next($clients_orders);
@@ -544,9 +541,7 @@ class Suppliers
             }
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
     }
 
     /**
@@ -563,61 +558,64 @@ class Suppliers
     function exportProduct($product)
     {
 
-        if ($this->all_configs['configs']['onec-use'] == false)
+        if ($this->all_configs['configs']['onec-use'] == false) {
             return;
+        }
 
-        if (array_key_exists('rounding-goods', $this->all_configs['configs']) && $this->all_configs['configs']['rounding-goods'] > 0) {
-            $sum1 = round((($product['price']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
-            $sum2 = round((($product['price_purchase']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
-            $sum3 = round((($product['price_wholesale']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100))/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
+        if (array_key_exists('rounding-goods',
+                $this->all_configs['configs']) && $this->all_configs['configs']['rounding-goods'] > 0
+        ) {
+            $sum1 = round((($product['price'] / 100) * (getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100)) / $this->all_configs['configs']['rounding-goods']) * $this->all_configs['configs']['rounding-goods'];
+            $sum2 = round((($product['price_purchase'] / 100) * (getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100)) / $this->all_configs['configs']['rounding-goods']) * $this->all_configs['configs']['rounding-goods'];
+            $sum3 = round((($product['price_wholesale'] / 100) * (getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100)) / $this->all_configs['configs']['rounding-goods']) * $this->all_configs['configs']['rounding-goods'];
         } else {
-            $sum1 = round(($product['price']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])))/100;
-            $sum2 = round(($product['price_purchase']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])))/100;
-            $sum3 = round(($product['price_wholesale']/100)*(getCourse($this->all_configs['settings']['currency_suppliers_orders'])))/100;
+            $sum1 = round(($product['price'] / 100) * (getCourse($this->all_configs['settings']['currency_suppliers_orders']))) / 100;
+            $sum2 = round(($product['price_purchase'] / 100) * (getCourse($this->all_configs['settings']['currency_suppliers_orders']))) / 100;
+            $sum3 = round(($product['price_wholesale'] / 100) * (getCourse($this->all_configs['settings']['currency_suppliers_orders']))) / 100;
         }
 
         $doc = array(
-            'Предложения'  =>   array(
-                'Предложение'   =>  array(
-                    'Ид'            =>  $product['code_1c'],
-                    'Штрихкод'      =>  $product['barcode'],
-                    'Наименование'  =>  $product['title'],
-                    'Цены'          => array(
-                        0   =>  array(
-                            'Цена'          => array(
-                                'Представление' =>  $sum1 . ' '.viewCurrency().' за шт',
-                                'ИдТипаЦены'    =>  $this->all_configs['configs']['onec-code-price'],
-                                'ЦенаЗаЕдиницу' =>  $sum1,
-                                'Валюта'        =>  ''.viewCurrency().'',
-                                'Единица'       =>  'шт',
-                                'Коэффициент'   =>  1,
-                                'Курс'          =>  (getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100),
+            'Предложения' => array(
+                'Предложение' => array(
+                    'Ид' => $product['code_1c'],
+                    'Штрихкод' => $product['barcode'],
+                    'Наименование' => $product['title'],
+                    'Цены' => array(
+                        0 => array(
+                            'Цена' => array(
+                                'Представление' => $sum1 . ' ' . viewCurrency() . ' за шт',
+                                'ИдТипаЦены' => $this->all_configs['configs']['onec-code-price'],
+                                'ЦенаЗаЕдиницу' => $sum1,
+                                'Валюта' => '' . viewCurrency() . '',
+                                'Единица' => 'шт',
+                                'Коэффициент' => 1,
+                                'Курс' => (getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100),
                             ),
                         ),
-                        1   =>  array(
-                            'Цена'          => array(
-                                'Представление' =>  $sum2 . ' '.viewCurrency().' за шт',
-                                'ИдТипаЦены'    =>  $this->all_configs['configs']['onec-code-price_purchase'],
-                                'ЦенаЗаЕдиницу' =>  $sum2,
-                                'Валюта'        =>  ''.viewCurrency().'',
-                                'Единица'       =>  'шт',
-                                'Коэффициент'   =>  1,
-                                'Курс'          =>  (getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100),
+                        1 => array(
+                            'Цена' => array(
+                                'Представление' => $sum2 . ' ' . viewCurrency() . ' за шт',
+                                'ИдТипаЦены' => $this->all_configs['configs']['onec-code-price_purchase'],
+                                'ЦенаЗаЕдиницу' => $sum2,
+                                'Валюта' => '' . viewCurrency() . '',
+                                'Единица' => 'шт',
+                                'Коэффициент' => 1,
+                                'Курс' => (getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100),
                             ),
                         ),
-                        2   =>  array(
-                            'Цена'          => array(
-                                'Представление' =>  $sum3 . ' '.viewCurrency().' за шт',
-                                'ИдТипаЦены'    =>  $this->all_configs['configs']['onec-code-price_wholesale'],
-                                'ЦенаЗаЕдиницу' =>  $sum3,
-                                'Валюта'        =>  ''.viewCurrency().'',
-                                'Единица'       =>  'шт',
-                                'Коэффициент'   =>  1,
-                                'Курс'          =>  (getCourse($this->all_configs['settings']['currency_suppliers_orders'])/100),
+                        2 => array(
+                            'Цена' => array(
+                                'Представление' => $sum3 . ' ' . viewCurrency() . ' за шт',
+                                'ИдТипаЦены' => $this->all_configs['configs']['onec-code-price_wholesale'],
+                                'ЦенаЗаЕдиницу' => $sum3,
+                                'Валюта' => '' . viewCurrency() . '',
+                                'Единица' => 'шт',
+                                'Коэффициент' => 1,
+                                'Курс' => (getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100),
                             ),
                         ),
                     ),
-                    'Количество'    =>  $product['exist'],
+                    'Количество' => $product['exist'],
                 )
             )
         );
@@ -625,30 +623,32 @@ class Suppliers
         $xml = $this->assocArrayToXML($doc);
 
         $f = fopen($this->all_configs['sitepath'] . '1c/goods/offers_' . $product['id'] . '.xml', 'w+');
-        fwrite($f, "\xEF\xBB\xBF" .$xml);
+        fwrite($f, "\xEF\xBB\xBF" . $xml);
         fclose($f);
 
         $doc = array(
-            'Предложения'  =>   array(
-                'Предложение'   =>  array(
-                    "Ид"                    =>  $product['code_1c'],
-                    "Артикул"               =>  $product['article'],
-                    "Наименование"          =>  $product['title'],
-                    "БазоваяЕдиница"        =>  "шт",
-                    "ПолноеНаименование"    =>  $product['title'],
-                    'Описание'              =>  $product['content'],
+            'Предложения' => array(
+                'Предложение' => array(
+                    "Ид" => $product['code_1c'],
+                    "Артикул" => $product['article'],
+                    "Наименование" => $product['title'],
+                    "БазоваяЕдиница" => "шт",
+                    "ПолноеНаименование" => $product['title'],
+                    'Описание' => $product['content'],
                 )
             ),
         );
-        if ( $product['avail'] != 1 )
+        if ($product['avail'] != 1) {
             $doc['Предложения']['Предложение']['Статус'] = "Удален";
-        if ( isset($product['hotline_url']) )
+        }
+        if (isset($product['hotline_url'])) {
             $doc['Предложения']['Предложение']["ЗначенияСвойств"] = array(
-                "ЗначенияСвойства"          =>  array(
-                    "Ид"                        =>  $this->all_configs['configs']['onec-code-hotline'],
-                    "Значение"                  =>  $product['hotline_url'],
+                "ЗначенияСвойства" => array(
+                    "Ид" => $this->all_configs['configs']['onec-code-hotline'],
+                    "Значение" => $product['hotline_url'],
                 )
             );
+        }
 
 
         $xml = $this->assocArrayToXML($doc);
@@ -667,14 +667,16 @@ class Suppliers
     {
         $out = '';
         $wh_id = array_filter(is_array($wh_id) ? $wh_id : explode(',', $wh_id));
-        $location_id = $location_id ? (array_filter(is_array($location_id) ? $location_id : explode(',', $location_id))) : array();
+        $location_id = $location_id ? (array_filter(is_array($location_id) ? $location_id : explode(',',
+            $location_id))) : array();
 
         if (count($wh_id) > 0) {
             $locations = $this->all_configs['db']->query(
                 'SELECT id, location FROM {warehouses_locations} WHERE wh_id IN (?li)', array($wh_id))->vars();
             if ($locations) {
-                foreach ($locations as $id=>$location) {
-                    $out .= '<option ' . (in_array($id, $location_id) ? 'selected' : '') . ' value="' . $id . '">' . htmlspecialchars($location) . '</option>';
+                foreach ($locations as $id => $location) {
+                    $out .= '<option ' . (in_array($id,
+                            $location_id) ? 'selected' : '') . ' value="' . $id . '">' . htmlspecialchars($location) . '</option>';
                 }
             }
         }
@@ -696,50 +698,51 @@ class Suppliers
         $new_supplier_form = '<div id="new_supplier_form" class="typeahead_add_form_box theme_bg new_supplier_form p-md"></div>';
         $suppliers = null;
         if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
-                && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0) {
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
             $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
         $goods_html = '';
-        if(isset($_SESSION['suppliers_edit_order_msg'])){
+        if (isset($_SESSION['suppliers_edit_order_msg'])) {
             $goods_html .=
                 '<div class="alert alert-success alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    '.$_SESSION['suppliers_edit_order_msg'].'
+                    ' . $_SESSION['suppliers_edit_order_msg'] . '
                 </div>
             ';
             unset($_SESSION['suppliers_edit_order_msg']);
         }
-        if($order_id){
-            $goods_html .= '<h3>' . l('Редактирование заказа поставщику') . ' №'.$order_id.'</h3>';
-        }else{
+        if ($order_id) {
+            $goods_html .= '<h3>' . l('Редактирование заказа поставщику') . ' №' . $order_id . '</h3>';
+        } else {
             $goods_html .= '<h3>' . l('Создание нового заказа поставщику') . '</h3>';
         }
-        $goods_html .= '<br><div class="row row-15"><div class="col-sm-'.($is_modal ? '12' : '6').'"><form data-validate="parsley" id="suppliers-order-form" method="post">';
+        $goods_html .= '<br><div class="row row-15"><div class="col-sm-' . ($is_modal ? '12' : '6') . '"><form data-validate="parsley" id="suppliers-order-form" method="post">';
         $disabled = '';
         $info_html = '';
         $so_co = '<div class="relative"><input type="text" name="so_co[]" class="form-control clone_clear_val" /><i class="glyphicon glyphicon-plus cloneAndClear"></i></div>';
         $has_orders = false;
         if ($suppliers) {
             $order = array(
-                'price'     =>  '',
-                'count'     =>  '',
-                'date_wait' =>  '',//date("d.m.Y"),
-                'supplier'  =>  '',
-                'goods_id'  =>  '',
-                'title'     =>  'Создать заказ',
-                'btn'       =>  '<input type="button" class="btn submit-from-btn" onclick="create_supplier_order(this)" value="' . l('Создать') . '" />',
-                'product'   =>  '',
-                'comment'   =>  '',
+                'price' => '',
+                'count' => '',
+                'date_wait' => '',//date("d.m.Y"),
+                'supplier' => '',
+                'goods_id' => '',
+                'title' => 'Создать заказ',
+                'btn' => '<input type="button" class="btn submit-from-btn" onclick="create_supplier_order(this)" value="' . l('Создать') . '" />',
+                'product' => '',
+                'comment' => '',
                 'unavailable' => 0,
-                'location'  => '',
-                'id'        => '',
-                'num'       => '',
-                'avail'     => 1,
-                'warehouse_type'=> 0,
+                'location' => '',
+                'id' => '',
+                'num' => '',
+                'avail' => 1,
+                'warehouse_type' => 0,
             );
-            if ( $order_id ) {
+            if ($order_id) {
                 $order = $this->all_configs['db']->query('SELECT o.id, o.price, o.`count`, o.date_wait, o.supplier, o.location_id,
                       o.goods_id, o.comment, o.user_id, o.sum_paid, o.count_come, o.count_debit, u.email, u.fio, o.avail,
                       u.login, o.wh_id, w.title as wh_title, o.confirm, o.sum_paid, o.unavailable, l.location, o.num,
@@ -754,7 +757,7 @@ class Suppliers
                     $so_co = '';
                     $cos = (array)$this->all_configs['db']->query('SELECT id, client_order_id FROM {orders_suppliers_clients}
                         WHERE supplier_order_id=?i', array($order_id))->vars();
-                    if($cos){
+                    if ($cos) {
                         $has_orders = true;
                     }
                     for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
@@ -762,23 +765,26 @@ class Suppliers
                         $so_co .= '<input type="text" name="so_co[]" readonly class="form-control" value="' . $co . '" />';
                         next($cos);
                     }
-                    $order['title']     =  'Редактировать заказ';
-                    $order['date_wait']  =  date("d.m.Y", strtotime($order['date_wait']));
-                    $order['price']    /=  100;
-                    if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/*$order['user_id'] == $_SESSION['id'] &&*/ $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                        $order['btn']   =  '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="'.l('Сохранить').'" />';
+                    $order['title'] = 'Редактировать заказ';
+                    $order['date_wait'] = date("d.m.Y", strtotime($order['date_wait']));
+                    $order['price'] /= 100;
+                    if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/*$order['user_id'] == $_SESSION['id'] &&*/
+                                $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))
+                    ) {
+                        $order['btn'] = '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="' . l('Сохранить') . '" />';
                         //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-primary" onclick="close_supplier_order(this, \'' . $order_id . '\')" value="Закрыть" />';
                         //$order['btn']  .=  ' <input type="button" class="btn btn-mini btn-danger" onclick="remove_supplier_order(this, \'' . $order_id . '\')" value="' . l(value='" . l('Удалить') . "') . '" />';
-                        $order['btn']  .=  ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="Отменить" />';
-                        $order['btn']  .=  ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="Запчасть не доступна к заказу" />';
+                        $order['btn'] .= ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="Отменить" />';
+                        $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="Запчасть не доступна к заказу" />';
                     } else {
-                        $order['btn']   =  '';
+                        $order['btn'] = '';
                         $disabled = 'disabled';
                     }
-                    $order['product']   =   $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i', array($order['goods_id']))->el();
+                    $order['product'] = $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i',
+                        array($order['goods_id']))->el();
 
                     if ($order['count_debit'] > 0) {
-                        $info_html .= '<div class="form-group"><label>' . l('Создал') .':&nbsp;</label>'
+                        $info_html .= '<div class="form-group"><label>' . l('Создал') . ':&nbsp;</label>'
                             . '' . get_user_name($order) . '</div>';
                     }
                     if ($order['count_come'] > 0) {
@@ -799,20 +805,23 @@ class Suppliers
                             . '' . $order['location'] . '</div>';
                     }
                     $info_html .= '</div><h4>' . l('Операции') . '</h4>';
-                    $info_html .= $this->get_transactions($this->currencies, false, null, true, array('supplier_order_id' => $order_id), false);
+                    $info_html .= $this->get_transactions($this->currencies, false, null, true,
+                        array('supplier_order_id' => $order_id), false);
 
                     if ($order['sum_paid'] == 0 /*&& $order['count_come'] > 0*/ && $order['count_debit'] != $order['count_come']/* && $order['wh_id'] > 0*/) {
                         $goods_html .= '<div class="form-group"><label>' . l('Склад') . ': </label>'
                             . '<select name="warehouse" ' . $disabled . ' onchange="change_warehouse(this)" class="select-warehouses-item-move form-control"><option value=""></option>';
                         // список складов
                         //if ($warehouses == null)
-                        $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} as w WHERE consider_store=1 ORDER BY title', array())->assoc();
+                        $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} as w WHERE consider_store=1 ORDER BY title',
+                            array())->assoc();
                         if ($warehouses) {
                             foreach ($warehouses as $warehouse) {
-                                if ($warehouse['id'] == $order['wh_id'])
+                                if ($warehouse['id'] == $order['wh_id']) {
                                     $goods_html .= '<option selected value="' . $warehouse['id'] . '">' . $warehouse['title'] . '</option>';
-                                else
+                                } else {
                                     $goods_html .= '<option value="' . $warehouse['id'] . '">' . $warehouse['title'] . '</option>';
+                                }
 
                             }
                         }
@@ -823,21 +832,21 @@ class Suppliers
                     }
                 } else {
                     $order = array(
-                        'price'     =>  '',
-                        'count'     =>  '',
-                        'date_wait' =>  '',
-                        'supplier'  =>  '',
-                        'goods_id'  =>  '',
-                        'title'     =>  'Создать заказ',
-                        'btn'       =>  '<input type="submit" class="btn btn-primary submit-from-btn" name="new-order" value="Создать заказ поставщику" />',
-                        'product'   =>  '',
-                        'comment'   =>  '',
+                        'price' => '',
+                        'count' => '',
+                        'date_wait' => '',
+                        'supplier' => '',
+                        'goods_id' => '',
+                        'title' => 'Создать заказ',
+                        'btn' => '<input type="submit" class="btn btn-primary submit-from-btn" name="new-order" value="Создать заказ поставщику" />',
+                        'product' => '',
+                        'comment' => '',
                         'unavailable' => 0,
-                        'location'  => '',
-                        'id'        => '',
-                        'num'       => '',
-                        'avail'     => 1,
-                        'warehouse_type'=> 0,
+                        'location' => '',
+                        'id' => '',
+                        'num' => '',
+                        'avail' => 1,
+                        'warehouse_type' => 0,
                     );
                 }
                 $goods_html .= '<input type="hidden" name="order_id" value="' . $order_id . '"/>';
@@ -850,35 +859,39 @@ class Suppliers
                         <label>' . l('Поставщик') . '<b class="text-danger">*</b>: </label>
                         <div class="input-group">
                             <select class="form-control" data-required="true" name="warehouse-supplier" ' . $disabled . '><option value=""></option>';
-                            foreach ( $suppliers as $supplier ) {
-                                if ($order['supplier'] == $supplier['id'])
-                                    $goods_html .= '<option selected value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
-                                else
-                                    $goods_html .= '<option value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
-                            }
+                foreach ($suppliers as $supplier) {
+                    if ($order['supplier'] == $supplier['id']) {
+                        $goods_html .= '<option selected value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
+                    } else {
+                        $goods_html .= '<option value="' . $supplier['id'] . '">' . $supplier['title'] . '</option>';
+                    }
+                }
 //                                <button type="button" onclick="alert_box(this, false, \'create-contractor-form\',{callback: \'quick_create_supplier_callback\'},null,\'accountings/ajax\')" class="btn btn-info">'.l('Добавить').'</button>
                 $goods_html .= '
                             </select>
                             <div class="input-group-btn">
-                                <button type="button" data-form_id="new_supplier_form" data-action="accountings/ajax?act=create-contractor-form-no-modal" class="typeahead_add_form btn btn-info" data-id="supplier_creator">'.l('Добавить').'</button>
+                                <button type="button" data-form_id="new_supplier_form" data-action="accountings/ajax?act=create-contractor-form-no-modal" class="typeahead_add_form btn btn-info" data-id="supplier_creator">' . l('Добавить') . '</button>
                             </div>
                         </div>
-                        '.($is_modal ? $new_supplier_form : '').'
+                        ' . ($is_modal ? $new_supplier_form : '') . '
                     </div>
                 ';
                 $goods_html .= '<div class="form-group"><label>' . l('Дата поставки') . '<b class="text-danger">*</b>: </label>
-                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="'.($order['date_wait'] ? date('Y-m-d', strtotime($order['date_wait'])) : '').'" />
+                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="' . ($order['date_wait'] ? date('Y-m-d',
+                        strtotime($order['date_wait'])) : '') . '" />
                                 </div>';
             }
             if ($goods) {
                 //$categories_html = $this->gen_categories_selector('5', $disabled);
-                $goods_html .= '<div class="form-group relative"'.($has_orders ? ' onclick="alert(\''.l('Данный заказ поставщику создан на основании заказа клиенту. Вы не можете изменить запчасть в данном заказе.').'\');return false;"' : '').'><label>' . l('Запчасть') . '<b class="text-danger">*</b>: </label>'
-                    .typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'],
-                               (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, l('Введите'),
-                               array('name' => l('Добавить'),
-                                     'action' => 'products/ajax/?act=create_form',
-                                     'form_id' => 'new_device_form'), $has_orders)
-                    .($is_modal ? $new_device_form : '') . '</div>';
+                $goods_html .= '<div class="form-group relative"' . ($has_orders ? ' onclick="alert(\'' . l('Данный заказ поставщику создан на основании заказа клиенту. Вы не можете изменить запчасть в данном заказе.') . '\');return false;"' : '') . '><label>' . l('Запчасть') . '<b class="text-danger">*</b>: </label>'
+                    . typeahead($this->all_configs['db'], 'goods-goods', true, $order['goods_id'],
+                        (15 + $typeahead), 'input-xlarge', 'input-medium', '', false, false, '', false, l('Введите'),
+                        array(
+                            'name' => l('Добавить'),
+                            'action' => 'products/ajax/?act=create_form',
+                            'form_id' => 'new_device_form'
+                        ), $has_orders)
+                    . ($is_modal ? $new_device_form : '') . '</div>';
             }
             $goods_html .= '<div class="form-group"><label for="warehouse_type">' . l('Тип поставки') . '<b class="text-danger">*</b>: </label>'
                 . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' />' . l('Локально') . '</label></div>'
@@ -888,12 +901,12 @@ class Suppliers
                 . '<input type="text" ' . $disabled . ' name="warehouse-order-num" class="form-control" value="' . $order['num'] . '"/></div>';
             $goods_html .= '<div class="form-group"><label>' . l('Количество') . '<b class="text-danger">*</b>: </label>'
                 . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event)" name="warehouse-order-count" class="form-control" value="' . htmlspecialchars($order['count']) . '"/></div>';
-            $goods_html .= '<div class="form-group"><label>' . l('Цена за один') . ' ('.viewCurrencySuppliers('shortName').')<b class="text-danger">*</b>: </label>'
+            $goods_html .= '<div class="form-group"><label>' . l('Цена за один') . ' (' . viewCurrencySuppliers('shortName') . ')<b class="text-danger">*</b>: </label>'
                 . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event, this)" name="warehouse-order-price" class="form-control" value="' . htmlspecialchars($order['price']) . '"/></div>';
             $goods_html .= '<div class="form-group"><label>' . l('Примечание') . ': </label>'
                 . '<textarea ' . $disabled . ' name="comment-supplier" class="form-control">' . htmlspecialchars($order['comment']) . '</textarea></div>';
 
-            $goods_html .= '<div class="form-group"><label>' . l('номер ремонта') . '</label> ('. l('если запчасть заказывается под конкретный ремонт') . '): ' . $so_co . '</div>';
+            $goods_html .= '<div class="form-group"><label>' . l('номер ремонта') . '</label> (' . l('если запчасть заказывается под конкретный ремонт') . '): ' . $so_co . '</div>';
             $goods_html .= '<div id="for-new-supplier-order"></div>';
             if ($all == true) {
                 $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>';
@@ -906,11 +919,11 @@ class Suppliers
                     </form>
                 </div>
                 <div class="col-sm-6 relative">
-                    '.(!$is_modal ? $new_supplier_form : '').'
-                    '.(!$is_modal ? $new_device_form : '').'
+                    ' . (!$is_modal ? $new_supplier_form : '') . '
+                    ' . (!$is_modal ? $new_device_form : '') . '
                 </div>
             </div>
-            '.$info_html.'
+            ' . $info_html . '
         ';
         $goods_html .= $this->append_js();
 
@@ -924,72 +937,73 @@ class Suppliers
      */
     function exportSupplierOrder($order_id, $type)
     {
-        if ($this->all_configs['configs']['onec-use'] == false)
+        if ($this->all_configs['configs']['onec-use'] == false) {
             return;
+        }
 
         $order = null;
 
-        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs']) && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0) {
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders',
+                $this->all_configs['configs']) && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
             $order = $this->all_configs['db']->query('SELECT o.id, o.price, o.count, o.count_come, o.date_add, o.date_come, o.date_wait,
                     o.its_warehouse, o.goods_id, o.user_id, s.code_1c, s.title, u.fio
                 FROM {contractors_suppliers_orders} as o
                 LEFT JOIN (SELECT `code_1c`, `id`, `title`, `type` FROM {contractors})s ON s.id=o.supplier AND s.type IN (?li)
                 LEFT JOIN (SELECT `fio`, `id` FROM {users}) u ON u.id=o.user_id
-                WHERE o.id=?i', array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']), $order_id))->row();
+                WHERE o.id=?i', array(
+                array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']),
+                $order_id
+            ))->row();
         }
 
-        if (!$order)
+        if (!$order) {
             return false;
+        }
 
-        $code_1c = $this->all_configs['db']->query('SELECT code_1c FROM {goods} WHERE id=?i', array($order['id']))->el();
+        $code_1c = $this->all_configs['db']->query('SELECT code_1c FROM {goods} WHERE id=?i',
+            array($order['id']))->el();
         $order['goods_code_1c'] = trim($code_1c);
 
-        //$its_warehouse = 'Чужой склад';
-        //if ( $order['its_warehouse'] == 1 )
-        //    $its_warehouse = 'Свой склад';
-
         $types = array(
-            1   =>  'Создан заказ поставщику со статусом "Согласован"',
-            2   =>  'Статус заказа меняется с "согласован" на "к поступлению"',
-            3   =>  'Заказ поставщику редактируется',
-            4   =>  'Заказ поставщику удаляется',
-            5   =>  'Заказ поставщику удаляется. Создается 2 новых заказа: один со статусом "к поступлению" и сегодняшней датой, второй со статусом "согласован" и датой на когда ожидаются',
+            1 => 'Создан заказ поставщику со статусом "Согласован"',
+            2 => 'Статус заказа меняется с "согласован" на "к поступлению"',
+            3 => 'Заказ поставщику редактируется',
+            4 => 'Заказ поставщику удаляется',
+            5 => 'Заказ поставщику удаляется. Создается 2 новых заказа: один со статусом "к поступлению" и сегодняшней датой, второй со статусом "согласован" и датой на когда ожидаются',
         );
 
         $status = $types[$type];
 
         $doc = array(
-            'Документы' =>  array(
-                'Документ'  =>  array(
-                    'Ид'            =>  $order['id'],
-                    'Номер'         =>  $order['id'],
-                    'ДатаСоздания'  =>  date('Y-m-d', strtotime($order['date_add'])),
-                    'ВремяСоздания' =>  date('H:i:s', strtotime($order['date_add'])),
-                    'ДатаПрихода'   =>  date('Y-m-d', strtotime($order['date_wait'])),
-                    'ВремяПрихода'  =>  date('H:i:s', strtotime($order['date_wait'])),
-                    'ХозОперация'   =>  "Заказ Поставщику",
-                    'Роль'          =>  "Продавец",
-                    'Сумма'         =>  (($order['price']/100)*$order['count']),
-                    'ЦенаЗаЕдиницу' =>  $order['price']/100,
-                    'Количество'    =>  $order['count'],
-                    'Валюта'        =>  "USD",
-                    'ТоварИд'       =>  $order['goods_code_1c'],
-                    'Контрагенты'   =>  array(
-                        'Контрагент'    =>  array(
-                            'Ид'                    =>  $order['code_1c'],//$order['user_id'],
-                            'Наименование'          =>  $order['title'],//$order['fio'],
-                            'Роль'                  =>  "Покупатель",
-                            'ПолноеНаименование'    =>  $order['title'],//$order['fio'],
+            'Документы' => array(
+                'Документ' => array(
+                    'Ид' => $order['id'],
+                    'Номер' => $order['id'],
+                    'ДатаСоздания' => date('Y-m-d', strtotime($order['date_add'])),
+                    'ВремяСоздания' => date('H:i:s', strtotime($order['date_add'])),
+                    'ДатаПрихода' => date('Y-m-d', strtotime($order['date_wait'])),
+                    'ВремяПрихода' => date('H:i:s', strtotime($order['date_wait'])),
+                    'ХозОперация' => "Заказ Поставщику",
+                    'Роль' => "Продавец",
+                    'Сумма' => (($order['price'] / 100) * $order['count']),
+                    'ЦенаЗаЕдиницу' => $order['price'] / 100,
+                    'Количество' => $order['count'],
+                    'Валюта' => "USD",
+                    'ТоварИд' => $order['goods_code_1c'],
+                    'Контрагенты' => array(
+                        'Контрагент' => array(
+                            'Ид' => $order['code_1c'],//$order['user_id'],
+                            'Наименование' => $order['title'],//$order['fio'],
+                            'Роль' => "Покупатель",
+                            'ПолноеНаименование' => $order['title'],//$order['fio'],
                         )
                     ),
-                    //'ПоставщикИд'   =>  $order['code_1c'],
-                    //'Поставщик'     =>  $order['title'],
-                    //'Склад'         =>  $its_warehouse
                 ),
-                "ЗначенияРеквизитов"  =>  array(
-                    "ЗначениеРеквизита"         =>  array(
-                        "Наименование"              =>  "Статус заказа",
-                        "Значение"                  =>  $status
+                "ЗначенияРеквизитов" => array(
+                    "ЗначениеРеквизита" => array(
+                        "Наименование" => "Статус заказа",
+                        "Значение" => $status
                     )
                 )
             )
@@ -998,98 +1012,99 @@ class Suppliers
         $xml = $this->assocArrayToXML($doc);
 
         $f = fopen($this->all_configs['sitepath'] . '1c/orders_to_suppliers/order_' . $order['id'] . '.xml', 'w+');
-        fwrite($f, "\xEF\xBB\xBF" .$xml);
+        fwrite($f, "\xEF\xBB\xBF" . $xml);
         fclose($f);
     }
 
     /**
      * @param $order
      */
-    function exportOrder($order) {
+    function exportOrder($order)
+    {
 
-        if ($this->all_configs['configs']['onec-use'] == false)
+        if ($this->all_configs['configs']['onec-use'] == false) {
             return;
+        }
 
-        //if ( $configs['rounding-goods']==true )
-        //    $sum = round(($order['sum']*$order['course_value'])/5)*5;
-        //else
-        $sum = $order['sum']/100;
+        $sum = $order['sum'] / 100;
 
         $doc = array(
-            'Документ'  =>  array(
-                'Ид'            =>  $order['id'],
-                'Номер'         =>  $order['id'],
-                'Дата'          =>  date('Y-m-d', strtotime($order['date'])),
-                'ХозОперация'   =>  "Заказ товара",
-                'Роль'          =>  "Продавец",
-                'Курс'          =>  $order['course_value'],
-                'Сумма'         =>  $sum,
-                'Валюта'        =>  viewCurrency(),
-                'Время'         =>  date('H:i:s', strtotime($order['date'])),
-                'Комментарий'   =>  $order['comment'],
-                'Контрагенты'   =>  array(
-                    'Контрагент'    =>  array(
-                        'Ид'                    =>  $order['user_id'],
-                        'Наименование'          =>  $order['fio'],
-                        'Роль'                  =>  "Покупатель",
-                        'ПолноеНаименование'    =>  $order['fio'],
+            'Документ' => array(
+                'Ид' => $order['id'],
+                'Номер' => $order['id'],
+                'Дата' => date('Y-m-d', strtotime($order['date'])),
+                'ХозОперация' => "Заказ товара",
+                'Роль' => "Продавец",
+                'Курс' => $order['course_value'],
+                'Сумма' => $sum,
+                'Валюта' => viewCurrency(),
+                'Время' => date('H:i:s', strtotime($order['date'])),
+                'Комментарий' => $order['comment'],
+                'Контрагенты' => array(
+                    'Контрагент' => array(
+                        'Ид' => $order['user_id'],
+                        'Наименование' => $order['fio'],
+                        'Роль' => "Покупатель",
+                        'ПолноеНаименование' => $order['fio'],
                     )
                 )
             )
         );
 
-        if ( isset($order['goods']) ) {
+        if (isset($order['goods'])) {
             foreach ($order['goods'] as $product) {
 
-                if (array_key_exists('rounding-goods', $this->all_configs['configs']) && $this->all_configs['configs']['rounding-goods'] > 0) {
-                    $sum = round(($product['price']/100*$order['course_value']/100)/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
-                    $wsum = round(($product['warranties_cost']/100*$order['course_value']/100)/$this->all_configs['configs']['rounding-goods'])*$this->all_configs['configs']['rounding-goods'];
+                if (array_key_exists('rounding-goods',
+                        $this->all_configs['configs']) && $this->all_configs['configs']['rounding-goods'] > 0
+                ) {
+                    $sum = round(($product['price'] / 100 * $order['course_value'] / 100) / $this->all_configs['configs']['rounding-goods']) * $this->all_configs['configs']['rounding-goods'];
+                    $wsum = round(($product['warranties_cost'] / 100 * $order['course_value'] / 100) / $this->all_configs['configs']['rounding-goods']) * $this->all_configs['configs']['rounding-goods'];
                 } else {
-                    $wsum = $product['warranties_cost']*$order['course_value']/100;
-                    $sum = $product['price']*$order['course_value']/100;
+                    $wsum = $product['warranties_cost'] * $order['course_value'] / 100;
+                    $sum = $product['price'] * $order['course_value'] / 100;
                 }
 
                 $doc['Документ']['Товары'][]['Товар'] = array(
-                    'Ид'                    =>  $product['code_1c'],
-                    'Наименование'          =>  $product['title'],
-                    'ЦенаЗаЕдиницу'         =>  $sum,
-                    'Количество'            =>  $product['count'],
-                    'Сумма'                 =>  $sum*$product['count']+$wsum*$product['count'],
-                    'Единица'               =>  'шт',
-                    'Коэффициент'           =>  1,
-                    'Гарантия'              =>  array(
-                        'Цена'                  =>  $wsum,
-                        'Количество'            =>  $product['count'],
-                        'КоличествоМесяцев'     =>  $product['warranties'],
+                    'Ид' => $product['code_1c'],
+                    'Наименование' => $product['title'],
+                    'ЦенаЗаЕдиницу' => $sum,
+                    'Количество' => $product['count'],
+                    'Сумма' => $sum * $product['count'] + $wsum * $product['count'],
+                    'Единица' => 'шт',
+                    'Коэффициент' => 1,
+                    'Гарантия' => array(
+                        'Цена' => $wsum,
+                        'Количество' => $product['count'],
+                        'КоличествоМесяцев' => $product['warranties'],
                     ),
-                    'ЗначенияРеквизитов'    =>  array(
+                    'ЗначенияРеквизитов' => array(
                         array(
-                            'ЗначениеРеквизита'    =>  array(
-                                'Наименование'          =>  "ВидНоменклатуры",
-                                'Значение'              =>  "Товар (пр. ТМЦ)",
+                            'ЗначениеРеквизита' => array(
+                                'Наименование' => "ВидНоменклатуры",
+                                'Значение' => "Товар (пр. ТМЦ)",
                             ),
                         ),
                         array(
-                            'ЗначениеРеквизита'     =>  array(
-                                'Наименование'          =>  "ТипНоменклатуры",
-                                'Значение'              =>  "Товар",
+                            'ЗначениеРеквизита' => array(
+                                'Наименование' => "ТипНоменклатуры",
+                                'Значение' => "Товар",
                             )
                         )
                     )
                 );
             }
         }
-        $doc['Документ']["ЗначенияРеквизитов"]  =  array(
-            "ЗначениеРеквизита"         =>  array(
-                "Наименование"              =>  "Статус заказа",
-                "Значение"                  =>  "[N] Принят"
+        $doc['Документ']["ЗначенияРеквизитов"] = array(
+            "ЗначениеРеквизита" => array(
+                "Наименование" => "Статус заказа",
+                "Значение" => "[N] Принят"
             )
         );
 
         $xml = $this->assocArrayToXML($doc);
 
         $f = fopen($this->all_configs['sitepath'] . '1c/orders/order_' . $order['id'] . '.xml', 'w+');
-        fwrite($f, "\xEF\xBB\xBF" .$xml);
+        fwrite($f, "\xEF\xBB\xBF" . $xml);
         fclose($f);
     }
 
@@ -1099,9 +1114,9 @@ class Suppliers
      */
     function assocArrayToXML($ar)
     {
-        $a ="КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"" . date('Y-m-d') . "\"";
+        $a = "КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"" . date('Y-m-d') . "\"";
         $xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><{$a}></КоммерческаяИнформация>");
-        $f = create_function('$f,$c,$a','
+        $f = create_function('$f,$c,$a', '
             foreach($a as $k=>$v) {
                 if(is_array($v)) {
                     if( !is_int($k) ){
@@ -1117,7 +1132,7 @@ class Suppliers
                     $c->addChild($k,$v);
                 }
             }');
-        $f($f,$xml,$ar);
+        $f($f, $xml, $ar);
         return $xml->asXML();
     }
 
@@ -1125,36 +1140,21 @@ class Suppliers
      * @param     $id
      * @param int $type
      */
-    function buildESO($id, $type=1)
+    function buildESO($id, $type = 1)
     {
-        if ($this->all_configs['configs']['onec-use'] == false)
+        if ($this->all_configs['configs']['onec-use'] == false) {
             return;
+        }
 
         $uploaddir = $this->all_configs['sitepath'] . '1c/orders_to_suppliers/';
-        if ( !is_dir($uploaddir) ) {
-            if( mkdir($uploaddir))  {
-                chmod( $uploaddir, 0777 );
+        if (!is_dir($uploaddir)) {
+            if (mkdir($uploaddir)) {
+                chmod($uploaddir, 0777);
             } else {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => 'Нет доступа к директории ' . $uploaddir, 'error'=>true));
-                exit;
+                Response::json(array('message' => 'Нет доступа к директории ' . $uploaddir, 'error' => true));
             }
         }
 
-        /*
-        if ( !$order ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Такого заказа не существует', 'error'=>true));
-            exit;
-        }
-        $code_1c = $this->all_configs['db']->query('SELECT code_1c FROM {goods} WHERE id=?i', array($order['id']))->el();
-        if ( mb_strlen(trim($code_1c), 'UTF-8') == 0 ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'У выбранного Вами товара нет кода 1с', 'error'=>true));
-            exit;
-        }
-        $order['goods_code_1c'] = trim($code_1c);
-        */
         $this->exportSupplierOrder($id, $type);
     }
 
@@ -1167,10 +1167,10 @@ class Suppliers
     {
         $categories = $this->all_configs['db']->query('SELECT title,url,id FROM {categories} WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
         $categories_html = '<select ' . $disabled . ' class="input-small searchselect" id="searchselect-' . $num . '"';
-        $categories_html .= ' onchange="javascript:$(\'#goods-'.$num.'\').attr(\'data-cat\', this.value);"';
+        $categories_html .= ' onchange="javascript:$(\'#goods-' . $num . '\').attr(\'data-cat\', this.value);"';
         $categories_html .= '><option value="0">' . l('Все разделы') . '</option>';
 
-        foreach ( $categories as $category ) {
+        foreach ($categories as $category) {
             $categories_html .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
         }
         $categories_html .= '</select>';
@@ -1185,38 +1185,30 @@ class Suppliers
     {
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
-            exit;
+            Response::json(array('message' => 'У Вас недостаточно прав', 'error' => true));
         }
         // заказ ид
-        if ( !isset($_POST['order_id']) ||  $_POST['order_id'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Не существующий заказ', 'error'=>true));
-            exit;
+        if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
+            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
         }
         // достаем заказ
         $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
             array($_POST['order_id']))->row();
         // если уже принят то удалить нельзя
         if (!$order) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Не существующий заказ', 'error' => true));
-            exit;
+            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
         }
         // права
-        if ((/*$order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0
-                && $order['count_come'] == 0) || ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] == 0)) {
+        if ((/*$order['user_id'] == $_SESSION['id'] && */
+                $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0
+                && $order['count_come'] == 0) || ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] == 0)
+        ) {
         } else {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Заказ отменить нельзя', 'error' => true));
-            exit;
+            Response::json(array('message' => 'Заказ отменить нельзя', 'error' => true));
         }
         // если уже принят то удалить нельзя
         if ($order['count_come'] > 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Заказ отменить уже нельзя', 'error' => true));
-            exit;
+            Response::json(array('message' => 'Заказ отменить уже нельзя', 'error' => true));
         }
 
         // заявки
@@ -1225,15 +1217,14 @@ class Suppliers
             array(intval($_POST['order_id'])))->vars();
 
         if ($items) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Отвяжите серийный номер в заказах: ' . implode(' ,', $items), 'error' => true));
-            exit;
+            Response::json(array(
+                'message' => 'Отвяжите серийный номер в заказах: ' . implode(' ,', $items),
+                'error' => true
+            ));
         }
 
-        //$this->buildESO($_POST['order_id'], 4);
 
-        $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET avail=?i WHERE id=?i',
-            array(0, $_POST['order_id']));
+        $this->ContractorsSuppliersOrders->update(array('avail' => 0), array('id' => $_POST['order_id']));
 
         $links = $this->all_configs['db']->query('SELECT l.id, o.manager, g.order_id, g.title
                 FROM {orders_suppliers_clients} as l, {orders_goods} as g, {orders} as o
@@ -1254,12 +1245,7 @@ class Suppliers
         $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
             array(intval($_POST['order_id'])));
 
-        //$this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-        //    array($_SESSION['id'], 'remove-supplier-order', $mod_id, intval($_POST['order_id'])));
-
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message'=>'Заказ успешно удален'));
-        exit;
+        Response::json(array('message' => 'Заказ успешно удален'));
     }
 
     /**
@@ -1269,38 +1255,30 @@ class Suppliers
     {
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
-            exit;
+            Response::json(array('message' => 'У Вас недостаточно прав', 'error' => true));
         }
         // заказ ид
-        if ( !isset($_POST['order_id']) ||  $_POST['order_id'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Не существующий заказ', 'error'=>true));
-            exit;
+        if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
+            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
         }
         // достаем заказ
         $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
             array($_POST['order_id']))->row();
         // если уже принят то удалить нельзя
         if (!$order) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Не существующий заказ', 'error' => true));
-            exit;
+            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
         }
         // права
-        if ((/*$order['user_id'] == $_SESSION['id'] && */$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0
-                && $order['count_come'] == 0) || ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] == 0)) {
+        if ((/*$order['user_id'] == $_SESSION['id'] && */
+                $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0
+                && $order['count_come'] == 0) || ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] == 0)
+        ) {
         } else {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Заказ удалить нельзя', 'error' => true));
-            exit;
+            Response::json(array('message' => 'Заказ удалить нельзя', 'error' => true));
         }
         // если уже принят то удалить нельзя
         if ($order['count_come'] > 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Заказ уже нельзя удалить', 'error' => true));
-            exit;
+            Response::json(array('message' => 'Заказ уже нельзя удалить', 'error' => true));
         }
 
         // заявки
@@ -1309,9 +1287,10 @@ class Suppliers
             array(intval($_POST['order_id'])))->vars();
 
         if ($items) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Отвяжите серийный номер в заказах: ' . implode(' ,', $items), 'error' => true));
-            exit;
+            Response::json(array(
+                'message' => 'Отвяжите серийный номер в заказах: ' . implode(' ,', $items),
+                'error' => true
+            ));
         }
 
         $this->buildESO($_POST['order_id'], 4);
@@ -1341,9 +1320,7 @@ class Suppliers
         $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
             array($_SESSION['id'], 'remove-supplier-order', $mod_id, intval($_POST['order_id'])));
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message'=>'Заказ успешно удален'));
-        exit;
+        Response::json(array('message' => 'Заказ успешно удален'));
     }
 
     /**
@@ -1354,90 +1331,64 @@ class Suppliers
     {
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $this->all_configs['configs']['erp-use'] == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'У Вас недостаточно прав', 'error' => true));
-            exit;
+            Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
         }
         // количество
-        if ( !isset($_POST['count']) || $_POST['count'] == 0 ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Введите количество', 'error'=>true));
-            exit;
+        if (!isset($_POST['count']) || $_POST['count'] == 0) {
+            Response::json(array('message' => l('Введите количество'), 'error' => true));
         }
         // заказ ид
-        if ( !isset($_POST['order_id']) || $_POST['order_id'] == 0 ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Не существующий заказ', 'error'=>true));
-            exit;
+        if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
+            Response::json(array('message' => l('Не существующий заказ'), 'error' => true));
         }
         // достаем информацию о заказе
         $order = $this->all_configs['db']->query('SELECT o.*, g.title as product
             FROM {contractors_suppliers_orders} as o LEFT JOIN {goods} as g ON g.id=o.goods_id WHERE o.id=?i',
             array($_POST['order_id']))->row();
 
-        if ( !$order ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Не существующий заказ', 'error'=>true));
-            exit;
+        if (!$order) {
+            Response::json(array('message' => l('Не существующий заказ'), 'error' => true));
         }
         // уже принят
         if ($order['count_come'] > 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Заказ уже принят', 'error'=>true));
-            exit;
+            Response::json(array('message' => l('Заказ уже принят'), 'error' => true));
         }
 
         // отменен
         if ($order['avail'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Заказ отменен', 'error'=>true));
-            exit;
+            Response::json(array('message' => l('Заказ отменен'), 'error' => true));
         }
 
         // количество пришло больше чем в заказе
-        if ( $order['count'] < $_POST['count'] ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('error' => true,'message' => 'Количество не может быть больше чем в заказе'));
-            exit;
+        if ($order['count'] < $_POST['count']) {
+            Response::json(array('error' => true, 'message' => l('Количество не может быть больше чем в заказе')));
         }
         // склад
-        if ( !isset($_POST['wh_id']) || $_POST['wh_id'] == 0 ) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Выберите склад'), 'error'=>true));
-            exit;
+        if (!isset($_POST['wh_id']) || $_POST['wh_id'] == 0) {
+            Response::json(array('message' => l('Выберите склад'), 'error' => true));
         }
         if ($order['supplier'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'У заказа не найден поставщик', 'error' => true));
-            exit;
+            Response::json(array('message' => l('У заказа не найден поставщик'), 'error' => true));
         }
         // проверяем склад
         $wh_id = $this->all_configs['db']->query('SELECT id FROM {warehouses} WHERE id=?i AND consider_store=?i',
             array($_POST['wh_id'], 1))->el();
         if (!$wh_id || $wh_id == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Выберите склад'), 'error' => true));
-            exit;
+            Response::json(array('message' => l('Выберите склад'), 'error' => true));
         }
         // локация
         if (!isset($_POST['location']) || $_POST['location'] == 0) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Выберите локацию', 'error' => true));
-            exit;
+            Response::json(array('message' => l('Выберите локацию'), 'error' => true));
         }
         // дата проверки
         if ((!isset($_POST['date_check']) || strtotime($_POST['date_check']) == 0) && !isset($_POST['without_check'])) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Укажите дату проверки', 'error' => true));
-            exit;
+            Response::json(array('message' => l('Укажите дату проверки'), 'error' => true));
         }
         // проверяем локацию
         $location_wh_id = $this->all_configs['db']->query('SELECT wh_id FROM {warehouses_locations} WHERE id=?i',
             array($_POST['location']))->el();
         if ($location_wh_id != $wh_id) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Выберите локацию', 'error'=>true));
-            exit;
+            Response::json(array('message' => l('Выберите локацию'), 'error' => true));
         }
 
         $new_order_id = null;
@@ -1445,25 +1396,33 @@ class Suppliers
         if ($order['count'] > $_POST['count']) {
             // если нет даты прихода
             if (!isset($_POST['date_come']) || empty($_POST['date_come']) || strtotime($_POST['date_come']) == 0) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array(
-                    'new_date'=>1,
-                    'message'=>'Вы приняли на склад не все количество товара, укажите дату, '
-                              .'на когда ожидать поставку оставшегося в заказе товара?'
+                Response::json(array(
+                    'new_date' => 1,
+                    'message' => l('Вы приняли на склад не все количество товара, укажите дату, '
+                        . 'на когда ожидать поставку оставшегося в заказе товара?')
                 ));
-                exit;
             }
-            if ($order['parent_id'] > 0)
+            if ($order['parent_id'] > 0) {
                 $id = $order['parent_id'];
-            else
+            } else {
                 $id = $order['id'];
+            }
 
             // создаем новый заказ поставщику
             $new_order_id = $this->all_configs['db']->query('INSERT INTO {contractors_suppliers_orders} (price, `count`, date_wait, supplier,
                     its_warehouse, goods_id, user_id, parent_id, number, comment) VALUES (?i, ?i, ?, ?n, ?n, ?i, ?i, ?i, ?i, ?)',
-                array($order['price'], ($order['count']-$_POST['count']), date("Y-m-d H:i:s", (strtotime($_POST['date_come'])+86399)),
-                    $order['supplier'], $order['its_warehouse'], $order['goods_id'], $_SESSION['id'], $id, ($order['number']+1),
-                    trim($order['comment'])), 'id');
+                array(
+                    $order['price'],
+                    ($order['count'] - $_POST['count']),
+                    date("Y-m-d H:i:s", (strtotime($_POST['date_come']) + 86399)),
+                    $order['supplier'],
+                    $order['its_warehouse'],
+                    $order['goods_id'],
+                    $_SESSION['id'],
+                    $id,
+                    ($order['number'] + 1),
+                    trim($order['comment'])
+                ), 'id');
         }
 
         $date_check = isset($_POST['date_check']) && !isset($_POST['without_check']) ? $_POST['date_check'] : null;
@@ -1471,7 +1430,14 @@ class Suppliers
         // обновляем заказ поставщику
         $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET count_come=?i, date_come=NOW(),
                 wh_id=?i, location_id=?i, user_id_accept=?i, date_check=?n WHERE id=?i',
-            array($_POST['count'], $_POST['wh_id'], $_POST['location'], $_SESSION['id'], $date_check, $_POST['order_id']));
+            array(
+                $_POST['count'],
+                $_POST['wh_id'],
+                $_POST['location'],
+                $_SESSION['id'],
+                $date_check,
+                $_POST['order_id']
+            ));
 
         // история
         $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
@@ -1485,17 +1451,18 @@ class Suppliers
         if ($cos_id) {
             $i = 1;
             $send = array();
-            foreach ($cos_id as $l_id=>$co_id) {
+            foreach ($cos_id as $l_id => $co_id) {
                 if ($i > $_POST['count']) {
                     if ($new_order_id) {
                         $this->all_configs['db']->query('UPDATE {orders_suppliers_clients} SET supplier_order_id=?i WHERE id=?i',
                             array($new_order_id, $l_id));
                     } else {
-                        $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id=?i', array($l_id));
+                        $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id=?i',
+                            array($l_id));
                     }
                 } else {
                     if (!isset($send[intval($co_id)])) {
-                        $text = 'Ожидаемая запчасть была принята';
+                        $text = l('Ожидаемая запчасть была принята');
                         $this->add_client_order_comment(intval($co_id), $text);
                     }
                     $send[intval($co_id)] = intval($co_id);
@@ -1511,19 +1478,14 @@ class Suppliers
         $content .= '<a href="' . $this->all_configs['prefix'] . 'accountings?so_id=' . $order['id'] . '#a_orders-suppliers">№' . $order['id'] . '</a>';
         $messages->send_message($content, 'Оплатите заказ поставщику', 'mess-accountings-suppliers-orders', 1);
         // кладовщику
-        //$messages = new Mailer($this->all_configs);
         $content = 'Необходимо оприходовать заказ поставщику ';
         $content .= '<a href="' . $this->all_configs['prefix'] . 'warehouses?so_id=' . $order['id'] . '#orders-suppliers">№' . $order['id'] . '</a>';
-        /*$q = $chains->query_warehouses();
-        $query_for_my_warehouses = $this->all_configs['db']->makeQuery('RIGHT JOIN {warehouses_users} as wu ON wu.'
-            . trim($q['query_for_my_warehouses']) . ' AND u.id=wu.user_id AND wu.wh_id=?i', array($_POST['wh_id']));*/
         $query_for_my_warehouses = $this->all_configs['db']->makeQuery(
             'RIGHT JOIN {warehouses_users} as wu ON u.id=wu.user_id AND wu.wh_id=?i', array($_POST['wh_id']));
 
-        $messages->send_message($content, 'Оприходуйте заказ поставщику', 'mess-warehouses-suppliers-orders', 1, $query_for_my_warehouses);
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Успешно'));
-        exit;
+        $messages->send_message($content, 'Оприходуйте заказ поставщику', 'mess-warehouses-suppliers-orders', 1,
+            $query_for_my_warehouses);
+        Response::json(array('message' => l('Успешно')));
     }
 
     /**
@@ -1533,60 +1495,26 @@ class Suppliers
     {
         $data = array();
         $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
-        $data['state'] = true;
-        $data['content'] = '<form id="form-accept-so" method="post">';
-
-        $data['content'] .= '<div class="form-group"><label">Количество: </label><div class="controls">';
-        $data['content'] .= '<input class="form-control" type="text" name="count" placeholder="количество" /></div></div>';
-
-        $data['content'] .= '<div class="form-group"><label">' . l('Склад') . ': </label><div class="controls">';
         // список складов
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} WHERE consider_store=1',
             array())->vars();
-        $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i', array($order_id))->row();
-        if ($warehouses) {
-            $data['content'] .= '<select name="wh_id" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move"><option value=""></option>';
-            foreach ($warehouses as $wh_id=>$wh_title) {
-                $selected = $order && $wh_id == $order['wh_id'] ? 'selected' : '';
-                $data['content'] .= '<option ' . $selected . ' value="' . $wh_id . '">' . htmlspecialchars($wh_title) . '</option>';
-            }
-            $data['content'] .= '</select>';
-        } else {
-            $data['content'] .= '<p class="text-danger">Нет складов</p>';
-        }
-        $data['content'] .= '</div></div>';
-
-        $data['content'] .= '<div class="form-group"><label>' . l('Локация') . ':</label><div class="controls">';
-        $data['content'] .= '<select class="multiselect select-location form-control" name="location">';
-        $data['content'] .= $this->gen_locations($order ? $order['wh_id'] : 0);
-        $data['content'] .= '</select></div></div>';
-
-        $data['content'] .= '<div class="form-group"><label>Дата проверки: </label><div class="controls">';
-        $data['content'] .= '<input class="form-control datetimepicker" placeholder="Дата проверки" data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value="" />';
-        $data['content'] .= '</div></div>';
-
-        $data['content'] .= '<div class="form-group"><div class="checkbox"><label class="">';
-        $data['content'] .= '<input type="checkbox" name="without_check" value="1" /> Без проверки</label></div></div>';
-
-        $data['content'] .= '<div id="order_supplier_date_wait" style="display:none;" class="form-group"><label class="control-label">Дата поставки оставшегося в заказе товара: </label>
-                    <div class="controls">
-                    <input class="form-control datetimepicker" placeholder="дата" data-format="yyyy-MM-dd" type="text" name="date_come" value="" />
-                    </div></div>';
-
-        $data['content'] .= '<input type="hidden" name="order_id" value="' . $order_id . '" />';
-        $data['content'] .= '</form>';
-        //alert_box(this, false, \'form-debit-so\')
+        $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
+            array($order_id))->row();
+        $data['state'] = true;
+        $data['content'] = $this->view->renderFile('suppliers.class/accept_form', array(
+           'warehouses'  => $warehouses,
+            'order' => $order,
+            'controller' => $this
+        ));
         $callback = '';
-        if($show_debit_form_after){
-            $callback = ',(form_debit=function(_this){alert_box(_this,false,\'form-debit-so\',{object_id:'.$order_id.'},null,\'warehouses/ajax/\')})';
+        if ($show_debit_form_after) {
+            $callback = ',(form_debit=function(_this){alert_box(_this,false,\'form-debit-so\',{object_id:' . $order_id . '},null,\'warehouses/ajax/\')})';
         }
         $data['btns'] =
-            '<input class="btn btn-success" onclick="accept_supplier_order(this'.$callback.')" type="button" value="Принять" />';
+            '<input class="btn btn-success" onclick="accept_supplier_order(this' . $callback . ')" type="button" value="Принять" />';
         $data['functions'] = array('reset_multiselect()');
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
     }
 
     /**
@@ -1667,7 +1595,8 @@ class Suppliers
             $data['state'] = false;
         }
         if ($data['state'] == true && $forcibly == false && (($order['count_come'] - $order['count_debit']) <> 0
-                || ($order['price'] * $order['count_come'] - $order['sum_paid']) <> 0)) {
+                || ($order['price'] * $order['count_come'] - $order['sum_paid']) <> 0)
+        ) {
             $data['state'] = false;
             $data['msg'] = 'Заказ еще нельзя закрыть';
         }
@@ -1741,7 +1670,10 @@ class Suppliers
 
         if (count($serials) == 0) {
             header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('msg' => 'Ведите серийный номер или установите галочку сгенерировать', 'state' => false));
+            echo json_encode(array(
+                'msg' => 'Ведите серийный номер или установите галочку сгенерировать',
+                'state' => false
+            ));
             exit;
         }
 
@@ -1784,7 +1716,7 @@ class Suppliers
         $html = '';
         $msg = $debit_items = $print_items = array();
 
-        foreach ($serials as $k=>$serial) {
+        foreach ($serials as $k => $serial) {
             $item_id = null;
             if ($order['count_debit'] + count($serials) > $order['count_come']) {
                 break;
@@ -1794,14 +1726,20 @@ class Suppliers
             } elseif (mb_strlen(trim($serial), 'UTF-8') > 0) {
                 $item_id = $this->add_item($order, trim($serial), $mod_id);
             } else {
-                $msg[$k] = array('state' => false, 'msg' => 'Ведите серийный номер или установите галочку сгенерировать');
+                $msg[$k] = array(
+                    'state' => false,
+                    'msg' => 'Ведите серийный номер или установите галочку сгенерировать'
+                );
             }
             if (!isset($msg[$k])) {
                 if ($item_id > 0) {
                     if (isset($print[$k])) {
                         $print_items[$k] = $item_id;
                     }
-                    $debit_items[$k] = suppliers_order_generate_serial(array('item_id' => $item_id, 'serial' => trim($serial)));
+                    $debit_items[$k] = suppliers_order_generate_serial(array(
+                        'item_id' => $item_id,
+                        'serial' => trim($serial)
+                    ));
                     $msg[$k] = array('state' => true, 'msg' => 'Серийник ' . $debit_items[$k] . ' успешно добавлен');
                 } else {
                     $msg[$k] = array('state' => false, 'msg' => 'Серийник уже используется');
@@ -1822,7 +1760,7 @@ class Suppliers
             }
             // достаем связку заказов и менеджера
             $links = $this->all_configs['db']->query(
-                    'SELECT l.client_order_id, o.manager FROM {orders_suppliers_clients} as l
+                'SELECT l.client_order_id, o.manager FROM {orders_suppliers_clients} as l
                     LEFT JOIN {orders} as o ON o.id=l.client_order_id
                     WHERE l.supplier_order_id=?i AND l.goods_id=?i LIMIT ?i, ?i',
                 array($order['id'], $order['goods_id'], $order['count_debit'], count($debit_items)))->vars();
@@ -1832,7 +1770,7 @@ class Suppliers
                 $messages = new Mailer($this->all_configs);
 
                 $text = 'Ожидаемая запчасть поступила на склад';
-                foreach($links as $co_id=>$manager_id) {
+                foreach ($links as $co_id => $manager_id) {
                     // добавляем комментарий
                     $this->add_client_order_comment(intval($co_id), $text);
 
@@ -1861,7 +1799,7 @@ class Suppliers
         // печать
         $print_link = false;
         if (count($print_items) > 0) {
-            $print_link = $this->all_configs['prefix']  . 'print.php?act=label&object_id=' . implode(',', $print_items);
+            $print_link = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . implode(',', $print_items);
         }
 
         // пробуем закрыть заказ
@@ -1882,8 +1820,16 @@ class Suppliers
     {
         $item_id = $this->all_configs['db']->query('INSERT IGNORE INTO {warehouses_goods_items}
               (goods_id, wh_id, location_id, supplier_id, serial, price, supplier_order_id, user_id)
-              VALUES (?i, ?i, ?i, ?i, ?n, ?i, ?i, ?i)', array($order['goods_id'], $order['wh_id'], $order['location_id'],
-            $order['supplier'], $serial, $order['price'], $order['id'], $_SESSION['id']), 'id');
+              VALUES (?i, ?i, ?i, ?i, ?n, ?i, ?i, ?i)', array(
+            $order['goods_id'],
+            $order['wh_id'],
+            $order['location_id'],
+            $order['supplier'],
+            $serial,
+            $order['price'],
+            $order['id'],
+            $_SESSION['id']
+        ), 'id');
 
         if ($item_id) {
             $this->all_configs['manageModel']->move_product_item(
@@ -1908,8 +1854,11 @@ class Suppliers
                 array(
                     'transaction_type' => 2,
                     'value_to' => ($order['price'] / 100),
-                    'comment' => 'Товар ' . $order['g_title'] . ' приходован на склад ' . $order['wh_title']. '. Заказ поставщика ' .
-                        $this->supplier_order_number($order) . ', серийник ' . suppliers_order_generate_serial(array('serial' => $serial, 'item_id' => $item_id)) .
+                    'comment' => 'Товар ' . $order['g_title'] . ' приходован на склад ' . $order['wh_title'] . '. Заказ поставщика ' .
+                        $this->supplier_order_number($order) . ', серийник ' . suppliers_order_generate_serial(array(
+                            'serial' => $serial,
+                            'item_id' => $item_id
+                        )) .
                         ', сумма ' . ($order['price'] / 100) . '$, ' . date("Y-m-d H:i:s", time()),
                     'contractor_category_link' => $contractor_category_link,
                     'supplier_order_id' => $order['id'],
@@ -1934,10 +1883,13 @@ class Suppliers
      * @param bool $link
      * @return null|string
      */
-    function supplier_order_number ($order, $title = null, $link = true)
+    function supplier_order_number($order, $title = null, $link = true)
     {
-        if (!array_key_exists('parent_id', $order) || !array_key_exists('number', $order) || !array_key_exists('num', $order)) {
-            $order = $this->all_configs['db']->query('SELECT number, parent_id, id, num FROM {contractors_suppliers_orders} WHERE id=?i', array($order['id']))->row();
+        if (!array_key_exists('parent_id', $order) || !array_key_exists('number', $order) || !array_key_exists('num',
+                $order)
+        ) {
+            $order = $this->all_configs['db']->query('SELECT number, parent_id, id, num FROM {contractors_suppliers_orders} WHERE id=?i',
+                array($order['id']))->row();
         }
         $number = ($order['parent_id'] > 0 && $order['parent_id'] != $order['id']) ? $order['parent_id'] . '/' . $order['number'] : $order['num'];
 
@@ -1965,13 +1917,17 @@ class Suppliers
     {
         $array = array(
             'transaction_type' => array_key_exists('transaction_type', $data) ? $data['transaction_type'] : 0,
-            'cashboxes_currency_id_from' => array_key_exists('cashboxes_currency_id_from', $data) ? $data['cashboxes_currency_id_from'] : null,
-            'cashboxes_currency_id_to' => array_key_exists('cashboxes_currency_id_to', $data) ? $data['cashboxes_currency_id_to'] : null,
+            'cashboxes_currency_id_from' => array_key_exists('cashboxes_currency_id_from',
+                $data) ? $data['cashboxes_currency_id_from'] : null,
+            'cashboxes_currency_id_to' => array_key_exists('cashboxes_currency_id_to',
+                $data) ? $data['cashboxes_currency_id_to'] : null,
             'value_from' => array_key_exists('value_from', $data) ? $data['value_from'] : 0,
             'value_to' => array_key_exists('value_to', $data) ? $data['value_to'] : 0,
             'comment' => array_key_exists('comment', $data) ? $data['comment'] : '',
-            'contractor_category_link' => array_key_exists('contractor_category_link', $data) ? $data['contractor_category_link'] : null,
-            'date_transaction' => array_key_exists('date_transaction', $data) ? $data['date_transaction'] : date("Y-m-d H:i:s", time()),
+            'contractor_category_link' => array_key_exists('contractor_category_link',
+                $data) ? $data['contractor_category_link'] : null,
+            'date_transaction' => array_key_exists('date_transaction',
+                $data) ? $data['date_transaction'] : date("Y-m-d H:i:s", time()),
             'user_id' => array_key_exists('user_id', $data) ? $data['user_id'] : $_SESSION['id'],
             'supplier_order_id' => array_key_exists('supplier_order_id', $data) ? $data['supplier_order_id'] : null,
             'client_order_id' => array_key_exists('client_order_id', $data) ? $data['client_order_id'] : null,
@@ -1980,7 +1936,7 @@ class Suppliers
             'goods_id' => array_key_exists('goods_id', $data) ? $data['goods_id'] : null,
             'type' => array_key_exists('type', $data) ? $data['type'] : 0,
 
-            'contractors_id' => array_key_exists('contractors_id', $data) ? $data['contractors_id']: 0,
+            'contractors_id' => array_key_exists('contractors_id', $data) ? $data['contractors_id'] : 0,
         );
 
         // добавляем транзакцию контрагенту
@@ -1988,11 +1944,22 @@ class Suppliers
                             cashboxes_currency_id_to, value_from, value_to, comment, contractor_category_link, date_transaction,
                             user_id, supplier_order_id, client_order_id, transaction_id, item_id, goods_id, type)
                         VALUES (?i, ?n, ?n, ?i, ?i, ?, ?n, ?, ?i, ?n, ?n, ?n, ?n, ?n, ?i)',
-            array($array['transaction_type'], $array['cashboxes_currency_id_from'], $array['cashboxes_currency_id_to'],
-                round((float)$array['value_from'] * 100), round((float)$array['value_to'] * 100),
-                trim($array['comment']), $array['contractor_category_link'],
-                date("Y-m-d H:i:s", strtotime($array['date_transaction'])), $array['user_id'], $array['supplier_order_id'],
-                $array['client_order_id'], $array['transaction_id'], $array['item_id'], $array['goods_id'], $array['type']
+            array(
+                $array['transaction_type'],
+                $array['cashboxes_currency_id_from'],
+                $array['cashboxes_currency_id_to'],
+                round((float)$array['value_from'] * 100),
+                round((float)$array['value_to'] * 100),
+                trim($array['comment']),
+                $array['contractor_category_link'],
+                date("Y-m-d H:i:s", strtotime($array['date_transaction'])),
+                $array['user_id'],
+                $array['supplier_order_id'],
+                $array['client_order_id'],
+                $array['transaction_id'],
+                $array['item_id'],
+                $array['goods_id'],
+                $array['type']
             ), 'id');
 
         $this->set_amount_contractor($data);
@@ -2004,11 +1971,11 @@ class Suppliers
     function set_amount_contractor($data)
     {
         $array = array(
-            'transaction_type' => array_key_exists('transaction_type', $data) ? $data['transaction_type']: 0,
-            'value_from' => array_key_exists('value_from', $data) ? $data['value_from']: 0,
-            'value_to' => array_key_exists('value_to', $data) ? $data['value_to']: 0,
+            'transaction_type' => array_key_exists('transaction_type', $data) ? $data['transaction_type'] : 0,
+            'value_from' => array_key_exists('value_from', $data) ? $data['value_from'] : 0,
+            'value_to' => array_key_exists('value_to', $data) ? $data['value_to'] : 0,
 
-            'contractors_id' => array_key_exists('contractors_id', $data) ? $data['contractors_id']: 0,
+            'contractors_id' => array_key_exists('contractors_id', $data) ? $data['contractors_id'] : 0,
         );
 
         // обновляем суму у контрагента
@@ -2034,8 +2001,15 @@ class Suppliers
      * @param bool  $return_array
      * @return array|string
      */
-    function get_transactions($currencies, $by_day = false, $limit = null, $contractors = false, $filters = array(), $show_balace = true, $return_array = false)
-    {
+    function get_transactions(
+        $currencies,
+        $by_day = false,
+        $limit = null,
+        $contractors = false,
+        $filters = array(),
+        $show_balace = true,
+        $return_array = false
+    ) {
         $result = array();
         $query_end = '';
 
@@ -2046,8 +2020,10 @@ class Suppliers
                 $days = explode('-', $_GET['d']);
                 $day = $days[0];
             }
-            $query_where = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")=? AND', array($day));
-            $query_balance = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")<? AND', array($day));
+            $query_where = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")=? AND',
+                array($day));
+            $query_balance = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")<? AND',
+                array($day));
         } else {
             // текущий месяц
             $day_from = 1 . date(".m.Y", time()) . ' 00:00:00';
@@ -2059,15 +2035,16 @@ class Suppliers
                 $day_before = $_GET['df'];
             }
 
-            if (isset($_GET['dt']) && !empty($_GET['dt']))
+            if (isset($_GET['dt']) && !empty($_GET['dt'])) {
                 $day_to = $_GET['dt'] . ' 23:59:59';
+            }
 
             //if (!isset($_GET['o_id']) && !isset($_GET['t_id']) && !isset($_GET['s_id'])) {
-                $query_where = $this->all_configs['db']->makeQuery('t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+            $query_where = $this->all_configs['db']->makeQuery('t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
                         AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") AND',
-                    array($day_from, $day_to));
-                $query_balance = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")<? AND',
-                    array($day_before));
+                array($day_from, $day_to));
+            $query_balance = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")<? AND',
+                array($day_before));
             //}
 
             // фильтры вручную
@@ -2075,7 +2052,8 @@ class Suppliers
                 $query_where = '';
 
                 if (array_key_exists('supplier_order_id', $filters) && $filters['supplier_order_id'] > 0) {
-                    $query_where = $this->all_configs['db']->makeQuery('t.supplier_order_id=?i AND ?query', array($filters['supplier_order_id'], $query_where));
+                    $query_where = $this->all_configs['db']->makeQuery('t.supplier_order_id=?i AND ?query',
+                        array($filters['supplier_order_id'], $query_where));
                 }
             }
 
@@ -2152,8 +2130,9 @@ class Suppliers
         }
 
         // лимит
-        if ($limit != null && $limit > 0)
+        if ($limit != null && $limit > 0) {
             $query_end = $this->all_configs['db']->makeQuery('?query LIMIT ?i', array($query_end, $limit));
+        }
 
         // какую табличку доставать
         if ($contractors == false) {
@@ -2176,17 +2155,17 @@ class Suppliers
 
         // все транзакции
         $transactions = $this->all_configs['db']->query('SELECT t.id, t.date_transaction, t.comment, t.transaction_type, '
-                    . (((isset($_GET['grp']) && $_GET['grp'] == 1) && $by_day == false) ?
-                        'IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0) as value_from,
+            . (((isset($_GET['grp']) && $_GET['grp'] == 1) && $by_day == false) ?
+                'IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0) as value_from,
                         IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0) as value_to, '
-                        : 'SUM(IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0)) as value_from,
+                : 'SUM(IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0)) as value_from,
                             SUM(IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0)) as value_to, COUNT(t.id) as count_t, ')
-                    . 't.cashboxes_currency_id_from, t.cashboxes_currency_id_to, cc.currency, cb.name, cc.id as c_id,
+            . 't.cashboxes_currency_id_from, t.cashboxes_currency_id_to, cc.currency, cb.name, cc.id as c_id,
                     cc.cashbox_id, ct.name as category_name, c.title as contractor_name, c.id as contractor_id,
                     t.user_id, u.email, u.fio, t.supplier_order_id, t.client_order_id,
                     ' . ($contractors == true ?
-                        't.transaction_id, t.item_id, IFNULL(t.supplier_order_id, UUID()) as unq_supplier_order_id' :
-                        't.chain_id, IFNULL(t.client_order_id, UUID()) as unq_client_order_id') . '
+                't.transaction_id, t.item_id, IFNULL(t.supplier_order_id, UUID()) as unq_supplier_order_id' :
+                't.chain_id, IFNULL(t.client_order_id, UUID()) as unq_client_order_id') . '
                 FROM {' . ($contractors == false ? 'cashboxes_transactions' : 'contractors_transactions') . '} as t
                 LEFT JOIN (SELECT currency, id, cashbox_id FROM {cashboxes_currencies})cc ON (cc.id=t.cashboxes_currency_id_from || cc.id=t.cashboxes_currency_id_to)
                 LEFT JOIN (SELECT name, id FROM {cashboxes})cb ON cb.id=cc.cashbox_id
@@ -2195,9 +2174,9 @@ class Suppliers
                 LEFT JOIN (SELECT id, title FROM {contractors})c ON c.id=l.contractors_id
                 LEFT JOIN (SELECT id, email, fio FROM {users})u ON u.id=t.user_id
                 WHERE ?query 1=1 '
-                . (((isset($_GET['grp']) && $_GET['grp'] == 1) && $by_day == false) ? '' :
+            . (((isset($_GET['grp']) && $_GET['grp'] == 1) && $by_day == false) ? '' :
                 (($contractors == false) ? 'GROUP BY unq_client_order_id' : 'GROUP BY unq_supplier_order_id'))
-                . ' ORDER BY DATE(t.date_transaction) DESC, t.id DESC ?query',
+            . ' ORDER BY DATE(t.date_transaction) DESC, t.id DESC ?query',
             array($query_where, $query_end))->assoc();
 
         if ($transactions) {
@@ -2234,7 +2213,8 @@ class Suppliers
                         'cashboxes_currency_id_to' => $transaction['cashboxes_currency_id_to'],
                         'client_order_id' => $transaction['client_order_id'],
                         'supplier_order_id' => $transaction['supplier_order_id'],
-                        'transaction_id' => array_key_exists('transaction_id', $transaction) ? $transaction['transaction_id'] : '',
+                        'transaction_id' => array_key_exists('transaction_id',
+                            $transaction) ? $transaction['transaction_id'] : '',
                         'item_id' => array_key_exists('item_id', $transaction) ? $transaction['item_id'] : '',
                         'chain_id' => array_key_exists('chain_id', $transaction) ? $transaction['chain_id'] : '',
                         'contractor_id' => $transaction['contractor_id'],
@@ -2262,34 +2242,46 @@ class Suppliers
                     // исключающее
                     if (isset($_GET['cbe']) && $_GET['cbe'] == -1) {
                         if (($transaction['transaction_type'] == 1 &&
-                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'], explode(',', $_GET['cb'])) !== false
+                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'],
+                                    explode(',', $_GET['cb'])) !== false
                             ) ||
                             ($transaction['transaction_type'] == 2 &&
-                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'], explode(',', $_GET['cb'])) !== false
+                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'],
+                                    explode(',', $_GET['cb'])) !== false
                             ) ||
                             ($transaction['transaction_type'] == 3 &&
-                                array_key_exists($transaction['cashboxes_currency_id_from'], $result[$transaction['id']]['cashboxes']) &&
-                                array_key_exists($transaction['cashboxes_currency_id_to'], $result[$transaction['id']]['cashboxes']) &&
-                                (array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'], explode(',', $_GET['cb'])) !== false
+                                array_key_exists($transaction['cashboxes_currency_id_from'],
+                                    $result[$transaction['id']]['cashboxes']) &&
+                                array_key_exists($transaction['cashboxes_currency_id_to'],
+                                    $result[$transaction['id']]['cashboxes']) &&
+                                (array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'],
+                                        explode(',', $_GET['cb'])) !== false
                                     ||
-                                    array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'], explode(',', $_GET['cb'])) !== false)
+                                    array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'],
+                                        explode(',', $_GET['cb'])) !== false)
                             )
                         ) {
                             unset($result[$transaction['id']]);
                         }
                     } else {
                         if (($transaction['transaction_type'] == 1 &&
-                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'], explode(',', $_GET['cb'])) === false
+                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'],
+                                    explode(',', $_GET['cb'])) === false
                             ) ||
                             ($transaction['transaction_type'] == 2 &&
-                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'], explode(',', $_GET['cb'])) === false
+                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'],
+                                    explode(',', $_GET['cb'])) === false
                             ) ||
                             ($transaction['transaction_type'] == 3 &&
-                                array_key_exists($transaction['cashboxes_currency_id_from'], $result[$transaction['id']]['cashboxes']) &&
-                                array_key_exists($transaction['cashboxes_currency_id_to'], $result[$transaction['id']]['cashboxes']) &&
-                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'], explode(',', $_GET['cb'])) === false
+                                array_key_exists($transaction['cashboxes_currency_id_from'],
+                                    $result[$transaction['id']]['cashboxes']) &&
+                                array_key_exists($transaction['cashboxes_currency_id_to'],
+                                    $result[$transaction['id']]['cashboxes']) &&
+                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_from']]['cashbox_id'],
+                                    explode(',', $_GET['cb'])) === false
                                 &&
-                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'], explode(',', $_GET['cb'])) === false
+                                array_search($result[$transaction['id']]['cashboxes'][$transaction['cashboxes_currency_id_to']]['cashbox_id'],
+                                    explode(',', $_GET['cb'])) === false
                             )
                         ) {
                             unset($result[$transaction['id']]);
@@ -2299,7 +2291,8 @@ class Suppliers
             }
         }
 
-        return $this->show_transactions($result, $currencies, $contractors , $by_day, $query_balance, $show_balace, $return_array);
+        return $this->show_transactions($result, $currencies, $contractors, $by_day, $query_balance, $show_balace,
+            $return_array);
     }
 
     /**
@@ -2330,13 +2323,15 @@ class Suppliers
         if ($balances_begin && is_array($balances_begin)) {
             foreach ($balances_begin as $b) {
                 if ($b['currency_to'] != 0) {
-                    if (!array_key_exists($b['currency_to'], $balance_begin))
+                    if (!array_key_exists($b['currency_to'], $balance_begin)) {
                         $balance_begin[$b['currency_to']] = 0;
+                    }
                     $balance_begin[$b['currency_to']] += $b['value_to'];
                 }
                 if ($b['currency_from'] != 0) {
-                    if (!array_key_exists($b['currency_from'], $balance_begin))
+                    if (!array_key_exists($b['currency_from'], $balance_begin)) {
                         $balance_begin[$b['currency_from']] = 0;
+                    }
                     $balance_begin[$b['currency_from']] += $b['value_from'];
                 }
             }
@@ -2350,18 +2345,20 @@ class Suppliers
         $balance_html .= '<p>' . l('Баланс на начало периода') . ': ';
         ksort($balance_begin, SORT_NUMERIC);
         $balance_begin_html = '';
-        foreach ($balance_begin as $c=>$b) {
-            if ($b != 0)
+        foreach ($balance_begin as $c => $b) {
+            if ($b != 0) {
                 $balance_begin_html .= show_price($b) . ' ' . $currencies[$c]['shortName'] . ', ';
+            }
         }
         $balance_html .= empty($balance_begin_html) ? '0, ' : $balance_begin_html;
         $date_from = isset($_GET['df']) ? date('Y-m-01 00:00:00', strtotime($_GET['df'])) : date('Y-m-01 00:00:00');
-        $balance_html .=  l('Дата начала периода') . ': <span title="' . do_nice_date($date_from, false, false) . '">' . do_nice_date($date_from, true, false) . '</span>';
+        $balance_html .= l('Дата начала периода') . ': <span title="' . do_nice_date($date_from, false,
+                false) . '">' . do_nice_date($date_from, true, false) . '</span>';
         $balance_html .= '</p><p>' . l('Баланс на конец периода') . ': ';
         $balance_end_html = '';
         if ($balance && is_array($balance)) {
             ksort($balance, SORT_NUMERIC);
-            foreach ($balance as $k=>$b) {
+            foreach ($balance as $k => $b) {
                 if ($b != 0) {
                     if (array_key_exists($k, $balance_begin)) {
                         $balance_end_html .= show_price($b + $balance_begin[$k]) . ' ' . $currencies[$k]['shortName'] . ', ';
@@ -2375,7 +2372,8 @@ class Suppliers
         }
         $balance_html .= empty($balance_end_html) ? '0, ' : $balance_end_html;
         $date_to = isset($_GET['dt']) ? date('Y-m-t 23:59:59', strtotime($_GET['dt'])) : date('Y-m-t 23:59:59');
-        $balance_html .= l('Дата конца периода') . ': <span title="' . do_nice_date($date_to, false, false) . '">' . do_nice_date($date_to, true, false) . '</span>';
+        $balance_html .= l('Дата конца периода') . ': <span title="' . do_nice_date($date_to, false,
+                false) . '">' . do_nice_date($date_to, true, false) . '</span>';
         $balance_html .= '</p></div>';
 
         return $balance_html;
@@ -2391,16 +2389,24 @@ class Suppliers
      * @param $return_array
      * @return array|string
      */
-    function show_transactions($transactions, $currencies, $contractors, $by_day, $query_balance, $show_balace, $return_array)
-    {
+    function show_transactions(
+        $transactions,
+        $currencies,
+        $contractors,
+        $by_day,
+        $query_balance,
+        $show_balace,
+        $return_array
+    ) {
         $out = '';
 
         if ($transactions) {
             if ($return_array == true) {
                 $out = array();
 
-                $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/ array_fill_keys(array_keys($currencies), '');
-                foreach ($transactions as $transaction_id=>$transaction) {
+                $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/
+                    array_fill_keys(array_keys($currencies), '');
+                foreach ($transactions as $transaction_id => $transaction) {
                     //$sum = 'Неизвестный перевод';
                     $cashbox_info = 'Неизвестная операция';
                     $exp = $inc = 0;
@@ -2410,15 +2416,22 @@ class Suppliers
                     if ($transaction['transaction_type'] == 1 && $transaction['count_t'] == 0) {
                         // с кассы
                         $cashbox_info = '';
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes'])) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes'])
+                        ) {
                             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
                         }
                         // в категорию
                         $cashbox_info .= ' -> ' . $transaction['category_name'];
                         // сумма
                         $exp = show_price($transaction['value_from']);
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes']) &&
-                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'], $currencies)) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'],
+                                $currencies)
+                        ) {
                             $exp .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
                             $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
                             $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
@@ -2432,15 +2445,22 @@ class Suppliers
                     if ($transaction['transaction_type'] == 2 && $transaction['count_t'] == 0) {
                         // в кассу
                         $cashbox_info = '';
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes'])) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes'])
+                        ) {
                             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
                         }
                         // с категории
                         $cashbox_info .= ' <- ' . $transaction['category_name'];
                         // сумма
                         $inc = show_price($transaction['value_to']);
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes']) &&
-                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'], $currencies)) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'],
+                                $currencies)
+                        ) {
                             $inc .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
                             $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
                             $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
@@ -2454,18 +2474,28 @@ class Suppliers
                     if ($transaction['transaction_type'] == 3 /*&& $transaction['count_t'] == 0*/) {
                         // с кассы
                         $cashbox_info = '';
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes'])) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes'])
+                        ) {
                             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
                         }
                         $cashbox_info .= ' -> ';
                         // в кассу
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes'])) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes'])
+                        ) {
                             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
                         }
                         // сумма
                         $exp = show_price($transaction['value_from']);
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes']) &&
-                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'], $currencies)) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'],
+                                $currencies)
+                        ) {
                             $exp .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
                             $total_tr_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
                             $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
@@ -2475,8 +2505,12 @@ class Suppliers
                             $total[$this->currency_suppliers_orders] += $transaction['value_from'];
                         }
                         $inc = show_price($transaction['value_to']);
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes']) &&
-                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'], $currencies)) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'],
+                                $currencies)
+                        ) {
                             $inc .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
                             $total_tr_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
                             $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
@@ -2491,7 +2525,10 @@ class Suppliers
                     if ($transaction['transaction_type'] == 1 && $transaction['count_t'] > 0) {
                         // с кассы
                         $cashbox_info = '';
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes'])) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes'])
+                        ) {
                             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
                         }
                         // в категорию
@@ -2499,8 +2536,12 @@ class Suppliers
                         // сумма
                         $exp = show_price($transaction['value_from']);
                         $inc = show_price($transaction['value_to']);
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes']) &&
-                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'], $currencies)) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'],
+                                $currencies)
+                        ) {
                             $exp .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
                             $inc .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
                             $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'] + $transaction['value_to'];
@@ -2518,7 +2559,10 @@ class Suppliers
                     if ($transaction['transaction_type'] == 2 && $transaction['count_t'] > 0) {
                         // в кассу
                         $cashbox_info = '';
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes'])) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes'])
+                        ) {
                             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
                         }
                         // с категории
@@ -2526,8 +2570,12 @@ class Suppliers
                         // сумма
                         $exp = show_price($transaction['value_from']);
                         $inc = show_price($transaction['value_to']);
-                        if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes']) &&
-                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'], $currencies)) {
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'],
+                                $currencies)
+                        ) {
                             $inc .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
                             $exp .= ' ' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
                             $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_from'] + $transaction['value_to'];
@@ -2548,9 +2596,9 @@ class Suppliers
                     $out[$transaction_id]['Касса'] = ($transaction['count_t'] > 1 ? $group : $cashbox_info);
                     $out[$transaction_id]['Контрагент'] = $transaction['contractor_name'];
                     if ($transaction['client_order_id'] > 0) {
-                        $out[$transaction_id]['Заказ клиента'] =$transaction['client_order_id'];
+                        $out[$transaction_id]['Заказ клиента'] = $transaction['client_order_id'];
                     }
-                    $out[$transaction_id]['Заказ поставщика'] = ($transaction['supplier_order_id'] > 0 ? $this->supplier_order_number(array('id'=>$transaction['supplier_order_id'])) : '');
+                    $out[$transaction_id]['Заказ поставщика'] = ($transaction['supplier_order_id'] > 0 ? $this->supplier_order_number(array('id' => $transaction['supplier_order_id'])) : '');
                     if ($contractors == true) {
                         $out[$transaction_id]['Транзакция'] = $transaction['transaction_id'];
                         $out[$transaction_id]['Доход'] = (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931; ') . $inc;
@@ -2579,241 +2627,291 @@ class Suppliers
                 }
                 // итого
             } else {
-            $out .= '<div class="out-transaction"><table class="table table-striped table-compact"><thead><tr><td></td><td>'.l('Дата').'</td>';
-            $out .= '<td>' . l('Касса') . '</td><td>' . l('Контрагент') . '</td><td>' . l('Заказ клиента') . '</td><td>' . l('Заказ поставщика') . '</td>';
-            if ($contractors == true) {
-                $out .= '<td>' . l('Транзакция') . '</td><td>' . l('Доход') . '</td><td>' . l('Расход') . '</td><td>' . l('Серийник') . '</td>';
-            } else {
-                $out .= '<td>' . l('Цепочка') . '</td><td>' . l('Доход') . '</td><td>' . l('Расход') . '</td>';
-            }
-            $out .= '<td>' . l('Ответственный') . '</td><td>' . l('Примечание') . '</td></tr></thead><tbody>';
-            $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/ array_fill_keys(array_keys($currencies), '');
-            foreach ($transactions as $transaction_id=>$transaction) {
-                //$sum = 'Неизвестный перевод';
-                $cashbox_info = l('Неизвестная операция');
-                $exp = $inc = 0;
-
-                // без группировки
-                // расход
-                if ($transaction['transaction_type'] == 1 && $transaction['count_t'] == 0) {
-                    // с кассы
-                    $cashbox_info = '';
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes'])) {
-                        $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
-                    }
-                    // в категорию
-                    $cashbox_info .= ' &rarr; ' . $transaction['category_name'];
-                    // сумма
-                    $exp = show_price($transaction['value_from']);
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes']) &&
-                        array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'], $currencies)) {
-                        $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
-                        $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
-                        $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
-                    } else {
-                        $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $total[$this->currency_suppliers_orders] += $transaction['value_from'];
-                        $total_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
-                    }
-                }
-                // доход
-                if ($transaction['transaction_type'] == 2 && $transaction['count_t'] == 0) {
-                    // в кассу
-                    $cashbox_info = '';
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes'])) {
-                        $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
-                    }
-                    // с категории
-                    $cashbox_info .= ' &larr; ' . $transaction['category_name'];
-                    // сумма
-                    $inc = show_price($transaction['value_to']);
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes']) &&
-                        array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'], $currencies)) {
-                        $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
-                        $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
-                        $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
-                    } else {
-                        $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $total[$this->currency_suppliers_orders] += $transaction['value_to'];
-                        $total_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
-                    }
-                }
-                // перевод
-                if ($transaction['transaction_type'] == 3 /*&& $transaction['count_t'] == 0*/) {
-                    // с кассы
-                    $cashbox_info = '';
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes'])) {
-                        $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
-                    }
-                    $cashbox_info .= ' &rarr; ';
-                    // в кассу
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes'])) {
-                        $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
-                    }
-                    // сумма
-                    $exp = show_price($transaction['value_from']);
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes']) &&
-                        array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'], $currencies)) {
-                        $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
-                        $total_tr_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
-                        $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
-                    } else {
-                        $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $total_tr_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
-                        $total[$this->currency_suppliers_orders] += $transaction['value_from'];
-                    }
-                    $inc = show_price($transaction['value_to']);
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes']) &&
-                        array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'], $currencies)) {
-                        $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
-                        $total_tr_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
-                        $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
-                    } else {
-                        $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $total_tr_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
-                        $total[$this->currency_suppliers_orders] += $transaction['value_to'];
-                    }
-                }
-                // группировано
-                // расход
-                if ($transaction['transaction_type'] == 1 && $transaction['count_t'] > 0) {
-                    // с кассы
-                    $cashbox_info = '';
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes'])) {
-                        $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
-                    }
-                    // в категорию
-                    $cashbox_info .= ' &rarr; ' . $transaction['category_name'];
-                    // сумма
-                    $exp = show_price($transaction['value_from']);
-                    $inc = show_price($transaction['value_to']);
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'], $transaction['cashboxes']) &&
-                        array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'], $currencies)) {
-                        $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
-                        $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
-                        $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'] + $transaction['value_to'];
-                        $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
-                        $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_to'];
-                    } else {
-                        $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $total[$this->currency_suppliers_orders] += $transaction['value_from'] + $transaction['value_to'];
-                        $total_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
-                        $total_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
-                    }
-                }
-                // доход
-                if ($transaction['transaction_type'] == 2 && $transaction['count_t'] > 0) {
-                    // в кассу
-                    $cashbox_info = '';
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes'])) {
-                        $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
-                    }
-                    // с категории
-                    $cashbox_info .= ' &larr; ' . $transaction['category_name'];
-                    // сумма
-                    $exp = show_price($transaction['value_from']);
-                    $inc = show_price($transaction['value_to']);
-                    if (array_key_exists('cashboxes', $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'], $transaction['cashboxes']) &&
-                        array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'], $currencies)) {
-                        $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
-                        $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
-                        $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_from'] + $transaction['value_to'];
-                        $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_from'];
-                        $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
-                    } else {
-                        $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
-                        $total[$this->currency_suppliers_orders] += $transaction['value_from'] + $transaction['value_to'];
-                        $total_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
-                        $total_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
-                    }
-                }
-                $group = '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?';
-                if ($transaction['supplier_order_id'] > 0) {
-                    $group .= 's_id=' . $transaction['supplier_order_id'] . '&grp=1#transactions-contractors">(';
-                } else if($transaction['client_order_id'] > 0) {
-                    $group .= 'o_id=' . $transaction['client_order_id'] . '&grp=1#transactions-cashboxes">(';
-                }
-                $group .= $transaction['count_t'] . ' транз.)</a>';
-
-                $out .= '<tr>';
-                $out .= '<td>' . $transaction_id . '</td>';
-                $out .= '<td><span title="' . do_nice_date($transaction['date_transaction'], false, false) . '">' . do_nice_date($transaction['date_transaction'], true, false) . '</span></td>';
-                $out .= '<td>' . ($transaction['count_t'] > 1 ? $group : $cashbox_info) . '</td>';
-                $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?ct=' . $transaction['contractor_id'] . '#transactions-contractors">' . $transaction['contractor_name'] . '</a></td>';
-                $out .= '<td>';
-                if ($transaction['client_order_id'] > 0) {
-                    $out .= '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $transaction['client_order_id'] . '">№' . $transaction['client_order_id'] . '</a>';
-                }
-                $out .= '</td>';
-                $out .= '<td>' . ($transaction['supplier_order_id'] > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/edit/' . $transaction['supplier_order_id'] . '#create_supplier_order">' . $this->supplier_order_number(array('id'=>$transaction['supplier_order_id'])). '</a>' : '') . '</td>';
+                $out .= '<div class="out-transaction"><table class="table table-striped table-compact"><thead><tr><td></td><td>' . l('Дата') . '</td>';
+                $out .= '<td>' . l('Касса') . '</td><td>' . l('Контрагент') . '</td><td>' . l('Заказ клиента') . '</td><td>' . l('Заказ поставщика') . '</td>';
                 if ($contractors == true) {
-                    $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?t_id=' . $transaction['transaction_id'] . '#transactions-cashboxes">' . $transaction['transaction_id'] . '</td>';
-                    $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $inc . '</td>';
-                    $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $exp . '</td>';
+                    $out .= '<td>' . l('Транзакция') . '</td><td>' . l('Доход') . '</td><td>' . l('Расход') . '</td><td>' . l('Серийник') . '</td>';
+                } else {
+                    $out .= '<td>' . l('Цепочка') . '</td><td>' . l('Доход') . '</td><td>' . l('Расход') . '</td>';
+                }
+                $out .= '<td>' . l('Ответственный') . '</td><td>' . l('Примечание') . '</td></tr></thead><tbody>';
+                $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/
+                    array_fill_keys(array_keys($currencies), '');
+                foreach ($transactions as $transaction_id => $transaction) {
+                    //$sum = 'Неизвестный перевод';
+                    $cashbox_info = l('Неизвестная операция');
+                    $exp = $inc = 0;
 
-                    if (array_key_exists('count_t', $transaction) && $transaction['count_t'] > 1) {
-                        $out .= '<td>' . $group . '</td>';
-                    } else {
-                        if ($transaction['item_id'] > 0) {
-                        $item = $this->all_configs['db']->query('SELECT serial, id as item_id FROM {warehouses_goods_items} WHERE id=?i',
-                            array($transaction['item_id']))->row();
-                        $out .= '<td>' . suppliers_order_generate_serial($item, true, true) . '</td>';
+                    // без группировки
+                    // расход
+                    if ($transaction['transaction_type'] == 1 && $transaction['count_t'] == 0) {
+                        // с кассы
+                        $cashbox_info = '';
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes'])
+                        ) {
+                            $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
+                        }
+                        // в категорию
+                        $cashbox_info .= ' &rarr; ' . $transaction['category_name'];
+                        // сумма
+                        $exp = show_price($transaction['value_from']);
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'],
+                                $currencies)
+                        ) {
+                            $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
+                            $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
+                            $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
                         } else {
-                            $out .= '<td></td>';
+                            $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $total[$this->currency_suppliers_orders] += $transaction['value_from'];
+                            $total_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
                         }
                     }
-                } else {
-                    if (array_key_exists('count_t', $transaction) && $transaction['count_t'] > 1) {
-                        $out .= '<td>' . $group . '</td>';
-                    } else {
-                        $out .= '<td>' . $transaction['chain_id'] . '</td>';
+                    // доход
+                    if ($transaction['transaction_type'] == 2 && $transaction['count_t'] == 0) {
+                        // в кассу
+                        $cashbox_info = '';
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes'])
+                        ) {
+                            $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
+                        }
+                        // с категории
+                        $cashbox_info .= ' &larr; ' . $transaction['category_name'];
+                        // сумма
+                        $inc = show_price($transaction['value_to']);
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'],
+                                $currencies)
+                        ) {
+                            $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
+                            $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
+                            $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
+                        } else {
+                            $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $total[$this->currency_suppliers_orders] += $transaction['value_to'];
+                            $total_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
+                        }
                     }
-                    $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $inc . '</td>';
-                    $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $exp . '</td>';
+                    // перевод
+                    if ($transaction['transaction_type'] == 3 /*&& $transaction['count_t'] == 0*/) {
+                        // с кассы
+                        $cashbox_info = '';
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes'])
+                        ) {
+                            $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
+                        }
+                        $cashbox_info .= ' &rarr; ';
+                        // в кассу
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes'])
+                        ) {
+                            $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
+                        }
+                        // сумма
+                        $exp = show_price($transaction['value_from']);
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'],
+                                $currencies)
+                        ) {
+                            $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
+                            $total_tr_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
+                            $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
+                        } else {
+                            $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $total_tr_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
+                            $total[$this->currency_suppliers_orders] += $transaction['value_from'];
+                        }
+                        $inc = show_price($transaction['value_to']);
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'],
+                                $currencies)
+                        ) {
+                            $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
+                            $total_tr_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
+                            $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
+                        } else {
+                            $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $total_tr_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
+                            $total[$this->currency_suppliers_orders] += $transaction['value_to'];
+                        }
+                    }
+                    // группировано
+                    // расход
+                    if ($transaction['transaction_type'] == 1 && $transaction['count_t'] > 0) {
+                        // с кассы
+                        $cashbox_info = '';
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes'])
+                        ) {
+                            $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['name'];
+                        }
+                        // в категорию
+                        $cashbox_info .= ' &rarr; ' . $transaction['category_name'];
+                        // сумма
+                        $exp = show_price($transaction['value_from']);
+                        $inc = show_price($transaction['value_to']);
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_from'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'],
+                                $currencies)
+                        ) {
+                            $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
+                            $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']]['shortName'];
+                            $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'] + $transaction['value_to'];
+                            $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_from'];
+                            $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency']] += $transaction['value_to'];
+                        } else {
+                            $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $total[$this->currency_suppliers_orders] += $transaction['value_from'] + $transaction['value_to'];
+                            $total_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
+                            $total_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
+                        }
+                    }
+                    // доход
+                    if ($transaction['transaction_type'] == 2 && $transaction['count_t'] > 0) {
+                        // в кассу
+                        $cashbox_info = '';
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes'])
+                        ) {
+                            $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
+                        }
+                        // с категории
+                        $cashbox_info .= ' &larr; ' . $transaction['category_name'];
+                        // сумма
+                        $exp = show_price($transaction['value_from']);
+                        $inc = show_price($transaction['value_to']);
+                        if (array_key_exists('cashboxes',
+                                $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
+                                $transaction['cashboxes']) &&
+                            array_key_exists($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'],
+                                $currencies)
+                        ) {
+                            $inc .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
+                            $exp .= '&nbsp;' . $currencies[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']]['shortName'];
+                            $total[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_from'] + $transaction['value_to'];
+                            $total_exp[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_from'];
+                            $total_inc[$transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency']] += $transaction['value_to'];
+                        } else {
+                            $inc .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $exp .= '&nbsp;' . $currencies[$this->currency_suppliers_orders]['shortName'];
+                            $total[$this->currency_suppliers_orders] += $transaction['value_from'] + $transaction['value_to'];
+                            $total_exp[$this->currency_suppliers_orders] += $transaction['value_from'];
+                            $total_inc[$this->currency_suppliers_orders] += $transaction['value_to'];
+                        }
+                    }
+                    $group = '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?';
+                    if ($transaction['supplier_order_id'] > 0) {
+                        $group .= 's_id=' . $transaction['supplier_order_id'] . '&grp=1#transactions-contractors">(';
+                    } else {
+                        if ($transaction['client_order_id'] > 0) {
+                            $group .= 'o_id=' . $transaction['client_order_id'] . '&grp=1#transactions-cashboxes">(';
+                        }
+                    }
+                    $group .= $transaction['count_t'] . ' транз.)</a>';
+
+                    $out .= '<tr>';
+                    $out .= '<td>' . $transaction_id . '</td>';
+                    $out .= '<td><span title="' . do_nice_date($transaction['date_transaction'], false,
+                            false) . '">' . do_nice_date($transaction['date_transaction'], true,
+                            false) . '</span></td>';
+                    $out .= '<td>' . ($transaction['count_t'] > 1 ? $group : $cashbox_info) . '</td>';
+                    $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?ct=' . $transaction['contractor_id'] . '#transactions-contractors">' . $transaction['contractor_name'] . '</a></td>';
+                    $out .= '<td>';
+                    if ($transaction['client_order_id'] > 0) {
+                        $out .= '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $transaction['client_order_id'] . '">№' . $transaction['client_order_id'] . '</a>';
+                    }
+                    $out .= '</td>';
+                    $out .= '<td>' . ($transaction['supplier_order_id'] > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/edit/' . $transaction['supplier_order_id'] . '#create_supplier_order">' . $this->supplier_order_number(array('id' => $transaction['supplier_order_id'])) . '</a>' : '') . '</td>';
+                    if ($contractors == true) {
+                        $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?t_id=' . $transaction['transaction_id'] . '#transactions-cashboxes">' . $transaction['transaction_id'] . '</td>';
+                        $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $inc . '</td>';
+                        $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $exp . '</td>';
+
+                        if (array_key_exists('count_t', $transaction) && $transaction['count_t'] > 1) {
+                            $out .= '<td>' . $group . '</td>';
+                        } else {
+                            if ($transaction['item_id'] > 0) {
+                                $item = $this->all_configs['db']->query('SELECT serial, id as item_id FROM {warehouses_goods_items} WHERE id=?i',
+                                    array($transaction['item_id']))->row();
+                                $out .= '<td>' . suppliers_order_generate_serial($item, true, true) . '</td>';
+                            } else {
+                                $out .= '<td></td>';
+                            }
+                        }
+                    } else {
+                        if (array_key_exists('count_t', $transaction) && $transaction['count_t'] > 1) {
+                            $out .= '<td>' . $group . '</td>';
+                        } else {
+                            $out .= '<td>' . $transaction['chain_id'] . '</td>';
+                        }
+                        $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $inc . '</td>';
+                        $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $exp . '</td>';
+                    }
+                    $out .= '<td>' . get_user_name($transaction) . '</td>';
+                    $out .= '<td>' . cut_string($transaction['comment']) . '</td>';
+                    $out .= '</tr>';
                 }
-                $out .= '<td>' . get_user_name($transaction) . '</td>';
-                $out .= '<td>' . cut_string($transaction['comment']) . '</td>';
-                $out .= '</tr>';
-            }
-            // итого
-            $out .= '<tr><td colspan="5"></td><td colspan="2">' . l('Итого') . ': ';
-            $out_inc = $out_exp = $out_trans ='</td><td>';
-            $set = false;
-            foreach ($total as $k => $t) {
-                $show = false;
-                if ($total_inc[$k] > 0 || $total_tr_inc[$k] > 0 || $total_exp[$k] < 0 || $total_tr_exp[$k] < 0) {
-                    $class = 'data-toggle="tooltip" title="Итого" class="' . ($t > 0 ? 'text-success' : 'text-warning') . '"';
-                    $out .= '<br /><span ' . $class . '>' . show_price($t) . '&nbsp;' . $currencies[$k]['shortName'] . '</span>';
-                    $set = $show = true;
+                // итого
+                $out .= '<tr><td colspan="5"></td><td colspan="2">' . l('Итого') . ': ';
+                $out_inc = $out_exp = $out_trans = '</td><td>';
+                $set = false;
+                foreach ($total as $k => $t) {
+                    $show = false;
+                    if ($total_inc[$k] > 0 || $total_tr_inc[$k] > 0 || $total_exp[$k] < 0 || $total_tr_exp[$k] < 0) {
+                        $class = 'data-toggle="tooltip" title="Итого" class="' . ($t > 0 ? 'text-success' : 'text-warning') . '"';
+                        $out .= '<br /><span ' . $class . '>' . show_price($t) . '&nbsp;' . $currencies[$k]['shortName'] . '</span>';
+                        $set = $show = true;
+                    }
+                    if ($total_inc[$k] > 0 || $show == true) {
+                        $out_inc .= '<br /><span title="Доход" class="text-success">';
+                        $out_inc .= show_price($total_inc[$k]) . '&nbsp;' . $currencies[$k]['shortName'] . '</span>';
+                    }
+                    if ($total_tr_inc[$k] > 0 || $total_tr_exp[$k] < 0) {
+                        $out_trans .= '<br /><span data-original-title="Перевод" class="popover-info" data-content="';
+                        $out_trans .= show_price($total_tr_inc[$k]) . '; ' . show_price($total_tr_exp[$k]);
+                        $out_trans .= '">' . show_price($total_tr_inc[$k] + $total_tr_exp[$k]) . '&nbsp;';
+                        $out_trans .= $currencies[$k]['shortName'] . '</span>';
+                    }
+                    if ($total_exp[$k] < 0 || $show == true) {
+                        $out_exp .= '<br /><span title="Расход" class="text-warning">';
+                        $out_exp .= show_price($total_exp[$k]) . '&nbsp;' . $currencies[$k]['shortName'] . '</span>';
+                    }
                 }
-                if ($total_inc[$k] > 0 || $show == true) {
-                    $out_inc .= '<br /><span title="Доход" class="text-success">';
-                    $out_inc .= show_price($total_inc[$k]) . '&nbsp;' . $currencies[$k]['shortName'] . '</span>';
+                if ($set == false) {
+                    $out .= 0;
                 }
-                if ($total_tr_inc[$k] > 0 || $total_tr_exp[$k] < 0) {
-                    $out_trans .= '<br /><span data-original-title="Перевод" class="popover-info" data-content="';
-                    $out_trans .= show_price($total_tr_inc[$k]) . '; ' . show_price($total_tr_exp[$k]);
-                    $out_trans .= '">' . show_price($total_tr_inc[$k] + $total_tr_exp[$k]) . '&nbsp;';
-                    $out_trans .= $currencies[$k]['shortName'] . '</span>';
+                $out .= $out_inc . $out_exp . $out_trans . '</td><td colspan="0"></td></tr>';
+                $out .= '</tbody></table>';
+                if ($show_balace == true) {
+                    $out = $this->balance($query_balance, $contractors, $currencies, $total, $by_day) . $out;
                 }
-                if ($total_exp[$k] < 0 || $show == true) {
-                    $out_exp .= '<br /><span title="Расход" class="text-warning">';
-                    $out_exp .= show_price($total_exp[$k]) . '&nbsp;' . $currencies[$k]['shortName'] . '</span>';
-                }
-            }
-            if ($set == false) $out .= 0;
-            $out .= $out_inc . $out_exp . $out_trans . '</td><td colspan="0"></td></tr>';
-            $out .= '</tbody></table>';
-            if ($show_balace == true) {
-                $out = $this->balance($query_balance, $contractors, $currencies, $total, $by_day) . $out;
-            }
-            $out .= '</div>';
+                $out .= '</div>';
             }
         } else {
-            if ($show_balace == true)
+            if ($show_balace == true) {
                 $out .= $this->balance($query_balance, $contractors, $currencies, null, $by_day);
+            }
             $out .= '<p class="text-danger">' . l('Нет транзакций по Вашему запросу') . '.</p>';
         }
 

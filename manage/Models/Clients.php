@@ -10,7 +10,7 @@ class MClients extends AModel
      * @param $id
      * @return array
      */
-    public function getById($id)
+    public function getByPk($id)
     {
         return $this->query("SELECT * FROM ?t WHERE id=?i", array($this->table, $id))->row();
     }
@@ -58,7 +58,7 @@ class MClients extends AModel
             (isset($post['clients']) ? intval($post['clients']) : 0);
         
         if (isset($post['clients']) && $clientId != 0) {
-            return $this->getById($clientId);
+            return $this->getByPk($clientId);
         }
         if (empty($post['client_fio']) && empty($_POST['client_fio'])) {
             throw new ExceptionWithMsg(l('Укажите ФИО клиента'));
@@ -97,11 +97,11 @@ class MClients extends AModel
     public function columns()
     {
         return array(
+            'id',
             'company_name',
             'inn',
             'kpp',
             'fax',
-            'id',
             'phone',
             'ind',
             'email',

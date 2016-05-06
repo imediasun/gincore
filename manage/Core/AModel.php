@@ -20,6 +20,23 @@ abstract class AModel extends Object
     }
 
     /**
+     * @return string
+     */
+    public function pk()
+    {
+        return 'id';
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function getByPk($id)
+    {
+        return $this->query('SELECT * FROM ?t WHERE ?q=?i', array($this->table, $this->pk(), $id))->row();
+    }
+
+    /**
      * @return array
      */
     abstract public function columns();
@@ -58,37 +75,88 @@ abstract class AModel extends Object
             $params[] = $value;
         }
         $params[1] = implode(',', $fields);
-        return $this->query("INSERT INTO ?t (?q) VALUES (". implode(',', $placeholders).")", $params)->id();
+        return $this->query("INSERT INTO ?t (?q) VALUES (" . implode(',', $placeholders) . ")", $params)->id();
     }
 
     /**
      * @param $conditions
+     * @return string
+     */
+    public function makeConditionsQuery($conditions)
+    {
+        $conditionsQuery = '1=1';
+        if (empty($conditions)) {
+            return $conditionsQuery;
+        }
+        if (!is_array($conditions)) {
+            return $conditions;
+        }
+        foreach ($conditions as $field => $value) {
+            if (is_array($value)) {
+                $conditionsQuery = $this->makeQuery('?q AND ?q IN (?li)', array($conditionsQuery, $field, $value));
+            } else {
+                $conditionsQuery = $this->makeQuery('?q AND ?q=?', array($conditionsQuery, $field, $value));
+            }
+        }
+        return $conditionsQuery;
+    }
+
+    /**
      * @param $options
+     * @param $conditions
      * @return bool|int
      */
-    public function update($conditions, $options)
+    public function update($options, $conditions = '1=1')
     {
         if (empty($options)) {
             return false;
         }
-        $values = array();
-        foreach ($options as $field => $value) {
-            if (!in_array($field, $this->columns())) {
-                continue;
-            }
-            switch (true) {
-                case is_numeric($value):
-                    $values[] = $this->makeQuery('?q=?i', array($field, $value));
-                    break;
-                case $value == 'null':
-                    $values[] = $this->makeQuery('?q=?q', array($field, $value));
-                    break;
-                default:
-                    $values[] = $this->makeQuery('?q=?', array($field, $value));
-            }
+        $values = $this->prepareValues($options);
+
+        return $this->query('UPDATE ?t SET ?q WHERE ?q',
+            array($this->table, implode(',', $values), $this->makeConditionsQuery($conditions)))->id();
+    }
+
+    /**
+     * @param        $field
+     * @param        $value
+     * @param string $conditions
+     * @return bool|int
+     */
+    public function increase($field, $value, $conditions = '1=1')
+    {
+        if (empty($options)) {
+            return false;
         }
 
-        return $this->query('UPDATE ?t SET ?q WHERE ?q', array($this->table, implode(',', $values), $conditions))->id();
+        return $this->query('UPDATE ?t SET ?q=?q+? WHERE ?q', array(
+            $this->table,
+            $field,
+            $field,
+            $value,
+            $this->makeConditionsQuery($conditions)
+        ))->ar();
+    }
+
+    /**
+     * @param $id
+     * @return int
+     */
+    public function delete($id)
+    {
+        return $this->deleteAll(array(
+            $this->pk() => $id
+        ));
+    }
+
+    /**
+     * @param $conditions
+     * @return int
+     */
+    public function deleteAll($conditions)
+    {
+        return $this->query('DELETE FROM ?t WHERE ?q',
+            array($this->table, $this->makeConditionsQuery($conditions)))->ar();
     }
 
     /**
@@ -154,5 +222,30 @@ abstract class AModel extends Object
     public function plainQuery($query, $fetch = null)
     {
         return $this->db->plainQuery($query, $fetch);
+    }
+
+    /**
+     * @param $options
+     * @return array
+     */
+    protected function prepareValues($options)
+    {
+        $values = array();
+        foreach ($options as $field => $value) {
+            if (!in_array($field, $this->columns())) {
+                continue;
+            }
+            switch (true) {
+                case is_numeric($value):
+                    $values[] = $this->makeQuery('?q=?i', array($field, $value));
+                    break;
+                case $value == 'null':
+                    $values[] = $this->makeQuery('?q=?q', array($field, $value));
+                    break;
+                default:
+                    $values[] = $this->makeQuery('?q=?', array($field, $value));
+            }
+        }
+        return $values;
     }
 }

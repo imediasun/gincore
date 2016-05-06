@@ -11,6 +11,9 @@ require_once __DIR__ . '/Core/Exceptions.php';
  * @property MWarehouses  Warehouses
  * @property MClients     Clients
  * @property MOrdersGoods OrdersGoods
+ * @property MCashboxesTransactions CashboxesTransactions
+ * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
+ * @property MOrdersSuppliersClients OrdersSuppliersClients
  */
 class Chains extends Object
 {
@@ -23,7 +26,10 @@ class Chains extends Object
         'Settings',
         'Warehouses',
         'Clients',
-        'OrdersGoods'
+        'OrdersGoods',
+        'ContractorsSuppliersOrders',
+        'OrdersSuppliersClients',
+        'CashboxesTransactions'
     );
 
     //////* типы перемещений *//////
@@ -270,9 +276,7 @@ class Chains extends Object
             } elseif ($order_product['supplier_order_id'] > 0 && $order_product['supplier_order_id'] != $item['supplier_order_id']) {
                 if (isset($data['confirm']) && $data['confirm'] == 1) {
                     // замена партии
-                    $this->all_configs['db']->query(
-                        'UPDATE {orders_suppliers_clients} SET supplier_order_id=?i WHERE order_goods_id=?i',
-                        array($item['supplier_order_id'], $order_product['order_goods_id']));
+                    $this->OrdersSuppliersClients->update(array('supplier_order_id' => $item['supplier_order_id']), array('order_goods_id' => $order_product['order_goods_id']));
                     return $this->bind_item_serial($data, $mod_id, $send);
                 } else {
                     return array(
@@ -869,8 +873,7 @@ class Chains extends Object
             $order_id = isset($post['order_id']) ? $post['order_id'] : ($this->all_configs['arrequest'][2] ? $this->all_configs['arrequest'][2] : 0);
             $product = null;
 
-            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i',
-                array($order_id))->row();
+            $order = $this->Orders->getByPk($order_id);
 
             if (empty($order)) {
                 throw new ExceptionWithMsg('Заказ не найден');
@@ -1358,7 +1361,7 @@ class Chains extends Object
         try {
             $post['price'] = $price($post['amount']);
             if (empty($post['amount']) || ($post['price'] == 0)) {
-                throw new ExceptionWithMsg('Вы не добавили изделие в корзину');
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
 
             if($OrderModel !== null && method_exists($OrderModel, 'getItems')) {
@@ -1375,18 +1378,21 @@ class Chains extends Object
 
             if(!empty($items)) {
                 $this->addSpares($items, $order['id'], $mod_id);
+                $setStatus = $this->all_configs['configs']['order-status-issued'];
             } else {
                 $this->addProducts($post['item_ids'], $order['id'], $mod_id);
+                $setStatus = $this->all_configs['configs']['order-status-waits'];
             }
-
             // статус выдан
             $status = update_order_status(array(
                 'id' => $order['id'],
                 'status' => $this->all_configs['configs']['order-status-new']
-            ), $this->all_configs['configs']['order-status-issued']);
-            if (!$status || !isset($status['closed']) || $status['closed'] == false) {
-                throw  new ExceptionWithMsg($status && array_key_exists('msg',
-                    $status) ? $status['msg'] : 'Заказ не закрыт');
+            ), $setStatus);
+            if (empty($status) || $status['state'] != 1) {
+                if (!isset($status['closed']) || $status['closed'] == false) {
+                    throw  new ExceptionWithMsg($status && array_key_exists('msg',
+                        $status) ? $status['msg'] : l('Заказ не закрыт'));
+                }
             }
             $this->accountantNotification(l('Необходимо принять оплату'), $order['id'], $post['price']);
 
@@ -1481,9 +1487,12 @@ class Chains extends Object
                                 array($free_order['id']));
                         }
                         // связка заказов
-                        $id = $this->all_configs['db']->query('INSERT IGNORE INTO {orders_suppliers_clients}
-                            (client_order_id, supplier_order_id, goods_id, order_goods_id) VALUES (?i, ?i, ?i, ?i)',
-                            array($order_id, $free_order['id'], $product['goods_id'], $product['id']), 'id');
+                        $id = $this->OrdersSuppliersClients->insert(array(
+                            'client_order_id' => $order_id, 
+                            'supplier_order_id' => $free_order['id'], 
+                            'goods_id' => $product['goods_id'], 
+                            'order_goods_id' => $product['id']
+                        ));
 
                         // публичное сообщение
                         if ($id) {
@@ -1973,29 +1982,24 @@ class Chains extends Object
         $client_order_id = $client_order_id == 0 && isset($post['_client_order_id']) ? $post['_client_order_id'] : $client_order_id;
 
         // добавляем транзакцию кассе
-        $transaction_id = $this->all_configs['db']->query(
-            'INSERT INTO {cashboxes_transactions} (transaction_type, cashboxes_currency_id_from,
-                cashboxes_currency_id_to, value_from, value_to, comment, contractor_category_link, date_transaction,
-                user_id, supplier_order_id, client_order_id, chain_id, item_id, goods_id, order_goods_id, type)
-              VALUES (?i, ?n, ?n, ?i, ?i, ?, ?n, ?, ?i, ?n, ?n, ?n, ?n, ?n, ?n, ?i)',
-            array(
-                $post['transaction_type'],
-                $cashboxes_currency_id_from,
-                $cashboxes_currency_id_to,
-                round((float)$post['amount_from'] * 100),
-                round((float)$post['amount_to'] * 100),
-                trim($post['comment']),
-                $contractor_category_link,
-                date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
-                $user_id,
-                $supplier_order_id,
-                $client_order_id,
-                $chain_id,
-                $item_id,
-                $goods_id,
-                $order_goods_id,
-                $type
-            ), 'id');
+        $transaction_id = $this->CashboxesTransactions->insert( array(
+                'transaction_type' => $post['transaction_type'],
+                'cashboxes_currency_id_from' => $cashboxes_currency_id_from,
+                'cashboxes_currency_id_to' => $cashboxes_currency_id_to,
+                'value_from' => round((float)$post['amount_from'] * 100),
+                'value_to' => round((float)$post['amount_to'] * 100),
+                'comment' => trim($post['comment']),
+                'contractor_category_link' => $contractor_category_link,
+                'date_transaction' => date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
+                'user_id' => $user_id,
+                'supplier_order_id' => $supplier_order_id,
+                'client_order_id' => $client_order_id,
+                'chain_id' => $chain_id,
+                'item_id' => $item_id,
+                'goods_id' => $goods_id,
+                'order_goods_id' => $order_goods_id,
+                '`type`' => $type
+            ));
 
         // если транзакция на заказ поставщику
         if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
@@ -2007,8 +2011,7 @@ class Chains extends Object
                 FROM {contractors_suppliers_orders} WHERE id=?i', array($order['id']))->row();
             // закрываем заказ
             if ($o['count'] == 0 && $o['sum'] == 0) {
-                $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET confirm=?i WHERE id=?i',
-                    array(1, $order['id']));
+                $this->ContractorsSuppliersOrders->update(array('confirm' => 1), array('id' => $order['id']));
             }
         }
 
@@ -2111,19 +2114,16 @@ class Chains extends Object
             }
 
             // вносим сумму в заказ
-            $this->all_configs['db']->query('UPDATE {orders} SET sum_paid=sum_paid+?i WHERE id=?i',
-                array($paid, $client_order_id));
+            $this->Orders->increase('sum_paid', $paid, array('id' => $client_order_id));
 
             // вносим сумму в заказ за доставку
             if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'delivery') {
-                $this->all_configs['db']->query('UPDATE {orders} SET delivery_paid=delivery_paid+?i WHERE id=?i',
-                    array($paid, $client_order_id));
+                $this->Orders->increase('delivery_paid', $paid, array('id' => $client_order_id));
             }
 
             // вносим сумму в заказ за комисию (способ оплаты)
             if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'payment') {
-                $this->all_configs['db']->query('UPDATE {orders} SET payment_paid=payment_paid+?i WHERE id=?i',
-                    array($paid, $client_order_id));
+                $this->Orders->increase('payment_paid', $paid, array('id' => $client_order_id));
             }
 
             // если не оплачуем доставку или комиссию(способ оплаты)
@@ -2360,8 +2360,7 @@ class Chains extends Object
                             array(1, $item['supplier_order_id']))->row();
 
                         if ($del && $del['qty_orders'] > $del['qty_free'] && $del['client_order_id'] > 0 && $del['id'] > 0) {
-                            $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id=?i',
-                                array($del['id']));
+                            $this->OrdersSuppliersClients->delete($del['id']);
                             $result = $this->order_item($mod_id, array(
                                 'order_id' => $del['client_order_id'],
                                 'order_product_id' => $del['order_goods_id']
@@ -2668,9 +2667,12 @@ class Chains extends Object
 
             if ($so) {
                 // создаем заявку
-                $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {orders_suppliers_clients}
-                              (client_order_id, supplier_order_id, goods_id, order_goods_id) VALUES (?i, ?i, ?i, ?i)',
-                    array($orderId, $so['id'], $item['goods_id'], $product['id']), 'ar');
+                $ar = $this->OrdersSuppliersClients->insert(array(
+                    'client_order_id' => $orderId, 
+                    'supplier_order_id' => $so['id'], 
+                    'goods_id' => $item['goods_id'], 
+                    'order_goods_id' => $product['id']
+                ));
                 $this->deleteOnePack($orderId, $ar, $so);
             }
             $this->Orders->setOrderSum($orderId, $modId);
@@ -2728,8 +2730,7 @@ class Chains extends Object
                 array($so['id'], $orderId))->row();
 
             if ($link) {
-                $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id=?i',
-                    array($link['id']));
+                $this->OrdersSuppliersClients->delete($link['id']);
 
                 if ($link['manager']) {
                     $this->managerNotification($link['manager'], $link['order_id']);
@@ -2813,7 +2814,7 @@ class Chains extends Object
             $config = $this->Settings->getByName('order-send-sms-with-client-code');
             $host = $this->Settings->getByName('site-for-add-rating');
 
-            $client = $this->Clients->getById($client['id']);
+            $client = $this->Clients->getByPk($client['id']);
             if (!empty($config) && $config == 'on' && $type === 0) {
                 send_sms("+{$client['phone']}",
                     l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->Clients->getClientCode($client['id']));
@@ -3013,6 +3014,11 @@ class Chains extends Object
         return $data;
     }
 
+    /**
+     * @param $items
+     * @param $orderId
+     * @param $modId
+     */
     private function addProducts($items, $orderId, $modId)
     {
         foreach ($items as $item) {
@@ -3024,8 +3030,6 @@ class Chains extends Object
             );
             $this->add_product_order($post, $modId);
         }
-        print_r($items);
-        exit;
     }
 }
 
