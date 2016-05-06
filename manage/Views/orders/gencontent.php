@@ -46,14 +46,12 @@
         <?php if ($this->all_configs['oRole']->hasPrivilege('create-clients-orders')): ?>
             <div id="create_order" class="tab-pane clearfix"></div>
         <?php endif; ?>
-        <?php if ($this->all_configs['oRole']->hasPrivilege('orders-manager')): ?>
-            <div id="orders_manager" class="tab-pane clearfix"></div>
-        <?php endif; ?>
         <?php if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')): ?>
             <div id="show_suppliers_orders" class="tab-pane clearfix"></div>
+            <div id="create_supplier_order" class="tab-pane clearfix"></div>
         <?php endif; ?>
         <?php if ($this->all_configs['oRole']->hasPrivilege('orders-manager')): ?>
-            <div id="create_supplier_order" class="tab-pane clearfix"></div>
+            <div id="orders_manager" class="tab-pane clearfix"></div>
         <?php endif; ?>
     </div>
 </div>
