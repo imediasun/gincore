@@ -38,7 +38,7 @@ abstract class AbstractTemplate
      * @return string
      */
     public function act() {
-        return __CLASS__;
+        return get_class($this);
     }
     
     public function __construct(&$all_configs, $templateTable, $cur_lang)
@@ -77,7 +77,7 @@ abstract class AbstractTemplate
      */
     public function generate_template($arr, $act)
     {
-        $print_html = get_template($act);
+        $print_html = $this->get_template($act);
 
         foreach ($arr as $k => $v) {
             $this->variables .= '<p><b>{{' . $k . '}}</b> - ' . $v['name'] . '</p>';

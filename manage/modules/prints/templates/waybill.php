@@ -74,7 +74,7 @@ class waybill extends AbstractTemplate
                 'amount_in_words' => array('value' => $amount_in_words, 'name' => l('Полная стоимость прописью')),
             );
 
-            $print_html = generate_template($arr, 'waybill');
+            $print_html = $this->generate_template($arr, 'waybill');
         }
         return $print_html;
     }

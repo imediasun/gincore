@@ -150,7 +150,7 @@ class invoice extends AbstractTemplate
             }
 
 
-            $print_html = generate_template($arr, 'invoice');
+            $print_html = $this->generate_template($arr, 'invoice');
         }
         return $print_html;
     }

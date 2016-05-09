@@ -88,7 +88,7 @@ class warranty extends AbstractTemplate
                 'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
             );
 
-            $print_html = generate_template($arr, 'warranty');
+            $print_html = $this->generate_template($arr, 'warranty');
         }
         return $print_html;
     }

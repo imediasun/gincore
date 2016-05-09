@@ -153,7 +153,7 @@ class invoicing extends AbstractTemplate
             }
 
 
-            $print_html = generate_template($arr, 'invoicing');
+            $print_html = $this->generate_template($arr, 'invoicing');
         }
     }
 }

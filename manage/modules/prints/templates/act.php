@@ -117,7 +117,7 @@ class act extends AbstractTemplate
                     'name' => 'Товары и услуги (вставляется внутрь таблицы)'
                 ),
             );
-            $print_html = generate_template($arr, 'act');
+            $print_html = $this->generate_template($arr, 'act');
         }
         return $print_html;
     }

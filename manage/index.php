@@ -18,7 +18,6 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
     header('Location: '.$_SERVER['HTTP_REFERER']);
     exit;
 }
-
 if (!isset($all_configs['arrequest'][1]) || $all_configs['arrequest'][1] != 'ajax') {
     try {
         $usersCount = db()->query('SELECT count(*) FROM {users} u WHERE deleted=0 AND blocked_by_tariff=0')->el();
@@ -358,6 +357,10 @@ if($ifauth){
     if($curmod){
         $all_configs['curmod'] = $curmod;
         $module = new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
+    }elseif($all_configs['arrequest'][0] == 'printphp'){
+        $curmod = $all_configs['curmod'] = 'prints';
+        require_once $all_configs['path'].'modules/prints/index.php';
+        $module = new prints($all_configs);
     }else{
         $curmod = $all_configs['curmod'] = 'dashboard';
         require_once $all_configs['path'].'modules/dashboard/index.php';

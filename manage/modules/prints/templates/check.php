@@ -79,7 +79,7 @@ class check extends AbstractTemplate
             $arr['complect']['value'] .= $order['box'] == 1 ? l('Коробка') . '</br>' : '';
             $arr['complect']['value'] .= $order['equipment'] ? $order['equipment'] : '';
 
-            $print_html = generate_template($arr, 'check');
+            $print_html = $this->generate_template($arr, 'check');
         }
         return $print_html;
     }

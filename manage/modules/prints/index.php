@@ -45,10 +45,28 @@ class prints extends Controller
     public function getTemplate($act)
     {
         if (file_exists(__DIR__ . '/templates/' . $act . '.php')) {
-            require_once(__DIR__ . '/templates/' . $act);
+            require_once(__DIR__ . '/templates/' . $act . '.php');
             return new $act($this->all_configs, $this->templateTable, $this->cur_lang);
         }
         return null;
+    }
+
+    /**
+     * @param array $arrequest
+     * @return string
+     */
+    public function routing(Array $arrequest)
+    {
+        if (isset($_GET['ajax']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            return $this->ajax();
+        }
+
+        // если отправлена форма
+        if (count($_POST) > 0) {
+            return $this->check_post($_POST);
+        }
+
+        return $this->check_get($_GET);
     }
 
     /**
@@ -56,45 +74,42 @@ class prints extends Controller
      */
     public function ajax()
     {
-        if (isset($_GET['ajax']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $return = array('state' => false, 'msg' => 'Произошла ошибка');
+        $return = array('state' => false, 'msg' => 'Произошла ошибка');
 
-            if ($_GET['ajax'] == 'editor' && isset($_GET['act'])) {
-                $save_act = trim($_GET['act']);
-                if (in_array($save_act, array(
-                        'check',
-                        'warranty',
-                        'invoice',
-                        'act',
-                        'invoicing',
-                        'waybill',
-                        'sale_warranty'
-                    )) && isset($_POST['html'])
-                ) {
-                    // remove empty tags
-                    $value = preg_replace("/<[^\/>]*>([\s]?)*<\/[^>]*>/", '', trim($_POST['html']));
-                    $return['state'] = true;
-                    $var_id = $this->all_configs['db']->query("SELECT id FROM {?q} WHERE var = 'print_template_" . $save_act . "'",
-                        array($this->templateTable))->el();
-                    if (empty($var_id)) {
-                        $var_id = $this->all_configs['db']->query("INSERT INTO {?q} (var) VALUES (?)",
-                            array($this->templateTable, 'print_template_' . $save_act), 'id');
-                    }
-                    $this->all_configs['db']->query("INSERT INTO {?q_strings}(var_id,text,lang) "
-                        . "VALUES(?i,?,?) ON DUPLICATE KEY UPDATE text = VALUES(text)",
-                        array($this->templateTable, $var_id, $value, $this->cur_lang));
+        if ($_GET['ajax'] == 'editor' && isset($_GET['act'])) {
+            $save_act = trim($_GET['act']);
+            if (in_array($save_act, array(
+                    'check',
+                    'warranty',
+                    'invoice',
+                    'act',
+                    'invoicing',
+                    'waybill',
+                    'sale_warranty'
+                )) && isset($_POST['html'])
+            ) {
+                // remove empty tags
+                $value = preg_replace("/<[^\/>]*>([\s]?)*<\/[^>]*>/", '', trim($_POST['html']));
+                $return['state'] = true;
+                $var_id = $this->all_configs['db']->query("SELECT id FROM {?q} WHERE var = 'print_template_" . $save_act . "'",
+                    array($this->templateTable))->el();
+                if (empty($var_id)) {
+                    $var_id = $this->all_configs['db']->query("INSERT INTO {?q} (var) VALUES (?)",
+                        array($this->templateTable, 'print_template_' . $save_act), 'id');
                 }
+                $this->all_configs['db']->query("INSERT INTO {?q_strings}(var_id,text,lang) "
+                    . "VALUES(?i,?,?) ON DUPLICATE KEY UPDATE text = VALUES(text)",
+                    array($this->templateTable, $var_id, $value, $this->cur_lang));
             }
-            // загрузка картинки
-            if ($_GET['ajax'] == 'upload') {
-                $return = array(
-                    'file' => upload()
-                );
-
-            }
-
-            Response::json($return);
         }
+        // загрузка картинки
+        if ($_GET['ajax'] == 'upload') {
+            $return = array(
+                'file' => upload()
+            );
+
+        }
+        Response::json($return);
     }
 
     /**
@@ -128,9 +143,10 @@ class prints extends Controller
         }
         $print_html = $this->template->add_edit_form($print_html);
         $print_html = $this->show_select_location($print_html);
-        return $this->view->renderFile('prints/index', array(
+        echo $this->view->renderFile('prints/index', array(
             'print_html' => $print_html,
         ));
+        exit;
     }
 
     /**
