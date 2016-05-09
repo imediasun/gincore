@@ -83,10 +83,10 @@ class feedback extends \service
      */
     private function add($post)
     {
-        if (!empty($post['code'])) {
+        if (!empty($post['code']) && (int) $post['code'] != 0) {
             $client = db()->query('SELECT * FROM {clients} WHERE client_code=?i ', array($post['code']))->row();
         }
-        if (!empty($post['sms'])) {
+        if (!empty($post['sms']) && (int) $post['sms'] != 0) {
             $client = db()->query('SELECT * FROM {clients} WHERE sms_code=? ', array($post['sms']))->row();
         }
         if (empty($client)) {
@@ -150,7 +150,7 @@ class feedback extends \service
         $access = new \access($this->all_configs, false);
         $client = $access->get_client(null, $phones);
         if (empty($client)) {
-            $record = db()->query("SELECT * FROM {changes} WHERE work='update-order-phone' AND `change` like '%?e%' LIMIT 1",
+            $record = db()->query("SELECT * FROM {changes} WHERE work='update-order-phone' AND `change` like '?e' LIMIT 1",
                 array($phones[0]))->row();
             if (!empty($record)) {
                 $client = db()->query("SELECT * FROM {clients} WHERE id in (SELECT user_id FROM {orders} WHERE id=?i)",
