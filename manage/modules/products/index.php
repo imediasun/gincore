@@ -51,6 +51,7 @@ class products extends Controller
     public function render()
     {
         global $input_html;
+        $result = parent::render();
         if (!empty($input_html['mmenu'])) {
             $input_html['menu_span'] = 'col-sm-3';
             $input_html['content_span'] = 'col-sm-9';
@@ -58,7 +59,7 @@ class products extends Controller
             $input_html['menu_span'] = '';
             $input_html['content_span'] = 'col-sm-10 col-sm-offset-1';
         }
-        return parent::render(); 
+        return $result;
     }
 
     /**
