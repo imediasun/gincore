@@ -556,6 +556,22 @@ class users
             $access = new \access($this->all_configs, false);
             $email = $access->is_email($post['email']) ? $post['email'] : '';
             $send = (int)isset($post['send_email']);
+            if($this->all_configs['db']->query('SELECT count(*) FROM {settings} WHERE `name`=?', array(
+                    'need_send_login_log'
+                ))->el() == 0) {
+                $this->all_configs['db']->query('INSERT INTO {settings} (name, value, description, ro, title)
+                VALUES (?, ?, ?, ?, ?)',
+                    array('need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 0, lq('Отправлять ежедневные логи входа на email')));
+
+            }
+            if($this->all_configs['db']->query('SELECT count(*) FROM {settings} WHERE `name`=?', array(
+                    'email_for_send_login_log'
+                ))->el() == 0) {
+                $this->all_configs['db']->query('INSERT INTO {settings} (name, value, description, ro, title)
+                VALUES (?, ?, ?, ?, ?)',
+                    array('email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 0, lq('email на который будут отправлять логи входов в систему')));
+
+            }
             $this->all_configs['db']->query('UPDATE {settings} SET `value`=? WHERE `name`=?',
                 array($email, 'email_for_send_login_log'));
             $this->all_configs['db']->query('UPDATE {settings} SET `value`=? WHERE `name`=?',
