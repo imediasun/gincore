@@ -1845,12 +1845,10 @@ class warehouses
                             $out .= $currencies[$currency_suppliers_orders]['shortName']. '</p>';
                         }
                         $out .= '<p>' . l('Печать') .': <a onclick="global_print_labels()"><i class="cursor-pointer fa fa-print"></i></a></p>';
-                        $out .= '<div class="span4 well"><h4>' . l('Запрос на перемещение') .'</h4>' . $this->all_configs['chains']->moving_item_form(0) . '</div>';
-                        //$out .= $this->all_configs['suppliers_orders']->append_js();
-                        // форма продажи
-                        $out .= '<div class="span4">' . $this->all_configs['chains']->form_sold_items(0) . '</div>';
-                        $out .= '<div class="span3">' . $this->all_configs['chains']->form_write_off_items(0) . '</div>';
-                        $out .= '<div class="span3">' . $this->all_configs['chains']->return_supplier_order_form(0) . '</div>';
+//                        $out .= '<div class="span4 well"><h4>' . l('Запрос на перемещение') .'</h4>' . $this->all_configs['chains']->moving_item_form(0) . '</div>';
+//                        $out .= '<div class="span4">' . $this->all_configs['chains']->form_sold_items(0) . '</div>';
+//                        $out .= '<div class="span3">' . $this->all_configs['chains']->form_write_off_items(0) . '</div>';
+//                        $out .= '<div class="span3">' . $this->all_configs['chains']->return_supplier_order_form(0) . '</div>';
             }
 
         } else {
