@@ -2993,6 +2993,15 @@ class Chains extends Object
         $this->move_item_request($post, $mod_id);
 
         switch ($next) {
+            case 'print_waybill':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+            case 'print_sale_warranty':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=sale_warranty&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+
             case 'print':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];

@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-10">
-            <form method="post" id="eshop-sale-form" parsley-validate>
+        <form method="post" id="eshop-sale-form" parsley-validate>
+            <div class="col-sm-6">
                 <input type="hidden" name="type" value="3">
                 <?= $client['id'] ?>
                 <fieldset>
@@ -41,17 +41,16 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-2">
-                                    <label class="control-label">
-                                        <?= l('Выберите устройство') ?> <b class="text-danger">*</b>:
-                                    </label>
+                                <label class="control-label">
+                                    <?= l('Выберите устройство') ?> <b class="text-danger">*</b>:
+                                </label>
                                 <div class="form-group" id="categories-selected">
-                                    <?= typeahead($this->all_configs['db'], 'categories-last', false,
+                                    <?= typeahead($this->all_configs['db'], 'goods-goods', false,
                                         (!empty($order_data) ?
                                             $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
                                         'display_service_information,get_requests', false, false, '', false,
                                         l('Введите'),
-                                        array(
-                                        )) ?>
+                                        array()) ?>
                                 </div>
                             </div>
                             <div class="form-group col-sm-2">
@@ -68,10 +67,11 @@
                             </div>
                             <div class="form-group col-sm-2">
                                 <label>
-                                    <?= l('Скидка') ?>
+                                    <?= l('Скидка, %') ?>
                                 </label>
                                 <div class="form-group">
-                                    <input type="text" id="eshop_sale_poduct_discount" class="form-control" name="discount"  onkeyup="return sum_calculate();"/>
+                                    <input type="text" id="eshop_sale_poduct_discount" class="form-control"
+                                           name="discount" onkeyup="return sum_calculate();"/>
                                 </div>
                             </div>
                             <div class="form-group col-sm-2">
@@ -79,14 +79,15 @@
                                     <?= l('Кол-во') ?>
                                 </label>
                                 <div class="form-group">
-                                    <input type="text" id="eshop_sale_poduct_quantity" class="form-control" name="quantity"  onkeyup="return sum_calculate();"/>
+                                    <input type="text" id="eshop_sale_poduct_quantity" class="form-control"
+                                           name="quantity" onkeyup="return sum_calculate();"/>
                                 </div>
                             </div>
                             <div class="form-group col-sm-2">
                                 <label><?= l('Сумма') ?> <b class="text-danger">*</b>: </label>
                                 <div class="input-group">
-                                    <input type="text" id="eshop_sale_poduct_sum" class="form-control" value=""
-                                           name="sum"/>
+                                    <input type="text" id="eshop_sale_poduct_sum" class="form-control disabled" value=""
+                                           name="sum" disabled/>
                                     <span class="input-group-addon"><?= viewCurrency() ?></span>
                                 </div>
                                 <ul id="eshop_sale_product_cost_error" class="parsley-errors-list filled"
@@ -105,7 +106,8 @@
                         </div>
                         <?= $this->renderFile('orders/_cart_items_table', array(
                             'prefix' => 'eshop',
-                            'orderWarranties' => $orderWarranties
+                            'orderWarranties' => $orderWarranties,
+                            'defaultWarranty' => $defaultWarranty
                         )) ?>
                     </div>
 
@@ -119,14 +121,15 @@
                             <input type="radio" checked value="0" name="repair"/><?= l('Самовывоз') ?>
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" value="1" name="repair" onclick="alert('click');" /><?= l('Курьером') ?>
+                            <input type="radio" value="1" name="repair" onclick="alert('click');"/><?= l('Курьером') ?>
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" value="2" name="repair" onclick="alert('click');" /><?= l('Почтой') ?>
+                            <input type="radio" value="2" name="repair" onclick="alert('click');"/><?= l('Почтой') ?>
                         </label>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="address" class='form-control hidden' value="" placeholder="<?= l('Укажите адрес') ?>"/>
+                        <input type="text" name="address" class='form-control hidden' value=""
+                               placeholder="<?= l('Укажите адрес') ?>"/>
                     </div>
                 </fieldset>
                 <div class="row-fluid">
@@ -144,15 +147,30 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="#" onclick="eshop_sale(this, 'print_check'); return false;">
+                                <a href="#" onclick="eshop_sale(this, 'print_waybill'); return false;">
                                     <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </form>
-            <div class="col-sm-6 relative"></div>
-        </div>
+            </div>
+            <div class="col-sm-6 js-requests relative">
+                <div id="new_device_form"
+                     class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
+                <fieldset>
+                    <legend><?= l('Заявки') ?></legend>
+                    <div id="eshop_client_requests">
+                        <?php if ($order): ?>
+                            <?= get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'],
+                                $order_data['product_id'], $_GET['on_request']) ?>
+                        <?php else: ?>
+                            <span
+                                class="muted"><?= l('выберите клиента или устройство чтобы увидеть заявки') ?></span>
+                        <?php endif; ?>
+                    </div>
+                </fieldset>
+            </div>
+        </form>
     </div>
 </div>

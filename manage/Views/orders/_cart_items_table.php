@@ -3,7 +3,7 @@
         <table class="table <?= $prefix?>-table-items" style="display:none">
             <thead>
             <tr>
-                <th class="col-sm-6"><?= l('Товар') ?></th>
+                <th class="<?= $prefix == 'quick'? 'col-sm-6': 'col-sm-3' ?>"><?= l('Товар') ?></th>
                 <th class="<?= $prefix == 'quick'? 'col-sm-3': '' ?>"><?= l('Цена') ?></th>
                 <?php if ($prefix == 'eshop'): ?>
                     <th><?= l('Скидка') ?></th>
@@ -42,7 +42,7 @@
                     </td>
                     <td>
                         <div class="input-group col-sm-12">
-                            <input type="text" class="form-control js-<?= $prefix ?>-sum" readonly
+                            <input type="text" class="form-control js-<?= $prefix ?>-sum dasabled" readonly
                                    onkeyup="recalculate_amount_<?= $prefix ?>();" value="" name=""/>
                             <span class="input-group-addon"><?= viewCurrency() ?></span>
                         </div>
@@ -54,7 +54,7 @@
                             <option value=""><?= l('Без гарантии') ?></option>
                             <?php foreach ($orderWarranties as $warranty): ?>
                                 <option
-                                    value="<?= intval($warranty) ?>"><?= intval($warranty) ?></option>
+                                    value="<?= intval($warranty) ?>" <?= $warranty == $defaultWarranty? 'selected' :'' ?>><?= intval($warranty) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="input-group-addon"><?= l('мес') ?></div>

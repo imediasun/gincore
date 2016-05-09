@@ -239,6 +239,16 @@ db()->query("UPDATE {template_vars_strings} as s "
           ."LEFT JOIN {template_vars} as t ON t.id = s.var_id "
           ."SET s.text = ? "
           ."WHERE s.lang = 'kiev' AND t.var = 'print_template_act'", array(lq('print_template_act')));
+//print_template_sale_warranty
+db()->query("UPDATE {template_vars_strings} as s "
+    ."LEFT JOIN {template_vars} as t ON t.id = s.var_id "
+    ."SET s.text = ? "
+    ."WHERE s.lang = 'kiev' AND t.var = 'print_template_sale_warranty'", array(lq('print_template_sale_warranty')));
+//print_template_waybill
+db()->query("UPDATE {template_vars_strings} as s "
+    ."LEFT JOIN {template_vars} as t ON t.id = s.var_id "
+    ."SET s.text = ? "
+    ."WHERE s.lang = 'kiev' AND t.var = 'print_template_waybill'", array(lq('print_template_waybill')));
 
 db()->query('SET FOREIGN_KEY_CHECKS=1');
 

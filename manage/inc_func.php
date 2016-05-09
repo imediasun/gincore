@@ -607,25 +607,26 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
     return $out;
 }
 
-function client_double_typeahead($id = null, $callbacks = ''){
+function client_double_typeahead($id = null, $callbacks = '')
+{
     global $all_configs;
-    $input_id = 'typeahead-double-'.microtime(true).rand(1,99999);
+    $input_id = 'typeahead-double-' . microtime(true) . rand(1, 99999);
     $client = $all_configs['db']->query("SELECT * FROM {clients} WHERE id = ?i", array($id), 'row');
-    $value_field = '<input class="typeahead-double-value" id="'.$input_id.'" type="hidden" name="client_id" value="'.($id ?: '').'">';
-    $phone_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="phone" 
-                     class="form-control typeahead-double" data-id="'.$input_id.'" type="text" 
-                     placeholder="'. l('Телефон') . '" name="client_phone" required
-                     value="'.($client ? $client['phone'] : $client['phone']).'">';
-    $fio_field = '<input data-function="'.$callbacks.'" data-table="clients" data-field="fio" 
-                   class="form-control typeahead-double" type="text"  data-id="'.$input_id.'" 
+    $value_field = '<input class="typeahead-double-value" id="' . $input_id . '" type="hidden" name="client_id" value="' . ($id ?: '') . '">';
+    $phone_field = '<input data-function="' . $callbacks . '" data-table="clients" data-field="phone" 
+                     class="form-control typeahead-double" data-id="' . $input_id . '" type="text" 
+                     placeholder="' . l('Телефон') . '" name="client_phone" required
+                     value="' . ($client ? $client['phone'] : $client['phone']) . '">';
+    $fio_field = '<input data-function="' . $callbacks . '" data-table="clients" data-field="fio" 
+                   class="form-control typeahead-double" type="text"  data-id="' . $input_id . '" 
                    placeholder="' . l('ФИО') . '" name="client_fio" required
-                   value="'.($client ? $client['fio'] : $client['fio']).'">';
-    $id = '<input data-function="'.$callbacks.'" data-table="clients" data-field="id"
-                   class="form-control typeahead-double" type="hidden"  data-id="'.$input_id.'" 
+                   value="' . ($client ? $client['fio'] : $client['fio']) . '">';
+    $id = '<input data-function="' . $callbacks . '" data-table="clients" data-field="id"
+                   class="form-control typeahead-double" type="hidden"  data-id="' . $input_id . '" 
                     name="clients" 
-                   value="'.($client ? $client['id'] : $client['id']).'">';
+                   value="' . ($client ? $client['id'] : $client['id']) . '">';
     return array(
-        'phone' => $value_field.$phone_field,
+        'phone' => $value_field . $phone_field,
         'fio' => $fio_field,
         'id' => $id,
         'tag_id' => $client['tag_id']
@@ -1596,4 +1597,8 @@ function generate_xls_with_login_logs()
     }
 
     return new PHPExcel_Writer_Excel5($xls);
+}
+
+function h($string) {
+    return htmlspecialchars($string);
 }

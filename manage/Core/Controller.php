@@ -42,7 +42,8 @@ abstract class Controller extends Object
         if (count($_POST) > 0) {
             return $this->check_post($_POST);
         }
-        return '';
+        
+        return $this->check_get($_GET);
     }
 
     /**
@@ -103,5 +104,14 @@ abstract class Controller extends Object
         return '<div class="span3"></div>
                 <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') . '</p></div>';
 
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    public function check_get($get)
+    {
+        return '';
     }
 }

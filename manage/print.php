@@ -18,6 +18,7 @@ include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
 require_once __DIR__.'/Core/Response.php';
+require_once __DIR__.'/Core/View.php';
 global $all_configs, $manage_lang;
 
 $langs = get_langs();
@@ -42,7 +43,7 @@ if (isset($_GET['ajax']) && $all_configs['oRole']->hasPrivilege('site-administra
 
     if ($_GET['ajax'] == 'editor' && isset($_GET['act'])) {
         $save_act = trim($_GET['act']);
-        if (in_array($save_act, array('check', 'warranty', 'invoice', 'act', 'invoicing')) && isset($_POST['html'])) {
+        if (in_array($save_act, array('check', 'warranty', 'invoice', 'act', 'invoicing', 'waybill', 'sale_warranty')) && isset($_POST['html'])) {
             // remove empty tags
             $value = preg_replace("/<[^\/>]*>([\s]?)*<\/[^>]*>/", '', trim($_POST['html']));
             $return['state'] = true;
@@ -188,6 +189,162 @@ if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
                 $print_html .= '<div style="font-size: 1.4em;" class="label-box-title">' . htmlspecialchars($location['location']) . '</div>';
 
                 $print_html .= '</div>';
+            }
+        }
+
+        // накладаная на отгрузку товара при продаже
+        if ($act == 'waybill') {
+
+            $order = $all_configs['db']->query('SELECT o.*, e.fio as manager, w.title as wh_title, aw.title as aw_title,
+                                                aw.print_address,aw.print_phone 
+                                                FROM {orders} as o
+                                                LEFT JOIN {users} as e ON e.id=o.manager 
+                                                LEFT JOIN {warehouses} as w ON w.id=o.wh_id 
+                                                LEFT JOIN {warehouses} as aw ON aw.id=o.accept_wh_id 
+                                                WHERE o.id=?i',
+                array($object))->row();
+
+            if ($order) {
+                $amount = 0;
+
+                // товары и услуги
+                $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
+                      FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
+                    array($object))->assoc();
+                $view = new View();
+                $product = $view->renderFile('prints/waybill_products', array(
+                    'goods' => $goods
+                ));
+                if ($goods) {
+                    foreach ($goods as $id => $product) {
+                        if ($product['type'] == 0) {
+                            $products_cost .= ($product['price'] / 100) ;
+                        }
+                    }
+                }
+
+                $editor = true;
+                $arr = array(
+                    'id' => array('value' => intval($order['id']), 'name' => l('ID заказа')),
+                    'date' => array(
+                        'value' => date("d/m/Y", strtotime($order['date_add'])),
+                        'name' => l('Дата создания заказа на продажу')
+                    ),
+                    'now' => array('value' => date("d/m/Y", time()), 'name' => l('Текущая дата')),
+                    'warranty' => array(
+                        'value' => $order['warranty'] > 0 ? $order['warranty'] . ' ' . l('мес') . '' : l('Без гарантии'),
+                        'name' => l('Гарантия')
+                    ),
+                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
+                    'manager' => array('value' => htmlspecialchars($order['manager']), 'name' => l('Менеджер')),
+                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => l('Телефон клиента')),
+                    'warehouse' => array('value' => htmlspecialchars($order['wh_title']), 'name' => l('Название склада')),
+                    'warehouse_accept' => array(
+                        'value' => htmlspecialchars($order['aw_title']),
+                        'name' => l('Название склада приема')
+                    ),
+                    'wh_address' => array(
+                        'value' => htmlspecialchars($order['print_address']),
+                        'name' => l('Адрес склада')
+                    ),
+                    'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => l('Телефон склада')),
+                    'company' => array(
+                        'value' => htmlspecialchars($all_configs['settings']['site_name']),
+                        'name' => l('Название компании')
+                    ),
+                    'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
+                    'products' =>   array('value' => $products, 'name' => l('Товары')),
+                    'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
+                    'amount_in_words' => array('value' => $amount_i_words, 'name' => l('Полная стоимость прописью')),
+                );
+
+                $print_html = generate_template($arr, 'waybill');
+            }
+        }
+
+        // гарантийный талон на продажу
+        if ($act == 'sale_warranty') {
+
+            $order = $all_configs['db']->query('SELECT o.*, e.fio as engineer, w.title as wh_title, aw.title as aw_title,
+                                                aw.print_address,aw.print_phone 
+                                                FROM {orders} as o
+                                                LEFT JOIN {users} as e ON e.id=o.engineer 
+                                                LEFT JOIN {warehouses} as w ON w.id=o.wh_id 
+                                                LEFT JOIN {warehouses} as aw ON aw.id=o.accept_wh_id 
+                                                WHERE o.id=?i',
+                array($object))->row();
+
+            if ($order) {
+                $products = $products_cost = $services = '';
+                $services_cost = array();
+
+
+                // товары и услуги
+                $goods = $all_configs['db']->query('SELECT og.title, og.price, g.type
+                      FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
+                    array($object))->assoc();
+                if ($goods) {
+                    foreach ($goods as $product) {
+                        if ($product['type'] == 0) {
+                            $products .= htmlspecialchars($product['title']) . '<br/>';
+                            $products_cost .= ($product['price'] / 100) . ' ' . viewCurrency() . '<br />';
+                        }
+                        if ($product['type'] == 1) {
+                            $services .= htmlspecialchars($product['title']) . '<br/>';
+                            $services_cost[] = ($product['price'] / 100);
+                        }
+                    }
+                }
+
+                $editor = true;
+                $arr = array(
+                    'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
+                    'date' => array(
+                        'value' => date("d/m/Y", strtotime($order['date_add'])),
+                        'name' => 'Дата создания заказа на ремонт'
+                    ),
+                    'now' => array('value' => date("d/m/Y", time()), 'name' => 'Текущая дата'),
+                    'warranty' => array(
+                        'value' => $order['warranty'] > 0 ? $order['warranty'] . ' ' . l('мес') . '' : 'Без гарантии',
+                        'name' => 'Гарантия'
+                    ),
+                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
+                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
+                    'defect' => array('value' => htmlspecialchars($order['defect']), 'name' => 'Неисправность'),
+                    'engineer' => array('value' => htmlspecialchars($order['engineer']), 'name' => 'Инженер'),
+                    'comment' => array('value' => htmlspecialchars($order['comment']), 'name' => 'Внешний вид'),
+                    'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                    'sum_paid' => array('value' => $order['sum_paid'] / 100, 'name' => 'Оплаченная сумма'),
+                    'products' => array('value' => $products, 'name' => 'Установленные запчасти'),
+                    'products_cost' => array('value' => $products_cost, 'name' => 'Установленные запчасти'),
+                    'services' => array('value' => $services, 'name' => 'Услуги'),
+                    'services_cost' => array(
+                        'value' => implode(' ' . viewCurrency() . '<br />', $services_cost),
+                        'name' => 'Стоимость услуг'
+                    ),
+                    'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                    'product' => array(
+                        'value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']),
+                        'name' => 'Устройство'
+                    ),
+                    'warehouse' => array('value' => htmlspecialchars($order['wh_title']), 'name' => 'Название склада'),
+                    'warehouse_accept' => array(
+                        'value' => htmlspecialchars($order['aw_title']),
+                        'name' => 'Название склада приема'
+                    ),
+                    'wh_address' => array(
+                        'value' => htmlspecialchars($order['print_address']),
+                        'name' => 'Адрес склада'
+                    ),
+                    'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'company' => array(
+                        'value' => htmlspecialchars($all_configs['settings']['site_name']),
+                        'name' => 'Название компании'
+                    ),
+                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
+                );
+
+                $print_html = generate_template($arr, 'sale_warranty');
             }
         }
 

@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-6">
+        <div class="col-sm-7">
             <form method="post" id="quick-sale-form" parsley-validate>
                 <input type="hidden" name="type" value="3">
                 <fieldset>
@@ -44,7 +44,8 @@
                         </div>
                         <?= $this->renderFile('orders/_cart_items_table', array(
                             'prefix' => 'quick',
-                            'orderWarranties' => $orderWarranties                            
+                            'orderWarranties' => $orderWarranties,
+                            'defaultWarranty' => $defaultWarranty
                         )) ?>
                     </div>
 
@@ -73,7 +74,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#" onclick="quick_sale(this, 'print_warranty'); return false;">
+                                <a href="#" onclick="quick_sale(this, 'print_sale_warranty'); return false;">
                                     <?= l('Добавить и распечатать чек и гарантийный талон') ?>
                                 </a>
                             </li>
@@ -101,10 +102,10 @@
                         </label>
                     </div>
                 </div>
-                <!--                <input class="btn btn-primary" type="button" onclick="" value="-->
-                <? //= l('Добавить') ?><!--"/>-->
             </form>
-            <div class="col-sm-6 relative"></div>
+        </div>
+        <div class="col-sm-5 relative">
+            <?= '*' . l('Торговая точка-режим экспресс продажи товаров без указани данных клиента. Достаточно ввести код товара с упаковки и указать цену продажи'); ?>
         </div>
     </div>
 </div>

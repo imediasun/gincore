@@ -563,6 +563,12 @@ function show_fio_prompt(add_to_input, check_input){
 var get_requests_client_id = null;
 var get_requests_product_id = null;
 function get_requests(_this, item_id, response){
+    return base_get_requests(_this, item_id, response, '#client_requests');
+}
+function get_requests_from_eshop(_this, item_id, response){
+    return base_get_requests(_this, item_id, response, '#eshop_client_requests');
+}
+function base_get_requests(_this, item_id, response, id){
     if($(_this).data('table') == 'clients'){
         get_requests_client_id = item_id;
     }
@@ -575,18 +581,20 @@ function get_requests(_this, item_id, response){
             url: prefix+'services/ajax.php',
             type: 'POST',
             data: 'service=crm/requests&'+
-                  'action=get_request_fro_order&'+
-                  'client_id='+get_requests_client_id+'&'+
-                  'product_id='+get_requests_product_id,
+            'action=get_request_fro_order&'+
+            'client_id='+get_requests_client_id+'&'+
+            'product_id='+get_requests_product_id,
             dataType: 'json',
             success: function (data) {
                 if(data.state){
-                    $('#client_requests').html(data.content);
+                    $(id).html(data.content);
                 }
             }
         });
     }
 }
+
+
 function change_crm_request($this){
     var product_id = $this.data('product_id'),
         client_id = $this.data('client_id'),
@@ -785,7 +793,7 @@ function add_eshop_item_to_table() {
     var $row = $('tr.js-eshop-row-cloning'),
       cost = $('#eshop_sale_poduct_sum').val(),
       title = $('#categories-selected > ul.dropdown-menu > li.active > a').html(),
-      id = $('input[name="categories-last"]').val(),
+      id = $('input[name="goods-goods"]').val(),
       price = $('#eshop_sale_poduct_cost').val(),
       discount = $('#eshop_sale_poduct_discount').val(),
       quantity = $('#eshop_sale_poduct_quantity').val(),

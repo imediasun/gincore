@@ -641,13 +641,18 @@ class orders extends Controller
     public function order_for_sale_over_eshop_form($clientId = null)
     {
         $order_data = null;
-        $client_fields_for_sale = client_double_typeahead();
+        $client_id = $order_data ? $order_data['client_id'] : 0;
+        if (!$client_id) {
+            $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
+        }
+        $client_fields_for_sale = client_double_typeahead($client_id, 'get_requests_from_eshop');
         return $this->view->renderFile('orders/order_for_sale_over_eshop_form', array(
             'client' => $client_fields_for_sale,
             'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
                 $this->all_configs['settings']['order_warranties']) : array(),
             'tags' => $this->getTags(),
             'tag' => empty($clientId) ? array() : $this->getTag($clientId),
+            'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0
         ));
     }
 
@@ -666,7 +671,8 @@ class orders extends Controller
                 $this->all_configs['settings']['order_warranties']) : array(),
             'tags' => $this->getTags(),
             'tag' => empty($clientId) ? array() : $this->getTag($clientId),
-            'cashboxes' => $Cashboxes->getPreparedCashboxes($this->getUserId())
+            'cashboxes' => $Cashboxes->getPreparedCashboxes($this->getUserId()),
+            'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0
         ));
     }
 
