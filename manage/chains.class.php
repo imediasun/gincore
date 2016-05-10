@@ -5,15 +5,15 @@ require_once __DIR__ . '/Core/View.php';
 require_once __DIR__ . '/Core/Exceptions.php';
 
 /**
- * @property MHistory     History
- * @property MOrders   Orders
- * @property MSettings    Settings
- * @property MWarehouses  Warehouses
- * @property MClients     Clients
- * @property MOrdersGoods OrdersGoods
- * @property MCashboxesTransactions CashboxesTransactions
+ * @property MHistory                    History
+ * @property MOrders                     Orders
+ * @property MSettings                   Settings
+ * @property MWarehouses                 Warehouses
+ * @property MClients                    Clients
+ * @property MOrdersGoods                OrdersGoods
+ * @property MCashboxesTransactions      CashboxesTransactions
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
- * @property MOrdersSuppliersClients OrdersSuppliersClients
+ * @property MOrdersSuppliersClients     OrdersSuppliersClients
  */
 class Chains extends Object
 {
@@ -276,7 +276,8 @@ class Chains extends Object
             } elseif ($order_product['supplier_order_id'] > 0 && $order_product['supplier_order_id'] != $item['supplier_order_id']) {
                 if (isset($data['confirm']) && $data['confirm'] == 1) {
                     // замена партии
-                    $this->OrdersSuppliersClients->update(array('supplier_order_id' => $item['supplier_order_id']), array('order_goods_id' => $order_product['order_goods_id']));
+                    $this->OrdersSuppliersClients->update(array('supplier_order_id' => $item['supplier_order_id']),
+                        array('order_goods_id' => $order_product['order_goods_id']));
                     return $this->bind_item_serial($data, $mod_id, $send);
                 } else {
                     return array(
@@ -905,7 +906,7 @@ class Chains extends Object
                     array($product['goods_id']))->row();
                 $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?');
                 $data['confirm']['btns'] = $this->view->renderFile('chains.class/add_product_order_confirm', array(
-                   'qty' => $qty,
+                    'qty' => $qty,
                     'product' => $product
                 ));
                 $data['state'] = false;
@@ -1343,33 +1344,34 @@ class Chains extends Object
             }
             $client = $this->Clients->getClient($post);
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
-            
+
             $items = array();
-            if(method_exists($OrderModel, 'getItems')) {
-                $items = $this->prepareEshopSoldItems($OrderModel->getAvailableItems(array_values($post['item_ids'])), $post['item_ids'],
+            if (method_exists($OrderModel, 'getItems')) {
+                $items = $this->prepareEshopSoldItems($OrderModel->getAvailableItems(array_values($post['item_ids'])),
+                    $post['item_ids'],
                     $post['amount']);
             }
 
             $cart = $this->prepareCartInfo($post);
             $setStatus = $this->all_configs['configs']['order-status-new'];
-            
-            
-            if(!empty($items)) {
+
+
+            if (!empty($items)) {
                 foreach ($items as $item) {
-                    if(isset($cart[$item['id']]['quantity'])) {
-                    $this->addSpares(array($item), $order['id'], $mod_id);
+                    if (isset($cart[$item['id']]['quantity'])) {
+                        $this->addSpares(array($item), $order['id'], $mod_id);
                     }
                     $cart[$item['id']]['quantity'] -= 1;
-                    if($cart[$item['id']]['quantity'] == 0) {
-                       unset($cart[$item['id']]); 
+                    if ($cart[$item['id']]['quantity'] == 0) {
+                        unset($cart[$item['id']]);
                     }
                 }
             }
-            if(!empty($cart)) {
+            if (!empty($cart)) {
                 $setStatus = $this->all_configs['configs']['order-status-waits'];
                 $this->addProducts($cart, $order['id'], $mod_id);
             }
-            
+
             $this->changeOrderStatus($order, $setStatus, $post);
 
             $data = array(
@@ -1377,6 +1379,9 @@ class Chains extends Object
                 'location' => $this->all_configs['prefix'] . 'orders/create/' . $order['id'],
                 'id' => $order['id']
             );
+            if(isset($post['next'])) {
+                $data = $this->andPrint($post['next'], $data, $client);
+            }
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
@@ -1441,7 +1446,7 @@ class Chains extends Object
             return $carry + $item;
         }, 0);
     }
-    
+
     /**
      * @param $post
      * @param $mod_id
@@ -1457,10 +1462,11 @@ class Chains extends Object
             $client = $this->Clients->getClient($post);
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
 
-            $items = $this->prepareQuickSoldItems($this->Orders->getAvailableItems(array_values($post['item_ids'])), $post['item_ids'],
+            $items = $this->prepareQuickSoldItems($this->Orders->getAvailableItems(array_values($post['item_ids'])),
+                $post['item_ids'],
                 $post['amount']);
 
-            if(!empty($items)) {
+            if (!empty($items)) {
                 $this->addSpares($items, $order['id'], $mod_id);
             }
             $this->changeOrderStatus($order, $this->all_configs['configs']['order-status-issued'], $post);
@@ -1470,6 +1476,9 @@ class Chains extends Object
                 'location' => $this->all_configs['prefix'] . 'orders/create/' . $order['id'],
                 'id' => $order['id']
             );
+            if(isset($post['next'])) {
+                $data = $this->andPrint($post['next'], $data, $client);
+            }
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
@@ -1557,9 +1566,9 @@ class Chains extends Object
                         }
                         // связка заказов
                         $id = $this->OrdersSuppliersClients->insert(array(
-                            'client_order_id' => $order_id, 
-                            'supplier_order_id' => $free_order['id'], 
-                            'goods_id' => $product['goods_id'], 
+                            'client_order_id' => $order_id,
+                            'supplier_order_id' => $free_order['id'],
+                            'goods_id' => $product['goods_id'],
                             'order_goods_id' => $product['id']
                         ));
 
@@ -1594,7 +1603,7 @@ class Chains extends Object
                             'so_co' => array($order_id),
                             'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
                             'warehouse_type' => $product['warehouse_type'],
-                            'warehouse-order-count' => isset($post['count'])?$post['count']: 1
+                            'warehouse-order-count' => isset($post['count']) ? $post['count'] : 1
                         );
                         $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $arr);
                         if ($data['id'] > 0) {
@@ -2752,9 +2761,9 @@ class Chains extends Object
             if ($so) {
                 // создаем заявку
                 $ar = $this->OrdersSuppliersClients->insert(array(
-                    'client_order_id' => $orderId, 
-                    'supplier_order_id' => $so['id'], 
-                    'goods_id' => $item['goods_id'], 
+                    'client_order_id' => $orderId,
+                    'supplier_order_id' => $so['id'],
+                    'goods_id' => $item['goods_id'],
                     'order_goods_id' => $product['id']
                 ));
                 $this->deleteOnePack($orderId, $ar, $so);
@@ -3006,30 +3015,8 @@ class Chains extends Object
         );
         $this->move_item_request($post, $mod_id);
 
-        switch ($next) {
-            case 'print_waybill':
-                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
-                break;
-            case 'print_sale_warranty':
-                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=sale_warranty&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
-                break;
-
-            case 'print':
-                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
-                break;
-            case 'new_order':
-                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
-                break;
-            case 'print_and_new_order':
-                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
-                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
-                break;
-            default:
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
-                break;
+        if(!empty($next)) {
+            $data = $this->andPrint($next, $data, $client);
         }
 
         // достаем запчасти которые можно проверить по категории (устройству)
@@ -3067,7 +3054,7 @@ class Chains extends Object
         $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
         $close_supplier_order = isset($post['close_supplier_order']) && $post['close_supplier_order'];
         $result = $this->OrdersGoods->remove($order_product_id, $order, $close_supplier_order);
-        if(isset($result['reload'])) {
+        if (isset($result['reload'])) {
             $data['reload'] = 1;
         }
         return $data;
@@ -3108,9 +3095,9 @@ class Chains extends Object
             'secret_title' => $product['secret_title'],
             'url' => $product['url'],
             'foreign_warehouse' => $product['foreign_warehouse'],
-            '`type`' => (int) $product['type'],
-            'warranty' => isset($post['warranty'])? $post['warranty']: 0,
-            'discount' => isset($post['discount'])? $post['discount']: 0,
+            '`type`' => (int)$product['type'],
+            'warranty' => isset($post['warranty']) ? $post['warranty'] : 0,
+            'discount' => isset($post['discount']) ? $post['discount'] : 0,
         );
 
         // пытаемся добавить товар
@@ -3163,29 +3150,29 @@ class Chains extends Object
     }
 
     /**
-    Array
-    (
-    [amount] => Array
-    (
-    [590] => 100
-    )
-    [discount] => Array
-    (
-    [590] => 0
-    )
-    [quantity] => Array
-    (
-    [590] => 10
-    )
-    [item_ids] => Array
-    (
-    [590] => 18
-    )
-    [warranty] => Array
-    (
-    [590] =>
-    )
-    )
+     * Array
+     * (
+     * [amount] => Array
+     * (
+     * [590] => 100
+     * )
+     * [discount] => Array
+     * (
+     * [590] => 0
+     * )
+     * [quantity] => Array
+     * (
+     * [590] => 10
+     * )
+     * [item_ids] => Array
+     * (
+     * [590] => 18
+     * )
+     * [warranty] => Array
+     * (
+     * [590] =>
+     * )
+     * )
      */
     /**
      * @param $post
@@ -3194,12 +3181,12 @@ class Chains extends Object
     private function prepareCartInfo($post)
     {
         $cart = array();
-        
-        if(!emptY($post['item_ids'])) {
+
+        if (!emptY($post['item_ids'])) {
             foreach ($post['item_ids'] as $key => $item_id) {
-                if(empty($cart[$item_id])) {
+                if (empty($cart[$item_id])) {
                     $cart[$item_id] = array(
-                        'quantity' =>  0,
+                        'quantity' => 0,
                         'id' => $item_id
                     );
                 }
@@ -3210,6 +3197,46 @@ class Chains extends Object
             }
         }
         return $cart;
+    }
+
+    /**
+     * @param $next
+     * @param $data
+     * @param $client
+     * @return mixed
+     */
+    protected function andPrint($next, $data, $client)
+    {
+        switch ($next) {
+            case 'print_waybill':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=waybill&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+            case 'print_sale_warranty':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=sale_warranty&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+            case 'print_check':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+
+            case 'print':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+            case 'new_order':
+                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
+                break;
+            case 'print_and_new_order':
+                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
+                break;
+            default:
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+                break;
+        }
+        return $data;
     }
 }
 

@@ -45,12 +45,18 @@ function pay_client_order(_this, tt, order_id, b_id, extra) {
     return false;
 }
 
-function quick_sale(_this, item) {
+function quick_sale(_this, next, from) {
     if (false === $('#quick-sale-form').parsley().validate())
-    return;
+      return;
 
     $(_this).button('loading');
     var data = $(_this).parents('form').serializeArray();
+    if(next){
+        data.push({name: 'next', value: next});
+    }
+    if(from){
+        data.push({name: 'from', value: from});
+    }
     $.ajax({
         url: prefix + module + '/ajax/?act=quick-sale-order',
         type: 'POST',
@@ -58,26 +64,43 @@ function quick_sale(_this, item) {
         data: data,
         success: function(msg) {
             if (msg) {
-                if (msg['state'] == false) {
-                    if (msg['message']) {
-                        alert(msg['message']);
+                if (msg['state'] == false && (msg['msg'] || msg['message'])) {
+                    if (msg['prompt']) {
+                        alert_box(undefined, (msg['msg'] || msg['message']));
+                        $('.bootbox-alert .modal-footer').prepend(msg['btn']);
+                    } else {
+                        alert((msg['msg'] || msg['message']));
                     }
                 }
-                if (msg['location']) {
-                    window.location = msg['location'];
+                if(msg['open_window']) {
+                    window_open(msg['open_window']);
                 }
-
-                $(_this).button('reset');
+                if(msg['location']) {
+                    var cur_loc = window.location.pathname+window.location.search+window.location.hash;
+                    if(msg['location'] == cur_loc){
+                        window.location.reload(true);
+                    }else{
+                        window.location.href = msg['location'];
+                    }
+                }
             }
+            $(_this).button('reset');
         }
     });
 }
-function eshop_sale(_this, item) {
+function eshop_sale(_this, next, from) {
     if (false === $('#eshop-sale-form').parsley().validate())
         return;
+    
 
     $(_this).button('loading');
     var data = $(_this).parents('form').serializeArray();
+    if(next){
+        data.push({name: 'next', value: next});
+    }
+    if(from){
+        data.push({name: 'from', value: from});
+    }
     $.ajax({
         url: prefix + module + '/ajax/?act=eshop-sale-order',
         type: 'POST',
@@ -85,17 +108,27 @@ function eshop_sale(_this, item) {
         data: data,
         success: function(msg) {
             if (msg) {
-                if (msg['state'] == false) {
-                    if (msg['message']) {
-                        alert(msg['message']);
+                if (msg['state'] == false && (msg['msg'] || msg['message'])) {
+                    if (msg['prompt']) {
+                        alert_box(undefined, (msg['msg'] || msg['message']));
+                        $('.bootbox-alert .modal-footer').prepend(msg['btn']);
+                    } else {
+                        alert((msg['msg'] || msg['message']));
                     }
                 }
-                if (msg['location']) {
-                    window.location = msg['location'];
+                if(msg['open_window']) {
+                    window_open(msg['open_window']);
                 }
-            
-                $(_this).button('reset');
+                if(msg['location']) {
+                    var cur_loc = window.location.pathname+window.location.search+window.location.hash;
+                    if(msg['location'] == cur_loc){
+                        window.location.reload(true);
+                    }else{
+                        window.location.href = msg['location'];
+                    }
+                }
             }
+            $(_this).button('reset');
         }
     });
 }
@@ -451,7 +484,6 @@ function add_new_order(_this, next, from) {
                 }
                 if(msg['location']) {
                     var cur_loc = window.location.pathname+window.location.search+window.location.hash;
-                    console.log(cur_loc, msg['location']);
                     if(msg['location'] == cur_loc){
                         window.location.reload(true);
                     }else{

@@ -26,9 +26,9 @@ class waybill extends AbstractTemplate
             $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
-            $view = new View();
+            $view = new View($this->all_configs);
 
-            $products = $view->renderFile('print/waybill_products', array(
+            $products = $view->renderFile('prints/waybill_products', array(
                 'goods' => $goods
             ));
 
@@ -67,9 +67,9 @@ class waybill extends AbstractTemplate
                 ),
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
                 'products' => array('value' => $products, 'name' => l('Товары')),
-                'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
+                'amount' => array('value' => $amount/100, 'name' => l('Полная стоимость')),
                 'amount_in_words' => array(
-                    'value' => $this->amountAsWord($amount),
+                    'value' => $this->amountAsWord($amount/100),
                     'name' => l('Полная стоимость прописью')
                 ),
             );
