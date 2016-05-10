@@ -1,9 +1,12 @@
-.gcw{
+#gcwidgets{
     position: fixed;
     left: 0;
     bottom: 0;
     z-index: 200;
     border-top-right-radius: 3px;
+}
+.gcw {
+    float: left;
 }
 .gcw, .gcw_modal_box{
     font-family: Arial, Verdana;
@@ -192,8 +195,9 @@
 .gcw_feedback_modal {
     background-color: #D9E9E6;
     color: black;
-    margin-left: 170px;
-    width: 140px;
+    /*margin-left: 170px;*/
+    /*width: 140px;*/
+    white-space: nowrap;
 }
 .gcw_feedback_modal >i.fa {
    color:white;

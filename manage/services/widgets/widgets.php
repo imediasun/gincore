@@ -55,7 +55,14 @@ class widgets extends \service
      */
     public function add_html($html)
     {
-        return "jQuery(document).ready(function() { jQuery('body').append(decodeURIComponent('" . rawUrlEncode($html) . "')); });";
+        return "jQuery(document).ready(function () {
+        if (!document.getElementById('gcwidgets')) {
+            var e = $('<div></div>');
+            $('body').append(e);
+            e.attr('id', 'gcwidgets');
+        }
+        jQuery('#gcwidgets').append(decodeURIComponent('" . rawUrlEncode($html) . "'));
+    });";
     }
 
     /**
