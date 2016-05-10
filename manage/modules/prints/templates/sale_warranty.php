@@ -19,76 +19,42 @@ class sale_warranty extends AbstractTemplate
             array($object))->row();
 
         if ($order) {
-            $products = $products_cost = $services = '';
-            $services_cost = array();
-
+            $this->editor = true;
 
             // товары и услуги
             $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
             if ($goods) {
-                foreach ($goods as $product) {
-                    if ($product['type'] == 0) {
-                        $products .= htmlspecialchars($product['title']) . '<br/>';
-                        $products_cost .= ($product['price'] / 100) . ' ' . viewCurrency() . '<br />';
-                    }
-                    if ($product['type'] == 1) {
-                        $services .= htmlspecialchars($product['title']) . '<br/>';
-                        $services_cost[] = ($product['price'] / 100);
-                    }
+                foreach ($goods as $good) {
+
+            $arr = array(
+                'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
+                'date' => array(
+                    'value' => date("d/m/Y", strtotime($order['date_add'])),
+                    'name' => l('Дата создания заказа на ремонт')
+                ),
+                'now' => array('value' => date("d/m/Y", time()), 'name' => l('Текущая дата')),
+                'warranty' => array(
+                    'value' => $order['warranty'] > 0 ? $order['warranty'] . ' ' . l('мес') . '' : l('Без гарантии'),
+                    'name' => l('Гарантия')
+                ),
+                'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
+                'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => l('Телефон клиента')),
+                'manager' => array('value' => htmlspecialchars($order['manager']), 'name' => l('Менеджер')),
+                'product' => array('value' => $good['title'], 'name' => l('Товар')),
+                'price' => array('value' => $good['price'], 'name' => l('Цена')),
+                'price_with_discount' => array('value' => $good['price'] * (1 - $good['discount']/100), 'name' => l('Цена со скидкой')),
+                'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => l('Серийный номер')),
+                'company' => array(
+                    'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                    'name' => l('Название компании')
+                ),
+            );
+                    $print_html .= $this->generate_template($arr, 'sale_warranty');
                 }
             }
 
-            $this->editor = true;
-            $arr = array(
-                'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                'date' => array(
-                    'value' => date("d/m/Y", strtotime($order['date_add'])),
-                    'name' => 'Дата создания заказа на ремонт'
-                ),
-                'now' => array('value' => date("d/m/Y", time()), 'name' => 'Текущая дата'),
-                'warranty' => array(
-                    'value' => $order['warranty'] > 0 ? $order['warranty'] . ' ' . l('мес') . '' : 'Без гарантии',
-                    'name' => 'Гарантия'
-                ),
-                'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
-                'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
-                'defect' => array('value' => htmlspecialchars($order['defect']), 'name' => 'Неисправность'),
-                'engineer' => array('value' => htmlspecialchars($order['engineer']), 'name' => 'Инженер'),
-                'comment' => array('value' => htmlspecialchars($order['comment']), 'name' => 'Внешний вид'),
-                'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
-                'sum_paid' => array('value' => $order['sum_paid'] / 100, 'name' => 'Оплаченная сумма'),
-                'products' => array('value' => $products, 'name' => 'Установленные запчасти'),
-                'products_cost' => array('value' => $products_cost, 'name' => 'Установленные запчасти'),
-                'services' => array('value' => $services, 'name' => 'Услуги'),
-                'services_cost' => array(
-                    'value' => implode(' ' . viewCurrency() . '<br />', $services_cost),
-                    'name' => 'Стоимость услуг'
-                ),
-                'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
-                'product' => array(
-                    'value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']),
-                    'name' => 'Устройство'
-                ),
-                'warehouse' => array('value' => htmlspecialchars($order['wh_title']), 'name' => 'Название склада'),
-                'warehouse_accept' => array(
-                    'value' => htmlspecialchars($order['aw_title']),
-                    'name' => 'Название склада приема'
-                ),
-                'wh_address' => array(
-                    'value' => htmlspecialchars($order['print_address']),
-                    'name' => 'Адрес склада'
-                ),
-                'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
-                'company' => array(
-                    'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
-                    'name' => 'Название компании'
-                ),
-                'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
-            );
-
-            $print_html = $this->generate_template($arr, 'sale_warranty');
         }
         return $print_html;
     }

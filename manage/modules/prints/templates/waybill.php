@@ -19,27 +19,24 @@ class waybill extends AbstractTemplate
 
         $print_html = '';
         if ($order) {
+            $this->editor = true;
             $amount = 0;
-            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-            $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false,
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
 
             // товары и услуги
             $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
             $view = new View();
+
             $products = $view->renderFile('print/waybill_products', array(
                 'goods' => $goods
             ));
 
-            $amount_in_words = 0;
-            $this->editor = true;
-
+            if (!empty($goods)) {
+                foreach ($goods as $good) {
+                    $amount += $good['count'] * $good['price'] * (1 - $good['discount'] / 100);
+                }
+            }
             $arr = array(
                 'id' => array('value' => intval($order['id']), 'name' => l('ID заказа')),
                 'date' => array(
@@ -71,7 +68,10 @@ class waybill extends AbstractTemplate
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
                 'products' => array('value' => $products, 'name' => l('Товары')),
                 'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
-                'amount_in_words' => array('value' => $amount_in_words, 'name' => l('Полная стоимость прописью')),
+                'amount_in_words' => array(
+                    'value' => $this->amountAsWord($amount),
+                    'name' => l('Полная стоимость прописью')
+                ),
             );
 
             $print_html = $this->generate_template($arr, 'waybill');

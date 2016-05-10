@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/../../../Core/View.php';
+require_once __DIR__ . '/../../../Core/View.php';
 
 abstract class AbstractTemplate
 {
@@ -37,10 +37,11 @@ abstract class AbstractTemplate
     /**
      * @return string
      */
-    public function act() {
+    public function act()
+    {
         return get_class($this);
     }
-    
+
     public function __construct(&$all_configs, $templateTable, $cur_lang)
     {
         global $manage_lang;
@@ -51,6 +52,7 @@ abstract class AbstractTemplate
         $this->templateTable = $templateTable;
         $this->view = new View($all_configs);
     }
+
     /**
      * @param $act
      * @return mixed
@@ -129,5 +131,20 @@ abstract class AbstractTemplate
             ));
         }
         return $print_html;
+    }
+
+    /**
+     * @param $amount
+     * @return string
+     */
+    public function amountAsWord($amount)
+    {
+        require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
+        require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
+        require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
+        require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
+        return \php_rutils\RUtils::numeral()->getRubles($amount, false,
+            $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
+            $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
     }
 }
