@@ -1,9 +1,12 @@
-.gcw{
+#gcwidgets{
     position: fixed;
     left: 0;
     bottom: 0;
     z-index: 200;
     border-top-right-radius: 3px;
+}
+.gcw {
+    float: left;
 }
 .gcw, .gcw_modal_box{
     font-family: Arial, Verdana;
@@ -209,7 +212,8 @@
     padding-right: 20px;
 }
 .gcw_status_modal {
-    width: 140px;
+    /*width: 140px;*/
+    white-space: nowrap;
 }
 .gcw_status_modal:hover {
     background-color: #FFB60E;
