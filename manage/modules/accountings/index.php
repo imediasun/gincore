@@ -3271,7 +3271,7 @@ class accountings extends Controller
         //* С кассы 1 3
         $data['content'] .= '<tr class="hide-not-tt-2"><td>* ' . l('С кассы') . '</td>';
         $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control input-sm cashbox-1">' . $select_cashbox . '</select></td>';
-        $data['content'] .= '<td><input ' . $daf . ' class="form-control input-sm" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
+        $data['content'] .= '<td><input '.(empty($daf)?'':'readonly').' class="form-control input-sm ' . $daf . '" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
         $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
         $onchange = '
                 $(\'#amount-2\').val(($(\'#amount-1\').val()*$(\'#conversion-course-1\').val()).toFixed(2));

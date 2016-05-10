@@ -1574,68 +1574,72 @@ class Suppliers extends Object
      */
     function close_order($order_id, $forcibly = false)
     {
-        $data = array('state' => true, 'msg' => 'Успешно закрыт');
+        $data = array('state' => true, 'msg' => l('Успешно закрыт'));
 
-        $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
-            array($order_id))->row();
+        try {
+            $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
+                array($order_id))->row();
+            if (!$order) {
+                throw  new ExceptionWithMsg(l('Pаказ не найден'));
+            }
+            if ($order['confirm'] == 0) {
+                //$data['state'] = false;
+                $data['msg'] = 'Заказ уже закрыт';
+            }
+            if ($order['avail'] == 0) {
+                throw  new ExceptionWithMsg(l('Заказ отменен'));
+            }
+            if ($forcibly == false && (($order['count_come'] - $order['count_debit']) <> 0
+                    || ($order['price'] * $order['count_come'] - $order['sum_paid']) <> 0)
+            ) {
+                throw  new ExceptionWithMsg(l('Заказ еще нельзя закрыть'));
+            }
 
-        if ($data['state'] == true && !$order) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ не найден';
-        }
-        if ($data['state'] == true && $order['confirm'] == 0) {
-            //$data['state'] = false;
-            $data['msg'] = 'Заказ уже закрыт';
-        }
-        if ($data['state'] == true && $order['avail'] == 0) {
-            $data['msg'] = 'Заказ отменен';
-            $data['state'] = false;
-        }
-        if ($data['state'] == true && $forcibly == false && (($order['count_come'] - $order['count_debit']) <> 0
-                || ($order['price'] * $order['count_come'] - $order['sum_paid']) <> 0)
-        ) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ еще нельзя закрыть';
-        }
+            if ($order) {
+                // закрываем заказ
+                $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET confirm=?i WHERE id=?i',
+                    array(1, $order['id']));
 
-        if ($data['state'] == true && $order) {
+                $limit = $order['count_come'] > 0 ? ($order['count_come'] - $order['count_debit']) : $order['count'];
+                if ($limit > 0) {
 
-            // закрываем заказ
-            $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET confirm=?i WHERE id=?i',
-                array(1, $order['id']));
-
-            $limit = $order['count_come'] > 0 ? ($order['count_come'] - $order['count_debit']) : $order['count'];
-            if ($limit > 0) {
-
-                // достаем серийники в заказах
-                $links = $this->all_configs['db']->query('SELECT l.id, i.id as item_id, l.client_order_id as co_id
+                    // достаем серийники в заказах
+                    $links = $this->all_configs['db']->query('SELECT l.id, i.id as item_id, l.client_order_id as co_id
                         FROM {orders_suppliers_clients} as l
                         LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=l.supplier_order_id
                         WHERE l.supplier_order_id=?i AND (i.order_id IS NOT NULL OR i.id IS NULL)
                         ORDER BY l.date_add LIMIT ?i',
-                    array($order_id, $limit))->assoc('id');
+                        array($order_id, $limit))->assoc('id');
 
-                if ($links) {
-                    // удаляем заявки
-                    $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id IN (?li)',
-                        array(array_keys($links)));
+                    if ($links) {
+                        // удаляем заявки
+                        $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id IN (?li)',
+                            array(array_keys($links)));
 
-                    $orders = array();
-                    foreach ($links as $link) {
-                        if ($link['co_id'] > 0) {
-                            $href = $this->all_configs['prefix'] . 'orders/create/' . $link['co_id'];
-                            $orders[$link['co_id']] = '<a href="' . $href . '">' . $link['co_id'] . '</a>';
+                        $orders = array();
+                        foreach ($links as $link) {
+                            if ($link['co_id'] > 0) {
+                                $href = $this->all_configs['prefix'] . 'orders/create/' . $link['co_id'];
+                                $orders[$link['co_id']] = '<a href="' . $href . '">' . $link['co_id'] . '</a>';
+                            }
                         }
-                    }
-                    if (array_filter($orders) > 0) {
-                        include_once $this->all_configs['sitepath'] . 'mail.php';
-                        $messages = new Mailer($this->all_configs);
-                        $content = 'Освободились заказы клиентов: ' . implode(', ', $orders);
-                        $content .= '. Привяжите к другому заказу поставщику либо создайте новый';
-                        $messages->send_message($content, 'Освободились заказы клиентов', 'edit-clients-orders', 1);
+                        if (array_filter($orders) > 0) {
+                            include_once $this->all_configs['sitepath'] . 'mail.php';
+                            $messages = new Mailer($this->all_configs);
+                            $content = l('Освободились заказы клиентов: ') . implode(', ', $orders);
+                            $content .= '. ' . l('Привяжите к другому заказу поставщику либо создайте новый');
+                            $messages->send_message($content, l('Освободились заказы клиентов'), 'edit-clients-orders',
+                                1);
+                        }
                     }
                 }
             }
+
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
         }
 
         return $data;
@@ -1648,7 +1652,7 @@ class Suppliers extends Object
     function debit_order($post, $mod_id)
     {
         if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') && $this->all_configs['configs']['erp-use'] == false) {
-            Response::json(array('msg' => 'У Вас недостаточно прав', 'state' => false));
+            Response::json(array('msg' => l('У Вас недостаточно прав'), 'state' => false));
         }
 
         $order_id = isset($post['order_id']) ? intval($post['order_id']) : 0;
@@ -1665,21 +1669,21 @@ class Suppliers extends Object
 
         if (count($serials) == 0) {
             Response::json(array(
-                'msg' => 'Ведите серийный номер или установите галочку сгенерировать',
+                'msg' => l('Ведите серийный номер или установите галочку сгенерировать'),
                 'state' => false
             ));
         }
 
         if (!$order || $order['count_come'] - $order['count_debit'] == 0) {
-            Response::json(array('msg' => 'Заказ уже полностю приходован', 'state' => false));
+            Response::json(array('msg' => l('Заказ уже полностю приходован'), 'state' => false));
         }
 
         if ($order['supplier'] == 0) {
-            Response::json(array('msg' => 'У заказа не найден поставщик', 'state' => false));
+            Response::json(array('msg' => l('У заказа не найден поставщик'), 'state' => false));
         }
 
         if ($order['avail'] == 0) {
-            Response::json(array('msg' => 'Заказ отменен', 'state' => false));
+            Response::json(array('msg' => l('Заказ отменен'), 'state' => false));
         }
 
         $clear_serials = array_filter($serials);
@@ -1688,12 +1692,12 @@ class Suppliers extends Object
                 'SELECT GROUP_CONCAT(serial) FROM {warehouses_goods_items} WHERE serial IN (?li)',
                 array($clear_serials))->el();
             if ($s) {
-                Response::json(array('msg' => 'Серийники уже используются: ' . $s, 'state' => false));
+                Response::json(array('msg' => l('Серийники уже используются: ') . $s, 'state' => false));
             }
         }
 
         if (count($clear_serials) + count($auto) != $order['count_come']) {
-            Response::json(array('msg' => 'Частичное приходование запрещено', 'state' => false));
+            Response::json(array('msg' => l('Частичное приходование запрещено'), 'state' => false));
         }
 
         $html = '';
@@ -1711,7 +1715,7 @@ class Suppliers extends Object
             } else {
                 $msg[$k] = array(
                     'state' => false,
-                    'msg' => 'Ведите серийный номер или установите галочку сгенерировать'
+                    'msg' => l('Ведите серийный номер или установите галочку сгенерировать')
                 );
             }
             if (!isset($msg[$k])) {
@@ -1723,9 +1727,9 @@ class Suppliers extends Object
                         'item_id' => $item_id,
                         'serial' => trim($serial)
                     ));
-                    $msg[$k] = array('state' => true, 'msg' => 'Серийник ' . $debit_items[$k] . ' успешно добавлен');
+                    $msg[$k] = array('state' => true, 'msg' => l('Серийник ') . $debit_items[$k] . l(' успешно добавлен'));
                 } else {
-                    $msg[$k] = array('state' => false, 'msg' => 'Серийник уже используется');
+                    $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
                 }
             }
         }
@@ -1752,7 +1756,7 @@ class Suppliers extends Object
                 include_once $this->all_configs['sitepath'] . 'mail.php';
                 $messages = new Mailer($this->all_configs);
 
-                $text = 'Ожидаемая запчасть поступила на склад';
+                $text = l('Ожидаемая запчасть поступила на склад');
                 foreach ($links as $co_id => $manager_id) {
                     // добавляем комментарий
                     $this->add_client_order_comment(intval($co_id), $text);
@@ -1785,7 +1789,6 @@ class Suppliers extends Object
 
         // пробуем закрыть заказ
         $this->close_order($order_id, $mod_id);
-
         Response::json(array('result' => $msg, 'print_link' => $print_link, 'html' => $html));
     }
 

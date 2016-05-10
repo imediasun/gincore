@@ -58,7 +58,7 @@ abstract class AModel extends Object
         );
         foreach ($options as $field => $value) {
             $onlyName = preg_replace('/`/', '', $field);
-            if (!in_array($onlyName, $this->columns())) {
+            if (!in_array($onlyName, $this->columns()) || empty($value)) {
                 continue;
             }
             $fields[] = $field;

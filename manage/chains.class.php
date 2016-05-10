@@ -2052,24 +2052,38 @@ class Chains extends Object
         $client_order_id = $client_order_id == 0 && isset($post['_client_order_id']) ? $post['_client_order_id'] : $client_order_id;
 
         // добавляем транзакцию кассе
-        $transaction_id = $this->CashboxesTransactions->insert( array(
-                'transaction_type' => $post['transaction_type'],
-                'cashboxes_currency_id_from' => $cashboxes_currency_id_from,
-                'cashboxes_currency_id_to' => $cashboxes_currency_id_to,
-                'value_from' => round((float)$post['amount_from'] * 100),
-                'value_to' => round((float)$post['amount_to'] * 100),
-                'comment' => trim($post['comment']),
-                'contractor_category_link' => $contractor_category_link,
-                'date_transaction' => date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
-                'user_id' => $user_id,
-                'supplier_order_id' => $supplier_order_id,
-                'client_order_id' => $client_order_id,
-                'chain_id' => $chain_id,
-                'item_id' => $item_id,
-                'goods_id' => $goods_id,
-                'order_goods_id' => $order_goods_id,
-                '`type`' => $type
-            ));
+        $data = array(
+            'transaction_type' => $post['transaction_type'],
+            'value_from' => round((float)$post['amount_from'] * 100),
+            'value_to' => round((float)$post['amount_to'] * 100),
+            'comment' => trim($post['comment']),
+            'contractor_category_link' => $contractor_category_link,
+            'date_transaction' => date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
+            'user_id' => $user_id,
+            'supplier_order_id' => $supplier_order_id,
+            'goods_id' => $goods_id,
+            '`type`' => $type
+        );
+        if (!empty($order_goods_id)) {
+            $data['order_goods_id'] = $order_goods_id;
+        }
+        if (!empty($client_order_id)) {
+            $data['client_order_id'] = $client_order_id;
+        }
+        if (!empty($chain_id)) {
+            $data['chain_id'] = $chain_id;
+        }
+        if (!empty($item_id)) {
+            $data['item_id'] = $item_id;
+        }
+        if (!empty($cashboxes_currency_id_from)) {
+            $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
+        }
+        if (!empty($cashboxes_currency_id_to)) {
+            $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
+        }
+
+        $transaction_id = $this->CashboxesTransactions->insert($data);
 
         // если транзакция на заказ поставщику
         if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
@@ -2890,7 +2904,7 @@ class Chains extends Object
                     l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->Clients->getClientCode($client['id']));
             }
         } catch (Exception $e) {
-            print_r($e->getMessage());
+//            print_r($e->getMessage());
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
         }
     }
