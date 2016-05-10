@@ -1413,6 +1413,7 @@ class Chains extends Object
     {
         $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
         $post['clients'] = $post['client_id'];
+        $post['manager'] = $this->getUserId();
         return $this->sold_items($post, $mod_id);
     }
 

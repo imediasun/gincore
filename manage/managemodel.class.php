@@ -1192,7 +1192,7 @@ class manageModel
             $goods = $this->all_configs['db']->query('SELECT g.*, l.supplier_order_id as so_id, i.id as item_id,
                       i.serial, o.unavailable, o.date_come, o.date_wait, o.count_debit, o.date_come, o.supplier,
                       o.count as count_order, o.date_add, o.count_come, i.date_add as date_debit, co.manager,
-                      g.warehouse_type, o.warehouse_type as order_warehouse_type
+                      g.warehouse_type, o.warehouse_type as order_warehouse_type, g.warranty as warranty
                     FROM {orders} as co, {orders_goods} as g
                     LEFT JOIN {orders_suppliers_clients} as l ON l.order_goods_id=g.id
                     LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
@@ -1203,9 +1203,6 @@ class manageModel
             if ($order_product_id !== null && $goods) {
                 $goods = isset($goods[$order_product_id]) ? $goods[$order_product_id] : null;
             }
-            /*if ($count_ordered == true && $goods) {
-                $goods = current($goods);
-            }*/
         }
 
         return $goods;

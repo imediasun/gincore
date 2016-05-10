@@ -1536,7 +1536,12 @@ class orders extends Controller
             )
         )->assoc();
         $hasEditorPrivilege = $this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
-        return $this->view->renderFile('orders/genorder/genorder', array(
+        if($order['type'] == 1) {
+            $template = 'orders/genorder/genorder';
+        } else {
+            $template = 'orders/quicksaleorder/genorder';
+        }
+        return $this->view->renderFile($template, array(
             'order' => $order,
             'onlyEngineer' => $this->all_configs['oRole']->hasPrivilege('engineer') && !$hasEditorPrivilege,
             'hasEditorPrivilege' => $hasEditorPrivilege,
