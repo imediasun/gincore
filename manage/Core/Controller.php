@@ -63,6 +63,7 @@ abstract class Controller extends Object
         $this->view = new View($all_configs);
         $this->session = Session::getInstance();
         $this->History = new MHistory();
+        $this->applyUses();
     }
 
     /**

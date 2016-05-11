@@ -865,9 +865,10 @@ class Chains extends Object
      * @param      $post
      * @param      $mod_id
      * @param null $order_class
+     * @param bool $appendToSuppliersOrder
      * @return array
      */
-    public function add_product_order($post, $mod_id, $order_class = null)
+    public function add_product_order($post, $mod_id, $order_class = null, $appendToSuppliersOrder= false)
     {
         $data = array('state' => true);
         try {
@@ -915,9 +916,9 @@ class Chains extends Object
 
             if ($product && $order) {
                 if (isset($post['remove'])) {
-                    $data = $this->removeSpareOrder($post, $order, $data);
+                    $data = $this->removeSpareOrder($post, $order, $data, $mod_id);
                 } else {
-                    $data = $this->addSpareOrder($post, $product, $order_id, $data);
+                    $data = $this->addSpareToOrder($post, $product, $order_id, $data);
 
                     if ($data['id'] > 0) {
                         $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
@@ -925,7 +926,8 @@ class Chains extends Object
                         if ($wh_type) {
                             $dt = array(
                                 'order_id' => $order_id,
-                                'order_product_id' => $data['id']
+                                'order_product_id' => $data['id'],
+                                'append' => $appendToSuppliersOrder
                             );
                             $create_supplier_order = $this->order_item($this->all_configs['configs']['orders-manage-page'],
                                 $dt);
@@ -936,6 +938,13 @@ class Chains extends Object
                         // достаем товар в корзине
                         $product = $this->all_configs['manageModel']->order_goods($order['id'], $product['type'],
                             $data['id']);
+
+                        $this->History->save(
+                            'update-order-cart',
+                            $mod_id,
+                            $order['id'],
+                            l('Добавлен') . ' ' . $product['goods_id']
+                        );
                         if ($product && $order_class) {
                             // выводим
                             $data[($product['type'] == 0 ? 'goods' : 'service')] = $order_class->show_product($product);
@@ -1338,6 +1347,8 @@ class Chains extends Object
         $OrderModel = new MOrderEshopSale();
 
         try {
+            $post['total_as_sum'] = 1;
+            $post['sale_type'] = 2;
             $post['price'] = $this->priceCalculate($post['sum']);
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
@@ -1414,6 +1425,8 @@ class Chains extends Object
         $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
         $post['clients'] = $post['client_id'];
         $post['manager'] = $this->getUserId();
+        $post['sale_type'] = 1;
+        $post['total_as_sum'] = 1;
         return $this->sold_items($post, $mod_id);
     }
 
@@ -1517,7 +1530,7 @@ class Chains extends Object
         $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
         try {
             // достаем заказ
-            $order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?', array($order_id))->row();
+            $order = $this->Orders->getByPk($order_id);
             $product = $this->all_configs['manageModel']->order_goods($order_id, null, $order_product_id);
 
             if (!$order) {
@@ -1545,6 +1558,17 @@ class Chains extends Object
                       o.id=i.supplier_order_id ?query
                     GROUP BY i.supplier_order_id ORDER BY free_items DESC, i.date_add LIMIT 1',
                         array($product['goods_id'], $query))->row();
+
+                    if(isset($post['append']) && $post['append'] && (!$free_order || $free_order['id'] == 0)) {
+                        // ищем заказ со для текущего ордера
+                        $free_order = $this->all_configs['db']->query('SELECT o.*, -1 as free_items
+                        FROM {contractors_suppliers_orders} as o
+                        WHERE o.goods_id=?i AND unavailable=0 AND avail=1 AND o.count_debit=0 AND o.warehouse_type=?i
+                         AND o.id IN (SELECT supplier_order_id FROM {orders_suppliers_clients} WHERE client_order_id=?i)
+                        GROUP BY o.id 
+                        ORDER BY o.count_debit DESC, o.date_wait DESC LIMIT 1',
+                            array($product['goods_id'], $product['warehouse_type'], $order_id))->row();
+                    }
 
                     if (!$free_order || $free_order['free_items'] == 0 || $free_order['id'] == 0) {
                         // ищем заказ со свободным местом для заявки
@@ -2705,7 +2729,9 @@ class Chains extends Object
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
-            'cashless' => isset($post['cashless']) ? trim($post['cashless']) : ''
+            'cashless' => isset($post['cashless']) ? trim($post['cashless']) : '',
+            'sale_type' => isset($post['sale_type']) ? $post['sale_type'] : 0,
+            'delivery_by' => isset($post['delivery_by']) ? $post['delivery_by'] : 0,
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -2898,7 +2924,9 @@ class Chains extends Object
             'color' => array_key_exists($color, $this->all_configs['configs']['devices-colors']) ? $color : 'null',
             'equipment' => $equipment ? $this->all_configs['db']->makeQuery(" ? ", array($equipment)) : 'null',
             'warranty' => isset($post['warranty']) ? intval($post['warranty']) : 0,
-            'cashless' => isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0
+            'cashless' => isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0,
+            'delivery_by' => isset($post['delivery_by']) ? intval($post['delivery_by']) : 0,
+            'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
         );
 
         // создаем заказ
@@ -3047,14 +3075,22 @@ class Chains extends Object
      * @param $post
      * @param $order
      * @param $data
+     * @param $mod_id
      * @return mixed
      * @throws ExceptionWithMsg
      */
-    protected function removeSpareOrder($post, $order, $data)
+    protected function removeSpareOrder($post, $order, $data, $mod_id)
     {
         $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
         $close_supplier_order = isset($post['close_supplier_order']) && $post['close_supplier_order'];
+        $good = $this->OrdersGoods->getByPk($order_product_id);
         $result = $this->OrdersGoods->remove($order_product_id, $order, $close_supplier_order);
+        $this->History->save(
+            'update-order-cart',
+            $mod_id,
+            $order['id'],
+            l('Удален') . ' ' . $good['goods_id']
+        );
         if (isset($result['reload'])) {
             $data['reload'] = 1;
         }
@@ -3069,7 +3105,7 @@ class Chains extends Object
      * @return mixed
      * @throws ExceptionWithMsg
      */
-    protected function addSpareOrder($post, $product, $order_id, $data)
+    protected function addSpareToOrder($post, $product, $order_id, $data)
     {
         /**
          * post = array(
@@ -3115,17 +3151,19 @@ class Chains extends Object
     private function addProducts($items, $orderId, $modId)
     {
         foreach ($items as $item) {
-            $post = array(
-                'confirm' => 1,
-                'order_product_id' => null,
-                'order_id' => $orderId,
-                'product_id' => $item['id'],
-                'price' => $item['price'],
-                'warranty' => $item['warranty'],
-                'discount' => $item['discount'],
-                'count' => $item['count']
-            );
-            $this->add_product_order($post, $modId);
+            for (; $item['quantity'] > 0; $item['quantity']--) {
+                $post = array(
+                    'confirm' => 1,
+                    'order_product_id' => null,
+                    'order_id' => $orderId,
+                    'product_id' => $item['id'],
+                    'price' => $item['price'],
+                    'warranty' => $item['warranty'],
+                    'discount' => $item['discount'],
+                    'count' => 1
+                );
+                $this->add_product_order($post, $modId, null, true);
+            }
         }
     }
 

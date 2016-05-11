@@ -117,15 +117,12 @@
                     </div>
                     <div class="form-group">
                         <label><?= l('Способ доставки') ?>: </label><br>
-                        <label class="radio-inline">
-                            <input type="radio" checked value="0" name="repair"/><?= l('Самовывоз') ?>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" value="1" name="repair" onclick="alert('click');"/><?= l('Курьером') ?>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" value="2" name="repair" onclick="alert('click');"/><?= l('Почтой') ?>
-                        </label>
+                        <?php foreach ($deliveryByList as $id => $name): ?>
+                            <label class="radio-inline">
+                                <input type="radio" <?= $id == 1 ? 'checked' : '' ?>
+                                       value="<?= $id ?>" name="delivery_by"/><?= $name ?>
+                            </label>
+                        <?php endforeach; ?>
                     </div>
                     <div class="form-group">
                         <input type="text" name="address" class='form-control hidden' value=""

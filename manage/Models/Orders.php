@@ -4,7 +4,7 @@ require_once __DIR__ . '/../Core/AModel.php';
 /**
  * Class MOrders
  *
- * @property  MHistory   $History
+ * @property  MHistory    $History
  * @property  MWarehouses Warehouses
  */
 class MOrders extends AModel
@@ -15,6 +15,18 @@ class MOrders extends AModel
         'History',
         'Warehouses'
     );
+
+    /**
+     * @return array
+     */
+    public function getDeliveryByList()
+    {
+        return array(
+            1 => l('Самовывоз'),
+            2 => l('Курьером'),
+            3 => l('Почтой')
+        );
+    }
 
     /**
      * @param $options
@@ -202,8 +214,9 @@ class MOrders extends AModel
             'equipment',
             'total_as_sums',
             'total_as_sum',
-            'cashless'
-
+            'cashless',
+            'delivery_by',
+            'sale_type'
         );
     }
 

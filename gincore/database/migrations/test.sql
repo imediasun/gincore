@@ -81,3 +81,15 @@ PRIMARY KEY (`id`),
 INDEX(`user_id`),
 INDEX(`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+/*
+2016_05_06_094627_add_warranty_to_orders_goods.ph
+ */
+ALTER TABLE `restore4_orders_goods` ADD COLUMN warranty int(10) UNSIGNED DEFAULT 0;
+
+/*
+2016_05_11_053602_add_fields_to_orders.ph
+ */
+ALTER TABLE `restore4_orders` ADD COLUMN delivery_by int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_orders` ADD COLUMN sale_type int(10) UNSIGNED DEFAULT 0;
+

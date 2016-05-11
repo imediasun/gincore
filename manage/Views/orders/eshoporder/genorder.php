@@ -1,5 +1,4 @@
 <div class="row-fluid">
-
     <div class="order-form-edit-nav toggle-hidden-box">
         <?= $navigation ?>
         <script type="text/javascript">
@@ -12,11 +11,10 @@
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
-        <div class="span6">
+        <div class="span12">
             <div class="bordered">
                 <div class="row-fluid">
-
-                    <div class="span6">
+                    <div class="span3">
                         <h3 class="m-t-none">
                             № <?= $order['id'] ?>
                             <?= $this->renderFile('orders/genorder/_print_buttons', array(
@@ -28,24 +26,57 @@
                             </button>
                         </h3>
                     </div>
-                    <div class="span6">
-                        <div class="form-group center">
-                            <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
-                                <?= l('Принят') ?>: <?= do_nice_date($order['date_add']) ?>
-                            </small>
-                            <br>
-                            <?php if (mb_strlen($order['courier'], 'UTF-8') > 0): ?>
-                                <i style="color:<?= $color ?>;" title="<?= l('Курьер забрал устройство у клиента') ?>"
-                                   class="fa fa-truck"></i>
-                            <?php endif; ?>
-                            <?php if ($order['np_accept'] == 1): ?>
-                                <i title="<?= l('Принято через почту') ?>" class="fa fa-suitcase text-danger"></i>
-                            <?php else: ?>
-                                <i style="color:<?= $color ?>;" title="<?= l('Принято в сервисном центре') ?>"
-                                   class="<?= htmlspecialchars($order['icon']) ?>"></i>
-                            <?php endif; ?>
-                            <?= $order['aw_title'] ?>&nbsp;<?= timerout($order['id'], true) ?>
+                    <div class="span3">
+                        <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
+                        <div class="form-group clearfix">
+                            <label class="lh30">
+                                <span <?= $style ?>></span>
+                                <span class="cursor-pointer glyphicon glyphicon-list"
+                                      title="<?= l('История перемещений') ?>"
+                                      data-o_id="<?= $order['id'] ?>"
+                                      onclick="alert_box(this, false, 'order-statuses')">
+
+                                </span>
+                                <?= l('Статус') ?>:
+                            </label>
+                            <?= $this->renderFile('orders/genorder/_order_status', array(
+                                'active' => intval($order['status'])
+                            )) ?>
                         </div>
+                    </div>
+                    <div class="span3">
+                        <?= $this->renderFile('orders/genorder/_employers', array(
+                            'users' => $managers,
+                            'order' => $order,
+                            'title' => l('manager'),
+                            'type' => 'manager'
+                        )); ?>
+                    </div>
+                    <div class="span3">
+                        <?php if ($request): ?>
+                            <div class="from-group clearfix">
+                                <?= l('Заявка') . ' ' . $request['id'] . ' ' . do_nice_date($request['date'],
+                                    true) . '<br> '
+                                . '' . l('Звонок') . ' ' . $request['call_id'] . ' ' . do_nice_date($request['call_date'],
+                                    true) . ' '
+                                . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="form-group clearfix <?= !isset($hide['referrer']) ? 'hide-field' : '' ?>">
+                                <label class="lh30">
+                                    <span class="cursor-pointer glyphicon glyphicon-list"
+                                  onclick="alert_box(this, false, 'changes:update-order-referer_id')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
+                                    </span>
+                                    <?= l('Источник') ?>:
+                                </label>
+
+                                <div class="tw100">
+                                    <?= get_service('crm/calls')->get_referers_list($order['referer_id'], '',
+                                        !$hasEditorPrivilege, '') ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -76,303 +107,73 @@
                             </div>
                         </div>
                         <div class="form-group clearfix">
-                            <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list" title="<?= l('История изменений') ?>"
-                                  data-o_id="<?= $order['id'] ?>"
-                                  onclick="alert_box(this, false, 'changes:update-order-category')"></span>
-                                <i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="<?= $order['id'] ?>"
-                                   onclick="alert_box(this, null, 'order-gallery')"></i>
-                                <?= l('Устройство') ?>:
-                            </label>
-                            <?= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4,
-                                'input-medium') ?>
-                        </div>
-                        <div class="form-group clearfix <?= !isset($hide['color']) ? 'hide-field' : '' ?>">
-                            <label class="control-label lh30"><?= l('Цвет') ?>: </label>
-                            <div class="tw100">
-                                <select class="form-control" name="color">
-                                    <?php if (is_null($order['o_color'])): ?>
-                                        <option value="-1" selected disabled><?= l('Не выбран') ?></option>
-                                    <?php endif; ?>
-                                    <?php foreach ($this->all_configs['configs']['devices-colors'] as $id => $color): ?>
-                                        <option <?= (!is_null($order['o_color']) && $order['o_color'] == $id) ? 'selected' : '' ?>
-                                            value="<?= $id ?>">
-                                            <?= $color ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <?= htmlspecialchars($order['note']) ?>
-                        </div>
-                        <?php if ($notSale): ?>
-                            <div class="form-group clearfix <?= !isset($hide['serial']) ? 'hide-field' : '' ?>">
-                                <label class="lh30">
+                            <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
-                                  onclick="alert_box(this, false, 'changes:update-order-serial')"
-                                  data-o_id="<?= $order['id'] ?>"
-                                  title="<?= l('История изменений') ?>">
-
-                            </span>
-                                    S/N:
-                                </label>
-                                <div class="tw100">
-                                    <input type="text" value="<?= htmlspecialchars($order['serial']) ?>" name="serial"
-                                           class="form-control"/>
-                                </div>
-                            </div>
-                            <div class="form-group clearfix <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
-                                <label><?= l('Комлектация') ?>:</label><br>
-                                <?= implode(', ', $parts) ?>
-                            </div>
-
-                            <div class="form-group clearfix <?= !isset($hide['repair-type']) ? 'hide-field' : '' ?>">
-                                <label><?= l('Вид ремонта') ?>:</label>
-                                <?php
-                                switch ($order['repair']) {
-                                    case 0:
-                                        echo l('Платный');
-                                        break;
-                                    case 1:
-                                        echo l('Гарантийный');
-                                        break;
-                                    case 2:
-                                        echo l('Доработка');
-                                        break;
-                                } ?>
-                            </div>
-                            <div class="form-group clearfix">
-                                <label><?= l('Сроки') ?>:</label>
-                                <?= ($order['urgent'] == 1 ? l('Срочный') : l('Не срочный')) ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="span6">
-                        <div class="form-group clearfix">
-                            <label>
-                            <span onclick="alert_box(this, false, 'stock_moves-order')"
-                                  data-o_id="<?= $order['id'] ?>"
-                                  class="cursor-pointer glyphicon glyphicon-list"
-                                  title="<?= l('История перемещений') ?>">
-
-                            </span>
-                                <?= l('Локации') ?>:
+                                  onclick="alert_box(this, false, 'changes:update-order-client_legal_address')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                <?= l('Адрес') ?>:
                             </label>
-                            <?= htmlspecialchars($order['wh_title']) ?>
-                            <?= htmlspecialchars($order['location']) ?>
-                            <i title="<?= l('Переместить заказ') ?>"
-                               onclick="alert_box(this, false, 'stock_move-order', undefined, undefined, 'messages.php')"
-                               data-o_id="<?= $order['id'] ?>"
-                               class="glyphicon glyphicon-move cursor-pointer"></i>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['c_legal_address']) ?>" name="phone"
+                                       class="form-control"/>
+                            </div>
                         </div>
-
-                        <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                         <div class="form-group clearfix">
                             <label class="lh30">
-                                <span <?= $style ?>></span>
-                                <span class="cursor-pointer glyphicon glyphicon-list"
-                                      title="<?= l('История перемещений') ?>"
-                                      data-o_id="<?= $order['id'] ?>"
-                                      onclick="alert_box(this, false, 'order-statuses')">
-
-                                </span>
-                                <?= l('Статус') ?>:
+                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                  onclick="alert_box(this, false, 'changes:update-order-client_email')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                <?= l('Email') ?>:
                             </label>
-                            <?= $this->renderFile('orders/genorder/_order_status', array(
-                                'active' => intval($order['status'])
-                            )) ?>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['c_email']) ?>" name="email"
+                                       class="form-control"/>
+                            </div>
                         </div>
                         <div class="form-group clearfix">
-                            <label><?= l('Приемщик') ?>:</label>
-                            <?= get_user_name($order, 'a_') ?>
+                            <label class="lh30">
+                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                  onclick="alert_box(this, false, 'changes:update-order-delivery_by')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                <?= l('Способ доставки') ?>:
+                            </label>
+                            <?php foreach ($deliveryByList as $id => $name): ?>
+                                <label class="radio-inline">
+                                    <input type="radio" <?= $order['delivery_by'] == $id ? 'checked' : '' ?>
+                                           value="<?= $id ?>" name="delivery_by"/><?= $name ?>
+                                </label>
+                            <?php endforeach; ?>
                         </div>
-                        <?php if ($notSale): ?>
-                            <?php if ($order['manager'] == 0 && $hasEditorPrivilege): ?>
-                                <div class="form-group clearfix">
-                                    <label> <?= l('manager') ?>: </label>
-                                    <input type="submit" name="accept-manager"
-                                           class="accept-manager btn btn-default btn-xs"
-                                           value="<?= l('Взять заказ') ?>"/>
-                                    <input type="hidden" name="accept-manager" value=""/>
-                                </div>
-                            <?php else: ?>
-                                <?= $this->renderFile('orders/genorder/_employers', array(
-                                    'users' => $managers,
-                                    'order' => $order,
-                                    'title' => l('manager'),
-                                    'type' => 'manager'
-                                )); ?>
-                            <?php endif; ?>
-                            <?= $this->renderFile('orders/genorder/_employers', array(
-                                'users' => $engineers,
-                                'order' => $order,
-                                'title' => l('Инженер'),
-                                'type' => 'engineer'
+                    </div>
+                    <div class="span6">
+                        <div class="row-fluid well well-small">
+                            <?= $this->renderFile('orders/genorder/_public_comments', array(
+                                'comments_public' => $comments_public,
+                                'comments_private' => $comments_private,
+                                'onlyEngineer' => $onlyEngineer,
                             )); ?>
-                        <?php endif; ?>
-                        <div
-                            class="form-group clearfix <?= !isset($hide['defect']) || !isset($hide['defect-description']) ? 'hide-field' : '' ?>">
-                            <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list"
-                                  title="<?= l('История изменений') ?>"
-                                  data-o_id="<?= $order['id'] ?>"
-                                  onclick="alert_box(this, false, 'changes:update-order-defect')">
-
-                            </span>
-                                <?= l('Неисправность со слов клиента') ?>:
-                            </label>
-                        <textarea class="form-control"
-                                  name="defect"><?= htmlspecialchars($order['defect']) ?></textarea>
-                        </div>
-                        <div class="form-group clearfix <?= !isset($hide['appearance']) ? 'hide-field' : '' ?>">
-                            <label>
-                            <span class="cursor-pointer glyphicon glyphicon-list"
-                                  title="<?= l('История изменений') ?>"
-                                  data-o_id="<?= $order['id'] ?>"
-                                  onclick="alert_box(this, false, 'changes:update-order-comment')">
-
-                            </span>
-                                <?= l('Примечание') ?>/<?= l('Внешний вид') ?>:
-                            </label>
-                            <textarea class="form-control"
-                                      name="comment"><?= htmlspecialchars($order['comment']) ?></textarea>
+                            <?= $this->renderFile('orders/genorder/_private_comments', array(
+                                'comments_public' => $comments_public,
+                                'comments_private' => $comments_private,
+                                'onlyEngineer' => $onlyEngineer,
+                            )); ?>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row-fluid bordered">
-                <div class="span6">
-                    <?php if ($notSale): ?>
-                        <div class="form-group clearfix <?= !isset($hide['available-date']) ? 'hide-field' : '' ?>">
-                            <label><?= l('Ориентировочная дата готовности') ?>: </label>
-                            <span title="<?= do_nice_date($order['date_readiness'],
-                                false) ?>"><?= do_nice_date($order['date_readiness']) ?></span>
-                        </div>
-                        <?php if ($hasEditorPrivilege): ?>
-                            <div class="form-group clearfix"><label><?= l('Ориентировочная стоимость') ?>: </label>
-                                <?= ($order['approximate_cost'] / 100) ?> <?= viewCurrency() ?>
-                            </div>
-                        <?php endif; ?>
-                        <div class="form-group clearfix <?= !isset($hide['addition-info']) ? 'hide-field' : '' ?>">
-                            <span style="margin:4px 10px 0 0"
-                                  class="pull-left cursor-pointer glyphicon glyphicon-list muted"
-                                  onclick="alert_box(this, false, 'changes:update-order-client_took')"
-                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
-                            </span>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" value="1" <?= ($order['client_took'] == 1 ? 'checked' : '') ?>
-                                       name="client_took">
-                                <?= l('Устройство у клиента') ?>
-                            </label>
-                        </div>
-                        <?php $onclick = 'if ($(this) . prop(\'checked\')){$(\'.replacement_fund\').val(\'\');$(\'.replacement_fund\').prop(\'disabled\', false);$(\'.replacement_fund\').show();$(this).parent().parent().addClass(\'warning\');}else{$(\'.replacement_fund\').hide();$(this).parent().parent().removeClass(\'warning\');}'; ?>
-                        <div
-                            class="form-group clearfix <?= !isset($hide['addition-info']) ? 'hide-field' : '' ?> <?= ($order['is_replacement_fund'] == 1 ? ' warning' : '') ?>">
-                            <span style="margin:4px 10px 0 0"
-                                  class="pull-left cursor-pointer glyphicon glyphicon-list muted"
-                                  onclick="alert_box(this, false, 'changes:update-order-replacement_fund')"
-                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                            <label class="checkbox-inline">
-                                <input onclick="<?= $onclick ?>" type="checkbox" value="1"
-                                    <?= ($order['is_replacement_fund'] == 1 ? 'checked' : '') ?>
-                                       name="is_replacement_fund"/>
-                                <?= l('Подменный фонд') ?>
-                            </label>
-                            <input <?= ($order['is_replacement_fund'] == 1 ? 'disabled' : 'style="display:none;"') ?>
-                                type="text" placeholder="<?= l('Модель, серийный номер') ?>"
-                                class="form-control replacement_fund"
-                                value="<?= htmlspecialchars($order['replacement_fund']) ?>"
-                                name="replacement_fund"/>
-                        </div>
-                        <div class="form-group clearfix <?= !isset($hide['addition-info']) ? 'hide-field' : '' ?>">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" value="1" <?= ($order['nonconsent'] == 1 ? 'checked' : '') ?>
-                                       name="nonconsent"/>
-                                <?= l('Можно пускать в работу без согласования') ?>
-                            </label>
-                        </div>
-                        <div class="form-group clearfix <?= !isset($hide['addition-info']) ? 'hide-field' : '' ?>">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" value="1" <?= ($order['is_waiting'] == 1 ? 'checked' : '') ?>
-                                       name="is_waiting"/>
-                                <?= l('Клиент готов ждать 2-3 недели запчасть') ?>
-                            </label>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <div class="span6">
-                    <?php if ($notSale): ?>
-                        <?php if ($order['return_id'] > 0 || $this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
-                            <div class="form-group clearfix">
-                                <label><?= l('Номер возврата') ?>: </label>
-                                <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
-                                    <label class="lh30" style="font-weight: normal">
-                                        <?= $order['id'] ?>-
-                                    </label>
-                                    <div class="tw100">
-                                        <?php if (!empty($returns)): ?>
-                                            <select name="return_id" class="form-control">
-                                                <option value="-1"><?= l("Не выбрано") ?></option>
-                                                <?php foreach ($returns as $return): ?>
-                                                    <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
-                                                        value="<?= $return['id'] ?>">
-                                                        <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . $this->all_configs['configs']['currencies'][$return['currency']]['name'] . ")" ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <?= $order['id'] ?>-<?= $order['return_id']; ?>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                    <?= $this->renderFile('orders/genorder/_warranties', array(
-                        'order' => $order,
+                <div class="span12">
+                    <?= $this->renderFile('orders/eshoporder/_spares', array(
+                        'onlyEngineer' => $onlyEngineer,
+                        'hasEditorPrivilege' => $hasEditorPrivilege,
+                        'notSale' => $notSale,
+                        'goods' => $goods,
+                        'controller' => $controller,
+                        'totalChecked' => $order['total_as_sum'],
+                        'total' => $productTotal,
+                        'orderId' => $order['id'],
                         'orderWarranties' => $orderWarranties
                     )); ?>
-                    <?php if ($request): ?>
-                        <div class="from-group clearfix">
-                            <?= l('Заявка') . ' ' . $request['id'] . ' ' . do_nice_date($request['date'],
-                                true) . '<br> '
-                            . '' . l('Звонок') . ' ' . $request['call_id'] . ' ' . do_nice_date($request['call_date'],
-                                true) . ' '
-                            . ($request['code'] ? '<br>Код: ' . $request['code'] : '') . '  '
-                            . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="form-group clearfix <?= !isset($hide['crm-order-code']) ? 'hide-field' : '' ?>">
-                            <label class="lh30">
-                                <span class="cursor-pointer glyphicon glyphicon-list"
-                                      onclick="alert_box(this, false, 'changes:update-order-code')"
-                                      data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>">
-
-                                </span>
-                                <?= l('Код скидки') ?>:
-                            </label>
-                            <div class="tw100">
-                                <input <?= (!$hasEditorPrivilege ? ' disabled' : '') ?> class="form-control"
-                                                                                        type="text"
-                                                                                        name="code"
-                                                                                        value="<?= htmlspecialchars($order['code']) ?>">
-                            </div>
-                        </div>
-                        <div class="form-group clearfix <?= !isset($hide['referrer']) ? 'hide-field' : '' ?>">
-                            <label class="lh30">
-                            <span class="cursor-pointer glyphicon glyphicon-list"
-                                  onclick="alert_box(this, false, 'changes:update-order-referer_id')"
-                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                <?= l('Источник') ?>:
-                            </label>
-
-                            <div class="tw100">
-                                <?= get_service('crm/calls')->get_referers_list($order['referer_id'], '',
-                                    !$hasEditorPrivilege, '') ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </div>
             <?php if ($hasEditorPrivilege): ?>
@@ -454,31 +255,6 @@
             <?php elseif ($onlyEngineer && $order['sum'] == $order['sum_paid'] && $order['sum'] > 0): ?>
                 <b class="text-success"><?= l('Заказ клиентом оплачен') ?></b>
             <?php endif; ?>
-        </div>
-        <div class="span6" style="margin-left: 15px">
-            <div class="row-fluid well well-small">
-                <?= $this->renderFile('orders/genorder/_public_comments', array(
-                    'comments_public' => $comments_public,
-                    'comments_private' => $comments_private,
-                    'onlyEngineer' => $onlyEngineer,
-                )); ?>
-                <?= $this->renderFile('orders/genorder/_private_comments', array(
-                    'comments_public' => $comments_public,
-                    'comments_private' => $comments_private,
-                    'onlyEngineer' => $onlyEngineer,
-                )); ?>
-            </div>
-            <?= $this->renderFile('orders/genorder/_spares', array(
-                'onlyEngineer' => $onlyEngineer,
-                'hasEditorPrivilege' => $hasEditorPrivilege,
-                'notSale' => $notSale,
-                'goods' => $goods,
-                'services' => $services,
-                'controller' => $controller,
-                'totalChecked' => $order['total_as_sum'],
-                'total' => $productTotal,
-                'orderId' => $order['id']
-            )); ?>
         </div>
     </form>
 </div>

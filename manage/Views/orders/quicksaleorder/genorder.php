@@ -87,8 +87,7 @@
             </div>
             <div class="row-fluid bordered">
                 <div class="span12">
-                    <?php echo print_r($goods, true); ?>
-                    <?= $this->renderFile('orders/genorder/_spares', array(
+                    <?= $this->renderFile('orders/quicksaleorder/_spares', array(
                         'onlyEngineer' => $onlyEngineer,
                         'hasEditorPrivilege' => $hasEditorPrivilege,
                         'notSale' => $notSale,
@@ -96,7 +95,8 @@
                         'controller' => $controller,
                         'totalChecked' => $order['total_as_sum'],
                         'total' => $productTotal,
-                        'orderId' => $order['id']
+                        'orderId' => $order['id'],
+                        'orderWarranties' => $orderWarranties
                     )); ?>
                 </div>
             </div>

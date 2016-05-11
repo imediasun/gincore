@@ -7,8 +7,17 @@ $moduleactive[10] = !$ifauth['is_2'];
 $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
 
+/**
+ * @property  MOrders Orders
+ * @property  MOrdersGoods OrdersGoods
+ */
 class orders extends Controller
 {
+    public $uses = array(
+        'Orders',
+        'OrdersGoods'
+    );
+    
     /**
      * orders constructor.
      * @param      $all_configs
@@ -652,7 +661,8 @@ class orders extends Controller
                 $this->all_configs['settings']['order_warranties']) : array(),
             'tags' => $this->getTags(),
             'tag' => empty($clientId) ? array() : $this->getTag($clientId),
-            'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0
+            'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0,
+            'deliveryByList' => $this->Orders->getDeliveryByList()
         ));
     }
 
@@ -1455,6 +1465,54 @@ class orders extends Controller
     }
 
     /**
+     * @param $product
+     * @return string
+     */
+    public function show_quicksale_product($product)
+    {
+        $supplier_order = $this->all_configs['db']->query("SELECT supplier_order_id as id, o.count, o.supplier, "
+            . "o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
+            . "FROM {orders_suppliers_clients} as c "
+            . "LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
+            . "WHERE c.client_order_id = ?i AND c.goods_id = ?i",
+            array($product['order_id'], $product['goods_id']), 'row');
+
+
+        return $this->view->renderFile('orders/quicksaleorder/show_product', array(
+            'url' => $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'],
+            'product' => $product,
+            'supplier_order' => $supplier_order,
+            'controller' => $this,
+            'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
+                $this->all_configs['settings']['order_warranties']) : array(),
+        ));
+    }
+    
+    /**
+     * @param $product
+     * @return string
+     */
+    public function show_eshop_product($product)
+    {
+        $supplier_order = $this->all_configs['db']->query("SELECT supplier_order_id as id, o.count, o.supplier, "
+            . "o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
+            . "FROM {orders_suppliers_clients} as c "
+            . "LEFT JOIN {contractors_suppliers_orders} as o ON o.id = c.supplier_order_id "
+            . "WHERE c.client_order_id = ?i AND c.goods_id = ?i",
+            array($product['order_id'], $product['goods_id']), 'row');
+
+
+        return $this->view->renderFile('orders/eshoporder/show_product', array(
+            'url' => $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'],
+            'product' => $product,
+            'supplier_order' => $supplier_order,
+            'controller' => $this,
+            'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
+                $this->all_configs['settings']['order_warranties']) : array(),
+        ));
+    }
+
+    /**
      * @param null $order_id
      * @return string
      * @throws Exception
@@ -1466,7 +1524,8 @@ class orders extends Controller
         // достаем заказ с прикрепленными к нему товарами
         $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
-                a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title, c.tag_id as tag_id
+                a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title, c.tag_id as tag_id,
+                c.legal_address as c_legal_address, c.email as c_email
                 FROM {orders} as o
                 LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users} as u ON u.id=o.manager
@@ -1536,18 +1595,23 @@ class orders extends Controller
             )
         )->assoc();
         $hasEditorPrivilege = $this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
-        if($order['type'] == 1) {
-            $template = 'orders/genorder/genorder';
-        } else {
-            $template = 'orders/quicksaleorder/genorder';
+        switch ($order['sale_type']) {
+            case 1:
+                $template = 'orders/quicksaleorder/genorder';
+                break;
+            case 2:
+                $template = 'orders/eshoporder/genorder';
+                break;
+            default:
+                $template = 'orders/genorder/genorder';
         }
         return $this->view->renderFile($template, array(
             'order' => $order,
             'onlyEngineer' => $this->all_configs['oRole']->hasPrivilege('engineer') && !$hasEditorPrivilege,
             'hasEditorPrivilege' => $hasEditorPrivilege,
             'notSale' => $notSale,
-            'managers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders',
-                Role::ONLY_ACTIVE) : null,
+            'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders',
+                Role::ONLY_ACTIVE),
             'engineers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('engineer',
                 Role::ONLY_ACTIVE) : null,
             'navigation' => $this->clients_orders_navigation(true),
@@ -1564,7 +1628,8 @@ class orders extends Controller
             'parts' => $parts,
             'hide' => $this->getHideFieldsConfig(),
             'tags' => $this->getTags(),
-            'returns' => $returns
+            'returns' => $returns,
+            'deliveryByList' => $this->Orders->getDeliveryByList()
         ));
     }
 
@@ -1907,8 +1972,14 @@ class orders extends Controller
             $data['state'] = true;
             $data['content'] = l('История изменений не найдена');
 
-            if (isset($_POST['object_id'])) {
-                $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $_POST['object_id']);
+            if (!empty($_POST['object_id'])) {
+                $object_id = $_POST['object_id'];
+            }
+            if(!isset($object_id) && !empty($this->all_configs['arrequest'][2])) {
+                $object_id = $this->all_configs['arrequest'][2];
+            }
+            if(!empty($object_id)) {
+                $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $object_id);
                 if ($changes) {
                     $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>' . l('Дата') . '</td><td>' . l('Изменение') . '</td></tr></thead><tbody>';
                     foreach ($changes as $change) {
@@ -2307,313 +2378,120 @@ class orders extends Controller
 
         // комментарии к заказам
         if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
-            if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
-                $private = !empty($_POST['private_comment']) ? trim($_POST['private_comment']) : '';
-                $public = !empty($_POST['public_comment']) ? trim($_POST['public_comment']) : '';
-                $type = $private ? 1 : 0;
-                $text = $private ?: $public;
-                $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
-                $data['reload'] = true;
+            return $this->updateOrderComments($order_id, $data);
+        } 
+        try {
+            if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order) {
+                throw new ExceptionWithMsg(l('У Вас нет прав'));
             }
-        } else {
-
-            if ($data['state'] == true && (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order)) {
-                $data['msg'] = l('У Вас нет прав');
-                $data['state'] = false;
+            if (!$order) {
+                throw new ExceptionWithMsg(l('Заказ не найден'));
             }
-            if ($data['state'] == true && !$order) {
-                $data['msg'] = l('Заказ не найден');
-                $data['state'] = false;
-            }
-            if ($data['state'] == true && isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && mb_strlen(trim($_POST['replacement_fund']),
+            if (isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && mb_strlen(trim($_POST['replacement_fund']),
                     'utf-8') == 0
             ) {
-                $data['msg'] = l('Укажите подменный фонд');
-                $data['state'] = false;
+                throw new ExceptionWithMsg(l('Укажите подменный фонд'));
             }
-            if ($data['state'] == true && isset($_POST['categories-goods']) && intval($_POST['categories-goods']) == 0) {
-                $data['msg'] = l('Укажите устройство');
-                $data['state'] = false;
+            if (isset($_POST['categories-goods']) && intval($_POST['categories-goods']) == 0) {
+                throw new ExceptionWithMsg(l('Укажите устройство'));
+            }
+            // принимаем заказ
+            if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+                $order['manager'] = $user_id;
+                $this->History->save('manager-accepted-order', $mod_id, $order_id);
+            }
+            $data = $this->changeStatus($order, $data);
+            // устройство у клиента
+            if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
+                $this->History->save('update-order-client_took', $mod_id, $this->all_configs['arrequest'][2],
+                    isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'),
+                    isset($_POST['client_took']) ? 1 : 0);
+            }
+            $order = $this->replacementFund($order, $mod_id);
+            $order = $this->changeManager($order, $mod_id);
+            $order = $this->changeEngineer($order, $mod_id);
+            $order = $this->changeDefect($order, $mod_id);
+            $order = $this->changeComment($order, $mod_id);
+            $order = $this->changeSerial($order, $mod_id);
+            $order = $this->changeFio($order, $mod_id);
+            $order = $this->changePhone($order, $mod_id);
+            $order = $this->changeWarranty($order, $mod_id);
+            $order = $this->changeDevice($order, $mod_id);
+            $order = $this->changeReturnId($order, $mod_id);
+            
+            unset($order['return_id']);
+            if (isset($_POST['color']) && array_key_exists($_POST['color'],
+                    $this->all_configs['configs']['devices-colors'])
+            ) {
+                $order['color'] = $_POST['color'];
+            } else {
+                unset($order['color']);
+            }
+            $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
+            $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
+            if ($order['total_as_sum']) {
+                $order['sum'] = $this->Orders->getTotalSum($order);
+            } else {
+                $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
+            }
+            $order['notify'] = isset($_POST['notify']) ? 1 : 0;
+            $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
+            $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
+            $order['is_waiting'] = isset($_POST['is_waiting']) ? 1 : 0;
+            $order['engineer'] = isset($_POST['engineer']) ? $_POST['engineer'] : $order['engineer'];
+            // если статус доработка то меняем вид ремонта
+            $order['repair'] = isset($_POST['status']) && $_POST['status'] == $this->all_configs['configs']['order-status-rework'] ? 2 : $order['repair'];
+            if (in_array($_POST['status'], $this->all_configs['configs']['order-status-issue-btn'])) {
+                $data['close'] = $_POST['status'] == $this->all_configs['configs']['order-status-ready'] ? $this->all_configs['configs']['order-status-issued']
+                    : ($_POST['status'] == $this->all_configs['configs']['order-status-refused'] || $_POST['status'] == $this->all_configs['configs']['order-status-unrepairable']
+                        ? $this->all_configs['configs']['order-status-nowork'] : $order['status']);
             }
 
-            if ($data['state'] == true) {
+            unset($order['date_readiness']);
+            unset($order['courier']);
+            unset($order['return_id']);
 
-                // принимаем заказ
-                if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                    $order['manager'] = $user_id;
-                    $this->History->save('manager-accepted-order', $mod_id, $order_id);
-                }
+            unset($order['status']);
+            unset($order['id']);
+            unset($order['wh_id']);
+            unset($order['location_id']);
+            unset($order['status_id']);
+            
+            $order = $this->changeCode($order, $mod_id);
+            $order = $this->changeReferer($order, $mod_id);
+            $order = $this->changeDeliveryBy($order, $mod_id);
+            $order = $this->changeProducts($order, $mod_id);
 
-                // меняем статус
-                $response = update_order_status($order, $_POST['status']);
-                if (!isset($response['state']) || $response['state'] == false) {
-                    $data['state'] = false;
-                    $_POST['status'] = $order['status'];
-                    $data['msg'] = isset($response['msg']) ? $response['msg'] : l('Статус не изменился');
-                }
-
-                // подменный фонд
-                if ((isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && $_POST['replacement_fund'] != $order['replacement_fund'])
-                    || (!isset($_POST['is_replacement_fund']) && $order['is_replacement_fund'] == 1)
-                ) {
-                    $change_id = isset($_POST['is_replacement_fund']) ? 1 : 0;
-                    $change = $change_id == 1 ? $_POST['replacement_fund'] : '';
-                    $this->History->save('update-order-replacement_fund', $mod_id, $this->all_configs['arrequest'][2],
-                        $change, $change_id);
-                }
-
-                // устройство у клиента
-                if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
-                    $this->History->save('update-order-client_took', $mod_id, $this->all_configs['arrequest'][2],
-                        isset($_POST['client_took']) ? l('Устройство у клиента') : l('Устройство на складе'),
-                        isset($_POST['client_took']) ? 1 : 0);
-                }
-
-                // смена менеджера
-                if (isset($_POST['manager']) && intval($order['manager']) != intval($_POST['manager'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone, send_over_sms, send_over_email FROM {users} WHERE id=?i AND avail=1 AND deleted=0',
-                        array(intval($_POST['manager'])))->row();
-                    if (empty($user)) {
-                        FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
-                    } else {
-                        $this->History->save('update-order-manager', $mod_id, $this->all_configs['arrequest'][2],
-                            get_user_name($user), $_POST['manager']);
-                        $order['manager'] = intval($_POST['manager']);
-                        if ($user['send_over_sms']) {
-                            $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
-                            $orderId = $this->all_configs['arrequest'][2];
-                            send_sms("+{$user['phone']}",
-                                l('Vi naznacheni otvetstvennim po zakazu #') . $orderId);
-                        }
-                        if ($user['send_over_email']) {
-                            require_once $this->all_configs['sitepath'] . 'mail.php';
-                            $mailer = new Mailer($this->all_configs);
-                            $mailer->group('order-manager', $user['email'],
-                                array('order_id' => $this->all_configs['arrequest'][2]));
-                            $mailer->go();
-                        }
-                    }
-                }
-
-                // смена инженера
-                if (isset($_POST['engineer']) && intval($order['engineer']) != intval($_POST['engineer'])) {
-                    $user = $this->all_configs['db']->query('SELECT fio, email, login, phone, send_over_sms, send_over_email  FROM {users} WHERE id=?i AND deleted=0 AND avail=1',
-                        array($_POST['engineer']))->row();
-                    if (empty($user)) {
-                        FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
-                    } else {
-                        $this->History->save(
-                            'update-order-engineer',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            get_user_name($user),
-                            $_POST['engineer']
-                        );
-                        if ($user['send_over_sms']) {
-                            $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
-                            $orderId = $this->all_configs['arrequest'][2];
-                            send_sms("+{$user['phone']}",
-                                l('Vi naznacheni otvetstvennim po zakazu #') . $orderId);
-                        }
-                        if ($user['send_over_email']) {
-                            require_once $this->all_configs['sitepath'] . 'mail.php';
-                            $mailer = new Mailer($this->all_configs);
-                            $mailer->group('order-manager', $user['email'],
-                                array('order_id' => $this->all_configs['arrequest'][2]));
-                            $mailer->go();
-
-                        }
-                    }
-                }
-
-                // смена Неисправность со слов клиента
-                if (isset($_POST['defect']) && trim($order['defect']) != trim($_POST['defect'])) {
+            // обновляем заказ
+            $ar = $this->all_configs['db']->query('UPDATE {orders} SET ?s WHERE id=?i',
+                array($order, $this->all_configs['arrequest'][2]), 'ar');
+            // история
+            if ($ar) {
+                // сумма
+                if ($_order['sum'] != $order['sum']) {
                     $this->History->save(
-                        'update-order-defect',
+                        'update-order-sum',
                         $mod_id,
                         $this->all_configs['arrequest'][2],
-                        trim($_POST['defect'])
+                        ($order['sum'] / 100)
                     );
-                    $order['defect'] = trim($_POST['defect']);
                 }
+                $this->History->save('update-order', $mod_id, $this->all_configs['arrequest'][2]);
 
-                // смена Примечание/Внешний вид
-                if (isset($_POST['comment']) && trim($order['comment']) != trim($_POST['comment'])) {
-                    $this->History->save(
-                        'update-order-comment',
-                        $mod_id,
-                        $this->all_configs['arrequest'][2],
-                        trim($_POST['comment'])
-                    );
-                    $order['comment'] = trim($_POST['comment']);
-                }
-
-                // смена серийника
-                if (isset($_POST['serial']) && trim($order['serial']) != trim($_POST['serial'])) {
-                    $this->History->save('update-order-serial',
-                        $mod_id,
-                        $this->all_configs['arrequest'][2],
-                        trim($_POST['serial'])
-                    );
-                    $order['serial'] = trim($_POST['serial']);
-                }
-
-                // смена фио
-                if (isset($_POST['fio']) && trim($order['fio']) != trim($_POST['fio'])) {
-                    $this->History->save(
-                        'update-order-fio',
-                        $mod_id,
-                        $this->all_configs['arrequest'][2],
-                        trim($_POST['fio'])
-                    );
-                    $order['fio'] = trim($_POST['fio']);
-                    // апдейтим также клиенту фио
-                    $this->all_configs['db']->query("UPDATE {clients} SET fio = ? WHERE id = ?i",
-                        array(trim($_POST['fio']), $order['user_id']));
-                }
-
-                // смена телефона
-                if (isset($_POST['phone'])) {
-                    include_once $this->all_configs['sitepath'] . 'shop/access.class.php';
-                    $access = new access($this->all_configs, false);
-                    $phone = $access->is_phone($_POST['phone']);
-                    $phone = $phone ? current($phone) : '';
-
-                    if ($order['phone'] != $phone) {
-                        $this->History->save(
-                            'update-order-phone',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            $phone
-                        );
-                        $order['phone'] = $phone;
-                    }
-                }
-
-                // смена телефона
-                if (isset($_POST['warranty']) && intval($order['warranty']) != intval($_POST['warranty'])) {
-                    $this->History->save(
-                        'update-order-warranty',
-                        $mod_id,
-                        $this->all_configs['arrequest'][2],
-                        trim($_POST['warranty'])
-                    );
-                    $order['warranty'] = intval($_POST['warranty']);
-                }
-
-                // смена устройства
-                if (isset($_POST['categories-goods']) && intval($order['category_id']) != intval($_POST['categories-goods'])) {
-                    $category = $this->all_configs['db']->query('SELECT title FROM {categories} WHERE id=?i',
-                        array(intval($_POST['categories-goods'])))->el();
-                    if ($category) {
-                        $order['title'] = $category;
-                        $order['category_id'] = intval($_POST['categories-goods']);
-                        $this->History->save(
-                            'update-order-category',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            $category,
-                            intval($_POST['categories-goods'])
-                        );
-                    }
-                }
-
-                if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && isset($_POST['return_id']) && $_POST['return_id'] != $order['return_id']) {
-                    $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=NULL WHERE id=?i',
-                        array($order['return_id']));
-                    if ($_POST['return_id'] > 0) {
-                        $this->all_configs['db']->query('UPDATE {orders} SET return_id=?n WHERE id=?i',
-                            array(
-                                mb_strlen($_POST['return_id'], 'UTF-8') > 0 ? trim($_POST['return_id']) : null,
-                                $this->all_configs['arrequest'][2]
-                            ));
-
-                        $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=?n WHERE id=?i',
-                            array($this->all_configs['arrequest'][2], $_POST['return_id']));
-                    }
-                }
-                unset($order['return_id']);
-                if (isset($_POST['color']) && array_key_exists($_POST['color'],
-                        $this->all_configs['configs']['devices-colors'])
-                ) {
-                    $order['color'] = $_POST['color'];
-                } else {
-                    unset($order['color']);
-                }
-                $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
-                $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
-                if ($order['total_as_sum']) {
-                    $order['sum'] = $this->all_configs['chains']->getTotalSum($order);
-                } else {
-                    $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
-                }
-                $order['notify'] = isset($_POST['notify']) ? 1 : 0;
-                $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
-                $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
-                $order['is_waiting'] = isset($_POST['is_waiting']) ? 1 : 0;
-                $order['engineer'] = isset($_POST['engineer']) ? $_POST['engineer'] : $order['engineer'];
-                // если статус доработка то меняем вид ремонта
-                $order['repair'] = isset($_POST['status']) && $_POST['status'] == $this->all_configs['configs']['order-status-rework'] ? 2 : $order['repair'];
-                if (in_array($_POST['status'], $this->all_configs['configs']['order-status-issue-btn'])) {
-                    $data['close'] = $_POST['status'] == $this->all_configs['configs']['order-status-ready'] ? $this->all_configs['configs']['order-status-issued']
-                        : ($_POST['status'] == $this->all_configs['configs']['order-status-refused'] || $_POST['status'] == $this->all_configs['configs']['order-status-unrepairable']
-                            ? $this->all_configs['configs']['order-status-nowork'] : $order['status']);
-                }
-
-                unset($order['date_readiness']);
-                unset($order['courier']);
-                unset($order['return_id']);
-
-                unset($order['status']);
-                unset($order['id']);
-                unset($order['wh_id']);
-                unset($order['location_id']);
-                unset($order['status_id']);
-                // смена кода
-                if (isset($_POST['code']) && $_POST['code'] != $order['code']) {
-                    $this->History->save('update-order-code',
-                        $mod_id,
-                        $this->all_configs['arrequest'][2],
-                        $order['code'] . ' ==> ' . trim($_POST['code'])
-                    );
-                    $order['code'] = $_POST['code'];
-                }
-                // смена источника
-                if (isset($_POST['referer_id']) && $_POST['referer_id'] != $order['referer_id']) {
-                    $referers = get_service("crm/calls")->get_referers();
-                    $this->History->save(
-                        'update-order-referer_id',
-                        $mod_id,
-                        $this->all_configs['arrequest'][2],
-                        $referers[$order['referer_id']] . ' ==> ' . $referers[$_POST['referer_id']]
-                    );
-                    $order['referer_id'] = $_POST['referer_id'];
-                }
-                // обновляем заказ
-                $ar = $this->all_configs['db']->query('UPDATE {orders} SET ?s WHERE id=?i',
-                    array($order, $this->all_configs['arrequest'][2]), 'ar');
-                // история
-                if ($ar) {
-                    // сумма
-                    if ($_order['sum'] != $order['sum']) {
-                        $this->History->save(
-                            'update-order-sum',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            ($order['sum'] / 100)
-                        );
-                    }
-                    $this->History->save('update-order', $mod_id, $this->all_configs['arrequest'][2]);
-
-                    $get = '?' . get_to_string($_GET);
-                    $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . $get . '#show_orders';
-                    $data['reload'] = true;
-                }
-                if ($_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
-                    $data['sms'] = true;
-                }
+                $get = '?' . get_to_string($_GET);
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . $get . '#show_orders';
+                $data['reload'] = true;
             }
+            if ($_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
+                $data['sms'] = true;
+            }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
         }
+
         return $data;
     }
 
@@ -2629,7 +2507,7 @@ class orders extends Controller
         $data = array('state' => false);
         if (!empty($order)) {
             $set = $_POST['total_set'] == 'true';
-            $sum = $set ? $this->all_configs['chains']->getTotalSum($order) : $order['sum'];
+            $sum = $set ? $this->Orders->getTotalSum($order) : $order['sum'];
             $ar = $this->all_configs['db']->query('UPDATE {orders} SET total_as_sum=?i, `sum`=?i  WHERE id=?i',
                 array((int)$set, $sum, $_POST['id']))->ar();
             if ($sum != $order['sum']) {
@@ -2665,7 +2543,7 @@ class orders extends Controller
             $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
                 array($_POST['id']))->row();
             if ($order['total_as_sum']) {
-                $sum = $this->all_configs['chains']->getTotalSum($order);
+                $sum = $this->Orders->getTotalSum($order);
                 if ($sum != $order['sum']) {
                     $this->all_configs['db']->query('UPDATE {orders} SET `sum`=?i  WHERE id=?i',
                         array($sum, $order['id']))->ar();
@@ -2701,5 +2579,409 @@ class orders extends Controller
             ));
         }
         return $data;
+    }
+
+    /**
+     * @param $order_id
+     * @param $data
+     * @return mixed
+     */
+    protected function updateOrderComments($order_id, $data)
+    {
+        if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
+            $private = !empty($_POST['private_comment']) ? trim($_POST['private_comment']) : '';
+            $public = !empty($_POST['public_comment']) ? trim($_POST['public_comment']) : '';
+            $type = $private ? 1 : 0;
+            $text = $private ?: $public;
+            $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
+            $data['reload'] = true;
+        }
+        return $data;
+    }
+
+    /**
+     * @param $order
+     * @param $data
+     * @return mixed
+     */
+    protected function changeStatus($order, $data)
+    {
+// меняем статус
+        $response = update_order_status($order, $_POST['status']);
+        if (!isset($response['state']) || $response['state'] == false) {
+            $data['state'] = false;
+            $_POST['status'] = $order['status'];
+            $data['msg'] = isset($response['msg']) ? $response['msg'] : l('Статус не изменился');
+        }
+        return $data;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function replacementFund($order, $mod_id)
+    {
+// подменный фонд
+        if ((isset($_POST['is_replacement_fund']) && isset($_POST['replacement_fund']) && $_POST['replacement_fund'] != $order['replacement_fund'])
+            || (!isset($_POST['is_replacement_fund']) && $order['is_replacement_fund'] == 1)
+        ) {
+            $change_id = isset($_POST['is_replacement_fund']) ? 1 : 0;
+            $change = $change_id == 1 ? $_POST['replacement_fund'] : '';
+            $this->History->save('update-order-replacement_fund', $mod_id, $this->all_configs['arrequest'][2],
+                $change, $change_id);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return array
+     */
+    protected function changeManager($order, $mod_id)
+    {
+        if (isset($_POST['manager']) && intval($order['manager']) != intval($_POST['manager'])) {
+            $user = $this->all_configs['db']->query('SELECT fio, email, login, phone, send_over_sms, send_over_email FROM {users} WHERE id=?i AND avail=1 AND deleted=0',
+                array(intval($_POST['manager'])))->row();
+            if (empty($user)) {
+                FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
+            } else {
+                $this->History->save('update-order-manager', $mod_id, $this->all_configs['arrequest'][2],
+                    get_user_name($user), $_POST['manager']);
+                $order['manager'] = intval($_POST['manager']);
+                if ($user['send_over_sms']) {
+                    $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
+                    $orderId = $this->all_configs['arrequest'][2];
+                    send_sms("+{$user['phone']}",
+                        l('Vi naznacheni otvetstvennim po zakazu #') . $orderId);
+                }
+                if ($user['send_over_email']) {
+                    require_once $this->all_configs['sitepath'] . 'mail.php';
+                    $mailer = new Mailer($this->all_configs);
+                    $mailer->group('order-manager', $user['email'],
+                        array('order_id' => $this->all_configs['arrequest'][2]));
+                    $mailer->go();
+                }
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeEngineer($order, $mod_id)
+    {
+// смена инженера
+        if (isset($_POST['engineer']) && intval($order['engineer']) != intval($_POST['engineer'])) {
+            $user = $this->all_configs['db']->query('SELECT fio, email, login, phone, send_over_sms, send_over_email  FROM {users} WHERE id=?i AND deleted=0 AND avail=1',
+                array($_POST['engineer']))->row();
+            if (empty($user)) {
+                FlashMessage::set(l('Менеджер не активен или удален'), FlashMessage::DANGER);
+            } else {
+                $this->History->save(
+                    'update-order-engineer',
+                    $mod_id,
+                    $this->all_configs['arrequest'][2],
+                    get_user_name($user),
+                    $_POST['engineer']
+                );
+                if ($user['send_over_sms']) {
+                    $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
+                    $orderId = $this->all_configs['arrequest'][2];
+                    send_sms("+{$user['phone']}",
+                        l('Vi naznacheni otvetstvennim po zakazu #') . $orderId);
+                }
+                if ($user['send_over_email']) {
+                    require_once $this->all_configs['sitepath'] . 'mail.php';
+                    $mailer = new Mailer($this->all_configs);
+                    $mailer->group('order-manager', $user['email'],
+                        array('order_id' => $this->all_configs['arrequest'][2]));
+                    $mailer->go();
+
+                }
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeFio($order, $mod_id)
+    {
+// смена фио
+        if (isset($_POST['fio']) && trim($order['fio']) != trim($_POST['fio'])) {
+            $this->History->save(
+                'update-order-fio',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                trim($_POST['fio'])
+            );
+            $order['fio'] = trim($_POST['fio']);
+            // апдейтим также клиенту фио
+            $this->all_configs['db']->query("UPDATE {clients} SET fio = ? WHERE id = ?i",
+                array(trim($_POST['fio']), $order['user_id']));
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changePhone($order, $mod_id)
+    {
+// смена телефона
+        if (isset($_POST['phone'])) {
+            include_once $this->all_configs['sitepath'] . 'shop/access.class.php';
+            $access = new access($this->all_configs, false);
+            $phone = $access->is_phone($_POST['phone']);
+            $phone = $phone ? current($phone) : '';
+
+            if ($order['phone'] != $phone) {
+                $this->History->save(
+                    'update-order-phone',
+                    $mod_id,
+                    $this->all_configs['arrequest'][2],
+                    $phone
+                );
+                $order['phone'] = $phone;
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeWarranty($order, $mod_id)
+    {
+// смена телефона
+        if (isset($_POST['warranty']) && intval($order['warranty']) != intval($_POST['warranty'])) {
+            $this->History->save(
+                'update-order-warranty',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                trim($_POST['warranty'])
+            );
+            $order['warranty'] = intval($_POST['warranty']);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeDevice($order, $mod_id)
+    {
+// смена устройства
+        if (isset($_POST['categories-goods']) && intval($order['category_id']) != intval($_POST['categories-goods'])) {
+            $category = $this->all_configs['db']->query('SELECT title FROM {categories} WHERE id=?i',
+                array(intval($_POST['categories-goods'])))->el();
+            if ($category) {
+                $order['title'] = $category;
+                $order['category_id'] = intval($_POST['categories-goods']);
+                $this->History->save(
+                    'update-order-category',
+                    $mod_id,
+                    $this->all_configs['arrequest'][2],
+                    $category,
+                    intval($_POST['categories-goods'])
+                );
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeDefect($order, $mod_id)
+    {
+// смена Неисправность со слов клиента
+        if (isset($_POST['defect']) && trim($order['defect']) != trim($_POST['defect'])) {
+            $this->History->save(
+                'update-order-defect',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                trim($_POST['defect'])
+            );
+            $order['defect'] = trim($_POST['defect']);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeSerial($order, $mod_id)
+    {
+// смена серийника
+        if (isset($_POST['serial']) && trim($order['serial']) != trim($_POST['serial'])) {
+            $this->History->save('update-order-serial',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                trim($_POST['serial'])
+            );
+            $order['serial'] = trim($_POST['serial']);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeComment($order, $mod_id)
+    {
+// смена Примечание/Внешний вид
+        if (isset($_POST['comment']) && trim($order['comment']) != trim($_POST['comment'])) {
+            $this->History->save(
+                'update-order-comment',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                trim($_POST['comment'])
+            );
+            $order['comment'] = trim($_POST['comment']);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeReturnId($order, $mod_id)
+    {
+        if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && isset($_POST['return_id']) && $_POST['return_id'] != $order['return_id']) {
+            $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=NULL WHERE id=?i',
+                array($order['return_id']));
+            if ($_POST['return_id'] > 0) {
+                $this->all_configs['db']->query('UPDATE {orders} SET return_id=?n WHERE id=?i',
+                    array(
+                        mb_strlen($_POST['return_id'], 'UTF-8') > 0 ? trim($_POST['return_id']) : null,
+                        $this->all_configs['arrequest'][2]
+                    ));
+                $this->History->save(
+                    'update-order-return_id',
+                    $mod_id,
+                    $this->all_configs['arrequest'][2],
+                    trim($_POST['return_id'])
+                );
+
+                $this->all_configs['db']->query('UPDATE {cashboxes_transactions} SET client_order_id=?n WHERE id=?i',
+                    array($this->all_configs['arrequest'][2], $_POST['return_id']));
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeCode($order, $mod_id)
+    {
+// смена кода
+        if (isset($_POST['code']) && $_POST['code'] != $order['code']) {
+            $this->History->save('update-order-code',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                $order['code'] . ' ==> ' . trim($_POST['code'])
+            );
+            $order['code'] = $_POST['code'];
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     * @throws Exception
+     */
+    protected function changeReferer($order, $mod_id)
+    {
+// смена источника
+        if (isset($_POST['referer_id']) && $_POST['referer_id'] != $order['referer_id']) {
+            $referers = get_service("crm/calls")->get_referers();
+            $this->History->save(
+                'update-order-referer_id',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                $referers[$order['referer_id']] . ' ==> ' . $referers[$_POST['referer_id']]
+            );
+            $order['referer_id'] = $_POST['referer_id'];
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     * @throws Exception
+     */
+    protected function changeDeliveryBy($order, $mod_id)
+    {
+        if (isset($_POST['delivery_by']) && $_POST['delivery_by'] != $order['delivery_by']) {
+            $deliveryByList = $this->Orders->getDeliveryByList();
+            $this->History->save(
+                'update-order-delivery_by',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                $deliveryByList[$order['delivery_by']] . ' ==> ' . $deliveryByList[$_POST['delivery_by']]
+            );
+            $order['delivery_by'] = $_POST['delivery_by'];
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     * @throws Exception
+     */
+    protected function changeProducts($order, $mod_id)
+    {
+        if (isset($_POST['product'])) {
+            foreach ($_POST['product'] as $id => $values) {
+                $product = $this->OrdersGoods->getByPk($id);
+                foreach ($values as $field => $value) {
+                    if ($product[$field] != $value && !empty($value)) {
+                        $this->OrdersGoods->update(array(
+                            $field => $value
+                        ), array($this->OrdersGoods->pk() => $id));
+                        $this->History->save(
+                            'update-order-cart',
+                            $mod_id,
+                            $this->all_configs['arrequest'][2],
+                            l($field) .':'. $product[$field] . ' ==> ' . $value
+                        );
+                    }
+                }
+            }
+        }
+        return $order;
     }
 }
