@@ -1317,10 +1317,17 @@ class orders
         } else {
             $config = json_decode($managerConfigs[0]['value'], true);
             foreach ($config as $id => $value) {
+                $endTime = strtotime($order['date']) + $day * $value;
                 if ($id == 'status_repair' && $order['status'] == $this->all_configs['configs']['order-status-waits']) {
                     $items = $this->all_configs['db']->query('SELECT sum(1) as quantity, sum(if(item_id IS NULL,1,0)) as not_binded FROM {orders_goods} WHERE order_id=? GROUP BY order_id',
                         array($order['id']))->assoc();
-                    if (!empty($items) && $items[0]['quantity'] > 0 && $items[0]['not_binded'] && strtotime($order['date']) + $day * $value < time()) {
+                    $date = $this->all_configs['db']->query('
+                        SELECT so.date_come AS end_time
+                        FROM {contractors_suppliers_orders} so 
+                        JOIN {orders_suppliers_clients} sc ON sc.supplier_order_id=so.id  
+                        WHERE order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL AND order_id=?i) AND  NOT so.date_come IS NULL ORDER BY end_time DESC LIMIT 1;
+                        ', array($order['id']))->row();
+                    if (!empty($items) && $items[0]['not_binded'] > 0 && (empty($date) || $date['end_time'] < time()) && $endTime < time()) {
                         return true;
                     }
                 }
@@ -1328,24 +1335,20 @@ class orders
                     $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
                     if (!empty($goods)) {
                         foreach ($goods as $good) {
-                            if ($good['item_id'] <= 0 && $good['count_order'] > 0 && $good['supplier'] == 0 && strtotime($order['date']) + $day * $value < time()) {
+                            if ($good['item_id'] <= 0 && $good['count_order'] > 0 && $good['supplier'] == 0 && $endTime < time()) {
                                 return true;
                             }
                         }
                     }
-                    if (!empty($items) && $items[0]['quantity'] > 0 && $items[0]['not_binded'] && strtotime($order['date']) + $day * $value < time()) {
+                    if (!empty($items) && $items[0]['quantity'] > 0 && $items[0]['not_binded'] && $endTime < time()) {
                         return true;
                     }
-                }
-                //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
-                if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
-                    return true;
                 }
                 // Принят в ремонт > 24 часов назад и никто из манагеров не взял
                 if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
                     return true;
                 }
-                if ($order['status'] == $id && strtotime($order['date']) + $day * $value < time()) {
+                if ($order['status'] == $id && $endTime < time()) {
                     return true;
                 }
             }
