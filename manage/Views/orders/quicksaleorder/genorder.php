@@ -12,11 +12,10 @@
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
-        <div class="span6">
-            <div class="bordered">
+        <div class="span8">
                 <div class="row-fluid">
 
-                    <div class="span4">
+                    <div class="span3">
                         <h3 class="m-t-none">
                             № <?= $order['id'] ?>
                             <?= $this->renderFile('orders/genorder/_print_buttons', array(
@@ -57,7 +56,7 @@
                 </div>
 
                 <div class="row-fluid">
-                    <div class="span3">
+                    <div class="span6">
                         <div class="form-group clearfix">
                             <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
@@ -83,7 +82,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
             <div class="row-fluid bordered">
                 <div class="span12">

@@ -216,6 +216,7 @@ class MOrders extends AModel
             'total_as_sum',
             'cashless',
             'delivery_by',
+            'delivery_to',
             'sale_type'
         );
     }

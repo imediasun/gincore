@@ -78,7 +78,8 @@ class MOrdersGoods extends AModel
             'last_item_id',
             'unbind_request',
             'warehouse_type',
-            'warranty'
+            'warranty',
+            'discount_type'
         );
     }
 }

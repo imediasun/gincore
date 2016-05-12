@@ -828,15 +828,9 @@ function add_eshop_item_to_table() {
       id = $('input[name="goods-goods"]').val(),
       price = $('#eshop_sale_poduct_cost').val(),
       discount = $('#eshop_sale_poduct_discount').val(),
+      discount_type = $('#eshop_sale_poduct_discount_type').val(),
       quantity = $('#eshop_sale_poduct_quantity').val(),
       rnd = parseInt(Math.random() * 1000);
-
-    console.log(cost);
-    console.log(title);
-    console.log(id);
-    console.log(price);
-    console.log(discount);
-    console.log(quantity);
 
     if(cost == 0) {
         $('#eshop_sale_poduct_cost').addClass('parsley-error');
@@ -855,6 +849,7 @@ function add_eshop_item_to_table() {
         $clone.find('.js-eshop-price').first().val(price).attr('name', 'amount[' + rnd + ']');
         $clone.find('.js-eshop-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']');
         $clone.find('.js-eshop-discount').first().val(discount).attr('name', 'discount[' + rnd + ']');
+        $clone.find('.js-eshop-discount_type').first().val(discount_type).attr('name', 'discount_type[' + rnd + ']');
         $('#eshop_sale_poduct_cost').val('');
 
         $('#categories-selected > ul.dropdown-menu > li.active > a').html('');
@@ -895,7 +890,11 @@ function sum_calculate() {
      discount = parseInt($('#eshop_sale_poduct_discount').val()) || 0,
      quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0;
 
-    $('#eshop_sale_poduct_sum').val(price * (1 - discount/ 100) * quantity);
+    if($('input[name="discount_type"]').val() == 1) {
+      $('#eshop_sale_poduct_sum').val(price * (1 - discount/ 100) * quantity);
+    } else {
+        $('#eshop_sale_poduct_sum').val((price - discount) * quantity);
+    }
 }
 
 function remove_row_eshop(_this) {
@@ -986,4 +985,24 @@ function select_cashbox(_this) {
     $('input[name="cashbox"]').val(cashbox);
     $('.btn-title').html($(_this).html());
     return false;
+}
+function select_discount_type(_this) {
+    var cashbox = parseInt($(_this).attr('data-discount_type'));
+    $('input[name="discount_type"]').val(cashbox);
+    $('.btn-title-discount_type').html($(_this).html());
+    sum_calculate();
+    return false;
+}
+function select_price_type(_this) {
+    var type = parseInt($(_this).attr('data-price_type'));
+    $('input[name="price_type"]').val(type);
+    $('.btn-title-price_type').html($(_this).html());
+    return false;
+}
+function toggle_delivery_to(state) {
+   if(state == 1) {
+       $('input[name="delivery_to"]').show();
+   } else {
+       $('input[name="delivery_to"]').hide();
+   }
 }

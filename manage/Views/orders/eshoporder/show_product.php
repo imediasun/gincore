@@ -21,22 +21,26 @@
             </form>
         </td>
     <?php endif; ?>
-    <td class="col-sm-2">
-        <input class="form-control global-typeahead input-medium popover-info visible-price"
-               type="text" onkeypress="change_input_width(this, this.value.length);"
-               value="<?= ($product['discount']) ?>" name="product[<?= $product['id']?>][discount]"/>
+    <td class="col-sm-1" style="min-width: 100px">
+        <div class="input-group">
+        <input class="form-control global-typeahead input-medium popover-info"
+               type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id']?>][discount]"/>
+            <div class="input-group-btn">
+                <button class="btn btn-default" >
+                    <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT? '%': viewCurrency() ?>
+                </button>
+            </div>
     </td>
 <!--    <td class="col-sm-2">-->
 <!--        <input class="form-control global-typeahead input-medium popover-info visible-price"-->
 <!--               type="text" onkeypress="change_input_width(this, this.value.length);"-->
 <!--               value="--><?//= $product['count']?><!--"  name="product[--><?//= $product['id']?><!--][count]"/>-->
 <!--    </td>-->
-    <td class="col-sm-2">
-        <input readonly class="form-control global-typeahead input-medium popover-info visible-price disable"
-               type="text" onkeypress="change_input_width(this, this.value.length);"
-               value="<?= ($product['price'] / 100) * $product['count'] * (1- $product['discount']/100) ?>"/>
+    <td class="col-sm-1">
+        <input readonly class="form-control global-typeahead input-medium popover-info disable"
+               type="text" value="<?= sum_with_discount($product) ?>"/>
     </td>
-    <td class="col-sm-3">
+    <td class="col-sm-1"  style="min-width: 110px">
         <?= $this->renderFile('orders/eshoporder/_warranty_select', array(
             'product' => $product,
             'orderWarranties' => $orderWarranties

@@ -33,6 +33,7 @@
                     <td>
                         <div class="input-group col-sm-12">
                             <input type="text" class="form-control js-<?= $prefix ?>-discount" value=""/>
+                            <input type="hidden" class="form-control js-<?= $prefix ?>-discount_type" value=""/>
                         </div>
                     </td>
                     <td>

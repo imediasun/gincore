@@ -23,6 +23,28 @@
                             </div>
                         </div>
                     </div>
+
+                    <span class="toggle_btn" data-id="eshop_user_more_data">
+                        <?= l('Указать дополнительные данные клиента') ?>
+                    </span>
+                    <div
+                        class="row row-15 toggle_box <?= (!empty($_COOKIE['esho_user_more_data']) ? ' in' : '') ?>"
+                        id="eshop_user_more_data">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label><?= l('Укажите email') ?>:</label>
+                                <input placeholder="<?= l('email') ?>" type="text" name="email"
+                                       class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label><?= l('Укажите адрес') ?>:</label>
+                                <input placeholder="<?= l('адрес') ?>" type="text" name="address"
+                                       class="form-control">
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label style="padding-top:0"><?= l('Код на скидку') ?>: </label>
                         <input type="text" name="code" class="form-control call_code_mask">
@@ -39,10 +61,10 @@
                                 <legend><?= l('Товар') ?></legend>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="form-group col-sm-2">
+                        <div class="row ">
+                            <div class="form-group col-sm-3 no-right-padding">
                                 <label class="control-label">
-                                    <?= l('Выберите устройство') ?> <b class="text-danger">*</b>:
+                                    <?= l('Устройство') ?>:
                                 </label>
                                 <div class="form-group" id="categories-selected">
                                     <?= typeahead($this->all_configs['db'], 'goods-goods', false,
@@ -53,8 +75,34 @@
                                         array()) ?>
                                 </div>
                             </div>
-                            <div class="form-group col-sm-2">
-                                <label><?= l('Цена') ?> <b class="text-danger">*</b>: </label>
+                            <div class="form-group col-sm-1 no-right-padding left-padding-5">
+                                <label>
+                                    <?= l('Кол-во') ?>
+                                </label>
+                                <div class="form-group">
+                                    <input type="text" id="eshop_sale_poduct_quantity" class="form-control"
+                                           name="quantity" onkeyup="return sum_calculate();"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3 no-right-padding left-padding-5">
+                                <label>
+                                    <input type="hidden" name="price_type" value="1"/>
+                                    <div class="dropdown dropdown-inline">
+                                        <button class="as_link" type="button" id="dropdownMenuCashboxes"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            <span class="btn-title-price_type"><?= l('Цена, р') ?></span>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
+                                            <li><a href="#" data-price_type="1"
+                                                   onclick="return select_price_type(this)"><?= l('Цена, р') ?></a>
+                                            </li>
+                                            <li><a href="#" data-price_type="2"
+                                                   onclick="return select_price_type(this)"><?= l('Цена, о') ?></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </label>
                                 <div class="input-group">
                                     <input type="text" id="eshop_sale_poduct_cost" class="form-control" value=""
                                            name="price" onkeyup="return sum_calculate();"/>
@@ -65,26 +113,32 @@
                                     <li class="parsley-required"><?= l('Обязательное поле.') ?></li>
                                 </ul>
                             </div>
-                            <div class="form-group col-sm-2">
+                            <div class="form-group col-sm-1 no-right-padding left-padding-5">
                                 <label>
-                                    <?= l('Скидка, %') ?>
+                                    <input type="hidden"  id="eshop_sale_poduct_discount_type" name="discount_type" value="1" />
+                                    <div class="dropdown dropdown-inline">
+                                        <button class="as_link" type="button" id="dropdownMenuCashboxes"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            <span class="btn-title-discount_type"><?= l('Скидка, %') ?></span>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
+                                            <li><a href="#" data-discount_type="1"
+                                                   onclick="return select_discount_type(this)"><?= l('Скидка, %') ?></a>
+                                            </li>
+                                            <li><a href="#" data-discount_type="2"
+                                                   onclick="return select_discount_type(this)"><?= l('Скидка, $') ?></a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </label>
                                 <div class="form-group">
                                     <input type="text" id="eshop_sale_poduct_discount" class="form-control"
                                            name="discount" onkeyup="return sum_calculate();"/>
                                 </div>
                             </div>
-                            <div class="form-group col-sm-2">
-                                <label>
-                                    <?= l('Кол-во') ?>
-                                </label>
-                                <div class="form-group">
-                                    <input type="text" id="eshop_sale_poduct_quantity" class="form-control"
-                                           name="quantity" onkeyup="return sum_calculate();"/>
-                                </div>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label><?= l('Сумма') ?> <b class="text-danger">*</b>: </label>
+                            <div class="form-group col-sm-2 no-right-padding left-padding-5">
+                                <label><?= l('Сумма') ?>: </label>
                                 <div class="input-group">
                                     <input type="text" id="eshop_sale_poduct_sum" class="form-control disabled" value=""
                                            name="sum" disabled/>
@@ -120,17 +174,18 @@
                         <?php foreach ($deliveryByList as $id => $name): ?>
                             <label class="radio-inline">
                                 <input type="radio" <?= $id == 1 ? 'checked' : '' ?>
-                                       value="<?= $id ?>" name="delivery_by"/><?= $name ?>
+                                       value="<?= $id ?>" name="delivery_by"
+                                       onclick="toggle_delivery_to(<?= (int)$id != 1 ?>)"/><?= $name ?>
                             </label>
                         <?php endforeach; ?>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="address" class='form-control hidden' value=""
-                               placeholder="<?= l('Укажите адрес') ?>"/>
+                        <input type="text" name="delivery_to" class='form-control' value=""
+                               placeholder="<?= l('Укажите адрес') ?>" style="display: none;"/>
                     </div>
                 </fieldset>
                 <div class="row-fluid">
-                    <div class="btn-group dropup col-sm-3" style="padding-left: 0">
+                    <div class="btn-group dropup col-sm-4" style="padding-left: 0">
                         <input id="add-client-order" class="btn btn-primary submit-from-btn"
                                type="button"
                                onclick="eshop_sale(this)"

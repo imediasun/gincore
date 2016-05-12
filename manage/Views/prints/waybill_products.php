@@ -18,7 +18,7 @@
                 <?= h($good['discount']) ?>
             </td>
             <td>
-                <?= $good['count'] * $good['price'] * (1 - $good['discount']/100) / 100 ?>
+                <?= sum_with_discount($good) ?>
             </td>
         </tr>
     <?php endforeach; ?>

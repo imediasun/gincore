@@ -13,6 +13,9 @@ define('TRANSACTION_OUTPUT', 1);
 define('TRANSACTION_INPUT', 2);
 define('TRANSACTION_TRANSFER', 3);
 
+define('DISCOUNT_TYPE_PERCENT', 1);
+define('DISCOUNT_TYPE_CURRENCY', 2);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';

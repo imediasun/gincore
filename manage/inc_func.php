@@ -1602,3 +1602,10 @@ function generate_xls_with_login_logs()
 function h($string) {
     return htmlspecialchars($string);
 }
+
+function price_with_discount($product) {
+    return $product['discount_type'] == DISCOUNT_TYPE_PERCENT? ($product['price'] / 100) * (1 - $product['discount']/100): ($product['price'] / 100 - $product['discount']);
+}
+function sum_with_discount($product) {
+    return price_with_discount($product)  * $product['count'];
+}

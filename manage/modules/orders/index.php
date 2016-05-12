@@ -2463,6 +2463,7 @@ class orders extends Controller
             $order = $this->changeCode($order, $mod_id);
             $order = $this->changeReferer($order, $mod_id);
             $order = $this->changeDeliveryBy($order, $mod_id);
+            $order = $this->changeDeliveryTo($order, $mod_id);
             $order = $this->changeProducts($order, $mod_id);
 
             // обновляем заказ
@@ -2955,6 +2956,26 @@ class orders extends Controller
                 $deliveryByList[$order['delivery_by']] . ' ==> ' . $deliveryByList[$_POST['delivery_by']]
             );
             $order['delivery_by'] = $_POST['delivery_by'];
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     * @throws Exception
+     */
+    protected function changeDeliveryTo($order, $mod_id)
+    {
+        if (isset($_POST['delivery_to']) && $_POST['delivery_to'] != $order['delivery_to']) {
+            $this->History->save(
+                'update-order-delivery_to',
+                $mod_id,
+                $this->all_configs['arrequest'][2],
+                $order['delivery_to'] . ' ==> ' . $_POST['delivery_to']
+            );
+            $order['delivery_to'] = $_POST['delivery_to'];
         }
         return $order;
     }

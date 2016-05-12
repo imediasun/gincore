@@ -44,7 +44,7 @@ class sale_warranty extends AbstractTemplate
                         'product' => array('value' => $good['title'], 'name' => l('Товар')),
                         'price' => array('value' => $good['price'], 'name' => l('Цена')),
                         'price_with_discount' => array(
-                            'value' => $good['price'] * (1 - $good['discount'] / 100),
+                            'value' => price_with_discount($good),
                             'name' => l('Цена со скидкой')
                         ),
                         'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => l('Серийный номер')),

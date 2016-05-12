@@ -1833,8 +1833,6 @@ class Chains extends Object
     public function create_transaction($post, $mod_id = null)
     {
         // допустимые валюты
-        print_r($post);
-        print_r($_POST);
         $currencies = $this->all_configs['suppliers_orders']->currencies;
         $data = array('state' => true);
         $cashboxes_currency_id_from = null;
@@ -2760,6 +2758,7 @@ class Chains extends Object
             'cashless' => isset($post['cashless']) ? trim($post['cashless']) : '',
             'sale_type' => isset($post['sale_type']) ? $post['sale_type'] : 0,
             'delivery_by' => isset($post['delivery_by']) ? $post['delivery_by'] : 0,
+            'delivery_to' =>  isset($post['delivery_to']) ? $post['delivery_to'] : '',
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -2954,6 +2953,7 @@ class Chains extends Object
             'warranty' => isset($post['warranty']) ? intval($post['warranty']) : 0,
             'cashless' => isset($post['cashless']) && strcmp($post['cashless'], 'on') === 0 ? 1 : 0,
             'delivery_by' => isset($post['delivery_by']) ? intval($post['delivery_by']) : 0,
+            'delivery_to' => isset($post['delivery_to']) ? $post['delivery_to'] : '',
             'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
         );
 
@@ -3163,6 +3163,7 @@ class Chains extends Object
             '`type`' => (int)$product['type'],
             'warranty' => isset($post['warranty']) ? $post['warranty'] : 0,
             'discount' => isset($post['discount']) ? $post['discount'] : 0,
+            'discount_type' => isset($post['discount_type'])? $post['discount_type']: 1
         );
 
         // пытаемся добавить товар
@@ -3188,6 +3189,7 @@ class Chains extends Object
                     'price' => $item['price'],
                     'warranty' => $item['warranty'],
                     'discount' => $item['discount'],
+                    'discount_type' => $item['discount_type'],
                     'count' => 1
                 );
                 $this->add_product_order($post, $modId, null, true);
@@ -3261,6 +3263,7 @@ class Chains extends Object
                 $cart[$item_id]['price'] = $post['amount'][$key];
                 $cart[$item_id]['warranty'] = $post['warranty'][$key];
                 $cart[$item_id]['discount'] = $post['discount'][$key];
+                $cart[$item_id]['discount_type'] = $post['discount_type'][$key];
             }
         }
         return $cart;

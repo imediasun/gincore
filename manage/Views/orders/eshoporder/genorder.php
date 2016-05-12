@@ -109,18 +109,6 @@
                         <div class="form-group clearfix">
                             <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
-                                  onclick="alert_box(this, false, 'changes:update-order-client_legal_address')"
-                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                <?= l('Адрес') ?>:
-                            </label>
-                            <div class="tw100">
-                                <input type="text" value="<?= htmlspecialchars($order['c_legal_address']) ?>" name="phone"
-                                       class="form-control"/>
-                            </div>
-                        </div>
-                        <div class="form-group clearfix">
-                            <label class="lh30">
-                            <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-client_email')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                                 <?= l('Email') ?>:
@@ -143,6 +131,18 @@
                                            value="<?= $id ?>" name="delivery_by"/><?= $name ?>
                                 </label>
                             <?php endforeach; ?>
+                        </div>
+                        <div class="form-group clearfix">
+                            <label class="lh30">
+                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                  onclick="alert_box(this, false, 'changes:update-order-delivery_to')"
+                                  data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                <?= l('Адрес доставки') ?>:
+                            </label>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['delivery_to']) ?>" name="delivery_to"
+                                       class="form-control"/>
+                            </div>
                         </div>
                     </div>
                     <div class="span6">
