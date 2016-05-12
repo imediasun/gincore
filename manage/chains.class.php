@@ -1133,6 +1133,7 @@ class Chains extends Object
                     );
                 }
             }
+            $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
 
         } catch (ExceptionWithMsg $e) {
             $data = array(
@@ -2973,6 +2974,7 @@ class Chains extends Object
 //            print_r($e->getMessage());
             throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
         }
+        return $id;
     }
 
     /**
