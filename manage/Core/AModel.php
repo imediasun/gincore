@@ -125,6 +125,9 @@ abstract class AModel extends Object
      */
     public function increase($field, $value, $conditions = '1=1')
     {
+        if(!in_array($field, $this->columns())) {
+            return false;
+        }
         return $this->query('UPDATE ?t SET ?q=?q+? WHERE ?q', array(
             $this->table,
             $field,
