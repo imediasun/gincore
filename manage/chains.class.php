@@ -1493,6 +1493,25 @@ class Chains extends Object
             if(isset($post['next'])) {
                 $data = $this->andPrint($post['next'], $data, $client);
             }
+
+            if(isset($post['auto-cash']) && $post['auto-cash'] == 'on'  && !empty($post['cashbox'])) {
+                $this->create_transaction(Array
+                (
+                    'transaction_type' => 2,
+                    'supplier_order_id' => 0,
+                    'client_order_id' => $order['id'],
+                    'b_id' => 0,
+                    'transaction_extra' => 0,
+                    'cashbox_from' => $post['cashbox'],
+                    'amount_from' => 0,
+                    'cashbox_currencies_from' => $this->all_configs['settings']['currency_orders'],
+                    'cashbox_course_from' => 1,
+                    'cashbox_to' => $post['cashbox'],
+                    'amount_to' => $post['price'],
+                    'cashbox_currencies_to' => $this->all_configs['settings']['currency_orders'],
+                    'cashbox_course_to' => 1,
+                ), $mod_id);
+            }
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
@@ -1513,7 +1532,6 @@ class Chains extends Object
                 $this->Orders->rollback($order);
             }
         }
-
         return $data;
     }
 
@@ -1815,6 +1833,8 @@ class Chains extends Object
     public function create_transaction($post, $mod_id = null)
     {
         // допустимые валюты
+        print_r($post);
+        print_r($_POST);
         $currencies = $this->all_configs['suppliers_orders']->currencies;
         $data = array('state' => true);
         $cashboxes_currency_id_from = null;
@@ -1844,11 +1864,19 @@ class Chains extends Object
                 throw new ExceptionWithMsg(l('Выберите валюты для кассы'));
             }
 
-            if ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT) {
+            if ($post['transaction_type'] == TRANSACTION_TRANSFER || $post['transaction_type'] == TRANSACTION_OUTPUT || $post['transaction_type'] == TRANSACTION_INPUT) {
                 $cashboxes_currency_id_from = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
                     array($post['cashbox_from'], $post['cashbox_currencies_from']))->el();
 
                 if (!$cashboxes_currency_id_from) {
+                    throw new ExceptionWithMsg(l('Такой валюты нет у кассы'));
+                }
+            }
+            if ($post['transaction_type'] == TRANSACTION_INPUT) {
+                $cashboxes_currency_id_to = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
+                    array($post['cashbox_to'], $post['cashbox_currencies_to']))->el();
+
+                if (!$cashboxes_currency_id_to) {
                     throw new ExceptionWithMsg(l('Такой валюты нет у кассы'));
                 }
             }
@@ -2094,10 +2122,12 @@ class Chains extends Object
             'contractor_category_link' => $contractor_category_link,
             'date_transaction' => date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
             'user_id' => $user_id,
-            'supplier_order_id' => $supplier_order_id,
             'goods_id' => $goods_id,
             '`type`' => $type
         );
+        if(!empty($supplier_order_id)) {
+            $data['supplier_order_id'] = $supplier_order_id;
+        }
         if (!empty($order_goods_id)) {
             $data['order_goods_id'] = $order_goods_id;
         }
@@ -2116,7 +2146,6 @@ class Chains extends Object
         if (!empty($cashboxes_currency_id_to)) {
             $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
         }
-
         $transaction_id = $this->CashboxesTransactions->insert($data);
 
         // если транзакция на заказ поставщику
@@ -2217,7 +2246,6 @@ class Chains extends Object
                 ));
             }
         }
-
         // при внесении денег за заказ клиента
         if (isset($post['client_order_id']) && $post['client_order_id'] > 0 && $client_order_id > 0) {
 

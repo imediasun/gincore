@@ -980,3 +980,10 @@ function set_total_as_sum(_this, orderId, total) {
         });
     }
 }
+
+function select_cashbox(_this) {
+    var cashbox = parseInt($(_this).attr('data-cashbox'));
+    $('input[name="cashbox"]').val(cashbox);
+    $('.btn-title').html($(_this).html());
+    return false;
+}

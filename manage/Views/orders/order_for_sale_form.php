@@ -88,15 +88,21 @@
                     </div>
                     <div class="form-group col-sm-9 form-inline">
                         <label>
-                            <input type="checkbox" value="auto-cash">
+                            <input type="checkbox" name="auto-cash">
                             <?= l('Автоматически принять деньги в кассу'); ?>
                         </label>
-                        <select name="cachbox" class="form-control">
-                            <option value="0"><?= l('Выбрать') ?></option>
+                        <input type="hidden" name="cashbox" value="0" />
+                        <div class="dropdown dropdown-inline">
+                            <button class="as_link" type="button" id="dropdownMenuCashboxes" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="btn-title"><?= l('Выбрать') ?></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
                             <?php foreach ($cashboxes as $cashbox): ?>
-                                <option value="<?= $cashbox['id'] ?>"><?= $cashbox['name'] ?></option>
+                                <li><a href="#" data-cashbox="<?= $cashbox['id'] ?>" onclick="return select_cashbox(this)"><?= $cashbox['name'] ?></a></li>
                             <?php endforeach; ?>
-                        </select>
+                            </ul>
+                        </div>
                         <label>
                             <?= l('и закрыть заказ') ?>
                         </label>

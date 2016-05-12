@@ -594,3 +594,15 @@ input.visible-price {
 .order-form-p-lg {
     padding: 20px 5px 20px 15px !important;
 }
+.dropdown-inline {
+    display:  inline-block;
+}
+.as_link {
+    border: none;
+    border-bottom: 1px dashed;
+    color: #5b5b5b;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 10px 0 10px;
+    background-color: white;
+}
