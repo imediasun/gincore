@@ -28,10 +28,11 @@ class products extends Controller
         parent::routing($arrequest);
         if (!isset($arrequest[1]) || $arrequest[1] != 'create') {
             $input_html['mmenu'] = $this->genmenu(); // список категорий
-            $input_html['mcontent'] = $this->gencontent(); // список товаров
+            return $this->gencontent(); // список товаров
         } elseif (isset($arrequest[1]) && $arrequest[1] == 'create') { // форма изменения товара
-            $input_html['mcontent'] = $this->gencreate();
+            return $this->gencreate();
         }
+        return '';
     }
 
     /**

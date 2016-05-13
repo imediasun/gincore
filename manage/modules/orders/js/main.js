@@ -864,7 +864,7 @@ function add_eshop_item_to_table() {
     var $row = $('tr.js-eshop-row-cloning'),
       cost = $('#eshop_sale_poduct_sum').val(),
       title = $('#categories-selected > ul.dropdown-menu > li.active > a').html(),
-      id = $('input[name="goods-goods"]').val(),
+      id = $('input[name="new-goods"]').val(),
       price = $('#eshop_sale_poduct_cost').val(),
       discount = $('#eshop_sale_poduct_discount').val(),
       discount_type = $('#eshop_sale_poduct_discount_type').val(),
