@@ -5,42 +5,29 @@
         </a>
     </td>
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
-        <td class="col-sm-2">
-            <form method="POST">
-                <div class="input-group floating-width">
-                    <input class="form-control global-typeahead input-medium popover-info visible-price"
-                           type="text" onkeypress="change_input_width(this, this.value.length);"
-                           value="<?= ($product['price'] / 100) ?>"/>
-                    <div class="input-group-btn" style="display:none">
-                        <button class="btn btn-info" type="submit"
-                                onclick="change_visible_prices(this, <?= $product['id'] ?>)">
-                            <span class="glyphicon glyphicon-ok"></span>&nbsp;
-                        </button>
-                    </div>
-                </div>
-            </form>
+        <td class="col-sm-1">
+            <div class="input-group">
+                <input class="form-control global-typeahead input-medium popover-info"
+                       type="text" value="<?= ($product['price'] / 100) ?>"/>
+            </div>
         </td>
     <?php endif; ?>
     <td class="col-sm-1" style="min-width: 100px">
         <div class="input-group">
-        <input class="form-control global-typeahead input-medium popover-info"
-               type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id']?>][discount]"/>
-            <div class="input-group-btn">
-                <button class="btn btn-default" >
-                    <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT? '%': viewCurrency() ?>
-                </button>
+            <input class="form-control global-typeahead input-medium popover-info"
+                   type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"/>
+            <div class="input-group-addon">
+                <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
             </div>
+        </div>
     </td>
-<!--    <td class="col-sm-2">-->
-<!--        <input class="form-control global-typeahead input-medium popover-info visible-price"-->
-<!--               type="text" onkeypress="change_input_width(this, this.value.length);"-->
-<!--               value="--><?//= $product['count']?><!--"  name="product[--><?//= $product['id']?><!--][count]"/>-->
-<!--    </td>-->
     <td class="col-sm-1">
-        <input readonly class="form-control global-typeahead input-medium popover-info disable"
-               type="text" value="<?= sum_with_discount($product) ?>"/>
+        <div class="input-group">
+            <input readonly class="form-control global-typeahead input-medium popover-info disable"
+                   type="text" value="<?= sum_with_discount($product) ?>"/>
+        </div>
     </td>
-    <td class="col-sm-1"  style="min-width: 110px">
+    <td class="col-sm-2" style="min-width: 110px">
         <?= $this->renderFile('orders/eshoporder/_warranty_select', array(
             'product' => $product,
             'orderWarranties' => $orderWarranties
@@ -79,7 +66,7 @@
                         $create_role = $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders');
                         $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                         $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
-                        $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')"; 
+                        $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')";
                         $avail_create = $avail_accept = $avail_bind = false;
                         $accept_action = $bind_action = $create_action = '';
                         $accept_data = '';
@@ -145,14 +132,14 @@
                             ?>
                             <span title="<?= do_nice_date($date_attach, false) ?>">
                                 <?= do_nice_date($date_attach) ?>
-                            </span> 
+                            </span>
                             <?= l('Отправлен запрос на закупку') ?>
                             <?php if ($product['so_id'] > 0): ?>
                                 <a href="<?= $this->all_configs['prefix'] ?>orders/edit/<?= $product['so_id'] ?>#create_supplier_order">
                                     <small class="muted">№<?= $product['so_id'] ?></small>
                                 </a>
                             <?php endif; ?>
-                             <?= l('от') ?>
+                            <?= l('от') ?>
                             <span title="<?= do_nice_date($product['date_add'], false) ?>">
                                 <?= do_nice_date($product['date_add']) ?>
                             </span>

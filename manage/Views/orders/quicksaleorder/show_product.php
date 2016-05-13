@@ -6,22 +6,17 @@
     </td>
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="col-sm-2">
-            <form method="POST">
-                <div class="input-group floating-width">
-                    <input class="form-control global-typeahead input-medium popover-info visible-price"
-                           type="text" onkeypress="change_input_width(this, this.value.length);"
-                           value="<?= ($product['price'] / 100) ?>"/>
-                    <div class="input-group-btn" style="display:none">
-                        <button class="btn btn-info" type="submit"
-                                onclick="change_visible_prices(this, <?= $product['id'] ?>)">
-                            <span class="glyphicon glyphicon-ok"></span>&nbsp;
-                        </button>
-                    </div>
+            <div class="input-group">
+                <input class="form-control global-typeahead input-medium popover-info"
+                       type="text"
+                       value="<?= ($product['price'] / 100) ?>"/>
+                <div class="input-group-addon">
+                    <?= viewCurrency() ?>
                 </div>
-            </form>
+            </div>
         </td>
     <?php endif; ?>
-    <td class="col-sm-1">
+    <td class="col-sm-2">
         <?= $this->renderFile('orders/quicksaleorder/_warranty_select', array(
             'product' => $product,
             'orderWarranties' => $orderWarranties
@@ -59,7 +54,7 @@
                         $create_role = $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders');
                         $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                         $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
-                        $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')"; 
+                        $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')";
                         $avail_create = $avail_accept = $avail_bind = false;
                         $accept_action = $bind_action = $create_action = '';
                         $accept_data = '';
@@ -125,14 +120,14 @@
                             ?>
                             <span title="<?= do_nice_date($date_attach, false) ?>">
                                 <?= do_nice_date($date_attach) ?>
-                            </span> 
+                            </span>
                             <?= l('Отправлен запрос на закупку') ?>
                             <?php if ($product['so_id'] > 0): ?>
                                 <a href="<?= $this->all_configs['prefix'] ?>orders/edit/<?= $product['so_id'] ?>#create_supplier_order">
                                     <small class="muted">№<?= $product['so_id'] ?></small>
                                 </a>
                             <?php endif; ?>
-                             <?= l('от') ?>
+                            <?= l('от') ?>
                             <span title="<?= do_nice_date($product['date_add'], false) ?>">
                                 <?= do_nice_date($product['date_add']) ?>
                             </span>

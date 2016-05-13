@@ -3179,7 +3179,7 @@ class Chains extends Object
      * @param $orderId
      * @param $modId
      */
-    private function addProducts($items, $orderId, $modId)
+    public function addProducts($items, $orderId, $modId)
     {
         foreach ($items as $item) {
             for (; $item['quantity'] > 0; $item['quantity']--) {

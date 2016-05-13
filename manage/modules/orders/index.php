@@ -1948,6 +1948,10 @@ class orders extends Controller
         // редактировать заказ
         if ($act == 'update-order') {
             $data = $this->updateOrder($data, $user_id, $mod_id);
+            if(empty($data['location'])) {
+                $order_id = isset($this->all_configs['arrequest'][2]) ? $this->all_configs['arrequest'][2] : null;
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' .$order_id;
+            }
         }
 
         // создать заказ
@@ -2169,6 +2173,8 @@ class orders extends Controller
 
         // добавляем новый товар к заказу выводя его в таблицу
         if ($act == 'add_product') {
+            print_r($_POST);
+            exit;
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
         }
 
@@ -2470,6 +2476,7 @@ class orders extends Controller
             $order = $this->changeDeliveryBy($order, $mod_id);
             $order = $this->changeDeliveryTo($order, $mod_id);
             $order = $this->changeProducts($order, $mod_id);
+            $order = $this->changeCart($order, $mod_id);
 
             // обновляем заказ
             $ar = $this->all_configs['db']->query('UPDATE {orders} SET ?s WHERE id=?i',
@@ -3010,6 +3017,29 @@ class orders extends Controller
                     }
                 }
             }
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    protected function changeCart($order, $mod_id)
+    {
+        if (!empty($_POST['new-goods'])) {
+            $post = array(
+                array(
+                    'id' => $_POST['new-goods'],
+                    'discount' => !empty($_POST['discount']) ? $_POST['discount'] : 0,
+                    'discount_type' => !empty($_POST['discount_type']) ? $_POST['discount_type'] : DISCOUNT_TYPE_PERCENT,
+                    'amount' => !empty($_POST['price']) ? $_POST['price'] : 0,
+                    'quantity' => !empty($_POST['quantity']) ? $_POST['quantity'] : 1,
+                    'warranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0,
+                )
+            );
+            $this->all_configs['chains']->addProducts($post, $order['id'], $mod_id);
         }
         return $order;
     }

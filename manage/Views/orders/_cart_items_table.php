@@ -1,16 +1,16 @@
 <div class="row">
     <div class="col-sm-12">
-        <table class="table <?= $prefix?>-table-items" style="display:none">
+        <table class="table <?= $prefix ?>-table-items" style="display:none">
             <thead>
             <tr>
-                <th class="<?= $prefix == 'quick'? 'col-sm-6': 'col-sm-3' ?>"><?= l('Товар') ?></th>
-                <th class="<?= $prefix == 'quick'? 'col-sm-3': '' ?>"><?= l('Цена') ?></th>
+                <th class="<?= $prefix == 'quick' ? 'col-sm-6' : 'col-sm-3' ?>"><?= l('Товар') ?></th>
+                <th class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>"><?= l('Цена') ?></th>
                 <?php if ($prefix == 'eshop'): ?>
                     <th><?= l('Скидка') ?></th>
                     <th><?= l('Количество') ?></th>
                     <th><?= l('Сумма') ?></th>
                 <?php endif; ?>
-                <th class="<?= $prefix == 'quick'? 'col-sm-3': '' ?>"><?= l('Гарантия') ?></th>
+                <th class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>"><?= l('Гарантия') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -55,7 +55,7 @@
                             <option value=""><?= l('Без гарантии') ?></option>
                             <?php foreach ($orderWarranties as $warranty): ?>
                                 <option
-                                    value="<?= intval($warranty) ?>" <?= $warranty == $defaultWarranty? 'selected' :'' ?>><?= intval($warranty) ?></option>
+                                    value="<?= intval($warranty) ?>" <?= $warranty == $defaultWarranty ? 'selected' : '' ?>><?= intval($warranty) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="input-group-addon"><?= l('мес') ?></div>

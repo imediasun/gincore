@@ -12,78 +12,87 @@
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
-        <div class="span8">
-                <div class="row-fluid">
-
-                    <div class="span3">
-                        <h3 class="m-t-none">
-                            № <?= $order['id'] ?>
-                            <?= $this->renderFile('orders/genorder/_print_buttons', array(
-                                'hasEditorPrivilege' => $hasEditorPrivilege,
-                                'order' => $order
-                            )) ?>
-                            <button data-o_id="<?= $order['id'] ?>" onclick="alert_box(this, false, 'sms-form')"
-                                    class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS
-                            </button>
-                        </h3>
-                    </div>
-                    <div class="span4">
-                        <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
-                        <div class="form-group clearfix">
-                            <label class="lh30">
-                                <span <?= $style ?>></span>
+        <div class="col-sm-8">
+            <div class="row-fluid">
+                <div class="span4">
+                    <h3 class="m-t-none">
+                        № <?= $order['id'] ?>
+                        <?= $this->renderFile('orders/genorder/_print_buttons', array(
+                            'hasEditorPrivilege' => $hasEditorPrivilege,
+                            'order' => $order
+                        )) ?>
+                        <button data-o_id="<?= $order['id'] ?>" onclick="alert_box(this, false, 'sms-form')"
+                                class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS
+                        </button>
+                    </h3>
+                </div>
+                <div class="span4">
+                    <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
+                    <div class="form-group clearfix">
+                        <label class="lh30">
+                            <span <?= $style ?>></span>
                                 <span class="cursor-pointer glyphicon glyphicon-list"
                                       title="<?= l('История перемещений') ?>"
                                       data-o_id="<?= $order['id'] ?>"
                                       onclick="alert_box(this, false, 'order-statuses')">
 
                                 </span>
-                                <?= l('Статус') ?>:
-                            </label>
-                            <?= $this->renderFile('orders/genorder/_order_status', array(
-                                'active' => intval($order['status'])
-                            )) ?>
-                        </div>
-                    </div>
-                    <div class="span4">
-                        <?= $this->renderFile('orders/genorder/_employers', array(
-                            'users' => $managers,
-                            'order' => $order,
-                            'title' => l('manager'),
-                            'type' => 'manager'
-                        )); ?>
+                            <?= l('Статус') ?>:
+                        </label>
+                        <?= $this->renderFile('orders/genorder/_order_status', array(
+                            'active' => intval($order['status'])
+                        )) ?>
                     </div>
                 </div>
+                <div class="span4">
+                    <?= $this->renderFile('orders/genorder/_employers', array(
+                        'users' => $managers,
+                        'order' => $order,
+                        'title' => l('manager'),
+                        'type' => 'manager'
+                    )); ?>
+                </div>
+            </div>
 
-                <div class="row-fluid">
-                    <div class="span6">
-                        <div class="form-group clearfix">
-                            <label class="lh30">
+            <div class="row-fluid">
+                <div class="span12">
+                    <legend> <?= l('Клиент') ?></legend>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span6">
+                    <div class="form-group clearfix">
+                        <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-fio')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                <?= l('Заказчик') ?>:
-                            </label>
-                            <div class="tw100">
-                                <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
-                                       class="form-control"/>
-                            </div>
+                        </label>
+                        <div class="tw100">
+                            <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
+                                   class="form-control" placeholder="<?= l('ФИО') ?>"/>
                         </div>
-                        <div class="form-group clearfix">
-                            <label class="lh30">
+                    </div>
+                    <div class="form-group clearfix">
+                        <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-phone')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                <?= l('Телефон') ?>:
-                            </label>
-                            <div class="tw100">
-                                <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
-                                       class="form-control"/>
-                            </div>
+                        </label>
+                        <div class="tw100">
+                            <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
+                                   class="form-control" placeholder="<?= l('Телефон') ?>"/>
                         </div>
                     </div>
+                </div>
             </div>
-            <div class="row-fluid bordered">
+            <div class="row-fluid">
+                <legend>
+                    <span class="cursor-pointer glyphicon glyphicon-list"
+                          onclick="alert_box(this, false, 'changes:update-order-cart')"
+                          data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"
+                          style="font-size: 13px"></span>
+                    <?= l('Корзина') ?>
+                </legend>
                 <div class="span12">
                     <?= $this->renderFile('orders/quicksaleorder/_spares', array(
                         'onlyEngineer' => $onlyEngineer,

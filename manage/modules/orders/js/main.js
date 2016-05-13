@@ -428,7 +428,7 @@ function update_order(_this) {
                     return;
                 }
                 if (msg['location']) {
-                    //window.location.href = msg['location'];
+                    window.location.href = msg['location'];
                 }
                 if (msg['state'] == true || msg['reload'] == true) {
                     close_alert_box();

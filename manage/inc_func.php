@@ -554,7 +554,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         } else {
             $tbl = $table;
             $tbl_where = '';
-            if($table == 'goods-goods' || $table == 'goods-service'){
+            if($table == 'goods-goods' || $table == 'goods-service' || $table == 'new-goods'){
                 $tbl_where = ' AND avail = 1';
                 $tbl = 'goods';
             }

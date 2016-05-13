@@ -117,7 +117,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     WHERE g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
                 array($query_title, $query, $s, 1, $limit))->assoc();
         }
-        if ($_POST['table'] == 'goods-goods') {
+        if ($_POST['table'] == 'goods-goods' || $_POST['table'] == 'new-goods') {
             $query = '';
             if (isset($_POST['fix']) && $_POST['fix'] > 0) {
                 $query = $all_configs['db']->makeQuery('RIGHT JOIN {category_goods} as cg ON
