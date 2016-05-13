@@ -1315,41 +1315,46 @@ class orders
         if (empty($managerConfigs)) {
             return $this->check_with_default_config($order, $day);
         } else {
+            $lastDateOfChangeStatus = $this->all_configs['db']->query('SELECT s.date FROM {order_status} as s
+                WHERE s.order_id=?i ORDER BY `date` DESC LIMIT 1',
+                array($order['id']))->el();
+            if(empty($lastDateOfChangeStatus)) {
+                $lastDateOfChangeStatus = $order['date_add'];
+            }
             $config = json_decode($managerConfigs[0]['value'], true);
             foreach ($config as $id => $value) {
-                $endTime = strtotime($order['date']) + $day * $value;
-                if ($id == 'status_repair' && $order['status'] == $this->all_configs['configs']['order-status-waits']) {
-                    $items = $this->all_configs['db']->query('SELECT sum(1) as quantity, sum(if(item_id IS NULL,1,0)) as not_binded FROM {orders_goods} WHERE order_id=? GROUP BY order_id',
-                        array($order['id']))->assoc();
-                    $date = $this->all_configs['db']->query('
-                        SELECT so.date_come AS end_time
-                        FROM {contractors_suppliers_orders} so 
-                        JOIN {orders_suppliers_clients} sc ON sc.supplier_order_id=so.id  
-                        WHERE order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL AND order_id=?i) AND  NOT so.date_come IS NULL ORDER BY end_time DESC LIMIT 1;
-                        ', array($order['id']))->row();
-                    if (!empty($items) && $items[0]['not_binded'] > 0 && (empty($date) || $date['end_time'] < time()) && $endTime < time()) {
+                $endTime = strtotime($lastDateOfChangeStatus) + $day * $value;
+                if ($order['status'] == $this->all_configs['configs']['order-status-waits']) {
+                    $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
+                    if ($order['status'] == $id && empty($goods) && $endTime < time()) {
                         return true;
                     }
-                }
-                if ($id == 'status_sold' && $order['status'] == $this->all_configs['configs']['order-status-waits']) {
-                    $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-                    if (!empty($goods)) {
-                        foreach ($goods as $good) {
-                            if ($good['item_id'] <= 0 && $good['count_order'] > 0 && $good['supplier'] == 0 && $endTime < time()) {
+                    foreach ($goods as $product) {
+                        // проверяем дооформлена ли пустышка
+                        if ($id == 'status_sold' && $endTime < time()) {
+                            if ($product['unavailable'] != 1 && $product['count_debit'] <= 0 && $product['count_come'] <= 0 && $product['supplier'] <= 0) {
+                                return true;
+                            }
+                        }
+                        // дата доставки просрочена, а заказ поставщику не оприходован
+                        if (empty($product['date_come']) && strtotime($product['date_wait']) < time()) {
+                            return true;
+                        }
+                        // деталь не привязана
+                        if ($id == 'status_repair') {
+                            if (!empty($product['date_come']) && empty($product['item_id']) && $endTime < time()) {
                                 return true;
                             }
                         }
                     }
-                    if (!empty($items) && $items[0]['quantity'] > 0 && $items[0]['not_binded'] && $endTime < time()) {
+                } else {
+                    // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+                    if (empty($order['manager']) && strtotime($order['date_add']) <= (time() - $day)) {
                         return true;
                     }
-                }
-                // Принят в ремонт > 24 часов назад и никто из манагеров не взял
-                if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
-                    return true;
-                }
-                if ($order['status'] == $id && $endTime < time()) {
-                    return true;
+                    if ($order['status'] == $id && $endTime < time()) {
+                        return true;
+                    }
                 }
             }
         }
@@ -1425,7 +1430,7 @@ class orders
             array(
                 $this->all_configs['configs']['order-status-waits'],
                 $filters_query,
-                array(1),
+                array(3),
                 $this->all_configs['configs']['order-statuses-manager'],
                 (time() - 60 * 60 * 24 * 90)
             ))->assoc();

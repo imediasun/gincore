@@ -1364,6 +1364,9 @@ function update_order_status($order, $new_status)
             $all_configs['db']->query('UPDATE {orders} SET status_id=?i, `status`=?i WHERE id=?i',
                 array($status_id, $new_status, $order['id']));
 
+            $all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                array($user_id, 'update-order-status', $mod_id, $order['id']));
+
             $return['state'] = true;
 
             // уведомление
