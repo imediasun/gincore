@@ -6,7 +6,7 @@
         <?= typeahead($this->all_configs['db'], $from_shop?'goods-goods':'new-goods', false,
             (!empty($order_data) ?
                 $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
-            'display_service_information,get_requests', false, false, '', false,
+            'display_goods_information,get_requests', false, false, '', false,
             l('Введите'),
             array()) ?>
     </div>

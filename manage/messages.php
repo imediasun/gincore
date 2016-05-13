@@ -124,7 +124,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                         cg.category_id IN (?li) AND g.id=cg.goods_id',
                     array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
-            $data = $all_configs['db']->query('SELECT g.id, g.title FROM {goods} as g ?query
+            $data = $all_configs['db']->query('SELECT g.id, g.title, g.price, g.price_wholesale FROM {goods} as g ?query
                     WHERE (g.type IS NULL OR g.type=0) AND g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
                 array($query, $s, 1, $limit))->assoc();
         }

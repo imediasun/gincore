@@ -2059,6 +2059,15 @@ class orders extends Controller
                     $data['content'] = trim($category['information']);
                 }
             }
+            if(isset($_POST['goods_id'])) {
+                $goods = $this->all_configs['db']->query('SELECT title, price,  price_wholesale FROM {goods} WHERE id=?i',
+                    array(intval($_POST['goods_id'])))->row();
+                if (!empty($goods)) {
+                    $data['title'] = h(trim($goods['title']));
+                    $data['price'] = $goods['price']/ 100;
+                    $data['price_wholesale'] = $goods['price_wholesale']/ 100;
+                }
+            }
         }
 
         // изделие проверенно

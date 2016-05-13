@@ -153,9 +153,42 @@ function display_serial_product_title_and_price(_this, item_id)
     });
     return false;
 }
+function display_goods_information(_this) {
+    $.ajax({
+        url: prefix + module + '/ajax/?act=service-information',
+        type: 'POST',
+        data: '&goods_id=' + $('.typeahead-value-new-goods3').val(),
+        success: function(msg) {
+            console.log(msg);
+            if (msg['state'] == true) {
+                $(_this).attr('data-placement', 'right');
+                $(_this).attr('data-trigger', 'focus');
+                if (msg['title']) {
+                    $(_this).attr('data-title', msg['title']);
+                }
+                if (msg['price']) {
+                    $(_this).attr('data-price', msg['price']);
+                } else {
+                    $(_this).attr('data-price', 0);
+                }
+                if (msg['price_wholesale']) {
+                    $(_this).attr('data-price_wholesale', msg['price_wholesale']);
+                } else {
+                    $(_this).attr('data-price_wholesale', 0);
+                }
+                if (msg['content']) {
+                    $(_this).attr('data-content', msg['content']);
+                }
+                set_price();
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+}
 
 function display_service_information(_this) {
-
     $.ajax({
         url: prefix + module + '/ajax/?act=service-information',
         type: 'POST',
@@ -166,6 +199,12 @@ function display_service_information(_this) {
                 $(_this).attr('data-trigger', 'focus');
                 if (msg['title']) {
                     $(_this).attr('data-original-title', msg['title']);
+                }
+                if (msg['price']) {
+                    $(_this).attr('data-original-price', msg['price']);
+                }
+                if (msg['price_wholesale']) {
+                    $(_this).attr('data-original-price_wholesale', msg['price_wholesale']);
                 }
                 if (msg['content']) {
                     $(_this).attr('data-content', msg['content']);
@@ -997,7 +1036,17 @@ function select_price_type(_this) {
     var type = parseInt($(_this).attr('data-price_type'));
     $('input[name="price_type"]').val(type);
     $('.btn-title-price_type').html($(_this).html());
+    set_price();
     return false;
+}
+function set_price() {
+    var $source = $('input[name="new-goods-value"]');
+    if($('input[name="price_type"]').val() == 1) {
+        $('input[name="price"]').val(parseInt($source.attr('data-price')));
+    } else {
+        $('input[name="price"]').val(parseInt($source.attr('data-price_wholesale')));
+    }
+    sum_calculate();
 }
 function toggle_delivery_to(state) {
    if(state == 1) {
