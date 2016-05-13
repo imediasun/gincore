@@ -111,7 +111,16 @@
             </form>
         </div>
         <div class="col-sm-5 relative">
-            <?= '*' . l('Торговая точка-режим экспресс продажи товаров без указани данных клиента. Достаточно ввести код товара с упаковки и указать цену продажи'); ?>
+            <div class="container-fluid items-container">
+                <div class="row">
+                    <div class="col-sm-12 no-padding-right">
+                        <legend style="border: 0;">&nbsp;</legend>
+                    </div>
+                </div>
+                <div class="row">
+                    <?= '*' . l('Торговая точка-режим экспресс продажи товаров без указани данных клиента. Достаточно ввести код товара с упаковки и указать цену продажи'); ?>
+                </div>
+            </div>
         </div>
     </div>
 </div>
