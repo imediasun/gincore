@@ -90,6 +90,13 @@ if(!$ifauth && !in_array($a0, array('login_form'))){
 if(isset($all_configs['arrequest'][0])){
 
     if($all_configs['arrequest'][0] == 'login_form'){
+        if($ifauth) {
+            if(isset($_COOKIE['login_redirect']) && strpos($_COOKIE['login_redirect'], 'login_form') === false){
+                header("Location: ".$_COOKIE['login_redirect']);
+            }else{
+                header("Location: ".$all_configs['prefix']);
+            }
+        }
         $html_header = 'html_header_login.html';
         $html_template = 'html_template_login.html';
 
@@ -99,7 +106,7 @@ if(isset($all_configs['arrequest'][0])){
             $loginrezult = $auth->Login($email, $pass);
             if($loginrezult){
                 $ifauth = $auth->IfAuth();
-                if(isset($_COOKIE['login_redirect'])){
+                if(isset($_COOKIE['login_redirect'])  && strpos($_COOKIE['login_redirect'], 'login_form') === false){
                     setcookie('login_redirect', null, -1, $all_configs['prefix']);
                     header("Location: ".$_COOKIE['login_redirect']);
                 }else{
