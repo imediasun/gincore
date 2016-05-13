@@ -1324,6 +1324,10 @@ class orders
             $config = json_decode($managerConfigs[0]['value'], true);
             foreach ($config as $id => $value) {
                 $endTime = strtotime($lastDateOfChangeStatus) + $day * $value;
+                // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+                if (empty($order['manager']) && strtotime($order['date_add']) <= (time() - $day)) {
+                    return true;
+                }
                 if ($order['status'] == $this->all_configs['configs']['order-status-waits']) {
                     $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
                     if ($order['status'] == $id && empty($goods) && $endTime < time()) {
@@ -1348,10 +1352,6 @@ class orders
                         }
                     }
                 } else {
-                    // Принят в ремонт > 24 часов назад и никто из манагеров не взял
-                    if (empty($order['manager']) && strtotime($order['date_add']) <= (time() - $day)) {
-                        return true;
-                    }
                     if ($order['status'] == $id && $endTime < time()) {
                         return true;
                     }
