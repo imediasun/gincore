@@ -109,7 +109,7 @@
             </div>
             <?php if ($hasEditorPrivilege): ?>
                 <div class="row-fluid">
-                    <div class="span3">
+                    <div class="span5">
                         <?php
                         $hide = in_array($order['status'], $this->all_configs['configs']['order-status-issue-btn']) ? ''
                             : 'style="display:none;"';
@@ -128,14 +128,14 @@
                                    type="button" value="<?= l('Сохранить') ?>"/>
                         <?php endif; ?>
                     </div>
-                    <div class="span9">
+                    <div class="span7">
                         <div class="from-control clearfix">
                             <label class="lh30">
                                 <span class="cursor-pointer glyphicon glyphicon-list"
                                       onclick="alert_box(this, false, 'changes:update-order-sum')"
                                       data-o_id="<?= $order['id'] ?>"
                                       title="<?= l('История изменений') ?>"></span>
-                                <?= l('Стоимость ремонта') ?>:
+                                <?= l('Стоимость') ?>:
                             </label>
                             <div class="tw100">
                                 <div class="input-group input-group-sm">
