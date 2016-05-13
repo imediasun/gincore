@@ -39,7 +39,7 @@
                                 </span>
                             <?= l('Статус') ?>:
                         </label>
-                        <?= $this->renderFile('orders/genorder/_order_status', array(
+                        <?= $this->renderFile('orders/quicksaleorder/_order_status', array(
                             'active' => intval($order['status'])
                         )) ?>
                     </div>

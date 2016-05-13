@@ -1031,7 +1031,7 @@ class Configs
             // статусы при которых появляется кнопка "выдать"
             //        'order-statuses-orders'             =>  array(25, 35, 40),
             'order-statuses-orders' => array(35, 40),
-            'order-statuses-closed' => array(25, 40),
+            'order-statuses-closed' => array(25, 40, 55, 65, 75),
             'order-statuses-nocomments' => array(35, 15, 20, 25, 50, 40),
             'order-statuses-manager' => array(0, 2, 5, 10, 27, 30, 45),
             //по каким статусам выбирать заказы в менеджер заказов
@@ -1043,6 +1043,44 @@ class Configs
             // from - с какого статуса можно изменить менеджеру заказ ((array), (string) from all) 'erp-use'=true
             // role - привилегия, юзер с которой может поменять статус (можно не добавлять)
             // edit - редактирование данных заказа, кроме статуса (true/false)
+            'sale-order-status' => array(
+                0 => array(
+                    'name' => l('Новый заказ'),
+                    'color' => 'B05D55',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+                35 => array(
+                    'name' => l('Собран на складе'),
+                    'color' => '787987',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+                55 => array(
+                    'name' => l('Передан курьеру'),
+                    'color' => 'FF7F27',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+                65 => array(
+                    'name' => l('На точке самовывоза'),
+                    'color' => '646AD5',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+                75 => array(
+                    'name' => l('На почте'),
+                    'color' => 'B36BD3',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+                40 => array(
+                    'name' => l('Выдан клиенту'),
+                    'color' => '22B14C',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+                15 => array(
+                    'name' => l('Клиент отказался'),
+                    'color' => 'F04544',
+                    'from' => array(0, 35, 55, 65, 75, 40, 15)
+                ),
+
+            ),
             'order-status' => array(
                 0 => array(
                     'name' => l('Принят в ремонт'),
