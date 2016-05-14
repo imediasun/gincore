@@ -18,7 +18,7 @@ echo "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>";
 
 include 'inc_config.php';
 include 'inc_func.php';
-include 'mail.php';
+require_once 'mail.php';
 include 'manage/configs.php';
 include 'manage/inc_func_lang.php';
 $all_configs = all_configs();
@@ -276,7 +276,7 @@ function alarm($params)
         array())->assoc();
 
     if ($alarms) {
-        include_once $all_configs['path'] . 'mail.php';
+        require_once $all_configs['path'] . 'mail.php';
         $messages = new Mailer($all_configs);
 
         foreach ($alarms as $alarm) {

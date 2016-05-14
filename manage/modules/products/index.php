@@ -154,7 +154,7 @@ class products extends Controller
                     }
                     $this->History->save('create-goods', $mod_id, $id);
 
-                    include $this->all_configs['sitepath'] . 'mail.php';
+                    require_once $this->all_configs['sitepath'] . 'mail.php';
                     $messages = new Mailer($this->all_configs);
 
                     if (isset($post['users']) && count($post['users']) > 0) {

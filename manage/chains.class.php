@@ -2883,7 +2883,7 @@ class Chains extends Object
      */
     protected function notification($title, $content, $receiver)
     {
-        include_once $this->all_configs['sitepath'] . 'mail.php';
+        require_once $this->all_configs['sitepath'] . 'mail.php';
         $mailer = new Mailer($this->all_configs);
         $mailer->send_message($content, $title, $receiver, 1);
     }
