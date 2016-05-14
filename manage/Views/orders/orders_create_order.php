@@ -16,9 +16,6 @@
     <li role="presentation">
         <a href="#sale" role="tab" data-toggle="tab"><?= l('Заказ на продажу') ?></a>
     </li>
-    <li role="presentation">
-        <a href="#eshop" role="tab" data-toggle="tab"><?= l('Интернет-магазин') ?></a>
-    </li>
 </ul>
 <div class="tab-content">
     <div class="tab-pane active" id="repair">
@@ -355,17 +352,23 @@
     </div>
     <div class="tab-pane" id="sale">
         <?php if ($available): ?>
-            <?= $orderForSaleForm ?>
-        <?php else: ?>
-            <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
-            <div class="form-group">
-                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation"  class="active"><a href="#quick-sale-pane" aria-controls="messages" role="tab" data-toggle="tab"><?= l('Быстрая продажа') ?></a></li>
+                <li role="presentation"><a href="#eshop-sale-pane" aria-controls="settings" role="tab" data-toggle="tab"><?= l('Интернет-магазин') ?></a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="quick-sale-pane">
+                    <?= $orderForSaleForm ?>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="eshop-sale-pane">
+                    <?= $orderEshopForm ?>
+
+                </div>
             </div>
-        <?php endif; ?>
-    </div>
-    <div class="tab-pane" id="eshop">
-        <?php if ($available): ?>
-            <?= $orderEshopForm ?>
         <?php else: ?>
             <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
             <div class="form-group">
