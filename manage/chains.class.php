@@ -1356,6 +1356,10 @@ class Chains extends Object
             $post['total_as_sum'] = 1;
             $post['sale_type'] = 2;
             $post['price'] = $this->priceCalculate($post['sum']);
+            $cart = $this->prepareCartInfo($post);
+            if(empty($cart)) {
+               throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
+            }
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
@@ -1369,7 +1373,6 @@ class Chains extends Object
                     $post['amount']);
             }
 
-            $cart = $this->prepareCartInfo($post);
             $setStatus = $this->all_configs['configs']['order-status-new'];
 
             if (!empty($items)) {
@@ -1427,11 +1430,15 @@ class Chains extends Object
      */
     public function quick_sold_items($post, $mod_id)
     {
-        $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
+        $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000002" LIMIT 1')->el();
+        if(empty($post['client_id'])) {
+            $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
+        }
         $post['clients'] = $post['client_id'];
         $post['manager'] = $this->getUserId();
         $post['sale_type'] = 1;
         $post['total_as_sum'] = 1;
+
         return $this->sold_items($post, $mod_id);
     }
 
@@ -1466,6 +1473,9 @@ class Chains extends Object
      */
     protected function priceCalculate($prices)
     {
+        if(empty($prices)) {
+            return 0;
+        }
         return array_reduce($prices, function ($carry, $item) {
             return $carry + $item;
         }, 0);
@@ -1482,6 +1492,9 @@ class Chains extends Object
             $post['price'] = $this->priceCalculate($post['amount']);
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
+            }
+            if(isset($post['auto-cash']) && $post['auto-cash'] == 'on'  && empty($post['cashbox'])) {
+                throw new ExceptionWithMsg(l('Выберите кассу, в которую вносить оплату'));
             }
             $client = $this->Clients->getClient($post);
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());

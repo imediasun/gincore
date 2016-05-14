@@ -3043,7 +3043,7 @@ class orders extends Controller
                     'id' => $_POST['new-goods'],
                     'discount' => !empty($_POST['discount']) ? $_POST['discount'] : 0,
                     'discount_type' => !empty($_POST['discount_type']) ? $_POST['discount_type'] : DISCOUNT_TYPE_PERCENT,
-                    'amount' => !empty($_POST['price']) ? $_POST['price'] : 0,
+                    'price' => !empty($_POST['price']) ? $_POST['price'] : 0,
                     'quantity' => !empty($_POST['quantity']) ? $_POST['quantity'] : 1,
                     'warranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0,
                 )

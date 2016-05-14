@@ -248,7 +248,7 @@
                             </div>
                         </div>
                         <div class="row-fluid clearfix">
-                            <div class="col-sm-12" style="text-align: right; padding: 0">
+                            <div class="col-sm-12" style="text-align: center; padding: 0">
                                 <?php if ($order['cashless']): ?>
                                     <span class="text-danger"><?= l('Безнал') ?></span>
                                 <?php endif; ?>

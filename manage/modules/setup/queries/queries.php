@@ -166,9 +166,12 @@ db()->query("
 
  // создаем системных контрагентов
 // покупатель
-db()->query('INSERT IGNORE INTO {contractors}
+$pid = db()->query('INSERT IGNORE INTO {contractors}
                     (title, type, comment) VALUES (?, ?i, ?)',
-                array(lq('Клиент'), 3, 'system'));
+                array(lq('Клиент'), 3, 'system'), 'id');
+db()->query(
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
+    ."VALUES('000000000002','-','".lq('Клиент')."',NOW(),1, ?i)", array($pid));
 // покупатель списания
 db()->query('INSERT IGNORE INTO {contractors}
                     (title, type, comment) VALUES (?, ?i, ?)',

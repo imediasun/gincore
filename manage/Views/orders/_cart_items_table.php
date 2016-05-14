@@ -4,12 +4,12 @@
             <thead>
             <tr>
                 <th class="<?= $prefix == 'quick' ? 'col-sm-4' : 'col-sm-3' ?>"><?= l('Товар') ?></th>
-                <th class="<?= $prefix == 'quick' ? 'col-sm-2' : '' ?>"><?= l('Цена') ?></th>
+                <th class="<?= $prefix == 'quick' ? 'col-sm-2' : '' ?>"><?= l('Цена') ?>(<?= viewCurrency() ?>)</th>
                 <th><?= l('Скидка') ?></th>
                 <?php if ($prefix == 'eshop'): ?>
                     <th><?= l('Количество') ?></th>
                 <?php endif; ?>
-                <th><?= l('Сумма') ?></th>
+                <th><?= l('Сумма') ?>(<?= viewCurrency() ?>)</th>
                 <th class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>"><?= l('Гарантия') ?></th>
                 <th></th>
             </tr>
@@ -26,7 +26,6 @@
                     <div class="input-group col-sm-12">
                         <input type="text" class="form-control js-<?= $prefix ?>-price"
                                onkeyup="recalculate_amount_<?= $prefix ?>();" value="" name=""/>
-                        <span class="input-group-addon"><?= viewCurrency() ?></span>
                     </div>
                 </td>
                 <td>
@@ -46,7 +45,6 @@
                     <div class="input-group col-sm-12">
                         <input type="text" class="form-control js-<?= $prefix ?>-sum dasabled" readonly
                                onkeyup="recalculate_amount_<?= $prefix ?>(this);" value="" name=""/>
-                        <span class="input-group-addon"><?= viewCurrency() ?></span>
                     </div>
                 </td>
                 <td>
@@ -83,7 +81,6 @@
                 <td>
                     <div class="input-group col-sm-12">
                         <input type="text" readonly class="form-control js-<?= $prefix ?>-total" value=""/>
-                        <span class="input-group-addon"><?= viewCurrency() ?></span>
                     </div>
                 </td>
                 <td>
