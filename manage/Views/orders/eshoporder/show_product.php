@@ -16,8 +16,10 @@
         <div class="input-group">
             <input class="form-control global-typeahead input-medium popover-info"
                    type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"/>
-            <div class="input-group-addon">
-                <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
+            <div class="input-group-addon" onclick="change_discount_type(this)" style="cursor: pointer">
+                <input class='js-product-discount-type' type="hidden" name="product[<?= $product['id'] ?>][discount_type]" value="<?= $product['discount_type'] ?>" />
+                       <span class="currency" style="display:<?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT?'none':'' ?>"><?= viewCurrency() ?></span>
+                       <span class="percent" style="display:<?= $product['discount_type'] != DISCOUNT_TYPE_PERCENT?'none':'' ?>">%</span>
             </div>
         </div>
     </td>

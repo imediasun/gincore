@@ -1089,3 +1089,17 @@ function toggle_delivery_to(state) {
        $('input[name="delivery_to"]').hide();
    }
 }
+function change_discount_type(_this){
+    var $this = $(_this),
+      $input = $this.find('.js-product-discount-type').first();
+    if($input.val() == 1) {
+        $input.val(2);
+        $this.find('.currency').show();
+        $this.find('.percent').hide();
+    } else {
+        $input.val(1);
+        $this.find('.percent').show();
+        $this.find('.currency').hide();
+    }
+      $("#update-order").click();
+}
