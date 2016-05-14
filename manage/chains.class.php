@@ -1354,7 +1354,7 @@ class Chains extends Object
 
         try {
             $post['total_as_sum'] = 1;
-            $post['sale_type'] = 2;
+            $post['sale_type'] = SALE_TYPE_ESHOP;
             $post['price'] = $this->priceCalculate($post['sum']);
             $cart = $this->prepareCartInfo($post);
             if(empty($cart)) {
@@ -1436,7 +1436,7 @@ class Chains extends Object
         }
         $post['clients'] = $post['client_id'];
         $post['manager'] = $this->getUserId();
-        $post['sale_type'] = 1;
+        $post['sale_type'] = SALE_TYPE_QUICK;
         $post['total_as_sum'] = 1;
 
         return $this->sold_items($post, $mod_id);

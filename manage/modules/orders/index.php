@@ -459,7 +459,7 @@ class orders extends Controller
         return array(
             'html' => $this->view->renderFile('orders/orders_show_orders', array(
                 'clientsOrdersNavigation' => $this->clients_orders_navigation(),
-                'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
+                'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('show-clients-orders'),
             )),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')', 'reset_multiselect()', 'gen_tree()'),
         );
@@ -524,7 +524,8 @@ class orders extends Controller
             'html' => $this->view->renderFile('orders/show_orders_orders', array(
                 'count' => $count,
                 'count_page' => $count_page,
-                'orders' => $orders
+                'orders' => $orders,
+                'filters' => $filters
             )),
             'functions' => array(),
         );
@@ -542,6 +543,7 @@ class orders extends Controller
         $orders = $this->all_configs['manageModel']->get_clients_orders($query, $queries['skip'], $this->count_on_page,
             'co');
 
+        $this->view->load('DisplayOrder');
         return array(
             'html' => $this->view->renderFile('orders/show_orders_sold', array(
                 'orders' => $orders,
@@ -1977,6 +1979,12 @@ class orders extends Controller
         if ($act == 'eshop-sale-order') {
             $data = $this->all_configs['chains']->eshop_sold_items($_POST, $mod_id);
         }
+        if ($act == 'change-status' && is_numeric($_POST['order_id'])) {
+            $order = $this->Orders->getByPk($_POST['order_id']);
+            if(!empty($order)) {
+                $data = $this->changeStatus($order, array('state' => true));
+            }
+        }
 
         preg_match('/changes:(.+)/', $act, $arr);
         // история изменений инженера
@@ -2633,7 +2641,7 @@ class orders extends Controller
         if (!isset($response['state']) || $response['state'] == false) {
             $data['state'] = false;
             $_POST['status'] = $order['status'];
-            $data['msg'] = isset($response['msg']) ? $response['msg'] : l('Статус не изменился');
+            $data['msg'] = isset($response['msg']) && !empty($response['msg'])? $response['msg'] : l('Статус не изменился');
         }
         return $data;
     }

@@ -1103,3 +1103,24 @@ function change_discount_type(_this){
     }
       $("#update-order").click();
 }
+  function change_status(_this) {
+      var $this = $(_this),
+        $parent = $this.parents('.dropdown').first().find('.as_button').first();
+
+      $.ajax({
+          url: prefix + module + '/ajax/?act=change-status',
+          type: 'POST',
+          data: '&order_id=' + $this.attr('data-order_id')+'&status=' + $this.attr('data-status_id'),
+          success: function(msg) {
+              if(msg.state) {
+                  $parent.css('color', $this.css('color'));
+                  $parent.find('.btn-title').first().html($this.html());
+              }else {
+                  alert(msg.msg);
+              }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+              alert(xhr.responseText);
+          }
+      });
+  }

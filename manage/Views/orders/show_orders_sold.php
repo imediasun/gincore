@@ -2,27 +2,25 @@
     <table class="table">
         <thead>
         <tr>
-            <td></td>
             <td><?= l('номер заказа') ?></td>
             <td><?= l('Дата') ?></td>
-            <td><?= l('Приемщик') ?></td>
             <td><?= l('manager') ?></td>
+            <td><?= l('Способ оплаты') ?></td>
             <td><?= l('Статус') ?></td>
-            <td><?= l('Устройство') ?></td>
+            <td><?= l('Наименование') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                 <td><?= l('Стоимость') ?></td>
                 <td><?= l('Оплачено') ?></td>
             <?php endif; ?>
             <td><?= l('Клиент') ?></td>
             <td><?= l('Контактный тел') ?></td>
-            <td><?= l('Сроки') ?></td>
-            <td><?= l('Склад') ?></td>
+            <td><?= l('Примечание') ?></td>
         </tr>
         </thead>
         <tbody id="table_clients_orders">
 
         <?php foreach ($orders as $order): ?>
-            <?= display_client_order($order); ?>
+            <?= $this->DisplayOrder->asSaleRow($order); ?>
         <?php endforeach; ?>
         </tbody>
     </table>

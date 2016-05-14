@@ -411,13 +411,13 @@ class manageModel
             array($icon_type, $_SESSION['id'], $query, $skip, $count_on_page))->vars();
 
         if ($ids) {
-            $orders_goods = $this->all_configs['db']->query('SELECT o.id as order_id, o.status, o.title as product,
+            $orders_goods = $this->all_configs['db']->query('SELECT o.id as order_id, o.status, o.sale_type, o.title as product,
                   o.date_add, o.user_id, m.id as m_id, mi.id as mi_id, o.date_add as date, o.manager, o.sum_paid, o.sum, o.comment,
                   o.np_accept, og.goods_id, og.title, og.id as order_goods_id, og.count, o.note, l.location, o.courier,
                   o.discount, u.fio as h_fio, u.login as h_login, o.urgent, o.wh_id, w.title as wh_title, aw.title as aw_wh_title, og.type,
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
-                  gr.color, tp.icon
+                  gr.color, tp.icon, o.cashless
                 FROM {orders} AS o
                 LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
@@ -441,6 +441,7 @@ class manageModel
                         $orders[$order['order_id']]['goods'] = array();
                         $orders[$order['order_id']]['ordered'] = array();
                         $orders[$order['order_id']]['finish'] = array();
+                        $orders[$order['order_id']]['items'] = array();
                     }
                     if ($order['supplier'] > 0) {
                         $orders[$order['order_id']]['finish'][] = $order['supplier'];
@@ -451,13 +452,13 @@ class manageModel
                     if ($order['order_goods_id'] > 0) {
                         $orders[$order['order_id']]['goods'][$order['order_goods_id']] = array();
                     }
-                    /*if ($order['goods_id'] > 0) {
-                        if (!array_key_exists($order['goods_id'], $orders[$order['order_id']]['goods'])) {
-                            $orders[$order['order_id']]['goods'][$order['goods_id']]['title'] = $order['title'];
-                            $orders[$order['order_id']]['goods'][$order['goods_id']]['goods_id'] = $order['goods_id'];
-                            $orders[$order['order_id']]['goods'][$order['goods_id']]['count'] = 0;
+                    if ($order['goods_id'] > 0) {
+                        if (!array_key_exists($order['goods_id'], $orders[$order['order_id']]['items'])) {
+                            $orders[$order['order_id']]['items'][$order['goods_id']]['title'] = $order['title'];
+                            $orders[$order['order_id']]['items'][$order['goods_id']]['count'] = 0;
                         }
-                    }*/
+                        $orders[$order['order_id']]['items'][$order['goods_id']]['count'] += 1;
+                    }
                 }
             }
         }

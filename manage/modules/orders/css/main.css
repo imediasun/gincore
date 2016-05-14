@@ -607,6 +607,14 @@ input.visible-price {
     margin: 0 10px 0 10px;
     background-color: white;
 }
+.as_button {
+    border: none;
+    color: #5b5b5b;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 10px 0 10px;
+    background-color: white;
+}
 
 .no-right-padding {
     padding-right: 0px;
