@@ -3,13 +3,13 @@
         <table class="table <?= $prefix ?>-table-items" style="display:none">
             <thead>
             <tr>
-                <th class="<?= $prefix == 'quick' ? 'col-sm-6' : 'col-sm-3' ?>"><?= l('Товар') ?></th>
-                <th class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>"><?= l('Цена') ?></th>
+                <th class="<?= $prefix == 'quick' ? 'col-sm-4' : 'col-sm-3' ?>"><?= l('Товар') ?></th>
+                <th class="<?= $prefix == 'quick' ? 'col-sm-2' : '' ?>"><?= l('Цена') ?></th>
+                <th><?= l('Скидка') ?></th>
                 <?php if ($prefix == 'eshop'): ?>
-                    <th><?= l('Скидка') ?></th>
                     <th><?= l('Количество') ?></th>
-                    <th><?= l('Сумма') ?></th>
                 <?php endif; ?>
+                <th><?= l('Сумма') ?></th>
                 <th class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>"><?= l('Гарантия') ?></th>
                 <th></th>
             </tr>
@@ -29,33 +29,33 @@
                         <span class="input-group-addon"><?= viewCurrency() ?></span>
                     </div>
                 </td>
+                <td>
+                    <div class="input-group col-sm-12">
+                        <input type="text" class="form-control js-<?= $prefix ?>-discount" onkeyup="recalculate_amount_<?= $prefix ?>();"  value="0"/>
+                        <input type="hidden" class="form-control js-<?= $prefix ?>-discount_type" value="1"/>
+                    </div>
+                </td>
                 <?php if ($prefix == 'eshop'): ?>
                     <td>
                         <div class="input-group col-sm-12">
-                            <input type="text" class="form-control js-<?= $prefix ?>-discount" value=""/>
-                            <input type="hidden" class="form-control js-<?= $prefix ?>-discount_type" value=""/>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="input-group col-sm-12">
-                            <input type="text" class="form-control js-<?= $prefix ?>-quantity" value=""/>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="input-group col-sm-12">
-                            <input type="text" class="form-control js-<?= $prefix ?>-sum dasabled" readonly
-                                   onkeyup="recalculate_amount_<?= $prefix ?>();" value="" name=""/>
-                            <span class="input-group-addon"><?= viewCurrency() ?></span>
+                            <input type="text" class="form-control js-<?= $prefix ?>-quantity" onkeyup="recalculate_amount_<?= $prefix ?>();" value=""/>
                         </div>
                     </td>
                 <?php endif; ?>
+                <td>
+                    <div class="input-group col-sm-12">
+                        <input type="text" class="form-control js-<?= $prefix ?>-sum dasabled" readonly
+                               onkeyup="recalculate_amount_<?= $prefix ?>(this);" value="" name=""/>
+                        <span class="input-group-addon"><?= viewCurrency() ?></span>
+                    </div>
+                </td>
                 <td>
                     <div class="input-group col-sm-12">
                         <select class="form-control js-<?= $prefix ?>-warranty" name="">
                             <option value=""><?= l('Без гарантии') ?></option>
                             <?php foreach ($orderWarranties as $warranty): ?>
                                 <option
-                                    value="<?= intval($warranty) ?>" <?= $warranty == $defaultWarranty ? 'selected' : '' ?>><?= intval($warranty) ?></option>
+                                    value="<?= intval($warranty) ?>" <?= $warranty == $defaultWarranty ? 'selected="selected"' : '' ?>><?= intval($warranty) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <div class="input-group-addon"><?= l('мес') ?></div>
@@ -75,11 +75,11 @@
                         <label><?= l('Итоговая стоимость:') ?></label>
                     </div>
                 </td>
+                <td></td>
                 <?php if ($prefix == 'eshop'): ?>
                     <td></td>
-                    <td></td>
-                    <td></td>
                 <?php endif; ?>
+                <td></td>
                 <td>
                     <div class="input-group col-sm-12">
                         <input type="text" readonly class="form-control js-<?= $prefix ?>-total" value=""/>

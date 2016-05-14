@@ -20,18 +20,32 @@
                                     '', 'display_serial_product_title_and_price', false, true) ?>
                                 <small class="clone_clear_html product-title"></small>
                                 <input type="hidden" name="items" id="item_id" value="">
+                                <input type="hidden" name="prices" value="">
                             </div>
                             <div class="form-group col-sm-4">
-                                <label><?= l('Цена продажи') ?> <b class="text-danger">*</b>: </label>
+                                <label>
+                                    <input type="hidden" name="price_type" value="1"/>
+                                    <div class="dropdown dropdown-inline">
+                                        <button class="as_link" type="button" id="dropdownMenuCashboxes"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            <span class="btn-title-price_type"><?= l('Цена, р') ?></span>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
+                                            <li><a href="#" data-price_type="1"
+                                                   onclick="return select_price_type(this)"><?= l('Цена, р') ?></a>
+                                            </li>
+                                            <li><a href="#" data-price_type="2"
+                                                   onclick="return select_price_type(this)"><?= l('Цена, о') ?></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </label>
                                 <div class="input-group">
                                     <input type="text" id="sale_poduct_cost" class="form-control" value=""
                                            name="price"/>
                                     <span class="input-group-addon"><?= viewCurrency() ?></span>
                                 </div>
-                                <ul id="sale_product_cost_error" class="parsley-errors-list filled"
-                                    style="display: none">
-                                    <li class="parsley-required"><?= l('Обязательное поле') ?></li>
-                                </ul>
                             </div>
 
                             <div class="form-group col-sm-2" style="padding: 0px">

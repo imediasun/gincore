@@ -2182,8 +2182,6 @@ class orders extends Controller
 
         // добавляем новый товар к заказу выводя его в таблицу
         if ($act == 'add_product') {
-            print_r($_POST);
-            exit;
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
         }
 
@@ -2452,11 +2450,6 @@ class orders extends Controller
             }
             $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
             $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
-            if ($order['total_as_sum']) {
-                $order['sum'] = $this->Orders->getTotalSum($order);
-            } else {
-                $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
-            }
             $order['notify'] = isset($_POST['notify']) ? 1 : 0;
             $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
             $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
@@ -2475,18 +2468,22 @@ class orders extends Controller
             unset($order['return_id']);
 
             unset($order['status']);
-            unset($order['id']);
             unset($order['wh_id']);
             unset($order['location_id']);
             unset($order['status_id']);
-            
+
             $order = $this->changeCode($order, $mod_id);
             $order = $this->changeReferer($order, $mod_id);
             $order = $this->changeDeliveryBy($order, $mod_id);
             $order = $this->changeDeliveryTo($order, $mod_id);
             $order = $this->changeProducts($order, $mod_id);
             $order = $this->changeCart($order, $mod_id);
-
+            if ($order['total_as_sum']) {
+                $order['sum'] = $this->Orders->getTotalSum($order);
+            } else {
+                $order['sum'] = isset($_POST['sum']) ? $_POST['sum'] * 100 : $order['sum'];
+            }
+            unset($order['id']);
             // обновляем заказ
             $ar = $this->all_configs['db']->query('UPDATE {orders} SET ?s WHERE id=?i',
                 array($order, $this->all_configs['arrequest'][2]), 'ar');
@@ -3013,6 +3010,9 @@ class orders extends Controller
             foreach ($_POST['product'] as $id => $values) {
                 $product = $this->OrdersGoods->getByPk($id);
                 foreach ($values as $field => $value) {
+                    if($field == 'price') {
+                        $value = $value * 100;
+                    }
                     if ($product[$field] != $value && !empty($value)) {
                         $this->OrdersGoods->update(array(
                             $field => $value

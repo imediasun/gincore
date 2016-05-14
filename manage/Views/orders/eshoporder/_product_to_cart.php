@@ -9,6 +9,7 @@
             'display_goods_information,get_requests', false, false, '', false,
             l('Введите'),
             array()) ?>
+        <input type="hidden" name="prices" value="">
     </div>
 </div>
 <div class="form-group col-sm-1 no-right-padding left-padding-5">

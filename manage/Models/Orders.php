@@ -89,7 +89,12 @@ class MOrders extends AModel
         $productTotal = 0;
         if (!empty($goods)) {
             foreach ($goods as $product) {
-                $productTotal += $product['price'] * $product['count'];
+                if($product['discount_type'] == 1) {
+                    $price = $product['price'] * (1 - $product['discount']/ 100);
+                } else {
+                    $price = $product['price']  - $product['discount'];
+                }
+                $productTotal += $price * $product['count'];
             }
         }
         if (!empty($services)) {

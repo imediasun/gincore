@@ -1,5 +1,5 @@
 <tr>
-    <td class="col-sm-5">
+    <td class="col-sm-3">
         <a href="<?= $url ?>">
             <?= htmlspecialchars($product['title']) ?>
         </a>
@@ -9,13 +9,22 @@
             <div class="input-group">
                 <input class="form-control global-typeahead input-medium popover-info"
                        type="text"
-                       value="<?= ($product['price'] / 100) ?>"/>
+                       value="<?= ($product['price'] / 100) ?>" name="product[<?= $product['id'] ?>][price]"/>
                 <div class="input-group-addon">
                     <?= viewCurrency() ?>
                 </div>
             </div>
         </td>
     <?php endif; ?>
+    <td class="col-sm-1" style="min-width: 100px">
+        <div class="input-group">
+            <input class="form-control global-typeahead input-medium popover-info"
+                   type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"/>
+            <div class="input-group-addon">
+                <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
+            </div>
+        </div>
+    </td>
     <td class="col-sm-2">
         <?= $this->renderFile('orders/quicksaleorder/_warranty_select', array(
             'product' => $product,

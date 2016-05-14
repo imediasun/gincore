@@ -1321,16 +1321,21 @@ class Chains extends Object
      *
      * @param $items
      * @param $itemIds
-     * @param $amounts
+     * @param $post
      * @return array
      */
-    protected function prepareEshopSoldItems($items, $itemIds, $amounts)
+    protected function prepareEshopSoldItems($items, $itemIds, $post)
     {
         $result = array();
         if (!empty($items)) {
             $ids = array_flip($itemIds);
             foreach ($items as $item) {
-                $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+                $result[] = array_merge($item, array(
+                    'price' => $post['amount'][$ids[$item['id']]],
+                    'warranty' => $post['warranty'][$ids[$item['id']]],
+                    'discount' => $post['discount'][$ids[$item['id']]],
+                    'discount_type' => $post['discount_type'][$ids[$item['id']]],
+                ));
             }
         }
         return $result;
@@ -1366,7 +1371,6 @@ class Chains extends Object
 
             $cart = $this->prepareCartInfo($post);
             $setStatus = $this->all_configs['configs']['order-status-new'];
-
 
             if (!empty($items)) {
                 foreach ($items as $item) {
@@ -1436,16 +1440,21 @@ class Chains extends Object
      *
      * @param $items
      * @param $itemIds
-     * @param $amounts
+     * @param $post
      * @return array
      */
-    protected function prepareQuickSoldItems($items, $itemIds, $amounts)
+    protected function prepareQuickSoldItems($items, $itemIds, $post)
     {
         $result = array();
         if (!empty($items)) {
             $ids = array_flip($itemIds);
             foreach ($items as $item) {
-                $result[] = array_merge($item, array('price' => $amounts[$ids[$item['id']]]));
+                $result[] = array_merge($item, array(
+                    'price' => $post['amount'][$ids[$item['id']]],
+                    'warranty' => $post['warranty'][$ids[$item['id']]],
+                    'discount' => $post['discount'][$ids[$item['id']]],
+                    'discount_type' => $post['discount_type'][$ids[$item['id']]],
+                ));
             }
         }
         return $result;
@@ -1479,7 +1488,7 @@ class Chains extends Object
 
             $items = $this->prepareQuickSoldItems($this->Orders->getAvailableItems(array_values($post['item_ids'])),
                 $post['item_ids'],
-                $post['amount']);
+                $post);
 
             if (!empty($items)) {
                 $this->addSpares($items, $order['id'], $mod_id);
@@ -2760,6 +2769,7 @@ class Chains extends Object
             'sale_type' => isset($post['sale_type']) ? $post['sale_type'] : 0,
             'delivery_by' => isset($post['delivery_by']) ? $post['delivery_by'] : 0,
             'delivery_to' =>  isset($post['delivery_to']) ? $post['delivery_to'] : '',
+            'total_as_sum' =>  isset($post['total_as_sum']) ? $post['total_as_sum'] : 0,
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -2786,6 +2796,9 @@ class Chains extends Object
                 'order_id' => isset($orderId) ? $orderId : 0,
                 'product_id' => $item['goods_id'],
                 'price' => $item['price'],
+                'warranty' => isset($item['warranty']) ? $item['warranty'] : 0,
+                'discount' => isset($item['discount']) ? $item['discount'] : 0,
+                'discount_type' => isset($item['discount_type']) ? $item['discount_type'] : 1,
             );
             $product = $this->add_product_order($arr, $modId);
             // ошибка при добавлении запчасти
@@ -2956,6 +2969,7 @@ class Chains extends Object
             'delivery_by' => isset($post['delivery_by']) ? intval($post['delivery_by']) : 0,
             'delivery_to' => isset($post['delivery_to']) ? $post['delivery_to'] : '',
             'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
+            'total_as_sum' => isset($post['total_as_sum']) ? intval($post['total_as_sum']) : 0,
         );
 
         // создаем заказ

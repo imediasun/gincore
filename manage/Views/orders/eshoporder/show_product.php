@@ -8,7 +8,7 @@
         <td class="col-sm-1">
             <div class="input-group">
                 <input class="form-control global-typeahead input-medium popover-info"
-                       type="text" value="<?= ($product['price'] / 100) ?>"/>
+                       type="text" value="<?= ($product['price'] / 100) ?>" name="product[<?= $product['id'] ?>][price]"/>
             </div>
         </td>
     <?php endif; ?>

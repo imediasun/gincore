@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="div-tbody">
-            <?php if (count($comments_public) > 0 || count($comments_private) > 0): ?>
+            <?php if (false && (count($comments_public) > 0 || count($comments_private) > 0)): ?>
                 <?php reset($comments_public); ?>
                 <?php for ($i = 0; $i < count(max($comments_public, $comments_private)); $i++): ?>
                     <?php $comment_public = current($comments_public); ?>
