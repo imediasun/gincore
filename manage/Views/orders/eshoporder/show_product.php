@@ -36,7 +36,7 @@
     <td class="col-sm-1">
         <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
             <i title="<?= l('удалить') ?>" class="glyphicon glyphicon-remove remove-product"
-               onclick="order_products(this, <?= $product['goods_id'] ?>, <?= $product['id'] ?>, 1, 1 <?= ($supplier_order['count'] == 1 && $supplier_order['confirm'] != 1) ? ', 1' : '' ?>)"></i>
+               onclick="order_products(this, <?= $product['goods_id'] ?>, <?= $product['id'] ?>, 1, 1, 1)"></i>
         <?php endif; ?>
     </td>
 
@@ -53,7 +53,7 @@
             <td>
                 <?php if (!strtotime($product['unbind_request']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                     <i title="<?= l('отвязать') ?>" class="glyphicon glyphicon-minus cursor-pointer"
-                       onclick="btn_unbind_request_item_serial(this, '<?= $product['item_id'] ?> '"></i>
+                       onclick="btn_unbind_request_item_serial(this, '<?= $product['item_id'] ?>')"></i>
                 <?php else: ?>
                     <?= $controller->get_unbind_order_product_btn($product['item_id']); ?>
                 <?php endif; ?>
