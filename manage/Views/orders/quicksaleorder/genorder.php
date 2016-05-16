@@ -128,7 +128,7 @@
                                    type="button" value="<?= l('Сохранить') ?>"/>
                         <?php endif; ?>
                     </div>
-                    <div class="span5">
+                    <div class="span4">
                         <div class="from-control clearfix">
                             <label class="lh30">
                                 <span class="cursor-pointer glyphicon glyphicon-list"
