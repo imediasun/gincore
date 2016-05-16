@@ -16,8 +16,8 @@
     <td>
         <?php if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
             <form method="post" action="<?= $this->all_configs['prefix'] ?>orders/create/<?= $order['order_id'] ?>">
-                <input name="accept-manager" type="submit" class="btn btn-accept"
-                       value="<?= l('Взять заказ') ?>"/><input type="hidden" name="id"
+                <input name="accept-manager" type="submit" class="btn btn-accept" value="<?= l('Взять заказ') ?>"/>
+                <input type="hidden" name="id" value="<?= $order['order_id'] ?>"/>
             </form>
         <?php else: ?>
             <?= get_user_name($order, 'h_') ?>
