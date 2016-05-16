@@ -10,7 +10,16 @@
                     <label>
                         <input type="checkbox" name="print[]"
                                value="<?= print_link($order['id'], 'check', '', true) ?>">
-                        <?= l('Квитанция') ?>
+                        <?= l('Добавить и распечатать чек') ?>
+                    </label>
+                </div>
+            </li>
+            <li>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="print[]"
+                               value="<?= print_link($order['id'], 'sale_warranty', '', true) ?>">
+                        <?= l('Добавить и распечатать чек и гарантийный талон') ?>
                     </label>
                 </div>
             </li>
@@ -19,33 +28,7 @@
                     <label>
                         <input type="checkbox" name="print[]"
                                value="<?= print_link($order['id'], 'invoice', '', true) ?>">
-                        <?= l('Чек') ?>
-                    </label>
-                </div>
-            </li>
-            <li>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="print[]"
-                               value="<?= print_link($order['id'], 'warranty', '', true) ?>">
-                        <?= l('Гарантия') ?>
-                    </label>
-                </div>
-            </li>
-            <li>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="print[]" value="<?= print_link($order['id'], 'act', '', true) ?>">
-                        <?= l('Акт выполненых работ') ?>
-                    </label>
-                </div>
-            </li>
-            <li>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="print[]"
-                               value="<?= print_link($order['id'], 'invoicing', '', true) ?>">
-                        <?= l('Счет на оплату') ?>
+                        <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
                     </label>
                 </div>
             </li>

@@ -17,7 +17,7 @@
                 <div class="span4">
                     <h3 class="m-t-none">
                         № <?= $order['id'] ?>
-                        <?= $this->renderFile('orders/genorder/_print_buttons', array(
+                        <?= $this->renderFile('orders/quicksaleorder/_print_buttons', array(
                             'hasEditorPrivilege' => $hasEditorPrivilege,
                             'order' => $order
                         )) ?>

@@ -1982,7 +1982,7 @@ class orders extends Controller
         if ($act == 'change-status' && is_numeric($_POST['order_id'])) {
             $order = $this->Orders->getByPk($_POST['order_id']);
             if(!empty($order)) {
-                $data = $this->changeStatus($order, array('state' => true));
+                $data = $this->changeStatus($order, array('state' => true), l('Статус не изменился'));
             }
         }
 
@@ -2630,18 +2630,19 @@ class orders extends Controller
     }
 
     /**
-     * @param $order
-     * @param $data
+     * @param        $order
+     * @param        $data
+     * @param string $defaultMessage
      * @return mixed
      */
-    protected function changeStatus($order, $data)
+    protected function changeStatus($order, $data, $defaultMessage='')
     {
 // меняем статус
         $response = update_order_status($order, $_POST['status']);
         if (!isset($response['state']) || $response['state'] == false) {
             $data['state'] = false;
             $_POST['status'] = $order['status'];
-            $data['msg'] = isset($response['msg']) && !empty($response['msg'])? $response['msg'] : l('Статус не изменился');
+            $data['msg'] = isset($response['msg']) && !empty($response['msg'])? $response['msg'] : $defaultMessage;
         }
         return $data;
     }
