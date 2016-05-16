@@ -175,7 +175,7 @@
   /*background-color: #f9f9f9;*/
 /*}*/
 
-#show_orders table tr > td {
+#show_orders table >tbody >tr > td {
     font-size: 0.8em;
 }
 
