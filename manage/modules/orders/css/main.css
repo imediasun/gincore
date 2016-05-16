@@ -401,9 +401,6 @@ td.td-sc-count {
 .parts-table thead td{
     font-weight: normal;
 }
-.parts-table td{
-    padding: 5px 0 !important;
-}
 .parts-well label{
     font-weight: normal;
 }
@@ -617,7 +614,8 @@ input.visible-price {
 }
 table.cart-table > tbody > tr > td,
 table.quick-table-items  > tbody > tr > td,
-table.eshop-table-items  > tbody > tr > td{
+table.eshop-table-items  > tbody > tr > td,
+table.cart-table > tbody >tr >td{
     padding: 5px 5px 5px 0;
 }
 table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > tr > td{
@@ -669,4 +667,10 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 }
 .btn-accept:hover {
     color: #333333;
+}
+.items-show, .items-hide {
+    cursor: pointer;
+}
+.items-group {
+    background-color: #f7f7f7;
 }

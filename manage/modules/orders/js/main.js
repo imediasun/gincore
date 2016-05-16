@@ -1132,3 +1132,9 @@ function change_discount_type(_this){
           }
       });
   }
+function toggle_items(hash) {
+    var $group = $('.'+hash+'_group');
+    $group.find('.items-show').toggle();
+    $group.find('.items-hide').toggle();
+    $('.'+hash+'_item').toggle();
+}

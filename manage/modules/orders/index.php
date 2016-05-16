@@ -8,7 +8,7 @@ $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
 
 /**
- * @property  MOrders Orders
+ * @property  MOrders      Orders
  * @property  MOrdersGoods OrdersGoods
  */
 class orders extends Controller
@@ -17,7 +17,7 @@ class orders extends Controller
         'Orders',
         'OrdersGoods'
     );
-    
+
     /**
      * orders constructor.
      * @param      $all_configs
@@ -1107,7 +1107,7 @@ class orders extends Controller
             $lastDateOfChangeStatus = $this->all_configs['db']->query('SELECT s.date FROM {order_status} as s
                 WHERE s.order_id=?i ORDER BY `date` DESC LIMIT 1',
                 array($order['id']))->el();
-            if(empty($lastDateOfChangeStatus)) {
+            if (empty($lastDateOfChangeStatus)) {
                 $lastDateOfChangeStatus = $order['date_add'];
             }
             $config = json_decode($managerConfigs[0]['value'], true);
@@ -1498,12 +1498,16 @@ class orders extends Controller
                 $this->all_configs['settings']['order_warranties']) : array(),
         ));
     }
-    
+
     /**
-     * @param $product
+     * @param      $product
+     * @param int  $quantity
+     * @param bool $hash
+     * @param bool $group
+     * @param bool $hide
      * @return string
      */
-    public function show_eshop_product($product)
+    public function show_eshop_product($product, $quantity = 1, $hash = false, $group = false, $hide = false)
     {
         $supplier_order = $this->all_configs['db']->query("SELECT supplier_order_id as id, o.count, o.supplier, "
             . "o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
@@ -1520,6 +1524,10 @@ class orders extends Controller
             'controller' => $this,
             'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
                 $this->all_configs['settings']['order_warranties']) : array(),
+            'group' => $group,
+            'hash' => $hash,
+            'hide' => $hide,
+            'quantity' => $quantity
         ));
     }
 
@@ -1642,6 +1650,51 @@ class orders extends Controller
             'returns' => $returns,
             'deliveryByList' => $this->Orders->getDeliveryByList()
         ));
+    }
+
+    /**
+     * @param $product
+     * @return string
+     */
+    public function calculateHash($product)
+    {
+        $string = $product['goods_id'] . $product['price'] . $product['discount'] . $product['url'] . $product['item_id'] . $product['warranty'] . $product['discount_type'] . $product['so_id'];
+        return md5($string);
+    }
+    
+    /**
+     * @param $products
+     * @return array
+     */
+    public function productsGroup($products)
+    {
+        $result = array();
+        foreach ($products as $product) {
+            $hash = $this->calculateHash($product);
+            if (empty($result[$hash])) {
+                $result[$hash] = $product;
+                $result[$hash]['id'] = $hash;
+                $result[$hash]['group'] = array();
+            }
+            $result[$hash]['group'][] = $product;
+        }
+        return $result;
+    }
+
+    /**
+     * @param $products
+     * @param $hash
+     * @return array
+     */
+    public function getProductsIdsByHash($products, $hash)
+    {
+        $result = array();
+        foreach ($products as $product) {
+            if($hash == $this->calculateHash($product)) {
+               $result[] =  $product['id'];
+            };
+        }
+        return $result;
     }
 
     /**
@@ -1951,9 +2004,9 @@ class orders extends Controller
         // редактировать заказ
         if ($act == 'update-order') {
             $data = $this->updateOrder($data, $user_id, $mod_id);
-            if(empty($data['location'])) {
+            if (empty($data['location'])) {
                 $order_id = isset($this->all_configs['arrequest'][2]) ? $this->all_configs['arrequest'][2] : null;
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' .$order_id;
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $order_id;
             }
         }
 
@@ -1975,14 +2028,14 @@ class orders extends Controller
         if ($act == 'quick-sale-order') {
             $data = $this->all_configs['chains']->quick_sold_items($_POST, $mod_id);
         }
-        
+
         // создать заказ из интернет магазина
         if ($act == 'eshop-sale-order') {
             $data = $this->all_configs['chains']->eshop_sold_items($_POST, $mod_id);
         }
         if ($act == 'change-status' && is_numeric($_POST['order_id'])) {
             $order = $this->Orders->getByPk($_POST['order_id']);
-            if(!empty($order)) {
+            if (!empty($order)) {
                 $data = $this->changeStatus($order, array('state' => true), l('Статус не изменился'));
             }
         }
@@ -1996,10 +2049,10 @@ class orders extends Controller
             if (!empty($_POST['object_id'])) {
                 $object_id = $_POST['object_id'];
             }
-            if(!isset($object_id) && !empty($this->all_configs['arrequest'][2])) {
+            if (!isset($object_id) && !empty($this->all_configs['arrequest'][2])) {
                 $object_id = $this->all_configs['arrequest'][2];
             }
-            if(!empty($object_id)) {
+            if (!empty($object_id)) {
                 $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $object_id);
                 if ($changes) {
                     $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>' . l('Дата') . '</td><td>' . l('Изменение') . '</td></tr></thead><tbody>';
@@ -2068,13 +2121,13 @@ class orders extends Controller
                     $data['content'] = trim($category['information']);
                 }
             }
-            if(isset($_POST['goods_id'])) {
+            if (isset($_POST['goods_id'])) {
                 $goods = $this->all_configs['db']->query('SELECT title, price,  price_wholesale FROM {goods} WHERE id=?i',
                     array(intval($_POST['goods_id'])))->row();
                 if (!empty($goods)) {
                     $data['title'] = h(trim($goods['title']));
-                    $data['price'] = $goods['price']/ 100;
-                    $data['price_wholesale'] = $goods['price_wholesale']/ 100;
+                    $data['price'] = $goods['price'] / 100;
+                    $data['price_wholesale'] = $goods['price_wholesale'] / 100;
                 }
             }
         }
@@ -2217,7 +2270,7 @@ class orders extends Controller
                 'name' => l('create_order')//'Создать заказ'
             );
         }
-        if ( $all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+        if ($all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
             || $all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
             || $all_configs['oRole']->hasPrivilege('return-items-suppliers')
         ) {
@@ -2409,7 +2462,7 @@ class orders extends Controller
         // комментарии к заказам
         if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
             return $this->updateOrderComments($order_id, $data);
-        } 
+        }
         try {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order) {
                 throw new ExceptionWithMsg(l('У Вас нет прав'));
@@ -2448,7 +2501,7 @@ class orders extends Controller
             $order = $this->changeWarranty($order, $mod_id);
             $order = $this->changeDevice($order, $mod_id);
             $order = $this->changeReturnId($order, $mod_id);
-            
+
             unset($order['return_id']);
             if (isset($_POST['color']) && array_key_exists($_POST['color'],
                     $this->all_configs['configs']['devices-colors'])
@@ -2636,14 +2689,14 @@ class orders extends Controller
      * @param string $defaultMessage
      * @return mixed
      */
-    protected function changeStatus($order, $data, $defaultMessage='')
+    protected function changeStatus($order, $data, $defaultMessage = '')
     {
 // меняем статус
         $response = update_order_status($order, $_POST['status']);
         if (!isset($response['state']) || $response['state'] == false) {
             $data['state'] = false;
             $_POST['status'] = $order['status'];
-            $data['msg'] = isset($response['msg']) && !empty($response['msg'])? $response['msg'] : $defaultMessage;
+            $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
         }
         return $data;
     }
@@ -3016,24 +3069,38 @@ class orders extends Controller
      */
     protected function changeProducts($order, $mod_id)
     {
+        $orderId = $this->all_configs['arrequest'][2];
         if (isset($_POST['product'])) {
-            foreach ($_POST['product'] as $id => $values) {
-                $product = $this->OrdersGoods->getByPk($id);
-                foreach ($values as $field => $value) {
-                    if($field == 'price') {
-                        $value = $value * 100;
+            asort($_POST['product']);
+            $products = $this->all_configs['manageModel']->order_goods($orderId, 0);
+            foreach ($_POST['product'] as $key => $values) {
+                if ($this->isHash($key)) {
+                    $ids = $this->getProductsIdsByHash($products, $key);
+                } else {
+                    $ids = array($key);
+                }
+                foreach ($ids as $id) {
+                    if(!isset($products[$id])) {
+                        continue;
                     }
-                    if ($product[$field] != $value && !empty($value)) {
-                        $this->OrdersGoods->update(array(
-                            $field => $value
-                        ), array($this->OrdersGoods->pk() => $id));
-                        $this->History->save(
-                            'update-order-cart',
-                            $mod_id,
-                            $this->all_configs['arrequest'][2],
-                            l($field) .':'. $product[$field] . ' ==> ' . $value
-                        );
+                    $product = $products[$id];
+                    foreach ($values as $field => $value) {
+                        if ($field == 'price') {
+                            $value = $value * 100;
+                        }
+                        if ($product[$field] != $value && !empty($value)) {
+                            $this->OrdersGoods->update(array(
+                                $field => $value
+                            ), array($this->OrdersGoods->pk() => $id));
+                            $this->History->save(
+                                'update-order-cart',
+                                $mod_id,
+                                $this->all_configs['arrequest'][2],
+                                l($field) . ':' . $product[$field] . ' ==> ' . $value
+                            );
+                        }
                     }
+                    unset($products[$id]);
                 }
             }
         }
@@ -3061,5 +3128,14 @@ class orders extends Controller
             $this->all_configs['chains']->addProducts($post, $order['id'], $mod_id);
         }
         return $order;
+    }
+
+    /**
+     * @param $key
+     * @return bool
+     */
+    private function isHash($key)
+    {
+        return strlen($key) == 32;
     }
 }

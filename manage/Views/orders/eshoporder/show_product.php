@@ -1,4 +1,10 @@
-<tr>
+<tr class="<?= $group && $quantity > 1? 'items-group':'' ?> <?= $hide ? $hash . '_item' : $hash.'_group' ?>" style="<?= $hide ? 'display:none' : '' ?>">
+    <td>
+        <?php if ($group && $quantity > 1): ?>
+            <i class="fa fa-chevron-right items-show" aria-hidden="true" onclick="toggle_items('<?= $hash ?>')"></i>
+            <i class="fa fa-chevron-down items-hide" aria-hidden="true" onclick="toggle_items('<?= $hash ?>')" style="display: none"></i>
+        <?php endif; ?>
+    </td>
     <td class="col-sm-3">
         <a href="<?= $url ?>">
             <?= htmlspecialchars($product['title']) ?>
@@ -6,10 +12,9 @@
     </td>
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="col-sm-1">
-            <div class="input-group">
-                <input class="form-control global-typeahead input-medium popover-info"
-                       type="text" value="<?= ($product['price'] / 100) ?>" name="product[<?= $product['id'] ?>][price]"/>
-            </div>
+            <input class="form-control global-typeahead input-medium popover-info"
+                   type="text" value="<?= ($product['price'] / 100) ?>"
+                   name="product[<?= $product['id'] ?>][price]"/>
         </td>
     <?php endif; ?>
     <td class="col-sm-1" style="min-width: 100px">
@@ -17,19 +22,24 @@
             <input class="form-control global-typeahead input-medium popover-info"
                    type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"/>
             <div class="input-group-addon" onclick="change_discount_type(this)" style="cursor: pointer">
-                <input class='js-product-discount-type' type="hidden" name="product[<?= $product['id'] ?>][discount_type]" value="<?= $product['discount_type'] ?>" />
-                       <span class="currency" style="display:<?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT?'none':'' ?>"><?= viewCurrency() ?></span>
-                       <span class="percent" style="display:<?= $product['discount_type'] != DISCOUNT_TYPE_PERCENT?'none':'' ?>">%</span>
+                <input class='js-product-discount-type' type="hidden"
+                       name="product[<?= $product['id'] ?>][discount_type]" value="<?= $product['discount_type'] ?>"/>
+                <span class="currency"
+                      style="display:<?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? 'none' : '' ?>"><?= viewCurrency() ?></span>
+                <span class="percent"
+                      style="display:<?= $product['discount_type'] != DISCOUNT_TYPE_PERCENT ? 'none' : '' ?>">%</span>
             </div>
         </div>
     </td>
     <td class="col-sm-1">
-        <div class="input-group">
-            <input readonly class="form-control global-typeahead input-medium popover-info disable"
-                   type="text" value="<?= sum_with_discount($product) ?>"/>
-        </div>
+        <input readonly class="form-control global-typeahead input-medium popover-info disable"
+               type="text" value="<?= isset($quantity) ? $quantity : $product['count'] ?>"/>
     </td>
-    <td class="col-sm-2" style="min-width: 110px">
+    <td class="col-sm-1">
+        <input readonly class="form-control global-typeahead input-medium popover-info disable"
+               type="text" value="<?= sum_with_discount($product) ?>"/>
+    </td>
+    <td class="col-sm-1" style="min-width: 110px">
         <?= $this->renderFile('orders/eshoporder/_warranty_select', array(
             'product' => $product,
             'orderWarranties' => $orderWarranties
