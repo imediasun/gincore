@@ -14,7 +14,7 @@
                 <?= l('Устройство') ?>:
             </label>
         </td>
-        <td class="col-sm-2">
+        <td>
             <label>
                 <input type="hidden" name="price_type" value="1"/>
                 <div class="dropdown dropdown-inline">
@@ -41,15 +41,15 @@
                 <div class="dropdown dropdown-inline">
                     <button class="as_link" type="button" id="dropdownMenuCashboxes"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <span class="btn-title-discount_type"><?= l('Скидка, %') ?></span>
+                        <span class="btn-title-discount_type"><?= l('%') ?></span>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
                         <li><a href="#" data-discount_type="1"
-                               onclick="return select_discount_type(this)"><?= l('Скидка, %') ?></a>
+                               onclick="return select_discount_type(this)"><?= l('%') ?></a>
                         </li>
                         <li><a href="#" data-discount_type="2"
-                               onclick="return select_discount_type(this)"><?= l('Скидка, $') ?></a>
+                               onclick="return select_discount_type(this)"><?= l('$') ?></a>
                         </li>
                     </ul>
                 </div>

@@ -11,9 +11,11 @@ abstract class AModel extends Object
     public $table = '';
     public $uses = array();
 
-    public function __construct()
+    public function __construct(&$all_configs = null)
     {
-        global $all_configs;
+        if(empty($all_configs)) {
+            global $all_configs;
+        }
         $this->db = db();
         $this->all_configs = $all_configs;
         $this->applyUses();

@@ -1037,12 +1037,12 @@ function display_client_order($order)
         : get_user_name($order, 'h_')) . '</td>'
     . '<td>' . $status . $ordered . '</td>'
     . '<td>' . htmlspecialchars($order['product']) . ' ' . htmlspecialchars($order['note']) . '</td>'
-            
-        . ($all_configs['oRole']->hasPrivilege('edit-clients-orders') ?
-                '<td class="' . ($order['discount'] > 0 
-                ? 'text-danger' : '') . '">' . ($order['sum'] / 100) . '</td>'
-                . '<td>' . ($order['sum_paid'] / 100) . '</td>' 
-        : ( ($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? '<td>да</td>' : '<td></td>'))
+
+    . ($all_configs['oRole']->hasPrivilege('edit-clients-orders') ?
+        '<td class="' . ($order['discount'] > 0
+            ? 'text-danger' : '') . '">' . ($order['sum'] / 100) . '</td>'
+        . '<td>' . ($order['sum_paid'] / 100) . '</td>'
+        : (($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? '<td>да</td>' : '<td></td>'))
         
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
     . '<td>' . $order['o_phone'] . '</td>'

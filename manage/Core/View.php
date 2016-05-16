@@ -29,8 +29,8 @@ class View extends Object
     {
         if (!in_array($helper, $this->uses)) {
             $this->uses[] = $helper;
-            $this->applyUses('Helpers');
         }
+        $this->applyUses('Helpers');
         if (property_exists($this, $helper)) {
             return $this->$helper;
         }

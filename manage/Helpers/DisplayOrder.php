@@ -4,6 +4,10 @@ require_once __DIR__ . '/../Core/Helper.php';
 
 class DisplayOrder extends Helper
 {
+    /**
+     * @param $order
+     * @return string
+     */
     public function asSaleRow($order)
     {
         $status = '<span class="muted">' . l('Сообщите менеджеру') . '</span>';
@@ -32,6 +36,47 @@ class DisplayOrder extends Helper
         $get = '?' . get_to_string($_GET);
 
         return $this->view->renderFile('helpers/display_order/as_sale_row', array(
+            'get' => $get,
+            'status' => $status,
+            'order' => $order,
+            'ordered' => $ordered,
+            'accepted' => $accepted,
+            'color' => $color,
+            'helper' => $this,
+        ));
+    }
+
+    /**
+     * @param $order
+     * @return string
+     */
+    public function asRepairRow($order)
+    {
+        $status = '<span class="muted">' . l('Сообщите менеджеру') . '</span>';
+        if (array_key_exists($order['status'], $this->all_configs['configs']['order-status'])) {
+            $status_name = $this->all_configs['configs']['order-status'][$order['status']]['name'];
+            $status_color = $this->all_configs['configs']['order-status'][$order['status']]['color'];
+            $status = '<span style="color:#' . $status_color . '">' . $status_name . '</span>';
+        }
+
+        $ordered = '';
+        if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && count($order['goods']) > 0) {
+            $ordered = str_repeat(' <i class="fa fa-minus-circle text-danger pull-right"></i> ',
+                count($order['goods']) - count($order['finish']));
+            if (count($order['finish']) > 0) {
+                $ordered .= str_repeat(' <i class="fa fa-plus-circle text-success pull-right"></i> ',
+                    count($order['finish']));
+            }
+        }
+
+        $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
+        $accepted = mb_strlen($order['courier'],
+            'UTF-8') > 0 ? '<i style="color:' . $color . ';" title="' . l('Курьер забрал устройство у клиента') . '" class="fa fa-truck"></i> ' : '';
+        $accepted .= $order['np_accept'] == 1 ? '<i title="' . l('Принято через почту') . '" class="fa fa-suitcase text-danger"></i> ' :
+            '<i style="color:' . $color . ';" title="' . l('Принято в') . ' ' . htmlspecialchars($order['aw_wh_title']) . '" class="' . htmlspecialchars($order['icon']) . '"></i> ';
+
+        $get = '?' . get_to_string($_GET);
+        return $this->view->renderFile('helpers/display_order/as_repair_row', array(
             'get' => $get,
             'status' => $status,
             'order' => $order,

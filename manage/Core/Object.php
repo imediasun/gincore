@@ -11,6 +11,7 @@ abstract class Object
      */
     public function applyUses($from = 'Models')
     {
+        $all_configs = isset($this->all_configs) ? $this->all_configs : null;
         if (!empty($this->uses)) {
             foreach ($this->uses as $use) {
                 if ($from == 'Models') {
@@ -20,7 +21,7 @@ abstract class Object
                 }
                 if (file_exists(__DIR__ . "/../{$from}/{$use}.php")) {
                     require_once __DIR__ . "/../{$from}/{$use}.php";
-                    $this->$use = new $class();
+                    $this->$use = new $class($all_configs);
                 }
             }
         }

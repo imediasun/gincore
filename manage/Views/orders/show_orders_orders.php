@@ -1,19 +1,20 @@
 <?php if ($orders && count($orders) > 0): ?>
-    <table class="table table-hover">
+    <table class="table table-striped">
         <thead>
         <tr>
             <td><?= l('номер заказа') ?></td>
-            <td></td>
+            <td title="<?= l('Возможность ставить напоминания по заказам себе и другим пользователям') ?>"><i class="fa fa-bell cursor-pointer btn-timer" href="javascript:void(0);"></i></td>
             <td><?= l('Дата') ?></td>
-            <td><?= l('Приемщик') ?></td>
-            <td><?= l('manager') ?></td>
-            <td><?= l('Статус') ?></td>
+            <td class="center"><?= l('Приемщик') ?></td>
+            <td class="center"><?= l('manager') ?></td>
+            <td class="center"><?= l('Статус') ?></td>
+            <td class="center"> <i class="fa fa-cogs" aria-hidden="true"></i> </td>
             <td><?= l('Устройство') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
-                <td><?= l('Стоимость') ?></td>
-                <td><?= l('Оплачено') ?></td>
+                <td class="center"><?= l('Стоимость') ?></td>
+                <td class="center"><?= l('Оплачено') ?></td>
             <?php else: ?>
-                <td><?= l('Оплата') ?></td>
+                <td class="center"><?= l('Оплата') ?></td>
             <?php endif; ?>
             <td><?= l('Клиент') ?></td>
             <td><?= l('Контактный тел') ?></td>
@@ -24,7 +25,7 @@
         <tbody id="table_clients_orders">
 
         <?php foreach ($orders as $order): ?>
-            <?= display_client_order($order); ?>
+            <?= $this->DisplayOrder->asRepairRow($order); ?>
         <?php endforeach; ?>
         </tbody>
     </table>

@@ -520,6 +520,7 @@ class orders extends Controller
         $count = $this->all_configs['manageModel']->get_count_clients_orders($query, 'co');
         $count_page = ceil($count / $this->count_on_page);
 
+        $this->view->load('DisplayOrder');
         return array(
             'html' => $this->view->renderFile('orders/show_orders_orders', array(
                 'count' => $count,
