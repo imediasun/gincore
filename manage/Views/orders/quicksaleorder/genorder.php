@@ -12,9 +12,9 @@
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
-        <div class="col-sm-8">
+        <div class="col-sm-12">
             <div class="row-fluid">
-                <div class="span4">
+                <div class="span3">
                     <h3 class="m-t-none">
                         № <?= $order['id'] ?>
                         <?= $this->renderFile('orders/quicksaleorder/_print_buttons', array(
@@ -26,7 +26,7 @@
                         </button>
                     </h3>
                 </div>
-                <div class="span4">
+                <div class="span3">
                     <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                     <div class="form-group clearfix">
                         <label class="lh30">
@@ -44,7 +44,7 @@
                         )) ?>
                     </div>
                 </div>
-                <div class="span4">
+                <div class="span3">
                     <?= $this->renderFile('orders/genorder/_employers', array(
                         'users' => $managers,
                         'order' => $order,
@@ -60,7 +60,7 @@
                 </div>
             </div>
             <div class="row-fluid">
-                <div class="span6">
+                <div class="span4">
                     <div class="form-group clearfix">
                         <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
@@ -93,7 +93,7 @@
                           style="font-size: 13px"></span>
                     <?= l('Корзина') ?>
                 </legend>
-                <div class="span12">
+                <div class="col-sm-12">
                     <?= $this->renderFile('orders/quicksaleorder/_spares', array(
                         'onlyEngineer' => $onlyEngineer,
                         'hasEditorPrivilege' => $hasEditorPrivilege,
@@ -128,7 +128,7 @@
                                    type="button" value="<?= l('Сохранить') ?>"/>
                         <?php endif; ?>
                     </div>
-                    <div class="span7">
+                    <div class="span5">
                         <div class="from-control clearfix">
                             <label class="lh30">
                                 <span class="cursor-pointer glyphicon glyphicon-list"
@@ -160,7 +160,7 @@
                             </div>
                         </div>
                         <div class="row-fluid clearfix">
-                            <div class="col-sm-12" style="text-align: right; padding: 0">
+                            <div class="col-sm-12" style="text-align: center; padding: 0">
                                 <?php if ($order['cashless']): ?>
                                     <span class="text-danger"><?= l('Безнал') ?></span>
                                 <?php endif; ?>

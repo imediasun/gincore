@@ -1113,7 +1113,7 @@ function change_discount_type(_this){
           data: '&order_id=' + $this.attr('data-order_id')+'&status=' + $this.attr('data-status_id'),
           success: function(msg) {
               if(msg.state) {
-                  $parent.css('color', $this.css('color'));
+                  $parent.css('background-color', $this.css('color'));
                   $parent.find('.btn-title').first().html($this.html());
               }else {
                   alert(msg.msg);

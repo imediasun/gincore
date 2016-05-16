@@ -1025,7 +1025,6 @@ function display_client_order($order)
             '<a href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '">&nbsp;' . $order['order_id'] . '</a> ' .
             '<a class="fa fa-edit" href="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . $get . '"></a> '
         : '')
-//        . show_marked($order['order_id'], 'oi', $order['mi_id'])
         . show_marked($order['order_id'], 'co', $order['m_id'])
         . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="' . l('Переместить заказ') .'"></i></td>'
     . '<td>' /* . $order['order_id'] */ .  timerout($order['order_id']) . '</td>'
@@ -1033,7 +1032,7 @@ function display_client_order($order)
     . '<td>' . get_user_name($order, 'a_') . '</td>'
     . '<td>' . (($order['manager'] == 0 && $all_configs['oRole']->hasPrivilege('edit-clients-orders')) ?
         '<form method="post" action="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . '">'
-        . '<input name="accept-manager" type="submit" class="btn btn-default btn-xs" value="' . l('Взять заказ') . '" /><input type="hidden" name="id" value="' . $order['order_id'] . '" />'
+        . '<input name="accept-manager" type="submit" class="btn btn-accept" value="' . l('Взять заказ') . '" /><input type="hidden" name="id" value="' . $order['order_id'] . '" />'
         . '</form>'
         : get_user_name($order, 'h_')) . '</td>'
     . '<td>' . $status . $ordered . '</td>'

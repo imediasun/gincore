@@ -10,9 +10,6 @@
                 <input class="form-control global-typeahead input-medium popover-info"
                        type="text"
                        value="<?= ($product['price'] / 100) ?>" name="product[<?= $product['id'] ?>][price]"/>
-                <div class="input-group-addon">
-                    <?= viewCurrency() ?>
-                </div>
             </div>
         </td>
     <?php endif; ?>
@@ -23,6 +20,12 @@
             <div class="input-group-addon">
                 <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
             </div>
+        </div>
+    </td>
+    <td class="col-sm-1" style="min-width: 100px">
+        <div class="input-group">
+            <input readonly class="form-control global-typeahead input-medium popover-info disable"
+            type="text" value="<?= sum_with_discount($product) ?>"/>
         </div>
     </td>
     <td class="col-sm-2">

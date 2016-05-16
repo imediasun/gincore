@@ -52,7 +52,7 @@
                                 <label>&nbsp;</label><br>
                                 <button class="btn-sm btn-primary class" onclick="return add_quick_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
-                                    <span class="small"> <?= l('В&nbsp;корзину') ?> </span>
+                                    <span class="small" style="line-height: 22px"> <?= l('В&nbsp;корзину') ?> </span>
                                 </button>
                             </div>
                         </div>

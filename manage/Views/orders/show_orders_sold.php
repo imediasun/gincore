@@ -1,18 +1,20 @@
 <?php if (!empty($orders)): ?>
-    <table class="table">
+    <table class="table table-striped">
         <thead>
         <tr>
             <td><?= l('номер заказа') ?></td>
+            <td><i class="fa fa-bell cursor-pointer btn-timer" href="javascript:void(0);"></i></td>
             <td><?= l('Дата') ?></td>
-            <td><?= l('manager') ?></td>
-            <td><?= l('Способ оплаты') ?></td>
-            <td><?= l('Статус') ?></td>
+            <td class='center'><?= l('manager') ?></td>
+            <td class="center"><?= l('Способ оплаты') ?></td>
+            <td class="center"><?= l('Статус') ?></td>
+            <td class="center"> <i class="fa fa-cogs" aria-hidden="true"></i> </td>
             <td><?= l('Наименование') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                 <td><?= l('Стоимость') ?></td>
                 <td><?= l('Оплачено') ?></td>
             <?php endif; ?>
-            <td><?= l('Клиент') ?></td>
+            <td class="center;"><?= l('Клиент') ?></td>
             <td><?= l('Контактный тел') ?></td>
             <td><?= l('Примечание') ?></td>
         </tr>

@@ -68,7 +68,7 @@
         </div>
         <div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form"></div>
         <hr/>
-        <div class="checkbox text-right">
+        <div class="checkbox text-left">
             <span style="display: inline-block"><?= l('Итого') ?>:</span>
             <span class='total-sum' style="display: inline-block;"> <?= (int) $total/100 ?></span>
             <span style="display: inline-block; margin-right: 20px"><?= viewCurrency() ?></span>
