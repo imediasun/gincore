@@ -8,7 +8,7 @@
             <td class="center"><?= l('Приемщик') ?></td>
             <td class="center"><?= l('manager') ?></td>
             <td class="center"><?= l('Статус') ?></td>
-            <td class="center"> <i class="fa fa-cogs" aria-hidden="true"></i> </td>
+            <td class="center" title="<?= l('Ожидает запчастей') ?>"> <i class="fa fa-cogs" aria-hidden="true"></i> </td>
             <td><?= l('Устройство') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                 <td class="center"><?= l('Стоимость') ?></td>
