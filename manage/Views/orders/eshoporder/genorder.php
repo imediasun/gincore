@@ -80,8 +80,8 @@
             </div>
 
             <div class="row-fluid">
-                <div class="span6">
                     <legend> <?= l('Клиент') ?></legend>
+                <div class="col-sm-6">
                     <div class="form-group clearfix">
                         <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
@@ -144,9 +144,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="span6">
-                    <legend style="border: none">&nbsp;</legend>
-                    <div class="row-fluid well well-small">
+                <div class="col-sm-6">
+                    <div class="row-fluid well well-small" style="min-height: 215px">
                         <?= $this->renderFile('orders/eshoporder/_public_comments', array(
                             'comments_public' => $comments_public,
                             'comments_private' => $comments_private,
@@ -160,7 +159,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row-fluid">
+            <div class="row-fluid" style="margin-top: 30px">
                 <legend>
                     <?= l('Товар') ?>
                 </legend>
@@ -173,7 +172,7 @@
                 </div>
 
             </div>
-            <div class="row-fluid">
+            <div class="row-fluid" style="margin-top: 30px">
                 <legend>
                     <span class="cursor-pointer glyphicon glyphicon-list"
                           onclick="alert_box(this, false, 'changes:update-order-cart')"
