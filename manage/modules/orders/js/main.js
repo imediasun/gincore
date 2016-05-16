@@ -894,6 +894,14 @@ function display_serial_product_title_and_price(_this, item_id)
         quantity = $('#eshop_sale_poduct_quantity').val(),
         rnd = parseInt(Math.random() * 1000);
 
+      if(typeof(title) == 'undefined' || title.length == 0) {
+          $('input[name="new-goods-value"]').addClass('parsley-error');
+          $('#eshop_sale_product_title_error').show();
+          return false;
+      } else {
+          $('input[name="new-goods-value"]').removeClass('parsley-error');
+          $('#eshop_sale_product_title_error').hide();
+      }
       if(cost == 0) {
           $('#eshop_sale_poduct_cost').addClass('parsley-error');
           $('#eshop_sale_product_cost_error').show();

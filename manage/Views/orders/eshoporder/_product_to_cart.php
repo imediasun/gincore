@@ -80,6 +80,10 @@
                     array()) ?>
                 <input type="hidden" name="prices" value="">
             </div>
+            <ul id="eshop_sale_product_title_error" class="parsley-errors-list filled"
+                style="display: none">
+                <li class="parsley-required"><?= l('Обязательное поле.') ?></li>
+            </ul>
         </td>
         <td>
             <input type="text" id="eshop_sale_poduct_cost" class="form-control" value=""
