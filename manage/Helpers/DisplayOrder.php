@@ -89,14 +89,14 @@ class DisplayOrder extends Helper
 
     /**
      * @param $order
-     * @return string
+     * @return array
      */
     public function getItemsTooltip($order)
     {
-        $tooltip = '';
+        $tooltip = array();
         if (!empty($order['items'])) {
             foreach ($order['items'] as $item) {
-                $tooltip .= $item['title'] . ' - ' . $item['count'] . l('шт.') . "\n";
+                $tooltip[] = $item['title'] . ' - ' . $item['count'] . l('шт.');
             }
         }
         return $tooltip;

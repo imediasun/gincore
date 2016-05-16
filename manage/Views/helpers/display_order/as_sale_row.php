@@ -34,7 +34,13 @@
     <td class="center">
         <?= $ordered ?>
     </td>
-    <td class='center' title="<?= $helper->getItemsTooltip($order) ?>"><?= count($order['goods']) ?><?= l('шт.'); ?> <span class="caret"></span></td>
+    <td class='center' title="<?= implode("\n", $helper->getItemsTooltip($order)) ?>">
+        <?= $this->renderFile('helpers/display_order/_items_list', array(
+            'count' => count($order['goods']),
+            'list' => $helper->getItemsTooltip($order),
+            'orderId' => $order['order_id']
+        )) ?>
+    </td>
     <td class="center <?= ($order['discount'] > 0 ? 'text-danger' : '') ?>">
         <?= ($order['sum'] / 100) ?>
     </td>

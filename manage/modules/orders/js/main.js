@@ -886,7 +886,7 @@ function display_serial_product_title_and_price(_this, item_id)
   function add_eshop_item_to_table() {
       var $row = $('tr.js-eshop-row-cloning'),
         cost = $('#eshop_sale_poduct_sum').val(),
-        title = $('#categories-selected > ul.dropdown-menu > li.active > a').html(),
+        title = $('input[name="new-goods-value"]').attr('data-title'),
         id = $('input[name="new-goods"]').val(),
         price = $('#eshop_sale_poduct_cost').val(),
         discount = $('#eshop_sale_poduct_discount').val(),
@@ -923,7 +923,7 @@ function display_serial_product_title_and_price(_this, item_id)
           $('#eshop_sale_poduct_cost').val('');
 
           $('#categories-selected > ul.dropdown-menu > li.active > a').html('');
-          $('input[name="categories-last"]').val('');
+          // $('.typeahead').typeahead('val', '');
           $('#eshop_sale_poduct_sum').val('');
           $('#eshop_sale_poduct_discount').val('');
           $('#eshop_sale_poduct_quantity').val('');

@@ -591,6 +591,12 @@ input.visible-price {
     display: inline-block;
     background-color: white;
 }
+.as_item_list {
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    background-color: transparent;
+}
 .as_button {
     border: none;
     color: white;

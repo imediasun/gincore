@@ -1046,7 +1046,7 @@ class Configs
             'sale-order-status' => array(
                 0 => array(
                     'name' => l('Новый заказ'),
-                    'color' => 'B05D55',
+                    'color' => '3C536C',
                     'from' => array(0, 35, 55, 65, 75, 40, 15)
                 ),
                 35 => array(
@@ -1061,7 +1061,7 @@ class Configs
                 ),
                 65 => array(
                     'name' => l('На точке самовывоза'),
-                    'color' => '646AD5',
+                    'color' => '3498DB',
                     'from' => array(0, 35, 55, 65, 75, 40, 15)
                 ),
                 75 => array(
@@ -1071,12 +1071,12 @@ class Configs
                 ),
                 40 => array(
                     'name' => l('Выдан клиенту'),
-                    'color' => '22B14C',
+                    'color' => '62CB31',
                     'from' => array(0, 35, 55, 65, 75, 40, 15)
                 ),
                 15 => array(
                     'name' => l('Клиент отказался'),
-                    'color' => 'F04544',
+                    'color' => 'E74C3C',
                     'from' => array(0, 35, 55, 65, 75, 40, 15)
                 ),
 
@@ -1084,7 +1084,7 @@ class Configs
             'order-status' => array(
                 0 => array(
                     'name' => l('Принят в ремонт'),
-                    'color' => 'B05DBB',
+                    'color' => '3C536C',
                     'from' => array(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
                 ),
                 2 => array(
@@ -1094,7 +1094,7 @@ class Configs
                 ),
                 5 => array(
                     'name' => l('В процессе ремонта'),
-                    'color' => '414CD2',
+                    'color' => '3498DB',
                     'from' => array(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
                 ),
                 10 => array(
@@ -1104,7 +1104,7 @@ class Configs
                 ),
                 15 => array(
                     'name' => l('Клиент отказался'),
-                    'color' => 'F04544',
+                    'color' => 'E74C3C',
                     'from' => array(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
                 ),
                 20 => array(
@@ -1134,7 +1134,7 @@ class Configs
                 ),
                 40 => array(
                     'name' => l('Выдан'),
-                    'color' => '76C572',
+                    'color' => '62CB31',
                     'from' => array(0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
                 ),
                 45 => array(
