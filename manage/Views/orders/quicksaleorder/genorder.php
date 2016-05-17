@@ -26,6 +26,26 @@
                         </button>
                     </h3>
                 </div>
+                <div class="span2">
+                    <div class="form-group center">
+                        <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
+                            <?= l('Создан') ?>: <?= do_nice_date($order['date_add']) ?>
+                        </small>
+                        <br>
+                        <?php if ($order['np_accept'] == 1): ?>
+                            <i title="<?= l('Принято через почту') ?>" class="fa fa-suitcase text-danger"></i>
+                        <?php else: ?>
+                            <i style="color:<?= $color ?>;" title="<?= l('Принято в сервисном центре') ?>"
+                               class="<?= htmlspecialchars($order['icon']) ?>"></i>
+                        <?php endif; ?>
+                        <?= $order['aw_title'] ?>&nbsp;<?= timerout($order['id'], true) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="row-fluid">
+                <legend> <?= l('Заказ') ?></legend>
                 <div class="span3">
                     <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                     <div class="form-group clearfix">
@@ -52,7 +72,27 @@
                         'type' => 'manager'
                     )); ?>
                 </div>
+                <div class="span3">
+                    <div class="form-group clearfix" style="line-height: 36px">
+                        <label>
+                            <span onclick="alert_box(this, false, 'stock_moves-order')"
+                                  data-o_id="<?= $order['id'] ?>"
+                                  class="cursor-pointer glyphicon glyphicon-list"
+                                  title="<?= l('История перемещений') ?>">
+
+                            </span>
+                            <?= l('Локации') ?>:
+                        </label>
+                        <?= htmlspecialchars($order['wh_title']) ?>
+                        <?= htmlspecialchars($order['location']) ?>
+                        <i title="<?= l('Переместить заказ') ?>"
+                           onclick="alert_box(this, false, 'stock_move-order', undefined, undefined, 'messages.php')"
+                           data-o_id="<?= $order['id'] ?>"
+                           class="glyphicon glyphicon-move cursor-pointer"></i>
+                    </div>
+                </div>
             </div>
+
 
             <div class="row-fluid">
                 <div class="span12">
@@ -94,18 +134,18 @@
                     <?= l('Корзина') ?>
                 </legend>
                 <div class="col-sm-12">
-                    <table class="<?= !$goods ? 'hidden ' : '' ?> table parts-table cart-table">
-                    <?= $this->renderFile('orders/quicksaleorder/_spares', array(
-                        'onlyEngineer' => $onlyEngineer,
-                        'hasEditorPrivilege' => $hasEditorPrivilege,
-                        'notSale' => $notSale,
-                        'goods' => $goods,
-                        'controller' => $controller,
-                        'totalChecked' => $order['total_as_sum'],
-                        'total' => $productTotal,
-                        'orderId' => $order['id'],
-                        'orderWarranties' => $orderWarranties
-                    )); ?>
+                    <table class="table parts-table cart-table">
+                        <?= $this->renderFile('orders/quicksaleorder/_spares', array(
+                            'onlyEngineer' => $onlyEngineer,
+                            'hasEditorPrivilege' => $hasEditorPrivilege,
+                            'notSale' => $notSale,
+                            'goods' => $goods,
+                            'controller' => $controller,
+                            'totalChecked' => $order['total_as_sum'],
+                            'total' => $productTotal,
+                            'orderId' => $order['id'],
+                            'orderWarranties' => $orderWarranties
+                        )); ?>
 
                         <?php if ($hasEditorPrivilege): ?>
                             <tfoot style="margin-top:40px">
@@ -118,63 +158,67 @@
                                                type="button" value="<?= l('Сохранить') ?>"/>
                                     <?php endif; ?>
                                 </td>
-                                <td>
-                                    <label class="lh30">
+                                <?php if (!empty($goods)): ?>
+                                    <td>
+                                        <label class="lh30">
                                 <span class="cursor-pointer glyphicon glyphicon-list"
                                       onclick="alert_box(this, false, 'changes:update-order-sum')"
                                       data-o_id="<?= $order['id'] ?>"
                                       title="<?= l('История изменений') ?>"></span>
-                                        <?= l('Стоимость') ?>:
-                                    </label>
-                                </td>
-                                <td>
-                                    <input type="text" id="order-total" class="form-control"
-                                           value="<?= ($order['sum'] / 100) ?>"
-                                           name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
-                                </td>
-                                <td class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>">
-                                    <?php $pay_btn = ''; ?>
-                                    <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
-                                        <input type="button" class="btn btn-success"
-                                               value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
-                                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
-                                    <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
-                                        <input type="button"
-                                               class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
-                                               value="<?= l('Принять оплату') ?>"
-                                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <link type="text/css" rel="stylesheet"
-                                          href="<?= $this->all_configs['prefix'] ?>modules/accountings/css/main.css?1">
-                                    <input id="send-sms" data-o_id="<?= $order['id'] ?>"
-                                           onclick="alert_box(this, false, 'sms-form')"
-                                           class="hidden" type="button"/>
-                                </td>
-                                <td></td>
+                                            <?= l('Стоимость') ?>:
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="order-total" class="form-control"
+                                               value="<?= ($order['sum'] / 100) ?>"
+                                               name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
+                                    </td>
+                                    <td class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>">
+                                        <?php $pay_btn = ''; ?>
+                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
+                                            <input type="button" class="btn btn-success"
+                                                   value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
+                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
+                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
+                                            <input type="button"
+                                                   class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
+                                                   value="<?= l('Принять оплату') ?>"
+                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <link type="text/css" rel="stylesheet"
+                                              href="<?= $this->all_configs['prefix'] ?>modules/accountings/css/main.css?1">
+                                        <input id="send-sms" data-o_id="<?= $order['id'] ?>"
+                                               onclick="alert_box(this, false, 'sms-form')"
+                                               class="hidden" type="button"/>
+                                    </td>
+                                    <td></td>
+                                <?php endif; ?>
                             </tr>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td colspan="3">
-                                    <?php if ($order['cashless']): ?>
-                                        <span class="text-danger"><?= l('Безнал') ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($order['tag_id'] != 0): ?>
-                                        <span class="tag"
-                                              style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
+                            <?php if (!empty($goods)): ?>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td colspan="3">
+                                        <?php if ($order['cashless']): ?>
+                                            <span class="text-danger"><?= l('Безнал') ?></span>
+                                        <?php endif; ?>
+                                        <?php if ($order['tag_id'] != 0): ?>
+                                            <span class="tag"
+                                                  style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
                                     <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
                                 </span>
-                                    <?php endif; ?>
-                                    <span class="text-success">
+                                        <?php endif; ?>
+                                        <span class="text-success">
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
-                                        <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                                            <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
                             </span>
-                                </td>
-                                <td></td>
-                            </tr>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            <?php endif; ?>
                             </tfoot>
                         <?php endif; ?>
                     </table>

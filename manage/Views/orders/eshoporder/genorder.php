@@ -13,7 +13,7 @@
 
         <div class="col-sm-12">
             <div class="row-fluid">
-                <div class="span3">
+                <div class="span3" style="max-width: 200px">
                     <h3 class="m-t-none">
                         № <?= $order['id'] ?>
                         <?= $this->renderFile('orders/eshoporder/_print_buttons', array(
@@ -25,7 +25,28 @@
                         </button>
                     </h3>
                 </div>
-                <div class="span3">
+                <div class="span2">
+                    <div class="form-group center">
+                        <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
+                            <?= l('Создан') ?>: <?= do_nice_date($order['date_add']) ?>
+                        </small>
+                        <br>
+                        <?php if ($order['np_accept'] == 1): ?>
+                            <i title="<?= l('Принято через почту') ?>" class="fa fa-suitcase text-danger"></i>
+                        <?php else: ?>
+                            <i style="color:<?= $color ?>;" title="<?= l('Принято в сервисном центре') ?>"
+                               class="<?= htmlspecialchars($order['icon']) ?>"></i>
+                        <?php endif; ?>
+                        <?= $order['aw_title'] ?>&nbsp;<?= timerout($order['id'], true) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            <div class="row-fluid">
+                <legend> <?= l('Заказ') ?></legend>
+                <div class="col-sm-3">
                     <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                     <div class="form-group clearfix">
                         <label class="lh30">
@@ -43,7 +64,7 @@
                         )) ?>
                     </div>
                 </div>
-                <div class="span3">
+                <div class="col-sm-3">
                     <?= $this->renderFile('orders/genorder/_employers', array(
                         'users' => $managers,
                         'order' => $order,
@@ -51,7 +72,7 @@
                         'type' => 'manager'
                     )); ?>
                 </div>
-                <div class="span3">
+                <div class="col-sm-3">
                     <?php if ($request): ?>
                         <div class="from-group clearfix">
                             <?= l('Заявка') . ' ' . $request['id'] . ' ' . do_nice_date($request['date'],
@@ -76,6 +97,25 @@
                             </div>
                         </div>
                     <?php endif; ?>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group clearfix" style="line-height: 36px">
+                        <label>
+                            <span onclick="alert_box(this, false, 'stock_moves-order')"
+                                  data-o_id="<?= $order['id'] ?>"
+                                  class="cursor-pointer glyphicon glyphicon-list"
+                                  title="<?= l('История перемещений') ?>">
+
+                            </span>
+                            <?= l('Локации') ?>:
+                        </label>
+                        <?= htmlspecialchars($order['wh_title']) ?>
+                        <?= htmlspecialchars($order['location']) ?>
+                        <i title="<?= l('Переместить заказ') ?>"
+                           onclick="alert_box(this, false, 'stock_move-order', undefined, undefined, 'messages.php')"
+                           data-o_id="<?= $order['id'] ?>"
+                           class="glyphicon glyphicon-move cursor-pointer"></i>
+                    </div>
                 </div>
             </div>
 
@@ -180,34 +220,36 @@
                           style="font-size: 13px"></span>
                     <?= l('Корзина') ?>
                 </legend>
+
                 <div class="col-sm-12" style="margin-bottom: 20px">
-                    <table class="<?= !$goods ? 'hidden ' : '' ?> table parts-table cart-table">
-                        <?= $this->renderFile('orders/eshoporder/_spares', array(
-                            'onlyEngineer' => $onlyEngineer,
-                            'hasEditorPrivilege' => $hasEditorPrivilege,
-                            'notSale' => $notSale,
-                            'goods' => $goods,
-                            'controller' => $controller,
-                            'totalChecked' => $order['total_as_sum'],
-                            'total' => $productTotal,
-                            'orderId' => $order['id'],
-                            'orderWarranties' => $orderWarranties
-                        )); ?>
-                        <?php if ($hasEditorPrivilege): ?>
-                            <tfoot style="margin-top:40px">
-                            <tr>
-                                <td colspan="3">
-                                    <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
-                                    <?php if ($showButtons): ?>
-                                        <input id="close-order" class="btn btn-success"
-                                               onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
-                                               value="<?= l('Выдать') ?>"/>
-                                        <input id="update-order" class="btn btn-info" onclick="update_order(this)"
-                                               data-o_id="<?= $order['id'] ?>" data-alert_box_not_disabled="true"
-                                               type="button" value="<?= l('Сохранить') ?>"/>
-                                    <?php endif; ?>
-                                </td>
-                                <td></td>
+                    <table class="table parts-table cart-table">
+                    <?= $this->renderFile('orders/eshoporder/_spares', array(
+                        'onlyEngineer' => $onlyEngineer,
+                        'hasEditorPrivilege' => $hasEditorPrivilege,
+                        'notSale' => $notSale,
+                        'goods' => $goods,
+                        'controller' => $controller,
+                        'totalChecked' => $order['total_as_sum'],
+                        'total' => $productTotal,
+                        'orderId' => $order['id'],
+                        'orderWarranties' => $orderWarranties
+                    )); ?>
+                    <?php if ($hasEditorPrivilege): ?>
+                        <tfoot style="margin-top:40px">
+                        <tr>
+                            <td colspan="3">
+                                <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
+                                <?php if ($showButtons && !empty($goods)): ?>
+                                    <input id="close-order" class="btn btn-success"
+                                           onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
+                                           value="<?= l('Выдать') ?>"/>
+                                <?php endif; ?>
+                                <input id="update-order" class="btn btn-info" onclick="update_order(this)"
+                                       data-o_id="<?= $order['id'] ?>" data-alert_box_not_disabled="true"
+                                       type="button" value="<?= l('Сохранить') ?>"/>
+                            </td>
+                            <td></td>
+                            <?php if (!empty($goods)): ?>
                                 <td>
                                     <label class="lh30">
                                 <span class="cursor-pointer glyphicon glyphicon-list"
@@ -243,7 +285,9 @@
                                            class="hidden" type="button"/>
                                 </td>
                                 <td></td>
-                            </tr>
+                            <?php endif; ?>
+                        </tr>
+                        <?php if (!empty($goods)): ?>
                             <tr>
                                 <td></td>
                                 <td></td>
@@ -266,8 +310,10 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            </tfoot>
+
                         <?php endif; ?>
+                        </tfoot>
+                    <?php endif; ?>
                     </table>
                 </div>
             </div>
