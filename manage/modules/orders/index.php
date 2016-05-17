@@ -2154,7 +2154,7 @@ class orders extends Controller
             $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(true, $id, true, $counter, true);
         }
 
-        // открываем форму привязки запчасти к ремонту
+        // открываем форму привязки запчасти к ремонту array(product_id=29)
         if ($act == 'bind-product-to-order') {
             $data['state'] = true;
             $product_id = $_POST['product_id'];

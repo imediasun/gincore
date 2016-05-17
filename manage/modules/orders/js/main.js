@@ -229,7 +229,6 @@ function issue_order(_this) {
   if ($('[name="is_replacement_fund"]').prop('checked')) {
     alert(L['do-not-forget-to-pick-up-a-client-replacement-fund']);
   }
-  //$(_this).button('loading');
   var status = $(_this).data('status');
   $('form#order-form select.order-status').val(status).prop('selected', true);
   $('#update-order').click();

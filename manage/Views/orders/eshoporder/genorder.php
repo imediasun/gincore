@@ -197,18 +197,9 @@
                             <tfoot style="margin-top:40px">
                             <tr>
                                 <td colspan="2">
-                                    <?php
-                                    $hide = in_array($order['status'],
-                                        $this->all_configs['configs']['order-status-issue-btn']) ? ''
-                                        : 'style="display:none;"';
-                                    $status = $order['status'] == $this->all_configs['configs']['order-status-ready'] ?
-                                        $this->all_configs['configs']['order-status-issued']
-                                        : ($order['status'] == $this->all_configs['configs']['order-status-refused'] || $order['status']
-                                        == $this->all_configs['configs']['order-status-unrepairable']
-                                            ? $this->all_configs['configs']['order-status-nowork'] : $order['status']);
-                                    ?>
+                                    <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
                                     <?php if ($showButtons): ?>
-                                        <input id="close-order" <?= $hide ?> class="btn btn-success"
+                                        <input id="close-order" class="btn btn-success"
                                                onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
                                                value="<?= l('Выдать') ?>"/>
                                         <input id="update-order" class="btn btn-info" onclick="update_order(this)"
