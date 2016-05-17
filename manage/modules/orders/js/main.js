@@ -973,14 +973,15 @@ function recalculate_amount_eshop() {
     var $row = $(this),
       discount = parseInt($row.find('.js-eshop-discount').first().val()) || 0,
       amount = 0,
-      price = parseInt($row.find('.js-eshop-price').first().val());
+      price = parseInt($row.find('.js-eshop-price').first().val()),
+      count = parseInt($row.find('.js-eshop-quantity').first().val());
 
     if (parseInt($row.find('.js-eshop-discount_type').first().val()) == 1) {
       amount = price * (1 - discount / 100);
     } else {
       amount = price - discount;
     }
-    $row.find('.js-eshop-sum').first().val(amount);
+    $row.find('.js-eshop-sum').first().val(amount * count);
     total += parseFloat($row.find('.js-eshop-sum').first().val());
   });
   if (total == 0) {
