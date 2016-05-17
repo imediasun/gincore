@@ -28,12 +28,11 @@
                             </button>
                         </h3>
                     </div>
-                    <div class="span6">
+                    <div class="span6" style="line-height: 36px">
                         <div class="form-group center">
                             <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
                                 <?= l('Принят') ?>: <?= do_nice_date($order['date_add']) ?>
-                            </small>
-                            <br>
+                            </small>&nbsp;
                             <?php if (mb_strlen($order['courier'], 'UTF-8') > 0): ?>
                                 <i style="color:<?= $color ?>;" title="<?= l('Курьер забрал устройство у клиента') ?>"
                                    class="fa fa-truck"></i>

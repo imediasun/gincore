@@ -244,6 +244,9 @@ class Chains extends Object
             if (empty($item)) {
                 throw new ExceptionWithMsg(l('Укажите существующее изделие'));
             }
+            if(!empty($item['order_id'])) {
+                throw new ExceptionWithMsg(l('Серийный номер привязан к другому заказу'));
+            }
 
             $order_product = $this->all_configs['db']->query(
                 'SELECT g.id as order_goods_id, o.wh_id, o.location_id, g.order_id as id, g.goods_id, l.id as link,
@@ -690,17 +693,15 @@ class Chains extends Object
 
         $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
 
-        $out = $this->view->renderFile('chains.class/show_stockman_operations', array(
-            'items' => $items,
-            'count_on_page' => $count_on_page,
-            'count' => $count,
-            'type' => $type,
-            'serials' => $serials,
-            'controller' => $this
-        ));
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('chains.class/show_stockman_operations', array(
+                'items' => $items,
+                'count_on_page' => $count_on_page,
+                'count' => $count,
+                'type' => $type,
+                'serials' => $serials,
+                'controller' => $this
+            )),
             'menu' => $filters
         );
     }

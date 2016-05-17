@@ -750,6 +750,14 @@ function bind_group_product(_this, product_id, order_id) {
       }
       if (msg['state'] == true && msg['html']) {
         buttons = {
+          ok: {
+            label: "Продолжить",
+            className: "btn-primary",
+            callback: function () {
+              window.location.reload();
+              $(_this).button('reset');
+            }
+          },
           main: {
             label: "Закрыть",
             className: "btn-primary",

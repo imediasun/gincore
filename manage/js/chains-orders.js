@@ -384,6 +384,7 @@ function btn_bind_item_serial_for_group(_this, order_product_id, conf) {
                         }
                     } else {
                         alert(msg['message']);
+                        $(_this).button('reset');
                     }
                 }
                 if (msg['disabled'] && msg['disabled'] == true) {

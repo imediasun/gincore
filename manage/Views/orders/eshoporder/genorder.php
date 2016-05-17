@@ -25,12 +25,11 @@
                         </button>
                     </h3>
                 </div>
-                <div class="span2">
-                    <div class="form-group center">
+                <div class="span6" style="line-height: 36px; text-align: left">
+                    <div class="form-group">
                         <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
                             <?= l('Создан') ?>: <?= do_nice_date($order['date_add']) ?>
-                        </small>
-                        <br>
+                        </small>&nbsp;
                         <?php if ($order['np_accept'] == 1): ?>
                             <i title="<?= l('Принято через почту') ?>" class="fa fa-suitcase text-danger"></i>
                         <?php else: ?>

@@ -1198,7 +1198,7 @@ class manageModel
                     LEFT JOIN {orders_suppliers_clients} as l ON l.order_goods_id=g.id
                     LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
                     LEFT JOIN {contractors_suppliers_orders} as o ON o.id=l.supplier_order_id
-                    WHERE g.order_id IN (?li) AND co.id=g.order_id ?query',
+                    WHERE g.order_id IN (?li) AND co.id=g.order_id ?query ORDER by id DESC',
                 array($orders, $where))->assoc('id');
 
             if ($order_product_id !== null && $goods) {
