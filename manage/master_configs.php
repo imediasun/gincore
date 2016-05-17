@@ -1031,7 +1031,7 @@ class Configs
             // статусы при которых появляется кнопка "выдать"
             //        'order-statuses-orders'             =>  array(25, 35, 40),
             'order-statuses-orders' => array(35, 40),
-            'order-statuses-closed' => array(25, 40, 55, 65, 75),
+            'order-statuses-closed' => array(25, 40),
             'order-statuses-nocomments' => array(35, 15, 20, 25, 50, 40),
             'order-statuses-manager' => array(0, 2, 5, 10, 27, 30, 45),
             //по каким статусам выбирать заказы в менеджер заказов
