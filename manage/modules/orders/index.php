@@ -2565,7 +2565,7 @@ class orders extends Controller
                 $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . $get . '#show_orders';
                 $data['reload'] = true;
             }
-            if ($_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
+            if ($order['type'] != ORDER_SELL && $_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
                 $data['sms'] = true;
             }
         } catch (ExceptionWithMsg $e) {
