@@ -46,7 +46,7 @@
         <div class="col-sm-12">
             <div class="row-fluid">
                 <legend> <?= l('Заказ') ?></legend>
-                <div class="span3">
+                <div class="col-sm-3">
                     <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                     <div class="form-group clearfix">
                         <label class="lh30">
@@ -64,7 +64,7 @@
                         )) ?>
                     </div>
                 </div>
-                <div class="span3">
+                <div class="col-sm-3">
                     <?= $this->renderFile('orders/genorder/_employers', array(
                         'users' => $managers,
                         'order' => $order,
@@ -72,7 +72,7 @@
                         'type' => 'manager'
                     )); ?>
                 </div>
-                <div class="span3">
+                <div class="col-sm-3">
                     <div class="form-group clearfix" style="line-height: 36px">
                         <label>
                             <span onclick="alert_box(this, false, 'stock_moves-order')"
@@ -100,7 +100,7 @@
                 </div>
             </div>
             <div class="row-fluid">
-                <div class="span4">
+                <div class="col-sm-4">
                     <div class="form-group clearfix">
                         <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
