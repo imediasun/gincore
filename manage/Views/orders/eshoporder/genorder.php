@@ -196,7 +196,7 @@
                         <?php if ($hasEditorPrivilege): ?>
                             <tfoot style="margin-top:40px">
                             <tr>
-                                <td colspan="2">
+                                <td colspan="3">
                                     <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
                                     <?php if ($showButtons): ?>
                                         <input id="close-order" class="btn btn-success"
@@ -207,7 +207,6 @@
                                                type="button" value="<?= l('Сохранить') ?>"/>
                                     <?php endif; ?>
                                 </td>
-                                <td></td>
                                 <td></td>
                                 <td>
                                     <label class="lh30">
@@ -246,7 +245,6 @@
                                 <td></td>
                             </tr>
                             <tr>
-                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

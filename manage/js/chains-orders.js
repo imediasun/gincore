@@ -362,6 +362,51 @@ function btn_unbind_item_serial(_this, rand) {
     });
 }
 
+
+function btn_bind_item_serial_for_group(_this, order_product_id, conf) {
+
+    $(_this).button('loading');
+    var item_id = $('#bind_item_serial-' + order_product_id + ':visible').val();
+    var serial = $('#bind_item_serial_input-' + order_product_id + ':visible').val();
+
+    $.ajax({
+        url: prefix + 'warehouses/ajax/?act=bind-item-serial',
+        type: 'POST',
+        dataType: "json",
+
+        data: '&item_id=' + item_id + '&order_product_id=' + order_product_id + '&serial=' + serial + '&confirm=' + conf,
+        success: function(msg) {
+            if (msg) {
+                if (msg['state'] == false && msg['message']) {
+                    if (msg['confirm']) {
+                        if (confirm(msg['message'])) {
+                            btn_bind_item_serial_for_group(_this, order_product_id, 1);
+                        }
+                    } else {
+                        alert(msg['message']);
+                    }
+                }
+                if (msg['disabled'] && msg['disabled'] == true) {
+                    $('#bind_item_serial-' + h_id).attr('disabled', true);
+                    $(_this).attr('disabled', true);
+                }
+                if (msg['class']) {
+                    $(_this).parents('tr.operation').attr('class', msg['class']);
+                }
+                if (msg['item_id']) {
+                    $('#bind_item_serial-' + h_id).val(msg['item_id'])
+                }
+                if (msg['state'] == true) {
+                    $(_this).hide();
+                }
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
 function btn_bind_item_serial(_this, order_product_id, conf) {
 
     $(_this).button('loading');

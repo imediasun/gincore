@@ -737,6 +737,37 @@ function show_suppliers_order(_this, id) {
   });
 }
 
+// привязать группу запчасть к заказу
+function bind_group_product(_this, product_id, order_id) {
+  $.ajax({
+    url: prefix + module + '/ajax/?act=bind-group-product-to-order',
+    type: 'POST',
+    data: 'product_id=' + product_id + (order_id?'&order_id='+order_id:''),
+    success: function (msg) {
+      var buttons = {};
+      if (msg['state'] == false && msg['message']) {
+        alert(msg['message'])
+      }
+      if (msg['state'] == true && msg['html']) {
+        buttons = {
+          main: {
+            label: "Закрыть",
+            className: "btn-primary",
+            callback: function () {
+              window.location.reload();
+              $(_this).button('reset');
+            }
+          }
+        };
+        dialog_box(_this, msg.title || '', msg.html, buttons);
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+}
+
 // привязать запчасть к заказу
 function bind_product(_this, product_id) {
   $.ajax({

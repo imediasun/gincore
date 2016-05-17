@@ -7,7 +7,8 @@
             <?= show_marked($item['order_id'], 'wso' . $type, $selected) ?>
             <?= show_marked($item['order_id'], 'woi', $selected_oi) ?>
         </td>
-        <td><span title="<?= do_nice_date($item['date_add'], false) ?>"> <?= do_nice_date($item['date_add']) ?></span></td>
+        <td><span title="<?= do_nice_date($item['date_add'], false) ?>"> <?= do_nice_date($item['date_add']) ?></span>
+        </td>
         <td>
             <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $item['goods_id'] ?>"> <?= htmlspecialchars($item['title']) ?></a>
             <i class="fa fa-arrows popover-info" data-content="<?= $state ?>"></i>
@@ -36,8 +37,13 @@
     <?php endif; ?>
     <td>
         <?php if ($type == 1 && $item['item_id'] == 0): ?>
-            <input class="btn btn-xs bind-button" type="button" value="Привязать"
-                   onclick="btn_bind_item_serial(this, '<?= $item['id'] ?>')" style=""/>
+            <?php if (isset($isGroup) && $isGroup): ?>
+                <input class="btn btn-xs bind-button" type="button" value="Привязать"
+                       onclick="btn_bind_item_serial_for_group(this, '<?= $item['id'] ?>')" style=""/>
+            <?php else: ?>
+                <input class="btn btn-xs bind-button" type="button" value="Привязать"
+                       onclick="btn_bind_item_serial(this, '<?= $item['id'] ?>')" style=""/>
+            <?php endif; ?>
         <?php endif; ?>
         <?php if ($type == 4 && $item['item_id'] > 0): ?>
             <input class="btn btn-xs" type="button" value="Отвязать" data-o_id="<?= $item['item_id'] ?>"

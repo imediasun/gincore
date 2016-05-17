@@ -100,7 +100,7 @@
                             $accept_data = ' data-o_id="' . $supplier_order['id'] . '"';
                             ?>
                             <?= l('Запчасть была принята') ?>
-                            <span title="' . do_nice_date($product['date_come'], false) . '">
+                            <span title="<?= do_nice_date($product['date_come'], false) ?>">
                                 <?= do_nice_date($product['date_come']) ?>
                             </span>
                             <?php if ($product['so_id'] > 0): ?>

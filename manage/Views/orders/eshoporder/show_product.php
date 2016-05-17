@@ -92,10 +92,12 @@
                                 </a>
                             <?php endif; ?>
                         <?php elseif ($product['count_debit'] > 0): ?>
-                            <?php
-                            $avail_bind = true;
-                            $bind_action = 'bind_product(this,' . $product['goods_id'] . ')';
-                            ?>
+                            <?php $avail_bind = true; ?>
+                            <?php if ($group && $quantity > 1): ?>
+                                <?php $bind_action = "bind_group_product(this,'{$hash}','{$product['order_id']}')"; ?>
+                            <?php else: ?>
+                                <?php $bind_action = "bind_product(this,'{$product['goods_id']}')"; ?>
+                            <?php endif; ?>
                             <?= l('Ожидание отгрузки запчасти') ?>
                             <span title="<?= do_nice_date($product['date_debit'], false) ?>">
                                 <?= do_nice_date($product['date_debit']) ?>
@@ -112,7 +114,7 @@
                             $accept_data = ' data-o_id="' . $supplier_order['id'] . '"';
                             ?>
                             <?= l('Запчасть была принята') ?>
-                            <span title="' . do_nice_date($product['date_come'], false) . '">
+                            <span title="<?= do_nice_date($product['date_come'], false) ?>">
                                 <?= do_nice_date($product['date_come']) ?>
                             </span>
                             <?php if ($product['so_id'] > 0): ?>

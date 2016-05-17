@@ -710,9 +710,10 @@ class Chains extends Object
      * @param      $type
      * @param      $serials
      * @param bool $compact
+     * @param bool $isGroup
      * @return string
      */
-    function show_stockman_operation($item, $type, $serials, $compact = false)
+    function show_stockman_operation($item, $type, $serials, $compact = false, $isGroup = false)
     {
         $global_class = null;
 
@@ -746,7 +747,8 @@ class Chains extends Object
             'selected_oi' => isset($selected_oi) ? $selected_oi : null,
             'state' => isset($state) ? $state : '',
             'controller' => $this,
-            'serials' => $serials
+            'serials' => $serials,
+            'isGroup' => $isGroup
         ));
     }
 
