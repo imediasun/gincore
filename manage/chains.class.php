@@ -901,7 +901,7 @@ class Chains extends Object
             }
 
             if ($product && $order) {
-                if($this->OrdersGoods->isHash($post['order_product_id'])) {
+                if ($this->OrdersGoods->isHash($post['order_product_id'])) {
                     $products = $this->all_configs['manageModel']->order_goods($order_id, 0);
                     $ids = $this->OrdersGoods->getProductsIdsByHash($products, $post['order_product_id']);
                 } else {
@@ -1435,7 +1435,7 @@ class Chains extends Object
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
 
             $items = array();
-            if (method_exists($OrderModel, 'getItems')) {
+            if (method_exists($OrderModel, 'getAvailableItems')) {
                 $items = $this->prepareEshopSoldItems($OrderModel->getAvailableItems(array_values($post['item_ids'])),
                     $post['item_ids'],
                     $post['amount']);
@@ -1447,10 +1447,10 @@ class Chains extends Object
                 foreach ($items as $item) {
                     if (isset($cart[$item['id']]['quantity'])) {
                         $this->addSpares(array($item), $order['id'], $mod_id);
-                    }
-                    $cart[$item['id']]['quantity'] -= 1;
-                    if ($cart[$item['id']]['quantity'] == 0) {
-                        unset($cart[$item['id']]);
+                        $cart[$item['id']]['quantity'] -= 1;
+                        if ($cart[$item['id']]['quantity'] == 0) {
+                            unset($cart[$item['id']]);
+                        }
                     }
                 }
             }
@@ -1667,17 +1667,6 @@ class Chains extends Object
                     GROUP BY i.supplier_order_id ORDER BY free_items DESC, i.date_add LIMIT 1',
                         array($product['goods_id'], $query))->row();
 
-                    if (isset($post['append']) && $post['append'] && (!$free_order || $free_order['id'] == 0)) {
-                        // ищем заказ со для текущего ордера
-                        $free_order = $this->all_configs['db']->query('SELECT o.*, -1 as free_items
-                        FROM {contractors_suppliers_orders} as o
-                        WHERE o.goods_id=?i AND unavailable=0 AND avail=1 AND o.count_debit=0 AND o.warehouse_type=?i
-                         AND o.id IN (SELECT supplier_order_id FROM {orders_suppliers_clients} WHERE client_order_id=?i)
-                        GROUP BY o.id 
-                        ORDER BY o.count_debit DESC, o.date_wait DESC LIMIT 1',
-                            array($product['goods_id'], $product['warehouse_type'], $order_id))->row();
-                    }
-
                     if (!$free_order || $free_order['free_items'] == 0 || $free_order['id'] == 0) {
                         // ищем заказ со свободным местом для заявки
                         $free_order = $this->all_configs['db']->query('SELECT o.*, IF(o.count_come>0, o.count_come, o.count) -
@@ -1688,6 +1677,17 @@ class Chains extends Object
                         GROUP BY o.id HAVING free_items>0 OR o.supplier IS NULL
                         ORDER BY o.count_debit DESC, o.date_wait, free_items DESC LIMIT 1',
                             array($product['goods_id'], $product['warehouse_type'], $query))->row();
+                    }
+
+                    if (isset($post['append']) && $post['append'] && (!$free_order || $free_order['id'] == 0)) {
+                        // ищем заказ со для текущего ордера
+                        $free_order = $this->all_configs['db']->query('SELECT o.*, -1 as free_items
+                        FROM {contractors_suppliers_orders} as o
+                        WHERE o.goods_id=?i AND unavailable=0 AND avail=1 AND o.count_debit=0 AND o.warehouse_type=?i
+                         AND o.id IN (SELECT supplier_order_id FROM {orders_suppliers_clients} WHERE client_order_id=?i)
+                        GROUP BY o.id 
+                        ORDER BY o.count_debit DESC, o.date_wait DESC LIMIT 1',
+                            array($product['goods_id'], $product['warehouse_type'], $order_id))->row();
                     }
 
                     if ($free_order && $free_order['id'] > 0) {
@@ -2872,7 +2872,7 @@ class Chains extends Object
 // добавляем запчасти
         foreach ($items as $item) {
             $arr = array(
-                'confirm' => 0,
+                'confirm' => isset($item['confirm'])?$item['confirm']:0,
                 'order_id' => isset($orderId) ? $orderId : 0,
                 'product_id' => $item['goods_id'],
                 'price' => $item['price'],
