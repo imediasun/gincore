@@ -1336,7 +1336,7 @@ function update_order_status($order, $new_status)
     $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
     $mod_id = $all_configs['configs']['orders-manage-page'];
 
-    if (isset($order['id']) && isset($all_configs['configs']['order-status'][$new_status]) && $order['id'] > 0 && (!isset($order['status']) || $new_status != $order['status'])) {
+    if (isset($order['id']) && (isset($all_configs['configs']['order-status'][$new_status]) || isset($all_configs['configs']['sale-order-status'][$new_status]))&& $order['id'] > 0 && (!isset($order['status']) || $new_status != $order['status'])) {
 
         $return['state'] = true;
         if (in_array($new_status, $all_configs['configs']['order-statuses-orders'])) {
@@ -1608,6 +1608,7 @@ function h($string) {
 function price_with_discount($product) {
     return $product['discount_type'] == DISCOUNT_TYPE_PERCENT? ($product['price'] / 100) * (1 - $product['discount']/100): ($product['price'] / 100 - $product['discount']);
 }
-function sum_with_discount($product) {
-    return price_with_discount($product)  * $product['count'];
+function sum_with_discount($product, $quantity = 0) {
+    $count = $quantity > 0? $quantity: $product['count'];
+    return price_with_discount($product)  * $count;
 }

@@ -83,7 +83,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="#" onclick="quick_sale(this, 'print_check'); return false;">
+                                <a href="#" onclick="quick_sale(this, 'print_invoice'); return false;">
                                     <?= l('Добавить и распечатать чек') ?>
                                 </a>
                             </li>
@@ -94,7 +94,7 @@
                             </li>
                             <li>
                                 <a href="#"
-                                   onclick="quick_sale(this, 'print_invoice'); return false;">
+                                   onclick="quick_sale(this, 'print_waybill'); return false;">
                                     <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
                                 </a>
                             </li>

@@ -35,12 +35,12 @@
             <div class="div-tfoot">
                 <div class="div-table-row">
                     <div class="div-table-col span12">
-                        <textarea placeholder="<?= l('Данный комментарий виден клиенту на сайте') ?>" class="form-control" name="public_comment"></textarea>
+                        <textarea readonly placeholder="<?= l('Данный комментарий виден клиенту на сайте') ?>" class="form-control" name="public_comment"></textarea>
                     </div>
                 </div>
                 <div class="div-table-row">
                     <div class="div-table-col span12">
-                        <input name="add_public_comment" data-alert_box_not_disabled="true" class="btn btn-sm" value="<?= l('Добавить') ?>" type="submit">
+                        <input name="add_public_comment" disabled data-alert_box_not_disabled="true" class="btn btn-sm disabled" value="<?= l('Добавить') ?>" type="submit">
                     </div>
                 </div>
             </div>

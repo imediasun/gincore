@@ -48,7 +48,7 @@
     <td><?= htmlspecialchars($order['o_fio']) ?></td>
     <td><?= $order['o_phone'] ?></td>
     <?php if ($order['sale_type'] == SALE_TYPE_ESHOP): ?>
-        <td title="<?= $helper->getCommentsTooltip($order['order_id']) ?>">
+        <td style="word-wrap:break-word; max-width: 150px" title="<?= $helper->getCommentsTooltip($order['order_id']) ?>">
             <?= h($helper->getLastComment($order['order_id'])) ?>
         </td>
     <?php else: ?>

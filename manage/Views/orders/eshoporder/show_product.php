@@ -37,7 +37,7 @@
     </td>
     <td class="col-sm-1">
         <input readonly class="form-control global-typeahead input-medium popover-info disable"
-               type="text" value="<?= sum_with_discount($product) ?>"/>
+               type="text" value="<?= sum_with_discount($product, $quantity) ?>"/>
     </td>
     <td class="col-sm-1" style="min-width: 110px">
         <?= $this->renderFile('orders/eshoporder/_warranty_select', array(
@@ -48,7 +48,7 @@
     <td class="col-sm-1">
         <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
             <i title="<?= l('удалить') ?>" class="glyphicon glyphicon-remove remove-product"
-               onclick="order_products(this, <?= $product['goods_id'] ?>, <?= $product['id'] ?>, 1, 1, 1)"></i>
+               onclick="order_products(this, <?= $product['goods_id'] ?>, '<?= $product['id'] ?>', 1, 1, 1)"></i>
         <?php endif; ?>
     </td>
 

@@ -864,11 +864,77 @@ class Chains extends Object
     /**
      * @param      $post
      * @param      $mod_id
+     * @return array
+     * @internal param null $order_class
+     * @internal param bool $appendToSuppliersOrder
+     */
+    public function remove_product_order($post, $mod_id)
+    {
+        $data = array('state' => true);
+        try {
+            $order_id = isset($post['order_id']) ? $post['order_id'] : ($this->all_configs['arrequest'][2] ? $this->all_configs['arrequest'][2] : 0);
+            $product = null;
+
+            $order = $this->Orders->getByPk($order_id);
+
+            if (empty($order)) {
+                throw new ExceptionWithMsg('Заказ не найден');
+            }
+            if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')
+                && !$this->all_configs['oRole']->hasPrivilege('scanner-moves')
+            ) {
+                throw new ExceptionWithMsg('У Вас недостаточно прав');
+            }
+            if (in_array($order['status'], $this->all_configs['configs']['order-statuses-orders'])) {
+                throw new ExceptionWithMsg(l('Вы не можете добавить или удалить запчасть/работу из закрытого заказа. Предварительно измение его статус.'));
+            }
+            if ((!isset($post['product_id']) || $post['product_id'] == 0)) {
+                throw new ExceptionWithMsg('Выберите товар');
+            }
+            $product = $this->all_configs['db']->query(
+                'SELECT g.id as goods_id, g.* FROM {goods} as g WHERE g.id=?i AND g.avail=?i',
+                array($post['product_id'], 1))->row();
+            if (!$product && !isset($post['remove'])) {
+                throw new ExceptionWithMsg(l('Товар не активен.') . ' ' . l('Зайдите в товар и поставьте галочку "активность"'));
+            }
+
+            if ($product && $order) {
+                if($this->OrdersGoods->isHash($post['order_product_id'])) {
+                    $products = $this->all_configs['manageModel']->order_goods($order_id, 0);
+                    $ids = $this->OrdersGoods->getProductsIdsByHash($products, $post['order_product_id']);
+                } else {
+                    $ids = array(
+                        $post['order_product_id']
+                    );
+                }
+                foreach ($ids as $id) {
+                    $post['order_product_id'] = $id;
+                    $data = $this->removeSpareOrder($post, $order, $data, $mod_id);
+                }
+                // сумма товаров
+                $this->Orders->setOrderSum($order, $mod_id);
+                $data['product-total'] = $this->all_configs['db']->query(
+                        'SELECT SUM(`count` * price) FROM {orders_goods} WHERE order_id=?i',
+                        array($order_id))->el() / 100;
+            }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'msg' => $e->getMessage(),
+                'state' => false
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param      $post
+     * @param      $mod_id
      * @param null $order_class
      * @param bool $appendToSuppliersOrder
      * @return array
      */
-    public function add_product_order($post, $mod_id, $order_class = null, $appendToSuppliersOrder= false)
+    public function add_product_order($post, $mod_id, $order_class = null, $appendToSuppliersOrder = false)
     {
         $data = array('state' => true);
         try {
@@ -1357,8 +1423,8 @@ class Chains extends Object
             $post['sale_type'] = SALE_TYPE_ESHOP;
             $post['price'] = $this->priceCalculate($post['sum']);
             $cart = $this->prepareCartInfo($post);
-            if(empty($cart)) {
-               throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
+            if (empty($cart)) {
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
@@ -1387,7 +1453,6 @@ class Chains extends Object
                 }
             }
             if (!empty($cart)) {
-                $setStatus = $this->all_configs['configs']['order-status-waits'];
                 $this->addProducts($cart, $order['id'], $mod_id);
             }
 
@@ -1398,7 +1463,7 @@ class Chains extends Object
                 'location' => $this->all_configs['prefix'] . 'orders/create/' . $order['id'],
                 'id' => $order['id']
             );
-            if(isset($post['next'])) {
+            if (isset($post['next'])) {
                 $data = $this->andPrint($post['next'], $data, $client);
             }
         } catch (ExceptionWithMsg $e) {
@@ -1431,7 +1496,7 @@ class Chains extends Object
     public function quick_sold_items($post, $mod_id)
     {
         $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000002" LIMIT 1')->el();
-        if(empty($post['client_id'])) {
+        if (empty($post['client_id'])) {
             $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
         }
         $post['clients'] = $post['client_id'];
@@ -1473,7 +1538,7 @@ class Chains extends Object
      */
     protected function priceCalculate($prices)
     {
-        if(empty($prices)) {
+        if (empty($prices)) {
             return 0;
         }
         return array_reduce($prices, function ($carry, $item) {
@@ -1493,7 +1558,7 @@ class Chains extends Object
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
-            if(isset($post['auto-cash']) && $post['auto-cash'] == 'on'  && empty($post['cashbox'])) {
+            if (isset($post['auto-cash']) && $post['auto-cash'] == 'on' && empty($post['cashbox'])) {
                 throw new ExceptionWithMsg(l('Выберите кассу, в которую вносить оплату'));
             }
             $client = $this->Clients->getClient($post);
@@ -1513,11 +1578,11 @@ class Chains extends Object
                 'location' => $this->all_configs['prefix'] . 'orders/create/' . $order['id'],
                 'id' => $order['id']
             );
-            if(isset($post['next'])) {
+            if (isset($post['next'])) {
                 $data = $this->andPrint($post['next'], $data, $client);
             }
 
-            if(isset($post['auto-cash']) && $post['auto-cash'] == 'on'  && !empty($post['cashbox'])) {
+            if (isset($post['auto-cash']) && $post['auto-cash'] == 'on' && !empty($post['cashbox'])) {
                 $this->create_transaction(Array
                 (
                     'transaction_type' => 2,
@@ -1600,7 +1665,7 @@ class Chains extends Object
                     GROUP BY i.supplier_order_id ORDER BY free_items DESC, i.date_add LIMIT 1',
                         array($product['goods_id'], $query))->row();
 
-                    if(isset($post['append']) && $post['append'] && (!$free_order || $free_order['id'] == 0)) {
+                    if (isset($post['append']) && $post['append'] && (!$free_order || $free_order['id'] == 0)) {
                         // ищем заказ со для текущего ордера
                         $free_order = $this->all_configs['db']->query('SELECT o.*, -1 as free_items
                         FROM {contractors_suppliers_orders} as o
@@ -2146,7 +2211,7 @@ class Chains extends Object
             'goods_id' => $goods_id,
             '`type`' => $type
         );
-        if(!empty($supplier_order_id)) {
+        if (!empty($supplier_order_id)) {
             $data['supplier_order_id'] = $supplier_order_id;
         }
         if (!empty($order_goods_id)) {
@@ -2774,15 +2839,15 @@ class Chains extends Object
             'clients' => $clientId,
             'type' => 3,
             'categories-last' => $this->all_configs['configs']['erp-co-category-sold'],
-            'sum_paid' => intval($post['price']),
             'soldings' => true,
             'manager' => $userId,
             'warranty' => intval($post['warranty']),
             'cashless' => isset($post['cashless']) ? trim($post['cashless']) : '',
             'sale_type' => isset($post['sale_type']) ? $post['sale_type'] : 0,
             'delivery_by' => isset($post['delivery_by']) ? $post['delivery_by'] : 0,
-            'delivery_to' =>  isset($post['delivery_to']) ? $post['delivery_to'] : '',
-            'total_as_sum' =>  isset($post['total_as_sum']) ? $post['total_as_sum'] : 0,
+            'delivery_to' => isset($post['delivery_to']) ? $post['delivery_to'] : '',
+            'total_as_sum' => isset($post['total_as_sum']) ? $post['total_as_sum'] : 0,
+            'private_comment' => isset($post['private_comment']) ? $post['private_comment'] : ''
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -3101,7 +3166,7 @@ class Chains extends Object
         );
         $this->move_item_request($post, $mod_id);
 
-        if(!empty($next)) {
+        if (!empty($next)) {
             $data = $this->andPrint($next, $data, $client);
         }
 
@@ -3192,7 +3257,7 @@ class Chains extends Object
             '`type`' => (int)$product['type'],
             'warranty' => isset($post['warranty']) ? $post['warranty'] : 0,
             'discount' => isset($post['discount']) ? $post['discount'] : 0,
-            'discount_type' => isset($post['discount_type'])? $post['discount_type']: 1
+            'discount_type' => isset($post['discount_type']) ? $post['discount_type'] : 1
         );
 
         // пытаемся добавить товар
@@ -3236,7 +3301,6 @@ class Chains extends Object
     {
         $status = update_order_status(array(
             'id' => $order['id'],
-            'status' => $this->all_configs['configs']['order-status-new']
         ), $setStatus);
         if (empty($status) || $status['state'] != 1) {
             if (!isset($status['closed']) || $status['closed'] == false) {

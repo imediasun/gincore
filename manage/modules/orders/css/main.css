@@ -621,8 +621,15 @@ input.visible-price {
 table.cart-table > tbody > tr > td,
 table.quick-table-items  > tbody > tr > td,
 table.eshop-table-items  > tbody > tr > td,
-table.cart-table > tbody >tr >td{
+table.cart-table > tbody >tr >td,
+table.cart-table > tfoot >tr >td{
     padding: 5px 5px 5px 0;
+}
+table.cart-table > tfoot >tr >td{
+    border: none;
+}
+table.cart-table > tfoot >tr:first-child >td{
+    padding-top: 40px;
 }
 table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > tr > td{
     padding: 5px 5px 5px 0;
@@ -679,4 +686,7 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 }
 .items-group {
     background-color: #f7f7f7;
+}
+.input-group.input-group-sm {
+    max-width: 280px;
 }

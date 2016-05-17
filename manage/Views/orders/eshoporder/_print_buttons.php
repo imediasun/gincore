@@ -10,7 +10,7 @@
                     <label>
                         <input type="checkbox" name="print[]"
                                value="<?= print_link($order['id'], 'waybill', '', true) ?>">
-                        <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
+                        <?= l('Накладная на отгрузку товара') ?>
                     </label>
                 </div>
             </li>

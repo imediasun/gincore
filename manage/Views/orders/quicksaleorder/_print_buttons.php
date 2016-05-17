@@ -9,8 +9,8 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="print[]"
-                               value="<?= print_link($order['id'], 'check', '', true) ?>">
-                        <?= l('Добавить и распечатать чек') ?>
+                               value="<?= print_link($order['id'], 'invoice', '', true) ?>">
+                        <?= l('Чек') ?>
                     </label>
                 </div>
             </li>
@@ -19,7 +19,7 @@
                     <label>
                         <input type="checkbox" name="print[]"
                                value="<?= print_link($order['id'], 'sale_warranty', '', true) ?>">
-                        <?= l('Добавить и распечатать чек и гарантийный талон') ?>
+                        <?= l('Гарантийный талон') ?>
                     </label>
                 </div>
             </li>
@@ -27,8 +27,8 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="print[]"
-                               value="<?= print_link($order['id'], 'invoice', '', true) ?>">
-                        <?= l('Добавить и распечатать накладную на отгрузку товара') ?>
+                               value="<?= print_link($order['id'], 'waybill', '', true) ?>">
+                        <?= l('Накладная на отгрузку товара') ?>
                     </label>
                 </div>
             </li>

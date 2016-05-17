@@ -1653,32 +1653,12 @@ class orders extends Controller
     }
 
     /**
-     * @param $product
-     * @return string
-     */
-    public function calculateHash($product)
-    {
-        $string = $product['goods_id'] . $product['price'] . $product['discount'] . $product['url'] . $product['item_id'] . $product['warranty'] . $product['discount_type'] . $product['so_id'];
-        return md5($string);
-    }
-    
-    /**
      * @param $products
      * @return array
      */
     public function productsGroup($products)
     {
-        $result = array();
-        foreach ($products as $product) {
-            $hash = $this->calculateHash($product);
-            if (empty($result[$hash])) {
-                $result[$hash] = $product;
-                $result[$hash]['id'] = $hash;
-                $result[$hash]['group'] = array();
-            }
-            $result[$hash]['group'][] = $product;
-        }
-        return $result;
+        return $this->OrdersGoods->productsGroup($products);
     }
 
     /**
@@ -1688,13 +1668,7 @@ class orders extends Controller
      */
     public function getProductsIdsByHash($products, $hash)
     {
-        $result = array();
-        foreach ($products as $product) {
-            if($hash == $this->calculateHash($product)) {
-               $result[] =  $product['id'];
-            };
-        }
-        return $result;
+        return $this->OrdersGoods->getProductsIdsByHash($products, $hash);
     }
 
     /**
@@ -2245,6 +2219,9 @@ class orders extends Controller
         // добавляем новый товар к заказу выводя его в таблицу
         if ($act == 'add_product') {
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
+        }
+        if ($act == 'remove_product') {
+            $data = $this->all_configs['chains']->remove_product_order($_POST, $mod_id);
         }
 
         Response::json($data);
@@ -3074,8 +3051,8 @@ class orders extends Controller
             asort($_POST['product']);
             $products = $this->all_configs['manageModel']->order_goods($orderId, 0);
             foreach ($_POST['product'] as $key => $values) {
-                if ($this->isHash($key)) {
-                    $ids = $this->getProductsIdsByHash($products, $key);
+                if ($this->OrdersGoods->isHash($key)) {
+                    $ids = $this->OrdersGoods->getProductsIdsByHash($products, $key);
                 } else {
                     $ids = array($key);
                 }
@@ -3128,14 +3105,5 @@ class orders extends Controller
             $this->all_configs['chains']->addProducts($post, $order['id'], $mod_id);
         }
         return $order;
-    }
-
-    /**
-     * @param $key
-     * @return bool
-     */
-    private function isHash($key)
-    {
-        return strlen($key) == 32;
     }
 }

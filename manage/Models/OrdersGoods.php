@@ -52,6 +52,60 @@ class MOrdersGoods extends AModel
     }
 
     /**
+     * @param $key
+     * @return bool
+     */
+    public function isHash($key)
+    {
+        return strlen($key) == 32;
+    }
+
+    /**
+     * @param $product
+     * @return string
+     */
+    public function calculateHash($product)
+    {
+        $string = $product['goods_id'] . $product['price'] . $product['discount'] . $product['url'] . $product['item_id'] . $product['warranty'] . $product['discount_type'] . $product['so_id'];
+        return md5($string);
+    }
+
+    /**
+     * @param $products
+     * @return array
+     */
+    public function productsGroup($products)
+    {
+        $result = array();
+        foreach ($products as $product) {
+            $hash = $this->calculateHash($product);
+            if (empty($result[$hash])) {
+                $result[$hash] = $product;
+                $result[$hash]['id'] = $hash;
+                $result[$hash]['group'] = array();
+            }
+            $result[$hash]['group'][] = $product;
+        }
+        return $result;
+    }
+
+    /**
+     * @param $products
+     * @param $hash
+     * @return array
+     */
+    public function getProductsIdsByHash($products, $hash)
+    {
+        $result = array();
+        foreach ($products as $product) {
+            if($hash == $this->calculateHash($product)) {
+                $result[] =  $product['id'];
+            };
+        }
+        return $result;
+    }
+
+    /**
      * @return array
      */
     public function columns()
