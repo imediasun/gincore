@@ -50,14 +50,14 @@
                         <div class="form-group">
                             <label><?= l('Логин') ?> <b class="text-danger">*</b>:</label>
                             <input class="form-control"
-                                   value="<?= (isset($form_data['login']) ? htmlspecialchars($form_data['login']) : '') ?>"
+                                   value="<?= (isset($form_data['login']) ? h($form_data['login']) : '') ?>"
                                    name="login"
                                    placeholder="<?= l('введите логин') ?>">
                         </div>
                         <div class="form-group">
                             <label><?= l('E-mail') ?> <b class="text-danger">*</b>:</label>
                             <input class="form-control"
-                                   value="<?= (isset($form_data['email']) ? htmlspecialchars($form_data['email']) : '') ?>"
+                                   value="<?= (isset($form_data['email']) ? h($form_data['email']) : '') ?>"
                                    name="email"
                                    placeholder="<?= l('введите e-mail') ?>">
                         </div>
@@ -75,20 +75,20 @@
                         <div class="form-group">
                             <label><?= l('ФИО') ?>:</label>
                             <input class="form-control"
-                                   value="<?= (isset($form_data['fio']) ? htmlspecialchars($form_data['fio']) : '') ?>"
+                                   value="<?= (isset($form_data['fio']) ? h($form_data['fio']) : '') ?>"
                                    name="fio"
                                    placeholder="<?= l('введите фио') ?>">
                         </div>
                         <div class="form-group">
                             <label><?= l('Должность') ?></label>
                             <input class="form-control"
-                                   value="<?= (isset($form_data['position']) ? htmlspecialchars($form_data['position']) : '') ?>"
+                                   value="<?= (isset($form_data['position']) ? h($form_data['position']) : '') ?>"
                                    name="position" placeholder="<?= l('введите должность') ?>">
                         </div>
                         <div class="form-group">
                             <label><?= l('Телефон') ?></label>
                             <input onkeydown="return isNumberKey(event)" class="form-control"
-                                   value="<?= (isset($form_data['phone']) ? htmlspecialchars($form_data['phone']) : '') ?>"
+                                   value="<?= (isset($form_data['phone']) ? h($form_data['phone']) : '') ?>"
                                    name="phone"
                                    placeholder="<?= l('введите телефон') ?>">
                         </div>
@@ -170,6 +170,40 @@
                                         'roles' => $roles,
                                         'form_data' => $form_data
                                     )) ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        <?= l('Зарплата от прибыли с заказов за ремонт') ?>
+                                        <i class="fa fa-question-circle" aria-hidden="true" style="color:grey" title="<?= l('Прибыль с заказа на ремонт - разница между суммой оплаченной за заказ и себестоимостью использованных запчастей')?>"></i>
+                                    </label><br>
+                                </div>
+
+                            </td>
+                            <td class="col-sm-6">
+                                <div class="input-group col-sm-3">
+                                    <input type="text" class="form-control" value="<?= (isset($form_data['salary_from_repair']) ? h($form_data['salary_from_repair']) : '') ?>" name="salary_from_repair" aria-describedby="basic-addon1"/>
+                                    <span class="input-group-addon" id="basic-addon1">%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        <?= l('Зарплата от прибыли с продаж') ?>
+                                        <i class="fa fa-question-circle" aria-hidden="true" style="color:grey" title="<?= l('Подразумевается операционная прибыль (разница между ценой закупки и ценой продажи изделия)')?>"></i>
+                                    </label><br>
+                                </div>
+
+                            </td>
+                            <td class="col-sm-6">
+                                <div class="input-group col-sm-3">
+                                    <input type="text" class="form-control" value="<?= (isset($form_data['salary_from_sale']) ? h($form_data['salary_from_sale']) : '') ?>" name="salary_from_sale" aria-describedby="basic-addon2"/>
+                                    <span class="input-group-addon" id="basic-addon2">%</span>
                                 </div>
                             </td>
                         </tr>

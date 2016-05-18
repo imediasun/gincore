@@ -93,3 +93,8 @@ ALTER TABLE `restore4_orders_goods` ADD COLUMN warranty int(10) UNSIGNED DEFAULT
 ALTER TABLE `restore4_orders` ADD COLUMN delivery_by int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_orders` ADD COLUMN sale_type int(10) UNSIGNED DEFAULT 0;
 
+/*
+2016_05_18_090846_add_salary_to_users.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN salary_from_sale int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD COLUMN salary_from_repair int(10) UNSIGNED DEFAULT 0;
