@@ -1012,7 +1012,7 @@ class Chains extends Object
                             'update-order-cart',
                             $mod_id,
                             $order['id'],
-                            l('Добавлен') . ' ' . $product['goods_id']
+                            l('Добавлен') . ' ' . $product['title']
                         );
                         if ($product && $order_class) {
                             // выводим
@@ -2440,7 +2440,7 @@ class Chains extends Object
      */
     public function order_status($active)
     {
-        return $this->view->renderFile('chains.class/order-status', array(
+        return $this->view->renderFile('chains.class/order_status', array(
             'orderStates' => $this->all_configs['configs']['order-status'],
             'active' => $active
         ));
@@ -2719,7 +2719,7 @@ class Chains extends Object
 
         }
 
-        return $this->view->renderFile('cahins.class/stock_moves', array(
+        return $this->view->renderFile('chains.class/stock_moves', array(
             'moves' => $moves
         ));
     }
@@ -3210,13 +3210,13 @@ class Chains extends Object
     {
         $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
         $close_supplier_order = isset($post['close_supplier_order']) && $post['close_supplier_order'];
-        $good = $this->OrdersGoods->getByPk($order_product_id);
+        $good = $this->OrdersGoods->getWithTitle($order_product_id);
         $result = $this->OrdersGoods->remove($order_product_id, $order, $close_supplier_order);
         $this->History->save(
             'update-order-cart',
             $mod_id,
             $order['id'],
-            l('Удален') . ' ' . $good['goods_id']
+            l('Удален') . ' ' . $good['title']
         );
         if (isset($result['reload'])) {
             $data['reload'] = 1;
