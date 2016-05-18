@@ -368,6 +368,7 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.wh_id>0 AND o.count_come > 0 AND o.count_come <> o.count_debit',
                 array($query));
         }
+
         if ((isset($filters['opened']) && $filters['opened'] == true) || (isset($filters['fco']) && $filters['fco'] == 'unworked')) {
             if (!array_key_exists('manage-qty-so-only-debit', $this->all_configs['configs'])
                 || $this->all_configs['configs']['manage-qty-so-only-debit'] == false
@@ -701,6 +702,18 @@ class manageModel
                         ?query AND b.type IN (?li)',
                     array($query, array_values($filters['bodies'])));
             }
+        }
+        if (isset($filters['selfdelivery'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.delivery_by=?i ',
+                array($query, DELIVERY_BY_SELF));
+        }
+        if (isset($filters['cashless'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.cashless=1 ',
+                array($query));
+        }
+        if (isset($filters['courier'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.delivery_by=?i ',
+                array($query, DELIVERY_BY_COURIER));
         }
 
         return array(

@@ -22,9 +22,9 @@ class MOrders extends AModel
     public function getDeliveryByList()
     {
         return array(
-            1 => l('Самовывоз'),
-            2 => l('Курьером'),
-            3 => l('Почтой')
+            DELIVERY_BY_SELF => l('Самовывоз'),
+            DELIVERY_BY_COURIER => l('Курьером'),
+            DELIVERY_BY_POST => l('Почтой')
         );
     }
 

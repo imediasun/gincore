@@ -1,6 +1,7 @@
 <form method="post" action="<?= $link ?>" class="">
     <div class="clearfix theme_bg filters-box p-sm m-b-md">
         <div class="row row-15">
+            <input type="hidden" name="sale-order"/>
             <div class="col-sm-2 b-r">
                 <div class="btn-group-vertical">
                     <a class="btn btn-default <?= (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') ?> text-left"
@@ -12,12 +13,6 @@
                             <?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?fco=unworked">
                         <?= l('Необработано') ?>: <span
                             id="count-clients-untreated-orders"><?= $count_unworked ?></span>
-                    </a>
-                    <a class="btn btn-default <?= (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') ?> text-left"
-                       href="
-                            <?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?marked=co#show_orders">
-                        <?= l('Отмеченные') ?>: <span class="icons-marked star-marked-active"> </span> <span
-                            id="count-marked-co"><?= $count_marked ?></span>
                     </a>
                 </div>
                 <br><br>
@@ -38,9 +33,6 @@
                            value="<?= (isset($_GET['co_id']) && $_GET['co_id'] > 0 ? intval($_GET['co_id']) : '') ?>"
                            type="text" class="form-control" placeholder="<?= l('номер заказа') ?>">
                 </div>
-                <input type="text" name="serial" class="form-control"
-                       value="<?= (isset($_GET['serial']) ? $_GET['serial'] : '') ?>"
-                       placeholder="<?= l('Серийный номер') ?>">
             </div>
             <div class="col-sm-3 b-r">
                 <?= typeahead($this->all_configs['db'], 'categories-last', true,
@@ -51,12 +43,12 @@
                     false, false, '', false, l('Запчасть')) ?>
                 <div class="checkbox">
                     <label><input type="checkbox"
-                                  name="np" <?= (isset($_GET['np']) ? 'checked' : '') ?> /><?= l('Принято через почту') ?>
+                                  name="courier" <?= (isset($_GET['np']) ? 'courier' : '') ?> /><?= l('Курьером') ?>
                     </label>
                 </div>
                 <div class="checkbox">
                     <label><input type="checkbox"
-                                  name="rf" <?= (isset($_GET['rf']) ? 'checked' : '') ?> /><?= l('Выдан подменный фонд') ?>
+                                  name="selfdelivery" <?= (isset($_GET['selfdelivery']) ? 'checked' : '') ?> /><?= l('Самовывоз') ?>
                     </label>
                 </div>
                 <div class="checkbox">
@@ -66,55 +58,19 @@
                 </div>
                 <div class="checkbox">
                     <label><input type="checkbox"
-                                  name="ar" <?= (isset($_GET['ar']) ? 'checked' : '') ?> /><?= l('Принимались на доработку') ?>
+                                  name="cashless" <?= (isset($_GET['cashless']) ? 'checked' : '') ?> /><?= l('Только безнал') ?>
                     </label>
                 </div>
             </div>
             <div class="col-sm-2 b-r">
-                <div>
-                    <div class="input-group">
-                        <p class="form-control-static"><?= l('Инженер') ?>:</p>
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]"
-                                        multiple="multiple">
-                                    <?php foreach ($engineers as $engineer): ?>
-                                        <option <?= ((isset($_GET['eng']) && in_array($engineer['id'],
-                                                explode(',', $_GET['eng']))) ? 'selected' : ''); ?>
-                                            value="<?= $engineer['id'] ?>">
-                                            <?= htmlspecialchars($engineer['name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </span>
-                    </div>
-                </div>
                 <?= $filter_manager ?>
-                <div>
-                    <div class="input-group">
-                        <p class="form-control-static"><?= l('Приемщик') ?>:</p>
-                            <span class="input-group-btn">
-                                <select
-                                    data-numberDisplayed="0" <?= ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
-                                    ? 'disabled' : '') ?> class="multiselect btn-sm" name="accepter[]"
-                                    multiple="multiple">
-                                    <?php foreach ($accepters as $accepter): ?>
-                                        <?php $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'],
-                                                    explode(',', $_GET['acp'])))) ? 'selected' : ''; ?>
-                                        <option <?= $selected ?> value="<?= $accepter['id'] ?>">
-                                            <?= htmlspecialchars($accepter['name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </span>
-                    </div>
-                </div>
                 <div>
                     <div class="input-group">
                         <p class="form-control-static"><?= l('Статус') ?>:</p>
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]"
                                         multiple="multiple">
-                                    <?php foreach ($this->all_configs['configs']['order-status'] as $os_id => $os_v): ?>
+                                    <?php foreach ($this->all_configs['configs']['sale-order-status'] as $os_id => $os_v): ?>
                                         <option <?= ((isset($_GET['st']) && in_array($os_id,
                                                 explode(',', $_GET['st']))) ? 'selected' : ''); ?>
                                             value="<?= $os_id ?>">
@@ -129,7 +85,7 @@
             <div class="col-sm-3" style="overflow:hidden">
                 <?php if (!empty($wfs)): ?>
                     <?php $sw = isset($_GET['wh']) ? explode(',', $_GET['wh']) : array(); ?>
-                    <ul class="nav nav-list well" id="tree">
+                    <ul class="nav nav-list well tree" id="tree">
                         <?php foreach ($wfs['groups'] as $wf): ?>
                             <li>
                                 <label class="checkbox">

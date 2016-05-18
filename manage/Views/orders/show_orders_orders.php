@@ -1,3 +1,4 @@
+<div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
 <?php if ($orders && count($orders) > 0): ?>
     <table class="table table-striped">
         <thead>
@@ -36,3 +37,9 @@
 <?php else: ?>
     <div class="span9"><p class="text-danger"><?= l('Заказов не найдено') ?></p></div>
 <?php endif; ?>
+<script>
+    jQuery(document).ready(function(){
+        $('.multiselect').multiselect();
+        $("#tree").Tree();
+    });
+</script>

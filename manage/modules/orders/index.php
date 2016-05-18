@@ -82,215 +82,155 @@ class orders extends Controller
         // фильтруем заказы клиентов
         if (isset($post['filter-orders'])) {
 
-            $url = '';
+            $url = array();
 
             // фильтр по дате
             if (isset($post['date']) && !empty($post['date'])) {
                 list($df, $dt) = explode('-', $post['date']);
-                $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
+                $url[] = 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
             }
 
             if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям товаров
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'g_cg=' . intval($post['categories']);
+                $url[] = 'g_cg=' . intval($post['categories']);
             }
 
             if (isset($post['np'])) {
                 // фильтр принято через нп
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'np=1';
+                $url[] = 'np=1';
             }
 
             if (isset($post['wh-kiev'])) {
                 // фильтр киев
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'whk=1';
+                $url[] = 'whk=1';
             }
 
             if (isset($post['wh-abroad'])) {
                 // фильтр заграница
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'wha=1';
+                $url[] = 'wha=1';
             }
 
             if (isset($post['noavail'])) {
                 // фильтр не активные
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'avail=0';
+                $url[] = 'avail=0';
             }
 
             if (isset($post['rf'])) {
                 // фильтр выдан подменный фонд
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'rf=1';
+                $url[] = 'rf=1';
             }
 
             if (isset($post['nm'])) {
                 // не оплаченные
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'nm=1';
+                $url[] = 'nm=1';
             }
 
             if (isset($post['ar'])) {
                 // принимались на доработку
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'ar=1';
+                $url[] = 'ar=1';
             }
 
             if (isset($post['order_id']) && $post['order_id'] > 0) {
                 // фильтр по id
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'co_id=' . intval($post['order_id']);
+                $url[] = 'co_id=' . intval($post['order_id']);
             }
 
             if (isset($post['categories-last']) && $post['categories-last'] > 0) {
                 // фильтр по категориям (устройство)
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'dev=' . intval($post['categories-last']);
+                $url[] = 'dev=' . intval($post['categories-last']);
             }
 
             if (isset($post['so-status']) && $post['so-status'] > 0) {
                 // фильтр по статусу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'sst=' . intval($post['so-status']);
+                $url[] = 'sst=' . intval($post['so-status']);
             }
 
             if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
                 // фильтр по товару
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'by_gid=' . intval($post['goods-goods']);
+                $url[] = 'by_gid=' . intval($post['goods-goods']);
             }
 
             if (isset($post['warehouse']) && !empty($post['warehouse'])) {
                 // фильтр по инженерам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'wh=' . implode(',', $post['warehouse']);
+                $url[] = 'wh=' . implode(',', $post['warehouse']);
             }
 
             if (isset($post['engineers']) && !empty($post['engineers'])) {
                 // фильтр по инженерам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'eng=' . implode(',', $post['engineers']);
+                $url[] = 'eng=' . implode(',', $post['engineers']);
             }
 
             if (isset($post['managers']) && !empty($post['managers'])) {
                 // фильтр по менеджерам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'mg=' . implode(',', $post['managers']);
+                $url[] = 'mg=' . implode(',', $post['managers']);
             }
 
             if (isset($post['accepter']) && !empty($post['accepter'])) {
                 // фильтр по приемщикам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'acp=' . implode(',', $post['accepter']);
+                $url[] = 'acp=' . implode(',', $post['accepter']);
             }
 
             if (isset($post['wh_groups']) && !empty($post['wh_groups'])) {
                 // фильтр по поставщикам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'wg=' . implode(',', $post['wh_groups']);
+                $url[] = 'wg=' . implode(',', $post['wh_groups']);
             }
 
             if (isset($post['suppliers']) && !empty($post['suppliers'])) {
                 // фильтр по поставщикам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'sp=' . implode(',', $post['suppliers']);
+                $url[] = 'sp=' . implode(',', $post['suppliers']);
             }
 
             if (isset($post['status']) && !empty($post['status'])) {
                 // фильтр по статусу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'st=' . implode(',', $post['status']);
+                $url[] = 'st=' . implode(',', $post['status']);
             }
 
             if (isset($post['client']) && !empty($post['client'])) {
                 // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'cl=' . urlencode(trim($post['client']));
+                $url[] = 'cl=' . urlencode(trim($post['client']));
             }
 
             if (isset($post['client-order']) && !empty($post['client-order'])) {
                 // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'co=' . urlencode(trim($post['client-order']));
+                $url[] = 'co=' . urlencode(trim($post['client-order']));
             }
 
             if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
                 // фильтр по заказу частичный
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'pso_id=' . $post['supplier_order_id_part'];
+                $url[] = 'pso_id=' . $post['supplier_order_id_part'];
             }
 
             if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
                 // фильтр по заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'so_id=' . $post['supplier_order_id'];
+                $url[] = 'so_id=' . $post['supplier_order_id'];
             }
 
             if (isset($post['my']) && !empty($post['my'])) {
                 // фильтр по
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'my=1';
+                $url[] = 'my=1';
             }
 
             if (isset($post['serial']) && !empty($post['serial'])) {
                 // фильтр серийнику
-                if (!empty($url)) {
-                    $url .= '&';
+                $url[] = 'serial=' . trim($post['serial']);
+            }
+            if (isset($post['sale-order'])) {
+                if (isset($post['cashless']) && !empty($post['cashless'])) {
+                    //только безнал
+                    $url[] = 'cashless=1';
                 }
-                $url .= 'serial=' . trim($post['serial']);
+                if (isset($post['selfdelivery']) && !empty($post['selfdelivery'])) {
+                    // самовывоз
+                    $url[] = 'selfdelivery=1';
+                }
+                if (isset($post['courier']) && !empty($post['courier'])) {
+                    // доставка курьером
+                    $url[] = 'courier=1';
+                }
             }
 
-            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url));
+            $hash = isset($post['sale-order'])?'#show_orders-sold':'#show_orders-orders';
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&', $url)) . $hash);
         }
 
         // принимаем заказ
@@ -353,12 +293,12 @@ class orders extends Controller
             'managers' => $managers
         ));
     }
-
+    
     /**
      * @param bool $full_link
      * @return string
      */
-    function clients_orders_menu($full_link = false)
+    function sale_orders_filters($full_link = false)
     {
         if ($full_link) {
             $link = $this->all_configs['prefix'] . 'orders';
@@ -406,7 +346,72 @@ class orders extends Controller
             }
         }
 
-        return $this->view->renderFile('orders/clients_orders_menu', array(
+        return $this->view->renderFile('orders/sale_orders_filters', array(
+            'accepters' => $accepters,
+            'engineers' => $engineers,
+            'filter_manager' => $this->show_filter_manager(true),
+            'count' => $count,
+            'count_marked' => $count_marked,
+            'count_unworked' => $count_unworked,
+            'date' => $date,
+            'link' => $link,
+            'wfs' => isset($wfs) ? $wfs : array()
+        ));
+    }
+
+    /**
+     * @param bool $full_link
+     * @return string
+     */
+    function repair_orders_filters($full_link = false)
+    {
+        if ($full_link) {
+            $link = $this->all_configs['prefix'] . 'orders';
+        } else {
+            $link = '';
+        }
+        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+            . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
+            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+
+        $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
+        $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
+            WHERE manager IS NULL OR manager=""', array())->el();
+        $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
+            WHERE user_id=?i AND type=?', array($_SESSION['id'], 'co'))->el();
+        // индинеры
+        $engineers = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
+            array('engineer'))->assoc();
+        $accepters = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
+            array('create-clients-orders', 'site-administration'))->assoc();
+        // фильтр по складам (дерево)
+        $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
+            FROM {orders} as o, {warehouses} as w
+            LEFT JOIN {warehouses_groups} as gr ON gr.id=w.group_id
+            LEFT JOIN {warehouses_types} as tp ON tp.id=w.type_id
+            WHERE o.accept_wh_id=w.id', array())->assoc();
+        if ($data) {
+            $wfs = array('groups' => array(), 'nogroups' => array());
+            foreach ($data as $wf) {
+                if ($wf['group_id'] > 0) {
+                    $wfs['groups'][$wf['group_id']]['name'] = htmlspecialchars($wf['name']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
+                } else {
+                    $wfs['nogroups'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
+                    $wfs['nogroups'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
+                    $wfs['nogroups'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
+                    $wfs['nogroups'][$wf['id']]['icon'] .= ' text-danger';
+                }
+            }
+        }
+
+        return $this->view->renderFile('orders/repair_orders_filters', array(
             'accepters' => $accepters,
             'engineers' => $engineers,
             'filter_manager' => $this->show_filter_manager(true),
@@ -438,7 +443,7 @@ class orders extends Controller
         $link = ($full_link) ? $this->all_configs['prefix'] . 'orders' : '';
         return $this->view->renderFile('orders/clients_orders_navigation', array(
             'link' => $link,
-            'clientsOrdersMenu' => $this->clients_orders_menu($full_link),
+            'repairOrdersFilters' => $this->repair_orders_filters($full_link),
             'prefix' => $this->all_configs['prefix'],
             'hasPrivilege' => $this->all_configs['oRole']->hasPrivilege('create-clients-orders')
         ));
@@ -526,7 +531,8 @@ class orders extends Controller
                 'count' => $count,
                 'count_page' => $count_page,
                 'orders' => $orders,
-                'filters' => $filters
+                'filters' => $filters,
+                'repairOrdersFilters' => $this->repair_orders_filters(true),
             )),
             'functions' => array(),
         );
@@ -550,7 +556,8 @@ class orders extends Controller
                 'orders' => $orders,
                 'count' => empty($orders) ? 0 : $this->all_configs['manageModel']->get_count_clients_orders($query,
                     'co'),
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'saleOrdersFilters' => $this->sale_orders_filters(true),
             )),
             'functions' => array(),
         );
@@ -575,7 +582,7 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page
             )),
-            'menu' => $this->clients_orders_menu(),
+            'menu' => $this->repair_orders_filters(),
             'functions' => array('reset_multiselect()', 'gen_tree()'),
         );
     }
@@ -597,7 +604,9 @@ class orders extends Controller
                 'orders' => $orders,
                 'count' => empty($orders) ? 0 : $this->all_configs['manageModel']->get_count_clients_orders($query,
                     'co'),
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'repairOrdersFilters' => $this->repair_orders_filters(true),
+
             )),
             'functions' => array(),
         );

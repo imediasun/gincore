@@ -1786,12 +1786,20 @@ $(function(){
 
     $(document).on('click', '.toggle-hidden', function(){
         var $this = $(this),
-            $context_pane = $this.closest('.tab-pane'),
-            $context = $context_pane.length ? $context_pane : $this.closest('.toggle-hidden-box'),
-            $toggle = $('#'+$this.attr('data-toggle'), $context);
-        if(!$toggle.length){
-            $toggle = $('#'+$this.attr('data-toggle'), $context.find('.pill-pane.active'));
+          $context_pane = $this.closest('.tab-pane'),
+          $context = $context_pane.length ? $context_pane : $this.closest('.toggle-hidden-box'),
+          $toggle,
+          id = $this.attr('data-toggle')
+          ;
+
+        if (id.indexOf('.') == -1 && id.indexOf('#') == -1) {
+            id = '#' + id;
         }
+        $toggle = $(id, $context);
+        if (!$toggle.length) {
+            $toggle = $(id, $context.find('.pill-pane.active'));
+        }
+
         if($toggle.hasClass('hidden')){
             $toggle.removeClass('hidden');
             $this.addClass('active');

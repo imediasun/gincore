@@ -16,7 +16,7 @@
         </a>
     </li>
     <li class="">
-        <button data-toggle="filters" type="button" class="toggle-hidden btn btn-default">
+        <button data-toggle=".js-filters" type="button" class="toggle-hidden btn btn-default">
             <i class="fa fa-filter"></i> <?= l('Фильтровать') ?>
             <i class="fa fa-caret-down"></i>
         </button>
@@ -74,4 +74,3 @@
         <li class="pull-right"><a href="<?= $prefix ?>orders/#create_order" class="btn btn-success hash_link"><?= l('Создать заказ') ?></a></li>
     <?php endif; ?>
 </ul>
-<div class="hidden" id="filters"><?= $clientsOrdersMenu ?></div>

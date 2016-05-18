@@ -1,3 +1,4 @@
+<div class="hidden js-filters"><?= $saleOrdersFilters ?></div>
 <?php if (!empty($orders)): ?>
     <table class="table table-striped">
         <thead>
@@ -32,3 +33,9 @@
 <?php else: ?>
     <div class="span9"><p class="text-danger"><?= l('Заказов не найдено') ?></p></div>
 <?php endif; ?>
+<script>
+    jQuery(document).ready(function(){
+       $('.multiselect').multiselect();
+        $(".tree").Tree();
+    });
+</script>

@@ -19,6 +19,10 @@ define('DISCOUNT_TYPE_CURRENCY', 2);
 define('SALE_TYPE_QUICK', 1);
 define('SALE_TYPE_ESHOP', 2);
 
+define('DELIVERY_BY_SELF', 1);
+define('DELIVERY_BY_COURIER', 2);
+define('DELIVERY_BY_POST', 3);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';
