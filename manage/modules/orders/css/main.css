@@ -690,3 +690,6 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 .input-group.input-group-sm {
     max-width: 280px;
 }
+.btn-add-good {
+    white-space: nowrap;
+}

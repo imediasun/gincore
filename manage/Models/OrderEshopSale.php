@@ -18,7 +18,7 @@ class MOrderEshopSale extends MOrders
      */
     public function getAvailableItems($itemIds)
     {
-        $items = $this->Warehouses->getAvailableItems($itemIds);
+        $items = $this->Warehouses->getAvailableItemsByGoodsId($itemIds);
 
         if (!empty($items)) {
             foreach ($items as $k => $item) {

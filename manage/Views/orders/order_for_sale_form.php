@@ -50,7 +50,7 @@
 
                             <div class="form-group col-sm-2" style="padding: 0px">
                                 <label>&nbsp;</label><br>
-                                <button class="btn-sm btn-primary class" onclick="return add_quick_item_to_table();"
+                                <button class="btn-sm btn-primary btn-add-good" onclick="return add_quick_item_to_table();"
                                         title="<?= l('Добавить товар') ?>">
                                     <span class="small" style="line-height: 22px"> <?= l('В&nbsp;корзину') ?> </span>
                                 </button>

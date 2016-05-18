@@ -2850,7 +2850,9 @@ class Chains extends Object
             'delivery_by' => isset($post['delivery_by']) ? $post['delivery_by'] : 0,
             'delivery_to' => isset($post['delivery_to']) ? $post['delivery_to'] : '',
             'total_as_sum' => isset($post['total_as_sum']) ? $post['total_as_sum'] : 0,
-            'private_comment' => isset($post['private_comment']) ? $post['private_comment'] : ''
+            'private_comment' => isset($post['private_comment']) ? $post['private_comment'] : '',
+            'code' => isset($post['code'])? $post['code']:'',
+            'referer_id' => isset($post['referer_id'])?$post['referer_id']:0
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа

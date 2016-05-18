@@ -113,7 +113,7 @@
 
         </td>
         <td>
-            <button class="btn-sm btn-primary class" data-o_id="<?= isset($order['id']) ? $order['id'] : 0 ?>"
+            <button class="btn-sm btn-primary btn-add-good" data-o_id="<?= isset($order['id']) ? $order['id'] : 0 ?>"
                     onclick="return <?= $from_shop ? 'add_eshop_item_to_table();' : 'update_order(this)' ?>"
                     title="<?= l('Добавить товар') ?>">
                 <span class="small"> <?= l('В&nbsp;корзину') ?> </span>

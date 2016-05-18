@@ -233,7 +233,8 @@ abstract class AModel extends Object
     {
         $values = array();
         foreach ($options as $field => $value) {
-            if (!in_array($field, $this->columns())) {
+            $onlyName = preg_replace('/`/', '', $field);
+            if (!in_array($onlyName, $this->columns())) {
                 continue;
             }
             switch (true) {

@@ -238,7 +238,7 @@
                         <tr>
                             <td colspan="3">
                                 <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
-                                <?php if ($showButtons && !empty($goods)): ?>
+                                <?php if ($showButtons && !empty($goods) && $status != $order['status']): ?>
                                     <input id="close-order" class="btn btn-success"
                                            onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
                                            value="<?= l('Выдать') ?>"/>

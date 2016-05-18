@@ -57,6 +57,22 @@ class MWarehouses extends AModel
         return $this->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price
                     FROM ?t as w, {warehouses_goods_items} as i
                     LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
+                    WHERE i.id IN (?li) AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id',
+            array($this->table, $itemIds, 1))->assoc();
+    }
+    
+    /**
+     * @param $itemIds
+     * @return array
+     */
+    public function getAvailableItemsByGoodsId($itemIds)
+    {
+        if(empty($itemIds)) {
+            return array();
+        }
+        return $this->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price
+                    FROM ?t as w, {warehouses_goods_items} as i
+                    LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
                     WHERE i.goods_id IN (?li) AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id',
             array($this->table, $itemIds, 1))->assoc();
     }
