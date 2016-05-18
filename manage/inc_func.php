@@ -1348,7 +1348,7 @@ function update_order_status($order, $new_status)
             }
         }
         
-        if (in_array($new_status, $all_configs['configs']['order-statuses-dis-if-spare-part'])) {
+        if ($order['type'] != ORDER_SELL && in_array($new_status, $all_configs['configs']['order-statuses-dis-if-spare-part'])) {
             $qty = $all_configs['db']->query('SELECT COUNT(id) FROM {orders_goods} WHERE order_id=?i AND type=?i',
                 array($order['id'], 0))->el();
             if ($qty > 0) {
