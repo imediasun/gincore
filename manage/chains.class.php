@@ -1846,7 +1846,7 @@ class Chains extends Object
             // изделия
             $itemIds = isset($post['items']) && count(array_filter(explode(',',
                 $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
-            $items = $this->convertItemsPrice($this->getItems($itemIds));
+            $items = $this->convertItemsPrice($this->Orders->getAvailableItems($itemIds));
 
             // склад куда списать
             $wh_id = $this->Warehouses->getWriteOffWarehouseId();
