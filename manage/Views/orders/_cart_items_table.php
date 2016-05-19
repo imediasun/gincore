@@ -27,9 +27,17 @@
                                onkeyup="recalculate_amount_<?= $prefix ?>();" value="" name=""/>
                 </td>
                 <td>
+
+
+                    <div class="input-group">
                         <input type="text" class="form-control js-<?= $prefix ?>-discount"
-                               onkeyup="recalculate_amount_<?= $prefix ?>();" value="0"/>
-                        <input type="hidden" class="form-control js-<?= $prefix ?>-discount_type" value="1"/>
+                               onkeyup="recalculate_amount_<?= $prefix ?>();" value="0"  style="min-width: 50px"/>
+                        <div class="input-group-addon" onclick="change_discount_type(this)" style="cursor: pointer">
+                        <input type="hidden" class="form-control js-product-discount-type js-<?= $prefix ?>-discount_type" value="1"/>
+                        <span class="currency" style="display:none"><?= viewCurrency() ?></span>
+                        <span class="percent" >%</span>
+                        </div>
+                    </div>
                 </td>
                 <?php if ($prefix == 'eshop'): ?>
                     <td>
