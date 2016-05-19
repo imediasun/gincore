@@ -22,7 +22,7 @@ class sale_warranty extends AbstractTemplate
             $this->editor = true;
 
             // товары и услуги
-            $goods = $this->all_configs['db']->query('SELECT og.id as item_id, og.title, og.price, g.type
+            $goods = $this->all_configs['db']->query('SELECT og.id as item_id, og.title, og.price, g.type, og.warranty
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
             if ($goods) {
