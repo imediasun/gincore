@@ -71,7 +71,7 @@ class waybill extends AbstractTemplate
                 'products' => array('value' => $products, 'name' => l('Товары')),
                 'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
                 'amount_in_words' => array(
-                    'value' => $this->amountAsWord($amount),
+                    'value' => $this->amountAsWord(max(0, $amount)),
                     'name' => l('Полная стоимость прописью')
                 ),
             );
