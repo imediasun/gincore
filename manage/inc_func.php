@@ -1608,7 +1608,7 @@ function h($string) {
 function price_with_discount($product)
 {
     if ($product['discount_type'] == DISCOUNT_TYPE_PERCENT) {
-        $price = $product['price'] / 100 * (1 - $product['discount']) / 100;
+        $price = $product['price'] / 100 * (1 - $product['discount'] / 100);
     } else {
         $price = $product['price'] / 100 - $product['discount'];
     }
