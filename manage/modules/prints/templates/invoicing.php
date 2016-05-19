@@ -80,6 +80,7 @@ class invoicing extends AbstractTemplate
             $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
 
 
+            $arr = array();
             if ($order['type'] == 0) {
                 $arr = array(
                     'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
@@ -151,9 +152,9 @@ class invoicing extends AbstractTemplate
                     ),
                 );
             }
-
-
             $print_html = $this->generate_template($arr, 'invoicing');
+
         }
+        return $print_html;
     }
 }

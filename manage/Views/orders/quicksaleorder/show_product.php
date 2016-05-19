@@ -1,4 +1,4 @@
-<tr>
+<tr class="row-item">
     <td class="col-sm-3">
         <a href="<?= $url ?>">
             <?= htmlspecialchars($product['title']) ?>
@@ -7,25 +7,30 @@
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="col-sm-2">
             <div class="input-group">
-                <input class="form-control global-typeahead input-medium popover-info"
-                       type="text"
+                <input class="form-control global-typeahead input-medium popover-info js-quick-price"
+                       type="text" onkeyup="recalculate_amount_quick();"
                        value="<?= ($product['price'] / 100) ?>" name="product[<?= $product['id'] ?>][price]"/>
             </div>
         </td>
     <?php endif; ?>
     <td class="col-sm-1" style="min-width: 100px">
         <div class="input-group">
-            <input class="form-control global-typeahead input-medium popover-info"
-                   type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"/>
-            <div class="input-group-addon">
-                <?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
+            <input class="form-control global-typeahead input-medium popover-info js-quick-discount"
+                   type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]" onkeyup="recalculate_amount_quick();"/>
+            <div class="input-group-addon" onclick="change_discount_type(this)" style="cursor: pointer">
+                <input class='js-product-discount-type js-eshop-discount-type' type="hidden"
+                       name="product[<?= $product['id'] ?>][discount_type]" value="<?= $product['discount_type'] ?>"/>
+                <span class="currency"
+                      style="display:<?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? 'none' : '' ?>"><?= viewCurrency() ?></span>
+                <span class="percent"
+                      style="display:<?= $product['discount_type'] != DISCOUNT_TYPE_PERCENT ? 'none' : '' ?>">%</span>
             </div>
         </div>
     </td>
     <td class="col-sm-1" style="min-width: 100px">
         <div class="input-group">
-            <input readonly class="form-control global-typeahead input-medium popover-info disable"
-            type="text" value="<?= sum_with_discount($product) ?>"/>
+            <input readonly class="form-control global-typeahead input-medium popover-info disable js-quick-sum"
+                   type="text" value="<?= sum_with_discount($product) ?>"/>
         </div>
     </td>
     <td class="col-sm-2">

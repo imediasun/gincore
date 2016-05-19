@@ -71,6 +71,9 @@ abstract class AModel extends Object
                 case $value == 'null':
                     $placeholders[] = '?q';
                     break;
+                case empty($value):
+                    $placeholders[] = '?n';
+                    break;
                 default:
                     $placeholders[] = '?';
             }

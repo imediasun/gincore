@@ -221,7 +221,7 @@
                 </legend>
 
                 <div class="col-sm-12" style="margin-bottom: 20px">
-                    <table class="table parts-table cart-table">
+                    <table class="table parts-table cart-table eshop-table-items">
                     <?= $this->renderFile('orders/eshoporder/_spares', array(
                         'onlyEngineer' => $onlyEngineer,
                         'hasEditorPrivilege' => $hasEditorPrivilege,
@@ -259,7 +259,7 @@
                                     </label>
                                 </td>
                                 <td>
-                                    <input type="text" id="order-total" class="form-control"
+                                    <input type="text" id="order-total" class="form-control js-eshop-total"
                                            value="<?= ($order['sum'] / 100) ?>"
                                            name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
                                 </td>

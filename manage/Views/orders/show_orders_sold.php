@@ -9,6 +9,7 @@
             <td class='center'><?= l('manager') ?></td>
             <td class="center"><?= l('Способ оплаты') ?></td>
             <td class="center"><?= l('Статус') ?></td>
+            <td class="center" title="<?= l('Способ доставки')?>"><i class="fa fa-truck" aria-hidden="true"></i></td>
             <td class="center" title="<?= l('Ожидает запчастей') ?>"> <i class="fa fa-cogs" aria-hidden="true"></i> </td>
             <td><?= l('Наименование') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>

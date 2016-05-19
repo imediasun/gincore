@@ -904,7 +904,9 @@ function recalculate_amount_quick() {
     total += parseFloat($row.find('.js-quick-sum').first().val());
   });
   if (total == 0) {
-    $body.parent().hide();
+    if($body.find('tr').length <= 1) {
+      $body.parent().hide();
+    }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-quick-total').val(total);
@@ -958,6 +960,13 @@ function add_eshop_item_to_table() {
     $clone.find('.js-eshop-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']');
     $clone.find('.js-eshop-discount').first().val(discount).attr('name', 'discount[' + rnd + ']');
     $clone.find('.js-eshop-discount_type').first().val(discount_type).attr('name', 'discount_type[' + rnd + ']');
+    if(discount_type == 1) {
+      $clone.find('.percent').show();
+      $clone.find('.currency').hide();
+    } else {
+      $clone.find('.percent').hide();
+      $clone.find('.currency').show();
+    }
     $('#eshop_sale_poduct_cost').val('');
 
     $('#categories-selected > ul.dropdown-menu > li.active > a').html('');
@@ -993,7 +1002,9 @@ function recalculate_amount_eshop() {
     total += parseFloat($row.find('.js-eshop-sum').first().val());
   });
   if (total == 0) {
-    $body.parent().hide();
+    if($body.find('tr').length <= 1) {
+      $body.parent().hide();
+    }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-eshop-total').val(total);

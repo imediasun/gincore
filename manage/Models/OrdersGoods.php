@@ -136,4 +136,13 @@ class MOrdersGoods extends AModel
             'discount_type'
         );
     }
+
+    /**
+     * @param $orderProductId
+     * @return array
+     */
+    public function getWithTitle($orderProductId)
+    {
+        return $this->query('SELECT o.*, g.title FROM ?t as o JOIN {goods} as g ON g.id=o.goods_id WHERE o.id=?i', array($this->table, $orderProductId))->row();
+    }
 }

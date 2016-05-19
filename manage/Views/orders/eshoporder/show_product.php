@@ -1,8 +1,10 @@
-<tr class="<?= $group && $quantity > 1? 'items-group':'' ?> <?= $hide ? $hash . '_item' : $hash.'_group' ?>" style="<?= $hide ? 'display:none' : '' ?>">
+<tr class="<?= $group && $quantity > 1 ? 'items-group ' : '' ?> <?= $hide ? $hash . '_item' : $hash . '_group row-item' ?>"
+    style="<?= $hide ? 'display:none' : '' ?>">
     <td>
         <?php if ($group && $quantity > 1): ?>
             <i class="fa fa-chevron-right items-show" aria-hidden="true" onclick="toggle_items('<?= $hash ?>')"></i>
-            <i class="fa fa-chevron-down items-hide" aria-hidden="true" onclick="toggle_items('<?= $hash ?>')" style="display: none"></i>
+            <i class="fa fa-chevron-down items-hide" aria-hidden="true" onclick="toggle_items('<?= $hash ?>')"
+               style="display: none"></i>
         <?php endif; ?>
     </td>
     <td class="col-sm-3">
@@ -12,17 +14,18 @@
     </td>
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="col-sm-1">
-            <input class="form-control global-typeahead input-medium popover-info"
+            <input class="form-control global-typeahead input-medium popover-info js-eshop-price"
                    type="text" value="<?= ($product['price'] / 100) ?>"
-                   name="product[<?= $product['id'] ?>][price]"/>
+                   name="product[<?= $product['id'] ?>][price]" onkeyup="recalculate_amount_eshop();"/>
         </td>
     <?php endif; ?>
     <td class="col-sm-1" style="min-width: 100px">
         <div class="input-group">
-            <input class="form-control global-typeahead input-medium popover-info"
-                   type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"/>
+            <input class="form-control global-typeahead input-medium popover-info js-eshop-discount"
+                   type="text" value="<?= ($product['discount']) ?>" name="product[<?= $product['id'] ?>][discount]"
+                   onkeyup="recalculate_amount_eshop();"/>
             <div class="input-group-addon" onclick="change_discount_type(this)" style="cursor: pointer">
-                <input class='js-product-discount-type' type="hidden"
+                <input class='js-product-discount-type js-eshop-discount-type' type="hidden"
                        name="product[<?= $product['id'] ?>][discount_type]" value="<?= $product['discount_type'] ?>"/>
                 <span class="currency"
                       style="display:<?= $product['discount_type'] == DISCOUNT_TYPE_PERCENT ? 'none' : '' ?>"><?= viewCurrency() ?></span>
@@ -32,11 +35,12 @@
         </div>
     </td>
     <td class="col-sm-1">
-        <input readonly class="form-control global-typeahead input-medium popover-info disable"
-               type="text" value="<?= isset($quantity) ? $quantity : $product['count'] ?>"/>
+        <input readonly class="form-control global-typeahead input-medium popover-info disable js-eshop-quantity"
+               type="text" value="<?= isset($quantity) ? $quantity : $product['count'] ?>"
+               onkeyup="recalculate_amount_eshop();"/>
     </td>
     <td class="col-sm-1">
-        <input readonly class="form-control global-typeahead input-medium popover-info disable"
+        <input readonly class="form-control global-typeahead input-medium popover-info disable js-eshop-sum"
                type="text" value="<?= sum_with_discount($product, $quantity) ?>"/>
     </td>
     <td class="col-sm-1" style="min-width: 110px">

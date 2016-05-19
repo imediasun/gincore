@@ -1012,7 +1012,7 @@ class Chains extends Object
                             'update-order-cart',
                             $mod_id,
                             $order['id'],
-                            l('Добавлен') . ' ' . $product['goods_id']
+                            l('Добавлен') . ' ' . $product['title']
                         );
                         if ($product && $order_class) {
                             // выводим
@@ -1328,7 +1328,7 @@ class Chains extends Object
                     // оставшихся знаков)
                     'amount_to' => (floor($course_value * $item['price']) * 100) / 10000,
 
-                    'cashbox_currencies_from' => null,
+                    'cashbox_currencies_from' => $this->all_configs['suppliers_orders']->currency_clients_orders,
                     'cashbox_currencies_to' => $this->all_configs['suppliers_orders']->currency_clients_orders,
                     'client_order_id' => $order['id'],
                     //'b_id' => $chain_body_a['b_id'],
@@ -1846,7 +1846,7 @@ class Chains extends Object
             // изделия
             $itemIds = isset($post['items']) && count(array_filter(explode(',',
                 $post['items']))) > 0 ? array_filter(explode(',', $post['items'])) : null;
-            $items = $this->convertItemsPrice($this->getItems($itemIds));
+            $items = $this->convertItemsPrice($this->Orders->getAvailableItems($itemIds));
 
             // склад куда списать
             $wh_id = $this->Warehouses->getWriteOffWarehouseId();
@@ -1915,6 +1915,7 @@ class Chains extends Object
 
         return $data;
     }
+
 
     /**
      * @param      $post
@@ -2139,7 +2140,6 @@ class Chains extends Object
             if (time() < strtotime($post['date_transaction'])) {
                 throw new ExceptionWithMsg(l('Некорректная дата'));
             }
-
             // транзакция
             $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
                 $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
@@ -2236,6 +2236,7 @@ class Chains extends Object
             $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
         }
         $transaction_id = $this->CashboxesTransactions->insert($data);
+
 
         // если транзакция на заказ поставщику
         if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
@@ -2440,7 +2441,7 @@ class Chains extends Object
      */
     public function order_status($active)
     {
-        return $this->view->renderFile('chains.class/order-status', array(
+        return $this->view->renderFile('chains.class/order_status', array(
             'orderStates' => $this->all_configs['configs']['order-status'],
             'active' => $active
         ));
@@ -2719,7 +2720,7 @@ class Chains extends Object
 
         }
 
-        return $this->view->renderFile('cahins.class/stock_moves', array(
+        return $this->view->renderFile('chains.class/stock_moves', array(
             'moves' => $moves
         ));
     }
@@ -3210,13 +3211,13 @@ class Chains extends Object
     {
         $order_product_id = isset($post['order_product_id']) ? $post['order_product_id'] : 0;
         $close_supplier_order = isset($post['close_supplier_order']) && $post['close_supplier_order'];
-        $good = $this->OrdersGoods->getByPk($order_product_id);
+        $good = $this->OrdersGoods->getWithTitle($order_product_id);
         $result = $this->OrdersGoods->remove($order_product_id, $order, $close_supplier_order);
         $this->History->save(
             'update-order-cart',
             $mod_id,
             $order['id'],
-            l('Удален') . ' ' . $good['goods_id']
+            l('Удален') . ' ' . $good['title']
         );
         if (isset($result['reload'])) {
             $data['reload'] = 1;

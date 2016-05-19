@@ -5,7 +5,7 @@
                 <p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>
             <?php endif; ?>
             <?php if ($canUse): ?>
-                <input type="button" class="btn" onclick="return_item(this, <?= $item_id ?>')"
+                <input type="button" class="btn" onclick="return_item(this,'<?= $item_id ?>')"
                        value="<?= l('Вернуть') ?>"/>
             <?php else: ?>
                 <input disabled type="submit" class="btn" value="<?= l('Вернуть') ?>"/>

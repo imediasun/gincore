@@ -1,6 +1,5 @@
 <tr class="remove-marked-object">
     <td class="floatleft">
-        <?= $accepted ?>
         <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ||
             $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
         ): ?>
@@ -31,6 +30,17 @@
             'status' => $this->all_configs['configs']['sale-order-status']
         )); ?>
     </td>
+    <td>
+        <?php if ($order['delivery_by'] == DELIVERY_BY_COURIER): ?>
+            <i class="fa fa-car" aria-hidden="true"></i>
+        <?php endif; ?>
+        <?php if ($order['delivery_by'] == DELIVERY_BY_POST): ?>
+            <i class="fa fa-suitcase" ></i>
+        <?php endif; ?>
+        <?php if ($order['delivery_by'] == DELIVERY_BY_SELF || $order['sale_type'] == SALE_TYPE_QUICK): ?>
+            <?= $accepted ?>
+        <?php endif; ?>
+    </td>
     <td class="center">
         <?= $ordered ?>
     </td>
@@ -48,7 +58,8 @@
     <td><?= htmlspecialchars($order['o_fio']) ?></td>
     <td><?= $order['o_phone'] ?></td>
     <?php if ($order['sale_type'] == SALE_TYPE_ESHOP): ?>
-        <td style="word-wrap:break-word; max-width: 150px" title="<?= $helper->getCommentsTooltip($order['order_id']) ?>">
+        <td style="word-wrap:break-word; max-width: 150px"
+            title="<?= $helper->getCommentsTooltip($order['order_id']) ?>">
             <?= h($helper->getLastComment($order['order_id'])) ?>
         </td>
     <?php else: ?>

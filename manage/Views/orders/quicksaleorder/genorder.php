@@ -133,7 +133,7 @@
                     <?= l('Корзина') ?>
                 </legend>
                 <div class="col-sm-12">
-                    <table class="table parts-table cart-table">
+                    <table class="table parts-table cart-table quick-table-items">
                         <?= $this->renderFile('orders/quicksaleorder/_spares', array(
                             'onlyEngineer' => $onlyEngineer,
                             'hasEditorPrivilege' => $hasEditorPrivilege,
@@ -168,7 +168,7 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <input type="text" id="order-total" class="form-control"
+                                        <input type="text" id="order-total" class="form-control js-quick-total"
                                                value="<?= ($order['sum'] / 100) ?>"
                                                name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
                                     </td>
