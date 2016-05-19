@@ -51,4 +51,15 @@
         <?php endforeach; ?>
     <?php endif; ?>
     </tbody>
+    <tfoot>
+    <tr>
+        <td style="border: 1px solid grey; text-align: left; font-weight: bold" colspan="5">
+            <?= l('Итого') ?>
+        </td>
+        <td style="border: 1px solid grey; text-align: right; padding-right: 30px !important;">
+            <?= $amount ?>
+        </td>
+    </tr>
+
+    </tfoot>
 </table>

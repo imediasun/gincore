@@ -28,19 +28,17 @@ class waybill extends AbstractTemplate
                 array($object))->assoc();
             $view = new View($this->all_configs);
 
-            $products = $view->renderFile('prints/waybill_products', array(
-                'goods' => $goods
-            ));
-
             if (!empty($goods)) {
                 foreach ($goods as $good) {
-                    if ($good['discount_type'] == DISCOUNT_TYPE_PERCENT) {
-                        $amount += $good['count'] * $good['price'] * (1 - $good['discount'] / 100);
-                    } else {
-                        $amount += $good['count'] * ($good['price'] - $good['discount']);
-                    }
+                    $amount += sum_with_discount($good);
                 }
             }
+            
+            $products = $view->renderFile('prints/waybill_products', array(
+                'goods' => $goods, 
+                'amount' => $amount
+            ));
+
             $arr = array(
                 'id' => array('value' => intval($order['id']), 'name' => l('ID заказа')),
                 'date' => array(
@@ -71,9 +69,9 @@ class waybill extends AbstractTemplate
                 ),
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
                 'products' => array('value' => $products, 'name' => l('Товары')),
-                'amount' => array('value' => $amount / 100, 'name' => l('Полная стоимость')),
+                'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
                 'amount_in_words' => array(
-                    'value' => $this->amountAsWord($amount / 100),
+                    'value' => $this->amountAsWord($amount),
                     'name' => l('Полная стоимость прописью')
                 ),
             );

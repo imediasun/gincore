@@ -1605,9 +1605,16 @@ function h($string) {
     return htmlspecialchars($string);
 }
 
-function price_with_discount($product) {
-    return $product['discount_type'] == DISCOUNT_TYPE_PERCENT? ($product['price'] / 100) * (1 - $product['discount']/100): ($product['price'] / 100 - $product['discount']);
+function price_with_discount($product)
+{
+    if ($product['discount_type'] == DISCOUNT_TYPE_PERCENT) {
+        $price = $product['price'] / 100 * (1 - $product['discount']) / 100;
+    } else {
+        $price = $product['price'] / 100 - $product['discount'];
+    }
+    return $price;
 }
+
 function sum_with_discount($product, $quantity = 0) {
     $count = $quantity > 0? $quantity: $product['count'];
     return price_with_discount($product)  * $count;
