@@ -904,7 +904,9 @@ function recalculate_amount_quick() {
     total += parseFloat($row.find('.js-quick-sum').first().val());
   });
   if (total == 0) {
-    $body.parent().hide();
+    if($body.find('tr').length <= 1) {
+      $body.parent().hide();
+    }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-quick-total').val(total);
@@ -993,7 +995,9 @@ function recalculate_amount_eshop() {
     total += parseFloat($row.find('.js-eshop-sum').first().val());
   });
   if (total == 0) {
-    $body.parent().hide();
+    if($body.find('tr').length <= 1) {
+      $body.parent().hide();
+    }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-eshop-total').val(total);
