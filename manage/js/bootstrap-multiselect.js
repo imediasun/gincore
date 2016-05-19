@@ -138,10 +138,12 @@
     function Multiselect(select, options) {
 
         this.$select = $(select);
-        
+        if(!options)  {
+            options = {};
+        }
         // Placeholder via data attributes
-        if (this.$select.attr("data-placeholder")) {
-            options.nonSelectedText = this.$select.data("placeholder");
+        if (this.$select.attr("data-placeholder") && select) {
+            options.nonSelectedText = this.$select.attr("data-placeholder");
         }
         
         this.options = this.mergeOptions($.extend({}, options, this.$select.data()));

@@ -166,3 +166,6 @@ div.transaction_div i.icon-plus:hover {
     float: right;
     min-width: 185px;
 }
+.input-100px {
+    min-width: 100px;
+}
