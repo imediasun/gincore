@@ -4,7 +4,7 @@
        <?= l('После этого клиент 2 будет удален.') ?>
     </p><br>
     <div class="control-group">
-        <label class="control-label"><?= l('Клиент') ?> 1: </label>
+        <label class="control-label"><?= l('Клиент') ?> 1: <?= InfoPopover::getInstance()->createQuestion('l_clients_merge_info') ?></label>
         <div class="controls">
             <?= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_1']) ?
                 $_GET['client_1'] : 0, 1, 'input-medium', 'input-small', '', true, false, '1') ?>

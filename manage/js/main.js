@@ -1197,6 +1197,9 @@ function click_tab(_this, e, hashs) {
         global_check_mess = setTimeout(check_mess, 100, Math.round(new Date().getTime() / 1000));
 
         $('.focusin').focus();
+        $('[data-toggle="tooltip"]').tooltip();
+        infopopovers();
+        hide_flashmessages();
     });
 }
 
@@ -1876,7 +1879,18 @@ $(function(){
             }
         });
     });
+    
+    $(window).load(hide_flashmessages);
+    
 });
+
+var flashmessages_hide_timeout = 0;
+function hide_flashmessages(){
+    clearTimeout(flashmessages_hide_timeout);
+    flashmessages_hide_timeout = setTimeout(function(){
+        $('.flashmessage-alert').alert('close');
+    }, 3000);
+}
 
 function toogle_siblings(_this, btn_children)
 {
@@ -1912,3 +1926,88 @@ function window_open(url){
         }
     }
 }
+
+
+function infopopovers(){
+    init_popover($('.infopopover_onload'), true);
+    init_popover($('[data-infopopoveronhover]'), false, 'hover');
+    $('.infopopover_onload').each(function(){
+        $(this).popover('show');
+    });
+}
+function init_popover($els, add_close_btn, trigger_event){
+    var add_close = add_close_btn || false;
+    var trigger = trigger_event || 'manual';
+    $els.popover({
+        placement: 'auto right',
+        trigger: trigger,
+        template: '<div class="popover infopopover'+(add_close ? ' has_close_btn' : '')+'" role="tooltip">'+
+                  '<div class="arrow"></div><h3 class="popover-title"></h3>'+
+                  '<div class="popover-content"></div>'+
+                  (add_close ? '<i class="infopopover-close fa fa-times"></i>' : '')+
+                  '</div>'
+    });
+}
+function show_infopopover_modal(modal_html){
+    if(modal_html){
+        bootbox.alert(modal_html);
+    }
+}
+(function($, document){
+ 
+    $(function(){
+        
+        $(document).on('click', '.infopopover_onclick', function(e){
+            e.stopPropagation();
+            var $this = $(this);
+            if(!$this.hasClass('hasPopover')){
+                init_popover($this);
+                $this.addClass('hasPopover');
+            }
+            $this.popover('toggle');
+        });
+
+        $(document).on('click', '.infopopover-close', function(e){
+            e.stopPropagation();
+            var $this = $(this).parents('.popover'),
+                $origin = $this.siblings('.infopopover_onetime'),
+                info_var = $origin.attr('data-id');
+            $this.popover('hide');
+            $.ajax({
+                url: prefix + 'messages.php?act=hide-infopopover',
+                type: 'POST',
+                data: 'id=' + info_var,
+                dataType: 'json',
+                success: function (result) {
+                }
+            });
+        });
+
+        $(document).on('change', ':checkbox[name="infopopover_modal_confirm"]', function(e){
+            e.stopPropagation();
+            var $this = $(this),
+                state = $this.is(":checked"),
+                info_var = $this.attr('data-id');
+            $this.popover('hide');
+            $this.attr('disabled', true);
+            $.ajax({
+                url: prefix + 'messages.php?act=hide-toggle-infopopover&state='+(state?1:0),
+                type: 'POST',
+                data: 'id=' + info_var,
+                dataType: 'json',
+                success: function (result) {
+                    $this.attr('disabled', false)
+                }
+            });
+        });
+
+        $('html').on('click', function(e){
+            if(!$(e.target).closest('.infopopover').length && !$(e.target).hasClass('infopopover_onclick')){
+                $('.infopopover:not(.has_close_btn)').popover('hide');
+            }
+        });
+        
+        infopopovers();
+    });
+    
+})(jQuery, document);

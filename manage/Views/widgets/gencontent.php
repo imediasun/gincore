@@ -20,11 +20,11 @@
                 <input type="hidden" name="feedback-form" value="1" />
                 <div class="form-group">
                     <label><?= l('Отправлять клиентам смс с кодом'); ?></label>
-                    <input type="checkbox" name="send_sms" <?= $sendSms == 'on'? 'checked': '' ?> />
+                    <input type="checkbox" name="send_sms" <?= $sendSms == 'on'? 'checked': '' ?> /> <?= InfoPopover::getInstance()->createQuestion('l_widget_sms_info') ?>
                 </div>
                 <div class="form-group">
                     <label><?= l('Сайт на котором будет установлен виджет'); ?></label>
-                    <input type="url" name="host" value="<?= !empty($host)? $host: '' ?>" />
+                    <input type="url" name="host" value="<?= !empty($host)? $host: '' ?>" /> <?= InfoPopover::getInstance()->createQuestion('l_widget_host_info') ?>
                 </div>
                 <button class="btn btn-primary" type="submit"><?= l('Сохранить') ?></button>
             </fieldset>

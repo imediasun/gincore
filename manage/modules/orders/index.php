@@ -1486,8 +1486,9 @@ class orders
             }
             foreach ($colors_count as $color => $qty) {
                 $p = round($qty / $orders_summ * 100, 2);
+                $title = $this->get_order_status_name_by_color($color);
                 $colors_percents .= '
-                    <span style="border-radius:5px;margin-right:10px;color:#fff;padding:5px 10px;background-color:#' . $color . '">' .
+                    <span '.($title ? ' data-toggle="tooltip" title="'.$title.'" ' : '').' style="border-radius:5px;margin-right:10px;color:#fff;padding:5px 10px;background-color:#' . $color . '">' .
                     $p . '%
                     </span>
                 ';
@@ -1507,6 +1508,18 @@ class orders
         }
     }
 
+    private function get_order_status_name_by_color($color){
+        if($color == 'FF0000'){
+            return l('Просроченные');
+        }
+        foreach($this->all_configs['configs']['order-status'] as $status_data){
+            if($status_data['color'] == $color){
+                return $status_data['name'];
+            }
+        }
+        return null;
+    }
+    
     /**
      * @return array
      */
@@ -3044,7 +3057,8 @@ class orders
             'default' => $this->all_configs['configs']['show-status-in-manager-config'],
             'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
         ));
-        $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . '</center>';
+        $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . ' '
+                         .InfoPopover::getInstance()->createQuestion('l_manager_setup_info').'</center>';
 
         Response::json($data);
     }

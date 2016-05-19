@@ -7,7 +7,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title"><?= l('Создать новый звонок') ?></h4>
+                <h4 class="modal-title"><?= l('Создать новый звонок') ?> <?= InfoPopover::getInstance()->createQuestion('l_create_new_call_info') ?></h4>
             </div>
             <form autocomplete="off" method="post" action="<?= $all_configs['prefix'] ?>services/ajax.php"
                   class="ajax_form">

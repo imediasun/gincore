@@ -24,7 +24,10 @@
                 <div class="row">
                     <div class="col-sm-6 js-fields">
                         <span class="specify_order_id"><?= l('Указать номер заказа') ?></span>
-                        <span class="hide_order_fields"><?= l('Скрыть поля в квитанции') ?></span>
+                        <span class="hide_order_fields">
+                            <?= l('Скрыть поля в квитанции') ?>
+                            <?= InfoPopover::getInstance()->createOnLoad('l_hide_order_fields_info') ?>
+                        </span>
                     </div>
                 </div>
                 <div class="row">
@@ -34,10 +37,11 @@
                     <form method="post" id="order-form">
                         <div class="col-sm-6 js-fields">
                             <fieldset>
-                                <div class="order_id_input">
-                                    <input style="max-width:200px" placeholder="<?= l('введите номер заказа') ?>"
+                                <div class="order_id_input clearfix">
+                                    <input style="max-width:200px;float:left" placeholder="<?= l('введите номер заказа') ?>"
                                            type="text"
-                                           class="form-control" name="id">
+                                           class="form-control" name="id">&nbsp;
+                                    <?= InfoPopover::getInstance()->createQuestion('l_order_custom_id_info') ?>
                                 </div>
                                 <legend><?= l('Клиент') ?></legend>
                                 <div class="form-group">
@@ -327,7 +331,7 @@
                             <div id="new_device_form"
                                  class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
                             <fieldset>
-                                <legend><?= l('Заявки') ?></legend>
+                                <legend><?= l('Заявки') ?> <?= InfoPopover::getInstance()->createQuestion('l_create_order_leads_info') ?></legend>
                                 <div id="client_requests">
                                     <?php if ($order): ?>
                                         <?= get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'],

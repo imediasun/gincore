@@ -532,7 +532,8 @@ class warehouses
         if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')) {
             $out .= '<div id="scanner-moves-alert" class="alert fade"><button type="button" class="close" data-dismiss="alert">&times;</button><div id="scanner-moves-alert-body"></div></div>';
             $out .= '
-                <label>' . l('Укажите номер заказа, изделия или локации. После чего нажмите Enter. Или используйте сканер.') .'</label>
+                <label>' . l('Укажите номер заказа, изделия или локации. После чего нажмите Enter. Или используйте сканер.') .' '
+                         .InfoPopover::getInstance()->createQuestion('l_warehouses_scanner_moves_info').'</label>
                 <input value="" id="scanner-moves" type="text" placeholder="' . l('заказ, изделие или локация') . '" class="form-control" />';
             $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="' . l('заказ или локация') .'" class="form-control" />';
         }
@@ -564,10 +565,13 @@ class warehouses
 
         if ($this->warehouses && count($this->warehouses) > 0) {
             $out .= '<div class="pull-left vertical-line"></div>';
+            $i = 0;
             foreach ($this->warehouses as $warehouse) {
                 $out .= '<div class="show_warehouse">';
                 $print_link = print_link(array_keys($warehouse['locations']), 'location');
-                $out .= '<h5><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $warehouse['id'] . '#show_items">' . $warehouse['title'] . '</a> ' . $print_link . '</h5>';
+                $out .= '<h5><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $warehouse['id'] . '#show_items">' 
+                                . $warehouse['title'] 
+                           . '</a> '.(!$i ? InfoPopover::getInstance()->createOnLoad('l_warehouses_title_info') : '').' ' . $print_link . '</h5>';
                 $out .= '<div>' . l('Общий остаток') . ': ' . intval($warehouse['sum_qty']) . ' ' . l('шт.') . '</div>';
                 if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
                     $out .= '<div>' . l('Общая сумма') . ': ';
@@ -576,6 +580,7 @@ class warehouses
                 }
                 $out .= '</div>';
                 $out .= '<div class="pull-left vertical-line"></div>';
+                $i ++;
             }
         }
 
@@ -2261,9 +2266,9 @@ class warehouses
             }
             $data['content'] .= '</center></label>';
             $onchange = '$(\'#debit-so-form input.dso_serial\').val(\'\');$(\'#debit-so-form input.dso_auto_serial\').prop(\'checked\', $(this).is(\':checked\') ? true : true);';
-            $data['content'] .= '<div class="pull-right"><label class="checkbox"><input id="dso_auto_serial_all" onchange="' . $onchange . '" type="checkbox" /> <b>Создать все</b></label>';
+            $data['content'] .= '<div class="pull-right"><div class="checkbox"><label><input id="dso_auto_serial_all" onchange="' . $onchange . '" type="checkbox" /> <b>'.l('Создать все').' </b></label> '.InfoPopover::getInstance()->createQuestion('l_debit_so_create_all_info').'</div>';
             $onchange = '$(\'#debit-so-form input.dso_print\').prop(\'checked\', $(this).is(\':checked\') ? true : false);';
-            $data['content'] .= '<label class="checkbox"><input type="checkbox" id="dso_print_all" onchange="' . $onchange . '" /> <b>' . l('Распечатать все') .'</b></label></div></div><hr>';
+            $data['content'] .= '<div class="checkbox"><label><input type="checkbox" id="dso_print_all" onchange="' . $onchange . '" /> <b>' . l('Распечатать все') .'</b></label></div></div></div><hr>';
 
             // необходимое количество приходования
             $count = $order ? $order['count_come'] - $order['count_debit'] : 0;
@@ -2274,9 +2279,9 @@ class warehouses
                     $onkeyup = 'if(this.value.trim()== \'\'){$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', true);}else{$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', false);}';
                     $data['content'] .= '<input onkeyup="' . $onkeyup . '" type="text" class="form-control input-large dso_serial" placeholder="' . l('серийный номер') .'" name="serial[' . $i . ']" />';
                     $onchange = '$(\'#dso_auto_serial_all\').prop(\'checked\', false);$(\'#dso-group-' . $i . ' input.dso_serial\').val(\'\');this.checked=true;';
-                    $data['content'] .= '<div class="checkbox"><label class=""><input checked onchange="' . $onchange . '" type="checkbox" class="dso_auto_serial" name="auto[' . $i . ']" /> ' . l('Сгенерировать серийник') .'</label>';
+                    $data['content'] .= '<div class="checkbox"><label class=""><input checked onchange="' . $onchange . '" type="checkbox" class="dso_auto_serial" name="auto[' . $i . ']" /> ' . l('Сгенерировать серийник') .'</label> '.InfoPopover::getInstance()->createQuestion('l_debit_so_auto_serial_info').'';
                     $onchange = '$(\'#dso_print_all\').prop(\'checked\', false);';
-                    $data['content'] .= '</div><div class="checkbox"><label class=""><input onchange="' . $onchange . '" type="checkbox" name="print[' . $i . ']" class="dso_print" /> ' . l('Распечатать серийник') .'</label>';
+                    $data['content'] .= '</div><div class="checkbox"><label class=""><input onchange="' . $onchange . '" type="checkbox" name="print[' . $i . ']" class="dso_print" /> ' . l('Распечатать серийник') .'</label> '.InfoPopover::getInstance()->createQuestion('l_debit_so_print_serial_info').'';
                     $data['content'] .= '</div><div class="dso-msg center"></div></div>';
                 }
             } else {

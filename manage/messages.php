@@ -18,7 +18,7 @@ $user_id = $_SESSION['id'];
 if (isset($_POST['act']) && $_POST['act'] == 'marked-object') {
     if (!isset($_POST['object_id']) || $_POST['object_id'] == 0 || !isset($_POST['type']) || empty($_POST['type'])) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Побробуйте еще раз', 'error' => true));
+        echo json_encode(array('message' => l('Побробуйте еще раз'), 'error' => true));
         exit;
     }
 
@@ -31,7 +31,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'marked-object') {
             array($_SESSION['id'], trim($_POST['type'])))->el();
 
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Успешно', 'count-marked' => $count_marked));
+        echo json_encode(array('message' => l('Успешно'), 'count-marked' => $count_marked));
         exit;
     }
 
@@ -42,7 +42,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'marked-object') {
         array($_SESSION['id'], trim($_POST['type'])))->el();
 
     header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array('message' => 'Успешно', 'count-marked' => $count_marked));
+    echo json_encode(array('message' => l('Успешно'), 'count-marked' => $count_marked));
     exit;
 }
 
@@ -199,10 +199,10 @@ $data = array('state' => false);
 if ($act == 'read-message') {
     if (!isset($_POST['mess_id']) || intval($_POST['mess_id']) == 0) {
         // если нет ид сообщения
-        $data['msg'] = 'Произошла ошибка';
+        $data['msg'] = l('Произошла ошибка');
     } else {
         $data['state'] = true;
-        $data['msg'] = 'Сообщение прочтено';
+        $data['msg'] = l('Сообщение прочтено');
         $all_configs['db']->query('UPDATE {messages} SET is_read=1, date_read=NOW() WHERE id=?i',
             array(intval($_POST['mess_id'])));
         $data['qty'] = count_unread_messages();
@@ -216,7 +216,7 @@ if ($act == 'read-message') {
 if ($act == 'remove-message') {
     if (!isset($_POST['mess_id']) && !isset($_POST['type'])) {
         // если нет ид сообщения
-        $data['msg'] = 'Произошла ошибка';
+        $data['msg'] = l('Произошла ошибка');
     } else {
         $query = '';
         if ($_POST['mess_id'] != 'all') {
@@ -224,7 +224,7 @@ if ($act == 'remove-message') {
             $query = $all_configs['db']->makeQuery('AND id=?i', array(intval($_POST['mess_id'])));
         }
         $data['state'] = true;
-        $data['msg'] = 'Успешно удалено';
+        $data['msg'] = l('Успешно удалено');
         $data['qty'] = count_unread_messages();//
         $all_configs['db']->query('UPDATE {messages} SET remove=1 WHERE `type`=?i AND user_id_destination=?i ?query',
             array(intval($_POST['type']), $user_id, $query));
@@ -284,7 +284,7 @@ if ($act == 'remove-alarm') {
         $id = $all_configs['db']->query('DELETE FROM {alarm_clock} WHERE id=?i', array($_POST['id']));
     } else {
         $data['state'] = false;
-        $data['msg'] = 'Напоминание не найдено';
+        $data['msg'] = l('Напоминание не найдено');
     }
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
@@ -306,7 +306,7 @@ if ($act == 'add-alarm') {
 //    }
     if ($data['state'] == true && strtotime($date) < time()) {
         $data['state'] = false;
-        $data['msg'] = 'Укажите дату (в будущем)';
+        $data['msg'] = l('Укажите дату (в будущем)');
     }
 
     if ($data['state'] == true) {
@@ -462,7 +462,7 @@ if ($act == 'move-order') {
     if (count($serials) == 0 && $order_id == 0) {
         $data['state'] = false;
     }
-    $data['message'] = empty($data['message']) ? 'Укажите номер ремонта или серийный номер изделия' : $data['message'];
+    $data['message'] = empty($data['message']) ? l('Укажите номер ремонта или серийный номер изделия') : $data['message'];
 
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
@@ -507,7 +507,7 @@ if ($act == 'end-supplier-order') {
 
 // список локаций по складу
 if ($act == 'get_locations') {
-    $data['msg'] = 'Локаций не найдено';
+    $data['msg'] = l('Локаций не найдено');
     if (isset($_POST['wh_id'])) {
         $warehouses = get_service('wh_helper')->get_warehouses();
         if (isset($warehouses[$_POST['wh_id']]['locations'])) {
@@ -740,30 +740,30 @@ if ( isset($_POST['act']) && $_POST['act'] == 'send_message' ) {
 
     if ( !isset($_POST['send-mess-user']) || !is_array($_POST['send-mess-user']) || count($_POST['send-mess-user']) < 1) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Выберите пользователя', 'error'=>true));
+        echo json_encode(array('message' => l('Выберите пользователя'), 'error'=>true));
         exit;
     }
 
     if ( !isset($_POST['text']) ) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите текст', 'error'=>true));
+        echo json_encode(array('message' => l('Введите текст'), 'error'=>true));
         exit;
     }
     if ( !isset($_POST['title']) ) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите заглавие', 'error'=>true));
+        echo json_encode(array('message' => l('Введите заглавие'), 'error'=>true));
         exit;
     }
     $text = trim($_POST['text']);
     $title = trim($_POST['title']);
     if ( empty($text) ) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите сообщение', 'error'=>true));
+        echo json_encode(array('message' => l('Введите сообщение'), 'error'=>true));
         exit;
     }
     if ( empty($title) ) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => 'Введите заглавие', 'error'=>true));
+        echo json_encode(array('message' => l('Введите заглавие'), 'error'=>true));
         exit;
     }
     $array = array();
@@ -774,7 +774,7 @@ if ( isset($_POST['act']) && $_POST['act'] == 'send_message' ) {
     }
 
     header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array('message' => 'Успешно отправлено'));
+    echo json_encode(array('message' => l('Успешно отправлено')));
     exit;
 }
 
@@ -814,4 +814,21 @@ if (isset($_POST['pk']['act']) && $_POST['pk']['act'] == 'infobox'
 
 
 
+}
+
+if($act == 'hide-infopopover'){
+    $var = !empty($_POST['id']) ? $_POST['id'] : '';
+    if($var){
+        include_once __DIR__.'/InfoPopover.php';
+        InfoPopover::getInstance()->oneTimePopoverToggle($var);
+    }
+}
+
+if($act == 'hide-toggle-infopopover'){
+    $var = !empty($_POST['id']) ? $_POST['id'] : '';
+    $state = !empty($_GET['state']) ? $_GET['state'] : 0;
+    if($var){
+        include_once __DIR__.'/InfoPopover.php';
+        InfoPopover::getInstance()->oneTimePopoverToggle($var, $state);
+    }
 }
