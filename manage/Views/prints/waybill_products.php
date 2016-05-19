@@ -1,23 +1,23 @@
-<table class="table" style="font: 12px;">
+<table class="table" style="font-size: 14px;">
     <thead>
-    <tr style="font-weight: bold; text-align: center">
-        <td style="border: 1px solid grey">
+    <tr style="font-weight: bold;">
+        <td style="border: 1px solid grey; text-align: center">
             <?= l('N п/п') ?>
         </td>
-        <td style="border: 1px solid grey">
+        <td style="border: 1px solid grey; text-align: center">
             <?= l('Наименование') ?>
         </td>
-        <td style="border: 1px solid grey">
+        <td style="border: 1px solid grey; text-align: center">
             <?= l('Количество') ?>
         </td>
-        <td style="border: 1px solid grey">
+        <td style="border: 1px solid grey; text-align: center">
             <?= l('Цена') ?><br>
             <?= viewCurrency() ?>
         </td>
-        <td style="border: 1px solid grey">
+        <td style="border: 1px solid grey; text-align: center">
             <?= l('Скидка') ?>
         </td>
-        <td style="border: 1px solid grey">
+        <td style="border: 1px solid grey; text-align: center">
             <?= l('Сумма') ?><br>
             <?= viewCurrency() ?>            
         </td>
