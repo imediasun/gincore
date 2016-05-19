@@ -1328,7 +1328,7 @@ class Chains extends Object
                     // оставшихся знаков)
                     'amount_to' => (floor($course_value * $item['price']) * 100) / 10000,
 
-                    'cashbox_currencies_from' => null,
+                    'cashbox_currencies_from' => $this->all_configs['suppliers_orders']->currency_clients_orders,
                     'cashbox_currencies_to' => $this->all_configs['suppliers_orders']->currency_clients_orders,
                     'client_order_id' => $order['id'],
                     //'b_id' => $chain_body_a['b_id'],
@@ -2139,7 +2139,6 @@ class Chains extends Object
             if (time() < strtotime($post['date_transaction'])) {
                 throw new ExceptionWithMsg(l('Некорректная дата'));
             }
-
             // транзакция
             $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
                 $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
