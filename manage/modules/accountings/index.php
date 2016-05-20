@@ -7,6 +7,12 @@ $modulename[30] = 'accountings';
 $modulemenu[30] = l('Бухгалтерия');
 $moduleactive[30] = !$ifauth['is_2'];
 
+/**
+ * @property  MUsers                 Users
+ * @property  MClients               Clients
+ * @property  MCashboxesTransactions CashboxesTransactions
+ * @property  MCashboxes             Cashboxes
+ */
 class accountings extends Controller
 {
     protected $cashboxes = array();
@@ -28,6 +34,12 @@ class accountings extends Controller
     );
 
     protected $course_default = 100; // default course (uah) in cent
+    public $uses = array(
+        'Users',
+        'Cashboxes',
+        'CashboxesTransactions',
+        'Clients'
+    );
 
     /**
      * @inheritdoc
@@ -395,9 +407,6 @@ class accountings extends Controller
         } elseif (isset($post['cashbox-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создание кассы
             $cashboxes_type = 1;
-//            $avail = isset($post['avail']) ? 1 : null;
-//            $avail_in_balance = isset($post['avail_in_balance']) ? 1 : null;
-//            $avail_in_orders = isset($post['avail_in_orders']) ? 1 : null;
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
@@ -406,9 +415,13 @@ class accountings extends Controller
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
-            $cashbox_id = $this->all_configs['db']->query('INSERT INTO {cashboxes} (cashboxes_type, avail, avail_in_balance, avail_in_orders, name)
-                    VALUES (?i, ?n, ?n, ?n, ?)',
-                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, $title), 'id');
+            $cashbox_id = $this->Cashboxes->insert(array(
+                'cashboxes_type' => $cashboxes_type,
+                'avail' => $avail,
+                'avail_in_balance' => $avail_in_balance,
+                'avail_in_orders' => $avail_in_orders,
+                'name' => $title
+            ));
 
             if (isset($post['cashbox_currency'])) {
                 foreach ($post['cashbox_currency'] as $cashbox_currency) {
@@ -434,9 +447,13 @@ class accountings extends Controller
             $avail_in_balance = 1;
             $avail_in_orders = 1;
 
-            $ar = $this->all_configs['db']->query('UPDATE {cashboxes} SET cashboxes_type=?i, avail=?n, avail_in_balance=?n, avail_in_orders=?n, name=?
-                  WHERE id=?i',
-                array($cashboxes_type, $avail, $avail_in_balance, $avail_in_orders, $title, $post['cashbox-id']))->ar();
+            $ar = $this->Cashboxes->update(array(
+                'cashboxes_type' => $cashboxes_type,
+                'avail' => $avail,
+                'avail_in_balance' => $avail_in_balance,
+                'avail_in_orders' => $avail_in_orders,
+                'name' => $title
+            ), array($this->Cashboxes->pk() => $post['cashbox-id']));
 
             $this->all_configs['db']->query('DELETE FROM {cashboxes_currencies} WHERE cashbox_id=?i AND id NOT IN(
                     SELECT cashboxes_currency_id_from as cc_id FROM {cashboxes_transactions}
@@ -566,8 +583,7 @@ class accountings extends Controller
      */
     function get_cashboxes_amounts()
     {
-        $Cashboxes = new MCashboxes();
-        return $this->calculateCashboxesAmount($Cashboxes->getCashboxes());
+        return $this->calculateCashboxesAmount($this->Cashboxes->getCashboxes());
     }
 
     /**
@@ -1027,7 +1043,7 @@ class accountings extends Controller
             'message' => l('Не известная ошибка')
         );
 
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
@@ -2378,7 +2394,8 @@ class accountings extends Controller
                 'avg' => $avg,
                 'currencies' => $currencies
             ));
-            $out = $filters . $unloading . $table_of_orders;
+
+            $out = $filters . $unloading . $table_of_orders  . $this->showSalary($amounts['orders'], $by + $_GET);
         }
 
         return array(
@@ -2952,31 +2969,26 @@ class accountings extends Controller
         $data['state'] = true;
         $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
             . "WHERE id = ?i AND comment = 'system'", array($this->all_configs['arrequest'][2]), 'el');
-        if ($is_system) {
-            $data['state'] = false;
-            $data['message'] = l('Системный контрагент - не подлежит редактированию');
-        }
-        // права
-        if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $data['state'] = false;
-            $data['message'] = l('Нет прав');
-        }
-        // ид
-        if ($data['state'] == true && !isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
-            $data['state'] = false;
-            $data['message'] = l('Контрагент не найден');
-        }
-        // статьи
-        if ($data['state'] == true && !isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
-            $data['state'] = false;
-            $data['message'] = l('Укажите статью');
-        }
-        // фио
-        if ($data['state'] == true && !isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
-            $data['state'] = false;
-            $data['message'] = l('Введите ФИО');
-        }
-        if ($data['state'] == true) {
+        try {
+            if ($is_system) {
+                throw  new ExceptionWithMsg(l('Системный контрагент - не подлежит редактированию'));
+            }
+            // права
+            if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+                throw  new ExceptionWithMsg(l('Нет прав'));
+            }
+            // ид
+            if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
+                throw  new ExceptionWithMsg(l('Контрагент не найден'));
+            }
+            // статьи
+            if (!isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
+                throw  new ExceptionWithMsg(l('Укажите статью'));
+            }
+            // фио
+            if (!isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
+                throw  new ExceptionWithMsg(l('Введите ФИО'));
+            }
             $ar = $this->all_configs['db']->query('UPDATE {contractors} SET title=?, type=?i, comment=? WHERE id=?i',
                 array(
                     trim($_POST['title']),
@@ -2995,13 +3007,10 @@ class accountings extends Controller
 
             foreach ($contractor_categories_id as $contractor_category_id) {
                 if ($contractor_category_id > 0) {
-                    try {
-                        $this->all_configs['db']->query('DELETE FROM {contractors_categories_links} WHERE contractors_id=?i
+                    $this->all_configs['db']->query('DELETE FROM {contractors_categories_links} WHERE contractors_id=?i
                                     AND contractors_categories_id=?i',
-                            array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                        return array($data, $is_system, $ar);
-                    } catch (Exception $e) {
-                    }
+                        array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
+                    return array($data, $is_system, $ar);
                 }
             }
             // категории
@@ -3014,6 +3023,12 @@ class accountings extends Controller
                     }
                 }
             }
+
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
         }
         return $data;
     }
@@ -3027,80 +3042,80 @@ class accountings extends Controller
     private function contractorCreate($data, $user_id, $mod_id)
     {
         $data['state'] = true;
-        // права
-        if ($data['state'] == true && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $data['state'] = false;
-            $data['message'] = l('Нет прав');
-        }
-        // статьи
-        if ($data['state'] == true && !isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
-            $data['state'] = false;
-            $data['message'] = l('Укажите статью');
-        }
-        // фио
-        if ($data['state'] == true && !isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
-            $data['state'] = false;
-            $data['message'] = l('Введите ФИО');
-        }
+        try {
+            // права
+            if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+                throw  new ExceptionWithMsg(l('Нет прав'));
+            }
+            // статьи
+            if (!isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
+                throw  new ExceptionWithMsg(l('Укажите статью'));
+            }
+            // фио
+            if (!isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
+                throw  new ExceptionWithMsg(l('Введите ФИО'));
+            }
 
-        $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
-        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-        $access = new access($this->all_configs, false);
-        $phone = $access->is_phone($phone);
-        // телефон
-        if ($data['state'] == true && !$phone) {
-            $data['state'] = false;
-            $data['message'] = l('Введите номер телефона в формате вашей страны');
-        }
-
-        if ($data['state'] == true) {
+            $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            $access = new access($this->all_configs, false);
+            $phone = $access->is_phone($phone);
+            // телефон
+            if (empty($phone)) {
+                throw  new ExceptionWithMsg(l('Введите номер телефона в формате вашей страны'));
+            }
             // создаем
             $contractor_id = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors}
                         (title, type, comment) VALUES (?, ?i, ?)',
                 array(trim($_POST['title']), $_POST['type'], trim($_POST['comment'])), 'id');
 
-            if ($contractor_id > 0) {
-                $data['id'] = $contractor_id;
-                $data['name'] = htmlspecialchars($_POST['title']);
-                foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
-                    if ($contractor_category_id > 0) {
-                        $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
-                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                            array($contractor_category_id, $contractor_id))->ar();
-                    }
-                }
-                $this->History->save('add-contractor', $mod_id, $contractor_id);
-
-                // создаем клиента для контрагента
-                //email проверяется чуть выше
-                $email = isset($_POST['email']) && filter_var($_POST['email'],
-                    FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
-                if ($phone || $email) {
-                    $exists_client = $access->get_client($email, $phone, true);
-                    if ($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i",
-                            array($exists_client['id']), 'el')
-                    ) {
-                        // привязываем к существующему если к нему не привязан контрагент
-                        $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
-                            . "WHERE id = ?i", array($contractor_id, $exists_client['id']));
-                    } else {
-                        // создаем клиента и привязываем
-                        $result = $access->registration(array(
-                            'email' => $email,
-                            'phone' => $phone[0],
-                            'fio' => $_POST['title']
-                        ));
-                        if ($result['new']) {
-                            $this->all_configs['db']->query("UPDATE {clients} SET contractor_id = ?i "
-                                . "WHERE id = ?i", array($contractor_id, $result['id']));
-                        }
-                    }
-                }
-            } else {
-                $data['state'] = false;
-                $data['message'] = l('Такой контрагент уже существует');
+            if ($contractor_id <= 0) {
+                throw  new ExceptionWithMsg(l('Такой контрагент уже существует'));
             }
+            $data['id'] = $contractor_id;
+            $data['name'] = htmlspecialchars($_POST['title']);
+            foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
+                if ($contractor_category_id > 0) {
+                    $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
+                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
+                        array($contractor_category_id, $contractor_id))->ar();
+                }
+            }
+            $this->History->save('add-contractor', $mod_id, $contractor_id);
+
+            // создаем клиента для контрагента
+            //email проверяется чуть выше
+            $email = isset($_POST['email']) && filter_var($_POST['email'],
+                FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
+            if ($phone || $email) {
+                $exists_client = $access->get_client($email, $phone, true);
+                if ($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i",
+                        array($exists_client['id']), 'el')
+                ) {
+                    // привязываем к существующему если к нему не привязан контрагент
+                    $this->Clients->update(array('contractor_id' => $contractor_id),
+                        array($this->Clients->pk() => $exists_client['id']));
+                } else {
+                    // создаем клиента и привязываем
+                    $result = $access->registration(array(
+                        'email' => $email,
+                        'phone' => $phone[0],
+                        'fio' => $_POST['title']
+                    ));
+                    if ($result['new']) {
+                        $this->Clients->update(array('contractor_id' => $contractor_id),
+                            array($this->Clients->pk() => $result['id']));
+                    }
+                }
+            }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
         }
+
+
         return $data;
     }
 
@@ -3122,10 +3137,10 @@ class accountings extends Controller
         if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
             $cashboxes = $this->cashboxes;
         } else {
-            $cashboxes = $this->all_configs['db']->query('SELECT * FROM {cashboxes}'
-                . ' WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id = ?i)', array(
-                $user_id
-            ))->assoc('id');
+            $cashboxes = $this->all_configs['db']->query('SELECT * FROM {cashboxes}  WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id = ?i)',
+                array(
+                    $user_id
+                ))->assoc('id');
         }
         // список форм для редактирования касс
         if (count($cashboxes) > 0) {
@@ -3271,7 +3286,7 @@ class accountings extends Controller
         //* С кассы 1 3
         $data['content'] .= '<tr class="hide-not-tt-2"><td>* ' . l('С кассы') . '</td>';
         $data['content'] .= '<td><select onchange="select_cashbox(this, 1)" name="cashbox_from" class="form-control input-sm cashbox-1">' . $select_cashbox . '</select></td>';
-        $data['content'] .= '<td><input '.(empty($daf)?'':'readonly').' class="form-control input-sm ' . $daf . '" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
+        $data['content'] .= '<td><input ' . (empty($daf) ? '' : 'readonly') . ' class="form-control input-sm ' . $daf . '" style="width:80px" onchange="get_course(1)" id="amount-1" type="text" name="amount_from" value="' . $amount_from . '" onkeydown="return isNumberKey(event, this)" /></td>';
         $data['content'] .= '<td><select class="form-control input-sm cashbox_currencies-1" onchange="get_course(0)" name="cashbox_currencies_from">' . $cashbox_currencies . '</select></td>';
         $onchange = '
                 $(\'#amount-2\').val(($(\'#amount-1\').val()*$(\'#conversion-course-1\').val()).toFixed(2));
@@ -3388,8 +3403,7 @@ class accountings extends Controller
      */
     protected function getCashboxes($userId)
     {
-        $Cashboxes = new MCashboxes();
-        return $Cashboxes->getPreparedCashboxes($userId);
+        return $this->Cashboxes->getPreparedCashboxes($userId);
     }
 
     /**
@@ -3398,8 +3412,40 @@ class accountings extends Controller
      */
     private function calculateCashboxesAmount($cashboxes)
     {
-        $Cashboxes = new MCashboxes();
-        $this->cashboxes = $Cashboxes->prepareCashboxes($cashboxes);
-        return $Cashboxes->calculateAmount($cashboxes);
+        $this->cashboxes = $this->Cashboxes->prepareCashboxes($cashboxes);
+        return $this->Cashboxes->calculateAmount($cashboxes);
+    }
+
+    /**
+     * @param $orders
+     * @param $filters
+     * @return string
+     */
+    protected function showSalary($orders, $filters)
+    {
+
+        $managersIds = array();
+        if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
+            $managersIds = array_filter(explode(',', $filters['mg']));
+        }
+        // фильтр по приемщику
+        $acceptorsIds = array();
+        if (array_key_exists('acp', $filters) && count(array_filter(explode(',', $filters['acp']))) > 0) {
+            $acceptorsIds = array_filter(explode(',', $filters['acp']));
+        }
+        // фильтр по Инженер
+        $engineersIds = array();
+        if (array_key_exists('eng', $filters) && count(array_filter(explode(',', $filters['eng']))) > 0) {
+            $engineersIds = array_filter(explode(',', $filters['eng']));
+        }
+        $users = $this->Users->query('SELECT * FROM {users} WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0))', array(array_merge($acceptorsIds, $managersIds, $engineersIds)))->assoc();
+
+        $saleProfit = 0;
+        $repairProfit = 0;
+        return $this->view->renderFile('accountings/reports_turnover/salary', array(
+            'users' => $users,
+            'saleProfit' => $saleProfit,
+            'repairProfit' => $repairProfit
+        ));
     }
 }

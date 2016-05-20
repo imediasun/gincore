@@ -41,7 +41,8 @@
             </td>
             <?php if ($isAdmin): ?>
                 <td style="padding: 0 5px 0 0 ">
-                    <select class="multiselect  form-control report-filter" name="managers[]" multiple="multiple" data-placeholder="<?= l('manager') ?>">
+                    <select class="multiselect  form-control report-filter" name="managers[]" multiple="multiple"
+                            data-placeholder="<?= l('manager') ?>">
                         <?= build_array_tree($managers,
                             ((isset($_GET['mg'])) ? explode(',', $_GET['mg']) : array())); ?>
                     </select>
@@ -56,6 +57,15 @@
                     <?= build_array_tree($accepters, $selected); ?>
                 </select>
             </td>
+            <?php if ($isAdmin): ?>
+                <td style="padding: 0 5px 0 0 ">
+                    <select class="multiselect form-control report-filter" name="engineers[]"
+                            multiple="multiple" data-placeholder="<?= l('Инженер') ?>">
+                        <?= build_array_tree($engineers,
+                            ((isset($_GET['eng'])) ? explode(',', $_GET['eng']) : array())); ?>
+                    </select>
+                </td>
+            <?php endif; ?>
             <td style="padding: 0 5px 0 0 ">
                 <select <?= $isAdmin ? '' : 'disabled'; ?> class="multiselect form-control report-filter"
                                                            name="states[]"
@@ -65,13 +75,6 @@
                 </select>
             </td>
             <?php if ($isAdmin): ?>
-                <td style="padding: 0 5px 0 0 ">
-                    <select class="multiselect form-control report-filter" name="engineers[]"
-                            multiple="multiple" data-placeholder="<?= l('Инженер') ?>">
-                        <?= build_array_tree($engineers,
-                            ((isset($_GET['eng'])) ? explode(',', $_GET['eng']) : array())); ?>
-                    </select>
-                </td>
                 <td style="padding: 0 5px 0 0 ">
                     <?= typeahead($this->all_configs['db'], 'goods', false,
                         isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 4, 'input-100px',
