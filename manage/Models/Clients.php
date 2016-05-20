@@ -35,7 +35,7 @@ class MClients extends AModel
                 $has = $this->query('SELECT count(*) FROM ?t WHERE client_code=?',
                     array($this->table, $clientCode))->el();
             } while ($has != 0);
-            $this->query('UPDATE ?q SET client_code=?i WHERE id=?i', array($this->table, $clientCode, $clientId));
+            $this->query('UPDATE ?t SET client_code=?i WHERE id=?i', array($this->table, $clientCode, $clientId));
         }
         return $clientCode;
     }
