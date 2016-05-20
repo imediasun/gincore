@@ -27,6 +27,16 @@ class users extends Controller
      */
     public function routing(Array $arrequest)
     {
+        /**
+         * должно быть доступно всем юзерам, независимо от прав доступа
+         */
+        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
+            $act = isset($_GET['act']) ? $_GET['act'] : '';
+            if (!empty($act) && $act == 'ratings') {
+                $data = $this->getRatings($this->getUserId());
+                Response::json($data);
+            }
+        }
         $result = parent::routing($arrequest);
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'generate_log_file') {
             $this->generateLogFile();
@@ -159,10 +169,6 @@ class users extends Controller
         // загрузка аватарки
         if ($act == 'upload_avatar') {
             $this->uploadAvatar();
-        }
-
-        if ($act == 'ratings') {
-            $this->getRatings($user_id);
         }
 
         if ($act == 'delete_user') {

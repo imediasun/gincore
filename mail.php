@@ -86,6 +86,16 @@ class Mailer extends PHPMailer
                 $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
                 break;
 
+            case('send-new-comment'):
+                $this->Subject = l('Новый отзыв о работе сотрудников');
+                $this->Body = l('Закза N') . $data['order_id'] . "\n\n";
+                $this->Body .= h($data['manager']) . ': ' . $data['manager_rating'] . "\n";
+                $this->Body .= h($data['acceptor']) . ': ' . $data['acceptor_rating'] . "\n";
+                $this->Body .= h($data['engineer']) . ': ' . $data['engineer_rating'] . "\n\n";
+                $this->Body .= l('Коментарий:') . "\n";
+                $this->Body .= h($data['comment']) . "\n";
+                break;
+
             case('new-order'):
                 $this->Subject = 'Подтверждение заказа';
                 // for admin note
