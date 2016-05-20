@@ -33,7 +33,9 @@ $(function () {
       $('.reports_turnover_margin').removeClass('invisible');
     });
     
-    
+    $(document).on('click', '.add-cashbox-table', function(){
+        $(this).tooltip('hide');
+    });
     
 });
 

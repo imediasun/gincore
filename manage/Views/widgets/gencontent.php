@@ -25,7 +25,7 @@
                                 <label><?= l('Отправлять клиентам смс с кодом'); ?></label>
                             </td>
                             <td>
-                                <input type="checkbox" name="send_sms" <?= $sendSms == 'on' ? 'checked' : '' ?> />
+                                <input type="checkbox" name="send_sms" <?= $sendSms == 'on' ? 'checked' : '' ?> /><?= InfoPopover::getInstance()->createQuestion('l_widget_sms_info') ?>
                             </td>
                         </tr>
                         <tr>
@@ -33,7 +33,7 @@
                                 <label><?= l('Сайт на котором будет установлен виджет'); ?></label>
                             </td>
                             <td>
-                                <input type="url" name="host" value="<?= !empty($host) ? $host : '' ?>"/>
+                                <input type="url" name="host" value="<?= !empty($host) ? $host : '' ?>"/> <?= InfoPopover::getInstance()->createQuestion('l_widget_host_info') ?>
                             </td>
                         </tr>
                         <tr>

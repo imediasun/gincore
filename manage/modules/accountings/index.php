@@ -715,7 +715,7 @@ class accountings extends Controller
      * @param int  $i
      * @return string
      */
-    function form_cashbox($cashboxes_currencies, $cashbox = null, $i = 1)
+    function form_cashbox($cashboxes_currencies, $cashbox = null, $i = 1, $wrap_accordion = true)
     {
         $currencies_html = '';
         if ($cashbox) {
@@ -762,7 +762,7 @@ class accountings extends Controller
                     $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label></div>";
                 }
             }
-            $btn = "<input type='submit' class='btn btn-primary' name='cashbox-add' value='" . l('Создать') . "' />";
+            $btn = "<input type='submit' class='btn btn-success' name='cashbox-add' value='" . l('Создать') . "' />";
             $title = '';
         }
 
@@ -774,27 +774,36 @@ class accountings extends Controller
             $accordion_title = l('Редактировать кассу') . " '{$title}'";
         }
 
-        return "
-            <div class='panel panel-default'>
-                <div class='panel-heading'>
-                    <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_cashboxes' href='#collapse_cashbox_{$i}'>{$accordion_title}</a>
+        $cashbox_form = "
+            <form method='POST' style='max-width:300px'>
+                <div class='form-group'><label>" . l('Название') . ": </label>
+                    <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' />
                 </div>
-                <div id='collapse_cashbox_{$i}' class='panel-collapse collapse {$in}'>
-                    <div class='panel-body'>
-                        <form method='POST' style='max-width:300px'>
-                            <div class='form-group'><label>" . l('Название') . ": </label>
-                                <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' />
-                            </div>
-                            <div class='form-group'>
-                                <label>" . l('Используемые валюты') . ": </label>
-                                {$currencies_html}
-                            </div>
-                            <div class='form-group'>{$btn}</div>
-                        </form>
+                <div class='form-group'>
+                    <label>" . l('Используемые валюты') . ": ".InfoPopover::getInstance()->createQuestion('l_cashbox_currencies_info')."</label>
+                    {$currencies_html}
+                </div>
+                <div class='form-group'>{$btn}</div>
+            </form>
+        ";
+        if($wrap_accordion){
+            return "
+                <div class='panel panel-default'>
+                    <div class='panel-heading'>
+                        <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_cashboxes' href='#collapse_cashbox_{$i}'>{$accordion_title}</a>
+                    </div>
+                    <div id='collapse_cashbox_{$i}' class='panel-collapse collapse {$in}'>
+                        <div class='panel-body'>
+                            
+                                ".$cashbox_form."
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        ";
+            ";
+        }else{
+            return $cashbox_form;
+        }
     }
 
     /**
@@ -823,8 +832,8 @@ class accountings extends Controller
             $out .= '"><div class="panel-body">';
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
-            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '') . '<div class="form-group">';
-            $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': </label>';
+            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '').'<div class="form-group">';
+            $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': '.InfoPopover::getInstance()->createQuestion('l_contragent_type_info').'</label>';
             $out .= '<select id="contractor_type_select" class="form-control" name="type"><option value=""></option>';
             foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
                 $sel = '';
@@ -1155,7 +1164,15 @@ class accountings extends Controller
             $data['btns'] = "<input type='button' class='btn btn-success' onclick='contractor_create(this" . (isset($_POST['callback']) ? ', ' . htmlspecialchars($_POST['callback']) : '') . ")' value='" . l('Создать') . "' />";
         }
 
-        if ($act == 'create-contractor-form-no-modal') {
+        // форма создания кассы
+        if ($act == 'create-cashbox' ) {
+            $data['state'] = true;
+            $data['content'] = $this->form_cashbox($this->cashboxes_courses(), null, 1, false);
+            $data['functions'] = array('reset_multiselect()');
+            $data['btns'] = false;
+        }
+
+        if ($act == 'create-contractor-form-no-modal' ) {
             $data['state'] = true;
             $data['html'] =
                 $this->form_contractor(null, null, true)
@@ -1556,7 +1573,7 @@ class accountings extends Controller
                         if (array_key_exists('currencies', $cashbox)) {
                             ksort($cashbox['currencies']);
                             foreach ($cashbox['currencies'] as $cur_id => $currency) {
-                                $name = show_price($currency['amount']) . ' ' . htmlspecialchars(l($currency['short_name']));
+                                $name = show_price($currency['amount']) . ' <span>' . htmlspecialchars(l($currency['short_name'])).'</span>';
                                 $cashboxes_cur[$cashbox['id']][$cur_id] = $name;
                             }
                         }
@@ -2172,10 +2189,10 @@ class accountings extends Controller
             $total_cashboxes['html'] = '<a class="hash_link" href="' . $prefix . 'accountings#cashboxes">' . $total_cashboxes['html'] . '</a>';
 
             $out .= '<table class="table"><tbody>';
-            $out .= '<tr><td><strong>' . l('Оборотные активы') . ':</strong></td><td>' . $cost_of['html'] . '</td></tr>';
-            $out .= '<tr><td><strong>' . l('Необоротные активы') . ':</strong></td><td>' . $assets['html'] . '</td></tr>';
-            $out .= '<tr><td><strong>' . l('Баланс поставщиков') . ':</strong></td><td>' . $s_balance['html'] . '</td></tr>';
-            $out .= '<tr><td><strong>' . l('В кассе') . ':</strong></td><td>' . $total_cashboxes['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('Оборотные активы') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_working_capital_info').'</strong></td><td>' . $cost_of['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('Необоротные активы') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_noncurrent_assets_info').'</strong></td><td>' . $assets['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('Баланс поставщиков') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_cash_balance_suppl_info').'</strong></td><td>' . $s_balance['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('В кассе') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_cash_info').'</strong></td><td>' . $total_cashboxes['html'] . '</td></tr>';
             $out .= '<tr><td><h5>' . l('Итого') . ': </h5></td><td><h5>' . $total['html'] . '</h5></td></tr>';
 
             // расчет долевого участия контрагентов
@@ -2467,7 +2484,7 @@ class accountings extends Controller
                     $i++;
                 }
             }
-            $out .= '</strong></p>';
+            $out .= '</strong> '.InfoPopover::getInstance()->createQuestion('l_accountings_net_profit_info').' </p>';
         }
 
         return array(

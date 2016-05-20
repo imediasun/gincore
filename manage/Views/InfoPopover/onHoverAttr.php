@@ -1,0 +1,1 @@
+ data-infopopoveronhover data-content="<?= $content ?>" 

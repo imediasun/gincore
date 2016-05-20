@@ -1,0 +1,1 @@
+<i class="infopopover_onload infopopover_onetime" data-id="<?= $id ?>" data-content="<?= $content ?>"></i>

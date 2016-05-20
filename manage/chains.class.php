@@ -974,7 +974,7 @@ class Chains extends Object
                 WHERE o.count_debit=0 AND o.goods_id=?i AND (o.supplier IS NULL OR
                 (SELECT COUNT(id) FROM {orders_suppliers_clients} as l WHERE l.supplier_order_id=o.id) < IF(o.count_come>0, o.count_come, o.count))',
                     array($product['goods_id']))->row();
-                $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?');
+                $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?').' '.InfoPopover::getInstance()->createQuestion('l_part_for_order_not_in_stock_info');
                 $data['confirm']['btns'] = $this->view->renderFile('chains.class/add_product_order_confirm', array(
                     'qty' => $qty,
                     'product' => $product
