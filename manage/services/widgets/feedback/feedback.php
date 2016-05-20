@@ -5,6 +5,7 @@ if (file_exists(__DIR__ . '/../../Core/View.php')) {
 }
 
 require_once(ROOT_DIR . '/shop/access.class.php');
+require_once(ROOT_DIR . '/mail.php');
 
 class feedback extends \service
 {
@@ -100,7 +101,7 @@ class feedback extends \service
             throw new \Exception(l('Номер не найден в базе'));
         }
         $this->saveRatings($client, $order, $post);
-        $this->sendEmail($client, $order, $post);
+        $this->sendEmail($order, $post);
         db()->query('UPDATE {clients} SET sms_code=0 WHERE id=?i', array($client['id']));
         return $this->view->renderFile('services/widgets/feedback/add');
     }
@@ -281,22 +282,20 @@ class feedback extends \service
     }
 
     /**
-     * @param $client
      * @param $order
      * @param $post
      */
-    private function sendEmail($client, $order, $post)
+    private function sendEmail($order, $post)
     {
         $email = db()->query('SELECT `value` FROM {settings} WHERE `name`=?',
             array('email-to-receive-new-comments'))->el();
         if (!empty($email)) {
             global $all_configs;
-            require_once ROOT_DIR . '/mail.php';
-            $messages = new Mailer($all_configs);
+            $messages = new \Mailer($all_configs);
             $messages->group('send-new-comment', $email, array(
                 'order_id' => $order['id'],
                 'manager' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['manager']))->el(),
-                'acceptor' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['acceptor']))->el(),
+                'acceptor' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['accepter']))->el(),
                 'engineer' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['engineer']))->el(),
                 'manager_rating' => min(abs($post['manager']), 10),
                 'acceptor_rating' => min(abs($post['acceptor']), 10),
