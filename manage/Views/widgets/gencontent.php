@@ -41,7 +41,7 @@
                                 <label><?= l('Уведомлять о новых отзывах на почту'); ?></label>
                             </td>
                             <td>
-                                <input type="url" name="send_email"
+                                <input type="email" name="send_email"
                                        value="<?= !empty($sendEmail) ? $sendEmail : '' ?>"/>
                             </td>
                         </tr>
