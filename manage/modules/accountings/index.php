@@ -553,8 +553,7 @@ class accountings extends Controller
             }
         }
 
-        header("Location:" . $_SERVER['REQUEST_URI']);
-        exit;
+        Response::redirect($_SERVER['REQUEST_URI']);
     }
 
     /**
@@ -1048,11 +1047,6 @@ class accountings extends Controller
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
-        // проверка доступа
-        if ($this->can_show_module() == false) {
-            Response::json(array('message' => 'Нет прав', 'state' => false));
-        }
-
         $this->preload();
 
         // грузим табу
@@ -1101,8 +1095,6 @@ class accountings extends Controller
         // экспорт
         if ($act == 'cashboxes_transactions') {
             $currencies = $this->all_configs['suppliers_orders']->currencies;
-            //$array = $this->all_configs['suppliers_orders']->get_transactions($currencies);
-            //table_to_excel($this->all_configs['path'], 'cashboxes_transactions');
         }
 
         // сумма по транзакциям у контрагента
@@ -2395,7 +2387,7 @@ class accountings extends Controller
                 'currencies' => $currencies
             ));
 
-            $out = $filters . $unloading . $table_of_orders  . $this->showSalary($amounts['orders'], $by + $_GET);
+            $out = $filters . $unloading . $table_of_orders . $this->showSalary($amounts['orders'], $by + $_GET);
         }
 
         return array(
@@ -3423,7 +3415,6 @@ class accountings extends Controller
      */
     protected function showSalary($orders, $filters)
     {
-
         $managersIds = array();
         if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
             $managersIds = array_filter(explode(',', $filters['mg']));
@@ -3438,10 +3429,35 @@ class accountings extends Controller
         if (array_key_exists('eng', $filters) && count(array_filter(explode(',', $filters['eng']))) > 0) {
             $engineersIds = array_filter(explode(',', $filters['eng']));
         }
-        $users = $this->Users->query('SELECT * FROM {users} WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0))', array(array_merge($acceptorsIds, $managersIds, $engineersIds)))->assoc();
-
-        $saleProfit = 0;
-        $repairProfit = 0;
+        $all = array_merge($acceptorsIds, $managersIds, $engineersIds);
+        if (empty($all)) {
+            return '';
+        }
+        $users = $this->Users->query('SELECT id, fio, salary_from_repair, salary_from_sale FROM {users} WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0)',
+            array($all))->assoc();
+        $saleProfit = array();
+        $repairProfit = array();
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                foreach ($orders as $order) {
+                    if (!in_array($user['id'], array($order['manager'], $order['acceptor'], $order['engineer']))) {
+                        continue;
+                    }
+                    if ($order['type'] == ORDER_SELL) {
+                        if (!isset($saleProfit[$user['id']])) {
+                            $saleProfit[$user['id']] = 0;
+                        }
+                        $saleProfit[$user['id']] += $order['profit'];
+                    }
+                    if ($order['type'] == ORDER_REPAIR) {
+                        if (!isset($repairProfit[$user['id']])) {
+                            $repairProfit[$user['id']] = 0;
+                        }
+                        $repairProfit[$user['id']] += $order['profit'];
+                    }
+                }
+            }
+        }
         return $this->view->renderFile('accountings/reports_turnover/salary', array(
             'users' => $users,
             'saleProfit' => $saleProfit,

@@ -9,11 +9,11 @@
                     </tr>
                     <tr>
                         <td><?= l('Ремонты') ?></td>
-                        <td><?= $repairProfit / $user['salary_from_repair'] ?></td>
+                        <td><?= round(($repairProfit[$user['id']]/ 100) * ($user['salary_from_repair']/100), 2) ?></td>
                     </tr>
                     <tr>
                         <td><?= l('Продажи') ?></td>
-                        <td><?= $saleProfit / $user['salary_from_sale'] ?></td>
+                        <td><?= round(($saleProfit[$user['id']]/100) * ($user['salary_from_sale']/100), 2) ?></td>
                     </tr>
                 </table>
             </div>
