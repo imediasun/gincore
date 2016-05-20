@@ -168,4 +168,37 @@ div.transaction_div i.icon-plus:hover {
 }
 .input-100px {
     min-width: 100px;
+
+.cashboxes-table h4{
+    font-weight: 600;
+}
+.cashbox-currency-value>div{
+    font-weight: 600;
+    font-size: 16px;
+}
+.cashbox-currency-value>div>span{
+    color: #757575;
+    font-size: 65%;
+    display: inline-block;
+}
+.btns-cashbox{
+    padding-top: 10px;
+}
+
+.cashbox-tables,
+.add-cashbox-table{
+    float: left;
+}
+.add-cashbox-table{
+    cursor: pointer;
+    margin-top: 110px;
+    margin-left: 20px;
+}
+.add-cashbox-table img{
+    width: 100px;
+    transition: opacity .15s linear;
+    opacity: .3;
+}
+.add-cashbox-table:hover img{
+    opacity: .5;
 }

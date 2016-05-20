@@ -1,0 +1,1 @@
+<i class="infopopover_question infopopover_onclick fa fa-question-circle" data-content="<?= $content ?>"></i>

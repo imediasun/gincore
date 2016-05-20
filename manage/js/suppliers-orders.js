@@ -115,6 +115,9 @@ function accept_supplier_order(_this, callback) {
                 }
                 close_alert_box();
                 click_tab_hash();
+                if(msg['infopopover_modal']){
+                    show_infopopover_modal(msg['infopopover_modal']);
+                }
             }
         },
         error: function (xhr, ajaxOptions, thrownError) {

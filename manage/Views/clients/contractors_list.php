@@ -12,5 +12,6 @@
                     </option>
                 <?php endforeach; ?>
             </select>
+        <?= !empty($infopopover) ? $infopopover : '' ?>
         </div>
 <?php endif; ?>

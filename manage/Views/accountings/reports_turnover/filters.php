@@ -1,4 +1,11 @@
 <form method="post" style="max-width: 400px">
+<<<<<<< HEAD
+=======
+    <div class="form-group">
+        <label class=""><?= l('Период') ?>: <?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_period_info')?></label>
+        <input type="text" name="date" value="<?= $date ?>" class="form-control daterangepicker"/>
+    </div>
+>>>>>>> feature/913-eshop
     <table class="table borderless">
         <tr>
             <td>
@@ -79,12 +86,14 @@
                     <?= typeahead($this->all_configs['db'], 'goods', false,
                         isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 4, 'input-100px',
                         'input-100px', '', false, false, '', false, l('Товар')); ?>
+                    <?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_product_info')?>
                 </td>
 
                 <td style="padding: 0 5px 0 0 ">
                     <?= typeahead($this->all_configs['db'], 'categories-last', false,
                         isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-100px', 'input-100px', '',
                         false, false, '', false, l('Категория')); ?>
+                    <?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_category_info')?>
                 </td>
             <?php endif; ?>
             <td style="padding: 0 5px 0 0 ">

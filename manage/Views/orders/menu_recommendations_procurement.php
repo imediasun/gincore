@@ -3,8 +3,8 @@
         <div class="form-group"><label><?= l('Категории') ?></label>
             <select class="multiselect form-control" multiple="multiple" name="ctg[]">
                 <?= build_array_tree($categories, isset($_GET['ctg']) ? explode(',', $_GET['ctg']) : null); ?>
-            </select></div>
-        <div class="form-group"><label><?= l('Сроки доставки') ?></label>
+            </select> <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_info') ?></div>
+        <div class="form-group"><label><?= l('Сроки доставки') ?> <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_terms_info') ?></label>
             <?php $s = isset($_GET['tso']) ? intval($_GET['tso']) : 0; ?>
             <select class="form-control" name="tso">
                 <option <?= ($s == 4 ? 'selected' : '') ?> value="4">4</option>
@@ -13,7 +13,7 @@
                 <option <?= ($s == 1 ? 'selected' : '') ?> value="1">1</option>
             </select>
         </div>
-        <div class="form-group"><label><?= l('Дата от') ?>:</label>
+        <div class="form-group"><label><?= l('Дата от') ?>: <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_date_info') ?></label>
             <input type="text" placeholder="<?= l('Дата') ?>" name="date" class="daterangepicker form-control"
                             value="<?= $date ?>"/>
         </div>

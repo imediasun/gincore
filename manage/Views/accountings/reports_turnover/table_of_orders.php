@@ -9,11 +9,11 @@
         <td><?= l('Работа') ?></td>
 
         <?php if ($isAdmin): ?>
-            <td><?= l('Стоимость работ') ?></td>
+            <td><?= l('Стоимость работ') ?> <?= InfoPopover::getInstance()->createQuestion('l_accountings_report_table_cost_info') ?></td>
         <?php endif; ?>
         <td><?= l('Цена продажи') ?></td>
         <?php if ($isAdmin): ?>
-            <td><?= l('Цена запчасти') ?></td>
+            <td><?= l('Цена запчасти') ?> <?= InfoPopover::getInstance()->createQuestion('l_accountings_report_table_part_cost_info') ?></td>
             <td class="reports_turnover_profit invisible"><?= l('Операц. приб.') ?></td>
             <td class="reports_turnover_margin invisible"><?= l('Наценка %') ?></td>
         <?php endif; ?>

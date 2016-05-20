@@ -1,7 +1,7 @@
 <form class="form-horizontal" method="post">
     <fieldset>
         <legend><?= l('Добавление клиента') ?></legend>
-        <div class="col-sm-4">
+        <div class="col-sm-5">
             <div class="col-sm-12 control-group">
                 <div class="col-sm-12">
                     <label class="control-label"><?= l('Ф.И.О.') ?>: <b class="text-danger">*</b></label>
@@ -44,16 +44,18 @@
                         'contractors' => $contractors,
                         'client' => array(
                             'id' => null
-                        )
+                        ),
+                        'infopopover' => InfoPopover::getInstance()->createQuestion('l_create_new_client_contractor_info')
                     )); ?>
-                <?php endif; ?>
+                <?php endif; ?> 
             </div>
             <div class="col-sm-12 control-group">
                 <?= $this->renderFile('clients/tags_list', array(
                     'tags' => $tags,
                     'client' => array(
                         'id' => null
-                    )
+                    ),
+                    'infopopover' => InfoPopover::getInstance()->createQuestion('l_create_new_client_tags_info')
                 )); ?>
             </div>
             <div class="col-sm-12 control-group">

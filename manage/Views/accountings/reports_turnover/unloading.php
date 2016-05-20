@@ -12,7 +12,7 @@
             </td>
             <?php if ($isAdmin): ?>
                 <td>
-                    <?= l('Операционная прибыль') ?>:
+                    <?= l('Операционная прибыль') ?>:<?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_operating_income_info')?>
                 </td>
                 <td>
                     <a id="show_reports_turnover_profit_button" class="btn"><?= l('Рассчитать') ?> </a>
@@ -22,7 +22,7 @@
                 </span> </strong>
                 </td>
                 <td>
-                    <?= l('Средняя наценка') ?>:
+                    <?= l('Средняя наценка') ?>:<?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_average_mergine_info')?>
                 </td>
                 <td>
                     <a id="show_reports_turnover_margin_button" class="btn"> <?= l('Рассчитать') ?> </a>
