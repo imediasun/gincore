@@ -22,11 +22,11 @@ class sale_warranty extends AbstractTemplate
             $this->editor = true;
 
             // товары и услуги
-            $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
+            $goods = $this->all_configs['db']->query('SELECT og.id as item_id, og.title, og.price, g.type, og.warranty
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
             if ($goods) {
-                foreach ($goods as $good) {
+                foreach ($goods as $id => $good) {
                     $arr = array(
                         'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
                         'date' => array(
@@ -38,22 +38,23 @@ class sale_warranty extends AbstractTemplate
                             'value' => $good['warranty'] > 0 ? $good['warranty'] . ' ' . l('мес') . '' : l('Без гарантии'),
                             'name' => l('Гарантия')
                         ),
-                        'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
-                        'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => l('Телефон клиента')),
-                        'manager' => array('value' => htmlspecialchars($order['manager']), 'name' => l('Менеджер')),
+                        'fio' => array('value' => h($order['fio']), 'name' => l('ФИО клиента')),
+                        'phone' => array('value' => h($order['phone']), 'name' => l('Телефон клиента')),
+                        'manager' => array('value' => h($order['manager']), 'name' => l('Менеджер')),
                         'product' => array('value' => $good['title'], 'name' => l('Товар')),
                         'price' => array('value' => $good['price'], 'name' => l('Цена')),
                         'price_with_discount' => array(
                             'value' => price_with_discount($good),
                             'name' => l('Цена со скидкой')
                         ),
-                        'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => l('Серийный номер')),
+                        'serial' => array('value' => h(suppliers_order_generate_serial($good, true, false)), 'name' => l('Серийный номер')),
                         'company' => array(
-                            'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                            'value' => h($this->all_configs['settings']['site_name']),
                             'name' => l('Название компании')
                         ),
+                        'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
                     );
-                    $print_html .= $this->generate_template($arr, 'sale_warranty');
+                    $print_html .= $this->generate_template($arr, 'sale_warranty', $id == 0);
                 }
             }
 

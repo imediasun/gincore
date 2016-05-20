@@ -14,6 +14,33 @@
                     </label>
                 </div>
             </li>
+            <li>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="print[]"
+                               value="<?= print_link($order['id'], 'sale_warranty', '', true) ?>">
+                        <?= l('Гарантийный талон') ?>
+                    </label>
+                </div>
+            </li>
+            <li>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="print[]"
+                               value="<?= print_link($order['id'], 'invoice', '', true) ?>">
+                        <?= l('Чек') ?>
+                    </label>
+                </div>
+            </li>
+            <li>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="print[]"
+                               value="<?= print_link($order['id'], 'invoicing', '', true) ?>">
+                        <?= l('Счет на оплату') ?>
+                    </label>
+                </div>
+            </li>
             <li role="separator" class="divider"></li>
             <li class="text-center">
                 <button class="btn btn-sm btn-info" type="button" id="print_now"><?= l('Распечатать') ?></button>

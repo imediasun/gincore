@@ -74,15 +74,26 @@ abstract class AbstractTemplate
 
     /**
      * @param $arr
-     * @param $act
+     */
+    public function generateVariables($arr)
+    {
+        foreach ($arr as $k => $v) {
+            $this->variables .= '<p><b>{{' . $k . '}}</b> - ' . $v['name'] . '</p>';
+        }
+    }
+
+    /**
+     * @param      $arr
+     * @param      $act
+     * @param bool $generateVariable
      * @return mixed
      */
-    public function generate_template($arr, $act)
+    public function generate_template($arr, $act, $generateVariable = true)
     {
         $print_html = $this->get_template($act);
 
-        foreach ($arr as $k => $v) {
-            $this->variables .= '<p><b>{{' . $k . '}}</b> - ' . $v['name'] . '</p>';
+        if ($generateVariable) {
+            $this->generateVariables($arr);
         }
 
         // адрес и телефон по-умолчанию

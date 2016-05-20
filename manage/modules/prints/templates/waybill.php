@@ -23,20 +23,22 @@ class waybill extends AbstractTemplate
             $amount = 0;
 
             // товары и услуги
-            $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
+            $goods = $this->all_configs['db']->query('SELECT og.*, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
             $view = new View($this->all_configs);
 
-            $products = $view->renderFile('prints/waybill_products', array(
-                'goods' => $goods
-            ));
-
             if (!empty($goods)) {
                 foreach ($goods as $good) {
-                    $amount += $good['count'] * $good['price'] * (1 - $good['discount'] / 100);
+                    $amount += sum_with_discount($good);
                 }
             }
+            
+            $products = $view->renderFile('prints/waybill_products', array(
+                'goods' => $goods, 
+                'amount' => $amount
+            ));
+
             $arr = array(
                 'id' => array('value' => intval($order['id']), 'name' => l('ID заказа')),
                 'date' => array(
@@ -67,9 +69,9 @@ class waybill extends AbstractTemplate
                 ),
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
                 'products' => array('value' => $products, 'name' => l('Товары')),
-                'amount' => array('value' => $amount/100, 'name' => l('Полная стоимость')),
+                'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
                 'amount_in_words' => array(
-                    'value' => $this->amountAsWord($amount/100),
+                    'value' => $this->amountAsWord(max(0, $amount)),
                     'name' => l('Полная стоимость прописью')
                 ),
             );
