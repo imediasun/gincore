@@ -30,7 +30,7 @@
     </div>
 
     <div class="form-group">
-        <label><?= l('Дата проверки') ?>: </label>
+        <label><?= l('Дата проверки') ?>: <?= InfoPopover::getInstance()->createQuestion('l_debit_order_date_info') ?></label>
         <div class="controls">
             <input class="form-control datetimepicker" placeholder="<?= l('Дата проверки') ?>"
                    data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check" value=""/>
