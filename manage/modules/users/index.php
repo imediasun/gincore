@@ -3,13 +3,14 @@
 require_once __DIR__ . '/../../Core/Response.php';
 require_once __DIR__ . '/../../Core/FlashMessage.php';
 require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Object.php';
 require_once __DIR__ . '/../../Tariff.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
 $moduleactive[80] = !$ifauth['is_2'];
 
-class users
+class users extends Object
 {
     /** @var View */
     protected $view;
@@ -26,6 +27,17 @@ class users
         $this->all_configs = &$all_configs;
         $this->view = new View($all_configs);
         global $input_html, $ifauth;
+
+        /**
+         * должно быть доступно всем юзерам, независимо от прав доступа
+         */
+        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
+            $act = isset($_GET['act']) ? $_GET['act'] : '';
+            if (!empty($act) && $act == 'ratings') {
+                $data = $this->getRatings($this->getUserId());
+                Response::json($data);
+            }
+        }
 
         if (!$this->all_configs['oRole']->hasPrivilege('edit-users')) {
             return $input_html['mcontent'] = '<div class="span3"></div>
@@ -207,27 +219,6 @@ class users
             }
         }
 
-        if ($act == 'ratings') {
-            $ratings = $this->all_configs['db']->query('SELECT ur.*, f.comment '
-                . ' FROM {users_ratings} ur'
-                . ' JOIN {feedback} f ON ur.order_id=f.order_id'
-                . ' WHERE user_id=?i ORDER BY created_at DESC',
-                array($user_id))->assoc();
-            if (empty($ratings)) {
-                $data = array(
-                    'state' => false,
-                    'message' => l('Записи об отзывах клиентов не найдены')
-                );
-            } else {
-                $data = array(
-                    'state' => true,
-                    'content' => $this->view->renderFile('users/ratings', array(
-                        'ratings' => $ratings,
-                    ))
-                );
-            }
-            Response::json($data);
-        }
         // проверка доступа
         if ($this->can_show_module() == false) {
             header("Content-Type: application/json; charset=UTF-8");
@@ -984,5 +975,33 @@ class users
         header('Content-Disposition: attachment; filename="report.xls"');
         $objWriter->save('php://output');
         exit();
+    }
+
+    /**
+     * @param $user_id
+     * @return array
+     */
+    private function getRatings($user_id)
+    {
+        $ratings = $this->all_configs['db']->query('SELECT ur.*, f.comment '
+            . ' FROM {users_ratings} ur'
+            . ' JOIN {feedback} f ON ur.order_id=f.order_id'
+            . ' WHERE user_id=?i ORDER BY created_at DESC',
+            array($user_id))->assoc();
+        if (empty($ratings)) {
+            $data = array(
+                'state' => false,
+                'message' => l('Записи об отзывах клиентов не найдены')
+            );
+            return $data;
+        } else {
+            $data = array(
+                'state' => true,
+                'content' => $this->view->renderFile('users/ratings', array(
+                    'ratings' => $ratings,
+                ))
+            );
+            return $data;
+        }
     }
 }
