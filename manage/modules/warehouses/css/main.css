@@ -9,7 +9,7 @@
     height: 160px;
 }
 
-.show_warehouse div, .show_warehouse h5 {
+.show_warehouse > div, .show_warehouse h5 {
     text-align: center;
     margin: 5px 10px;
 }

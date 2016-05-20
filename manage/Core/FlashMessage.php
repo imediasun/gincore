@@ -58,7 +58,7 @@ class FlashMessage
         if (!empty($flash) && is_array($flash)) {
             foreach ($flash as $type => $message) {
                 if (!empty($message)) {
-                    $out .= "<div class='alert alert-{$type}'><a class='close' title='close' aria-label='close' data-dismiss='alert' href='#'>×</a><strong>" . l(ucfirst($type)) . "</strong>&nbsp;{$message}</div>";
+                    $out .= "<div class='flashmessage-alert alert alert-{$type}'><a class='close' title='close' aria-label='close' data-dismiss='alert' href='#'>×</a><strong>" . l(ucfirst($type)) . "</strong>&nbsp;{$message}</div>";
                     self::clear($type);
                 }
             }

@@ -1,6 +1,6 @@
 <form method="post" style="max-width: 400px">
     <div class="form-group">
-        <label class=""><?= l('Период') ?>:</label>
+        <label class=""><?= l('Период') ?>: <?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_period_info')?></label>
         <input type="text" name="date" value="<?= $date ?>" class="form-control daterangepicker"/>
     </div>
     <table class="table borderless">
@@ -51,7 +51,7 @@
                 </td>
             </tr>
             <tr>
-                <td><label><?= l('Товар') ?>:</label></td>
+                <td><label><?= l('Товар') ?>: <?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_product_info')?></label></td>
                 <td>
                     <?= typeahead($this->all_configs['db'], 'goods', true,
                         isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 4); ?>
@@ -59,7 +59,7 @@
 
             </tr>
             <tr>
-                <td><label><?= l('Категория') ?>:</label></td>
+                <td><label><?= l('Категория') ?>: <?=  InfoPopover::getInstance()->createQuestion('l_accountings_report_category_info')?></label></td>
                 <td>
                     <?= typeahead($this->all_configs['db'], 'categories-last', true,
                         isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5); ?>

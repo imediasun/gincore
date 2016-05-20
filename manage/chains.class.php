@@ -997,11 +997,11 @@ class Chains
                 WHERE o.count_debit=0 AND o.goods_id=?i AND (o.supplier IS NULL OR
                 (SELECT COUNT(id) FROM {orders_suppliers_clients} as l WHERE l.supplier_order_id=o.id) < IF(o.count_come>0, o.count_come, o.count))',
                     array($product['goods_id']))->row();
-                $data['confirm']['content'] = 'Товара нет в наличии, подтвердить?';
+                $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?').' '.InfoPopover::getInstance()->createQuestion('l_part_for_order_not_in_stock_info');
                 $data['confirm']['btns'] = "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 1);close_alert_box();'>
-                Заказать локально<br /><small>срок 1-3 дня (" . ($qty ? $qty['qty_1'] : '0') . ")</small></button>";
+                ".l("Заказать локально")."<br /><small>".l("срок 1-3 дня")." (" . ($qty ? $qty['qty_1'] : '0') . ")</small></button>";
                 $data['confirm']['btns'] .= "<button class='btn btn-small' onclick='order_products(this, " . $product['goods_id'] . ", null, 2);close_alert_box();'>
-                Заказать за границей<br /><small>срок 2-3 недели (" . ($qty ? $qty['qty_2'] : '0') . ")</small></button>";
+                ".l("Заказать за границей")."<br /><small>".l("срок 2-3 недели")." (" . ($qty ? $qty['qty_2'] : '0') . ")</small></button>";
                 $data['state'] = false;
                 return $data;
             }

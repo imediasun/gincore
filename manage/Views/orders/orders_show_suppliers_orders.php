@@ -8,7 +8,7 @@
             </a>
         </li>
         <li class="">
-            <a class="click_tab btn btn-danger" href="#show_suppliers_orders-wait" title=""
+            <a <?= InfoPopover::getInstance()->createOnHoverAttr('l_suppliers_orders_wait_info') ?> class="click_tab btn btn-danger" href="#show_suppliers_orders-wait" title=""
                         onclick="click_tab(this, event)" data-open_tab="orders_show_suppliers_orders_wait">
                 <i class="fa fa-clock-o"></i> <?= l('Ожидают проверки') ?>
             </a>
