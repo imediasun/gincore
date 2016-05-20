@@ -295,7 +295,7 @@ class feedback extends \service
             $messages->group('send-new-comment', $email, array(
                 'order_id' => $order['id'],
                 'manager' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['manager']))->el(),
-                'acceptor' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['acceptor']))->el(),
+                'acceptor' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['accepter']))->el(),
                 'engineer' => db()->query('SELECT fio FROM {users} WHERE id=?i', array($order['engineer']))->el(),
                 'manager_rating' => min(abs($post['manager']), 10),
                 'acceptor_rating' => min(abs($post['acceptor']), 10),
