@@ -19,7 +19,7 @@ var gcw_feedback_widget = (function ($) {
   var callbacks = {
     add: function ($form, data) {
       $form.hide();
-      $('.js-feedback-body').html(data.html);
+      $('#gcw_feedback_modal .js-feedback-body').html(data.html);
       resize();
     },
     send_sms: function ($form, data) {
@@ -41,6 +41,7 @@ var gcw_feedback_widget = (function ($) {
       dataType: "json",
       contentType: contentType,
       success: function (data) {
+        console.log(data);
         if (data.state) {
           callbacks[method]($this, data);
         } else {
@@ -72,9 +73,9 @@ var gcw_feedback_widget = (function ($) {
         var $this = $(this),
           method = $this.find('input[name=action]').val(),
           data,
-          phone = $('input[name=phone]').val(),
-          sms = $('input[name=sms]').val(),
-          code = $('input[name=code]').val();
+          phone = $('#gcw_feedback_modal input[name=phone]').val(),
+          sms = $('#gcw_feedback_modal input[name=sms]').val(),
+          code = $('#gcw_feedback_modal input[name=code]').val();
 
         if ((typeof code != 'undefined' && code.length > 0) || (typeof sms != 'undefined' && sms.length > 0)) {
           send($this, $this.serialize(), method);
