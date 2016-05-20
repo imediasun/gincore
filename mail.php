@@ -88,12 +88,12 @@ class Mailer extends PHPMailer
 
             case('send-new-comment'):
                 $this->Subject = l('Новый отзыв о работе сотрудников');
-                $this->Body = l('Закза N') . $data['order_id'] . "\n\n";
-                $this->Body .= h($data['manager']) . ': ' . $data['manager_rating'] . "\n";
-                $this->Body .= h($data['acceptor']) . ': ' . $data['acceptor_rating'] . "\n";
-                $this->Body .= h($data['engineer']) . ': ' . $data['engineer_rating'] . "\n\n";
-                $this->Body .= l('Коментарий:') . "\n";
-                $this->Body .= h($data['comment']) . "\n";
+                $this->Body = l('Закза N') . $data['order_id'] . "<br><br>";
+                $this->Body .= h($data['manager']) . ': ' . $data['manager_rating'] . "<br>";
+                $this->Body .= h($data['acceptor']) . ': ' . $data['acceptor_rating'] . "<br>";
+                $this->Body .= h($data['engineer']) . ': ' . $data['engineer_rating'] . "<br><br>";
+                $this->Body .= l('Коментарий:') . "<br>";
+                $this->Body .= h($data['comment']) . "<br>";
                 break;
 
             case('new-order'):
