@@ -71,7 +71,7 @@ abstract class Controller extends Object
      */
     public function render()
     {
-        if ($this->can_show_module() == false) {
+        if (!$this->can_show_module()) {
             if ($this->isAjax($this->all_configs['arrequest'])) {
                 Response::json(array('message' => l('Нет прав'), 'state' => false));
             } else {
