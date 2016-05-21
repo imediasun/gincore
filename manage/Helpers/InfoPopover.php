@@ -147,6 +147,5 @@ class InfoPopover
         $this->all_configs = $all_configs;
         $this->manage_translates = $manage_translates;
         $this->view = new View($this->all_configs);
-
     }
 }
