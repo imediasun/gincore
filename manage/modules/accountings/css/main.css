@@ -208,9 +208,14 @@ table.table-of-order >thead >tr {
 }
 table.table-of-order >thead >tr >td{
     line-height: 20px;
+    text-align: center;
 }
 
 table.table-of-order td {
     border: 1px solid #e3e3e3 !important;
-    padding-left: 10px !important;
+    padding: 0 5px !important;
+}
+.invisible {
+    visibility: hidden;
+    display: none;
 }
