@@ -795,13 +795,13 @@ class accountings extends Controller
                     <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' />
                 </div>
                 <div class='form-group'>
-                    <label>" . l('Используемые валюты') . ": ".InfoPopover::getInstance()->createQuestion('l_cashbox_currencies_info')."</label>
+                    <label>" . l('Используемые валюты') . ": " . InfoPopover::getInstance()->createQuestion('l_cashbox_currencies_info') . "</label>
                     {$currencies_html}
                 </div>
                 <div class='form-group'>{$btn}</div>
             </form>
         ";
-        if($wrap_accordion){
+        if ($wrap_accordion) {
             return "
                 <div class='panel panel-default'>
                     <div class='panel-heading'>
@@ -810,13 +810,13 @@ class accountings extends Controller
                     <div id='collapse_cashbox_{$i}' class='panel-collapse collapse {$in}'>
                         <div class='panel-body'>
                             
-                                ".$cashbox_form."
+                                " . $cashbox_form . "
                             </form>
                         </div>
                     </div>
                 </div>
             ";
-        }else{
+        } else {
             return $cashbox_form;
         }
     }
@@ -847,8 +847,8 @@ class accountings extends Controller
             $out .= '"><div class="panel-body">';
         }
         if (($contractor && $opened == $contractor['id']) || !$contractor) {
-            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '').'<div class="form-group">';
-            $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': '.InfoPopover::getInstance()->createQuestion('l_contragent_type_info').'</label>';
+            $out .= (!$wrap_form ? '<form method="POST" class="form_contractor ">' : '') . '<div class="form-group">';
+            $out .= '</div><div class="form-group"><label class="control-label">' . l('Тип контрагента') . ': ' . InfoPopover::getInstance()->createQuestion('l_contragent_type_info') . '</label>';
             $out .= '<select id="contractor_type_select" class="form-control" name="type"><option value=""></option>';
             foreach ($this->all_configs['configs']['erp-contractors-types'] as $c_id => $c_name) {
                 $sel = '';
@@ -1173,14 +1173,14 @@ class accountings extends Controller
         }
 
         // форма создания кассы
-        if ($act == 'create-cashbox' ) {
+        if ($act == 'create-cashbox') {
             $data['state'] = true;
             $data['content'] = $this->form_cashbox($this->cashboxes_courses(), null, 1, false);
             $data['functions'] = array('reset_multiselect()');
             $data['btns'] = false;
         }
 
-        if ($act == 'create-contractor-form-no-modal' ) {
+        if ($act == 'create-contractor-form-no-modal') {
             $data['state'] = true;
             $data['html'] =
                 $this->form_contractor(null, null, true)
@@ -1581,7 +1581,7 @@ class accountings extends Controller
                         if (array_key_exists('currencies', $cashbox)) {
                             ksort($cashbox['currencies']);
                             foreach ($cashbox['currencies'] as $cur_id => $currency) {
-                                $name = show_price($currency['amount']) . ' <span>' . htmlspecialchars(l($currency['short_name'])).'</span>';
+                                $name = show_price($currency['amount']) . ' <span>' . htmlspecialchars(l($currency['short_name'])) . '</span>';
                                 $cashboxes_cur[$cashbox['id']][$cur_id] = $name;
                             }
                         }
@@ -2197,10 +2197,10 @@ class accountings extends Controller
             $total_cashboxes['html'] = '<a class="hash_link" href="' . $prefix . 'accountings#cashboxes">' . $total_cashboxes['html'] . '</a>';
 
             $out .= '<table class="table"><tbody>';
-            $out .= '<tr><td><strong>' . l('Оборотные активы') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_working_capital_info').'</strong></td><td>' . $cost_of['html'] . '</td></tr>';
-            $out .= '<tr><td><strong>' . l('Необоротные активы') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_noncurrent_assets_info').'</strong></td><td>' . $assets['html'] . '</td></tr>';
-            $out .= '<tr><td><strong>' . l('Баланс поставщиков') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_cash_balance_suppl_info').'</strong></td><td>' . $s_balance['html'] . '</td></tr>';
-            $out .= '<tr><td><strong>' . l('В кассе') . ': '.InfoPopover::getInstance()->createQuestion('l_accountings_cash_info').'</strong></td><td>' . $total_cashboxes['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('Оборотные активы') . ': ' . InfoPopover::getInstance()->createQuestion('l_accountings_working_capital_info') . '</strong></td><td>' . $cost_of['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('Необоротные активы') . ': ' . InfoPopover::getInstance()->createQuestion('l_accountings_noncurrent_assets_info') . '</strong></td><td>' . $assets['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('Баланс поставщиков') . ': ' . InfoPopover::getInstance()->createQuestion('l_accountings_cash_balance_suppl_info') . '</strong></td><td>' . $s_balance['html'] . '</td></tr>';
+            $out .= '<tr><td><strong>' . l('В кассе') . ': ' . InfoPopover::getInstance()->createQuestion('l_accountings_cash_info') . '</strong></td><td>' . $total_cashboxes['html'] . '</td></tr>';
             $out .= '<tr><td><h5>' . l('Итого') . ': </h5></td><td><h5>' . $total['html'] . '</h5></td></tr>';
 
             // расчет долевого участия контрагентов
@@ -2404,6 +2404,7 @@ class accountings extends Controller
                 'currencies' => $currencies
             ));
 
+
             $out = $filters . $unloading . $table_of_orders . $this->showSalary($amounts['orders'], $by + $_GET);
         }
 
@@ -2493,7 +2494,7 @@ class accountings extends Controller
                     $i++;
                 }
             }
-            $out .= '</strong> '.InfoPopover::getInstance()->createQuestion('l_accountings_net_profit_info').' </p>';
+            $out .= '</strong> ' . InfoPopover::getInstance()->createQuestion('l_accountings_net_profit_info') . ' </p>';
         }
 
         return array(
@@ -3460,13 +3461,13 @@ class accountings extends Controller
                     if (!in_array($user['id'], array($order['manager'], $order['acceptor'], $order['engineer']))) {
                         continue;
                     }
-                    if ($order['type'] == ORDER_SELL) {
+                    if ($order['order_type'] == ORDER_SELL) {
                         if (!isset($saleProfit[$user['id']])) {
                             $saleProfit[$user['id']] = 0;
                         }
                         $saleProfit[$user['id']] += $order['profit'];
                     }
-                    if ($order['type'] == ORDER_REPAIR) {
+                    if ($order['order_type'] == ORDER_REPAIR) {
                         if (!isset($repairProfit[$user['id']])) {
                             $repairProfit[$user['id']] = 0;
                         }
