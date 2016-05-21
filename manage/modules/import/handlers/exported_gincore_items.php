@@ -11,6 +11,8 @@ class exported_gincore_items extends abstract_import_provider
      * @var array
      */
     protected $header_row;
+    protected $categories = array();
+    protected $managers = array();
 
     /**
      * @inheritdoc
@@ -19,13 +21,15 @@ class exported_gincore_items extends abstract_import_provider
     {
         parent::__construct();
         $this->cols = array(
-            'category_id' => l('Категория'),
-            'title' => l('Наименование'),
-            'price_purchase' => l('Цена закупки'),
-            'price_wholesale' => l('Цена оптовая'),
-            'price' => l('Цена розничная'),
+            'category_id' => lq('Категория'),
+            'title' => lq('Наименование'),
+            'price_purchase' => lq('Цена закупки'),
+            'price_wholesale' => lq('Цена оптовая'),
+            'price' => lq('Цена розничная'),
 //            'manager_id' => l('manager')
         );
+        $this->categories = db()->query('select id, title from {categories}', array())->assoc('title');
+        $this->managers = db()->query('select id, fio, login, email from {users}', array())->assoc('id');
     }
 
     /**
@@ -51,8 +55,12 @@ class exported_gincore_items extends abstract_import_provider
      */
     public function get_category_id($row)
     {
-        $value = trim($this->getColValue('category_id', $row));
-        $id = db()->query('SELECT id FROM {categories} WHERE title=?', array($value))->el();
+        $title = trim($this->getColValue('category_id', $row));
+        if (isset($this->categories[$title])) {
+            $id = $this->categories[$title]['id'];
+        } else {
+            $id = db()->query('SELECT id FROM {categories} WHERE title=?', array($title))->el();
+        }
         return empty($id) ? false : $id;
     }
 
@@ -63,7 +71,13 @@ class exported_gincore_items extends abstract_import_provider
     public function get_manager_id($row)
     {
         $value = trim($this->getColValue('manager_id', $row));
-        $id = db()->query('SELECT id FROM {users} WHERE fio=? OR login=? OR email=?', array($value, $value, $value))->el();
+        $manager = $this->findManager($value);
+        if (empty($manager)) {
+            $id = db()->query('SELECT id FROM {users} WHERE fio=? OR login=? OR email=?',
+                array($value, $value, $value))->el();
+        } else {
+            $id = $manager['id'];
+        }
         return empty($id) ? false : $id;
     }
 
@@ -115,5 +129,19 @@ class exported_gincore_items extends abstract_import_provider
     private function getColPosition($colName)
     {
         return isset($this->header_row[$colName]) ? $this->header_row[$colName] : false;
+    }
+
+    /**
+     * @param $value
+     * @return array|mixed
+     */
+    private function findManager($value)
+    {
+        foreach ($this->managers as $manager) {
+            if($manager['fio'] == $value || $manager['login'] == $value || $manager['email'] == $value) {
+                return $manager;
+            }
+        }
+        return array();
     }
 }

@@ -6,7 +6,7 @@ require_once $this->all_configs['sitepath'] . 'mail.php';
 /**
  * Class import_gincore_items
  *
- * @property ItemsInterface $provider
+ * @property exported_gincore_items $provider
  */
 class import_gincore_items extends abstract_import_handler
 {
@@ -14,6 +14,7 @@ class import_gincore_items extends abstract_import_handler
     protected $items = array();
     public $userAsManager = true;
     protected $userId;
+    protected $logQuery = array();
 
     /**
      * @inheritdoc
@@ -44,9 +45,9 @@ class import_gincore_items extends abstract_import_handler
                 $id = $this->provider->get_id($row);
                 if (!empty($id)) {
                     $data = $this->getItemData($row);
-                    if(isset($goods[$id])) {
+                    if (isset($goods[$id])) {
                         $good = $goods[$id];
-                        if($this->isGoodChanged($good, $data)) {
+                        if ($this->isGoodChanged($good, $data)) {
                             $results[] = $this->updateItem($id, $data);
                         } else {
                             $results[] = array(
@@ -54,12 +55,12 @@ class import_gincore_items extends abstract_import_handler
                                 'id' => $id,
                                 'message' => l('Данные товара не изменились')
                             );
-                            $this->updateItem($id, $data);
                         }
                     }
                 }
             }
         }
+        $this->flushLog();
         return array(
             'state' => true,
             'message' => $this->gen_result_table($results)
@@ -120,8 +121,18 @@ class import_gincore_items extends abstract_import_handler
      */
     private function addToLog($userId, $work, $modId, $itemId)
     {
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-            array($userId, $work, $modId, $itemId));
+        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)', array($userId, $work, $modId, $itemId));
+    }
+
+    /**
+     *
+     */
+    private function flushLog()
+    {
+        if (!empty($this->logQuery)) {
+            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id) VALUES ?q',
+                array(implode(',', $this->logQuery)));
+        }
     }
 
     /**
@@ -154,7 +165,7 @@ class import_gincore_items extends abstract_import_handler
     {
         $cols = $this->provider->get_cols();
         foreach ($cols as $field => $title) {
-            if(isset($data[$field]) && $good[$field] != $data[$field]) {
+            if (isset($data[$field]) && $good[$field] != $data[$field]) {
                 return true;
             }
         }

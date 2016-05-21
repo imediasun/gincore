@@ -838,7 +838,7 @@ if (isset($_POST['pk']['act']) && $_POST['pk']['act'] == 'infobox'
 if($act == 'hide-infopopover'){
     $var = !empty($_POST['id']) ? $_POST['id'] : '';
     if($var){
-        include_once __DIR__.'/InfoPopover.php';
+        include_once __DIR__.'/Helpers/InfoPopover.php';
         InfoPopover::getInstance()->oneTimePopoverToggle($var);
     }
 }
@@ -847,7 +847,7 @@ if($act == 'hide-toggle-infopopover'){
     $var = !empty($_POST['id']) ? $_POST['id'] : '';
     $state = !empty($_GET['state']) ? $_GET['state'] : 0;
     if($var){
-        include_once __DIR__.'/InfoPopover.php';
+        include_once __DIR__.'/Helpers/InfoPopover.php';
         InfoPopover::getInstance()->oneTimePopoverToggle($var, $state);
     }
 }

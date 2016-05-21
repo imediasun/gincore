@@ -11,7 +11,7 @@ require_once 'inc_func.php';
 require_once 'inc_settings.php';
 require_once $all_configs['sitepath'].'inc_lang_func.php';
 require_once __DIR__.'/Tariff.php';
-require_once __DIR__.'/InfoPopover.php';
+require_once __DIR__.'/Helpers/InfoPopover.php';
 
 if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_lang' && isset($all_configs['arrequest'][1])){
     $cotnent_lang_cookie = $dbcfg['_prefix'].'content_lang';
