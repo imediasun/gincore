@@ -12,7 +12,17 @@
                 <td><?= l('Пароль') ?></td>
                 <td><?= l('Роль') ?></td>
                 <td><?= l('ФИО') ?></td>
-                <td><?= $sortPosition ?></a></td>
+                <td>
+                    <?php if (isset($_GET['sort']) && $_GET['sort'] == 'position'): ?>
+                        <a href="?sort=rposition"><?= l('Должность') ?><i class="glyphicon glyphicon-chevron-down"></i>
+                        </a>
+                    <?php elseif (isset($_GET['sort']) && $_GET['sort'] == 'rposition'): ?>
+                        <a href="?sort=position"><?= l('Должность') ?><i class="glyphicon glyphicon-chevron-up"></i>
+                        </a>
+                    <?php else: ?>
+                        <a href="?sort=position"><?= l('Должность') ?> </a>
+                    <?php endif; ?>
+                </td>
                 <td><?= l('Телефон') ?></td>
                 <td><?= l('Эл. почта') ?></td>
                 <td title="<?= l('Серийный номер сертификата') ?>"><?= l('Номер сертиф.') ?></td>
@@ -42,7 +52,7 @@
                                    data-uid="<?= $user['id'] ?>"><?= htmlspecialchars($user['login']) ?></a></td>
                             <td><input class="checkbox js-block-by-tariff" <?= $user['avail'] ? 'checked' : '' ?>
                                        type="checkbox"
-                                       name="avail_user[<?= $user['id'] ?>]" />
+                                       name="avail_user[<?= $user['id'] ?>]"/>
                             </td>
                             <td style="text-align:center;">
                                 <i class="fa fa-lock editable-click" data-type="text"

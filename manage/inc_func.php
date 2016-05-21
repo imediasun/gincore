@@ -860,7 +860,6 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
     if ($type == 1) {
         for ($i = 0; $i < $index; $i++) {
             $space .= ' - ';
-            //$space .= $i == 0 ? "&nbsp;•&nbsp;" : "&nbsp;○&nbsp;";
         }
     }
     if ($type == 2) {
@@ -887,7 +886,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= '<option ' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'selected' : '');
                 $tree .= ' value="' . $tmp['id'] . '">' . $space . $arrow . htmlspecialchars($tmp['title']) . '</option>';
             }
-            if ($type == 2) {//class="sortable2 connectedSortable nav nav-list" draggable="true"
+            if ($type == 2) {
                 $tree .= '<li class=" ' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'active' : '');
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
                 $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
@@ -902,7 +901,6 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
             }
             if (array_key_exists('child', $tmp)) {
                 $tree = display_array_tree($tmp['child'], $selected, $type, $index, $tree);
-                //$tree = display_array_tree($tmp['child'], $selected, $index, $tree, $type);
             } else {
                 if ($type == 2 || $type == 3) {
                     $tree .= '</li>';

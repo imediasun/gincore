@@ -7,7 +7,7 @@ require_once __DIR__ . '/Core/Response.php';
 /**
  * @property MGoods                      Goods
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
- * @property MHistory     History
+ * @property MHistory                    History
  */
 class Suppliers extends Object
 {
@@ -140,7 +140,7 @@ class Suppliers extends Object
                 foreach ($result['links'] as $link) {
                     if (isset($link['id']) && $link['id'] > 0 && isset($link['manager']) && $link['manager'] > 0) {
                         $href = $this->all_configs['prefix'] . 'orders/create/' . $link['id'];
-                        $content = l('Сроки поставки запчасти').' "' . htmlspecialchars($link['title']) . '" '.l('заказа').' <a href="' . $href . '">№' . $link['id'] . '</a> '.l('изменились');
+                        $content = l('Сроки поставки запчасти') . ' "' . htmlspecialchars($link['title']) . '" ' . l('заказа') . ' <a href="' . $href . '">№' . $link['id'] . '</a> ' . l('изменились');
                         $messages->send_message($content, l('Сроки поставки запчасти изменились'), $link['manager'], 1);
                     }
                 }
@@ -398,9 +398,8 @@ class Suppliers extends Object
                 array($co_ids, $so['goods_id']))->assoc('id');
 
             if ($cos) {
-                //if (count($cos) > ($so['count'] - count($links))) {
                 if (count($links) > $so['count']) {
-                    $data['msg'] = l('Осталась').' ' . ($so['count'] - count($links)) . ' '.l('свободных заявок');
+                    $data['msg'] = l('Осталась') . ' ' . ($so['count'] - count($links)) . ' ' . l('свободных заявок');
                 } else {
                     $data['state'] = true;
                     $data['msg'] = l('Успешно сохранено');
@@ -425,9 +424,9 @@ class Suppliers extends Object
                                 $data['links'][$co['id']] = $co;
                                 if ($so['supplier'] > 0) {
                                     if ($so['count_debit'] > 0) {
-                                        $text = lq('Запчасть была оприходована').' ';
+                                        $text = lq('Запчасть была оприходована') . ' ';
                                     } elseif ($so['count_come'] > 0) {
-                                        $text = lq('Запчасть была принята').'';
+                                        $text = lq('Запчасть была принята') . '';
                                     } else {
                                         $text = lq('Запчасть заказана');
                                     }
@@ -454,7 +453,7 @@ class Suppliers extends Object
 
             if (count($items) > count($co_ids)) {
                 $data['state'] = false;
-                $data['msg'] = l('Отвяжите серийный номер в заказах').': ' . implode(', ', $items);
+                $data['msg'] = l('Отвяжите серийный номер в заказах') . ': ' . implode(', ', $items);
             }
 
             $co_ids += $items;
@@ -486,7 +485,7 @@ class Suppliers extends Object
 
                         foreach ($links as $link) {
                             $href = $this->all_configs['prefix'] . 'orders/create/' . $link['order_id'];
-                            $content = l('Необходимо заказать запчасть').' "' . htmlspecialchars($link['title']) . '" '.l('для заказа').' <a href="' . $href . '">№' . $link['order_id'] . '</a>';
+                            $content = l('Необходимо заказать запчасть') . ' "' . htmlspecialchars($link['title']) . '" ' . l('для заказа') . ' <a href="' . $href . '">№' . $link['order_id'] . '</a>';
                             $messages->send_message($content, l('Необходимо заказать запчасть'), $link['manager'], 1);
                         }
                     }
@@ -504,7 +503,7 @@ class Suppliers extends Object
     {
         $data = array();
         $data['state'] = true;
-        $data['content'] = '<h5 class="text-danger">'.l('Заказ не найден').'</h5>';
+        $data['content'] = '<h5 class="text-danger">' . l('Заказ не найден') . '</h5>';
 
         if ($order_id > 0) {
             $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
@@ -725,15 +724,15 @@ class Suppliers extends Object
         $has_orders = false;
         if ($suppliers) {
             $order = array(
-                'price'     =>  '',
-                'count'     =>  '',
-                'date_wait' =>  '',//date("d.m.Y"),
-                'supplier'  =>  '',
-                'goods_id'  =>  '',
-                'title'     =>  l('Создать заказ'),
-                'btn'       =>  '<input type="button" class="btn submit-from-btn" onclick="create_supplier_order(this)" value="' . l('Создать') . '" />',
-                'product'   =>  '',
-                'comment'   =>  '',
+                'price' => '',
+                'count' => '',
+                'date_wait' => '',//date("d.m.Y"),
+                'supplier' => '',
+                'goods_id' => '',
+                'title' => l('Создать заказ'),
+                'btn' => '<input type="button" class="btn submit-from-btn" onclick="create_supplier_order(this)" value="' . l('Создать') . '" />',
+                'product' => '',
+                'comment' => '',
                 'unavailable' => 0,
                 'location' => '',
                 'id' => '',
@@ -764,13 +763,15 @@ class Suppliers extends Object
                         $so_co .= '<input type="text" name="so_co[]" readonly class="form-control" value="' . $co . '" />';
                         next($cos);
                     }
-                    $order['title']     =  l('Редактировать заказ');
-                    $order['date_wait']  =  date("d.m.Y", strtotime($order['date_wait']));
-                    $order['price']    /=  100;
-                    if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/*$order['user_id'] == $_SESSION['id'] &&*/ $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))) {
-                        $order['btn']   =  '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="'.l('Сохранить').'" />';
-                        $order['btn']  .=  ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="'.l('Отменить').'" />';
-                        $order['btn']  .=  ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="'.l('Запчасть не доступна к заказу').'" />';
+                    $order['title'] = l('Редактировать заказ');
+                    $order['date_wait'] = date("d.m.Y", strtotime($order['date_wait']));
+                    $order['price'] /= 100;
+                    if ($order['confirm'] == 0 && $order['avail'] == 1 && ((/*$order['user_id'] == $_SESSION['id'] &&*/
+                                $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))
+                    ) {
+                        $order['btn'] = '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="' . l('Сохранить') . '" />';
+                        $order['btn'] .= ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="' . l('Отменить') . '" />';
+                        $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="' . l('Запчасть не доступна к заказу') . '" />';
                     } else {
                         $order['btn'] = '';
                         $disabled = 'disabled';
@@ -804,7 +805,7 @@ class Suppliers extends Object
                         array('supplier_order_id' => $order_id), false);
 
                     if ($order['sum_paid'] == 0 /*&& $order['count_come'] > 0*/ && $order['count_debit'] != $order['count_come']/* && $order['wh_id'] > 0*/) {
-                        $goods_html .= '<div class="form-group"><label>' . l('Склад') . ': '.InfoPopover::getInstance()->createQuestion('l_suppliers_order_wh_info').' </label>'
+                        $goods_html .= '<div class="form-group"><label>' . l('Склад') . ': ' . InfoPopover::getInstance()->createQuestion('l_suppliers_order_wh_info') . ' </label>'
                             . '<select name="warehouse" ' . $disabled . ' onchange="change_warehouse(this)" class="select-warehouses-item-move form-control"><option value=""></option>';
                         // список складов
                         //if ($warehouses == null)
@@ -827,15 +828,15 @@ class Suppliers extends Object
                     }
                 } else {
                     $order = array(
-                        'price'     =>  '',
-                        'count'     =>  '',
-                        'date_wait' =>  '',
-                        'supplier'  =>  '',
-                        'goods_id'  =>  '',
-                        'title'     =>  l('Создать заказ'),
-                        'btn'       =>  '<input type="submit" class="btn btn-primary submit-from-btn" name="new-order" value="Создать заказ поставщику" />',
-                        'product'   =>  '',
-                        'comment'   =>  '',
+                        'price' => '',
+                        'count' => '',
+                        'date_wait' => '',
+                        'supplier' => '',
+                        'goods_id' => '',
+                        'title' => l('Создать заказ'),
+                        'btn' => '<input type="submit" class="btn btn-primary submit-from-btn" name="new-order" value="Создать заказ поставщику" />',
+                        'product' => '',
+                        'comment' => '',
                         'unavailable' => 0,
                         'location' => '',
                         'id' => '',
@@ -871,8 +872,9 @@ class Suppliers extends Object
                         ' . ($is_modal ? $new_supplier_form : '') . '
                     </div>
                 ';
-                $goods_html .= '<div class="form-group"><label>' . l('Дата поставки') . '<b class="text-danger">*</b>: '.InfoPopover::getInstance()->createQuestion('l_suppliers_order_date_info').'</label>
-                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="'.($order['date_wait'] ? date('Y-m-d', strtotime($order['date_wait'])) : '').'" />
+                $goods_html .= '<div class="form-group"><label>' . l('Дата поставки') . '<b class="text-danger">*</b>: ' . InfoPopover::getInstance()->createQuestion('l_suppliers_order_date_info') . '</label>
+                                <input class="datetimepicker form-control" ' . $disabled . ' data-format="yyyy-MM-dd" type="text" name="warehouse-order-date" data-required="true" value="' . ($order['date_wait'] ? date('Y-m-d',
+                        strtotime($order['date_wait'])) : '') . '" />
                                 </div>';
             }
             if ($goods) {
@@ -887,11 +889,11 @@ class Suppliers extends Object
                         ), $has_orders)
                     . ($is_modal ? $new_device_form : '') . '</div>';
             }
-            $goods_html .= '<div class="form-group"><label for="warehouse_type">' . l('Тип поставки') . '<b class="text-danger">*</b>: '.InfoPopover::getInstance()->createQuestion('l_suppliers_order_type_info').'</label>'
+            $goods_html .= '<div class="form-group"><label for="warehouse_type">' . l('Тип поставки') . '<b class="text-danger">*</b>: ' . InfoPopover::getInstance()->createQuestion('l_suppliers_order_type_info') . '</label>'
                 . '<div class="radio"><label><input data-required="true" type="radio" name="warehouse_type" value="1" ' . ($order['warehouse_type'] == 1 ? 'checked' : '') . ' />' . l('Локально') . '</label></div>'
                 . '<div class="radio"><label><input type="radio" name="warehouse_type" data-required="true" value="2" ' . ($order['warehouse_type'] == 2 ? 'checked' : '') . ' />' . l('Заграница') . '</label></div></div>';
 
-            $goods_html .= '<div class="form-group"><label>' . l('Номер') . ': '.InfoPopover::getInstance()->createQuestion('l_suppliers_order_number_info').'</label>'
+            $goods_html .= '<div class="form-group"><label>' . l('Номер') . ': ' . InfoPopover::getInstance()->createQuestion('l_suppliers_order_number_info') . '</label>'
                 . '<input type="text" ' . $disabled . ' name="warehouse-order-num" class="form-control" value="' . $order['num'] . '"/></div>';
             $goods_html .= '<div class="form-group"><label>' . l('Количество') . '<b class="text-danger">*</b>: </label>'
                 . '<input type="text" ' . $disabled . ' data-required="true" onkeydown="return isNumberKey(event)" name="warehouse-order-count" class="form-control" value="' . htmlspecialchars($order['count']) . '"/></div>';
@@ -900,7 +902,7 @@ class Suppliers extends Object
             $goods_html .= '<div class="form-group"><label>' . l('Примечание') . ': </label>'
                 . '<textarea ' . $disabled . ' name="comment-supplier" class="form-control">' . htmlspecialchars($order['comment']) . '</textarea></div>';
 
-            $goods_html .= '<div class="form-group"><label>' . l('номер ремонта') . '</label> ('. l('если запчасть заказывается под конкретный ремонт') . '): '.InfoPopover::getInstance()->createQuestion('l_suppliers_order_order_info').'' . $so_co . '</div>';
+            $goods_html .= '<div class="form-group"><label>' . l('номер ремонта') . '</label> (' . l('если запчасть заказывается под конкретный ремонт') . '): ' . InfoPopover::getInstance()->createQuestion('l_suppliers_order_order_info') . '' . $so_co . '</div>';
             $goods_html .= '<div id="for-new-supplier-order"></div>';
             if ($all == true) {
                 $goods_html .= '<div class="form-group">' . $order['btn'] . '</div>';
@@ -1311,7 +1313,7 @@ class Suppliers extends Object
         $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
             array(intval($_POST['order_id'])));
 
-        $this->History->save ('remove-supplier-order', $mod_id, intval($_POST['order_id']));
+        $this->History->save('remove-supplier-order', $mod_id, intval($_POST['order_id']));
 
         Response::json(array('message' => 'Заказ успешно удален'));
     }
@@ -1466,17 +1468,21 @@ class Suppliers extends Object
         // отправляем уведомление
         // бухгалтеру
         $messages = new Mailer($this->all_configs);
-        $content = l('Необходимо оплатить заказ поставщику').' ';
+        $content = l('Необходимо оплатить заказ поставщику') . ' ';
         $content .= '<a href="' . $this->all_configs['prefix'] . 'accountings?so_id=' . $order['id'] . '#a_orders-suppliers">№' . $order['id'] . '</a>';
         $messages->send_message($content, l('Оплатите заказ поставщику'), 'mess-accountings-suppliers-orders', 1);
         // кладовщику
-        $content = l('Необходимо оприходовать заказ поставщику').' ';
+        $content = l('Необходимо оприходовать заказ поставщику') . ' ';
         $content .= '<a href="' . $this->all_configs['prefix'] . 'warehouses?so_id=' . $order['id'] . '#orders-suppliers">№' . $order['id'] . '</a>';
         $query_for_my_warehouses = $this->all_configs['db']->makeQuery(
             'RIGHT JOIN {warehouses_users} as wu ON u.id=wu.user_id AND wu.wh_id=?i', array($_POST['wh_id']));
 
-        $messages->send_message($content, l('Оприходуйте заказ поставщику'), 'mess-warehouses-suppliers-orders', 1, $query_for_my_warehouses);
-        Response::json(array('message' => l('Успешно'),'infopopover_modal'=> InfoPopover::getInstance()->createInfoModal('l_accept_supplier_order_info')));
+        $messages->send_message($content, l('Оприходуйте заказ поставщику'), 'mess-warehouses-suppliers-orders', 1,
+            $query_for_my_warehouses);
+        Response::json(array(
+            'message' => l('Успешно'),
+            'infopopover_modal' => InfoPopover::getInstance()->createInfoModal('l_accept_supplier_order_info')
+        ));
     }
 
     /**
@@ -1493,7 +1499,7 @@ class Suppliers extends Object
             array($order_id))->row();
         $data['state'] = true;
         $data['content'] = $this->view->renderFile('suppliers.class/accept_form', array(
-           'warehouses'  => $warehouses,
+            'warehouses' => $warehouses,
             'order' => $order,
             'controller' => $this
         ));
@@ -1502,7 +1508,7 @@ class Suppliers extends Object
             $callback = ',(form_debit=function(_this){alert_box(_this,false,\'form-debit-so\',{object_id:' . $order_id . '},null,\'warehouses/ajax/\')})';
         }
         $data['btns'] =
-            '<input class="btn btn-success" onclick="accept_supplier_order(this'.$callback.')" type="button" value="'.l('Принять').'" />';
+            '<input class="btn btn-success" onclick="accept_supplier_order(this' . $callback . ')" type="button" value="' . l('Принять') . '" />';
         $data['functions'] = array('reset_multiselect()');
 
         Response::json($data);
@@ -1520,22 +1526,20 @@ class Suppliers extends Object
         $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
             array($order_id))->row();
 
-        if ($data['state'] == true && !$order) {
-            $data['state'] = false;
-            $data['msg'] = 'Заказ не найден';
-        }
-        if ($data['state'] == true && $order['confirm'] == 0) {
-            //$data['state'] = false;
-            $data['msg'] = 'Заказ уже закрыт';
-        }
+        try {
+            if (empty($order)) {
+                throw new ExceptionWithMsg(l('Заказ не найден'));
+            }
+            if ($order['confirm'] == 0) {
+                //$data['state'] = false;
+                $data['msg'] = l('Заказ уже закрыт');
+            }
 
-        // отменен
-        if ($data['state'] == true && $order['avail'] == 0) {
-            $data['msg'] = 'Заказ отменен';
-            $data['state'] = false;
-        }
+            // отменен
+            if ($order['avail'] == 0) {
+                throw new ExceptionWithMsg(l('Заказ отменен'));
+            }
 
-        if ($data['state'] == true && $order) {
             // запчастей больше не будет
             $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET unavailable=?i WHERE id=?i',
                 array(1, $order['id']));
@@ -1556,6 +1560,11 @@ class Suppliers extends Object
                     $messages->send_message($content, 'Запчасть не доступна к заказу', $link['manager'], 1);
                 }
             }
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
         }
 
         return $data;
@@ -1573,7 +1582,7 @@ class Suppliers extends Object
         try {
             $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
                 array($order_id))->row();
-            if (!$order) {
+            if (empty($order)) {
                 throw  new ExceptionWithMsg(l('Pаказ не найден'));
             }
             if ($order['confirm'] == 0) {
@@ -1589,46 +1598,43 @@ class Suppliers extends Object
                 throw  new ExceptionWithMsg(l('Заказ еще нельзя закрыть'));
             }
 
-            if ($order) {
-                // закрываем заказ
-                $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET confirm=?i WHERE id=?i',
-                    array(1, $order['id']));
+            // закрываем заказ
+            $this->all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET confirm=?i WHERE id=?i',
+                array(1, $order['id']));
 
-                $limit = $order['count_come'] > 0 ? ($order['count_come'] - $order['count_debit']) : $order['count'];
-                if ($limit > 0) {
+            $limit = $order['count_come'] > 0 ? ($order['count_come'] - $order['count_debit']) : $order['count'];
+            if ($limit > 0) {
 
-                    // достаем серийники в заказах
-                    $links = $this->all_configs['db']->query('SELECT l.id, i.id as item_id, l.client_order_id as co_id
+                // достаем серийники в заказах
+                $links = $this->all_configs['db']->query('SELECT l.id, i.id as item_id, l.client_order_id as co_id
                         FROM {orders_suppliers_clients} as l
                         LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=l.supplier_order_id
                         WHERE l.supplier_order_id=?i AND (i.order_id IS NOT NULL OR i.id IS NULL)
                         ORDER BY l.date_add LIMIT ?i',
-                        array($order_id, $limit))->assoc('id');
+                    array($order_id, $limit))->assoc('id');
 
-                    if ($links) {
-                        // удаляем заявки
-                        $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id IN (?li)',
-                            array(array_keys($links)));
+                if ($links) {
+                    // удаляем заявки
+                    $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE id IN (?li)',
+                        array(array_keys($links)));
 
-                        $orders = array();
-                        foreach ($links as $link) {
-                            if ($link['co_id'] > 0) {
-                                $href = $this->all_configs['prefix'] . 'orders/create/' . $link['co_id'];
-                                $orders[$link['co_id']] = '<a href="' . $href . '">' . $link['co_id'] . '</a>';
-                            }
+                    $orders = array();
+                    foreach ($links as $link) {
+                        if ($link['co_id'] > 0) {
+                            $href = $this->all_configs['prefix'] . 'orders/create/' . $link['co_id'];
+                            $orders[$link['co_id']] = '<a href="' . $href . '">' . $link['co_id'] . '</a>';
                         }
-                        if (array_filter($orders) > 0) {
-                            include_once $this->all_configs['sitepath'] . 'mail.php';
-                            $messages = new Mailer($this->all_configs);
-                            $content = l('Освободились заказы клиентов: ') . implode(', ', $orders);
-                            $content .= '. ' . l('Привяжите к другому заказу поставщику либо создайте новый');
-                            $messages->send_message($content, l('Освободились заказы клиентов'), 'edit-clients-orders',
-                                1);
-                        }
+                    }
+                    if (array_filter($orders) > 0) {
+                        include_once $this->all_configs['sitepath'] . 'mail.php';
+                        $messages = new Mailer($this->all_configs);
+                        $content = l('Освободились заказы клиентов: ') . implode(', ', $orders);
+                        $content .= '. ' . l('Привяжите к другому заказу поставщику либо создайте новый');
+                        $messages->send_message($content, l('Освободились заказы клиентов'), 'edit-clients-orders',
+                            1);
                     }
                 }
             }
-
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
@@ -1721,7 +1727,10 @@ class Suppliers extends Object
                         'item_id' => $item_id,
                         'serial' => trim($serial)
                     ));
-                    $msg[$k] = array('state' => true, 'msg' => l('Серийник ') . $debit_items[$k] . l(' успешно добавлен'));
+                    $msg[$k] = array(
+                        'state' => true,
+                        'msg' => l('Серийник ') . $debit_items[$k] . l(' успешно добавлен')
+                    );
                 } else {
                     $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
                 }
@@ -1751,25 +1760,27 @@ class Suppliers extends Object
                 $messages = new Mailer($this->all_configs);
 
                 $text = lq('Ожидаемая запчасть поступила на склад');
-                foreach($links as $co_id=>$manager_id) {
+                foreach ($links as $co_id => $manager_id) {
                     // добавляем комментарий
                     $this->add_client_order_comment(intval($co_id), $text);
 
                     // отправляем уведомление менеджерам
                     if ($manager_id > 0) {
-                        $content = l('Запчасть только что была оприходована, под заказ').' ';
+                        $content = l('Запчасть только что была оприходована, под заказ') . ' ';
                         $content .= '<a href="' . $this->all_configs['prefix'] . 'orders/create/' . $co_id . '">№' . $co_id . '</a>';
                         $messages->send_message($content, l('Запчасть оприходована'), $manager_id, 1);
                     }
 
                     // отправляем уведомление кладовщикам
-                    $content = l('Запчасть только что была оприходована, отгрузите ее под заказ').' ';
+                    $content = l('Запчасть только что была оприходована, отгрузите ее под заказ') . ' ';
                     $content .= '<a href="' . $this->all_configs['prefix'] . 'warehouses?con=' . $co_id . '#orders-clients_bind">№' . $co_id . '</a>';
-                    $messages->send_message($content, l('Отгрузите запчасть под заказ'), 'mess-debit-clients-orders', 1);
+                    $messages->send_message($content, l('Отгрузите запчасть под заказ'), 'mess-debit-clients-orders',
+                        1);
                 }
             }
             // обновляем количество в заказе поставщику
-            $this->ContractorsSuppliersOrders->increase('count_debit', count($debit_items), array('id' => $order['id']));
+            $this->ContractorsSuppliersOrders->increase('count_debit', count($debit_items),
+                array('id' => $order['id']));
             // обновление цены закупки в товаре
             $this->all_configs['db']->query('UPDATE {goods} SET price_purchase=?i WHERE id=?i',
                 array($order['price'], $order['goods_id']));
@@ -1846,7 +1857,7 @@ class Suppliers extends Object
             );
 
             // история
-            $this->History->save ('debit-supplier-order', $mod_id, intval($order['id']));
+            $this->History->save('debit-supplier-order', $mod_id, intval($order['id']));
         }
 
         return $item_id;
@@ -2014,13 +2025,11 @@ class Suppliers extends Object
                 $day_to = $_GET['dt'] . ' 23:59:59';
             }
 
-            //if (!isset($_GET['o_id']) && !isset($_GET['t_id']) && !isset($_GET['s_id'])) {
             $query_where = $this->all_configs['db']->makeQuery('t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
                         AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") AND',
                 array($day_from, $day_to));
             $query_balance = $this->all_configs['db']->makeQuery('DATE_FORMAT(t.date_transaction, "%d.%m.%Y")<? AND',
                 array($day_before));
-            //}
 
             // фильтры вручную
             if (count($filters) > 0) {
@@ -2291,8 +2300,6 @@ class Suppliers extends Object
                 LEFT JOIN (SELECT currency, id, cashbox_id FROM {cashboxes_currencies})cc_from ON cc_from.id=t.cashboxes_currency_id_from
                 WHERE ?query ((t.transaction_type=3 && cc_to.id IS NOT NULL && cc_from.id IS NOT NULL) || t.transaction_type<>3)',
             array($query_balance))->assoc();
-
-        //print_r($balances_begin);exit;
 
         $balance_begin = array();
         if ($balances_begin && is_array($balances_begin)) {

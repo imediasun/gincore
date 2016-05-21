@@ -1,19 +1,30 @@
 <?php
-
+require_once __DIR__ . '/../../Core/Object.php';
+require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Response.php';
 
 $modulename[100] = 'statistics';
 $modulemenu[100] = l('Статистика');
 $moduleactive[100] = !$ifauth['is_1'];
 
-class statistics
+class statistics extends Object
 {
+    protected $view;
+    protected $all_configs;
 
+    /**
+     * statistics constructor.
+     * @param $all_configs
+     */
     function __construct($all_configs)
     {
         global $input_html, $ifauth;
-        
+
         $this->all_configs = &$all_configs;
-        if ($ifauth['is_1']) return false;
+        if ($ifauth['is_1']) {
+            return false;
+        }
+        $this->view = new View($all_configs);
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
@@ -25,89 +36,49 @@ class statistics
         $input_html['mcontent'] = $this->gencontent();
     }
 
+    /**
+     * @return string
+     */
     private function genmenu()
     {
-        $start = isset($_GET['ds']) && strtotime($_GET['ds']) > 0 ? date("j/n/y", strtotime($_GET['ds'])) : date("1/n/y");
-        $end = isset($_GET['de']) && strtotime($_GET['de']) > 0 ? date("j/n/y", strtotime($_GET['de'])) : date("j/n/y");
-
-        $out =
-            '<div id="daterange" class="btn btn-info">
-                <span>' . $start . ' - ' . $end . '</span> <b class="caret"></b>
-            </div>';
-
-        return $out;
+        return $this->view->renderFile('statistics/genmenu');
     }
 
+    /**
+     * @return string
+     */
     private function gencontent()
     {
-        $out = '<div id="graph" class="graph"></div>';
-
-        $out .=
-            '<table id="report" class="tablesorter">
-                <thead>
-                    <tr>
-                        <th class="{ sorter: false }"></th>
-                        <th>'.l('Дата').'</th>
-                        <th class="{ sorter: false }">' . l('Показы') . '</th>
-                        <th class="{ sorter: false }">' . l('Клики') . '</th>
-                        <th class="{ sorter: false }">' . l('CTR') . '</th>
-                        <th class="{ sorter: false }">' . l('Просмотры') . '</th>
-                        <th class="{ sorter: false }">' . l('Новые пользователи') . '</th>
-                        <th class="{ sorter: false }">' . l('Новые пользователи %') . '</th>
-                        <th class="{ sorter: false }">' . l('% отказа н.п.') . '</th>
-                        <th class="{ sorter: false }">' . l('Звонки.') . '</th>
-                        <th class="{ sorter: false }">' . l('Заявки') . '</th>
-                        <th class="{ sorter: false }">' . l('Заказы по заявкам') . '</th>
-                        <th class="{ sorter: false }">' . l('Заказы без заявок') . '</th>
-                        <th class="{ sorter: false }">' . l('Общее кол-во заказов') . '</th>
-                        <th class="{ sorter: false }">' . l('Кол-во оплат') . '</th>
-                        <th class="{ sorter: false }">' . l('Создано на сумму') . '</th>
-                        <th class="{ sorter: false }">' . l('Сумма') . '</th>
-                        <th class="{ sorter: false }">' . l('Ср. чек') . '</th>
-                        <th class="{ sorter: false }">CPO</th>
-                        <th class="{ sorter: false }">ROI</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="loading">
-                        <td colspan="20" style="text-align: center">
-                            <div class="progress progress-striped active">
-                                <div class="bar" style="width: 100%;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="nodata">
-                        <td colspan="20" style="text-align: center">
-                            <div class="message">
-                                <div class="alert alert-block">
-                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                    <h4>' . l('Пусто') . '!</h4>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot></tfoot>
-            </table>';
-
-        return $out;
+        return $this->view->renderFile('statistics/gencontent');
     }
-    
+
     // статистика текстовая (не в таблице)
-    private function statistic($start, $end){
-        
+    /**
+     * @param $start
+     * @param $end
+     * @return array
+     */
+    private function statistic($start, $end)
+    {
+        return array();
     }
-    
-    private function make_filters($filters, $date_field){
+
+    /**
+     * @param $filters
+     * @param $date_field
+     * @return string
+     */
+    private function make_filters($filters, $date_field)
+    {
         global $db;
         $query = '';
         if ($filters && !empty($filters['date_start']) && strtotime($filters['date_start']) > 0) {
-            $query = $db->makeQuery('?query AND DATE_FORMAT('.$date_field.', "%Y-%m-%d")>=?',
+            $query = $db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")>=?',
                 array($query, $filters['date_start']));
         }
 
         if ($filters && !empty($filters['date_end']) && strtotime($filters['date_end']) > 0) {
-            $query = $db->makeQuery('?query AND DATE_FORMAT('.$date_field.', "%Y-%m-%d")<=?',
+            $query = $db->makeQuery('?query AND DATE_FORMAT(' . $date_field . ', "%Y-%m-%d")<=?',
                 array($query, $filters['date_end']));
         }
 
@@ -115,24 +86,27 @@ class statistics
             $query = $db->makeQuery('?query AND IFNULL(r.group_id, 0)=?i',
                 array($query, intval($filters['group_id'])));
         }
-//        echo $query;
         return $query;
     }
-    
+
     // затраты
+    /**
+     * @param      $filters
+     * @param null $group_by
+     * @param null $cursor
+     * @return mixed
+     */
     private function get_expense($filters, $group_by = null, $cursor = null)
     {
-        global $db;
-
         $query = $this->make_filters($filters, 'e.date_add');
 
         $fetch = 'row';
         if ($group_by !== null) {
-            $query = $db->makeQuery('?query GROUP BY ?query', array($query, $group_by));
+            $query = $this->all_configs['db']->makeQuery('?query GROUP BY ?query', array($query, $group_by));
             $fetch = 'assoc';
         }
 
-        $expenses = $db->query('SELECT IFNULL(r.name, "") as referer_name,
+        $expenses = $this->all_configs['db']->query('SELECT IFNULL(r.name, "") as referer_name,
           IFNULL(r.group_id, 0) as group_referers,
           IFNULL(r.id, 0) as group_referer,
           SUM(e.clicks) as clicks,
@@ -149,6 +123,12 @@ class statistics
     }
 
     // статистика по гугл аналитике
+    /**
+     * @param      $filters
+     * @param null $group_by
+     * @param null $cursor
+     * @return mixed
+     */
     private function get_analitics($filters, $group_by = null, $cursor = null)
     {
         global $db;
@@ -181,10 +161,16 @@ class statistics
     }
 
     // статистика по заказам, заявкам, звонкам и оплатам 
+    /**
+     * @param      $filters
+     * @param null $group_by
+     * @param null $cursor
+     * @return array
+     */
     private function get_invoices($filters, $group_by = null, $cursor = null)
     {
         global $db;
-        
+
         $query_calls = $this->make_filters($filters, 'c.date');
         $fetch = 'row';
         if ($group_by !== null) {
@@ -202,7 +188,7 @@ class statistics
             LEFT JOIN {crm_referers} as r ON r.id = c.referer_id
             WHERE 1=1 ?q ORDER BY c.date
         ", array($query_calls))->$fetch($cursor);
-        
+
         $query_requests = $this->make_filters($filters, 'req.date');
         $fetch = 'row';
         if ($group_by !== null) {
@@ -222,7 +208,7 @@ class statistics
             LEFT JOIN {crm_referers} as r ON r.id = c.referer_id
             WHERE 1=1 ?q ORDER BY req.date
         ", array($query_requests))->$fetch($cursor);
-        
+
         $query_requests = $this->make_filters($filters, 'o.date_add');
         $fetch = 'row';
         if ($group_by !== null) {
@@ -247,37 +233,14 @@ class statistics
             LEFT JOIN {crm_referers} as r ON r.id = c.referer_id OR r.id = o.referer_id
             WHERE 1=1 ?q ORDER BY o.date_add
         ", array($query_requests))->$fetch($cursor);
-        
 
-//        $invoices = $db->query('SELECT o.period_id, IFNULL(r.name, "") as referer_name,
-//            IFNULL(r.group_id, 0) as group_referers,
-//            IFNULL(r.id, 0) as group_referer,
-//            COUNT(DISTINCT IF(i.summ_uah>0, i.id, NULL)) as invoices,
-//            COUNT(DISTINCT IF(o.state>0 AND i.state>0 AND i.summ_uah>0, i.id, NULL)) as paid,
-//            COUNT(DISTINCT IF(o.state>0 AND i.state>0 AND i.summ_uah>0 AND (SELECT si.id FROM {pay_invoices} as si, {pay_orders} as so WHERE c.id=so.user_id AND si.order_id=so.id AND so.id<o.id AND so.state>0 AND si.state>0 AND si.summ_uah>0 LIMIT 1) IS NULL, c.id, NULL)) as paid1,
-//            COUNT(DISTINCT IF(o.state>0 AND i.state>0 AND t.paid_from<NOW() AND t.paid_by>(NOW() AND t.off_date IS NULL), i.id, NULL)) as now_paid,
-//            COUNT(DISTINCT IF(o.state>0 AND i.state>0 AND i.summ_uah>0, o.id, null)) as tariffs,
-//            AVG(IF(o.state>0 AND i.state>0 AND i.summ_uah>0, UNIX_TIMESTAMP(i.payed)-UNIX_TIMESTAMP(c.date_reg), NULL)) as avg_sec,
-//            SUM(IF(o.state>0 AND i.state>0, i.summ_uah, 0)) as income,
-//            SUM(IF(o.state>0 AND i.state>0, i.summ_uah, 0)) / COUNT(DISTINCT IF(o.state>0 AND i.state>0 AND i.summ_uah>0, i.id, NULL)) as avg_bill,
-//            MAX(IF(o.state>0 AND i.state>0 AND i.summ_uah>0, i.payed, null)) as max_payed,
-//            CONCAT(YEAR(i.payed), "-", WEEK(i.payed, 1)) as yearweek,
-//            AVG(IF(o.state>0 AND i.state>0 AND i.summ_uah>0, (SELECT IF(id, UNIX_TIMESTAMP(i.payed)-UNIX_TIMESTAMP(`by`), null) FROM {clients_tariffs_history} WHERE tariff_id>0 AND order_id<>o.id AND i.payed>`by` AND client_id=c.id ORDER BY `by` DESC LIMIT 1), null)) as avg_after,
-//            COUNT(DISTINCT IF(o.state>0 AND i.state>0 AND i.summ_uah>0 AND i.payed+10<(SELECT `from` FROM {clients_tariffs_history} WHERE tariff_id>0 AND order_id=o.id AND client_id=c.id), i.id, null)) as invoices_in
-//
-//            FROM {clients} AS c
-//            LEFT JOIN {crm_referers} as r ON r.id=c.referer_id
-//            LEFT JOIN {pay_orders} as o ON c.id=o.user_id
-//            LEFT JOIN {pay_invoices} as i ON i.order_id=o.id
-//            LEFT JOIN {clients_tariff} as t ON t.order_id=o.id AND t.client_id=c.id
-//            WHERE c.superuser=0 ?query ORDER BY i.payed',
-//
-//            array($query))->$fetch($cursor);
-//
-        $data = $this->assoc_array_merge($calls, $requests, $orders);
-        return $data;
+
+        return $this->assoc_array_merge($calls, $requests, $orders);
     }
 
+    /**
+     *
+     */
     private function ajax()
     {
         $data = array(
@@ -288,13 +251,8 @@ class statistics
 
         if ($act == 'get-kpi-groups') {
 
-//            if(isset($_POST['start']) && $_POST['start'] == 'all' && $_POST['end'] == 'all'){
-//                $date_start = null;
-//                $date_end = null;
-//            }else{
-                $date_start = isset($_POST['start']) && strtotime($_POST['start']) > 0 ? $_POST['start'] : date('Y-m-01');
-                $date_end = isset($_POST['end']) && strtotime($_POST['end']) > 0 ? $_POST['end'] : date('Y-m-d');
-//            }
+            $date_start = isset($_POST['start']) && strtotime($_POST['start']) > 0 ? $_POST['start'] : date('Y-m-01');
+            $date_end = isset($_POST['end']) && strtotime($_POST['end']) > 0 ? $_POST['end'] : date('Y-m-d');
 
             $filters = array('date_start' => $date_start, 'date_end' => $date_end);
             if (isset($_POST['group_id'])) {
@@ -329,9 +287,6 @@ class statistics
                 19 => array('group' => 'group 19'),
                 20 => array('group' => 'group 20'),
             );
-//            print_r($analitics);
-//            print_r($invoices);
-//            print_r($expense);
             $data = $this->assoc_array_merge($analitics, $invoices, $expense, $keys);
         }
 
@@ -360,11 +315,12 @@ class statistics
             $data = $this->statistic($start, $end);
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
     }
 
+    /**
+     * @return array
+     */
     function assoc_array_merge()
     {
         $array = array();
@@ -378,5 +334,4 @@ class statistics
 
         return $array;
     }
-
 }

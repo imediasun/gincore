@@ -54,7 +54,17 @@
     <script>
         $(document).ready(function () {
             tinymce.init({
-                selector: '.tinymce'
+                selector: '.tinymce',
+                theme: 'modern',
+                plugins: [
+                    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                    'searchreplace wordcount visualblocks visualchars code fullscreen',
+                    'insertdatetime nonbreaking save table contextmenu directionality',
+                    'template paste textcolor colorpicker textpattern imagetools'
+                ],
+                toolbar1: 'insertfile undo redo | styleselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+                toolbar2: "bold italic | forecolor backcolor |  fontselect |  fontsizeselect",
+                fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt"
             });
         });
     </script>

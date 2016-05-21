@@ -1,5 +1,5 @@
 <?php $count_goods = 0; ?>
-<table class="table table-compact">
+<table class="table table-compact table-of-order">
     <thead>
     <tr>
         <td></td>

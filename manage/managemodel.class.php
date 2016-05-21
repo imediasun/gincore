@@ -24,9 +24,6 @@ class manageModel
             return 0;
         }
 
-        //$q = $chains->query_warehouses();
-        //$query_for_my_warehouses = 'AND b.' . trim($q['query_for_my_warehouses']);
-
         if ($type == 2) {
             $query = $this->all_configs['db']->makeQuery('AND (b.type=?i OR b.type=?i) AND user_id_issued IS NULL AND user_id_accept>0',
                 array($chains->chain_bind_item, $chains->chain_warehouse));
@@ -152,15 +149,6 @@ class manageModel
 
     }
 
-    /*public function get_count_accounting_suppliers_orders()
-    {
-        //(((o.price*o.count_come)-o.sum_paid)<>0 OR o.date_paid IS NULL)
-        return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id) FROM {contractors_suppliers_orders} as o
-              WHERE (((o.price*o.count_come)-o.sum_paid)<>0 OR o.date_paid IS NULL) AND o.count_come>0
-                AND (o.confirm=0)',
-            array())->el();
-    }*/
-
     /**
      * @return mixed
      */
@@ -189,7 +177,6 @@ class manageModel
      */
     public function global_filters($filters = array(), $use = array())
     {
-        //$use = array('date', 'category', 'product', 'operators', client, )
         $query = '';
 
         // фильтр по дате
@@ -912,7 +899,8 @@ class manageModel
         $orders = $this->all_configs['db']->query('SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
               SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
-              SUM(IF(t.transaction_type=1, 1, 0)) as has_from, SUM(IF(t.transaction_type=2, 1, 0)) as has_to
+              SUM(IF(t.transaction_type=1, 1, 0)) as has_from, SUM(IF(t.transaction_type=2, 1, 0)) as has_to,
+              o.manager, o.accepter as acceptor, o.engineer
             FROM {orders} as o
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id

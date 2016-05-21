@@ -1,39 +1,28 @@
 <?php
 
+require_once __DIR__ . '/../../Core/Controller.php';
 
 $modulename[200] = 'partners';
 $modulemenu[200] = l('Партнеры');
 $moduleactive[200] = !$ifauth['is_2'];
 
-class partners
+class partners extends Controller
 {
-    protected $all_configs;
-
-    function __construct(&$all_configs)
+    /**
+     * @return string
+     */
+    public function gencontent()
     {
-        $this->all_configs = $all_configs;
-
-        global $input_html;
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-            $this->ajax();
-        }
-
-        $input_html['mcontent'] = $this->gencontent();
-    }
-
-    private function gencontent()
-    {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $query = '';
-        $html = '';
 
         if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $query = $this->all_configs['db']->query('AND o.partner_user_id=?i', array());
         }
 
         $orders = $this->all_configs['db']->query(
-            'SELECT * FROM {orders} WHERE partner_code IS NOT NULL ?query ORDER BY date_add DESC', array($query))->assoc();
+            'SELECT * FROM {orders} WHERE partner_code IS NOT NULL ?query ORDER BY date_add DESC',
+            array($query))->assoc();
 
         if ($orders) {
             foreach ($orders as $order) {
@@ -42,22 +31,36 @@ class partners
         }
 
 
-        $partners = $this->all_configs['db']->query('SELECT * FROM {partners} as p ORDER BY date_add', array())->assoc();
-        $html .= '<table class="table"><thead></thead><tbody>';
-        if ($partners) {
-            foreach ($partners as $partner) {
-                $html .= '<tr><td></td>';
-                $html .= '<td></td>';
-                $html .= '<td></td></tr>';
-            }
-        }
-        $html .= '</tbody></table>';
+        $partners = $this->all_configs['db']->query('SELECT * FROM {partners} as p ORDER BY date_add',
+            array())->assoc();
 
-        return $html;
+        return $this->view->renderFile('partners/gencontent', array(
+            'partners' => $partners
+        ));
     }
 
-    private function ajax()
+    /**
+     * @return string
+     */
+    public function ajax()
     {
+        return '';
+    }
 
+    /**
+     * @param array $post
+     * @return string
+     */
+    public function check_post(Array $post)
+    {
+        return '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function can_show_module()
+    {
+        return true;
     }
 }

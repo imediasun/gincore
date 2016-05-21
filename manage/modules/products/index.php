@@ -109,19 +109,13 @@ class products extends Controller
         $product_id = (array_key_exists(2,
                 $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) ? $this->all_configs['arrequest'][2] : null;
 
-//        if (isset($post['import']) && $this->all_configs['oRole']->hasPrivilege('export-goods')) {
-//           $this->importGoods($post);
-//            Response::redirect(Response::referrer());
-//        }
         // создание продукта
         if (isset($post['create-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
 
             $url = transliturl(trim($post['title']));
 
             // ошибки
-            if (/*$product_url || */
-                mb_strlen(trim($post['title']), 'UTF-8') == 0
-            ) {
+            if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
                 if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
                     return array('error' => l('Заполните название'), 'post' => $post);
                 }

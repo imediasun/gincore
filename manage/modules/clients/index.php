@@ -78,7 +78,6 @@ class Clients
 
             if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
 
-//                return 'error client';
                 $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(htmlspecialchars($post['email'])) : null;
                 $post['phone'] = trim(preg_replace('/[^0-9]/', '', $post['phone']));
                 $id = '';

@@ -1,33 +1,32 @@
 <?php
 
-require_once __DIR__ . '/../../Core/Response.php';
-require_once __DIR__ . '/../../Core/FlashMessage.php';
-require_once __DIR__ . '/../../Core/View.php';
-require_once __DIR__ . '/../../Core/Object.php';
+require_once __DIR__ . '/../../Core/Controller.php';
 require_once __DIR__ . '/../../Tariff.php';
 
 $modulename[80] = 'users';
 $modulemenu[80] = l('Сотрудники');
 $moduleactive[80] = !$ifauth['is_2'];
 
-class users extends Object
+/**
+ * @property  MUsers    Users
+ * @property  MSettings Settings
+ * @property  MUsersRoles UsersRoles
+ * @property  MUsersRolePermission UsersRolePermission
+ */
+class users extends Controller
 {
-    /** @var View */
-    protected $view;
-    private $mod_submenu;
-    protected $all_configs;
+    public $uses = array(
+        'Users',
+        'UsersRoles',
+        'Settings',
+        'UsersRolePermission'
+    );
 
     /**
-     * users constructor.
-     * @param $all_configs
+     * @inheritdoc
      */
-    function __construct($all_configs)
+    public function routing(Array $arrequest)
     {
-        $this->mod_submenu = self::get_submenu();
-        $this->all_configs = &$all_configs;
-        $this->view = new View($all_configs);
-        global $input_html, $ifauth;
-
         /**
          * должно быть доступно всем юзерам, независимо от прав доступа
          */
@@ -38,39 +37,28 @@ class users extends Object
                 Response::json($data);
             }
         }
-
-        if (!$this->all_configs['oRole']->hasPrivilege('edit-users')) {
-            return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра пользователей') . '</p></div>';
-        }
-
-        if ($ifauth['is_2']) {
-            return false;
-        }
-
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-            $this->ajax();
-            return true;
-        }
-
+        $result = parent::routing($arrequest);
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'generate_log_file') {
             $this->generateLogFile();
-            return true;
+            exit();
         }
+        return $result;
+    }
 
-        // если отправлена форма изменения продукта
-        if (count($_POST) > 0) {
-            $this->check_post($_POST);
-        }
+    /**
+     * @return string
+     */
+    public function renderCanShowModuleError()
+    {
+        return '<div class="span3"></div>
+                <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра пользователей') . '</p></div>';
 
-        $input_html['mcontent'] = $this->gencontent();
     }
 
     /**
      * @return bool
      */
-    private function can_show_module()
+    public function can_show_module()
     {
         return ($this->all_configs['oRole']->hasPrivilege('edit-users'));
     }
@@ -171,87 +159,20 @@ class users extends Object
     /**
      *
      */
-    private function ajax()
+    public function ajax()
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['users-manage-page'];
-        $data = array(
-            'state' => false
-        );
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
         // загрузка аватарки
         if ($act == 'upload_avatar') {
-            include_once 'qqfileuploader.php';
-            include_once 'class_image.php';
-            $uid = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
-            if ($uid) {
-                $uploader = new qqFileUploader(array('jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'), 3145728);
-                $path_avatars = $this->all_configs['path'] . $this->all_configs['configs']['users-avatars-path'];
-                $result = $uploader->handleUpload($path_avatars);
-                if ($result['success']) {
-                    $file = $this->new_filename($result['file']);
-                    rename($path_avatars . $result['file'], $path_avatars . $file);
-                    $result['file'] = $file;
-                    $image_path = $path_avatars . $file;
-                    $out_w = 75;
-                    $out_h = 75;
-                    $image_info = getimagesize($image_path);
-                    $image_vars = $this->count_resize_vars($image_info[0], $image_info[1], $out_w, $out_h, false);
-                    $this->resize_image($image_path, $image_vars['resize']);
-                    $this->crop_image($image_path, $image_vars['crop']);
-                    $result['success'] = true;
-                    $result['path'] = $this->all_configs['prefix'] . $this->all_configs['configs']['users-avatars-path'];
-                    $result['avatar'] = $result['path'] . $file;
-                    $result['msg'] = '';
-                    $result['uid'] = $uid;
-                    $this->all_configs['db']->query("UPDATE {users} SET avatar = ? "
-                        . "WHERE id = ?i", array($file, $uid));
-                } else {
-                    $result['filename'] = '';
-                    $result['path'] = '';
-                    $result['msg'] = '';
-                    $result['file'] = '';
-                }
-                echo json_encode($result);
-                exit;
-            }
-        }
-
-        // проверка доступа
-        if ($this->can_show_module() == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
-            exit;
+            $this->uploadAvatar();
         }
 
         if ($act == 'delete_user') {
-            $uid = isset($_POST['uid']) ? (int)$_POST['uid'] : 0;
-            $result = array(
-                'success' => false,
-                'msg' => l('Что-то пошло не так')
-            );
-            if ($uid && $uid != $user_id) {
-                if ($this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
-                    FlashMessage::set(l('Не возможно удалить последнего суперпользователя'), FlashMessage::DANGER);
-                    $result['msg'] = l('Не возможно удалить последнего суперпользователя');
-                } else {
-                    if ($this->all_configs['db']->query("UPDATE {users} SET deleted = 1 " . "WHERE id = ?i",
-                        array($uid))->ar()
-                    ) {
-                        $result['success'] = true;
-                        FlashMessage::set(l('Пользователь удален'));
-                        $result['uid'] = $uid;
-                    }
-                }
-
-            } else {
-                $result['msg'] = l('Пользователь не найден');
-            }
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode($result);
-            exit;
+            $this->deleteUser($user_id);
         }
 
         if ($act == 'edit-user') {
@@ -277,18 +198,16 @@ class users extends Object
             $result = array(
                 'state' => false,
             );
-            $uid = isset($_POST['id']) ? (int)$_POST['id'] : 0;
             try {
-                if (empty($_POST['id']) || empty($uid)) {
+                if (empty($_POST['id'])) {
                     $result['message'] = l('Пользователь не найден');
                 }
 
-                $this->updateUser($uid, $_POST, $mod_id);
+                $this->updateUser($_POST, $mod_id);
                 unset($result['message']);
                 $result['state'] = true;
             } catch (Exception $e) {
                 $result['message'] = l('Что-то пошло не так');
-//                $result['message'] = $e->getMessage();
             }
             Response::json($result);
         }
@@ -296,12 +215,10 @@ class users extends Object
         // изменить пароль
         if ($act == 'change-admin-password') {
             if (isset($_POST['pk']) && is_numeric($_POST['pk']) && isset($_POST['value'])) {
-                $ar = $this->all_configs['db']->query('UPDATE {users} SET pass=?
-                    WHERE id=?i LIMIT 1', array($_POST['value'], $_POST['pk']))->ar();
+                $ar = $this->Users->update(array('pass' => $_POST['value']), array($this->Users->pk() => $_POST['pk']));
 
                 if (intval($ar) > 0) {
-                    $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                        array($user_id, 'update-password', $mod_id, $_POST['pk']));
+                    $this->History->save('update-password', $mod_id, $_POST['pk']);
                 }
 
                 header("Content-Type: application/json; charset=UTF-8");
@@ -319,8 +236,8 @@ class users extends Object
      */
     protected function editUserForm($userId)
     {
-        $permissions = $this->get_all_roles();
-        $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($userId))->row();
+        $permissions = $this->UsersRoles->getAllRoles();
+        $user = $this->Users->getByPk($userId);
         $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
             array($userId))->col();
         $user['cashboxes'] = $this->all_configs['db']->query('SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i',
@@ -353,227 +270,27 @@ class users extends Object
     /**
      * @param $post
      */
-    function check_post($post)
+    public function check_post(array $post)
     {
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
+        $user_id = $this->getUserId();
 
         $mod_id = $this->all_configs['configs']['users-manage-page'];
 
         if (isset($post['change-roles'])) { // изменяем роли пользователям
-
-            foreach ($post['roles'] as $uid => $role) {
-                $avail = 0;
-                $cert_avail = 0;
-                if (isset($post['avail_user'][$uid])) {
-                    $avail = 1;
-                }
-                if (isset($post['auth_cert_only'][$uid])) {
-                    $cert_avail = 1;
-                }
-                if (intval($uid) > 0) {
-                    $isLastSuperuser = $this->all_configs['oRole']->isLastSuperuser(intval($uid));
-                    if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $isLastSuperuser) {
-                        FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
-                            FlashMessage::DANGER);
-                        continue;
-                    }
-                    $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL : USER_ACTIVATED_BY_TARIFF;
-                    if ($isBlocked && $isLastSuperuser) {
-                        FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
-                            FlashMessage::DANGER);
-                        $isBlocked = 0;
-                        $avail = 1;
-                    }
-                    if ($isBlocked && $uid == $user_id) {
-                        FlashMessage::set(l('Нельзя заблокировать текущую учетную запись'),
-                            FlashMessage::DANGER);
-                        $isBlocked = 0;
-                        $avail = 1;
-                    }
-                    $ar = $this->all_configs['db']->query('UPDATE {users} SET role=?i, avail=?i, fio=?, position=?, phone=?, email=?,
-                            auth_cert_serial=?, auth_cert_only=?, blocked_by_tariff=?i
-                        WHERE id=?i',
-                        array(
-                            intval($role),
-                            $avail,
-                            trim($post['fio'][$uid]),
-                            trim($post['position'][$uid]),
-                            trim($post['phone'][$uid]),
-                            trim($post['email'][$uid]),
-                            trim($post['auth_cert_serial'][$uid]),
-                            $cert_avail,
-                            $isBlocked,
-                            intval($uid)
-                        ))->ar();
-                    if (intval($ar) > 0) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'update-user', $mod_id, intval($uid)));
-                    }
-                }
-            }
+            $this->changeRoles($user_id, $post, $mod_id);
         } elseif (isset($post['create-roles'])) { // изменяем возможности ролям
-
-            foreach ($post['exist-box'] as $role_id => $s) {
-
-                $exist = explode(',', $s);
-
-                foreach ($post['permissions'] as $uid => $on) {
-                    $id = explode('-', $uid);
-                    if (intval($role_id) != intval($id[0])) {
-                        continue;
-                    }
-
-                    foreach ($exist as $k => $v) {
-                        if (intval($v) == intval($id[1])) {
-                            unset($exist[$k]);
-                        }
-                    }
-
-                    $i = array_search(intval($id[1]), explode(',', $s));
-
-                    if ($i === false && intval($id[0]) > 0 && intval($id[1]) > 0) {
-                        //unset($exist[$i]);
-                        $this->all_configs['db']->query('INSERT INTO {users_role_permission} (role_id, permission_id) VALUES (?i, ?i)',
-                            array(intval($id[0]), intval($id[1]))
-                        );
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'add-to-role-per', $mod_id, intval($id[0])));
-                    }
-                }
-                if (count($exist) > 0) {
-                    foreach ($exist as $v) {
-                        if ($this->all_configs['oRole']->isSuperuserPermission(intval($v)) && $this->all_configs['oRole']->isLastSuperuserRole($role_id)) {
-                            FlashMessage::set(l('Не возможно удалить права суперюзера', FlashMessage::DANGER));
-                        } else {
-                            $this->all_configs['db']->query('DELETE FROM {users_role_permission} WHERE role_id=?i AND permission_id=?i',
-                                array(intval($role_id), intval($v)));
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'delete-from-role-per', $mod_id, intval($role_id)));
-                        }
-                    }
-                }
-                $date = '0000-00-00 00:00:00';
-                $active = '0';
-                //if ( $post['date_end'][$role_id])
-                $date_from_post = strtotime($post['date_end'][$role_id]);
-                $date = $date_from_post > 0 ? date('Y-m-d H:i:s', $date_from_post) : '0000-00-00 00:00:00';
-
-                if (isset($post['active'][$role_id]) && $post['active'][$role_id]) {
-                    $active = 1;
-                }
-
-                if (!$active && $this->all_configs['oRole']->isLastSuperuserRole(intval($role_id))) {
-                    FlashMessage::set(l('Не возможно удалить последнюю роль с правами суперюзера'),
-                        FlashMessage::DANGER);
-                } else {
-                    $ar = $this->all_configs['db']->query('UPDATE {users_roles} SET avail=?i, date_end=? WHERE id=?i',
-                        array($active, $date, intval($role_id)))->ar();
-                    if (intval($ar) > 0) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'update-role', $mod_id, intval($role_id)));
-                    }
-                }
-            }
+            $this->createRoles($post, $mod_id);
         } elseif (isset($post['add-role'])) { // добавляем новую группу ролей
-            $name = trim($post['name']);
-            $role_id = 0;
-            if (!empty($name)) {
-                $role_id = $this->all_configs['db']->query('INSERT INTO {users_roles} (name, avail) VALUES (?, ?)',
-                    array($name, 1),
-                    'id');
-            }
-            if (isset($post['permissions'])) {
-                foreach ($post['permissions'] as $uid => $role) {
-                    $id = explode('-', $uid);
-                    if (intval($id[1]) > 0 && intval($role_id) > 0) {
-                        $this->all_configs['db']->query('INSERT INTO {users_role_permission} (role_id, permission_id) VALUES (?i, ?i)',
-                            array(intval($role_id), intval($id[1])));
-                    }
-                }
-            }
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'add-new-role', $mod_id, intval($role_id)));
-            FlashMessage::set(l('Роль успешно создана'));
+            $this->addRole($post, $mod_id);
         } elseif (isset($post['create-user'])) { // добавление нового пользователя
-            if (!Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'],
-                $this->all_configs['configs']['host'])
-            ) {
-                FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'),
-                    FlashMessage::DANGER);
-            } else {
-                $avail = 0;
-                if (isset($post['avail'])) {
-                    $avail = 1;
-                }
-                if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
-                    $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
-                    $_SESSION['create-user-post'] = $post;
-                } else {
-                    require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                    $access = new \access($this->all_configs, false);
-                    $phones = $access->is_phone($post['phone']);
-
-                    $email_or_login_exists =
-                        $this->all_configs['db']->query("SELECT 1 FROM {users} "
-                            . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
-                    if ($email_or_login_exists) {
-                        FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
-                            FlashMessage::DANGER);
-                    } else {
-                        $id = $this->all_configs['db']->query('INSERT INTO {users} (login, pass, fio, position, phone, avail,role, email, send_over_sms, send_over_email) VALUES (?,?,?,?,?i,?,?,?,?,?)',
-                            array(
-                                $post['login'],
-                                $post['pass'],
-                                $post['fio'],
-                                $post['position'],
-                                empty($phones[0]) ? '' : $phones[0],
-                                $avail,
-                                $post['role'],
-                                $post['email'],
-                                isset($post['over_sms']) && $post['over_sms'] == 'on',
-                                isset($post['over_email']) && $post['over_email'] == 'on'
-                            ), 'id');
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'add-user', $mod_id, intval($id)));
-                        $this->saveUserRelations($id, $post);
-                        FlashMessage::set(l('Добавлен новый пользователь'));
-                    }
-                }
-            }
+            $this->createUser($post, $mod_id);
         } elseif (isset($post['update-user'])) {
-            $this->updateUser($post, $user_id, $mod_id);
+            $this->updateUser($post, $mod_id);
         } elseif (isset($post['save-send-log-email'])) {
-            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-            $access = new \access($this->all_configs, false);
-            $email = $access->is_email($post['email']) ? $post['email'] : '';
-            $send = (int)isset($post['send_email']);
-            if($this->all_configs['db']->query('SELECT count(*) FROM {settings} WHERE `name`=?', array(
-                    'need_send_login_log'
-                ))->el() == 0) {
-                $this->all_configs['db']->query('INSERT INTO {settings} (name, value, description, ro, title)
-                VALUES (?, ?, ?, ?, ?)',
-                    array('need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 0, lq('Отправлять ежедневные логи входа на email')));
-
-            }
-            if($this->all_configs['db']->query('SELECT count(*) FROM {settings} WHERE `name`=?', array(
-                    'email_for_send_login_log'
-                ))->el() == 0) {
-                $this->all_configs['db']->query('INSERT INTO {settings} (name, value, description, ro, title)
-                VALUES (?, ?, ?, ?, ?)',
-                    array('email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 0, lq('email на который будут отправлять логи входов в систему')));
-
-            }
-            $this->all_configs['db']->query('UPDATE {settings} SET `value`=? WHERE `name`=?',
-                array($email, 'email_for_send_login_log'));
-            $this->all_configs['db']->query('UPDATE {settings} SET `value`=? WHERE `name`=?',
-                array($send, 'need_send_login_log'));
-            if ($send && !empty($email)) {
-                FlashMessage::set(l("Отчет будет отправляться ежедневно в 14-00"));
-            }
+            $this->saveSendLogEmail($post);
         }
 
-        header("Location:" . $_SERVER['REQUEST_URI']);
-        exit;
+        Response::redirect($_SERVER['REQUEST_URI']);
     }
 
     /**
@@ -591,66 +308,27 @@ class users extends Object
      */
     function gencontent()
     {
-        $users_html = '';
-
         // проверка на сортировку
         $sort = '';
-        $sort_position = '<a href="?sort=position">' . l('Должность');
         if (isset($_GET['sort'])) {
             switch ($_GET['sort']) {
                 case 'position':
                     $sort = 'u.position,';
-                    $sort_position = '<a href="?sort=rposition">' . l('Должность') . '<i class="glyphicon glyphicon-chevron-down"></i>';
                     break;
                 case 'rposition':
                     $sort = 'u.position DESC,';
-                    $sort_position = '<a href="?sort=position">' . l('Должность') . '<i class="glyphicon glyphicon-chevron-up"></i>';
                     break;
             }
         }
 
         // достаём всех пользователей и их роли
-
-        $users_html .= '<div class="tabbable">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="' . $this->mod_submenu[0]['url'] . '">' . $this->mod_submenu[0]['name'] . '</a></li>
-                <li><a data-toggle="tab" href="' . $this->mod_submenu[1]['url'] . '">' . $this->mod_submenu[1]['name'] . '</a></li>
-                <li><a data-toggle="tab" href="' . $this->mod_submenu[2]['url'] . '">' . $this->mod_submenu[2]['name'] . '</a></li>
-                <li><a data-toggle="tab" href="' . $this->mod_submenu[3]['url'] . '">' . $this->mod_submenu[3]['name'] . '</a></li>
-                ';
-        if ($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) {
-            $users_html .= '
-                <li><a data-toggle="tab" href="' . $this->mod_submenu[4]['url'] . '">' . $this->mod_submenu[4]['name'] . '</a></li>
-            ';
-        }
-        $users_html .= '
-            </ul>
-            <div class="tab-content">';
-
-
-        $users = $this->get_users($sort);
-        $users_html .= $this->view->renderFile('users/users', array(
-            'users' => $users,
-            'activeRoles' => $this->get_active_roles(),
-            'sortPosition' => $sort_position,
-            'controller' => $this,
-            'tariff' => Tariff::current()
-        ));
+        $users = $this->Users->getUsers($sort);
 
         // достаём все роли
-        $permissions = $this->get_all_roles();
+        $permissions = $this->UsersRoles->getAllRoles();
         $aRoles = $this->getRolesTree($permissions);
         $groups = $this->get_permissions_groups();
         // список ролей и ихние доступы
-        $users_html .= $this->view->renderFile('users/roles_list', array(
-            'aRoles' => $aRoles,
-            'groups' => $groups
-        ));
-
-        $users_html .= $this->view->renderFile('users/create_new_role', array(
-            'groups' => $groups,
-            'permissions' => $permissions
-        ));
 
         $roles = array();
         $yet = 0;
@@ -662,73 +340,28 @@ class users extends Object
                 $roles[$permission['role_id']] = $permission['role_name'];
             }
         }
-        $users_html .= $this->createUserForm(array(), $roles);
-        if ($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) {
-            $users_html .= $this->loginsLog();
-        }
 
-        $users_html .= '</div>';
 
-        return $users_html;
-    }
+        return $this->view->renderFile('users/gencontent', array(
+            'users' => $this->view->renderFile('users/users', array(
+                'users' => $users,
+                'activeRoles' => $this->UsersRoles->getActiveRoles(),
+                'controller' => $this,
+                'tariff' => Tariff::current()
+            )),
+            'mod_submenu' => $this->mod_submenu,
+            'role_list' => $this->view->renderFile('users/roles_list', array(
+                'aRoles' => $aRoles,
+                'groups' => $groups
+            )),
 
-    /**
-     * @param string $sort
-     * @return mixed
-     */
-    private function get_users($sort = '')
-    {
-
-        $roles = $this->all_configs['db']->query("
-            SELECT r.name AS role_name, p.name AS per_name, r.id as role_id, p.link, p.id as per_id,
-            p.child, r.avail as role_avail, r.date_end, u.*
-            FROM {users} AS u
-            LEFT JOIN (
-            SELECT * FROM {users_roles}
-            )r ON u.role=r.id
-            LEFT JOIN (
-            SELECT role_id, permission_id FROM {users_role_permission}
-            )rp ON rp.role_id=r.id
-            LEFT JOIN (
-            SELECT id, name, link, child FROM {users_permissions}
-            )p ON p.id=rp.permission_id
-            WHERE u.deleted=0
-            ORDER BY u.avail DESC," . $sort . " u.id
-            ")->assoc();
-
-        return $roles;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function get_all_roles()
-    {
-        return $this->all_configs['db']->query("
-            SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
-              p.name as per_name, p.link, p.child, p.group_id
-            FROM {users_roles} as r
-            CROSS JOIN {users_permissions} as p
-            LEFT JOIN (SELECT * FROM {users_role_permission})per ON per.role_id=r.id AND per.permission_id=p.id
-            ORDER BY role_id, per_id
-        ")->assoc();
-    }
-
-    /**
-     * @return mixed
-     */
-    private function get_active_roles()
-    {
-
-        return $this->all_configs['db']->query("
-            SELECT r.id as role_id, p.id as per_id, r.name as role_name, r.avail, r.date_end, per.id,
-              p.name as per_name, p.link, p.child, p.group_id
-            FROM {users_roles} as r
-            CROSS JOIN {users_permissions} as p
-            LEFT JOIN (SELECT * FROM {users_role_permission})per ON per.role_id=r.id AND per.permission_id=p.id
-            WHERE r.avail = 1
-            ORDER BY role_id, per_id
-        ")->assoc();
+            'create_new_role' => $this->view->renderFile('users/create_new_role', array(
+                'groups' => $groups,
+                'permissions' => $permissions
+            )),
+            'create_user_form' => $this->createUserForm(array(), $roles),
+            'logins_log' => ($this->all_configs['oRole']->hasPrivilege('site-administration') && isset($this->mod_submenu[4])) ? $this->loginsLog() : ''
+        ));
     }
 
     /**
@@ -741,7 +374,7 @@ class users extends Object
             FROM {users_permissions_groups}
             ORDER BY prio
         ")->vars();
-        $per[0] = 'Без группы';
+        $per[0] = l('Без группы');
 
         return $per;
     }
@@ -749,7 +382,7 @@ class users extends Object
     /**
      * @return array
      */
-    public static function get_submenu()
+    public static function get_submenu($oRole = null)
     {
         $submenu = array(
             array(
@@ -862,10 +495,9 @@ class users extends Object
 
     /**
      * @param $post
-     * @param $userId
      * @param $modId
      */
-    private function updateUser($userId, $post, $modId)
+    private function updateUser($post, $modId)
     {
         $avail = 0;
         if (isset($post['avail'])) {
@@ -873,37 +505,36 @@ class users extends Object
         }
         if (empty($post['login']) || empty($post['email'])) {
             FlashMessage::set(l('Пожалуйста, заполните логин и эл. адрес'), FlashMessage::DANGER);
-        } else {
-            $id = intval($post['user_id']);
-            $user = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($id))->row();
-            if (!empty($user)) {
-                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-//                $access = new access($this->all_configs, false);
-//                $password = empty($post['pass']) ? $user['pass']: $access->wrap_pass(trim($post['pass']));
-                $password = empty($post['pass']) ? $user['pass'] : trim($post['pass']);
-                $access = new \access($this->all_configs, false);
-                $phones = $access->is_phone($post['phone']);
+            return;
+        }
+        $id = intval($post['user_id']);
+        $user = $this->Users->getByPk($id);
+        if (!empty($user)) {
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            $password = empty($post['pass']) ? $user['pass'] : trim($post['pass']);
+            $access = new \access($this->all_configs, false);
+            $phones = $access->is_phone($post['phone']);
 
-                $this->all_configs['db']->query('UPDATE {users} SET login=?, fio=?, position=?, phone=?, avail=?,role=?, email=?, pass=?, send_over_sms=?, send_over_email=? WHERE id=?i',
-                    array(
-                        $post['login'],
-                        $post['fio'],
-                        $post['position'],
-                        empty($phones[0]) ? $user['phone'] : $phones[0],
-                        $avail,
-                        $post['role'],
-                        $post['email'],
-                        $password,
-                        isset($post['over_sms']) && $post['over_sms'] == 'on',
-                        isset($post['over_email']) && $post['over_email'] == 'on',
-                        $id
-                    ), 'id');
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($userId, 'edit-user', $modId, intval($id)));
-                $this->saveUserRelations($id, $post);
+            $this->Users->update(array(
+                'login' => $post['login'],
+                'fio' => $post['fio'],
+                'position' => $post['position'],
+                'phone' => empty($phones[0]) ? $user['phone'] : $phones[0],
+                'avail' => $avail,
+                'role' => $post['role'],
+                'email' => $post['email'],
+                'pass' => $password,
+                'send_over_sms' => isset($post['over_sms']) && $post['over_sms'] == 'on',
+                'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on',
+                'salary_from_repair' => isset($post['salary_from_repair']) ? $post['salary_from_repair'] : 0,
+                'salary_from_sale' => isset($post['salary_from_repair']) ? $post['salary_from_sale'] : 0,
+            ), array(
+                $this->Users->pk() => $id
+            ));
+            $this->History->save('edit-user', $modId, intval($id));
+            $this->saveUserRelations($id, $post);
 
-                FlashMessage::set(l('Данные пользователя обновлены'));
-            }
+            FlashMessage::set(l('Данные пользователя обновлены'));
         }
     }
 
@@ -954,7 +585,7 @@ class users extends Object
             $users[$id]['logs'] = $this->all_configs['db']->query('SELECT * FROM {users_login_log} WHERE user_id=?i ORDER by created_at DESC LIMIT 200',
                 array($user['id']))->assoc();
         }
-        $emailSettings = $this->all_configs['db']->query('SELECT `name`, `value` FROM {settings} WHERE `name`=? OR `name`=?',
+        $emailSettings = $this->Settings->query('SELECT `name`, `value` FROM {settings} WHERE `name`=? OR `name`=?',
             array(
                 'email_for_send_login_log',
                 'need_send_login_log'
@@ -978,10 +609,48 @@ class users extends Object
     }
 
     /**
-     * @param $user_id
      * @return array
      */
-    private function getRatings($user_id)
+    protected function uploadAvatar()
+    {
+        require_once 'qqfileuploader.php';
+        require_once 'class_image.php';
+        $uid = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
+        if ($uid) {
+            $uploader = new qqFileUploader(array('jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'), 3145728);
+            $path_avatars = $this->all_configs['path'] . $this->all_configs['configs']['users-avatars-path'];
+            $result = $uploader->handleUpload($path_avatars);
+            if ($result['success']) {
+                $file = $this->new_filename($result['file']);
+                rename($path_avatars . $result['file'], $path_avatars . $file);
+                $result['file'] = $file;
+                $image_path = $path_avatars . $file;
+                $out_w = 75;
+                $out_h = 75;
+                $image_info = getimagesize($image_path);
+                $image_vars = $this->count_resize_vars($image_info[0], $image_info[1], $out_w, $out_h, false);
+                $this->resize_image($image_path, $image_vars['resize']);
+                $this->crop_image($image_path, $image_vars['crop']);
+                $result['success'] = true;
+                $result['path'] = $this->all_configs['prefix'] . $this->all_configs['configs']['users-avatars-path'];
+                $result['avatar'] = $result['path'] . $file;
+                $result['msg'] = '';
+                $result['uid'] = $uid;
+                $this->Users->update(array('avatar' => $file), array($this->Users->pk() => $uid));
+            } else {
+                $result['filename'] = '';
+                $result['path'] = '';
+                $result['msg'] = '';
+                $result['file'] = '';
+            }
+            Response::json($result);
+        }
+    }
+
+    /**
+     * @param $user_id
+     */
+    protected function getRatings($user_id)
     {
         $ratings = $this->all_configs['db']->query('SELECT ur.*, f.comment '
             . ' FROM {users_ratings} ur'
@@ -993,7 +662,6 @@ class users extends Object
                 'state' => false,
                 'message' => l('Записи об отзывах клиентов не найдены')
             );
-            return $data;
         } else {
             $data = array(
                 'state' => true,
@@ -1001,7 +669,274 @@ class users extends Object
                     'ratings' => $ratings,
                 ))
             );
-            return $data;
+        }
+        Response::json($data);
+    }
+
+    /**
+     * @param $user_id
+     * @return array
+     */
+    protected function deleteUser($user_id)
+    {
+        $uid = isset($_POST['uid']) ? (int)$_POST['uid'] : 0;
+        $result = array(
+            'success' => false,
+            'msg' => l('Что-то пошло не так')
+        );
+        if ($uid && $uid != $user_id) {
+            if ($this->all_configs['oRole']->isLastSuperuser(intval($uid))) {
+                FlashMessage::set(l('Не возможно удалить последнего суперпользователя'), FlashMessage::DANGER);
+                $result['msg'] = l('Не возможно удалить последнего суперпользователя');
+            } else {
+                if ($this->Users->update(array('deleted' => 1), array($this->Users->pk() => $uid))) {
+                    $result['success'] = true;
+                    FlashMessage::set(l('Пользователь удален'));
+                    $result['uid'] = $uid;
+                }
+            }
+
+        } else {
+            $result['msg'] = l('Пользователь не найден');
+        }
+        Response::json($result);
+    }
+
+    /**
+     * @param       $user_id
+     * @param array $post
+     * @param       $mod_id
+     */
+    protected function changeRoles($user_id, array $post, $mod_id)
+    {
+        foreach ($post['roles'] as $uid => $role) {
+            $avail = 0;
+            $cert_avail = 0;
+            if (isset($post['avail_user'][$uid])) {
+                $avail = 1;
+            }
+            if (isset($post['auth_cert_only'][$uid])) {
+                $cert_avail = 1;
+            }
+            if (intval($uid) > 0) {
+                $isLastSuperuser = $this->all_configs['oRole']->isLastSuperuser(intval($uid));
+                if (!$this->all_configs['oRole']->isSuperuserRole(intval($role)) && $isLastSuperuser) {
+                    FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
+                        FlashMessage::DANGER);
+                    continue;
+                }
+                $isBlocked = !$avail ? USER_DEACTIVATED_BY_TARIFF_MANUAL : USER_ACTIVATED_BY_TARIFF;
+                if ($isBlocked && $isLastSuperuser) {
+                    FlashMessage::set(l('Не возможно блокировать последнего суперпользователя'),
+                        FlashMessage::DANGER);
+                    $isBlocked = 0;
+                    $avail = 1;
+                }
+                if ($isBlocked && $uid == $user_id) {
+                    FlashMessage::set(l('Нельзя заблокировать текущую учетную запись'),
+                        FlashMessage::DANGER);
+                    $isBlocked = 0;
+                    $avail = 1;
+                }
+                $ar = $this->Users->update(array(
+                    'role' => intval($role),
+                    'avail' => $avail,
+                    'fio' => trim($post['fio'][$uid]),
+                    'position' => trim($post['position'][$uid]),
+                    'phone' => trim($post['phone'][$uid]),
+                    'email' => trim($post['email'][$uid]),
+                    'auth_cert_serial' => trim($post['auth_cert_serial'][$uid]),
+                    'auth_cert_only' => $cert_avail,
+                    'blocked_by_tariff' => $isBlocked,
+                ), array($this->Users->pk() => intval($uid)));
+                if (intval($ar) > 0) {
+                    $this->History->save('update-user', $mod_id, intval($uid));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $post
+     * @param       $mod_id
+     */
+    protected function createRoles(array $post, $mod_id)
+    {
+        foreach ($post['exist-box'] as $role_id => $s) {
+
+            $exist = explode(',', $s);
+
+            foreach ($post['permissions'] as $uid => $on) {
+                $id = explode('-', $uid);
+                if (intval($role_id) != intval($id[0])) {
+                    continue;
+                }
+
+                foreach ($exist as $k => $v) {
+                    if (intval($v) == intval($id[1])) {
+                        unset($exist[$k]);
+                    }
+                }
+
+                $i = array_search(intval($id[1]), explode(',', $s));
+
+                if ($i === false && intval($id[0]) > 0 && intval($id[1]) > 0) {
+                    $this->UsersRolePermission->insert(array(
+                        'role_id' => intval($id[0]),
+                        'permission_id' => intval($id[1])
+                    ));
+                    $this->History->save('add-to-role-per', $mod_id, intval($id[0]));
+                }
+            }
+            if (count($exist) > 0) {
+                foreach ($exist as $v) {
+                    if ($this->all_configs['oRole']->isSuperuserPermission(intval($v)) && $this->all_configs['oRole']->isLastSuperuserRole($role_id)) {
+                        FlashMessage::set(l('Не возможно удалить права суперюзера', FlashMessage::DANGER));
+                    } else {
+                        $this->all_configs['db']->query('DELETE FROM {users_role_permission} WHERE role_id=?i AND permission_id=?i',
+                            array(intval($role_id), intval($v)));
+                        $this->History->save('delete-from-role-per', $mod_id, intval($role_id));
+                    }
+                }
+            }
+            $date = '0000-00-00 00:00:00';
+            $active = '0';
+            //if ( $post['date_end'][$role_id])
+            $date_from_post = strtotime($post['date_end'][$role_id]);
+            $date = $date_from_post > 0 ? date('Y-m-d H:i:s', $date_from_post) : '0000-00-00 00:00:00';
+
+            if (isset($post['active'][$role_id]) && $post['active'][$role_id]) {
+                $active = 1;
+            }
+
+            if (!$active && $this->all_configs['oRole']->isLastSuperuserRole(intval($role_id))) {
+                FlashMessage::set(l('Не возможно удалить последнюю роль с правами суперюзера'),
+                    FlashMessage::DANGER);
+            } else {
+                $ar = $this->UsersRoles->update(array(
+                    'avail' => $active,
+                    'date_end' => $date
+                ), array($this->UsersRoles->pk() => intval($role_id)));
+                if (intval($ar) > 0) {
+                    $this->History->save('update-role', $mod_id, intval($role_id));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $post
+     * @param       $mod_id
+     */
+    protected function addRole(array $post, $mod_id)
+    {
+        $name = trim($post['name']);
+        $role_id = 0;
+        if (!empty($name)) {
+            $role_id = $this->UsersRoles->insert(array(
+                'name' => $name,
+                'avail' => 1
+            ));
+        }
+        if (isset($post['permissions'])) {
+            foreach ($post['permissions'] as $uid => $role) {
+                $id = explode('-', $uid);
+                if (intval($id[1]) > 0 && intval($role_id) > 0) {
+                    $this->UsersRolePermission->insert(array(
+                        'role_id' => intval($role_id),
+                        'permission_id' => intval($id[1])
+                    ));
+                }
+            }
+        }
+        $this->History->save('add-new-role', $mod_id, intval($role_id));
+        FlashMessage::set(l('Роль успешно создана'));
+    }
+
+    /**
+     * @param array $post
+     * @param       $mod_id
+     */
+    protected function createUser(array $post, $mod_id)
+    {
+        if (!Tariff::isAddUserAvailable($this->all_configs['configs']['api_url'],
+            $this->all_configs['configs']['host'])
+        ) {
+            FlashMessage::set(l('Вы достигли предельного количества активных пользователей. Попробуйте изменить пакетный план.'),
+                FlashMessage::DANGER);
+        } else {
+            $avail = 0;
+            if (isset($post['avail'])) {
+                $avail = 1;
+            }
+            if (empty($post['login']) || empty($post['pass']) || empty($post['email'])) {
+                $_SESSION['create-user-error'] = l('Пожалуйста, заполните пароль, логин и эл. адрес');
+                $_SESSION['create-user-post'] = $post;
+            } else {
+                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+                $access = new \access($this->all_configs, false);
+                $phones = $access->is_phone($post['phone']);
+
+                $email_or_login_exists =
+                    $this->all_configs['db']->query("SELECT 1 FROM {users} "
+                        . "WHERE login = ? OR email = ?", array($post['login'], $post['email']), 'el');
+                if ($email_or_login_exists) {
+                    FlashMessage::set(l('Пользователь с указанным логинои или эл. адресом уже существует'),
+                        FlashMessage::DANGER);
+                } else {
+                    $id = $this->Users->insert(array(
+                        'login' => $post['login'],
+                        'pass' => $post['pass'],
+                        'fio' => $post['fio'],
+                        'position' => $post['position'],
+                        'phone' => empty($phones[0]) ? '' : $phones[0],
+                        'avail' => $avail,
+                        'role' => $post['role'],
+                        'email' => $post['email'],
+                        'send_over_sms' => isset($post['over_sms']) && $post['over_sms'] == 'on',
+                        'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on'
+                    ));
+                    $this->History->save('add-user', $mod_id, intval($id));
+                    $this->saveUserRelations($id, $post);
+                    FlashMessage::set(l('Добавлен новый пользователь'));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $post
+     */
+    protected function saveSendLogEmail(array $post)
+    {
+        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        $access = new \access($this->all_configs, false);
+        $email = $access->is_email($post['email']) ? $post['email'] : '';
+        $send = (int)isset($post['send_email']);
+        if (!$this->Settings->check('need_send_login_log')) {
+            $this->Settings->insert(array(
+                'name' => 'need_send_login_log',
+                'value' => '0',
+                'description' => lq('Отправлять ежедневные логи входа на email'),
+                'ro' => 0,
+                'title' => lq('Отправлять ежедневные логи входа на email')
+            ));
+
+        }
+        if (!$this->Settings->check('email_for_send_login_log')) {
+            $this->Settings->insert(array(
+                'name' => 'email_for_send_login_log',
+                'value' => '',
+                'description' => lq('email на который будут отправлять логи входов в систему'),
+                'ro' => 0,
+                'title' => lq('email на который будут отправлять логи входов в систему')
+            ));
+
+        }
+        $this->Settings->update(array('value' => $email), array('name' => 'email_for_send_login_log'));
+        $this->Settings->update(array('value' => $send), array('name' => 'need_send_login_log'));
+        if ($send && !empty($email)) {
+            FlashMessage::set(l("Отчет будет отправляться ежедневно в 14-00"));
         }
     }
 }
