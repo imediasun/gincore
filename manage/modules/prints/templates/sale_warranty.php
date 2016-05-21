@@ -23,7 +23,7 @@ class sale_warranty extends AbstractTemplate
 
             // товары и услуги
             $goods = $this->all_configs['db']->query('SELECT og.id as item_id, og.title, og.price, g.type, og.warranty
-                      FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
+                      FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id AND og.warranty > 0',
                 array($object))->assoc();
             if ($goods) {
                 foreach ($goods as $id => $good) {
