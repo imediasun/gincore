@@ -1044,6 +1044,7 @@ table.table-no-border tr td {
     cursor: pointer;
     vertical-align: top;
     font-size: 14px !important;
+    padding: 0 5px;
 }
 .infopopover_onload{
     content: " ";
