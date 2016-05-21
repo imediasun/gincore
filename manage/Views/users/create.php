@@ -177,8 +177,7 @@
                             <td class="col-sm-6">
                                 <div class="form-group">
                                     <label>
-                                        <?= l('Зарплата от прибыли с заказов за ремонт') ?>
-                                        <i class="fa fa-question-circle" aria-hidden="true" style="color:grey" title="<?= l('Прибыль с заказа на ремонт - разница между суммой оплаченной за заказ и себестоимостью использованных запчастей')?>"></i>
+                                        <?= l('Зарплата от прибыли с заказов за ремонт') ?><?=  InfoPopover::getInstance()->createQuestion('l_it_profit_from_repair_orders')?>
                                     </label><br>
                                 </div>
 
@@ -194,8 +193,7 @@
                             <td class="col-sm-6">
                                 <div class="form-group">
                                     <label>
-                                        <?= l('Зарплата от прибыли с продаж') ?>
-                                        <i class="fa fa-question-circle" aria-hidden="true" style="color:grey" title="<?= l('Подразумевается операционная прибыль (разница между ценой закупки и ценой продажи изделия)')?>"></i>
+                                        <?= l('Зарплата от прибыли с продаж') ?><?=  InfoPopover::getInstance()->createQuestion('l_it_understood_operating_profit')?>
                                     </label><br>
                                 </div>
 

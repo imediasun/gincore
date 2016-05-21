@@ -4,7 +4,7 @@
             <div class="col-sm-3 well well-bordered" style="margin-right: 19px; padding-right: 0px">
                 <table class="table table-no-border">
                     <tr>
-                        <td><?= l('Зарплата сотрудника') ?></td>
+                        <td><?= l('Зарплата сотрудника') ?><?=  InfoPopover::getInstance()->createQuestion('l_it_users_salary_from_orders_profit')?></td>
                         <td><?= $user['fio'] ?></td>
                     </tr>
                     <tr>
