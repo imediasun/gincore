@@ -243,7 +243,7 @@ class Configs
                 'users',
                 'warehouses',
                 'widgets',
-            'admin_translates',
+//            'admin_translates',
                 'import'
             ),
             //'wrapper', 'debug', 'admin_translates'
