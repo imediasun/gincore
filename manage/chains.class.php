@@ -1588,7 +1588,7 @@ class Chains extends Object
             if (isset($post['auto-cash']) && $post['auto-cash'] == 'on' && !empty($post['cashbox'])) {
                 $this->create_transaction(Array
                 (
-                    'transaction_type' => 2,
+                    'transaction_type' => TRANSACTION_INPUT,
                     'supplier_order_id' => 0,
                     'client_order_id' => $order['id'],
                     'b_id' => 0,
@@ -2036,7 +2036,7 @@ class Chains extends Object
                     throw new ExceptionWithMsg(l('Заказ уже оплачен'));
                 }
                 if ($post['transaction_type'] == TRANSACTION_INPUT) {
-                    if (isset($post['transaction_extra']) && $post['transaction_extra'] == 'prepay') {
+                    if (isset($post['transaction_extra']) && $post['transaction_extra'] === 'prepay') {
                         $post['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_id_from_prepay'];
                         $post['comment'] = "Внесение предоплаты клиентом за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_to'] . ', ' . $post['date_transaction'];
                         if (round((float)$post['amount_to'] * 100) > $order['prepay'] - $order['sum_paid']) {
@@ -2057,7 +2057,7 @@ class Chains extends Object
                     if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
                         $post['comment'] = "Выдача денег клиенту за заказ " . $post['client_order_id'] . ", сумма " . $post['amount_from'] . ', ' . $post['date_transaction'];
                     }
-                    if (round((float)$post['amount_from'] * 100) > $order['sum_paid'] - $order['sum']) {
+                    if (round((float)$post['amount_from'] * 100) > ($order['sum_paid'] - $order['sum'])) {
                         throw new ExceptionWithMsg(l('Не больше чем ') . show_price(intval($order['sum_paid']) - intval($order['sum'])));
                     }
                 }
@@ -2156,6 +2156,7 @@ class Chains extends Object
                 $data['confirm'] = $e->confirm;
             }
         }
+
         return $data;
     }
 
