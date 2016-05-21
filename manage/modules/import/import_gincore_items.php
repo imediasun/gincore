@@ -6,7 +6,7 @@ require_once $this->all_configs['sitepath'] . 'mail.php';
 /**
  * Class import_gincore_items
  *
- * @property ItemsInterface $provider
+ * @property exported_gincore_items $provider
  */
 class import_gincore_items extends abstract_import_handler
 {
@@ -14,6 +14,7 @@ class import_gincore_items extends abstract_import_handler
     protected $items = array();
     public $userAsManager = true;
     protected $userId;
+    protected $logQuery = array();
 
     /**
      * @inheritdoc
@@ -42,24 +43,21 @@ class import_gincore_items extends abstract_import_handler
             $goods = db()->query('SELECT * FROM {goods}')->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
-                if (!empty($id)) {
-                    $data = $this->getItemData($row);
-                    if(isset($goods[$id])) {
-                        $good = $goods[$id];
-                        if($this->isGoodChanged($good, $data)) {
-                            $results[] = $this->updateItem($id, $data);
-                        } else {
-                            $results[] = array(
-                                'state' => true,
-                                'id' => $id,
-                                'message' => l('Данные товара не изменились')
-                            );
-                            $this->updateItem($id, $data);
-                        }
+                if (!empty($id) && isset($goods[$id])) {
+                    $data = $this->getItemData($goods[$id], $row);
+                    if (!empty($data)) {
+                        $results[] = $this->updateItem($id, $data);
+                    } else {
+                        $results[] = array(
+                            'state' => true,
+                            'id' => $id,
+                            'message' => l('Данные товара не изменились')
+                        );
                     }
                 }
             }
         }
+        $this->flushLog();
         return array(
             'state' => true,
             'message' => $this->gen_result_table($results)
@@ -120,15 +118,26 @@ class import_gincore_items extends abstract_import_handler
      */
     private function addToLog($userId, $work, $modId, $itemId)
     {
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)',
             array($userId, $work, $modId, $itemId));
+    }
+
+    /**
+     *
+     */
+    private function flushLog()
+    {
+        if (!empty($this->logQuery)) {
+            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id) VALUES ?q',
+                array(implode(',', $this->logQuery)));
+        }
     }
 
     /**
      * @param $row
      * @return array
      */
-    private function getItemData($row)
+    private function getItemData($good, $row)
     {
         $data = array();
         $cols = $this->provider->get_cols();
@@ -137,27 +146,10 @@ class import_gincore_items extends abstract_import_handler
             if (strpos($field, 'price') !== false) {
                 $value *= 100;
             }
-            if ($value !== false) {
+            if ($value !== false && $good[$field] != $value) {
                 $data[$field] = $value;
             }
         }
         return $data;
-    }
-
-
-    /**
-     * @param $good
-     * @param $data
-     * @return bool
-     */
-    private function isGoodChanged($good, $data)
-    {
-        $cols = $this->provider->get_cols();
-        foreach ($cols as $field => $title) {
-            if(isset($data[$field]) && $good[$field] != $data[$field]) {
-                return true;
-            }
-        }
-        return false;
     }
 }
