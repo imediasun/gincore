@@ -8,6 +8,10 @@ class wrapper{
 
     protected $all_configs;
 
+    /**
+     * wrapper constructor.
+     * @param $all_configs
+     */
     function __construct($all_configs){
         global $input_html, $ifauth;
 
@@ -24,13 +28,15 @@ class wrapper{
         $input_html['mcontent'] = $this->gencontent();
     }
 
+    /**
+     * @return array
+     */
     private function genconfig(){
         global $dbcfg;
         $conf = array(
             $dbcfg['_prefix'].'reviews' => array(
                 'settings' => array('name' => l('Отзывы')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'uxt' => array('0', '1', l('Дата поста'), ''),
                     'user' => array('0', '0', l('Автор'), ''),
@@ -44,7 +50,6 @@ class wrapper{
             $dbcfg['_prefix'].'sources' => array(
                 'settings' => array('name' => l('Источники рекламы и телефоны')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'source' => array('0', '0', '' . l('Источник') .'(city,adw)', ''),
                     'phone_mobile' => array('0', '0', l('Телефон мобильный'), ''),
@@ -54,7 +59,6 @@ class wrapper{
             $dbcfg['_prefix'].'page_types' => array(
                 'settings' => array('name' => l('Типы страниц')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'name' => array('0', '0', l('Название'), '')
                 )
@@ -62,7 +66,6 @@ class wrapper{
             $dbcfg['_prefix'].'map_prices' => array(
                 'settings' => array('name' => l('Все цены')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'map_id' => array('0', '0', 'id ' . l('карты сайта'), ''),
                     'table_type' => array('0', '0', '№ табл.', ''),
@@ -78,7 +81,6 @@ class wrapper{
             $dbcfg['_prefix'].'visitors' => array(
                 'settings' => array('name' => l('посетители')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'uxt' => array('0', '1', ''.l('Дата').'', ''),
                     'ip' => array('0', '1', 'IP', ''),
@@ -91,7 +93,6 @@ class wrapper{
             $dbcfg['_prefix'].'crm_referers' => array(
                 'settings' => array('name' => l('Список каналов (источники продаж)')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'name' => array('0', '0', l('Название'), ''),
                     'group_id' => array('0', '0', l('Группа') . ' (0-' . l('Затраты') .', 1-Context, 2-Remarketing, 3-Search)', ''),
@@ -100,7 +101,6 @@ class wrapper{
             $dbcfg['_prefix'].'visitors_system_codes' => array(
                 'settings' => array('name' => l('Системные коды на скидку')),
                 'columns' => array(
-                    //hide, ro, realname, default
                     'id' => array('0', '1', 'ID', ''),
                     'code' => array('0', '0', l('Код'), ''),
                     'created_at' => array('0', '0', l('Добавлен'), date('Y-m-d H:i:s')),
@@ -111,7 +111,6 @@ class wrapper{
             $dbcfg['_prefix'].'crm_expenses' => array(
                 'settings' => array('name' => l('Список затрат')),
                 'columns' => array(
-                    //hide, ro, realname, default, class, foreignkey to {table}.id
                     'id' => array('0', '1', 'ID', ''),
                     'sum_uah' => array('0', '0', l('Сумма') .' '.l(viewCurrency()).'', ''),
                     'referer_id' => array('0', '0', l('Канал'), '', '', 'crm_referers'),
@@ -124,7 +123,6 @@ class wrapper{
             $dbcfg['_prefix'].'sms_senders' => array(
                 'settings' => array('name' => '' . l('СМС') .': ' . l('отправители') .''),
                 'columns' => array(
-                    //hide, ro, realname, default, class, foreignkey to {table}.id
                     'id' => array('0', '1', 'ID', ''),
                     'sender' => array('0', '0', 'Sender', ''),
                     'type' => array('0', '0', l('Тип'), '0'),
@@ -134,11 +132,18 @@ class wrapper{
         return $conf;
     }
 
+    /**
+     * @param $table_name
+     * @return mixed
+     */
     private function genconfig_tablename($table_name){
         $conf = $this->genconfig();
         return isset($conf[$table_name]['settings']['name']) && $conf[$table_name]['settings']['name'] ? $conf[$table_name]['settings']['name'] : $table_name;
     }
 
+    /**
+     * @return string
+     */
     private function genmenu(){
         global $dbcfg;
 
@@ -170,6 +175,10 @@ class wrapper{
         return $out;
     }
 
+    /**
+     * @param $table
+     * @return bool
+     */
     private function table_exists($table){
         if($this->all_configs['db']->query("SHOW TABLES LIKE ?", array($table))->ar())
             return true;
@@ -177,6 +186,9 @@ class wrapper{
             return false;
     }
 
+    /**
+     * @return string
+     */
     private function gencontent(){
         GLOBAL $ifauth;
 
@@ -281,7 +293,6 @@ class wrapper{
                     }
                     $form.='</div>';
                 }
-                //echo $pp[0].' - '.$pp[1].'<br>';
             }
 
             $out.='<form action="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/insert" method="POST">
@@ -305,8 +316,6 @@ class wrapper{
                 }
             }
 
-//            $sql_cols = implode(',', $sql_cols);
-            //$sql_values = implode(', ', $sql_value);
             $this->all_configs['db']->query("INSERT INTO `?q` (?cols) VALUES (?l)", array($this->all_configs['arrequest'][1], $sql_cols, $sql_values));
             header('Location: '.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'');
             exit;
@@ -332,7 +341,6 @@ class wrapper{
                 if(isset($conf[$this->all_configs['arrequest'][1]]['columns'][$k][1]) && $conf[$this->all_configs['arrequest'][1]]['columns'][$k][1] == 1){
                 } else {
                     $cols[] = $pp;
-                    //$conf[$this->all_configs['arrequest'][1]]['columns'][$pp[0]][0]
                     $form .= '<div class="form-group"><label>'.$col_humen_name.'</label>';
                     if (isset($conf[$this->all_configs['arrequest'][1]]['columns'][$k][5])) {
                         $vars = $this->all_configs['db']->query('SELECT id, name FROM {?query}',
@@ -347,12 +355,10 @@ class wrapper{
                             $form.='<textarea class="form-control" name="'.$k.'" rows="9" cols="80">'.htmlspecialchars($pp).'</textarea>';
                         }else{
                             $form.='<input class="form-control" type="text" value="'.htmlspecialchars($pp).'" name="'.$k.'" size="70">';
-                            //$form.=$col_humen_name.'<br><input type="text" value="'.$sqll[$pp[0]].'" name="'.$pp[0].'" size="70"><br><br>';
                         }
                     }
                     $form.='</div>';
                 }
-                //echo $pp[0].' - '.$pp[1].'<br>';
             }
 
             $out.='<form action="'.$this->all_configs['prefix'].'wrapper/'.$this->all_configs['arrequest'][1].'/update/'.$sqll['id'].'" method="POST">
@@ -383,6 +389,9 @@ class wrapper{
         return $out;
     }
 
+    /**
+     *
+     */
     private function ajax(){
 
         $data = array(
