@@ -203,3 +203,13 @@ div.transaction_div i.icon-plus:hover {
 .add-cashbox-table:hover img{
     opacity: .5;
 }
+table.table-of-order >thead >tr {
+    background-color: #F7F9FA;
+}
+table.table-of-order >thead >tr >td{
+    line-height: 20px;
+}
+
+table.table-of-order td {
+    border: 1px solid #e3e3e3 !important;
+}
