@@ -1949,11 +1949,12 @@ function init_popover($els, add_close_btn, trigger_event){
     $els.popover({
         placement: 'auto right',
         trigger: trigger,
+        html: true,
         template: '<div class="popover infopopover'+(add_close ? ' has_close_btn' : '')+'" role="tooltip">'+
-                  '<div class="arrow"></div><h3 class="popover-title"></h3>'+
+                  '<div class="arrow"></div><div class="popover-body clearfix"><h3 class="popover-title"></h3>'+
                   '<div class="popover-content"></div>'+
                   (add_close ? '<i class="infopopover-close fa fa-times"></i>' : '')+
-                  '</div>'
+                  '</div></div>'
     });
 }
 function show_infopopover_modal(modal_html){

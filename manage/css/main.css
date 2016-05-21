@@ -1011,9 +1011,34 @@ table.table-no-border tr td {
 .infopopover.popover .popover-content{
     font-size: 12px;
 }
-.infopopover.popover,
-.infopopover.popover .popover-content{
-    max-width: 500px;
+.infopopover.popover{
+    width: 400px;
+    max-width: none;
+    box-shadow: none;
+    background: transparent;
+    border: 0;
+}
+.infopopover.popover.left .popover-body{
+    float: right;
+}
+.infopopover.popover>.arrow{
+    z-index: 1;
+}
+.infopopover.popover.left>.arrow{
+    right: -9px;
+}
+.infopopover.popover.right>.arrow{
+    left: -9px;
+}
+.infopopover.popover .popover-body{
+    position: relative;
+    text-align: left;
+    max-width: 100%;
+    box-shadow: 0 1px 2px rgba(0,0,0,.3);
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 6px;
+    display: inline-block;
 }
 .infopopover_question{
     cursor: pointer;

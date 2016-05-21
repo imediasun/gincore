@@ -16,7 +16,7 @@ class InfoPopover
     public function createQuestion($text_var)
     {
         return $this->view->renderFile('helpers/InfoPopover/question', array(
-            'content' => l($text_var)
+            'content' => $this->getText($text_var)
         ));
     }
 
@@ -27,7 +27,7 @@ class InfoPopover
     public function createOnHoverAttr($text_var)
     {
         return $this->view->renderFile('helpers/InfoPopover/onHoverAttr', array(
-            'content' => l($text_var)
+            'content' => $this->getText($text_var)
         ));
     }
 
@@ -42,7 +42,7 @@ class InfoPopover
             return '';
         }
         return $this->view->renderFile('helpers/InfoPopover/onLoad' . ($oneTime ? 'OneTime' : ''), array(
-            'content' => l($text_var),
+            'content' => $this->getText($text_var),
             'id' => $text_var
         ));
     }
@@ -58,9 +58,17 @@ class InfoPopover
             return '';
         }
         return $this->view->renderFile('helpers/InfoPopover/infoModal', array(
-            'content' => l($text_var),
+            'content' => $this->getText($text_var),
             'id' => $text_var
         ));
+    }
+
+    /**
+     * @param $text_var
+     * @return string
+     */
+    private function getText($text_var){
+        return h(l($text_var));
     }
 
     /**
