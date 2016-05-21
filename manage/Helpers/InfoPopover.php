@@ -10,7 +10,7 @@ class InfoPopover
 
     public function createQuestion($text_var)
     {
-        $text = l($text_var);
+        $text = $this->getText($text_var);
         return $this->view->renderFile('InfoPopover/question', array(
             'content' => $text
         ));
@@ -18,7 +18,7 @@ class InfoPopover
 
     public function createOnHoverAttr($text_var)
     {
-        $text = l($text_var);
+        $text = $this->getText($text_var);
         return $this->view->renderFile('InfoPopover/onHoverAttr', array(
             'content' => $text
         ));
@@ -29,7 +29,7 @@ class InfoPopover
         if ($oneTime && !$this->oneTimePopoverEnabled($text_var)) {
             return '';
         } else {
-            $text = l($text_var);
+            $text = $this->getText($text_var);
             return $this->view->renderFile('InfoPopover/onLoad' . ($oneTime ? 'OneTime' : ''), array(
                 'content' => $text,
                 'id' => $text_var
@@ -42,7 +42,7 @@ class InfoPopover
         if ($has_confirm && !$this->oneTimePopoverEnabled($text_var)) {
             return '';
         } else {
-            $text = l($text_var);
+            $text = $this->getText($text_var);
             return $this->view->renderFile('InfoPopover/infoModal', array(
                 'content' => $text,
                 'id' => $text_var
@@ -50,6 +50,10 @@ class InfoPopover
         }
     }
 
+    private function getText($text_var){
+        return htmlspecialchars(l($text_var));
+    }
+    
     private function getPopoverSettings()
     {
         $s = !empty($this->all_configs['settings']['info_popovers_settings'])
