@@ -212,4 +212,5 @@ table.table-of-order >thead >tr >td{
 
 table.table-of-order td {
     border: 1px solid #e3e3e3 !important;
+    padding-left: 10px !important;
 }
