@@ -43,19 +43,16 @@ class import_gincore_items extends abstract_import_handler
             $goods = db()->query('SELECT * FROM {goods}')->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
-                if (!empty($id)) {
-                    $data = $this->getItemData($row);
-                    if (isset($goods[$id])) {
-                        $good = $goods[$id];
-                        if ($this->isGoodChanged($good, $data)) {
-                            $results[] = $this->updateItem($id, $data);
-                        } else {
-                            $results[] = array(
-                                'state' => true,
-                                'id' => $id,
-                                'message' => l('Данные товара не изменились')
-                            );
-                        }
+                if (!empty($id) && isset($goods[$id])) {
+                    $data = $this->getItemData($goods[$id], $row);
+                    if (!empty($data)) {
+                        $results[] = $this->updateItem($id, $data);
+                    } else {
+                        $results[] = array(
+                            'state' => true,
+                            'id' => $id,
+                            'message' => l('Данные товара не изменились')
+                        );
                     }
                 }
             }
@@ -121,7 +118,8 @@ class import_gincore_items extends abstract_import_handler
      */
     private function addToLog($userId, $work, $modId, $itemId)
     {
-        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)', array($userId, $work, $modId, $itemId));
+        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)',
+            array($userId, $work, $modId, $itemId));
     }
 
     /**
@@ -139,7 +137,7 @@ class import_gincore_items extends abstract_import_handler
      * @param $row
      * @return array
      */
-    private function getItemData($row)
+    private function getItemData($good, $row)
     {
         $data = array();
         $cols = $this->provider->get_cols();
@@ -148,27 +146,10 @@ class import_gincore_items extends abstract_import_handler
             if (strpos($field, 'price') !== false) {
                 $value *= 100;
             }
-            if ($value !== false) {
+            if ($value !== false && $good[$field] != $value) {
                 $data[$field] = $value;
             }
         }
         return $data;
-    }
-
-
-    /**
-     * @param $good
-     * @param $data
-     * @return bool
-     */
-    private function isGoodChanged($good, $data)
-    {
-        $cols = $this->provider->get_cols();
-        foreach ($cols as $field => $title) {
-            if (isset($data[$field]) && $good[$field] != $data[$field]) {
-                return true;
-            }
-        }
-        return false;
     }
 }

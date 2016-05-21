@@ -56,10 +56,12 @@ class exported_gincore_items extends abstract_import_provider
     public function get_category_id($row)
     {
         $title = trim($this->getColValue('category_id', $row));
-        if (isset($this->categories[$title])) {
-            $id = $this->categories[$title]['id'];
-        } else {
-            $id = db()->query('SELECT id FROM {categories} WHERE title=?', array($title))->el();
+        if (!empty($title)) {
+            if (isset($this->categories[$title])) {
+                $id = $this->categories[$title]['id'];
+            } else {
+                $id = db()->query('SELECT id FROM {categories} WHERE title=?', array($title))->el();
+            }
         }
         return empty($id) ? false : $id;
     }
@@ -71,12 +73,14 @@ class exported_gincore_items extends abstract_import_provider
     public function get_manager_id($row)
     {
         $value = trim($this->getColValue('manager_id', $row));
-        $manager = $this->findManager($value);
-        if (empty($manager)) {
-            $id = db()->query('SELECT id FROM {users} WHERE fio=? OR login=? OR email=?',
-                array($value, $value, $value))->el();
-        } else {
-            $id = $manager['id'];
+        if (!empty($value)) {
+            $manager = $this->findManager($value);
+            if (empty($manager)) {
+                $id = db()->query('SELECT id FROM {users} WHERE fio=? OR login=? OR email=?',
+                    array($value, $value, $value))->el();
+            } else {
+                $id = $manager['id'];
+            }
         }
         return empty($id) ? false : $id;
     }
@@ -101,7 +105,8 @@ class exported_gincore_items extends abstract_import_provider
             return call_user_func_array($name, $arguments);
         }
         $method = 'get_' . $name;
-        if (method_exists($this, $method)) {
+        $colPosition = $this->getColPosition($name);
+        if (!empty($colPosition) && method_exists($this, $method)) {
             return call_user_func_array(array($this, $method), $arguments);
         }
         if (isset($this->cols[$name])) {
@@ -117,8 +122,7 @@ class exported_gincore_items extends abstract_import_provider
      */
     private function getColValue($name, $row)
     {
-        $colName = $this->cols[$name];
-        $col = $this->getColPosition($colName);
+        $col = $this->getColPosition($this->cols[$name]);
         return $col !== false && isset($row[$col]) ? $row[$col] : false;
     }
 
@@ -138,7 +142,7 @@ class exported_gincore_items extends abstract_import_provider
     private function findManager($value)
     {
         foreach ($this->managers as $manager) {
-            if($manager['fio'] == $value || $manager['login'] == $value || $manager['email'] == $value) {
+            if ($manager['fio'] == $value || $manager['login'] == $value || $manager['email'] == $value) {
                 return $manager;
             }
         }
