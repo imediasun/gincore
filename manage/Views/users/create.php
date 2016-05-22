@@ -87,7 +87,7 @@
                         </div>
                         <div class="form-group">
                             <label><?= l('Телефон') ?></label>
-                            <input onkeydown="return isNumberKey(event)" class="form-control"
+                            <input<?=input_phone_mask_attr()?> onkeydown="return isNumberKey(event)" class="form-control"
                                    value="<?= (isset($form_data['phone']) ? h($form_data['phone']) : '') ?>"
                                    name="phone"
                                    placeholder="<?= l('введите телефон') ?>">

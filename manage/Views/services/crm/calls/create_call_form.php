@@ -16,7 +16,7 @@
                 <div class="modal-body">
                     <?= l('Номер телефона') ?>: <br>
                     <?= typeahead($all_configs['db'], 'clients', false, 0, 1001, 'input-xlarge', 'input-medium', '',
-                    false, false, '', true) ?>
+                    false, false, '', true, '', array(), false, input_phone_mask_attr()) ?>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary"><?= l('Сохранить') ?></button>

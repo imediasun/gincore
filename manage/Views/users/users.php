@@ -89,7 +89,7 @@
                                        value="<?= htmlspecialchars($user['position']) ?>"/>
                             </td>
                             <td>
-                                <input placeholder="<?= l('введите телефон') ?>" onkeydown="return isNumberKey(event)"
+                                <input<?=input_phone_mask_attr()?> placeholder="<?= l('введите телефон') ?>" onkeydown="return isNumberKey(event)"
                                        class="form-control input-sm" name="phone[<?= $user['id'] ?>]"
                                        value="<?= $user['phone'] ?>"/>
                             </td>

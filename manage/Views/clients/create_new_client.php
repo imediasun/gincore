@@ -16,7 +16,7 @@
                     <label class="control-label"><?= l('Телефон') ?>:<b class="text-danger">*</b> </label>
                 </div>
                 <div class="col-sm-12 controls">
-                    <input value="<?= (isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : '') ?>"
+                    <input<?=input_phone_mask_attr()?> value="<?= (isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : '') ?>"
                            name="phone" required class="form-control"/>
                 </div>
             </div>

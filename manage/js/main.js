@@ -147,6 +147,7 @@ $(document).ready(function () {
         }
         clone.find('.clone_clear_html').html('');
         $this.before(clone);
+        init_input_masks();
     });
 
     /*//form change
@@ -254,7 +255,9 @@ $(document).ready(function () {
                 call_function = $(this.$element).data('function');
                 var table = $(this.$element).data('table');
                 var fix = $('.select-typeahead-' + $(this.$element).data('select')).val();
-
+                if($(this.$element).attr('data-phone_mask')){
+                    query = query.replace(/\D/g,'');
+                }
                 return $.ajax({
                     url: prefix + 'messages.php',
                     type: 'POST',
@@ -325,7 +328,11 @@ $(document).ready(function () {
                          window[call_function](_this.$element, item.id, item.original);
                     }
                 }
-                return item.name;
+                if($(this.$element).attr('data-phone_mask')){
+                    return item.original.phone;
+                }else{
+                    return item.name;
+                }
             }
         }).on('focusout', this, function(e) {
             if(!$(this).data('no_clear_if_null')){
@@ -456,6 +463,9 @@ $(document).ready(function () {
                 $('.typeahead-double[data-id="'+id+'"]').each(function(){
                     fields.push($(this).data('field'));
                 });
+                if($(this.$element).attr('data-phone_mask')){
+                    query = query.replace(/\D/g,'');
+                }
                 return $.ajax({
                     url: prefix + 'messages.php',
                     type: 'POST',
@@ -1200,6 +1210,7 @@ function click_tab(_this, e, hashs) {
         $('[data-toggle="tooltip"]').tooltip();
         infopopovers();
         hide_flashmessages();
+        init_input_masks();
     });
 }
 
@@ -1890,7 +1901,20 @@ $(function(){
     
     $(window).load(hide_flashmessages);
     
+    init_input_masks();
 });
+
+function init_input_masks(){
+    var $els = $('[data-phone_mask]');
+    $els.each(function(){
+        var $this = $(this),
+            mask = $this.data('phone_mask');
+        $.mask.definitions['z'] = "[1-9]";
+        $.mask.definitions['9'] = "";
+        $.mask.definitions['d'] = "[0-9]";
+        $this.mask(mask,{});
+    });
+}
 
 var flashmessages_hide_timeout = 0;
 function hide_flashmessages(){

@@ -393,7 +393,7 @@ class calls extends \service{
         return '
             <link rel="stylesheet" href="'.$this->all_configs['prefix'].'services/crm/calls/css/main.css?1">
             <script type="text/javascript" src="'.$this->all_configs['prefix'].'services/crm/calls/js/jquery.maskedinput.min.js"></script>
-            <script type="text/javascript" src="'.$this->all_configs['prefix'].'services/crm/calls/js/main.js?1"></script>
+            <script type="text/javascript" src="'.$this->all_configs['prefix'].'services/crm/calls/js/main.js?2"></script>
         ';
     }
 
