@@ -98,3 +98,13 @@ ALTER TABLE `restore4_orders` ADD COLUMN sale_type int(10) UNSIGNED DEFAULT 0;
  */
 ALTER TABLE `restore4_users` ADD COLUMN salary_from_sale int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_users` ADD COLUMN salary_from_repair int(10) UNSIGNED DEFAULT 0;
+
+/**
+2016_05_12_094203_add_delivery_address_field_to_orders.php
+ */
+ALTER TABLE `restore4_orders` ADD COLUMN delivery_to VARCHAR (255) DEFAULT '';
+
+/**
+2016_05_12_101324_add_discount_type_field_to_orders_goods.php
+ */
+ALTER TABLE `restore4_orders_goods` ADD COLUMN discount_type int(10) UNSIGNED DEFAULT 1;

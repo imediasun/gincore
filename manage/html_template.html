@@ -19,12 +19,6 @@
                 <div class="navbar-right">
                     <ul class="nav navbar-nav no-borders">
                         {-txt-lang_switch}
-                        <li>
-                            <a data-o_id="2" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
-                                <i class="fa fa-phone"></i>
-                                <span class="label label-success new-count-statuses"></span>
-                            </a>
-                        </li>
                         <li class="{-txt-show_contact_phones_class}">
                             <a data-o_id="3" onclick="alert_box(this, false, 'show_contact_phones', undefined, undefined, 'messages.php')" class="label-menu-corner" href="javascript:void(0);" >
                                 <span class="fa fa-phone-square"></span>
@@ -37,6 +31,11 @@
                             <a data-o_id="0" onclick="alert_box(this, false, 'get-messages', undefined, undefined, 'messages.php')" href="javascript:void(0);" class="label-menu-corner">
                                 <i class="fa fa-envelope"></i>
                                 <span class="label label-success new-count-mess"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a  href="{-txt-prefix}logout" class="label-menu-corner">
+                                <i class="fa fa-caret-square-o-right" aria-hidden="true"></i>
                             </a>
                         </li>
                     </ul>
@@ -53,6 +52,8 @@
                 </div>
                 <div class="profile-picture" style="{-txt-profile_color}">
                     <div class="text-center">{-txt-profile_color_percent}</div>
+                    </div>
+                <div class="profile-picture">
                     <img src="{-txt-avatar}" width="75" class="img-circle m-b" alt="logo">
                     <div class="stats-label text-color">
                         <span class="font-extra-bold font-uppercase">{-txt-current_admin}</span>

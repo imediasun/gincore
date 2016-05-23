@@ -103,7 +103,7 @@
                                        value="<?= $user['auth_cert_serial'] ?>"/>
                             </td>
                             <td>
-                                <input <?= $user['auth_cert_only'] ? 'checked' : '' ?> type="checkbox"
+                                <input class="disabled" <?= $user['auth_cert_only'] ? 'checked' : '' ?> disabled readonly type="checkbox"
                                                                                        name="auth_cert_only[<?= $user['id'] ?>]"/>
                             </td>
                             <td>

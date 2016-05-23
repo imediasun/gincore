@@ -102,7 +102,7 @@ class Suppliers extends Object
 
             // редактируем заказ
             try {
-                $this->ContractorsSuppliersOrders->update(array(
+                $data = array(
                     'price' => $price,
                     'date_wait' => date("Y-m-d H:i:s", $date),
                     'supplier' => $supplier,
@@ -111,13 +111,18 @@ class Suppliers extends Object
                     'user_id' => $user_id,
                     '`count`' => $count,
                     'comment' => $comment,
-                    'wh_id' => $warehouse,
-                    'location_id' => $location,
                     'num' => $num,
                     'warehouse_type' => $warehouse_type,
-                ), array('id' => $order_id));
+                );
+                if(!empty($warehouse)) {
+                    $data['wh_id'] = $warehouse;
+                }
+                if(!empty($location)) {
+                    $data['location_id'] = $location;
+                }
+                $this->ContractorsSuppliersOrders->update($data, array('id' => $order_id));
             } catch (Exception $e) {
-                throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
+                throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
             }
             $this->exportSupplierOrder($order_id, 3);
 
@@ -217,7 +222,7 @@ class Suppliers extends Object
                     ));
                     FlashMessage::set(l('Заказ успешно создан'));
                 } catch (Exception $e) {
-                    throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
+                    throw new ExceptionWithMsg(l('Неизвестная ошибка при создании заказа'));
                 }
                 if ($id > 0) {
                     $data['id'] = $id;
