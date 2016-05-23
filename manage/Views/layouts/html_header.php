@@ -73,6 +73,7 @@ use Assetic\AssetWriter;
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.fullscreen-0.4.1.min.js?2"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.loadingbar.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.ba-bbq.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.maskedinput.min.js"></script>
         <script src="<?= $assetsDir ?>js/admin/jquery.slimscroll.min.js"></script>
         <script src="<?= $assetsDir ?>js/admin/jquery.flot.js"></script>
         <script src="<?= $assetsDir ?>js/admin/jquery.flot.resize.js"></script>
@@ -181,5 +182,5 @@ use Assetic\AssetWriter;
 
     {-css-module}
 
-    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?19"></script>
+    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?20"></script>
 </head>

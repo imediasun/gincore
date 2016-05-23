@@ -534,7 +534,7 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 function typeahead($db, $table = 'goods', $show_categories = false, $object_id = 0, $i = 1, 
                    $class = 'input-medium',$class_select = 'input-small', $function = '', 
                    $multi = false, $anyway = false, $m = '', $no_clear_if_null = false,
-                   $placeholder = '', $add_btn = array(), $disabled = false)
+                   $placeholder = '', $add_btn = array(), $disabled = false, $add_attr = '')
 {
 
     if(empty($placeholder)) {
@@ -584,7 +584,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
         <input '.($no_clear_if_null ? ' data-no_clear_if_null="1"' : '').' data-required="true" data-placement="right" 
             name="'.$table.'-value'.($multi ? '['.$m.']' : '').'"'.($disabled ? ' disabled' : '').' type="text" value="'.$object_name.'" data-input="'.$table.$iterator.'" 
             data-function="'.$function.'" data-select="'.$iterator.'" data-table="'.$table.'" '.
-            ($anyway == true ? 'data-anyway="1"' : '').' autocomplete="off" class="form-control global-typeahead '.$class.'" placeholder="'.$placeholder.'">
+            ($anyway == true ? 'data-anyway="1"' : '').' autocomplete="off" class="form-control global-typeahead '.$class.'" placeholder="'.$placeholder.'" '.$add_attr.'>
     ';
     if($show_categories){
         $out .= "</div></div>";
@@ -607,13 +607,23 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
     return $out;
 }
 
+function input_phone_mask_attr(){
+    global $all_configs;
+    $phone_conf = $all_configs['configs']['countries'][$all_configs['settings']['country']]['phone'];
+    if(!empty($phone_conf['mask'])){
+        return ' data-phone_mask="'.$phone_conf['mask'].'" ';
+    }else{
+        return '';
+    }
+}
+
 function client_double_typeahead($id = null, $callbacks = '')
 {
     global $all_configs;
     $input_id = 'typeahead-double-' . microtime(true) . rand(1, 99999);
     $client = $all_configs['db']->query("SELECT * FROM {clients} WHERE id = ?i", array($id), 'row');
     $value_field = '<input class="typeahead-double-value" id="' . $input_id . '" type="hidden" name="client_id" value="' . ($id ?: '') . '">';
-    $phone_field = '<input data-function="' . $callbacks . '" data-table="clients" data-field="phone" 
+    $phone_field = '<input'.input_phone_mask_attr().' data-function="' . $callbacks . '" data-table="clients" data-field="phone" 
                      class="form-control typeahead-double" data-id="' . $input_id . '" type="text" 
                      placeholder="' . l('Телефон') . '" name="client_phone" required
                      value="' . ($client ? $client['phone'] : $client['phone']) . '">';

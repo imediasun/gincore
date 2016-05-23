@@ -89,7 +89,7 @@
                                        value="<?= htmlspecialchars($user['position']) ?>"/>
                             </td>
                             <td>
-                                <input placeholder="<?= l('введите телефон') ?>" onkeydown="return isNumberKey(event)"
+                                <input<?=input_phone_mask_attr()?> placeholder="<?= l('введите телефон') ?>" onkeydown="return isNumberKey(event)"
                                        class="form-control input-sm" name="phone[<?= $user['id'] ?>]"
                                        value="<?= $user['phone'] ?>"/>
                             </td>
@@ -103,7 +103,7 @@
                                        value="<?= $user['auth_cert_serial'] ?>"/>
                             </td>
                             <td>
-                                <input <?= $user['auth_cert_only'] ? 'checked' : '' ?> type="checkbox"
+                                <input class="disabled" <?= $user['auth_cert_only'] ? 'checked' : '' ?> disabled readonly type="checkbox"
                                                                                        name="auth_cert_only[<?= $user['id'] ?>]"/>
                             </td>
                             <td>

@@ -64,7 +64,8 @@ class Configs
                     'phone' => array(
                         'code' => 380,  // 380631112233
                         'short_code' => 0, // 0631112233
-                        'length' => 9 // длинна без +380
+                        'length' => 9, // длинна без +380
+                        'mask' => '380zdddddddd'
                     )
                 ),
                 1 => array(
@@ -72,7 +73,8 @@ class Configs
                     'phone' => array(
                         'code' => 7,
                         'short_code' => 8,
-                        'length' => 10
+                        'length' => 10,
+                        'mask' => '7dddddddddd'
                     )
                 ),
                 2 => array(
@@ -80,7 +82,8 @@ class Configs
                     'phone' => array(
                         'code' => 7,
                         'short_code' => 7,
-                        'length' => 10
+                        'length' => 10,
+                        'mask' => '7dddddddddd'
                     )
                 ),
                 3 => array(
@@ -88,7 +91,8 @@ class Configs
                     'phone' => array(
                         'code' => 375,
                         'short_code' => 375,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '375ddddddddd'
                     )
                 ),
                 4 => array(
@@ -96,7 +100,8 @@ class Configs
                     'phone' => array(
                         'code' => 373,
                         'short_code' => 373,
-                        'length' => 8
+                        'length' => 8,
+                        'mask' => '373dddddddd'
                     )
                 ),
                 5 => array(
@@ -104,7 +109,8 @@ class Configs
                     'phone' => array(
                         'code' => 1,
                         'short_code' => 1,
-                        'length' => 10
+                        'length' => 10,
+                        'mask' => '1dddddddddd'
                     )
                 ),
                 6 => array(
@@ -112,7 +118,8 @@ class Configs
                     'phone' => array(
                         'code' => 994,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '994ddddddddd'
                     )
                 ),
                 7 => array(
@@ -120,7 +127,8 @@ class Configs
                     'phone' => array(
                         'code' => 374,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '374ddddddddd'
                     )
                 ),
                 8 => array(
@@ -128,7 +136,8 @@ class Configs
                     'phone' => array(
                         'code' => 996,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '996ddddddddd'
                     )
                 ),
                 9 => array(
@@ -136,7 +145,8 @@ class Configs
                     'phone' => array(
                         'code' => 992,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '992ddddddddd'
                     )
                 ),
                 10 => array(
@@ -144,7 +154,8 @@ class Configs
                     'phone' => array(
                         'code' => 993,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '993ddddddddd'
                     )
                 ),
                 11 => array(
@@ -152,7 +163,8 @@ class Configs
                     'phone' => array(
                         'code' => 998,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '998ddddddddd'
                     )
                 ),
                 12 => array(
@@ -160,7 +172,8 @@ class Configs
                     'phone' => array(
                         'code' => 995,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '995ddddddddd'
                     )
                 ),
                 13 => array(
@@ -168,7 +181,8 @@ class Configs
                     'phone' => array(
                         'code' => 370,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '370ddddddddd'
                     )
                 ),
                 14 => array(
@@ -176,7 +190,8 @@ class Configs
                     'phone' => array(
                         'code' => 371,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '371ddddddddd'
                     )
                 ),
                 15 => array(
@@ -184,7 +199,8 @@ class Configs
                     'phone' => array(
                         'code' => 372,
                         'short_code' => 0,
-                        'length' => 9
+                        'length' => 9,
+                        'mask' => '372ddddddddd'
                     )
                 ),
                 16 => array(
@@ -192,7 +208,8 @@ class Configs
                     'phone' => array(
                         'code' => 972, //+972546829601
                         'short_code' => 0, //0546829601
-                        'length' => 9 
+                        'length' => 9,
+                        'mask' => '972ddddddddd' 
                     )
                 ),
                 17 => array(
@@ -200,7 +217,8 @@ class Configs
                     'phone' => array(
                         'code' => 44, //+972546829601
                         'short_code' => 0, //0546829601
-                        'length' => 10 
+                        'length' => 10,
+                        'mask' => '44dddddddddd' 
                     )
                 ),
 

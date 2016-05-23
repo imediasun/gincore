@@ -1,12 +1,14 @@
 $(function(){
     var def = '[АаБбЕеИиОоУуЮюЯяВвГгДдКкЛлМмНнПпРрСсТтФф]';
     $.mask.definitions['k'] = def;
+    $.mask.definitions['9'] = "";
+    $.mask.definitions['d'] = "[0-9]";
     $('.call_code_mask').each(function(){
         var $this = $(this),
             val = $.trim($this.val());
         // для старых кодов, прописанных ранее, не делаем маску
         if(!val || val.search(def+"{2}\-[0-9]{3}") != -1){
-            $this.mask("kk-999", {
+            $this.mask("kk-ddd", {
                 completed: function(){
                     var $this = this;
                     $.ajax({

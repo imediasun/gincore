@@ -3070,8 +3070,7 @@ class Chains extends Object
                     l('Prosim vas ostavit` otziv o rabote mastera na saite') . ' ' . $host . ' ' . l('Vash kod klienta:') . $this->Clients->getClientCode($client['id']));
             }
         } catch (Exception $e) {
-//            print_r($e->getMessage());
-            throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
+            throw new ExceptionWithMsg(l('Неизвестная ошибка при создании закааа'));
         }
         return $id;
     }

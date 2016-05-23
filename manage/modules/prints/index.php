@@ -139,6 +139,7 @@ class prints extends Controller
         }
         $print_html = $this->template->draw();
         if (empty($print_html)) {
+            FlashMessage::set(l('Сгенерирован пустой документ'), FlashMessage::DANGER);
             Response::redirect($this->all_configs['prefix']);
         }
         $print_html = $this->template->add_edit_form($print_html);
