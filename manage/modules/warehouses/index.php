@@ -1151,7 +1151,7 @@ class warehouses extends Controller
      * @param string $hash
      * @return array
      */
-    function warehouses_inventories($hash = '#inventories-list')
+    public function warehouses_inventories($hash = '#inventories-list')
     {
         if (trim($hash) == '#inventories' || (trim($hash) != '#inventories-list' && trim($hash) != '#inventories-journal'
                 && trim($hash) != '#inventories-listinv' && trim($hash) != '#inventories-writeoff')
@@ -1159,30 +1159,8 @@ class warehouses extends Controller
             $hash = '#inventories-list';
         }
 
-        $out = '';
-
-        $out .= '<ul class="nav nav-pills hide">';
-        $out .= '<li><a class="click_tab" data-open_tab="warehouses_inventories_list" onclick="click_tab(this, event)" href="#inventories-list" title=""></a></li>';
-        $out .= '<li><a class="click_tab" data-open_tab="warehouses_inventories_journal" onclick="click_tab(this, event)" href="#inventories-journal" title=""></a></li>';
-        $out .= '<li><a class="click_tab" data-open_tab="warehouses_inventories_listinv" onclick="click_tab(this, event)" href="#inventories-listinv" title=""></a></li>';
-        $out .= '<li><a class="click_tab" data-open_tab="warehouses_inventories_writeoff" onclick="click_tab(this, event)" href="#inventories-writeoff" title=""></a></li>';
-        $out .= '</ul>';
-        $out .= '<div class="pill-content">';
-
-        $out .= '<div id="inventories-list" class="pill-pane">';
-        $out .= "</div><!--#inventories-list-->";
-
-        $out .= '<div id="inventories-journal" class="pill-pane">';
-        $out .= "</div><!--#inventories-journal-->";
-
-        $out .= '<div id="inventories-listinv" class="pill-pane">';
-        $out .= "</div><!--#inventories-listinv-->";
-
-        $out .= '<div id="inventories-writeoff" class="pill-pane">';
-        $out .= "</div><!--#inventories-writeoff-->";
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('warehouses/warehouses_inventories'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -1190,19 +1168,8 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_inventories_list()
+    public function warehouses_inventories_list()
     {
-        $out = '';
-
-        // список инвентаризаций
-        // форма новой
-        $out .= '<div id="create_inventories" class="input-append">';
-        $out .= '<select id="create-inventory-wh_id" name="warehouse">';
-        $out .= $this->all_configs['chains']->get_options_for_move_item_form(false);
-        $out .= '</select>';
-        $out .= '<button class="btn" onclick="create_inventories(this)" type="button">' . l('Начать') . '</button>';
-        $out .= '</div>';
-
         // запрос для складов за которыми закреплен юзер
         $q = $this->all_configs['chains']->query_warehouses();
         $query = $q['query_for_move_item'];
@@ -1212,6 +1179,8 @@ class warehouses extends Controller
                     u.login, u.email, u.fio FROM {warehouses} as w, {users} as u, {inventories} as inv
                 ?query AND w.id=inv.wh_id AND inv.user_id=u.id GROUP BY inv.id ORDER BY inv.date_start DESC',
             array($query))->assoc('id');
+        $counts_items = array();
+        $counts_inv_items = array();
 
         if ($list) {
             $counts_items = (array)$this->all_configs['db']->query('SELECT inv.id, COUNT(DISTINCT i.id)
@@ -1222,34 +1191,14 @@ class warehouses extends Controller
                 FROM {inventories} as inv, {warehouses_goods_items} as i, {inventory_journal} as invj
                 WHERE inv.id IN (?li) AND i.wh_id=inv.wh_id AND i.id=invj.item_id AND inv.id=invj.inv_id GROUP BY inv.id',
                 array(array_keys($list)))->vars();
-
-            $out .= '<table class="table table-hover"><thead><tr><td></td><td>' . l('Дата начала') . '</td><td>' . l('Склад') . '</td>';
-            $out .= '<td>' . l('Кладовщик') . ' (' . l('создатель') . ')</td><td>' . l('Дата завершения') . '</td><td>' . l('Кол-во на складе') . '</td>';
-            $out .= '<td>' . l('Кол-во проинвентаризовано') . '</td><td>' . l('Недостача') . '</td></tr></thead><tbody>';
-            foreach ($list as $l) {
-                $l['count_items'] = isset($counts_items[$l['id']]) ? $counts_items[$l['id']] : 0;
-                $l['count_inv_items'] = isset($counts_inv_items[$l['id']]) ? $counts_inv_items[$l['id']] : 0;
-                if ($l['id'] == 0) {
-                    continue;
-                }
-                $out .= '<tr class="inventory-row" onclick="open_inventory(this, \'' . $l['id'] . '\')"><td>' . $l['id'] . '</td>';
-                $out .= '<td><span title="' . do_nice_date($l['date_start'],
-                        false) . '">' . do_nice_date($l['date_start']) . '</span></td>';
-                $out .= '<td>' . htmlspecialchars($l['title']) . '</td>';
-                $out .= '<td>' . get_user_name($l) . '</td>';
-                $out .= '<td><span title="' . do_nice_date($l['date_stop'],
-                        false) . '">' . do_nice_date($l['date_stop']) . '</span></td>';
-                $out .= '<td>' . $l['count_items'] . '</td>';
-                $out .= '<td>' . $l['count_inv_items'] . '</td>';
-                $out .= '<td>' . ($l['count_items'] - $l['count_inv_items']) . '</td></tr>';
-            }
-            $out .= '</tbody></table>';
-        } else {
-            $out .= '<p class="text-error">' . l('Инвентаризаций нет') . '</p>';
         }
 
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('warehouses/warehouses_inventories_list', array(
+                'list' => $list,
+                'counts_items' => $counts_items,
+                'counts_inv_items' => $counts_inv_items
+            )),
             'functions' => array(),
         );
     }
@@ -1258,18 +1207,11 @@ class warehouses extends Controller
      * @param int $id
      * @return string
      */
-    function scan_serial_form($id = 1)
+    public function scan_serial_form($id = 1)
     {
-        // форма сканирования
-        $html = '<div class="input-append scan-serial-block">';
-        $html .= '<div class="scan-serial-error"></div>';
-        $html .= '<input id="scan-serial-' . $id . '" onkeyup="is_enter($(\'.btn-scan_serial\'), event, ' . $id . ', \'scan_serial\')" class="scan-serial focusin"';
-        $html .= ' type="text" placeholder="' . l('Серийный номер') . '">';
-        $html .= '<button class="btn-scan_serial btn" onclick="scan_serial(this, \'' . $id . '\')" type="button">';
-        $html .= '"' . l('Добавить') . '"</button>';
-        $html .= '</div>';
-
-        return $html;
+        return $this->view->renderFile('warehouses/scan_serial_form', array(
+            'id' => $id
+        ));
     }
 
     /**
