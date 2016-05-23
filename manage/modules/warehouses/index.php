@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../Core/Controller.php';
 require_once __DIR__ . '/../../Core/View.php';
 require_once __DIR__ . '/../../Core/FlashMessage.php';
 
@@ -7,13 +8,9 @@ $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
-class warehouses
+class warehouses extends Controller
 {
-    /** @var View */
-    protected $view;
-    private $mod_submenu;
     protected $warehouses;
-    protected $all_configs;
     protected $errors;
 
     public $count_on_page;
@@ -22,31 +19,10 @@ class warehouses
      * warehouses constructor.
      * @param $all_configs
      */
-    function __construct(&$all_configs)
+    public function __construct(&$all_configs)
     {
         $this->mod_submenu = self::get_submenu();
-        $this->all_configs = $all_configs;
-        $this->count_on_page = count_on_page();
-        $this->view = new View($all_configs);
-
-        global $input_html;
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-            $this->ajax();
-        }
-
-        if ($this->can_show_module() == false) {
-            return $input_html['mcontent'] = '<div class="span3"></div>
-                <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') . '</p></div>';
-        }
-
-        // если отправлена форма
-        if (!empty($_POST) && count($_POST) > 0) {
-            $this->errors = $this->check_post($_POST);
-        }
-
-        $input_html['mcontent'] = $this->gencontent();
-
+        parent::__construct($all_configs);
     }
 
     /**
@@ -54,21 +30,17 @@ class warehouses
      */
     function can_show_module()
     {
-        if (($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
+        return (($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
                 || $this->all_configs['oRole']->hasPrivilege('scanner-moves'))
-            && $this->all_configs['configs']['erp-use'] == true
-        ) {
-            return true;
-        } else {
-            return false;
-        }
+            && $this->all_configs['configs']['erp-use']
+        );
     }
 
     /**
      * @param $post
      * @throws Exception
      */
-    function check_post($post)
+    public function check_post(Array $post)
     {
         $mod_id = $this->all_configs['configs']['warehouses-manage-page'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
@@ -461,8 +433,7 @@ class warehouses
         // чистим кеш складов
         get_service('wh_helper')->clear_cache();
 
-        header("Location:" . $_SERVER['REQUEST_URI']);
-        exit;
+        Response::redirect($_SERVER['REQUEST_URI']);
     }
 
     /**
@@ -1457,6 +1428,8 @@ class warehouses
         );
     }
 
+
+    /** @todo остановился тут */
     /**
      * @return array
      */
@@ -1511,51 +1484,19 @@ class warehouses
      * @param $wh_id
      * @return string
      */
-    function display_scanned_item($inv, $wh_id)
+    public function display_scanned_item($inv, $wh_id)
     {
-        $out = '';
-
-        if ($inv) {
-            $class = ($wh_id != $inv['wh_id']) ? 'error' : (array_key_exists('date_scan',
-                $inv) && $inv['date_scan'] > 0 ? 'success' : '');
-            $out = '<tr class="' . $class . '"><td>' . $inv['i'] . '</td>';
-            if (array_key_exists('scanned', $inv)) {
-                $out .= '<td><a href="' . $this->all_configs['prefix'] . 'warehouses?serial=' . $inv['scanned'] . '#show_items">';
-                $out .= htmlspecialchars($inv['scanned']) . '</a></td>';
-            }
-            if (array_key_exists('date_scan', $inv)) {
-                $out .= '<td><span title="' . do_nice_date($inv['date_scan'],
-                        false) . '">' . do_nice_date($inv['date_scan']) . '</span></td>';
-            }
-            if (array_key_exists('gtitle', $inv)) {
-                $out .= '<td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $inv['goods_id'] . '">';
-                $out .= htmlspecialchars($inv['gtitle']) . '</a></td>';
-            }
-            if (array_key_exists('fio', $inv)) {
-                $out .= '<td>' . get_user_name($inv) . '</td>';
-            }
-            $class = (empty($class) ? 'assumption' : '');
-            $out .= '<td class="' . $class . '">' . htmlspecialchars($inv['wtitle']) . '</td>';
-            if (array_key_exists('order_id', $inv)) {
-                $out .= '<td><a href="' . $this->all_configs['prefix'] . 'orders/create/' . $inv['order_id'] . '">' . $inv['order_id'] . '</a></td>';
-            }
-            if (array_key_exists('price', $inv)) {
-                $out .= '<td>' . show_price($inv['price']) . '</td>';
-            }
-            if (array_key_exists('write_off_item_id', $inv)) {
-                $out .= '<td><input type="checkbox" value="' . $inv['item_id'] . '" class="writeoff-items" /></td>';
-            }
-            $out .= '</tr>';
-        }
-
-        return $out;
+        return $this->view->renderFile('warehouses/display_scanned_item', array(
+            'inv' => $inv,
+            'wh_id' => $wh_id
+        ));
     }
 
     /**
-     * @param $acive_btn
+     * @param $active_btn
      * @return array
      */
-    function inventories_left_menu($acive_btn)
+    public function inventories_left_menu($active_btn)
     {
         $left_html = '';
         $inventory = null;
@@ -1570,28 +1511,11 @@ class warehouses
                     FROM {inventories} as it, {warehouses} as w ?query AND w.id=it.wh_id AND it.id=?i',
                 array($query, $this->all_configs['arrequest'][2]))->row();
 
-            if ($inventory) {
-                $left_html .= '<a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '#inventories-list">&#8592; ' . l('к списку') . '</a>';
-                $left_html .= '<p>' . l('Инвентаризация номер') . '' . $inventory['id'] . '</p>';
-                $left_html .= '<p>' . l('Склад') . ': <a href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $inventory['wh_id'] . '#show_items">';
-                $left_html .= htmlspecialchars($inventory['title']) . '</a></p>';
-                $left_html .= '<p>' . l('Дата открытия') . ': <span title="' . do_nice_date($inventory['date_start'],
-                        false) . '">' . do_nice_date($inventory['date_start']) . '</span></p>';
-                if ($inventory['date_stop'] > 0) {
-                    $left_html .= '<p>' . l('Дата закрытия') . ': <span title="' . do_nice_date($inventory['date_stop'],
-                            false) . '">' . do_nice_date($inventory['date_stop']) . '</span></p>';
-                } else {
-                    $left_html .= '<input onclick="close_inventory(this, \'' . $inventory['id'] . '\')" type="button" ';
-                    $left_html .= ($_SESSION['id'] == $inventory['user_id'] ? '' : 'disabled') . ' value="' . l('Закрыть') . '" class="btn close-inv" />';
-                }
-                $left_html .= '<div class="btn-group">';
-                $left_html .= '<select class="multiselect-goods multiselect-goods-tab-' . $acive_btn . '" multiple="multiple"></select>';
-                $left_html .= '<button onclick="add_goods_to_inv(this, ' . $acive_btn . ')" class="btn btn-primary">' . l('Ок') . '</button></div>';
-                $left_html .= '<br /><br /><div class="btn-group" data-toggle="buttons-radio">';
-                $left_html .= '<div><button type="button" onclick="click_tab_hash(\'#inventories-journal\')" class="btn ' . ($acive_btn == 1 ? 'active' : '') . '">' . l('Журнал.') . '</button></div>';
-                $left_html .= '<div><button type="button" onclick="click_tab_hash(\'#inventories-listinv\')" class="btn ' . ($acive_btn == 2 ? 'active' : '') . '">' . l('Лист инв.') . '</button></div>';
-                $left_html .= '<div><button type="button" onclick="click_tab_hash(\'#inventories-writeoff\')" class="btn ' . ($acive_btn == 3 ? 'active' : '') . '">' . l('Списание') . '</button></div></div>';
-            }
+            $left_html = $this->view->renderFile('warehouses/inventories_left_menu', array(
+                'user_id' => $this->getUserId(),
+                'inventory' => $inventory,
+                'active_btn' => $active_btn                    
+            ));
         }
 
         return array(
@@ -1606,7 +1530,7 @@ class warehouses
      * @param int $i
      * @return string
      */
-    function filter_block($warehouses_options, $i = 1)
+    public function filter_block($warehouses_options, $i = 1)
     {
         $wh_select = '';
         if (isset($_GET['whs'])) {
@@ -1875,131 +1799,23 @@ class warehouses
      * @param int  $i
      * @return string
      */
-    function form_warehouse($warehouse = null, $i = 1)
+    public function form_warehouse($warehouse = null, $i = 1)
     {
-        $consider_all = $warehouses_locations = $consider_store = '';
-
         $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
         $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
-        $warehouses_type = '<select name="type" class="form-control"><option value=""></option>';
-        $warehouses_types = '<select name="type_id" class="form-control"><option value=""></option>';
-        $warehouses_groups = '<select name="group_id" class="form-control"><option value=""></option>';
-        if ($warehouse == null) {
-            foreach ($this->all_configs['configs']['erp-warehouses-types'] as $w_id => $w_name) {
-                // если не тип "недостача"
-                if ($w_id != 2) {
-                    $warehouses_type .= '<option value="' . $w_id . '">' . $w_name . '</option>';
-                }
-            }
-            foreach ($types as $type) {
-                $warehouses_types .= '<option value="' . $type['id'] . '">' . $type['name'] . '</option>';
-            }
-            foreach ($groups as $group) {
-                $warehouses_groups .= '<option value="' . $group['id'] . '">' . $group['name'] . '</option>';
-            }
-
-            $btn = "<input type='submit' class='btn' name='warehouse-add' value='" . l('Создать') . "' />";
-            $accordion_title = l('Создать склад');
-            $consider_store = 'checked';
-            $consider_all = 'checked';
-            $title = '';
-            $code_1c = '';
-            $print_address = '';
-            $print_phone = '';
-        } else {
-            foreach ($this->all_configs['configs']['erp-warehouses-types'] as $w_id => $w_name) {
-                if ($w_id == $warehouse['type']) {
-                    $warehouses_type .= '<option selected value="' . $w_id . '">' . $w_name . '</option>';
-                } else {
-                    $warehouses_type .= '<option value="' . $w_id . '">' . $w_name . '</option>';
-                }
-            }
-            foreach ($types as $type) {
-                $selected = $type['id'] == $warehouse['type_id'] ? 'selected' : '';
-                $warehouses_types .= '<option ' . $selected . ' value="' . $type['id'] . '">' . $type['name'] . '</option>';
-            }
-            foreach ($groups as $group) {
-                $selected = $group['id'] == $warehouse['group_id'] ? 'selected' : '';
-                $warehouses_groups .= '<option ' . $selected . ' value="' . $group['id'] . '">' . $group['name'] . '</option>';
-            }
-
-            $btn = "<input type='hidden' name='warehouse-id' value='{$warehouse['id']}' /><input type='submit' class='btn' name='warehouse-edit' value='" . l('Редактировать') . "' />";
-            $accordion_title = l('Редактировать склад') . ' "' . $warehouse['title'] . '"';
-            $title = htmlspecialchars($warehouse['title']);
-            $code_1c = htmlspecialchars($warehouse['code_1c']);
-            $print_address = htmlspecialchars($warehouse['print_address']);
-            $print_phone = htmlspecialchars($warehouse['print_phone']);
-            if ($warehouse['consider_all'] == 1) {
-                $consider_all = 'checked';
-            }
-            if ($warehouse['consider_store'] == 1) {
-                $consider_store = 'checked';
-            }
-            if (count($warehouse['locations']) > 0) {
-                foreach ($warehouse['locations'] as $location_id => $location) {
-                    $warehouses_locations .= '<input type="text" class="form-control" value="' . htmlspecialchars($location) . '" name="location-id[' . $location_id . ']">';
-                }
-            }
-        }
-        $warehouses_type .= '</select>';
-        $warehouses_types .= '</select>';
-        $warehouses_groups .= '</select>';
-
-        $warehouses_locations .= '<input type="text" name="location[]" class="form-control" required>';
-        $onclick = '$(\'<input>\').attr({type: \'text\', name: \'location[]\', class: \'form-control\'}).insertBefore(this);';
-        $warehouses_locations .= '<i onclick="' . $onclick . '" class="glyphicon glyphicon-plus cursor-pointer"></i>';
-
-        if ($i == 1) {
-            $in = 'in';
-        } else {
-            $in = '';
-        }
-
-        return "
-            <div class='panel panel-default'>
-                <div class='panel-heading'>
-                    <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses' href='#collapse_warehouse_{$i}'>{$accordion_title}</a>
-                </div>
-                <div id='collapse_warehouse_{$i}' class='panel-body collapse {$in}'>
-                    <div class='panel-body'>
-                        <form method='POST'>
-                            <div class='form-group'><label>" . l('Название') . ": </label>
-                                <input placeholder='" . l('введите название') . "' class='form-control' name='title' value='{$title}' required /></div>
-                            <!--<div class='form-group'><label>" . l('Код 1с') . ": </label>
-                                <input placeholder='" . l('введите код 1с') . "' class='form-control' name='code_1c' value='{$code_1c}' /></div>
-                            --><div class='form-group'>
-                                <div class='checkbox'><label><input data-consider={$i} {$consider_store} type='checkbox' onclick='consider(this, \"{$i}\")' class='btn consider_{$i}' name='consider_store' value='1' />" . l('Учитывать в свободном остатке') . "</label></div>
-                                <div class='checkbox'><label><input {$consider_all} type='checkbox' class='btn consider_{$i}' onclick='consider(this, \"{$i}\")' name='consider_all' value='1' />" . l('Учитывать в общем остатке') . "</label></div>
-                            </div>
-                            <div class='form-group'>
-                            <input type='hidden' value='1' name='type' />
-                            </div>
-                            <div class='form-group'><label>" . l('Принадлежность к Сервисному центру') . ": </label>
-                                {$warehouses_groups}</div>
-                            <div class='form-group'><label>" . l('Категория') . ": </label>
-                                {$warehouses_types}</div>
-                            <div class='form-group'><label>
-                                " . l('Адрес для квитанции') . ": </label>
-                                <input class='form-control' name='print_address' value='{$print_address}' />
-                            </div>
-                            <div class='form-group'><label>
-                                " . l('Телефон для квитанции') . ": </label>
-                                <input class='form-control' name='print_phone' value='{$print_phone}' />
-                            </div>
-                            <div class='form-group'><label>" . l('Локации') . ": </label>
-                                {$warehouses_locations}</div>
-                            <div class='form-group'>{$btn}</div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        ";
+        
+        return $this->view->renderFile('warehouses/form_warehouse', array(
+            'i' => $i,
+            'warehouse' => $warehouse,
+            'groups' => $groups,
+            'types' => $types
+        ));
     }
 
     /**
      *
      */
-    function ajax()
+    public function ajax()
     {
         $data = array(
             'state' => false
@@ -2012,15 +1828,12 @@ class warehouses
 
         // проверка доступа
         if ($this->can_show_module() == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Нет прав'), 'state' => false));
-            exit;
+            Response::json(array('message' => l('Нет прав'), 'state' => false));
         }
 
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
-                header("Content-Type: application/json; charset=UTF-8");
                 $this->preload();
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
@@ -2038,11 +1851,10 @@ class warehouses
                     if (isset($function['menu'])) {
                         $return['menu'] = $function['menu'];
                     }
-                    echo json_encode($return);
                 } else {
-                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
+                    $return = array('message' => l('Не найдено'), 'state' => false);
                 }
-                exit;
+                Response::json($return);
             }
         }
 
@@ -2271,47 +2083,7 @@ class warehouses
 
         // форма приходования заказа поставщику
         if ($act == 'form-debit-so') {
-            $order_id = isset($_POST['object_id']) ? intval($_POST['object_id']) : 0;
-
-            $order = $this->all_configs['db']->query('SELECT o.*, w.title, l.location
-                FROM {contractors_suppliers_orders} as o
-                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
-                LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
-                WHERE o.id=?i',
-                array($order_id))->row();
-            $data['state'] = true;
-            $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="' . l('Приходовать') . '" />';
-            $data['content'] = '<form method="POST" id="debit-so-form">';
-            $data['content'] .= '<input type="hidden" value="' . $order_id . '" name="order_id" />';
-
-            $data['content'] .= '<div class="form-group"><label class="control-label"><center><b>' . l('Серийный номер') . '</b><br>';
-            if ($order) {
-                $data['content'] .= htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['location']);
-            }
-            $data['content'] .= '</center></label>';
-            $onchange = '$(\'#debit-so-form input.dso_serial\').val(\'\');$(\'#debit-so-form input.dso_auto_serial\').prop(\'checked\', $(this).is(\':checked\') ? true : true);';
-            $data['content'] .= '<div class="pull-right"><div class="checkbox"><label><input id="dso_auto_serial_all" onchange="' . $onchange . '" type="checkbox" /> <b>' . l('Создать все') . ' </b></label> ' . InfoPopover::getInstance()->createQuestion('l_debit_so_create_all_info') . '</div>';
-            $onchange = '$(\'#debit-so-form input.dso_print\').prop(\'checked\', $(this).is(\':checked\') ? true : false);';
-            $data['content'] .= '<div class="checkbox"><label><input type="checkbox" id="dso_print_all" onchange="' . $onchange . '" /> <b>' . l('Распечатать все') . '</b></label></div></div></div><hr>';
-
-            // необходимое количество приходования
-            $count = $order ? $order['count_come'] - $order['count_debit'] : 0;
-
-            if ($count > 0) {
-                for ($i = 1; $i <= $count; $i++) {
-                    $data['content'] .= '<div class="form-group" id="dso-group-' . $i . '">';
-                    $onkeyup = 'if(this.value.trim()== \'\'){$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', true);}else{$(\'#dso-group-' . $i . ' input.dso_auto_serial, #dso_auto_serial_all\').prop(\'checked\', false);}';
-                    $data['content'] .= '<input onkeyup="' . $onkeyup . '" type="text" class="form-control input-large dso_serial" placeholder="' . l('серийный номер') . '" name="serial[' . $i . ']" />';
-                    $onchange = '$(\'#dso_auto_serial_all\').prop(\'checked\', false);$(\'#dso-group-' . $i . ' input.dso_serial\').val(\'\');this.checked=true;';
-                    $data['content'] .= '<div class="checkbox"><label class=""><input checked onchange="' . $onchange . '" type="checkbox" class="dso_auto_serial" name="auto[' . $i . ']" /> ' . l('Сгенерировать серийник') . '</label> ' . InfoPopover::getInstance()->createQuestion('l_debit_so_auto_serial_info') . '';
-                    $onchange = '$(\'#dso_print_all\').prop(\'checked\', false);';
-                    $data['content'] .= '</div><div class="checkbox"><label class=""><input onchange="' . $onchange . '" type="checkbox" name="print[' . $i . ']" class="dso_print" /> ' . l('Распечатать серийник') . '</label> ' . InfoPopover::getInstance()->createQuestion('l_debit_so_print_serial_info') . '';
-                    $data['content'] .= '</div><div class="dso-msg center"></div></div>';
-                }
-            } else {
-                $data['content'] .= '<p class="center text-error">' . l('Все изделия оприходованы') . '</p>';
-            }
-            $data['content'] .= '</form>';
+            $data = $this->form_debit_so($data);
         }
 
         //
@@ -2545,27 +2317,21 @@ class warehouses
             $this->all_configs['suppliers_orders']->accept_order($mod_id, $this->all_configs['chains']);
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
     }
 
     /**
      * @param string $num
      * @return string
      */
-    function gen_categories_selector($num = '')
+    public function gen_categories_selector($num = '')
     {
         $categories = $this->all_configs['db']->query('SELECT title,url,id FROM {categories} WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
 
-        $categories_html = '<select class="input-small searchselect" id="searchselect-' . $num . '"';
-        $categories_html .= ' onchange="javascript:$(\'#goods-' . $num . '\').attr(\'data-cat\', this.value);"';
-        $categories_html .= '><option value="0">' . l('Все разделы') . '</option>';
-        foreach ($categories as $category) {
-            $categories_html .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
-        }
-        $categories_html .= '</select>';
-        return $categories_html;
+        return $this->view->renderFile('warehouses/gen_categories_selector', array(
+            'categories' => $categories,
+            'num' => $num
+        ));
     }
 
     /**
@@ -2574,7 +2340,7 @@ class warehouses
      * @param null $course
      * @return string
      */
-    function show_price($price, $zero = 2, $course = null)
+    public function show_price($price, $zero = 2, $course = null)
     {
         // делим на курс
         if ($course > 0) {
@@ -2620,5 +2386,30 @@ class warehouses
                 'name' => l('Настройки')
             ),
         );
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function form_debit_so($data)
+    {
+        $order_id = isset($_POST['object_id']) ? intval($_POST['object_id']) : 0;
+
+        $order = $this->all_configs['db']->query('SELECT o.*, w.title, l.location
+                FROM {contractors_suppliers_orders} as o
+                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
+                WHERE o.id=?i',
+            array($order_id))->row();
+        $data['state'] = true;
+        $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="' . l('Приходовать') . '" />';
+        $data['content'] = $this->view->renderFile('warehouses/form_debit_so'. array(
+               'order' => $order,
+                'order_id' => $order_id,
+                // необходимое количество приходования
+                'count' => $order ? $order['count_come'] - $order['count_debit'] : 0
+            ));
+        return $data;
     }
 }
