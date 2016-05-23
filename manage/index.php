@@ -214,7 +214,9 @@ if($all_configs['oRole']->hasPrivilege('edit-clients-orders')){
         }
     }
 }
-
+if (empty($profile_color)) {
+    $input['profile_color'] = 'display:none';
+}
 $input['position_admin'] = ($ifauth['position'] ?: $db->query("SELECT name FROM {users_roles} WHERE id = ?i", array($ifauth['role']), 'el'));
 if (isset($_SESSION['id'])) {
     $input['rating'] = l('Рейтинг') . ':' . round($db->query("SELECT rating FROM {users} WHERE id = ?i",
