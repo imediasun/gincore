@@ -103,11 +103,13 @@
                     <?php $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('edit-map') ? false : true; ?>
                     <div class="form-group">
                         <div class="checkbox">
+                            <?php $hasPermision = $this->all_configs['oRole']->hasPrivilege('read-other-suppliers-orders'); ?>
                             <label>
                                 <input name="my"
-                                       type="checkbox" <?= $my || (isset($_GET['my']) && $_GET['my'] == 1) ? ' checked ' : ''; ?> <?= ($my ? ' disabled ' : '') ?> />
+                                       type="checkbox" <?= $my || (isset($_GET['my']) && $_GET['my'] == 1 || !$hasPermision) ? ' checked ' : ''; ?> <?= ($my ? ' disabled ' : '') ?> <?= !$hasPermision? 'readonly': '' ?> />
                                 <?= l('Только мои') ?>
                             </label>
+                            <?= InfoPopover::getInstance()->createQuestion('l_its_only_my_orders') ?>
                         </div>
                     </div>
                 <?php endif; ?>
