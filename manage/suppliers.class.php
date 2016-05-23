@@ -117,7 +117,7 @@ class Suppliers extends Object
                     'warehouse_type' => $warehouse_type,
                 ), array('id' => $order_id));
             } catch (Exception $e) {
-                throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
+                throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
             }
             $this->exportSupplierOrder($order_id, 3);
 
@@ -217,7 +217,7 @@ class Suppliers extends Object
                     ));
                     FlashMessage::set(l('Заказ успешно создан'));
                 } catch (Exception $e) {
-                    throw new ExceptionWithMsg(l('Заказ с таким номером уже существует'));
+                    throw new ExceptionWithMsg(l('Неизвестная ошибка при создании заказа'));
                 }
                 if ($id > 0) {
                     $data['id'] = $id;
