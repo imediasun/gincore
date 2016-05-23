@@ -6,4 +6,4 @@
     <?= $categories_tree_menu ?>
 </ul>
 <p></p>
-<?= $filters_html; ?>
+<?= $filter_html; ?>
