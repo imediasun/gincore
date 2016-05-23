@@ -3083,6 +3083,7 @@ class orders extends Controller
         return $order;
     }
 
+
     /**
      * @param $order
      * @param $mod_id
@@ -3091,11 +3092,19 @@ class orders extends Controller
      */
     protected function changeProducts($order, $mod_id)
     {
+        $testSort = function ($a, $b) {
+            if ($this->OrdersGoods->isHash($a) && !$this->OrdersGoods->isHash($b)) {
+                return -1;
+            }
+
+            return ($a == $b) ? 0 : 1;
+        };
         $orderId = $this->all_configs['arrequest'][2];
         if (isset($_POST['product'])) {
-            asort($_POST['product']);
+            $keys = array_keys($_POST['product']);
+            usort($keys, $testSort);
             $products = $this->all_configs['manageModel']->order_goods($orderId, 0);
-            foreach ($_POST['product'] as $key => $values) {
+            foreach ($keys as $key) {
                 if ($this->OrdersGoods->isHash($key)) {
                     $ids = $this->OrdersGoods->getProductsIdsByHash($products, $key);
                 } else {
@@ -3106,7 +3115,7 @@ class orders extends Controller
                         continue;
                     }
                     $product = $products[$id];
-                    foreach ($values as $field => $value) {
+                    foreach ($_POST['product'][$key] as $field => $value) {
                         if ($field == 'price') {
                             $value = $value * 100;
                         }
@@ -3122,7 +3131,6 @@ class orders extends Controller
                             );
                         }
                     }
-                    unset($products[$id]);
                 }
             }
         }
