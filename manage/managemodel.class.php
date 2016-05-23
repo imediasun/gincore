@@ -894,6 +894,16 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND cg.id=?i',
                 array($query, intval($filters['dev'])));
         }
+        // только продажи
+        if (array_key_exists('sale', $filters) && intval($filters['sale']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
+                array($query, ORDER_SELL));
+        }
+        // только ремонты
+        if (array_key_exists('repair', $filters) && intval($filters['repair']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
+                array($query, ORDER_REPAIR));
+        }
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         $orders = $this->all_configs['db']->query('SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,

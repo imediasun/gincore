@@ -16,6 +16,18 @@
                             <div class="col-sm-12 form-group">
                                 <div class="checkbox"><label>
                                         <input type="checkbox" value="1"
+                                               name="repair" <?= (isset($_GET['repair']) && $_GET['repair'] == 1) ? 'checked' : ''; ?> >
+                                        <?= l('Ремонты') ?>
+                                    </label>
+                                </div>
+                                <div class="checkbox"><label>
+                                        <input type="checkbox" value="1"
+                                               name="sale" <?= (isset($_GET['sale']) && $_GET['sale'] == 1) ? 'checked' : ''; ?> >
+                                        <?= l('Продажи') ?>
+                                    </label>
+                                </div>
+                                <div class="checkbox"><label>
+                                        <input type="checkbox" value="1"
                                                name="novaposhta" <?= (isset($_GET['np']) && $_GET['np'] == 1) ? 'checked' : ''; ?> >
                                         <?= l('принято через почту') ?>
                                     </label>
