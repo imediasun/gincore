@@ -163,7 +163,7 @@ class import_gincore_items extends abstract_import_handler
      */
     private function setCategory($id, $value)
     {
-        if (!empty($value)) {
+        if (((int)$value) > 0) {
             db()->query('DELETE FROM {category_goods} WHERE goods_id=?i', array($id));
             db()->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)', array($id, $value));
         }
