@@ -28,7 +28,7 @@ class warehouses extends Controller
     /**
      * @return bool
      */
-    function can_show_module()
+    public function can_show_module()
     {
         return (($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')
                 || $this->all_configs['oRole']->hasPrivilege('scanner-moves'))
@@ -40,148 +40,21 @@ class warehouses extends Controller
      * @param $post
      * @throws Exception
      */
-    public function check_post(Array $post)
+    public function check_post(array $post)
     {
         $mod_id = $this->all_configs['configs']['warehouses-manage-page'];
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
         if (isset($post['filter-orders'])) {
-
-            $url = '';
-
-            // фильтр по дате
-            if (isset($post['date']) && !empty($post['date'])) {
-                list($df, $dt) = explode('-', $post['date']);
-                $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
-            }
-
-            if (isset($post['categories']) && $post['categories'] > 0) {
-                // фильтр по категориям товаров
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'g_cg=' . intval($post['categories']);
-            }
-
-            if (isset($post['goods']) && $post['goods'] > 0) {
-                // фильтр по товару
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'by_gid=' . intval($post['goods']);
-            }
-
-            if (isset($post['managers']) && !empty($post['managers'])) {
-                // фильтр по менеджерам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'mg=' . implode(',', $post['managers']);
-            }
-
-            if (isset($post['suppliers']) && !empty($post['suppliers'])) {
-                // фильтр по поставщикам
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'sp=' . implode(',', $post['suppliers']);
-            }
-
-            if (isset($post['client-order']) && !empty($post['client-order'])) {
-                // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'co=' . urlencode(trim($post['client-order']));
-            }
-
-            if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
-                // фильтр по заказу частичный
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'pso_id=' . $post['supplier_order_id_part'];
-            }
-
-            if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
-                // фильтр по заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'so_id=' . $post['supplier_order_id'];
-            }
-
-            if (isset($post['so_st']) && $post['so_st'] > 0) {
-                // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'so_st=' . $post['so_st'];
-            }
-
-            if (isset($post['my']) && !empty($post['my'])) {
-                // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'my=1';
-            }
-
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
-            header('Location: ' . $url);
-            exit;
+            $this->createUrlForFilterOrders($post);
         }
-
         // фильтруем
         if (isset($post['filters'])) {
-
-            $url = '';
-
-            if (isset($post['noitems'])) {
-                // фильтр по без "изделий нет"
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'noi=1';
-            }
-
-            if (isset($post['goods']) && $post['goods'] > 0) {
-                // фильтр по товару
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'by_gid=' . intval($post['goods']);
-            }
-
-            if (isset($post['clients']) && $post['clients'] > 0) {
-                // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'c_id=' . intval($post['clients']);
-            }
-
-            if (isset($post['client-order-number']) && $post['client-order-number'] > 0) {
-                // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'con=' . intval($post['client-order-number']);
-            }
-
-            if (isset($post['serial']) && !empty($post['serial'])) {
-                // фильтр клиенту/заказу
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'serial=' . urlencode(trim($post['serial']));
-            }
-
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
-            header('Location: ' . $url);
-            exit;
+            $this->createUrlForFilters($post);
         }
-
+        if (isset($post['filter-warehouses'])) {
+            $this->createUrlForFilterWarehouses($post);
+        }
         // привязка администратора к складу
         if (isset($post['set-warehouses_users'])) {
 
@@ -222,51 +95,7 @@ class warehouses extends Controller
                     'INSERT IGNORE INTO {warehouses_users} (wh_id, user_id, main) VALUES ?v', array($values));
             }
 
-        } elseif (isset($post['filter-warehouses'])) {
-            // фильтруем
-            $url = '';
 
-            if (isset($post['warehouses']) && is_array($post['warehouses']) && count($post['warehouses']) > 0) {
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'whs=' . implode(',', $post['warehouses']);
-            }
-
-            if (isset($post['locations']) && is_array($post['locations']) && count($post['locations']) > 0) {
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'lcs=' . implode(',', $post['locations']);
-            }
-
-            if (isset($post['goods']) && $post['goods'] > 0) {
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'pid=' . intval($post['goods']);
-            }
-
-            if (isset($post['display']) && $post['display'] == 'amount') {
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'd=a';
-            }
-
-            // первычные ключи
-            if (isset($post['serial']) && !empty($post['serial'])) {
-                $url = 'serial=' . urlencode($post['serial']);
-            }
-
-            if (isset($post['so_id']) && $post['so_id'] > 0) {
-                $url = 'so_id=' . intval($post['so_id']);
-            }
-
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url) . '#show_items';
-
-            header("Location:" . $url);
-            exit;
         } elseif (isset($post['warehouse-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создать склад
             $consider_all = 0;
@@ -324,8 +153,7 @@ class warehouses extends Controller
         } elseif (isset($post['warehouse-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактировать склад
             if (!isset($post['warehouse-id']) || $post['warehouse-id'] == 0) {
-                header("Location:" . $_SERVER['REQUEST_URI']);
-                exit;
+                Response::redirect($_SERVER['REQUEST_URI']);
             }
 
             $consider_all = 0;
@@ -439,7 +267,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function get_warehouses_options()
+    public function get_warehouses_options()
     {
         // списсок выбранных складов для вывода
         $warehouses_selected = (isset($_GET['whs']) && !empty($_GET['whs'])) ? explode(',', $_GET['whs']) : array();
@@ -462,7 +290,7 @@ class warehouses extends Controller
     /**
      *
      */
-    function preload()
+    public function preload()
     {
         // запросы для касс для разных привилегий
         $q = $this->all_configs['chains']->query_warehouses();
@@ -474,89 +302,22 @@ class warehouses extends Controller
     /**
      * @return string
      */
-    function gencontent()
+    public function gencontent()
     {
         $this->preload();
+        return $this->view->renderFile('warehouses/gencontent', array(
+            'mod_submenu' => $this->mod_submenu
+        ));
 
-        $out = '<div class="tabbable"><ul class="nav nav-tabs">';
-        if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics")) {
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_warehouses" onclick="click_tab(this, event)" data-toggle="tab" href="' . $this->mod_submenu[0]['url'] . '">' . $this->mod_submenu[0]['name'] . '</a></li>';
-        }
-        if ($this->all_configs["oRole"]->hasPrivilege("scanner-moves")) {
-            $out .= '<li><a class="click_tab default" data-open_tab="warehouses_scanner_moves" onclick="click_tab(this, event)" data-toggle="tab" href="' . $this->mod_submenu[1]['url'] . '">' . $this->mod_submenu[1]['name'] . '</a></li>';
-        }
-        if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics")) {
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_show_items" onclick="click_tab(this, event)" data-toggle="tab" href="' . $this->mod_submenu[2]['url'] . '">' . $this->mod_submenu[2]['name'] . '</a></li>';
-        }
-        if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics")) {
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_orders" onclick="click_tab(this, event)" data-toggle="tab" href="' . $this->mod_submenu[3]['url'] . '">' . $this->mod_submenu[3]['name'] . '<span class="tab_count hide tc_sum_warehouses_orders"></span></a></li>';
-        }
-        if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
-            $out .= '<li><a class="click_tab" data-open_tab="warehouses_settings" onclick="click_tab(this, event)" data-toggle="tab" href="' . $this->mod_submenu[4]['url'] . '">' . $this->mod_submenu[4]['name'] . '</a></li>';
-        }
-        $out .= '</ul><div class="tab-content">';
-
-        // если администратор
-        if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')) {
-            $out .= '<div id="scanner_moves" class="tab-pane">';
-            $out .= "</div><!--#settings-warehouses-->";
-        }
-        if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics")) {
-            // склады
-            $out .= '<div id="warehouses" class="tab-pane clearfix">';
-            $out .= '</div><!--#warehouses-->';
-        }
-        // только кладовщик
-        if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('logistics')) {
-            // приходование заказа
-            $out .= '<div id="orders" class="tab-pane clearfix">';
-            $out .= '</div><!--#orders-->';
-        }
-
-        if ($this->all_configs["oRole"]->hasPrivilege("debit-suppliers-orders") || $this->all_configs["oRole"]->hasPrivilege("logistics")) {
-            // изделия
-            $out .= '<div id="show_items" class="tab-pane">';
-            $out .= '</div><!--#show_items-->';
-        }
-
-        // если администратор
-        if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $out .= '<div id="settings" class="tab-pane">';
-            $out .= "</div><!--#settings-warehouses-->";
-        }
-
-
-        // изделия
-        $out .= '<div id="inventories" class="tab-pane">';
-        $out .= '</div><!--#show_items-->';
-
-
-        $out .= '</div><!--.tab-content-->';
-        $out .= '</div><!--.tabbable-->';
-
-        $out .= $this->all_configs['suppliers_orders']->append_js();
-        $out .= $this->all_configs['chains']->append_js();
-
-        return $out;
     }
 
     /**
      * @return array
      */
-    function warehouses_scanner_moves()
+    public function warehouses_scanner_moves()
     {
-        $out = '';
-        if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')) {
-            $out .= '<div id="scanner-moves-alert" class="alert fade"><button type="button" class="close" data-dismiss="alert">&times;</button><div id="scanner-moves-alert-body"></div></div>';
-            $out .= '
-                <label>' . l('Укажите номер заказа, изделия или локации. После чего нажмите Enter. Или используйте сканер.') . ' '
-                . InfoPopover::getInstance()->createQuestion('l_warehouses_scanner_moves_info') . '</label>
-                <input value="" id="scanner-moves" type="text" placeholder="' . l('заказ, изделие или локация') . '" class="form-control" />';
-            $out .= '<input value="" id="scanner-moves-old" type="hidden" placeholder="' . l('заказ или локация') . '" class="form-control" />';
-        }
-
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('warehouses/warehouses_scanner_moves'),
             'functions' => array(),
         );
     }
@@ -564,48 +325,22 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_warehouses()
+    public function warehouses_warehouses()
     {
         // всего денег по кассам которые consider_all == 1
         $cost_of = cost_of($this->warehouses, $this->all_configs['settings'], $this->all_configs['suppliers_orders']);
-        $out = '<div class="well">' . l('Всего') . ': ';
-        if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-            $out .= $cost_of['cur_price'] . ' (' . $cost_of['html'] . '), ';
-        }
-        $out .= $cost_of['count'] . ' ' . l('шт.') . '</div>';
         $wh = $this->get_warehouses_options();
         $warehouses_options = $wh['wo'];
         // фильтрация
-        $out .= $this->filter_block($warehouses_options);
-        // списсок складов
-        $out .= '<div id="warehouses_content">';
 
-        if ($this->warehouses && count($this->warehouses) > 0) {
-            $out .= '<div class="pull-left vertical-line"></div>';
-            $i = 0;
-            foreach ($this->warehouses as $warehouse) {
-                $out .= '<div class="show_warehouse">';
-                $print_link = print_link(array_keys($warehouse['locations']), 'location');
-                $out .= '<h5><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $warehouse['id'] . '#show_items">'
-                    . $warehouse['title']
-                    . '</a> ' . (!$i ? InfoPopover::getInstance()->createOnLoad('l_warehouses_title_info') : '') . ' ' . $print_link . '</h5>';
-                $out .= '<div>' . l('Общий остаток') . ': ' . intval($warehouse['sum_qty']) . ' ' . l('шт.') . '</div>';
-                if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                    $out .= '<div>' . l('Общая сумма') . ': ';
-                    $out .= $this->show_price($warehouse['all_amount'], 2,
-                        getCourse($this->all_configs['settings']['currency_suppliers_orders']));
-                    $out .= ' ' . viewCurrency() . ' (' . $this->show_price($warehouse['all_amount']) . viewCurrencySuppliers() . ' )</div>';
-                }
-                $out .= '</div>';
-                $out .= '<div class="pull-left vertical-line"></div>';
-                $i++;
-            }
-        }
-
-        $out .= '</div><!--#warehouses_content-->';
 
         return array(
-            'html' => $out,
+            'html' => $this->view->renderFile('warehouses/warehouses_warehouses', array(
+                'warehouses' => $this->warehouses,
+                'cost_of' => $cost_of,
+                'filters' => $this->filter_block($warehouses_options),
+                'controller' => $this
+            )),
             'functions' => array('multiselect()'),
         );
     }
@@ -613,7 +348,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_show_items()
+    public function warehouses_show_items()
     {
         // фильтрация
         $wh = $this->get_warehouses_options();
@@ -786,7 +521,7 @@ class warehouses extends Controller
      * @param string $hash
      * @return array
      */
-    function warehouses_orders($hash = '#orders-clients_issued')
+    public function warehouses_orders($hash = '#orders-clients_issued')
     {
         if (trim($hash) == '#orders' || (trim($hash) != '#orders-suppliers' && trim($hash) != '#orders-clients_bind'
                 && trim($hash) != '#orders-clients_accept' && trim($hash) != '#orders-clients_issued' && trim($hash) != '#orders-clients_unbind')
@@ -809,7 +544,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_orders_suppliers()
+    public function warehouses_orders_suppliers()
     {
         $out = '';
 
@@ -843,7 +578,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_orders_clients_bind()
+    public function warehouses_orders_clients_bind()
     {
         $out = $this->all_configs['chains']->show_stockman_operations();
 
@@ -857,7 +592,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_orders_clients_issued()
+    public function warehouses_orders_clients_issued()
     {
         $out = $this->all_configs['chains']->show_stockman_operations(2, '#orders-clients_issued');
 
@@ -871,7 +606,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_orders_clients_accept()
+    public function warehouses_orders_clients_accept()
     {
         $out = $this->all_configs['chains']->show_stockman_operations(3, '#orders-clients_accept');
 
@@ -885,7 +620,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_orders_clients_unbind()
+    public function warehouses_orders_clients_unbind()
     {
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
 
@@ -900,7 +635,7 @@ class warehouses extends Controller
      * @param string $hash
      * @return array
      */
-    function warehouses_settings($hash = '')
+    public function warehouses_settings($hash = '')
     {
         if (trim($hash) == '#settings' || (trim($hash) != '#settings-warehouses' && trim($hash) != '#settings-warehouses_groups'
                 && trim($hash) != '#settings-warehouses_types' && trim($hash) != '#settings-warehouses_users')
@@ -908,36 +643,8 @@ class warehouses extends Controller
             $hash = '#settings-warehouses';
         }
 
-        $admin_out = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            // настройка
-
-            $admin_out .= '<ul class="nav nav-pills">';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_groups" onclick="click_tab(this, event)" href="#settings-warehouses_groups" title="' . l('Создать') . '/' . l('редактировать группу склада') . '">' . l('Сервисные центры') . '</a></li>';
-            $admin_out .= '<li><a class="click_tab" id="add_warehouses" data-open_tab="warehouses_settings_warehouses" onclick="click_tab(this, event)" href="#settings-warehouses" title="Создать/редактировать склад">' . l('Склады') . '</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_types" onclick="click_tab(this, event)" href="#settings-warehouses_types" title="' . l('Создать') . '/' . l('редактировать категорию склада') . '">' . l('Категории') . '</a></li>';
-            $admin_out .= '<li><a class="click_tab" data-open_tab="warehouses_settings_warehouses_users" onclick="click_tab(this, event)" href="#settings-warehouses_users" title="' . l('Закрепить администратора за кассой') . '">' . l('Администраторы') . '</a></li>';
-            $admin_out .= '</ul>';
-            $admin_out .= '<div class="pill-content">';
-
-            $admin_out .= '<div id="settings-warehouses" class="pill-pane">';
-            $admin_out .= "</div><!--#settings-warehouses-->";
-
-            // форма привязки пользователей к складу
-            $admin_out .= '<div id="settings-warehouses_users" class="pill-pane">';
-            $admin_out .= '</div><!--#settings-warehouses_users-->';
-
-            $admin_out .= '<div id="settings-warehouses_groups" class="pill-pane">';
-            $admin_out .= '</div><!--#settings-warehouses_groups-->';
-
-            $admin_out .= '<div id="settings-warehouses_types" class="pill-pane">';
-            $admin_out .= '</div><!--#settings-warehouses_types-->';
-
-        }
-
         return array(
-            'html' => $admin_out,
+            'html' => $this->view->renderFile('warehouses/warehouses_settings'),
             'functions' => array('click_tab(\'a[href="' . trim($hash) . '"]\')'),
         );
     }
@@ -945,7 +652,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_settings_warehouses()
+    public function warehouses_settings_warehouses()
     {
         $admin_out = '';
 
@@ -974,45 +681,17 @@ class warehouses extends Controller
      * @param null $type
      * @return string
      */
-    function warehouses_settings_warehouses_types_form($type = null)
+    public function warehouses_settings_warehouses_types_form($type = null)
     {
-        if ($type) {
-            $i = $type['id'];
-            $btn = "<input type='hidden' name='warehouse-type-id' value='{$type['id']}' /><input type='submit' class='btn' name='warehouse-type-edit' value='" . l('Редактировать') . "' />";
-            $accordion_title = l('Редактировать категорию склада') . ' "' . htmlspecialchars($type['name']) . '"';
-            $name = htmlspecialchars($type['name']);
-            $icon = htmlspecialchars($type['icon']);
-        } else {
-            $i = 0;
-            $btn = "<input type='submit' class='btn' name='warehouse-type-add' value='" . l('Создать') . "' />";
-            $accordion_title = l('Создать категорию склада');
-            $name = $icon = '';
-        }
-
-        return "
-            <div class='panel panel-default'>
-                <div class='panel-heading'>
-                    <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses_types' href='#collapse_warehouse_type_{$i}'>{$accordion_title}</a>
-                </div>
-                <div id='collapse_warehouse_type_{$i}' class='panel-collapse collapse'>
-                    <div class='panel-body'>
-                        <form method='POST'>
-                            <div class='form-group'><label>" . l('Название') . ": </label>
-                                <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
-                            <div class='form-group'><label'>" . l('Иконка') . " (fa fa-home): </label>
-                                <input placeholder='" . l('введите иконку') . "' class='form-control' name='icon' value='{$icon}' /></div>
-                            <div class='form-group'><label></label>{$btn}</div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        ";
+        return $this->view->renderFile('warehouses/warehouses_settings_warehouses_types_form', array(
+            'type' => $type
+        ));
     }
 
     /**
      * @return array
      */
-    function warehouses_settings_warehouses_types()
+    public function warehouses_settings_warehouses_types()
     {
         $admin_out = '';
 
@@ -1023,7 +702,7 @@ class warehouses extends Controller
             foreach ($types as $type) {
                 $admin_out .= $this->warehouses_settings_warehouses_types_form($type);
             }
-            $admin_out .= '</div><!--#accordion_warehouses_types-->';
+            $admin_out .= '</div>';
         }
 
         return array(
@@ -1036,48 +715,17 @@ class warehouses extends Controller
      * @param null $group
      * @return string
      */
-    function warehouses_settings_warehouses_groups_form($group = null)
+    public function warehouses_settings_warehouses_groups_form($group = null)
     {
-        if ($group) {
-            $i = $group['id'];
-            $btn = "<input type='hidden' name='warehouse-group-id' value='{$group['id']}' /><input type='submit' class='btn' name='warehouse-group-edit' value='" . l('Редактировать') . "' />";
-            $accordion_title = l('Редактировать группу склада') . ' "' . htmlspecialchars($group['name']) . '"';
-            $name = htmlspecialchars($group['name']);
-            $color = htmlspecialchars($group['color']);
-            $address = htmlspecialchars($group['address']);
-        } else {
-            $i = 0;
-            $btn = "<input type='submit' class='btn' name='warehouse-group-add' value='" . l('Создать') . "' />";
-            $accordion_title = l('Создать  сервисный центр') . ' (' . l('группу складов') . ')';
-            $name = $color = $address = '';
-        }
-
-        return "
-            <div class='panel panel-default'>
-                <div class='panel-heading'>
-                    <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses_groups' href='#collapse_warehouse_group_{$i}'>{$accordion_title}</a>
-                </div>
-                <div id='collapse_warehouse_group_{$i}' class='panel-collapse collapse'>
-                    <div class='panel-body'>
-                        <form method='POST'>
-                            <div class='form-group'><label>" . l('Название') . ": </label>
-                                <input placeholder='" . l('введите название') . "' class='form-control' name='name' value='{$name}' /></div>
-                            <div class='form-group'><label>" . l('Цвет') . " (#000000): </label>
-                                <input placeholder='" . l('введите цвет') . "' class='colorpicker form-control' name='color' value='{$color}' /></div>
-                            <div class='form-group'><label>" . l('Адрес') . ": </label>
-                                <input placeholder='" . l('введите адрес') . "' class='form-control' name='address' value='{$address}' /></div>
-                            <div class='form-group'><label></label>{$btn}</div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        ";
+        return $this->view->renderFile('warehouses/warehouses_settings_warehouses_groups_form', array(
+            'group' => $group
+        ));
     }
 
     /**
      * @return array
      */
-    function warehouses_settings_warehouses_groups()
+    public function warehouses_settings_warehouses_groups()
     {
         $admin_out = '';
 
@@ -1099,7 +747,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_settings_warehouses_users()
+    public function warehouses_settings_warehouses_users()
     {
         $admin_out = '';
 
@@ -1122,22 +770,12 @@ class warehouses extends Controller
                 $wh_users = $this->all_configs['db']->query(
                     'SELECT u.user_id, GROUP_CONCAT(u.wh_id) FROM {warehouses_users} as u GROUP BY u.user_id')->vars();
 
-                $admin_out .= '<form method="post"><table class="table"><thead><tr><td>' . l('Сотрудник') . '</td><td>' . l('Укажите склады к которым сотрудник имеет доступ') . '</td><td>' . l('Укажите склад и локацию, на которую по умолчанию перемещается устройство принятое на ремонт данным сотрудником') . '</td></tr></thead><tbody>';
-                foreach ($users as $user_id => $user) {
-                    $admin_out .= '<tr><td>' . get_user_name($user) . '</td>';
-                    $admin_out .= '<td><select class="multiselect" name="warehouses_users[' . $user_id . '][]" multiple="multiple">';
-                    $whs = $wh_users && isset($wh_users[$user_id]) ? explode(',', $wh_users[$user_id]) : array();
-                    foreach ($this->warehouses as $warehouse) {
-                        $selected = in_array($warehouse['id'], $whs) ? 'selected' : '';
-                        $admin_out .= '<option ' . $selected . ' value="' . $warehouse['id'] . '">' . htmlspecialchars($warehouse['title']) . '</option>';
-                    }
-                    $admin_out .= '</select></td><td>';
-                    $selected = $wh_mains && isset($wh_mains[$user_id]) ? $wh_mains[$user_id] : '';
-                    $admin_out .= typeahead($this->all_configs['db'], 'locations', false, $selected, $user_id,
-                        'input-large', '', '', true, false, $user_id);
-                    $admin_out .= '</td></tr>';
-                }
-                $admin_out .= '<tr><td colspan="3"><input type="submit" class="btn" name="set-warehouses_users" value="' . l('Сохранить') . '" /></td></tr></tbody></table></form>';
+                $admin_out = $this->view->renderFile('warehouses/warehouses_settings_warehouses_users', array(
+                    'users' => $users,
+                    'warehouses' => $this->warehouses,
+                    'wh_users' => $wh_users,
+                    'wh_mains' => $wh_mains
+                ));
             }
         }
 
@@ -1217,9 +855,10 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_inventories_journal()
+    public function warehouses_inventories_journal()
     {
-        $left_html = $right_html = '';
+        $left_html = '';
+        $inventories = $left = array();
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
@@ -1227,9 +866,6 @@ class warehouses extends Controller
             $left = $this->inventories_left_menu(1);
             $left_html .= $left['html'];
             // форма сканирования
-            if ($left['open'] == true) {
-                $right_html = $this->scan_serial_form(1);
-            }
 
             // журнал сканирований
             $inventories = $this->all_configs['db']->query('SELECT it_j.id as item_id, it_j.date_scan, g.title as gtitle,
@@ -1238,25 +874,13 @@ class warehouses extends Controller
                     WHERE w.id=it_j.wh_id AND it_j.inv_id=?i AND g.id=it_j.goods_id AND u.id=it_j.user_id
                     ORDER BY it_j.date_scan DESC',
                 array($this->all_configs['arrequest'][2]))->assoc();
-
-            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>Сер. №</td><td>' . l('Дата') . '</td>';
-            $right_html .= '<td>' . l('Наименование') . '</td><td>Кладовщик</td><td>' . l('Склад') . '</td></tr></thead><tbody>';
-            if ($inventories) {
-                $i = 1;
-                foreach ($inventories as $inv) {
-                    $inv['i'] = $i;
-                    $i++;
-                    $right_html .= $this->display_scanned_item($inv, $left['inv']['wh_id']);
-                }
-            } else {
-                $right_html .= '<td colspan="6">' . l('Сканирований нет') . '</td>';
-            }
-            $right_html .= '</tbody></table>';
         }
-
-        if (empty($left_html)) {
-            $right_html = '<p class="text-error">' . l('Инвентаризация не найдена') . '</p>';
-        }
+        $right_html = $this->view->renderFile('warehouses/warehouses_inventories_journal', array(
+            'left_html' => $left_html,
+            'inventories' => $inventories,
+            'left' => $left,
+            'controller' => $this
+        ));
 
         return array(
             'html' => '<div class="span2">' . $left_html . '</div><div class="span10">' . $right_html . '</div>',
@@ -1267,7 +891,7 @@ class warehouses extends Controller
     /**
      * @return array
      */
-    function warehouses_inventories_listinv()
+    public function warehouses_inventories_listinv()
     {
         $left_html = $right_html = '';
 
@@ -1285,10 +909,7 @@ class warehouses extends Controller
                   FROM {goods} as g, {inventories_goods} as invg WHERE invg.goods_id=g.id AND invg.inv_id=?i',
                 array($this->all_configs['arrequest'][2]))->assoc('id');
 
-            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>' . l('Наименование') . '</td>';
-            $right_html .= '<td>' . l('Кол-во на складе') . '</td><td>' . l('Кол-во проинвентаризовано') . '</td><td>' . l('Недостача') . '</td></tr></thead><tbody>';
             if ($inventories) {
-
                 $counts_items = (array)$this->all_configs['db']->query('SELECT inv.id, COUNT(DISTINCT i.id)
                       FROM {inventories} as inv, {warehouses_goods_items} as i, {inventories_goods} as invg
                       WHERE inv.id=?i AND i.wh_id=inv.wh_id AND inv.id=invg.inv_id AND i.goods_id=invg.goods_id GROUP BY i.goods_id',
@@ -1297,71 +918,17 @@ class warehouses extends Controller
                       FROM {inventories} as inv, {warehouses_goods_items} as i, {inventory_journal} as invj
                       WHERE inv.id=?i AND i.wh_id=inv.wh_id AND i.id=invj.item_id AND inv.id=invj.inv_id GROUP BY i.goods_id',
                     array($this->all_configs['arrequest'][2]))->vars();
-
-                foreach ($inventories as $inv) {
-                    $inv['count_items'] = isset($counts_items[$inv['id']]) ? $counts_items[$inv['id']] : 0;
-                    $inv['count_inv_items'] = isset($counts_inv_items[$inv['id']]) ? $counts_inv_items[$inv['id']] : 0;
-                    $right_html .= '<tr><td></td>';
-                    $right_html .= '<td class="open-product-inv" onclick="open_product_inventory(this, ' . $inv['goods_id'] . ')">';
-                    $right_html .= '<i class="' . ((isset($_GET['inv_p']) && $_GET['inv_p'] == $inv['goods_id']) ? 'glyphicon glyphicon-chevron-up' : 'glyphicon glyphicon-chevron-down') . '"></i>';
-                    $right_html .= htmlspecialchars($inv['gtitle']) . '</td>';
-                    $right_html .= '<td>' . $inv['count_items'] . '</td>';
-                    $right_html .= '<td>' . $inv['count_inv_items'] . '</td>';
-                    $right_html .= '<td>' . ($inv['count_items'] - $inv['count_inv_items']) . '</td>';
-                    $right_html .= '<tr><td colspan="5" class="product-inventory">';// id="product-inventory-' . $inv['goods_id'] . '"
-
-                    if (isset($_GET['inv_p']) && $_GET['inv_p'] == $inv['goods_id']) {
-                        // журнал сканирований
-                        $_inventories = $this->all_configs['db']->query('SELECT w.title as wtitle, inv.wh_id as inv_wh_id,
-                              i.order_id, i.wh_id, i.id as item_id, invj.date_scan, i.serial, u.email, u.login, u.fio, i.price
-                            FROM {goods} as g, {warehouses} as w, {warehouses_goods_items} as i
-                            LEFT JOIN {inventories} as inv ON inv.id=?i
-                            LEFT JOIN (SELECT date_scan, inv_id, item_id, scanned, user_id, wh_id FROM {inventory_journal}
-                              ORDER BY date_scan DESC)invj ON invj.inv_id=inv.id AND i.id=invj.item_id
-                            LEFT JOIN {users} as u ON u.id=invj.user_id
-                            WHERE i.goods_id=g.id AND i.goods_id=?i AND w.id=i.wh_id
-                              AND (inv.wh_id=i.wh_id OR invj.date_scan IS NOT NULL) GROUP BY i.id',
-                            array($this->all_configs['arrequest'][2], $inv['goods_id']))->assoc();
-
-                        $not_on_this_stock = '';
-                        if ($_inventories) {
-                            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>' . l('Сер. номер') . '</td><td>' . l('Дата') . '</td>';
-                            $right_html .= '<td>' . l('Кладовщик') . '</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td><td>' . l('Цена') . ', ';
-                            $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
-                            $right_html .= '</td><td></td></tr></thead><tbody>';
-                            $i = 1;
-                            $j = 1;
-                            foreach ($_inventories as $_inv) {
-                                $_inv['scanned'] = suppliers_order_generate_serial($_inv);
-                                if ($_inv['inv_wh_id'] != $_inv['wh_id']) {
-                                    $_inv['i'] = $i;
-                                    $i++;
-                                    $not_on_this_stock .= $this->display_scanned_item($_inv, $_inv['inv_wh_id']);
-                                } else {
-                                    $_inv['i'] = $j;
-                                    $j++;
-                                    $right_html .= $this->display_scanned_item($_inv, $_inv['inv_wh_id']);
-                                }
-                            }
-                            $right_html .= '</tbody></table>';
-                            if (!empty($not_on_this_stock)) {
-                                $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>' . l('Сер. номер') . '</td><td>' . l('Дата') . '</td>';
-                                $right_html .= '<td>' . l('Кладовщик') . '</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td><td>' . l('Цена') . ', ';
-                                $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
-                                $right_html .= '</td></tr></thead><tbody>';
-                                $right_html .= $not_on_this_stock;
-                                $right_html .= '</tbody></table>';
-                            }
-                        } else {
-                            $right_html .= l('Изделий нет на складе');
-                        }
-                    }
-                    $right_html .= '</td></tr>';
-                }
             } else {
-                $right_html .= '<td colspan="5">' . l('Нет изделий') . '</td>';
+                $counts_items = array();
+                $counts_inv_items = array();
             }
-            $right_html .= '</tbody></table>';
+            $right_html = $this->view->renderFile('warehouses/warehouses_inventories_listinv', array(
+                'inventories' => $inventories,
+                'counts_items' => $counts_items,
+                'counts_inv_items' => $counts_inv_items,
+                'controller' => $this
+            ));
+
         }
 
         return array(
@@ -1371,11 +938,10 @@ class warehouses extends Controller
     }
 
 
-    /** @todo остановился тут */
     /**
      * @return array
      */
-    function warehouses_inventories_writeoff()
+    public function warehouses_inventories_writeoff()
     {
         $left_html = $right_html = '';
 
@@ -1394,25 +960,11 @@ class warehouses extends Controller
                     WHERE i.goods_id=g.id AND w.id=i.wh_id AND inv.wh_id=i.wh_id AND invj.id IS NULL GROUP BY i.id',
                 array($this->all_configs['arrequest'][2]))->assoc();
 
-            $right_html .= '<table class="table table-striped"><thead><tr><td></td><td>' . l('Сер. номер') . '</td>';
-            $right_html .= '<td>' . l('Наименование') . '</td><td>' . l('Склад') . '</td><td>' . l('Цена') . ', ';
-            $right_html .= $this->all_configs['suppliers_orders']->currencies[$this->all_configs['suppliers_orders']->currency_suppliers_orders]['shortName'];
-            $right_html .= '</td><td><input type="checkbox" class="checked_all_writeoff" onchange="checked_all_writeoff(this)" /></td></tr></thead><tbody>';
-
-            if ($inventories) {
-                $i = 1;
-                foreach ($inventories as $inv) {
-                    $inv['scanned'] = suppliers_order_generate_serial($inv);
-                    $inv['i'] = $i;
-                    $i++;
-                    $right_html .= $this->display_scanned_item($inv, $inv['inv_wh_id']);
-
-                }
-                $right_html .= '<tr><td colspan="6"><input class="btn" onclick="write_off_item(this)" value="' . l('Списать') . '" type="button" /></td>';
-            } else {
-                $right_html .= '<td colspan="6">' . l('Нет сканированых изделий') . '</td>';
-            }
-            $right_html .= '</tr></tbody></table>';
+            $right_html = $this->view->renderFile('warehouses/warehouses_inventories_writeoff', array(
+                'left' => $left,
+                'controller' => $this,
+                'inventories' => $inventories,
+            ));
         }
 
         return array(
@@ -1456,7 +1008,7 @@ class warehouses extends Controller
             $left_html = $this->view->renderFile('warehouses/inventories_left_menu', array(
                 'user_id' => $this->getUserId(),
                 'inventory' => $inventory,
-                'active_btn' => $active_btn                    
+                'active_btn' => $active_btn
             ));
         }
 
@@ -1494,246 +1046,15 @@ class warehouses extends Controller
      * @param int  $count_page
      * @return string
      */
-    function show_goods($goods, $query_for_noadmin, $type = null, $count_page = 1)
+    public function show_goods($goods, $query_for_noadmin, $type = null, $count_page = 1)
     {
-        $out = '';
-
-        $out .= $this->all_configs['suppliers_orders']->append_js();
-        $out .= $this->all_configs['chains']->append_js();
-
-        if ($goods && count($goods) > 0) {
-
-            switch ($type) {
-
-                case (1):
-
-                    $out .= '<table class="table table-striped"><thead><tr><td>' . l('Серийный номер') . '</td><td>' . l('Наименование') . '</td><td>' . l('Дата') . '</td>';
-                    $out .= '<td>' . l('Склад') . '</td><td>' . l('Локация') . '</td><td>' . l('Заказ клиента') . '</td><td>' . l('Заказ поставщику') . '</td><td>' . l('Цена') . '</td><td>' . l('Поставщик') . '</td></tr></thead><tbody>';
-
-                    foreach ($goods as $product) {
-                        $out .= '<tr>' .
-                            '<td>' . suppliers_order_generate_serial($product, true, true) . '</td>' .
-                            '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">' . htmlspecialchars($product['product_title']) . '</a></td>' .
-                            '<td><span title="' . do_nice_date($product['date_add'],
-                                false) . '">' . do_nice_date($product['date_add']) . '</span></td>' .
-                            '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $product['id'] . '#show_items">' . htmlspecialchars($product['title']) . '</a></td>' .
-                            '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?whs=' . $product['id'] . '&lcs=' . $product['location_id'] . '#show_items">' . htmlspecialchars($product['location']) . '</a></td>' .
-                            '<td>' . ($product['order_id'] > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $product['order_id'] . '">' . $product['order_id'] . '</a>' : '') . '</td>' .
-                            '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'warehouses?so_id=' . $product['supplier_order_id'] . '#show_items">' . $product['supplier_order_id'] . '</a></td>' .
-                            '<td>' . $this->show_price($product['price']) . '</td>' .
-                            '<td>' . htmlspecialchars($product['contractor_title']) . '</td>' .
-                            '</tr>';
-                    }
-
-                    $out .= '<tr><td colspan="7"></td><td colspan="2">';
-                    $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') . 'ajax';
-                    $out .= '<form target="_blank" method="get" action="' . $url . '" class="form-horizontal">';
-                    $out .= '<input name="act" value="exports-items" type="hidden" />';
-                    if (isset($_GET['whs'])) {
-                        $out .= '<input name="whs" value="' . $_GET['whs'] . '" type="hidden" />';
-                    }
-                    if (isset($_GET['lcs'])) {
-                        $out .= '<input name="lcs" value="' . $_GET['lcs'] . '" type="hidden" />';
-                    }
-                    if (isset($_GET['pid'])) {
-                        $out .= '<input name="pid" value="' . $_GET['pid'] . '" type="hidden" />';
-                    }
-                    if (isset($_GET['d'])) {
-                        $out .= '<input name="d" value="' . $_GET['d'] . '" type="hidden" />';
-                    }
-                    $out .= '<input type="submit" value="' . l('Выгрузить данные') . '" class="btn btn-small btn-primary"></form>';
-                    $out .= '</td></tr>';
-                    $out .= '</tbody></table>';
-
-                    break;
-
-
-                case (2):
-
-                    foreach ($goods as $product) {
-
-                        $out .= '<h4>' . l('Наименование') . '</h4>';
-                        $out .= '<table class="table table-striped"><tbody>';
-                        $out .= '<tr><td><b>' . l('Серийный номер') . '</b> ';
-                        if ($this->all_configs['oRole']->hasPrivilege('site-administration') && mb_strlen($product['serial'],
-                                'UTF-8') > 0
-                            && $product['id'] == $this->all_configs['configs']['erp-warehouse-type-mir']
-                        ) {
-                            $out .= '<input class="btn btn-small btn-danger" onclick="clear_serial(this, ' . $product['item_id'] . ')" type="button" value="' . l('Удалить серийник') . '" />';
-                        }
-                        $out .= '</td><td>' . suppliers_order_generate_serial($product);
-                        $out .= print_link($product['item_id'], 'label') . '</td></tr>';
-                        if (mb_strlen(trim($product['serial_old']), 'utf-8') > 0) {
-                            $out .= '<tr><td><b>' . l('Серийный номер') . ' (' . l('старый') . ')</b></td><td>' . htmlspecialchars($product['serial_old']) . '</td></tr>';
-                        }
-                        $out .= '<tr><td><b>' . l('Наименование') . '</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">';
-                        $out .= htmlspecialchars($product['product_title']) . '</a></td></tr>';
-                        $out .= '<tr><td><b>' . l('Поставщик') . '</b></td><td>' . htmlspecialchars($product['contractor_title']) . '</td></tr>';
-                        $out .= '<tr><td><b>' . l('Заказ поставщика') . '</b></td><td>';
-                        $out .= (($product['supplier_order_id'] > 0) ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/edit/' . $product['supplier_order_id'] . '#create_supplier_order">'
-                                . $this->all_configs['suppliers_orders']->supplier_order_number(array('id' => $product['supplier_order_id'])) . '</a>' : '') . '</td></tr>';
-                        $out .= '<tr><td><b>' . l('Дата приходования') . '</b></td><td><span title="' . do_nice_date($product['date_add'],
-                                false) . '">' . do_nice_date($product['date_add']) . '</span></td></tr>';
-                        $out .= '<tr><td><b>' . l('Цена') . '</b></td><td>' . $this->show_price($product['price']) . '</td></tr>';
-                        $out .= '<tr><td><b>' . l('Склад') . '</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'];
-                        $out .= $this->all_configs['arrequest'][0] . '?whs=' . $product['id'] . '#show_items">' . htmlspecialchars($product['title']) . '</td></tr>';
-
-                        $out .= '<tr><td><b>' . l('Локация') . '</b></td><td><a class="hash_link" href="' . $this->all_configs['prefix'];
-                        $out .= $this->all_configs['arrequest'][0] . '?whs=' . $product['id'] . '&lcs=' . $product['location_id'] . '#show_items">' . htmlspecialchars($product['location']) . '</td></tr>';
-
-                        $out .= '<tr><td><b>' . l('Заказ') . '</b></td><td>' . (($product['order_id']) > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $product['order_id'] . '">' . $product['order_id'] . '</a>' : '') . '</td></tr>';
-                        $out .= '<tr><td><b>' . l('Дата продажи') . '</b></td><td><span title="' . do_nice_date($product['date_sold'],
-                                false) . '">' . do_nice_date($product['date_sold']) . '</span></td>';
-                        $out .= '</tbody></table>';
-
-                        $out .= '<div class="span12"><div class="span4 well">';
-                        // форма перемещения изделий на склад
-                        $out .= '<h4>' . l('Запрос на перемещение') . '</h4>';
-                        $out .= $this->all_configs['chains']->moving_item_form($product['item_id']/*, null, $product['id']*/);
-                        $out .= '</div><div class="span4">';
-                        // форма продажи
-                        $out .= $this->all_configs['chains']->form_sold_items($product['item_id'], $this->errors);
-                        $out .= '</div><div class="span3">';
-                        // форма списания изделия
-                        $out .= $this->all_configs['chains']->form_write_off_items($product['item_id'], $this->errors);
-                        // форма возврата изделия поставщику
-                        $out .= $this->all_configs['chains']->return_supplier_order_form($product['item_id']);
-                        $out .= '</div></div>';
-                        $out .= '<h4>' . l('История перемещений') . '</h4>';
-
-                        $item_history = $this->all_configs['db']->query('SELECT m.item_id, m.date_move, m.user_id, m.wh_id,
-                              m.comment, w.title, u.fio, u.email, m.order_id, l.location
-                            FROM {users} as u, {warehouses} as w, {warehouses_stock_moves} as m, {warehouses_locations} as l
-                            WHERE m.item_id=?i AND u.id=m.user_id AND w.id=m.wh_id AND l.id=m.location_id ?query
-                            ORDER BY m.date_move DESC, m.id DESC',
-                            array($product['item_id'], $query_for_noadmin))->assoc();
-
-                        if (count($item_history) > 0) {
-                            $out .= '<table class="table"><thead><tr><td>' . l('Склад') . '</td><td>' . l('Локация') . '</td><td>' . l('Ответственный') . '</td><td>' . l('Дата') . '</td>';
-                            $out .= '<td>' . l('Операция') . '</td><td>' . l('На основании') . ' (' . l('номер заказа') . ')</td></tr></thead><tbody>';
-                            foreach ($item_history as $history) {
-                                $out .= '<tr><td><a class="hash_link" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?whs=' . $history['wh_id'] . '#show_items">' . htmlspecialchars($history['title']) . '</a></td>';
-                                $out .= '<td>' . htmlspecialchars($history['location']) . '</td>';
-                                $out .= '<td>' . get_user_name($history) . '</td>';
-                                $out .= '<td><span title="' . do_nice_date($history['date_move'],
-                                        false) . '">' . do_nice_date($history['date_move']) . '</span></td>';
-                                $out .= '<td>' . htmlspecialchars($history['comment']) . '</td>';
-                                $out .= '<td><a href="' . $this->all_configs['prefix'] . 'orders/create/' . $history['order_id'] . '">';
-                                $out .= $history['order_id'] . '</a></td></tr>';
-                            }
-                            $out .= '</tbody></table>';
-                        } else {
-                            $out .= l('История перемещений не найдена');
-                        }
-                        $out .= '</td></tr>';
-
-                    }
-
-                    break;
-
-
-                default:
-
-                    $out .= '<table class="table table-hover table-medium"><thead><tr><td></td><td>' . l('Серийный номер') . '</td>';
-                    $out .= '<td>' . l('Наименование') . '</td><td>' . l('Дата') . '</td><td>' . l('Склад') . '</td><td>' . l('Заказ') . '</td>';
-                    if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                        $out .= '<td>' . l('Цена') . '</td>';
-                    }
-                    $out .= '<td>' . l('Кол-во') . '</td><td>' . l('Поставщик') . '</td></tr></thead><tbody>';
-
-                    $queryString = array();
-                    foreach ($_GET as $key => $value) {
-                        if ($key != 'act' && $key != 'goods') {
-                            $queryString[] = $key . '=' . $value;
-                        }
-                    }
-                    $queryString = $this->all_configs['prefix'] . 'warehouses?' . implode('&',
-                            $queryString) . '&goods=';
-
-                    foreach ($goods as $product) {
-                        $f_goods = $_f_goods = isset($_GET['goods']) ? array_filter(explode('-',
-                            $_GET['goods'])) : array();
-                        if (in_array($product['goods_id'], $f_goods)) {
-                            $pos = array_search($product['goods_id'], $f_goods);
-                            if ($pos !== false) {
-                                unset($_f_goods[$pos]);
-                            }
-                            $url = $queryString . implode('-', $_f_goods);
-                            $out .= '<tr class="border-top well cursor-pointer" onclick="window.location.href=\'' . $url . '\' + window.location.hash">';
-                            $out .= '<td><i class="glyphicon glyphicon-chevron-up"></i></td>';
-                        } else {
-                            array_push($_f_goods, $product['goods_id']);
-                            $url = $queryString . implode('-', $_f_goods);
-                            $out .= '<tr class="border-top cursor-pointer" onclick="window.location.href=\'' . $url . '\' + window.location.hash">';
-                            $out .= '<td><i class="glyphicon glyphicon-chevron-down"></i></td>';
-                        }
-                        $out .= '<td>' . '</td>';
-                        $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">' . htmlspecialchars($product['product_title']) . '</a></td>';
-                        $out .= '<td>' . '</td>';
-                        $out .= '<td>' . '</td>';
-                        $out .= '<td>' . '</td>';
-                        $out .= '<td>' . '</td>';
-                        $out .= '<td>' . $product['qty_wh'] . '</td>';
-                        $out .= '<td>' . '</td>';
-                        $out .= '</tr>';
-                        if (in_array($product['goods_id'], $f_goods)) {
-                            $items = $this->all_configs['db']->query('SELECT i.id as item_id, serial, i.price,
-                                          i.date_add, ct.title, w.title as wtitle, i.order_id
-                                        FROM {warehouses_goods_items} as i
-                                        LEFT JOIN {contractors} as ct ON i.supplier_id=ct.id
-                                        LEFT JOIN {warehouses} as w ON w.id=i.wh_id
-                                        WHERE i.goods_id=?i AND i.wh_id IN (?li)',
-                                array($product['goods_id'], explode(',', $_GET['whs'])))->assoc();
-                            if ($items) {
-                                foreach ($items as $item) {
-                                    // можем ли мы использовать изделие
-                                    $can = $this->all_configs['chains']->can_use_item($item['item_id']);
-                                    $out .= '<tr><td>';
-                                    if ($can) {
-                                        $out .= '<input onclick="checked_item()" type="checkbox" class="check-item" value="' . $item['item_id'] . '" />';
-                                    }
-                                    $out .= '</td>';
-                                    $out .= '<td>' . suppliers_order_generate_serial($item, true, true) . '</td>';
-                                    $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'] . '#financestock-stock">' . htmlspecialchars($product['product_title']) . '</a></td>';
-                                    $out .= '<td><span title="' . do_nice_date($item['date_add'],
-                                            false) . '">' . do_nice_date($item['date_add']) . '</span></td>';
-                                    $out .= '<td>' . htmlspecialchars($item['wtitle']) . '</td>';
-                                    $out .= '<td>' . $item['order_id'] . '</td>';
-                                    if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                                        $out .= '<td>' . show_price($item['price']) . '</td>';
-                                    }
-                                    $out .= '<td>' . ($can ? 1 : 0) . '</td>';
-                                    $out .= '<td>' . htmlspecialchars($item['title']) . '</td>';
-                                    $out .= '</tr>';
-                                }
-                            } else {
-                                $out .= '<tr><td colspan="9">' . l('Изделий нет') . '</td></tr>';
-                            }
-                        }
-                    }
-
-                    $out .= '</tbody></table>';
-
-                    $items = $this->all_configs['db']->query('SELECT COUNT(i.id) as count, SUM(i.price) as sum
-                                        FROM {warehouses_goods_items} as i
-                                        WHERE i.goods_id=?i AND i.wh_id IN (?li)',
-                        array($product['goods_id'], explode(',', $_GET['whs'])))->row();
-                    $out .= '<p>' . l('Всего отфильтровано') . ': ' . ($items ? 1 * $items['count'] : 0) . ' ' . l('шт.') . '</p>';
-                    if ($this->all_configs['oRole']->hasPrivilege('logistics')) {
-                        $out .= '<p>' . l('На сумму') . ': ' . show_price($items['sum']) . ' ';
-                        $currency_suppliers_orders = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
-                        $currencies = $this->all_configs['suppliers_orders']->currencies;
-                        $out .= $currencies[$currency_suppliers_orders]['shortName'] . '</p>';
-                    }
-                    $out .= '<p>' . l('Печать') . ': <a onclick="global_print_labels()"><i class="cursor-pointer fa fa-print"></i></a></p>';
-            }
-
-        } else {
-            $out .= '<p class="text-error">' . l('Товаров нет') . '</p>';
-        }
-        $out .= page_block($count_page, count($goods), '#show_items');
-
-        return $out;
+        return $this->view->renderFile('warehouses/show_goods', array(
+            'goods' => $goods,
+            'type' => $type,
+            'count_page' => $count_page,
+            'query_for_noadmin' => $query_for_noadmin,
+            'controller' => $this
+        ));
     }
 
     /**
@@ -1745,7 +1066,7 @@ class warehouses extends Controller
     {
         $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
         $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
-        
+
         return $this->view->renderFile('warehouses/form_warehouse', array(
             'i' => $i,
             'warehouse' => $warehouse,
@@ -1763,7 +1084,6 @@ class warehouses extends Controller
             'state' => false
         );
 
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $mod_id = $this->all_configs['configs']['warehouses-manage-page'];
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
@@ -1810,186 +1130,7 @@ class warehouses extends Controller
 
         // перемещение сканером
         if ($act == 'scanner-moves' && $this->all_configs['oRole']->hasPrivilege('scanner-moves')) {
-            $scan = isset($_POST['scanned'][1]) ? '"' . $_POST['scanned'][1] . '"' : '';
-            $data['msg'] = l('Сканирование') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
-
-            $order = $item = $location = null;
-            $order_prefix = 'Z-'; // префикс для заказа
-            $item_prefix = ''; // префикс для  изделия
-            $location_prefix = 'L-'; // префикс для локации
-
-            if (isset($_POST['scanned']) && is_array($_POST['scanned'])) {
-                foreach ($_POST['scanned'] as $scanned) {
-
-                    if (preg_match('/' . $order_prefix . '((?!' . $location_prefix . ').+)?/', trim($scanned),
-                        $matches)) {
-                        $data['msg'] = l('Заказ') . ' ' . htmlspecialchars($scan) . ' ' . l('на ремонт не найден');
-                        if (isset($matches[1]) && intval($matches[1]) > 0) {
-                            if ($item) {
-                                $item = null;
-                            }
-                            $order = $this->all_configs['db']->query('SELECT id FROM {orders} WHERE id=?i',
-                                array(intval($matches[1])))->row();
-                            if ($order) {
-                                $data['msg'] = l('Заказ') . ' №' . $order['id'];
-                                $data['state'] = true;
-                            }
-                        }
-                    }
-
-                    if (preg_match('/' . $item_prefix . '((?!' . $order_prefix . '|' . $location_prefix . ').+)?/',
-                        trim($scanned), $matches)) {
-                        if (isset($matches[1]) && suppliers_order_generate_serial(array('serial' => $matches[1]),
-                                false) > 0
-                        ) {
-                            $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
-                            $item = $this->all_configs['db']->query(
-                                'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE id=?i',
-                                array(suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
-                            if ($item) {
-                                $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
-                                $data['msg'] .= l('Изделие') . ' ' . suppliers_order_generate_serial($item);
-                                $data['state'] = true;
-                            }
-                        }
-                    }
-
-                    if (preg_match('/' . $location_prefix . '((?!' . $order_prefix . ').+)?/', trim($scanned),
-                        $matches)) {
-                        $data['msg'] = l('Локация не найдена');
-                        if (isset($matches[1]) && intval($matches[1]) > 0) {
-                            // сперва нужно указать заказ или изделие
-                            if (!$order && !$item) {
-                                $location = null;
-                                $data['msg'] = l('Укажите заказ или изделие');
-                            } else {
-                                $location = $this->all_configs['db']->query('SELECT l.location, w.title, l.id, l.wh_id
-                                    FROM {warehouses_locations} as l, {warehouses} as w WHERE l.id=?i AND l.wh_id=w.id',
-                                    array($matches[1]))->row();
-                            }
-                            if ($location) {
-                                $data['msg'] = $order ? 'Заказ №' . $order['id'] . '<br />' : '';
-                                $data['msg'] .= $item ? l('Изделие') . ' ' . suppliers_order_generate_serial($item) . '<br />' : '';
-                                $data['msg'] .= l('Склад') . ' "' . htmlspecialchars($location['title']) . '", ' . l('локация') . ' "' . htmlspecialchars($location['location']) . '"';
-                                $data['state'] = true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (($order && $item) || (($item || $order) && $location)) {
-                $response = null;
-                $msg = l('Произошла ошибка');
-
-                if ($order && $item) {
-                    $del_product = $del_order_item = false;
-                    // достаем запчасть в заказе
-                    $order_product_id = $this->all_configs['db']->query(
-                        'SELECT id FROM {orders_goods} WHERE order_id=?i AND goods_id=?i AND (item_id IS NULL OR item_id=?i)',
-                        array($order['id'], $item['goods_id'], $item['item_id']))->el();
-                    if (!$order_product_id) {
-                        // добавляем запчасть в заказ
-                        $a = array('order_id' => $order['id'], 'product_id' => $item['goods_id'], 'confirm' => 0);
-                        $response = $this->all_configs['chains']->add_product_order($a, $mod_id);
-                        if ($response && $response['state'] == true && isset($response['id'])) {
-                            $order_product_id = $response['id'];
-                            $del_product = true;
-                        } else {
-                            $response['message'] = isset($response['msg']) ? $response['msg'] : $msg;
-                        }
-                    }
-                    if ($order_product_id) {
-                        // создаем заявку на запчасть
-                        $a = array(
-                            'order_id' => $order['id'],
-                            'order_product_id' => $order_product_id,
-                            'supplier_order_id' => $item['supplier_order_id']
-                        );
-                        $response = $this->all_configs['chains']->order_item($mod_id, $a, false);
-                        if ($response && $response['state'] == true) {
-                            if (isset($data['id'])) {
-                                $del_order_item = true;
-                            }
-                            // заказ - изделие (привязка)
-                            $a = array(
-                                'item_id' => $item['item_id'],
-                                'order_product_id' => $order_product_id,
-                                'confirm' => 1
-                            );
-                            $response = $this->all_configs['chains']->bind_item_serial($a, $mod_id);
-                            if ($response && $response['state'] == true) {
-                                $msg = 'Изделие ' . suppliers_order_generate_serial($item) . ' ' . l('успешно выдано под ремонт') . ' №' . $order['id'];
-                                $del_order_item = $del_product = false;
-                            }
-                        }
-                    }
-                    if ($order_product_id && ($del_order_item == true || $del_product == true)) {
-                        // удаляем заявку
-                        $this->all_configs['db']->query(
-                            'DELETE FROM {orders_suppliers_clients} WHERE order_goods_id=?i', array($order_product_id));
-                        if ($del_product == true) {
-                            // удаляем товар из заказа на ремонт
-                            $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE id=?i',
-                                array($order_product_id));
-                        }
-                    }
-                } elseif ($order && !$item && $location) {
-                    // заказ - локация (перемещение)
-                    $a = array(
-                        'wh_id_destination' => $location['wh_id'],
-                        'location' => $location['id'],
-                        'order_id' => $order['id']
-                    );
-                    $response = $this->all_configs['chains']->move_item_request($a);
-                    $msg = l('Заказ') . ' №' . $order['id'] . ' ' . l('успешно перемещен на') . ' ' . $location['location'];
-                } elseif ($item && !$order && $location) {
-                    if ($item['order_id'] > 0) {
-                        // создаем заявку на отвязку
-                        $a = array('item_id' => $item['item_id']);
-                        $response = $this->all_configs['chains']->unbind_request($mod_id, $a);
-                        if ($response && $response['state'] == true) {
-                            // изделие - локация (отвязка)
-                            $a = array('item_id' => $item['item_id'], 'location' => $location['id']);
-                            $response = $this->all_configs['chains']->unbind_item_serial($a, $mod_id);
-                            $msg = l('Изделие') . ' ' . suppliers_order_generate_serial($item) . ' ' . l('успешно отязано от ремонта') . ' №' . $item['order_id'];
-                        }
-                    } else {
-                        // изделие - локация (перемещение)
-                        $a = array(
-                            'wh_id_destination' => $location['wh_id'],
-                            'location' => $location['id'],
-                            'item_id' => $item['item_id']
-                        );
-                        $response = $this->all_configs['chains']->move_item_request($a);
-                        $msg = l('Изделие') . ' ' . suppliers_order_generate_serial($item) . ' ' . l('успешно перемещено на') . ' ' . $location['location'];
-                    }
-                }
-
-                $data['state'] = true;
-                if ($response && isset($response['state']) && $response['state'] == true) {
-                    $data['msg'] = $msg;
-                    $data['ok'] = true;
-                } else {
-                    $data['msg'] .= '<br /> <span class="text-error">' . (isset($response['message']) ? $response['message'] : $msg) . '</span>';
-                }
-            } else {
-                $alert_timer = l('в течение') . ' <span id="scanner-moves-alert-timer" class="text-error">30</span> ' . l('сек') . '.';
-                if ($order || $item) {
-                    if ($order) {
-                        $data['value'] = $order_prefix . $order['id'];
-                        $data['msg'] .= '<br /> ' . l('Укажите локацию или изделие') . ' ' . $alert_timer;
-                    }
-                    if ($item) {
-                        $data['value'] = $item_prefix . suppliers_order_generate_serial($item);
-                        $data['msg'] .= '<br /> ' . l('Укажите локацию') . ' ' . $alert_timer;
-                    }
-                }
-                if ($location) {
-                    $data['value'] = $location_prefix . $location['id'];
-                    $data['msg'] .= '<br /> ' . l('Укажите изделие или заказ на ремонт') . ' ' . $alert_timer;
-                }
-            }
+            $data = $this->scannerMoves($data, $mod_id);
         }
 
         // управление заказами поставщика
@@ -2006,21 +1147,7 @@ class warehouses extends Controller
 
         // очистка серийника
         if ($act == 'clear-serial' && isset($_POST['item_id'])) {
-            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-                $item = $this->all_configs['db']->query('SELECT wh_id, serial FROM {warehouses_goods_items} WHERE id=?i',
-                    array($_POST['item_id']))->row();
-                if ($item && $item['wh_id'] == $this->all_configs['configs']['erp-warehouse-type-mir'] && !empty($item['serial'])) {
-                    $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET serial=null, serial_old=? WHERE id=?i',
-                        array($item['serial'], $_POST['item_id']));
-                    $data['state'] = true;
-                    $serial = suppliers_order_generate_serial(array('item_id' => $_POST['item_id'], 'serial' => ''));
-                    $data['href'] = $this->all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items';
-                } else {
-                    $data['message'] = l('Изделие не продано');
-                }
-            } else {
-                $data['message'] = l('Нет прав');
-            }
+            $data = $this->clearSerial($data);
         }
 
         // форма приходования заказа поставщику
@@ -2030,121 +1157,22 @@ class warehouses extends Controller
 
         //
         if ($act == 'add-goods-to-inv') {
-            if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
-                && isset($_POST['goods'])
-            ) {
-                $goods = explode(',', $_POST['goods']);
-                if (count($goods) > 0) {
-                    foreach ($goods as $id) {
-                        if ($id > 0) {
-                            $this->all_configs['db']->query('INSERT IGNORE INTO {inventories_goods}
-                                (goods_id, inv_id) VALUES (?i, ?i)',
-                                array($id, $this->all_configs['arrequest'][2]));
-                        }
-                    }
-                    $data['state'] = true;
-                }
-            }
+            $data = $this->addGoodsToInv($data);
         }
 
         //
         if ($act == 'goods-in-warehouse') {
-            if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
-                $goods = null;
-                $ids = $this->all_configs['db']->query('SELECT i.goods_id FROM {inventories} as inv
-                        RIGHT JOIN {warehouses_goods_items} as i ON inv.wh_id=i.wh_id
-                        LEFT JOIN {inventories_goods} as invg ON invg.inv_id=inv.id AND invg.goods_id=i.goods_id
-                        WHERE inv.id=?i AND invg.id IS NULL',
-                    array($this->all_configs['arrequest'][2]))->vars();
-                if ($ids) {
-                    $goods = $this->all_configs['db']->query('SELECT DISTINCT g.id, g.title
-                        FROM {goods} as g WHERE g.id IN (?li)', array(array_keys($ids)))->vars();
-                }
-
-                if ($goods) {
-                    $data['html'] = '';
-                    $data['options'] = array();
-                    foreach ($goods as $id => $title) {
-                        $data['html'] .= '<option value="' . $id . '">' . $title . '</option>';
-                        $data['options'][$id] = $title;
-                    }
-                }
-            }
+            $data = $this->goodsInWarehouse($data);
         }
 
         // Закрытие инвентаризации
         if ($act == 'close-inventory') {
-            if (isset($_POST['inv_id']) && $_POST['inv_id'] > 0) {
-                $inv = $this->all_configs['db']->query('SELECT date_stop, user_id FROM {inventories} WHERE id=?i',
-                    array($_POST['inv_id']))->row();
-
-                if (!$inv) {
-                    $data['message'] = l('Инвентаризация не найдена');
-                } else {
-                    if ($inv['date_stop'] > 0) {
-                        $data['state'] = true;
-                    } elseif ($inv['user_id'] != $_SESSION['id']) {
-                        $data['message'] = l('Вы не можете закрыть инвентаризацию');
-                    } else {
-                        $this->all_configs['db']->query('UPDATE {inventories} SET date_stop=NOW() WHERE id=?i',
-                            array($_POST['inv_id']));
-                        $data['state'] = true;
-                    }
-                }
-            } else {
-                $data['message'] = l('Инвентаризация не найдена');
-            }
+            $data = $this->closeInventory($data);
         }
 
         // сканирование
         if ($act == 'scan-serial') {
-            if (isset($_POST['serial']) && array_key_exists(2,
-                    $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
-            ) {
-                $serial = trim($_POST['serial']);
-                $serial_id = suppliers_order_generate_serial(array('serial' => $_POST['serial']), false);
-
-                if (gettype($serial_id) == 'integer') {
-                    $query = $this->all_configs['db']->makeQuery('WHERE i.id=?i', array($serial_id));
-                } else {
-                    $query = $this->all_configs['db']->makeQuery('WHERE i.serial=?', array($serial_id));
-                }
-
-                $date_stop = $this->all_configs['db']->query('SELECT date_stop FROM {inventories} WHERE id=?i',
-                    array($this->all_configs['arrequest'][2]))->el();
-
-                $item = $this->all_configs['db']->query('SELECT i.goods_id, i.wh_id, i.id
-                      FROM {warehouses_goods_items} as i ?query',
-                    array($query))->row();
-
-                if (!$item || $date_stop > 0) {
-                    if ($date_stop > 0) {
-                        //$data['message'] = '<div class="alert alert-error fade in"><button class="close" type="button" data-dismiss="alert">×</button>Инвентаризация закрыта</div>';
-                        $data['state'] = true;
-                    }
-                    if (!$item) {
-                        $data['message'] = '<div class="alert alert-error fade in"><button class="close" type="button" data-dismiss="alert">×</button>';
-                        $data['message'] .= l('Серийник') . ' <strong>' . htmlspecialchars($serial) . '</strong> ' . l('не найден') . '</div>';
-                    }
-                } else {
-                    $this->all_configs['db']->query('INSERT IGNORE INTO {inventories_goods} (goods_id, inv_id)
-                        VALUES (?i, ?i)', array($item['goods_id'], $this->all_configs['arrequest'][2]));
-                    $inv_id = $this->all_configs['db']->query('INSERT INTO {inventory_journal}
-                            (inv_id, user_id, scanned, item_id, goods_id, wh_id) VALUES (?i, ?i, ?, ?i, ?i, ?i)',
-                        array(
-                            $this->all_configs['arrequest'][2],
-                            $_SESSION['id'],
-                            $serial,
-                            $item['id'],
-                            $item['goods_id'],
-                            $item['wh_id']
-                        ), 'id');
-
-                    if ($inv_id > 0) {
-                        $data['state'] = true;
-                    }
-                }
-            }
+            $data = $this->scanSerial($data);
         }
 
         // создание инвентаризации
@@ -2346,12 +1374,619 @@ class warehouses extends Controller
             array($order_id))->row();
         $data['state'] = true;
         $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="' . l('Приходовать') . '" />';
-        $data['content'] = $this->view->renderFile('warehouses/form_debit_so'. array(
-               'order' => $order,
+        $data['content'] = $this->view->renderFile('warehouses/form_debit_so' . array(
+                'order' => $order,
                 'order_id' => $order_id,
                 // необходимое количество приходования
                 'count' => $order ? $order['count_come'] - $order['count_debit'] : 0
             ));
         return $data;
+    }
+
+    /**
+     * @param array $post
+     */
+    private function createUrlForFilterOrders(array $post)
+    {
+        $url = '';
+
+        // фильтр по дате
+        if (isset($post['date']) && !empty($post['date'])) {
+            list($df, $dt) = explode('-', $post['date']);
+            $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
+        }
+
+        if (isset($post['categories']) && $post['categories'] > 0) {
+            // фильтр по категориям товаров
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'g_cg=' . intval($post['categories']);
+        }
+
+        if (isset($post['goods']) && $post['goods'] > 0) {
+            // фильтр по товару
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'by_gid=' . intval($post['goods']);
+        }
+
+        if (isset($post['managers']) && !empty($post['managers'])) {
+            // фильтр по менеджерам
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'mg=' . implode(',', $post['managers']);
+        }
+
+        if (isset($post['suppliers']) && !empty($post['suppliers'])) {
+            // фильтр по поставщикам
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'sp=' . implode(',', $post['suppliers']);
+        }
+
+        if (isset($post['client-order']) && !empty($post['client-order'])) {
+            // фильтр клиенту/заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'co=' . urlencode(trim($post['client-order']));
+        }
+
+        if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
+            // фильтр по заказу частичный
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'pso_id=' . $post['supplier_order_id_part'];
+        }
+
+        if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
+            // фильтр по заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'so_id=' . $post['supplier_order_id'];
+        }
+
+        if (isset($post['so_st']) && $post['so_st'] > 0) {
+            // фильтр клиенту/заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'so_st=' . $post['so_st'];
+        }
+
+        if (isset($post['my']) && !empty($post['my'])) {
+            // фильтр клиенту/заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'my=1';
+        }
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
+        Response::redirect($url);
+    }
+
+    /**
+     * @param array $post
+     */
+    private function createUrlForFilters(array $post)
+    {
+        $url = '';
+
+        if (isset($post['noitems'])) {
+            // фильтр по без "изделий нет"
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'noi=1';
+        }
+
+        if (isset($post['goods']) && $post['goods'] > 0) {
+            // фильтр по товару
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'by_gid=' . intval($post['goods']);
+        }
+
+        if (isset($post['clients']) && $post['clients'] > 0) {
+            // фильтр клиенту/заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'c_id=' . intval($post['clients']);
+        }
+
+        if (isset($post['client-order-number']) && $post['client-order-number'] > 0) {
+            // фильтр клиенту/заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'con=' . intval($post['client-order-number']);
+        }
+
+        if (isset($post['serial']) && !empty($post['serial'])) {
+            // фильтр клиенту/заказу
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'serial=' . urlencode(trim($post['serial']));
+        }
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
+        Response::redirect($url);
+    }
+
+    /**
+     * @param array $post
+     */
+    private function createUrlForFilterWarehouses(array $post)
+    {
+// фильтруем
+        $url = '';
+
+        if (isset($post['warehouses']) && is_array($post['warehouses']) && count($post['warehouses']) > 0) {
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'whs=' . implode(',', $post['warehouses']);
+        }
+
+        if (isset($post['locations']) && is_array($post['locations']) && count($post['locations']) > 0) {
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'lcs=' . implode(',', $post['locations']);
+        }
+
+        if (isset($post['goods']) && $post['goods'] > 0) {
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'pid=' . intval($post['goods']);
+        }
+
+        if (isset($post['display']) && $post['display'] == 'amount') {
+            if (!empty($url)) {
+                $url .= '&';
+            }
+            $url .= 'd=a';
+        }
+
+        // первычные ключи
+        if (isset($post['serial']) && !empty($post['serial'])) {
+            $url = 'serial=' . urlencode($post['serial']);
+        }
+
+        if (isset($post['so_id']) && $post['so_id'] > 0) {
+            $url = 'so_id=' . intval($post['so_id']);
+        }
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url) . '#show_items';
+
+        Response::redirect($url);
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function scanSerial($data)
+    {
+        if (isset($_POST['serial']) && array_key_exists(2,
+                $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
+        ) {
+            $serial = trim($_POST['serial']);
+            $serial_id = suppliers_order_generate_serial(array('serial' => $_POST['serial']), false);
+
+            if (gettype($serial_id) == 'integer') {
+                $query = $this->all_configs['db']->makeQuery('WHERE i.id=?i', array($serial_id));
+            } else {
+                $query = $this->all_configs['db']->makeQuery('WHERE i.serial=?', array($serial_id));
+            }
+
+            $date_stop = $this->all_configs['db']->query('SELECT date_stop FROM {inventories} WHERE id=?i',
+                array($this->all_configs['arrequest'][2]))->el();
+
+            $item = $this->all_configs['db']->query('SELECT i.goods_id, i.wh_id, i.id
+                      FROM {warehouses_goods_items} as i ?query',
+                array($query))->row();
+
+            if (!$item || $date_stop > 0) {
+                if ($date_stop > 0) {
+                    //$data['message'] = '<div class="alert alert-error fade in"><button class="close" type="button" data-dismiss="alert">×</button>Инвентаризация закрыта</div>';
+                    $data['state'] = true;
+                }
+                if (!$item) {
+                    $data['message'] = '<div class="alert alert-error fade in"><button class="close" type="button" data-dismiss="alert">×</button>';
+                    $data['message'] .= l('Серийник') . ' <strong>' . htmlspecialchars($serial) . '</strong> ' . l('не найден') . '</div>';
+                }
+            } else {
+                $this->all_configs['db']->query('INSERT IGNORE INTO {inventories_goods} (goods_id, inv_id)
+                        VALUES (?i, ?i)', array($item['goods_id'], $this->all_configs['arrequest'][2]));
+                $inv_id = $this->all_configs['db']->query('INSERT INTO {inventory_journal}
+                            (inv_id, user_id, scanned, item_id, goods_id, wh_id) VALUES (?i, ?i, ?, ?i, ?i, ?i)',
+                    array(
+                        $this->all_configs['arrequest'][2],
+                        $_SESSION['id'],
+                        $serial,
+                        $item['id'],
+                        $item['goods_id'],
+                        $item['wh_id']
+                    ), 'id');
+
+                if ($inv_id > 0) {
+                    $data['state'] = true;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function closeInventory($data)
+    {
+        if (isset($_POST['inv_id']) && $_POST['inv_id'] > 0) {
+            $inv = $this->all_configs['db']->query('SELECT date_stop, user_id FROM {inventories} WHERE id=?i',
+                array($_POST['inv_id']))->row();
+
+            if (!$inv) {
+                $data['message'] = l('Инвентаризация не найдена');
+            } else {
+                if ($inv['date_stop'] > 0) {
+                    $data['state'] = true;
+                } elseif ($inv['user_id'] != $_SESSION['id']) {
+                    $data['message'] = l('Вы не можете закрыть инвентаризацию');
+                } else {
+                    $this->all_configs['db']->query('UPDATE {inventories} SET date_stop=NOW() WHERE id=?i',
+                        array($_POST['inv_id']));
+                    $data['state'] = true;
+                }
+            }
+        } else {
+            $data['message'] = l('Инвентаризация не найдена');
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function goodsInWarehouse($data)
+    {
+        if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
+            $goods = null;
+            $ids = $this->all_configs['db']->query('SELECT i.goods_id FROM {inventories} as inv
+                        RIGHT JOIN {warehouses_goods_items} as i ON inv.wh_id=i.wh_id
+                        LEFT JOIN {inventories_goods} as invg ON invg.inv_id=inv.id AND invg.goods_id=i.goods_id
+                        WHERE inv.id=?i AND invg.id IS NULL',
+                array($this->all_configs['arrequest'][2]))->vars();
+            if ($ids) {
+                $goods = $this->all_configs['db']->query('SELECT DISTINCT g.id, g.title
+                        FROM {goods} as g WHERE g.id IN (?li)', array(array_keys($ids)))->vars();
+            }
+
+            if ($goods) {
+                $data['html'] = '';
+                $data['options'] = array();
+                foreach ($goods as $id => $title) {
+                    $data['html'] .= '<option value="' . $id . '">' . $title . '</option>';
+                    $data['options'][$id] = $title;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function addGoodsToInv($data)
+    {
+        if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0
+            && isset($_POST['goods'])
+        ) {
+            $goods = explode(',', $_POST['goods']);
+            if (count($goods) > 0) {
+                foreach ($goods as $id) {
+                    if ($id > 0) {
+                        $this->all_configs['db']->query('INSERT IGNORE INTO {inventories_goods}
+                                (goods_id, inv_id) VALUES (?i, ?i)',
+                            array($id, $this->all_configs['arrequest'][2]));
+                    }
+                }
+                $data['state'] = true;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function clearSerial($data)
+    {
+        if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $item = $this->all_configs['db']->query('SELECT wh_id, serial FROM {warehouses_goods_items} WHERE id=?i',
+                array($_POST['item_id']))->row();
+            if ($item && $item['wh_id'] == $this->all_configs['configs']['erp-warehouse-type-mir'] && !empty($item['serial'])) {
+                $this->all_configs['db']->query('UPDATE {warehouses_goods_items} SET serial=null, serial_old=? WHERE id=?i',
+                    array($item['serial'], $_POST['item_id']));
+                $data['state'] = true;
+                $serial = suppliers_order_generate_serial(array('item_id' => $_POST['item_id'], 'serial' => ''));
+                $data['href'] = $this->all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items';
+            } else {
+                $data['message'] = l('Изделие не продано');
+            }
+        } else {
+            $data['message'] = l('Нет прав');
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @param $mod_id
+     * @return mixed
+     */
+    private function scannerMoves($data, $mod_id)
+    {
+        $scan = isset($_POST['scanned'][1]) ? '"' . $_POST['scanned'][1] . '"' : '';
+        $data['msg'] = l('Сканирование') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
+
+        $order = $item = $location = null;
+        $order_prefix = 'Z-'; // префикс для заказа
+        $item_prefix = ''; // префикс для  изделия
+        $location_prefix = 'L-'; // префикс для локации
+
+        if (isset($_POST['scanned']) && is_array($_POST['scanned'])) {
+            foreach ($_POST['scanned'] as $scanned) {
+
+                if (preg_match('/' . $order_prefix . '((?!' . $location_prefix . ').+)?/', trim($scanned),
+                    $matches)) {
+                    $data['msg'] = l('Заказ') . ' ' . htmlspecialchars($scan) . ' ' . l('на ремонт не найден');
+                    if (isset($matches[1]) && intval($matches[1]) > 0) {
+                        if ($item) {
+                            $item = null;
+                        }
+                        $order = $this->all_configs['db']->query('SELECT id FROM {orders} WHERE id=?i',
+                            array(intval($matches[1])))->row();
+                        if ($order) {
+                            $data['msg'] = l('Заказ') . ' №' . $order['id'];
+                            $data['state'] = true;
+                        }
+                    }
+                }
+
+                if (preg_match('/' . $item_prefix . '((?!' . $order_prefix . '|' . $location_prefix . ').+)?/',
+                    trim($scanned), $matches)) {
+                    if (isset($matches[1]) && suppliers_order_generate_serial(array('serial' => $matches[1]),
+                            false) > 0
+                    ) {
+                        $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
+                        $item = $this->all_configs['db']->query(
+                            'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE id=?i',
+                            array(suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
+                        if ($item) {
+                            $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
+                            $data['msg'] .= l('Изделие') . ' ' . suppliers_order_generate_serial($item);
+                            $data['state'] = true;
+                        }
+                    }
+                }
+
+                if (preg_match('/' . $location_prefix . '((?!' . $order_prefix . ').+)?/', trim($scanned),
+                    $matches)) {
+                    $data['msg'] = l('Локация не найдена');
+                    if (isset($matches[1]) && intval($matches[1]) > 0) {
+                        // сперва нужно указать заказ или изделие
+                        if (!$order && !$item) {
+                            $location = null;
+                            $data['msg'] = l('Укажите заказ или изделие');
+                        } else {
+                            $location = $this->all_configs['db']->query('SELECT l.location, w.title, l.id, l.wh_id
+                                    FROM {warehouses_locations} as l, {warehouses} as w WHERE l.id=?i AND l.wh_id=w.id',
+                                array($matches[1]))->row();
+                        }
+                        if ($location) {
+                            $data['msg'] = $order ? 'Заказ №' . $order['id'] . '<br />' : '';
+                            $data['msg'] .= $item ? l('Изделие') . ' ' . suppliers_order_generate_serial($item) . '<br />' : '';
+                            $data['msg'] .= l('Склад') . ' "' . htmlspecialchars($location['title']) . '", ' . l('локация') . ' "' . htmlspecialchars($location['location']) . '"';
+                            $data['state'] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (($order && $item) || (($item || $order) && $location)) {
+            $response = null;
+            $msg = l('Произошла ошибка');
+
+            if ($order && $item) {
+                $del_product = $del_order_item = false;
+                // достаем запчасть в заказе
+                $order_product_id = $this->all_configs['db']->query(
+                    'SELECT id FROM {orders_goods} WHERE order_id=?i AND goods_id=?i AND (item_id IS NULL OR item_id=?i)',
+                    array($order['id'], $item['goods_id'], $item['item_id']))->el();
+                if (!$order_product_id) {
+                    // добавляем запчасть в заказ
+                    $a = array('order_id' => $order['id'], 'product_id' => $item['goods_id'], 'confirm' => 0);
+                    $response = $this->all_configs['chains']->add_product_order($a, $mod_id);
+                    if ($response && $response['state'] == true && isset($response['id'])) {
+                        $order_product_id = $response['id'];
+                        $del_product = true;
+                    } else {
+                        $response['message'] = isset($response['msg']) ? $response['msg'] : $msg;
+                    }
+                }
+                if ($order_product_id) {
+                    // создаем заявку на запчасть
+                    $a = array(
+                        'order_id' => $order['id'],
+                        'order_product_id' => $order_product_id,
+                        'supplier_order_id' => $item['supplier_order_id']
+                    );
+                    $response = $this->all_configs['chains']->order_item($mod_id, $a, false);
+                    if ($response && $response['state'] == true) {
+                        if (isset($data['id'])) {
+                            $del_order_item = true;
+                        }
+                        // заказ - изделие (привязка)
+                        $a = array(
+                            'item_id' => $item['item_id'],
+                            'order_product_id' => $order_product_id,
+                            'confirm' => 1
+                        );
+                        $response = $this->all_configs['chains']->bind_item_serial($a, $mod_id);
+                        if ($response && $response['state'] == true) {
+                            $msg = 'Изделие ' . suppliers_order_generate_serial($item) . ' ' . l('успешно выдано под ремонт') . ' №' . $order['id'];
+                            $del_order_item = $del_product = false;
+                        }
+                    }
+                }
+                if ($order_product_id && ($del_order_item == true || $del_product == true)) {
+                    // удаляем заявку
+                    $this->all_configs['db']->query(
+                        'DELETE FROM {orders_suppliers_clients} WHERE order_goods_id=?i', array($order_product_id));
+                    if ($del_product == true) {
+                        // удаляем товар из заказа на ремонт
+                        $this->all_configs['db']->query('DELETE FROM {orders_goods} WHERE id=?i',
+                            array($order_product_id));
+                    }
+                }
+            } elseif ($order && !$item && $location) {
+                // заказ - локация (перемещение)
+                $a = array(
+                    'wh_id_destination' => $location['wh_id'],
+                    'location' => $location['id'],
+                    'order_id' => $order['id']
+                );
+                $response = $this->all_configs['chains']->move_item_request($a);
+                $msg = l('Заказ') . ' №' . $order['id'] . ' ' . l('успешно перемещен на') . ' ' . $location['location'];
+            } elseif ($item && !$order && $location) {
+                if ($item['order_id'] > 0) {
+                    // создаем заявку на отвязку
+                    $a = array('item_id' => $item['item_id']);
+                    $response = $this->all_configs['chains']->unbind_request($mod_id, $a);
+                    if ($response && $response['state'] == true) {
+                        // изделие - локация (отвязка)
+                        $a = array('item_id' => $item['item_id'], 'location' => $location['id']);
+                        $response = $this->all_configs['chains']->unbind_item_serial($a, $mod_id);
+                        $msg = l('Изделие') . ' ' . suppliers_order_generate_serial($item) . ' ' . l('успешно отязано от ремонта') . ' №' . $item['order_id'];
+                    }
+                } else {
+                    // изделие - локация (перемещение)
+                    $a = array(
+                        'wh_id_destination' => $location['wh_id'],
+                        'location' => $location['id'],
+                        'item_id' => $item['item_id']
+                    );
+                    $response = $this->all_configs['chains']->move_item_request($a);
+                    $msg = l('Изделие') . ' ' . suppliers_order_generate_serial($item) . ' ' . l('успешно перемещено на') . ' ' . $location['location'];
+                }
+            }
+
+            $data['state'] = true;
+            if ($response && isset($response['state']) && $response['state'] == true) {
+                $data['msg'] = $msg;
+                $data['ok'] = true;
+            } else {
+                $data['msg'] .= '<br /> <span class="text-error">' . (isset($response['message']) ? $response['message'] : $msg) . '</span>';
+            }
+        } else {
+            $alert_timer = l('в течение') . ' <span id="scanner-moves-alert-timer" class="text-error">30</span> ' . l('сек') . '.';
+            if ($order || $item) {
+                if ($order) {
+                    $data['value'] = $order_prefix . $order['id'];
+                    $data['msg'] .= '<br /> ' . l('Укажите локацию или изделие') . ' ' . $alert_timer;
+                }
+                if ($item) {
+                    $data['value'] = $item_prefix . suppliers_order_generate_serial($item);
+                    $data['msg'] .= '<br /> ' . l('Укажите локацию') . ' ' . $alert_timer;
+                }
+            }
+            if ($location) {
+                $data['value'] = $location_prefix . $location['id'];
+                $data['msg'] .= '<br /> ' . l('Укажите изделие или заказ на ремонт') . ' ' . $alert_timer;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param $inv
+     * @return mixed
+     */
+    private function getInventories($inv)
+    {
+        $_inventories = $this->all_configs['db']->query('SELECT w.title as wtitle, inv.wh_id as inv_wh_id,
+                              i.order_id, i.wh_id, i.id as item_id, invj.date_scan, i.serial, u.email, u.login, u.fio, i.price
+                            FROM {goods} as g, {warehouses} as w, {warehouses_goods_items} as i
+                            LEFT JOIN {inventories} as inv ON inv.id=?i
+                            LEFT JOIN (SELECT date_scan, inv_id, item_id, scanned, user_id, wh_id FROM {inventory_journal}
+                              ORDER BY date_scan DESC)invj ON invj.inv_id=inv.id AND i.id=invj.item_id
+                            LEFT JOIN {users} as u ON u.id=invj.user_id
+                            WHERE i.goods_id=g.id AND i.goods_id=?i AND w.id=i.wh_id
+                              AND (inv.wh_id=i.wh_id OR invj.date_scan IS NOT NULL) GROUP BY i.id',
+            array($this->all_configs['arrequest'][2], $inv['goods_id']))->assoc();
+        return $_inventories;
+    }
+
+    /**
+     * @param $product
+     * @param $query_for_noadmin
+     * @return mixed
+     */
+    private function getItemHistory($product, $query_for_noadmin)
+    {
+        $item_history = $this->all_configs['db']->query('SELECT m.item_id, m.date_move, m.user_id, m.wh_id,
+                              m.comment, w.title, u.fio, u.email, m.order_id, l.location
+                            FROM {users} as u, {warehouses} as w, {warehouses_stock_moves} as m, {warehouses_locations} as l
+                            WHERE m.item_id=?i AND u.id=m.user_id AND w.id=m.wh_id AND l.id=m.location_id ?query
+                            ORDER BY m.date_move DESC, m.id DESC',
+            array($product['item_id'], $query_for_noadmin))->assoc();
+        return $item_history;
+    }
+
+    /**
+     * @param $product
+     * @return mixed
+     */
+    private function getWarehousesItems($product)
+    {
+        $items = $this->all_configs['db']->query('SELECT i.id as item_id, serial, i.price,
+                                          i.date_add, ct.title, w.title as wtitle, i.order_id
+                                        FROM {warehouses_goods_items} as i
+                                        LEFT JOIN {contractors} as ct ON i.supplier_id=ct.id
+                                        LEFT JOIN {warehouses} as w ON w.id=i.wh_id
+                                        WHERE i.goods_id=?i AND i.wh_id IN (?li)',
+            array($product['goods_id'], explode(',', $_GET['whs'])))->assoc();
+        return $items;
+    }
+
+    /**
+     * @param $product
+     * @return mixed
+     */
+    private function getFilteredItems($product)
+    {
+        $items = $this->all_configs['db']->query('SELECT COUNT(i.id) as count, SUM(i.price) as sum
+                                        FROM {warehouses_goods_items} as i
+                                        WHERE i.goods_id=?i AND i.wh_id IN (?li)',
+            array($product['goods_id'], explode(',', $_GET['whs'])))->row();
+        return $items;
     }
 }
