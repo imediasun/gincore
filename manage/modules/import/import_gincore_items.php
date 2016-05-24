@@ -89,10 +89,14 @@ class import_gincore_items extends abstract_import_handler
         try {
             $query = '';
             foreach ($data as $field => $value) {
-                if (empty($query)) {
-                    $query = db()->makeQuery('?q=?', array($field, $value));
+                if ($field != 'category') {
+                    if (empty($query)) {
+                        $query = db()->makeQuery('?q=?', array($field, $value));
+                    } else {
+                        $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
+                    }
                 } else {
-                    $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
+                    $this->setCategory($id, $value);
                 }
             }
             if (!empty($query)) {
@@ -151,5 +155,11 @@ class import_gincore_items extends abstract_import_handler
             }
         }
         return $data;
+    }
+
+    private function setCategory($id, $value)
+    {
+        db()->query('DELETE FROM {category_goods} WHERE goods_id=?i', array($id));
+        db()->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)', array($id, $value));
     }
 }

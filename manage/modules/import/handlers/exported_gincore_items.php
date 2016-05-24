@@ -21,12 +21,12 @@ class exported_gincore_items extends abstract_import_provider
     {
         parent::__construct();
         $this->cols = array(
-            'category_id' => lq('Категория'),
+            'category' => lq('Категория'),
             'title' => lq('Наименование'),
             'price_purchase' => lq('Цена закупки'),
             'price_wholesale' => lq('Цена оптовая'),
             'price' => lq('Цена розничная'),
-//            'manager_id' => l('manager')
+//            'manager' => l('manager')
         );
         $this->categories = db()->query('select id, title from {categories}', array())->assoc('title');
         $this->managers = db()->query('select id, fio, login, email from {users}', array())->assoc('id');
@@ -53,9 +53,9 @@ class exported_gincore_items extends abstract_import_provider
      * @param $row
      * @return int
      */
-    public function get_category_id($row)
+    public function get_category($row)
     {
-        $title = trim($this->getColValue('category_id', $row));
+        $title = trim($this->getColValue('category', $row));
         if (!empty($title)) {
             if (isset($this->categories[$title])) {
                 $id = $this->categories[$title]['id'];
@@ -70,9 +70,9 @@ class exported_gincore_items extends abstract_import_provider
      * @param $row
      * @return int
      */
-    public function get_manager_id($row)
+    public function get_manager($row)
     {
-        $value = trim($this->getColValue('manager_id', $row));
+        $value = trim($this->getColValue('manager', $row));
         if (!empty($value)) {
             $manager = $this->findManager($value);
             if (empty($manager)) {
