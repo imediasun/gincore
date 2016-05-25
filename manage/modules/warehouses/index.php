@@ -1325,9 +1325,9 @@ class warehouses extends Controller
 
 
     /**
-     * @return array
+     * @inheritdoc
      */
-    public static function get_submenu()
+    public static function get_submenu($oRole = null)
     {
         return array(
             array(
