@@ -1993,6 +1993,9 @@ class Chains extends Object
             if (isset($post['amount_from']) && $post['transaction_type'] == TRANSACTION_INPUT) {
                 $post['amount_from'] = 0;
             }
+            if(empty($post['amount_from']) && empty($post['amount_to'])) {
+                throw new ExceptionWithMsg(l('Сумма не может быть нулевой'));
+            }
 
             // если транзакция на заказ поставщику
             if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
