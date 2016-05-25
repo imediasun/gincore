@@ -1424,7 +1424,8 @@ class Chains extends Object
         try {
             $post['total_as_sum'] = 1;
             $post['sale_type'] = SALE_TYPE_ESHOP;
-            $post['price'] = $this->priceCalculate($post['sum']);
+            $post['prices'] = $post['sum'];
+            $post['price'] = $this->priceCalculate($post);
             $cart = $this->prepareCartInfo($post);
             if (empty($cart)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
@@ -1536,17 +1537,25 @@ class Chains extends Object
     }
 
     /**
-     * @param $prices
+     * @param $post
      * @return mixed
      */
-    protected function priceCalculate($prices)
+    protected function priceCalculate($post)
     {
-        if (empty($prices)) {
+        if (empty($post['prices'])) {
             return 0;
         }
-        return array_reduce($prices, function ($carry, $item) {
-            return $carry + $item;
-        }, 0);
+        $result = 0;
+        foreach ($post['prices'] as $id => $value) {
+            $quantity = isset($price['quantity'][$id]) ? $price['quantity'][$id] : 1;
+            if ($post['discount_type'][$id] == 1) {
+                $price = $value * (1 - $post['discount'][$id] / 100);
+            } else {
+                $price = $value - $post['discount'][$id];
+            }
+            $result += $price * $quantity;
+        }
+        return $result;
     }
 
     /**
@@ -1557,7 +1566,8 @@ class Chains extends Object
     public function sold_items($post, $mod_id)
     {
         try {
-            $post['price'] = $this->priceCalculate($post['amount']);
+            $post['prices'] = $post['amount'];
+            $post['price'] = $this->priceCalculate($post);
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
