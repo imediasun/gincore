@@ -7,6 +7,7 @@
                 gen_tree();
             });
         </script>
+        <div class="hidden js-filters"><?= $saleOrdersFilters ?></div>
     </div>
 
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
@@ -30,7 +31,8 @@
                     <div class="form-group">
                         <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
                             <?= l('Создан') ?>: <?= do_nice_date($order['date_add']) ?>
-                        </small>&nbsp;
+                        </small>
+                        &nbsp;
                         <?php if ($order['np_accept'] == 1): ?>
                             <i title="<?= l('Принято через почту') ?>" class="fa fa-suitcase text-danger"></i>
                         <?php else: ?>

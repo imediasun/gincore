@@ -388,9 +388,9 @@ function login_logs()
     global $all_configs;
     // send report only if current hour equal 14 
     if (date('H') == 14) {
-        $isNeedSend = db()->query("SELECT `value` FROM {settings} WHERE `name`='need_send_login_log'")->el();
+        $isNeedSend = $all_configs['db']->query("SELECT `value` FROM {settings} WHERE `name`='need_send_login_log'")->el();
         if ($isNeedSend) {
-            $email = db()->query("SELECT `value` FROM {settings} WHERE `name`='email_for_send_login_log'",
+            $email = $all_configs['db']->query("SELECT `value` FROM {settings} WHERE `name`='email_for_send_login_log'",
                 array())->el();
             $objWriter = generate_xls_with_login_logs();
             $fileName = ini_get('upload_tmp_dir') . 'report.xls';
