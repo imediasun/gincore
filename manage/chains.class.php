@@ -2168,7 +2168,7 @@ class Chains extends Object
             }
             // транзакция
             $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
-                $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
+                $order, $mod_id, $contractor_category_link, $supplier_order_id, $post);
 
             $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
             $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
@@ -2194,7 +2194,6 @@ class Chains extends Object
      * @param $mod_id
      * @param $contractor_category_link
      * @param $supplier_order_id
-     * @param $supplier_order_id
      * @param $post
      * @return mixed
      */
@@ -2206,14 +2205,12 @@ class Chains extends Object
         $mod_id,
         $contractor_category_link,
         $supplier_order_id,
-        $supplier_order_id,
         $post
     ) {
         $item_id = $order && array_key_exists('item_id', $order) ? $order['item_id'] : null;
         $goods_id = $order && array_key_exists('goods_id', $order) ? $order['goods_id'] : null;
         $order_goods_id = $order && array_key_exists('order_goods_id', $order) ? $order['order_goods_id'] : null;
         $chain_id = $order && array_key_exists('chain_id', $order) ? $order['chain_id'] : null;
-
         // тип транзакции
         $type = isset($post['type']) && array_key_exists($post['type'], $this->transactions_types) ? $post['type'] : 0;
         // оплата комиссии
@@ -2291,6 +2288,7 @@ class Chains extends Object
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
                 || ($post['transaction_type'] == TRANSACTION_INPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to'])
+                || ($this->all_configs['suppliers_orders']->currency_suppliers_orders == $this->all_configs['suppliers_orders']->currency_clients_orders)
             ) {
 
                 if ($post['client_order_id'] > 0) {
