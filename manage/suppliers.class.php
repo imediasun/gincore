@@ -809,7 +809,9 @@ class Suppliers extends Object
                             . '' . $order['location'] . '</div>';
                     }
                     $info_html .= '</div><h4>' . l('Операции') . '</h4>';
-                    $info_html .= $this->all_configs['transactions']->get_transactions($this->currencies, false, null, true,
+
+                    $Transactions = new Transactions($this->all_configs);
+                    $info_html .= $Transactions->get_transactions($this->currencies, false, null, true,
                         array('supplier_order_id' => $order_id), false);
 
                     if ($order['sum_paid'] == 0 /*&& $order['count_come'] > 0*/ && $order['count_debit'] != $order['count_come']/* && $order['wh_id'] > 0*/) {
@@ -1843,7 +1845,8 @@ class Suppliers extends Object
                 array($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']))->el();
 
             // транзакция контрагенту и зачисление ему сумы
-            $this->all_configs['transactions']->add_contractors_transaction(
+            $Transactions = new Transactions($this->all_configs);
+            $Transactions->add_contractors_transaction(
                 array(
                     'transaction_type' => 2,
                     'value_to' => ($order['price'] / 100),

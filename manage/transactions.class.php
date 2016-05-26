@@ -30,7 +30,7 @@ class Transactions extends Object
     {
         $this->all_configs = $all_configs;
         $this->view = new View($all_configs);
-        $this->currency_suppliers_orders = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
+        $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
         $this->applyUses();
     }
 
@@ -123,7 +123,7 @@ class Transactions extends Object
      * @param bool  $return_array
      * @return array|string
      */
-    function get_transactions(
+    public function get_transactions(
         $currencies,
         $by_day = false,
         $limit = null,
@@ -280,15 +280,19 @@ class Transactions extends Object
                         IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0) as value_to, '
                 : 'SUM(IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0)) as value_from,
                             SUM(IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0)) as value_to, COUNT(t.id) as count_t, ')
-            . 't.cashboxes_currency_id_from, t.cashboxes_currency_id_to, cc.currency, cb.name, cc.id as c_id,
-                    cc.cashbox_id, ct.name as category_name, c.title as contractor_name, c.id as contractor_id,
+            . 't.cashboxes_currency_id_from, t.cashboxes_currency_id_to, 
+            if(not cc_from.currency is NULL, cc_from.currency, cc_to.currency) as currency, cb.name, 
+            if(not cc_from.id is NULL, cc_from.id,cc_to.id) as c_id,
+            if(not cc_from.cashbox_id is NULL, cc_from.cashbox_id,cc_to.cashbox_id) as cashbox_id,
+                    ct.name as category_name, c.title as contractor_name, c.id as contractor_id,
                     t.user_id, u.email, u.fio, t.supplier_order_id, t.client_order_id,
                     ' . ($contractors == true ?
                 't.transaction_id, t.item_id, IFNULL(t.supplier_order_id, UUID()) as unq_supplier_order_id' :
                 't.chain_id, IFNULL(t.client_order_id, UUID()) as unq_client_order_id') . '
                 FROM {' . ($contractors == false ? 'cashboxes_transactions' : 'contractors_transactions') . '} as t
-                LEFT JOIN (SELECT currency, id, cashbox_id FROM {cashboxes_currencies})cc ON (cc.id=t.cashboxes_currency_id_from || cc.id=t.cashboxes_currency_id_to)
-                LEFT JOIN (SELECT name, id FROM {cashboxes})cb ON cb.id=cc.cashbox_id
+                LEFT JOIN  `restore4_cashboxes_currencies` cc_from ON cc_from.id=t.cashboxes_currency_id_from
+                LEFT JOIN  `restore4_cashboxes_currencies` cc_to ON cc_to.id=t.cashboxes_currency_id_to
+                LEFT JOIN (SELECT name, id FROM {cashboxes})cb ON if(not cc_from.cashbox_id is NULL, cb.id=cc_from.cashbox_id, cb.id=cc_to.cashbox_id)
                 LEFT JOIN (SELECT id, contractors_categories_id, contractors_id FROM {contractors_categories_links})l ON l.id=t.contractor_category_link
                 LEFT JOIN (SELECT id, name FROM {contractors_categories})ct ON ct.id=l.contractors_categories_id
                 LEFT JOIN (SELECT id, title FROM {contractors})c ON c.id=l.contractors_id

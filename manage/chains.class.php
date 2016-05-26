@@ -1926,7 +1926,6 @@ class Chains extends Object
         return $data;
     }
 
-
     /**
      * @param      $post
      * @param null $mod_id
@@ -2239,7 +2238,9 @@ class Chains extends Object
             'date_transaction' => date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
             'user_id' => $user_id,
             'goods_id' => $goods_id,
-            '`type`' => $type
+            '`type`' => $type,
+            'cashboxes_currency_id_from' =>$cashboxes_currency_id_from,
+            'cashboxes_currency_id_to' =>$cashboxes_currency_id_to
         );
         if (!empty($supplier_order_id)) {
             $data['supplier_order_id'] = $supplier_order_id;
@@ -2255,12 +2256,6 @@ class Chains extends Object
         }
         if (!empty($item_id)) {
             $data['item_id'] = $item_id;
-        }
-        if (!empty($cashboxes_currency_id_from)) {
-            $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
-        }
-        if (!empty($cashboxes_currency_id_to)) {
-            $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
         }
         $transaction_id = $this->CashboxesTransactions->insert($data);
 
@@ -2342,8 +2337,9 @@ class Chains extends Object
                     $a = $this->create_transaction($transaction, $mod_id);
                 }
             } else {
+                $Transactions = new Transactions($this->all_configs);
                 // добавляем транзакцию контрагенту и обновляем суму у контрагента
-                $this->all_configs['transactions']->add_contractors_transaction(array(
+                $Transactions->add_contractors_transaction(array(
                     'transaction_type' => $post['transaction_type'],
                     'cashboxes_currency_id_from' => $cashboxes_currency_id_from,
                     'cashboxes_currency_id_to' => $cashboxes_currency_id_to,
