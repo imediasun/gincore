@@ -2885,7 +2885,10 @@ class accountings extends Controller
      */
     private function contractorEdit($data, $user_id, $mod_id)
     {
-        $data['state'] = true;
+        $data = array(
+            'state' => true,
+            'message' => ''
+        );
         $is_system = $this->all_configs['db']->query("SELECT id FROM {contractors} "
             . "WHERE id = ?i AND comment = 'system'", array($this->all_configs['arrequest'][2]), 'el');
         try {
@@ -2929,7 +2932,6 @@ class accountings extends Controller
                     $this->all_configs['db']->query('DELETE FROM {contractors_categories_links} WHERE contractors_id=?i
                                     AND contractors_categories_id=?i',
                         array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                    return array($data, $is_system, $ar);
                 }
             }
             // категории
@@ -2942,6 +2944,7 @@ class accountings extends Controller
                     }
                 }
             }
+            FlashMessage::set(l('Контрагент изменен'), FlashMessage::SUCCESS);
 
         } catch (ExceptionWithMsg $e) {
             $data = array(
