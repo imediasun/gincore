@@ -108,14 +108,14 @@ class Tariff
     {
         $session = Session::getInstance();
         if (!$session->check('last_check_tariff') || $session->get('last_check_tariff') < strtotime('-1 minutes')) {
-            $response = self::get($api, $host, array('act' => 'load'));
+//            $response = self::get($api, $host, array('act' => 'load'));
             if (empty($response) || !self::validate($response)) {
                 $response = array(
                     'id' => -1,
                     'name' => l('Стартовый'),
                     'start' => date('d-m-Y H:i'),
                     'period' => date('d-m-Y H:i', strtotime('+30 days')),
-                    'number_of_users' => 1,
+                    'number_of_users' => 10,
                     'number_of_orders' => 30
                 );
             }
@@ -157,6 +157,7 @@ class Tariff
      */
     public static function isAddOrderAvailable($api, $host)
     {
+        return true;
         $tariff = self::current();
         if (empty($tariff['start'])) {
             return false;

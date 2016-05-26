@@ -22,7 +22,7 @@ if(isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'set_l
 if (!isset($all_configs['arrequest'][1]) || $all_configs['arrequest'][1] != 'ajax') {
     try {
         $usersCount = db()->query('SELECT count(*) FROM {users} u WHERE deleted=0 AND blocked_by_tariff=0')->el();
-        $tariff = Tariff::load($all_configs['configs']['api_url'], $all_configs['configs']['host']);
+        $tariff = Tariff::load($all_configs['configs']['api_url'], $_SERVER['SERVER_NAME']);
         if (isset($tariff['number_of_users']) && $usersCount != $tariff['number_of_users']) {
             Tariff::blockUsers($tariff);
         }

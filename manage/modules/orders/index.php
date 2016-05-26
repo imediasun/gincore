@@ -1670,7 +1670,9 @@ class orders extends Controller
             'hide' => $this->getHideFieldsConfig(),
             'tags' => $this->getTags(),
             'returns' => $returns,
-            'deliveryByList' => $this->Orders->getDeliveryByList()
+            'deliveryByList' => $this->Orders->getDeliveryByList(),
+            'repairOrdersFilters' => $this->repair_orders_filters(true),
+            'saleOrdersFilters' => $this->sale_orders_filters(true),
         ));
     }
 

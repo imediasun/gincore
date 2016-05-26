@@ -33,10 +33,13 @@ class Suppliers extends Object
     {
         $this->all_configs = $all_configs;
         $this->view = new View($all_configs);
-        $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
         $this->currencies = $this->all_configs['configs']['currencies'];
-        $currencies = $this->currencies;
         $this->currency_clients_orders = $this->all_configs['settings']['currency_orders'];
+        $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
+        if(empty($this->currency_suppliers_orders)) {
+            $this->currency_suppliers_orders = $this->currency_clients_orders;
+        }
+
         $this->applyUses();
     }
 

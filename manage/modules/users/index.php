@@ -21,11 +21,12 @@ class users extends Controller
         'Settings',
         'UsersRolePermission'
     );
-
+    
     /**
-     * @inheritdoc
+     * @param $arrequest
+     * @return string
      */
-    public function routing(Array $arrequest)
+    public function withoutCheckPermission($arrequest)
     {
         /**
          * должно быть доступно всем юзерам, независимо от прав доступа
@@ -37,6 +38,14 @@ class users extends Controller
                 Response::json($data);
             }
         }
+        return '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function routing(Array $arrequest)
+    {
         $result = parent::routing($arrequest);
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'generate_log_file') {
             $this->generateLogFile();

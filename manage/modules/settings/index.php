@@ -95,7 +95,7 @@ class settings extends Controller
         );
         if (!empty($_GET['act']) && $_GET['act'] == 'show-tariff') {
             try {
-                $tariff = Tariff::load($this->all_configs['configs']['api_url'], $this->all_configs['configs']['host']);
+                $tariff = Tariff::load($this->all_configs['configs']['api_url'], $_SERVER['SERVER_NAME']);
                 $usersCount = db()->query('SELECT count(*) FROM {users} WHERE deleted=0 AND blocked_by_tariff=0')->el();
                 $orderCount = db()->query('SELECT count(*) FROM {orders} WHERE date_add > ?',
                     array($tariff['start']))->el();
