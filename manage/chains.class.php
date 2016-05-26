@@ -2343,7 +2343,7 @@ class Chains extends Object
                 }
             } else {
                 // добавляем транзакцию контрагенту и обновляем суму у контрагента
-                $this->all_configs['suppliers_orders']->add_contractors_transaction(array(
+                $this->all_configs['transactions']->add_contractors_transaction(array(
                     'transaction_type' => $post['transaction_type'],
                     'cashboxes_currency_id_from' => $cashboxes_currency_id_from,
                     'cashboxes_currency_id_to' => $cashboxes_currency_id_to,
