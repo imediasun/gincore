@@ -50,7 +50,6 @@ class Suppliers extends Object
      */
     function edit_order($mod_id, $post)
     {
-        $data = array('state' => true);
 
         $count = isset($post['warehouse-order-count']) && $post['warehouse-order-count'] > 0 ? $post['warehouse-order-count'] : 1;
         $supplier = isset($post['warehouse-supplier']) && $post['warehouse-supplier'] > 0 ? $post['warehouse-supplier'] : null;
@@ -156,6 +155,9 @@ class Suppliers extends Object
 
             // сообщение что типа сохранено
             $_SESSION['suppliers_edit_order_msg'] = l('Сохранено успешно');
+            $data = array(
+                'state' => true
+            );
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
