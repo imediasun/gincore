@@ -39,7 +39,9 @@
 <?php endif; ?>
 <script>
     jQuery(document).ready(function(){
-        $('.multiselect').multiselect();
+        $('.multiselect').multiselect({
+            buttonWidth: '150px'
+        });
         $("#tree").Tree();
     });
 </script>
