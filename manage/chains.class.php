@@ -1424,7 +1424,8 @@ class Chains extends Object
         try {
             $post['total_as_sum'] = 1;
             $post['sale_type'] = SALE_TYPE_ESHOP;
-            $post['price'] = $this->priceCalculate($post['sum']);
+            $post['prices'] = $post['sum'];
+            $post['price'] = $this->priceCalculate($post);
             $cart = $this->prepareCartInfo($post);
             if (empty($cart)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
@@ -1536,17 +1537,25 @@ class Chains extends Object
     }
 
     /**
-     * @param $prices
+     * @param $post
      * @return mixed
      */
-    protected function priceCalculate($prices)
+    protected function priceCalculate($post)
     {
-        if (empty($prices)) {
+        if (empty($post['prices'])) {
             return 0;
         }
-        return array_reduce($prices, function ($carry, $item) {
-            return $carry + $item;
-        }, 0);
+        $result = 0;
+        foreach ($post['prices'] as $id => $value) {
+            $quantity = isset($price['quantity'][$id]) ? $price['quantity'][$id] : 1;
+            if ($post['discount_type'][$id] == 1) {
+                $price = $value * (1 - $post['discount'][$id] / 100);
+            } else {
+                $price = $value - $post['discount'][$id];
+            }
+            $result += $price * $quantity;
+        }
+        return $result;
     }
 
     /**
@@ -1557,7 +1566,8 @@ class Chains extends Object
     public function sold_items($post, $mod_id)
     {
         try {
-            $post['price'] = $this->priceCalculate($post['amount']);
+            $post['prices'] = $post['amount'];
+            $post['price'] = $this->priceCalculate($post);
             if (empty($post['amount']) || ($post['price'] == 0)) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
             }
@@ -1916,7 +1926,6 @@ class Chains extends Object
         return $data;
     }
 
-
     /**
      * @param      $post
      * @param null $mod_id
@@ -1982,6 +1991,9 @@ class Chains extends Object
             }
             if (isset($post['amount_from']) && $post['transaction_type'] == TRANSACTION_INPUT) {
                 $post['amount_from'] = 0;
+            }
+            if(empty($post['amount_from']) && empty($post['amount_to'])) {
+                throw new ExceptionWithMsg(l('Сумма не может быть нулевой'));
             }
 
             // если транзакция на заказ поставщику
@@ -2080,12 +2092,28 @@ class Chains extends Object
                 throw new ExceptionWithMsg(l('Введите дату'));
             }
 
-            if ($client_order_id == 0 && (($post['transaction_type'] == TRANSACTION_OUTPUT
-                        && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
-                    || ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
-                && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
-            ) {
-                throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+            // если тип контрагента - поставщик 2
+            // сравниваем с валютой поставщиков
+
+            // если другой тип контрагента с валютой клиентов
+
+            if ($client_order_id == 0 && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)) {
+                $contractor = db()->query('SELECT * FROM {contractors} WHERE id=?i', array($post['contractors_id']))->row();
+                if ($contractor['type'] == CONTRACTOR_TYPE_PROVIDER) {
+                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from']) {
+                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+                    }
+                    if ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']) {
+                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+                    }
+                } else {
+                    if ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_clients_orders != $post['cashbox_currencies_to']) {
+                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_clients_orders]['name']);
+                    }
+                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && $this->all_configs['suppliers_orders']->currency_clients_orders != $post['cashbox_currencies_from']) {
+                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_clients_orders]['name']);
+                    }
+                }
             }
 
             if ($post['transaction_type'] == TRANSACTION_OUTPUT && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
@@ -2142,7 +2170,7 @@ class Chains extends Object
             }
             // транзакция
             $this->add_transaction($cashboxes_currency_id_from, $cashboxes_currency_id_to, $client_order_id,
-                $order, $mod_id, $contractor_category_link, $supplier_order_id, $supplier_order_id, $post);
+                $order, $mod_id, $contractor_category_link, $supplier_order_id, $post);
 
             $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
             $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
@@ -2168,7 +2196,6 @@ class Chains extends Object
      * @param $mod_id
      * @param $contractor_category_link
      * @param $supplier_order_id
-     * @param $supplier_order_id
      * @param $post
      * @return mixed
      */
@@ -2180,14 +2207,12 @@ class Chains extends Object
         $mod_id,
         $contractor_category_link,
         $supplier_order_id,
-        $supplier_order_id,
         $post
     ) {
         $item_id = $order && array_key_exists('item_id', $order) ? $order['item_id'] : null;
         $goods_id = $order && array_key_exists('goods_id', $order) ? $order['goods_id'] : null;
         $order_goods_id = $order && array_key_exists('order_goods_id', $order) ? $order['order_goods_id'] : null;
         $chain_id = $order && array_key_exists('chain_id', $order) ? $order['chain_id'] : null;
-
         // тип транзакции
         $type = isset($post['type']) && array_key_exists($post['type'], $this->transactions_types) ? $post['type'] : 0;
         // оплата комиссии
@@ -2213,7 +2238,9 @@ class Chains extends Object
             'date_transaction' => date("Y-m-d H:i:s", strtotime($post['date_transaction'])),
             'user_id' => $user_id,
             'goods_id' => $goods_id,
-            '`type`' => $type
+            '`type`' => $type,
+            'cashboxes_currency_id_from' =>$cashboxes_currency_id_from,
+            'cashboxes_currency_id_to' =>$cashboxes_currency_id_to
         );
         if (!empty($supplier_order_id)) {
             $data['supplier_order_id'] = $supplier_order_id;
@@ -2229,12 +2256,6 @@ class Chains extends Object
         }
         if (!empty($item_id)) {
             $data['item_id'] = $item_id;
-        }
-        if (!empty($cashboxes_currency_id_from)) {
-            $data['cashboxes_currency_id_from'] = $cashboxes_currency_id_from;
-        }
-        if (!empty($cashboxes_currency_id_to)) {
-            $data['cashboxes_currency_id_to'] = $cashboxes_currency_id_to;
         }
         $transaction_id = $this->CashboxesTransactions->insert($data);
 
@@ -2265,6 +2286,7 @@ class Chains extends Object
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
                 || ($post['transaction_type'] == TRANSACTION_INPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to'])
+                || ($this->all_configs['suppliers_orders']->currency_suppliers_orders == $this->all_configs['suppliers_orders']->currency_clients_orders)
             ) {
 
                 if ($post['client_order_id'] > 0) {
@@ -2315,8 +2337,9 @@ class Chains extends Object
                     $a = $this->create_transaction($transaction, $mod_id);
                 }
             } else {
+                $Transactions = new Transactions($this->all_configs);
                 // добавляем транзакцию контрагенту и обновляем суму у контрагента
-                $this->all_configs['suppliers_orders']->add_contractors_transaction(array(
+                $Transactions->add_contractors_transaction(array(
                     'transaction_type' => $post['transaction_type'],
                     'cashboxes_currency_id_from' => $cashboxes_currency_id_from,
                     'cashboxes_currency_id_to' => $cashboxes_currency_id_to,

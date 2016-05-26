@@ -156,19 +156,6 @@ class tasks
         $array = array();
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
-        /*
-          // допустимые валюты
-          $currencies = $this->all_configs['suppliers_orders']->currencies;
-
-          if ($act == 'contractors_transactions')
-          $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true, array(), true, true);
-          if ($act == 'cashboxes_transactions')
-          $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, false, array(), true, true);
-          if ($act == 'reports-turnover')
-          $array = $this->accountings_reports_turnover_array();
-          //if ($act == 'cashboxes_transactions')
-          //    $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, true, 30);
-         */
         include_once $this->all_configs['sitepath'] . 'shop/exports.class.php';
         $exports = new Exports();
         $exports->build($array);

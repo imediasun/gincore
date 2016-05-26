@@ -23,9 +23,15 @@ define('DELIVERY_BY_SELF', 1);
 define('DELIVERY_BY_COURIER', 2);
 define('DELIVERY_BY_POST', 3);
 
+define('CONTRACTOR_TYPE_CONTRACTOR', 1);
+define('CONTRACTOR_TYPE_PROVIDER', 2);
+define('CONTRACTOR_TYPE_BUYER', 3);
+define('CONTRACTOR_TYPE_EMPLOYER', 4);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';
+include_once 'transactions.class.php';
 
 include_once 'class_auth.php';
 

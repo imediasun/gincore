@@ -41,6 +41,12 @@ class accountings extends Controller
         'Clients'
     );
 
+    public function __construct(&$all_configs)
+    {
+        parent::__construct($all_configs);
+
+        $this->Transactions = new Transactions($this->all_configs);
+    }
     /**
      * @inheritdoc
      */
@@ -932,11 +938,11 @@ class accountings extends Controller
         $currencies = $this->all_configs['suppliers_orders']->currencies;
 
         if ($act == 'contractors_transactions') {
-            $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true, array(),
+            $array = $this->Transactions->get_transactions($currencies, false, null, true, array(),
                 true, true);
         }
         if ($act == 'cashboxes_transactions') {
-            $array = $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, false, array(),
+            $array = $this->Transactions->get_transactions($currencies, false, null, false, array(),
                 true, true);
         }
         if ($act == 'reports-turnover') {
@@ -1593,7 +1599,7 @@ class accountings extends Controller
             // фильтры
             $out = $this->transaction_filters();
             // списсок транзакций
-            $out .= $this->all_configs['suppliers_orders']->get_transactions($currencies);
+            $out .= $this->Transactions->get_transactions($currencies);
         }
 
         return array(
@@ -1643,7 +1649,7 @@ class accountings extends Controller
             $out .= $this->transaction_filters(true);
             $out .= $contractor_html;
             // списсок транзакций
-            $out .= $this->all_configs['suppliers_orders']->get_transactions($currencies, false, null, true);
+            $out .= $this->Transactions->get_transactions($currencies, false, null, true);
         }
 
         return array(

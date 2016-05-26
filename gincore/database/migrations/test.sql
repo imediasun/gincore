@@ -108,3 +108,8 @@ ALTER TABLE `restore4_orders` ADD COLUMN delivery_to VARCHAR (255) DEFAULT '';
 2016_05_12_101324_add_discount_type_field_to_orders_goods.php
  */
 ALTER TABLE `restore4_orders_goods` ADD COLUMN discount_type int(10) UNSIGNED DEFAULT 1;
+/**
+2016_05_25_083531_remove_on_update.ph
+ */
+ALTER TABLE `restore4_warehouses_goods_items`
+    CHANGE `date_add` `date_add` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

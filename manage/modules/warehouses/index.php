@@ -392,6 +392,9 @@ class warehouses
             }
             if (isset($_POST['location']) && is_array($_POST['location'])) {
                 foreach ($_POST['location'] as $location) {
+                    if(empty($location)) {
+                        continue;
+                    }
                     $location_id = $this->all_configs['db']->query(
                         'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
                         array($post['warehouse-id'], trim($location)), 'id');
@@ -456,6 +459,8 @@ class warehouses
                 } catch (Exception $e) {
                 }
             }
+        } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $this->warehouseDelete($_POST);
         }
 
         // чистим кеш складов
@@ -1923,7 +1928,7 @@ class warehouses
                 $warehouses_groups .= '<option ' . $selected . ' value="' . $group['id'] . '">' . $group['name'] . '</option>';
             }
 
-            $btn = "<input type='hidden' name='warehouse-id' value='{$warehouse['id']}' /><input type='submit' class='btn' name='warehouse-edit' value='" . l('Редактировать') . "' />";
+            $btn = "<input type='hidden' name='warehouse-id' value='{$warehouse['id']}' /><input type='submit' class='btn' name='warehouse-edit' value='" . l('Редактировать') . "' /><input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete' value='" . l('Удалить') . "' />";
             $accordion_title = l('Редактировать склад') . ' "' . $warehouse['title'] . '"';
             $title = htmlspecialchars($warehouse['title']);
             $code_1c = htmlspecialchars($warehouse['code_1c']);
@@ -1945,7 +1950,11 @@ class warehouses
         $warehouses_types .= '</select>';
         $warehouses_groups .= '</select>';
 
-        $warehouses_locations .= '<input type="text" name="location[]" class="form-control" required>';
+        if(empty($warehouse)) {
+            $warehouses_locations .= '<input type="text" name="location[]" class="form-control" required>';
+        } else {
+            $warehouses_locations .= '<input type="text" name="location[]" class="form-control">';
+        }
         $onclick = '$(\'<input>\').attr({type: \'text\', name: \'location[]\', class: \'form-control\'}).insertBefore(this);';
         $warehouses_locations .= '<i onclick="' . $onclick . '" class="glyphicon glyphicon-plus cursor-pointer"></i>';
 
@@ -2620,5 +2629,43 @@ class warehouses
                 'name' => l('Настройки')
             ),
         );
+    }
+
+    /**
+     * @param $post
+     * @return bool
+     */
+    private function warehouseDelete($post)
+    {
+        $warehouseId = $post['warehouse-id'];
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE wh_id=?i OR accept_wh_id=?i', array($warehouseId, $warehouseId))->el();
+        if($count > 0) {
+        FlashMessage::set(l('Не возможно удалить склад, привязаны заказы'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE wh_id=?i', array($warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, имеются товары'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_users} WHERE wh_id=?i', array($warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны пользователи'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE wh_id=?i', array($warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны заказы поставщикам'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {chains} WHERE from_wh_id=?i OR to_wh_id=?i', array($warehouseId, $warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны транзакции'), FlashMessage::DANGER);
+            return false;
+        }
+        $this->all_configs['db']->query('DELETE FROM {warehouses_locations} WHERE wh_id=?i', array($warehouseId));
+        $this->all_configs['db']->query('DELETE FROM {warehouses} WHERE id=?i', array($warehouseId));
+        FlashMessage::set(l('Склад удален'), FlashMessage::SUCCESS);
+        return true;
     }
 }

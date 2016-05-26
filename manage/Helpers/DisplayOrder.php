@@ -119,7 +119,6 @@ class DisplayOrder extends Helper
      */
     public function getCommentsTooltip($orderId)
     {
-
         $comments = $this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
                 FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
                 WHERE oc.order_id=?i AND oc.private=1 ORDER BY oc.date_add DESC', array($orderId))->assoc();
@@ -131,6 +130,5 @@ class DisplayOrder extends Helper
             }
         }
         return $tooltip;
-
     }
 }

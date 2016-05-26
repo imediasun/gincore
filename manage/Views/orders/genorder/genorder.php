@@ -7,6 +7,7 @@
                 gen_tree();
             });
         </script>
+        <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
     </div>
 
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
@@ -32,7 +33,8 @@
                         <div class="form-group center">
                             <small style="font-size:10px" title="<?= do_nice_date($order['date_add'], false) ?>">
                                 <?= l('Принят') ?>: <?= do_nice_date($order['date_add']) ?>
-                            </small>&nbsp;
+                            </small>
+                            &nbsp;
                             <?php if (mb_strlen($order['courier'], 'UTF-8') > 0): ?>
                                 <i style="color:<?= $color ?>;" title="<?= l('Курьер забрал устройство у клиента') ?>"
                                    class="fa fa-truck"></i>

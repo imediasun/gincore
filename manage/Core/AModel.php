@@ -68,10 +68,10 @@ abstract class AModel extends Object
                 case is_numeric($value):
                     $placeholders[] = '?i';
                     break;
-                case $value == 'null':
+                case $value === 'null':
                     $placeholders[] = '?q';
                     break;
-                case empty($value):
+                case $value === null:
                     $placeholders[] = '?n';
                     break;
                 default:
@@ -134,6 +134,26 @@ abstract class AModel extends Object
             return false;
         }
         return $this->query('UPDATE ?t SET ?q=?q+? WHERE ?q', array(
+            $this->table,
+            $field,
+            $field,
+            $value,
+            $this->makeConditionsQuery($conditions)
+        ))->ar();
+    }
+
+    /**
+     * @param        $field
+     * @param        $value
+     * @param string $conditions
+     * @return bool|int
+     */
+    public function decrease($field, $value, $conditions = '1=1')
+    {
+        if(!in_array($field, $this->columns())) {
+            return false;
+        }
+        return $this->query('UPDATE ?t SET ?q=?q-? WHERE ?q', array(
             $this->table,
             $field,
             $field,
