@@ -131,6 +131,9 @@ class Tariff
      */
     public static function isAddUserAvailable($api, $host)
     {
+        if (DEBUG) {
+            return true;
+        }
         try {
             $response = self::get($api, $host, array(
                 'act' => 'add_user_available',
@@ -157,6 +160,9 @@ class Tariff
      */
     public static function isAddOrderAvailable($api, $host)
     {
+        if (DEBUG) {
+            return true;
+        }
         $tariff = self::current();
         if (empty($tariff['start'])) {
             return false;
