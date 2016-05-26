@@ -16,7 +16,7 @@ abstract class Controller extends Object
     protected $mod_submenu;
     /** @var View */
     protected $view;
-    /** @var MHistory  */
+    /** @var MHistory */
     protected $History;
     public $uses = array();
 
@@ -27,6 +27,15 @@ abstract class Controller extends Object
     abstract public function can_show_module();
 
     abstract public function gencontent();
+
+    /**
+     * @param $arrequest
+     * @return string
+     */
+    public function withoutCheckPermission($arrequest)
+    {
+        return '';
+    }
 
     /**
      * @param array $arrequest
@@ -42,7 +51,7 @@ abstract class Controller extends Object
         if (count($_POST) > 0) {
             return $this->check_post($_POST);
         }
-        
+
         return $this->check_get($_GET);
     }
 
@@ -71,16 +80,19 @@ abstract class Controller extends Object
      */
     public function render()
     {
+        $result = $this->withoutCheckPermission($this->all_configs['arrequest']);
+        
         if (!$this->can_show_module()) {
             if ($this->isAjax($this->all_configs['arrequest'])) {
                 Response::json(array('message' => l('У Вас не достаточно прав'), 'state' => false));
             } else {
-                return  $this->renderCanShowModuleError();
+                return $this->renderCanShowModuleError();
             }
         }
 
-
-        $result = $this->routing($this->all_configs['arrequest']);
+        if (empty($result)) {
+            $result = $this->routing($this->all_configs['arrequest']);
+        }
 
         if (empty($result)) {
             $result = $this->gencontent();
