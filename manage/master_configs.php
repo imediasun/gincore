@@ -502,7 +502,7 @@ class Configs
             'onec-watermark' => true,
             // водяной знак при загрузке товаров кроном
 
-            'host' => '192.168.1.2',
+            'host' => $_SERVER['SERVER_NAME'],
 
             'users-manage-page' => 1,
             // для таблицы изменений, модуль администраторы
