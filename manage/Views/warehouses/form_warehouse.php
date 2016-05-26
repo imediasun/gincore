@@ -78,6 +78,7 @@
                     <?php else: ?>
                         <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
                         <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Редактировать') ?>'/>
+                        <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete' value='<?= l('Удалить') ?>' />
                     <?php endif; ?>
                 </div>
             </form>

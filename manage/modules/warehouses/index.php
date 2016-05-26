@@ -192,6 +192,9 @@ class warehouses extends Controller
             }
             if (isset($_POST['location']) && is_array($_POST['location'])) {
                 foreach ($_POST['location'] as $location) {
+                    if(empty($location)) {
+                        continue;
+                    }
                     $location_id = $this->all_configs['db']->query(
                         'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
                         array($post['warehouse-id'], trim($location)), 'id');
@@ -256,6 +259,8 @@ class warehouses extends Controller
                 } catch (Exception $e) {
                 }
             }
+        } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $this->warehouseDelete($_POST);
         }
 
         // чистим кеш складов
@@ -1930,7 +1935,7 @@ class warehouses extends Controller
      * @param $inv
      * @return mixed
      */
-    private function getInventories($inv)
+    public function getInventories($inv)
     {
         $_inventories = $this->all_configs['db']->query('SELECT w.title as wtitle, inv.wh_id as inv_wh_id,
                               i.order_id, i.wh_id, i.id as item_id, invj.date_scan, i.serial, u.email, u.login, u.fio, i.price
@@ -1950,7 +1955,7 @@ class warehouses extends Controller
      * @param $query_for_noadmin
      * @return mixed
      */
-    private function getItemHistory($product, $query_for_noadmin)
+    public function getItemHistory($product, $query_for_noadmin)
     {
         $item_history = $this->all_configs['db']->query('SELECT m.item_id, m.date_move, m.user_id, m.wh_id,
                               m.comment, w.title, u.fio, u.email, m.order_id, l.location
@@ -1965,7 +1970,7 @@ class warehouses extends Controller
      * @param $product
      * @return mixed
      */
-    private function getWarehousesItems($product)
+    public function getWarehousesItems($product)
     {
         $items = $this->all_configs['db']->query('SELECT i.id as item_id, serial, i.price,
                                           i.date_add, ct.title, w.title as wtitle, i.order_id
@@ -1981,12 +1986,50 @@ class warehouses extends Controller
      * @param $product
      * @return mixed
      */
-    private function getFilteredItems($product)
+    public function getFilteredItems($product)
     {
         $items = $this->all_configs['db']->query('SELECT COUNT(i.id) as count, SUM(i.price) as sum
                                         FROM {warehouses_goods_items} as i
                                         WHERE i.goods_id=?i AND i.wh_id IN (?li)',
             array($product['goods_id'], explode(',', $_GET['whs'])))->row();
         return $items;
+    }
+
+    /**
+     * @param $post
+     * @return bool
+     */
+    private function warehouseDelete($post)
+    {
+        $warehouseId = $post['warehouse-id'];
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE wh_id=?i OR accept_wh_id=?i', array($warehouseId, $warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны заказы'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE wh_id=?i', array($warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, имеются товары'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_users} WHERE wh_id=?i', array($warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны пользователи'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE wh_id=?i', array($warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны заказы поставщикам'), FlashMessage::DANGER);
+            return false;
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {chains} WHERE from_wh_id=?i OR to_wh_id=?i', array($warehouseId, $warehouseId))->el();
+        if($count > 0) {
+            FlashMessage::set(l('Не возможно удалить склад, привязаны транзакции'), FlashMessage::DANGER);
+            return false;
+        }
+        $this->all_configs['db']->query('DELETE FROM {warehouses_locations} WHERE wh_id=?i', array($warehouseId));
+        $this->all_configs['db']->query('DELETE FROM {warehouses} WHERE id=?i', array($warehouseId));
+        FlashMessage::set(l('Склад удален'), FlashMessage::SUCCESS);
+        return true;
     }
 }
