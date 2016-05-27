@@ -5,7 +5,7 @@ use Monolog\Handler\StreamHandler;
 
 class Log
 {
-    public static $log = array();
+    protected static $logs = array();
 
     /**
      * @param string $file
@@ -16,11 +16,11 @@ class Log
         if (empty($file)) {
             $file = __DIR__ . '/../../logs/error.log';
         }
-        if (empty(self::$log[$file])) {
-            self::$log[$file] = new Logger('app');
-            self::$log[$file]->pushHandler(new StreamHandler($file, Logger::WARNING));
+        if (empty(self::$logs[$file])) {
+            self::$logs[$file] = new Logger('app');
+            self::$logs[$file]->pushHandler(new StreamHandler($file, Logger::WARNING));
         }
-        return self::$log[$file];
+        return self::$logs[$file];
     }
 
     /**

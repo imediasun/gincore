@@ -2281,7 +2281,6 @@ class Chains extends Object
                 || (!isset($post['client_order_id']) || $post['client_order_id'] == 0))
             && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
         ) {
-
             if (($post['transaction_type'] == TRANSACTION_OUTPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
                 || ($post['transaction_type'] == TRANSACTION_INPUT
@@ -2336,7 +2335,8 @@ class Chains extends Object
                     // транзакция выдачи/внесения
                     $a = $this->create_transaction($transaction, $mod_id);
                 }
-            } else {
+            }
+            if($post['contractors_id'] > 0) {
                 $Transactions = new Transactions($this->all_configs);
                 // добавляем транзакцию контрагенту и обновляем суму у контрагента
                 $Transactions->add_contractors_transaction(array(
