@@ -95,4 +95,4 @@
     <p class="text-error"><?= l('Нет касс') ?></p>
 <?php endif; ?>
 
-<?= $this->all_configs['suppliers_orders']->get_transactions($currencies, true, 30); ?>
+<?= $controller->Transactions->get_transactions($currencies, true, 30); ?>

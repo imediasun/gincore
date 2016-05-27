@@ -31,6 +31,7 @@ define('CONTRACTOR_TYPE_EMPLOYER', 4);
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';
+include_once 'transactions.class.php';
 
 include_once 'class_auth.php';
 

@@ -1,5 +1,5 @@
 <?php if ($showWrapper): ?>
-    <div>
+    <div style="z-index: 1">
 <?php endif; ?>
     <div class="<?= $compact ? 'input-group' : 'form-group' ?>">
         <?php if (!$compact): ?>
