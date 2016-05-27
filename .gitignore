@@ -9,3 +9,4 @@ nbproject/
 /manage/assets/*.js
 /manage/assets/*.css
 /manage/services/wh_helper/cache/
+/logs/*.log

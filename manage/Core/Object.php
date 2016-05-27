@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/Exceptions.php';
+require_once __DIR__ . '/Log.php';
 
 abstract class Object
 {
