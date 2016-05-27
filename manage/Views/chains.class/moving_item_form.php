@@ -30,10 +30,10 @@
         <?php if ($item_id === null): ?>
             <div class="form-group"><label>Количество:</label>
                 <input class="form-control" type="text" maxlength="2" placeholder="Количество" name="count"
-                       onkeydown="return isNumberKey(event)" value="1"/>';
+                       onkeydown="return isNumberKey(event)" value="1"/>
             </div>
-            <div class="form-group"><label>Склад откуда:</label>';
-                <select class="select-warehouses-item-move form-control" name="wh_id">';
+            <div class="form-group"><label>Склад откуда:</label>
+                <select class="select-warehouses-item-move form-control" name="wh_id">
                     <?= $controller->get_options_for_move_item_form($with_logistic); ?>
                 </select></div>
         <?php endif; ?>

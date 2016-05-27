@@ -2,11 +2,7 @@
     <div class='panel-heading'>
         <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses'
            href='#collapse_warehouse_<?= $i ?>'>
-            <?php if (empty($warehouse)): ?>
-                <?= l('Создать склад'); ?>
-            <?php else: ?>
-                <?= l('Редактировать склад') . ' ' . $warehouse['title'] ?>
-            <?php endif; ?>
+            <?= l('Создать склад'); ?>
         </a>
     </div>
     <div id='collapse_warehouse_<?= $i ?>' class='panel-body collapse <?= $i == 1 ? 'in' : '' ?>'>
@@ -15,13 +11,13 @@
                 <div class='form-group'>
                     <label><?= l('Название') ?>: </label>
                     <input placeholder='<?= l(' введите название') ?>' class='form-control' name='title'
-                           value='<?= empty($warehouse) ? '' : h($warehouse['title']) ?>' required/>
+                           value='' required/>
                 </div>
                 <div class='form-group'>
                     <div class='checkbox'>
                         <label>
                             <input
-                                data-consider='<?= $i ?>' <?= empty($warehouse) || $warehouse['consider_store'] == 1 ? 'checked' : '' ?>
+                                data-consider='<?= $i ?>'
                                 type='checkbox'
                                 onclick='consider(this, "<?= $i ?>")' class='btn consider_<?= $i ?>'
                                 name='consider_store' value='1'/>
@@ -30,10 +26,9 @@
                     </div>
                     <div class='checkbox'>
                         <label>
-                            <input <?= empty($warehouse) || $warehouse['consider_all'] == 1 ? 'checked' : '' ?>
-                                type='checkbox' class='btn consider_<? $i ?>'
-                                onclick='consider(this, "<?= $i ?>")' name='consider_all'
-                                value='1'/>
+                            <input type='checkbox' class='btn consider_<? $i ?>'
+                                   onclick='consider(this, "<?= $i ?>")' name='consider_all'
+                                   value='1'/>
                             <?= l('Учитывать в общем остатке') ?>
                         </label>
                     </div>
@@ -59,12 +54,12 @@
                     <label>
                         <?= l('Адрес для квитанции') ?>: </label>
                     <input class='form-control' name='print_address'
-                           value='<?= !empty($warehouse) ? h($warehouse['print_address']) : '' ?>'/>
+                           value=''/>
                 </div>
                 <div class='form-group'>
                     <label> <?= l('Телефон для квитанции') ?>: </label>
                     <input class='form-control' name='print_phone'
-                           value='<?= !empty($warehouse) ? h($warehouse['print_phone']) : '' ?>'/>
+                           value=''/>
                 </div>
                 <div class='form-group'>
                     <label><?= l('Локации') ?>: </label>
@@ -74,14 +69,7 @@
                 </div>
                 <div class='form-group'>
                     <?php if (!isset($isModal)): ?>
-                        <?php if (empty($warehouse)): ?>
-                            <input type='submit' class='btn' name='warehouse-add' value='<?= l('Создать') ?>'/>
-                        <?php else: ?>
-                            <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
-                            <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Редактировать') ?>'/>
-                            <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
-                                   value='<?= l('Удалить') ?>'/>
-                        <?php endif; ?>
+                        <input type='submit' class='btn' name='warehouse-add' value='<?= l('Создать') ?>'/>
                     <?php endif; ?>
                 </div>
             </form>

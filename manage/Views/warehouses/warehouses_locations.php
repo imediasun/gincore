@@ -1,5 +1,5 @@
 <?php if (!empty($locations)): ?>
-    <?php foreach ($warehouse['locations'] as $location_id => $location): ?>
+    <?php foreach ($locations as $location_id => $location): ?>
         <input type="text" class="form-control" value="<?= h($location) ?>" name="location-id[<?= $location_id ?>]">
     <?php endforeach; ?>
     <input type="text" name="location[]" class="form-control">

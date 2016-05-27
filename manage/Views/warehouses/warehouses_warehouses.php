@@ -1,37 +1,32 @@
-<div class="well"><?= l('Всего') ?>:
-    <?php if ($this->all_configs['oRole']->hasPrivilege('logistics')): ?>
-        <?= $cost_of['cur_price'] ?> (<?= $cost_of['html'] ?>),
-    <?php endif; ?>
-    <?= $cost_of['count'] ?> <?= l('шт.') ?>
-</div>';
-<?= $filters ?>
+<div class="bordered" style="padding: 0">
+    <div class="well"
+         style="border-radius: 0; border-top: none; border-left: none; border-right: none"><?= l('Всего') ?>:
+        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics')): ?>
+            <?= $cost_of['cur_price'] ?>
+            <?php if ($cost_of['cur_price'] != $cost_of['html']): ?>
+                (<?= $cost_of['html'] ?>),
+            <?php endif; ?>
+        <?php endif; ?>
+        <?= $cost_of['count'] ?> <?= l('шт.') ?>
+    </div>
+    <div style="margin:15px">
+        <?= $filters ?>
+    </div>
+</div>
 <div id="warehouses_content">
     <?php if (!empty($warehouses)): ?>
-        <div class="pull-left vertical-line"></div>
         <?php $i = 0; ?>
         <?php foreach ($warehouses as $warehouse): ?>
-            <div class="show_warehouse">
-                <h5>
-                    <a class="hash_link"
-                       href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?whs=<?= $warehouse['id'] ?>#show_items">
-                        <?= $warehouse['title'] ?>
-                    </a>
-                    <?= (!$i ? InfoPopover::getInstance()->createOnLoad('l_warehouses_title_info') : '') ?>
-                    <?= print_link(array_keys($warehouse['locations']), 'location'); ?>
-                </h5>
-                <div><?= l('Общий остаток') ?>: <?= intval($warehouse['sum_qty']) ?> <?= l('шт.') ?></div>
-                <?php if ($this->all_configs['oRole']->hasPrivilege('logistics')): ?>
-                    <div>
-                        <?= l('Общая сумма') ?>:
-                        <?= $controller->show_price($warehouse['all_amount'], 2,
-                            getCourse($this->all_configs['settings']['currency_suppliers_orders'])); ?>
-                        <?= viewCurrency() ?>
-                        (<?= $this->show_price($warehouse['all_amount']) . viewCurrencySuppliers() ?> )
-                    </div>
-                <?php endif; ?>
-            </div>
-            <div class="pull-left vertical-line"></div>
+            <?= $this->renderFile('warehouses/warehouse', array(
+                'warehouse' => $warehouse,
+                'controller' => $controller,
+                'i' => $i
+            )); ?>
             <?php $i++; ?>
         <?php endforeach; ?>
     <?php endif; ?>
+    <div class="add-warehouse-table" onclick="alert_box(this, false, 'create-warehouse')" data-toggle="tooltip"
+         data-placement="top" title="<?= l('Добавить склад') ?>">
+        <img src="<?= $prefix ?>img/add_new_cashbox.png">
+    </div>
 </div>

@@ -7,7 +7,7 @@
                 <li><a href="#comments" data-toggle="tab"><?= l('Комментарии') ?></a></li>
             </ul>
             <div class="tab-content">
-                <div id="review" class="tab-pane active">';
+                <div id="review" class="tab-pane active">
                     <div class="control-group">
                         <label class="control-label"><?= l('Клиент') ?>: </label>
                         <div class="controls">
@@ -51,7 +51,7 @@
                     <div class="control-group">
                         <label class="control-label"><?= l('Рейтинг') ?>: </label>
                         <div class="controls">
-                            <select name="rating" class="span5">';
+                            <select name="rating" class="span5">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
                                     <?php if ($review['rating'] == $i): ?>
                                         <option value="<?= $i ?>" selected><?= $i ?></option>
