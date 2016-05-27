@@ -748,7 +748,7 @@ class Transactions extends Object
                     if ($transaction['client_order_id'] > 0) {
                         $out[$transaction_id]['Заказ клиента'] = $transaction['client_order_id'];
                     }
-                    $out[$transaction_id]['Заказ поставщика'] = ($transaction['supplier_order_id'] > 0 ? $this->all_configs['suppliers_orders']->supplier_order_number(array('id' => $transaction['supplier_order_id'])) : '');
+                    $out[$transaction_id]['Заказ поставщика'] = ($transaction['supplier_order_id'] > 0 ? $this->supplier_order_number(array('id' => $transaction['supplier_order_id'])) : '');
                     if ($contractors == true) {
                         $out[$transaction_id]['Транзакция'] = $transaction['transaction_id'];
                         $out[$transaction_id]['Доход'] = (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931; ') . $inc;
@@ -992,7 +992,7 @@ class Transactions extends Object
                         $out .= '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/create/' . $transaction['client_order_id'] . '">№' . $transaction['client_order_id'] . '</a>';
                     }
                     $out .= '</td>';
-                    $out .= '<td>' . ($transaction['supplier_order_id'] > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/edit/' . $transaction['supplier_order_id'] . '#create_supplier_order">' . $this->all_configs['suppliers_orders']->supplier_order_number(array('id' => $transaction['supplier_order_id'])) . '</a>' : '') . '</td>';
+                    $out .= '<td>' . ($transaction['supplier_order_id'] > 0 ? '<a class="hash_link" href="' . $this->all_configs['prefix'] . 'orders/edit/' . $transaction['supplier_order_id'] . '#create_supplier_order">' . $this->supplier_order_number(array('id' => $transaction['supplier_order_id'])) . '</a>' : '') . '</td>';
                     if ($contractors == true) {
                         $out .= '<td><a class="hash_link" href="' . $this->all_configs['prefix'] . 'accountings?t_id=' . $transaction['transaction_id'] . '#transactions-cashboxes">' . $transaction['transaction_id'] . '</td>';
                         $out .= '<td>' . (((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2) ? '' : '&#931;&nbsp;') . $inc . '</td>';
@@ -1066,5 +1066,38 @@ class Transactions extends Object
         }
 
         return $out;
+    }
+
+    /**
+     * @param      $order
+     * @param null $title
+     * @param bool $link
+     * @return null|string
+     */
+    function supplier_order_number($order, $title = null, $link = true)
+    {
+        if (!array_key_exists('parent_id', $order) || !array_key_exists('number', $order) || !array_key_exists('num',
+                $order)
+        ) {
+            $order = $this->all_configs['db']->query('SELECT number, parent_id, id, num FROM {contractors_suppliers_orders} WHERE id=?i',
+                array($order['id']))->row();
+        }
+        $number = ($order['parent_id'] > 0 && $order['parent_id'] != $order['id']) ? $order['parent_id'] . '/' . $order['number'] : $order['num'];
+
+        if ($number != $order['id']) {
+            $out = $number . ' (' . $order['id'] . ')';
+        } else {
+            $out = $order['id'];
+        }
+        if (!$title) {
+            $title = '№' . $out;
+        }
+
+        if ($link == true) {
+            $href = $this->all_configs['prefix'] . 'orders/edit/' . $order['id'] . '#create_supplier_order';
+            return '<a class="hash_link" href="' . $href . '">' . $title . '</a>';
+        } else {
+            return $title;
+        }
     }
 }
