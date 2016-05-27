@@ -2285,7 +2285,6 @@ class Chains extends Object
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
                 || ($post['transaction_type'] == TRANSACTION_INPUT
                     && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to'])
-                || ($this->all_configs['suppliers_orders']->currency_suppliers_orders == $this->all_configs['suppliers_orders']->currency_clients_orders)
             ) {
 
                 if ($post['client_order_id'] > 0) {
@@ -2335,8 +2334,36 @@ class Chains extends Object
                     // транзакция выдачи/внесения
                     $a = $this->create_transaction($transaction, $mod_id);
                 }
-            }
-            if($post['contractors_id'] > 0) {
+            } elseif ( $this->all_configs['suppliers_orders']->currency_suppliers_orders == $this->all_configs['suppliers_orders']->currency_clients_orders &&$post['client_order_id'] > 0 ) {
+                $amount_from = $order['course_value'] > 0 ? $post['amount_from'] / ($order['course_value'] / 100) : 0;
+                $amount_to = $order['course_value'] > 0 ? $post['amount_to'] / ($order['course_value'] / 100) : 0;
+                $post['contractor_category_id_from'] = isset($post['contractor_category_id_from']) ? $post['contractor_category_id_from'] : '';
+                $post['contractor_category_id_to'] = isset($post['contractor_category_id_to']) ? $post['contractor_category_id_to'] : '';
+                $transaction = $post;
+                if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
+                    $transaction['type'] = 4;
+                    $transaction['transaction_type'] = TRANSACTION_INPUT;
+                    //$transaction['comment'] = 'Списание с баланса контрагента, ' . date("Y-m-d H:i:s");
+                } else {
+                    $transaction['type'] = 3;
+                    $transaction['transaction_type'] = TRANSACTION_OUTPUT;
+                    //$transaction['comment'] = 'На баланса контрагента, ' . date("Y-m-d H:i:s");
+                }
+                $transaction['comment'] = 'Списание с баланса контрагента, за заказ ' . $client_order_id . ', ' . date("Y-m-d H:i:s");
+                $transaction['cashbox_currencies_from'] = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
+                $transaction['cashbox_currencies_to'] = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
+                $transaction['amount_from'] = $amount_to;
+                $transaction['amount_to'] = $amount_from;
+                $transaction['cashbox_from'] = $this->all_configs['configs']['erp-cashbox-transaction'];
+                $transaction['cashbox_to'] = $this->all_configs['configs']['erp-cashbox-transaction'];
+                $transaction['client_order_id'] = 0;
+                $transaction['_client_order_id'] = $client_order_id;
+                $transaction['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_return_id_from'];
+                $transaction['contractor_category_id_from'] = $this->all_configs['configs']['erp-co-contractor_category_return_id_to'];
+
+                // транзакция выдачи/внесения
+                $a = $this->create_transaction($transaction, $mod_id);
+            } else {
                 $Transactions = new Transactions($this->all_configs);
                 // добавляем транзакцию контрагенту и обновляем суму у контрагента
                 $Transactions->add_contractors_transaction(array(
