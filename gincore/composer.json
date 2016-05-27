@@ -8,7 +8,8 @@
         "php": ">=5.5.9",
         "laravel/framework": "5.2.*",
         "kriswallsmith/assetic": "v1.3.2",
-        "rmccue/requests": "v1.6.1"
+        "rmccue/requests": "v1.6.1",
+        "google/apiclient": "^2.0.0@RC"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

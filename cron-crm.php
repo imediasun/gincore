@@ -1,6 +1,9 @@
 <?php
-
+/*
 error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL & ~E_NOTICE);
+ini_set('display_errors', 1);
+*/
 
 ################################################################################
 ################################################################################
@@ -37,18 +40,23 @@ require_once 'manage/core_langs.php';
 set_time_limit(14400); // 4 часа
 $date_begin = date("Y-m-d H:i:s");
 $error = '';
-$all_configs = all_configs();
 $db = $all_configs['db'];
+
+$profileId = $all_configs['settings']['ga-profile-id'];
+//$profileId = 116363778;//72717248; //из #report/visitors-overview/a41153725w70527458p72717248/
 
 $act = isset($_GET['act']) ? $_GET['act'] : '';
 
+error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL & ~E_NOTICE);
+ini_set('display_errors', 1);
 
 switch($act){
 
     // достаем аналитику с гугла
     case 'crm_ga_analitics':
         
-        $date_first = '2015-08-03'; // дата старта
+        $date_first = date("Y-m-d", strtotime('-1 month')); //'2015-08-03'; // дата старта
 
         // каждый день начиная с даты старта кроме тех дней что уже спарсены
         $dates = $db->query('SELECT date FROM (
@@ -70,7 +78,6 @@ switch($act){
 
             // гугл настройки
             $analytics = getService();
-            $profileId = 72717248; //из #report/visitors-overview/a41153725w70527458p72717248/
             
             $metrics = array(
                 'ga:users',
@@ -140,12 +147,10 @@ switch($act){
     case 'crm_ga_discount_code':
         
         //$date = '2015-08-03'; // дата старта - вчера
-        //$date = date("Y-m-d");
         $date = date("Y-m-d", strtotime('-1 day'));
         
                 // гугл настройки
         $analytics = getService();
-        $profileId = 72717248; //из #report/visitors-overview/a41153725w70527458p72717248/
         
             $metrics = array(
 //                'ga:users',
@@ -290,22 +295,27 @@ function get_referer_id($referers, $network){
 
 function getService()
 {
+    
+    global $all_configs;
+    
     // Creates and returns the Analytics service object.
     // Load the Google API PHP Client Library.
     require_once 'src/google-api-php-client/src/Google/autoload.php';
 
     // Use the developers console and replace the values with your
     // service account email, and relative location of your key file.
-    $service_account_email = '922219840654-i6nvdprgvehl9jslb62684r1afkt6ors@developer.gserviceaccount.com';
-    $key_file_location = 'src/google-api-php-client/Keys/My Project-bea99941c6d0.p12';
-
+    $service_account_email = $all_configs['settings']['ga-service-account-email'];
+    #$key_file_location = 'src/google-api-php-client/Keys/key.p12';
+    $key = explode('\n', $all_configs['settings']['ga-private-key']);
+    $key = implode("\n", $key);
+        
     // Create and configure a new client object.
     $client = new Google_Client();
-    $client->setApplicationName("RestoreAnalytics");
+    $client->setApplicationName("GincoreAnalytics");
     $analytics = new Google_Service_Analytics($client);
 
     // Read the generated client_secrets.p12 key.
-    $key = file_get_contents($key_file_location);
+    #$key = file_get_contents($key_file_location);
     $cred = new Google_Auth_AssertionCredentials(
             $service_account_email, array(Google_Service_Analytics::ANALYTICS_READONLY), $key
     );
