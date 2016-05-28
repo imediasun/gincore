@@ -16,11 +16,11 @@ class Log
         if (empty($file)) {
             $file = __DIR__ . '/../../logs/error.log';
         }
-        if (empty(self::$logs[$file])) {
+        if (empty(self::$logs[$file]) && is_writable($file)) {
             self::$logs[$file] = new Logger('app');
             self::$logs[$file]->pushHandler(new StreamHandler($file, Logger::WARNING));
         }
-        return self::$logs[$file];
+        return empty(self::$logs[$file]) ? null : self::$logs[$file];
     }
 
     /**
@@ -29,7 +29,10 @@ class Log
      */
     public static function error($message, $file = '')
     {
-        Log::open($file)->error($message);
+        $log = Log::open($file);
+        if (!empty($log)) {
+            $log->error($message);
+        }
     }
 
     /**
@@ -38,6 +41,9 @@ class Log
      */
     public static function warning($message, $file = '')
     {
-        Log::open($file)->warning($message);
+        $log = Log::open($file);
+        if (!empty($log)) {
+            $log->warning($message);
+        }
     }
 }
