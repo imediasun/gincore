@@ -443,5 +443,5 @@ try {
 
     echo $html;
 } catch (Exception $e) {
-    Log::error($e->getMessage());
+    Log::error($e->getMessage(), __DIR__ . '/../logs/exceptions.log');
 }
