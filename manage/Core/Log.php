@@ -16,7 +16,7 @@ class Log
         if (empty($file)) {
             $file = __DIR__ . '/../../logs/error.log';
         }
-        if (empty(self::$logs[$file]) && is_writable($file)) {
+        if (empty(self::$logs[$file]) && is_writable(dirname($file))) {
             self::$logs[$file] = new Logger('app');
             self::$logs[$file]->pushHandler(new StreamHandler($file, Logger::WARNING));
         }
