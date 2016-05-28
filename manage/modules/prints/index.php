@@ -137,9 +137,14 @@ class prints extends Controller
             FlashMessage::set(l('Шаблон документа не найден'), FlashMessage::DANGER);
             Response::redirect($this->all_configs['prefix']);
         }
-        $print_html = $this->template->draw();
-        if (empty($print_html)) {
-            FlashMessage::set(l('Сгенерирован пустой документ'), FlashMessage::DANGER);
+        try {
+            $print_html = $this->template->draw();
+            if (empty($print_html)) {
+                FlashMessage::set(l('Сгенерирован пустой документ'), FlashMessage::DANGER);
+                Response::redirect($this->all_configs['prefix']);
+            }
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
             Response::redirect($this->all_configs['prefix']);
         }
         $print_html = $this->template->add_edit_form($print_html);
