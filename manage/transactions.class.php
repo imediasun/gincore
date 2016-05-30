@@ -293,7 +293,7 @@ class Transactions extends Object
                 COUNT(t.id) as count_t ', array());
 
             } else {
-                $supplierCurrency = $this->all_configs['suppliers_orders']->currency_clients_orders;
+                $supplierCurrency = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
                 $amountQuery = $this->all_configs['db']->makeQuery('
                 SUM(IF(NOT cc_from.currency =?i, -t.value_from, 0)) as value_from,
                 SUM(IF(NOT cc_to.currency =?i, t.value_to, 0)) as value_to,
