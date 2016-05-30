@@ -426,7 +426,7 @@ $(document).ready(function () {
             }
         };
         $.ajax({
-            url: prefix + 'settings/ajax/?act=show-tariff',
+            url: prefix + 'settings/ajax?act=show-tariff',
             dataType: "json",
             type: 'GET',
             success: function (data) {
