@@ -1971,7 +1971,7 @@ class Chains extends Object
                     throw new ExceptionWithMsg(l('Такой валюты нет у кассы'));
                 }
             }
-            if ($post['transaction_type'] == TRANSACTION_INPUT) {
+            if ($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_TRANSFER ) {
                 $cashboxes_currency_id_to = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
                     array($post['cashbox_to'], $post['cashbox_currencies_to']))->el();
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../../gincore/vendor/autoload.php';
+require_once __DIR__ . '/../../gincore/vendor/autoload.php';
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -47,5 +47,14 @@ class Log
         if (!empty($log)) {
             $log->warning($message);
         }
+    }
+
+    /**
+     * @param        $variable
+     * @param string $file
+     */
+    public static function dump($variable, $file = '')
+    {
+        self::error(print_r($variable, true), $file);
     }
 }

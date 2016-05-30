@@ -139,7 +139,7 @@ try {
         $input['home_active'] = 'class="active"';
     }
 
-    if ($ifauth && $all_configs['configs']['settings-master-enabled'] && !($all_configs['arrequest'][1] == 'ajax' && $_GET['act'] == 'show-tariff')) {
+    if ($ifauth && $all_configs['configs']['settings-master-enabled'] && !(isset($all_configs['arrequest'][1]) && $all_configs['arrequest'][1] == 'ajax' && $_GET['act'] == 'show-tariff')) {
         if (!empty($all_configs['configs']['settings-system-lang-select-enabled']) &&
             empty($all_configs['settings']['lang'])
         ) {
