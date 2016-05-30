@@ -878,16 +878,19 @@ function check_mess(last_time_query) {
             type: 'POST',
             data: 'act=global-ajax',
             success: function (msg) {
+                var item;
+
                 if (msg) {
 
                     startcountdown(msg['alarms'] ? msg['alarms'] : null);
 
                     if (msg['counts']) {
                         $('.tab_count').addClass('hide');
-                        for (key in msg['counts']) {
-                            //if (msg['counts'][key] > 0) {
-                                $('span.' + key).removeClass('hide').html(msg['counts'][key]);
-                            //}
+                        for (var key in msg['counts']) {
+                            item = $('span.' + key);
+                            if(item) {
+                              item.removeClass('hide').html(msg['counts'][key]);
+                            }
                         }
                     }
 
