@@ -295,8 +295,8 @@ class Transactions extends Object
                 $amountQuery = $this->all_configs['db']->makeQuery('
                 SUM(IF((t.transaction_type=1 OR t.transaction_type=3), -t.value_from, 0)) as value_from,
                 SUM(IF((t.transaction_type=2 OR t.transaction_type=3), t.value_to, 0)) as value_to,
-                0 as value_from_sc,
-                0 as value_to_sc,
+                SUM(IF(cc_from.currency =?i, 0, 0)) 0 as value_from_sc,
+                SUM(IF(cc_to.currency =?i, 0, 0)) 0 as value_to_sc,
                 COUNT(t.id) as count_t ', array($supplierCurrency, $supplierCurrency));
             } else {
                 $amountQuery = $this->all_configs['db']->makeQuery('
