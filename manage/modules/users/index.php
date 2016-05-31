@@ -523,6 +523,12 @@ class users extends Controller
             $password = empty($post['pass']) ? $user['pass'] : trim($post['pass']);
             $access = new \access($this->all_configs, false);
             $phones = $access->is_phone($post['phone']);
+            $isLastSuperuser = $this->all_configs['oRole']->isLastSuperuser(intval($id));
+            if (!$this->all_configs['oRole']->isSuperuserRole(intval($post['role'])) && $isLastSuperuser) {
+                FlashMessage::set(l('Не возможно изменить роль последнего суперпользователя'),
+                    FlashMessage::DANGER);
+                $post['role'] = $user['role'];
+            }
 
             $this->Users->update(array(
                 'login' => $post['login'],
