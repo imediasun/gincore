@@ -285,18 +285,16 @@ class Transactions extends Object
             $supplierCurrency = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
         if ((isset($_GET['grp']) && $_GET['grp'] == 1) && $by_day == false) {
             $amountQuery = $this->all_configs['db']->makeQuery('
-                    IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0) as value_from,
-                    IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0) as value_to,
+                    IF(NOT cc_from.currency =?i, -t.value_from, 0) as value_from,
+                    IF(NOT cc_to.currency =?i, t.value_to, 0) as value_to,
                     IF(cc_from.currency =?i, -t.value_from, 0) as value_from_sc,
                     IF(cc_to.currency =?i, t.value_to, 0) as value_to_sc
-            ', array($supplierCurrency, $supplierCurrency));
+            ', array($supplierCurrency, $supplierCurrency, $supplierCurrency, $supplierCurrency));
         } else {
             if ($contractors) {
                 $amountQuery = $this->all_configs['db']->makeQuery('
                 SUM(IF((t.transaction_type=1 OR t.transaction_type=3), -t.value_from, 0)) as value_from,
                 SUM(IF((t.transaction_type=2 OR t.transaction_type=3), t.value_to, 0)) as value_to,
-                SUM(IF(cc_from.currency =?i, -t.value_from, 0)) as value_from_sc,
-                SUM(IF(cc_to.currency =?i, t.value_to, 0)) as value_to_sc,
                 COUNT(t.id) as count_t ', array($supplierCurrency, $supplierCurrency));
 
             } else {
