@@ -842,7 +842,6 @@ class Transactions extends Object
                 $out .= '<td>' . l('Ответственный') . '</td><td>' . l('Примечание') . '</td></tr></thead><tbody>';
                 $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/
                     array_fill_keys(array_keys($currencies), '');
-                Log::error(print_r($transactions, true));
                 foreach ($transactions as $transaction_id => $transaction) {
                     //$sum = 'Неизвестный перевод';
                     $cashbox_info = l('Неизвестная операция');
@@ -1187,30 +1186,8 @@ class Transactions extends Object
      * @param bool $link
      * @return null|string
      */
-    function supplier_order_number($order, $title = null, $link = true)
+    public function supplier_order_number($order, $title = null, $link = true)
     {
-        if (!array_key_exists('parent_id', $order) || !array_key_exists('number', $order) || !array_key_exists('num',
-                $order)
-        ) {
-            $order = $this->all_configs['db']->query('SELECT number, parent_id, id, num FROM {contractors_suppliers_orders} WHERE id=?i',
-                array($order['id']))->row();
-        }
-        $number = ($order['parent_id'] > 0 && $order['parent_id'] != $order['id']) ? $order['parent_id'] . '/' . $order['number'] : $order['num'];
-
-        if ($number != $order['id']) {
-            $out = $number . ' (' . $order['id'] . ')';
-        } else {
-            $out = $order['id'];
-        }
-        if (!$title) {
-            $title = '№' . $out;
-        }
-
-        if ($link == true) {
-            $href = $this->all_configs['prefix'] . 'orders/edit/' . $order['id'] . '#create_supplier_order';
-            return '<a class="hash_link" href="' . $href . '">' . $title . '</a>';
-        } else {
-            return $title;
-        }
+        return supplier_order_number($order, $title, $link);
     }
 }
