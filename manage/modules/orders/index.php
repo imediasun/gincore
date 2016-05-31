@@ -2033,7 +2033,7 @@ class orders extends Controller
         }
         if ($act == 'change-status' && is_numeric($_POST['order_id'])) {
             $order = $this->Orders->getByPk($_POST['order_id']);
-            if (!empty($order)) {
+            if (!empty($order) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $data = $this->changeStatus($order, array('state' => true), l('Статус не изменился'));
             }
         }
