@@ -1276,10 +1276,11 @@ function dirToArray($dir, $one = true)
  */
 function supplier_order_number($order, $title = null, $link = true)
 {
+    global $all_configs;
     if (!array_key_exists('parent_id', $order) || !array_key_exists('number', $order) || !array_key_exists('num',
             $order)
     ) {
-        $order = $this->all_configs['db']->query('SELECT number, parent_id, id, num FROM {contractors_suppliers_orders} WHERE id=?i',
+        $order = $all_configs['db']->query('SELECT number, parent_id, id, num FROM {contractors_suppliers_orders} WHERE id=?i',
             array($order['id']))->row();
     }
     $number = ($order['parent_id'] > 0 && $order['parent_id'] != $order['id']) ? $order['parent_id'] . '/' . $order['number'] : $order['num'];
@@ -1294,7 +1295,7 @@ function supplier_order_number($order, $title = null, $link = true)
     }
 
     if ($link == true) {
-        $href = $this->all_configs['prefix'] . 'orders/edit/' . $order['id'] . '#create_supplier_order';
+        $href = $all_configs['prefix'] . 'orders/edit/' . $order['id'] . '#create_supplier_order';
         return '<a class="hash_link" href="' . $href . '">' . $title . '</a>';
     } else {
         return $title;
@@ -1312,7 +1313,8 @@ function supplier_order_number($order, $title = null, $link = true)
  */
 function suppliers_order_generate_serial_by_id($itemId, $generate = true, $link = false, $class = '')
 {
-    $item = $this->all_configs['db']->query('SELECT serial, id as item_id FROM {warehouses_goods_items} WHERE id=?i',
+    global $all_configs;
+    $item = $all_configs['db']->query('SELECT serial, id as item_id FROM {warehouses_goods_items} WHERE id=?i',
         array($itemId))->row();
     return    suppliers_order_generate_serial($item, $generate, $link, $class);
 }

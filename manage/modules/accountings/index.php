@@ -1512,7 +1512,8 @@ class accountings extends Controller
                 'out_amounts' => $out_amounts,
                 'all_amount' => $all_amount,
                 'controller' => $this,
-                'cashboxes_cur' => $cashboxes_cur
+                'cashboxes_cur' => $cashboxes_cur,
+                'prefix' => $this->all_configs['prefix']
             ));
         }
 

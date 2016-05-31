@@ -282,20 +282,24 @@ class Transactions extends Object
             $transactionTable = 'cashboxes_transactions';
         }
 
+            $supplierCurrency = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
         if ((isset($_GET['grp']) && $_GET['grp'] == 1) && $by_day == false) {
             $amountQuery = $this->all_configs['db']->makeQuery('
                     IF(t.transaction_type=1 OR t.transaction_type=3, -t.value_from, 0) as value_from,
-                    IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0) as value_to
-            ', array());
+                    IF(t.transaction_type=2 OR t.transaction_type=3, t.value_to, 0) as value_to,
+                    IF(cc_from.currency =?i, -t.value_from, 0) as value_from_sc,
+                    IF(cc_to.currency =?i, t.value_to, 0) as value_to_sc
+            ', array($supplierCurrency, $supplierCurrency));
         } else {
             if ($contractors) {
                 $amountQuery = $this->all_configs['db']->makeQuery('
                 SUM(IF((t.transaction_type=1 OR t.transaction_type=3), -t.value_from, 0)) as value_from,
                 SUM(IF((t.transaction_type=2 OR t.transaction_type=3), t.value_to, 0)) as value_to,
-                COUNT(t.id) as count_t ', array());
+                SUM(IF(cc_from.currency =?i, -t.value_from, 0)) as value_from_sc,
+                SUM(IF(cc_to.currency =?i, t.value_to, 0)) as value_to_sc,
+                COUNT(t.id) as count_t ', array($supplierCurrency, $supplierCurrency));
 
             } else {
-                $supplierCurrency = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
                 $amountQuery = $this->all_configs['db']->makeQuery('
                 SUM(IF(NOT cc_from.currency =?i, -t.value_from, 0)) as value_from,
                 SUM(IF(NOT cc_to.currency =?i, t.value_to, 0)) as value_to,
@@ -567,6 +571,8 @@ class Transactions extends Object
                 $total = $total_inc = $total_exp = $total_tr_inc = $total_tr_exp =/* $balance =*/
                     array_fill_keys(array_keys($currencies), '');
                 foreach ($transactions as $transaction_id => $transaction) {
+
+
                     //$sum = 'Неизвестный перевод';
                     $cashbox_info = 'Неизвестная операция';
                     $exp = $inc = 0;
@@ -998,7 +1004,7 @@ class Transactions extends Object
                         // в категорию
                         $cashbox_info .= ' &rarr; ' . $transaction['category_name'];
                         // сумма
-                        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'] == $this->currency_suppliers_orders) {
+                        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'] == $this->currency_suppliers_orders && !$contractors) {
                             $exp = show_price($transaction['value_from_sc']);
                             $inc = show_price($transaction['value_to_sc']);
                         } else {
@@ -1042,7 +1048,7 @@ class Transactions extends Object
                         // с категории
                         $cashbox_info .= ' &larr; ' . $transaction['category_name'];
                         // сумма
-                        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'] == $this->currency_suppliers_orders) {
+                        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'] == $this->currency_suppliers_orders && !$contractors) {
                             $exp = show_price($transaction['value_from_sc']);
                             $inc = show_price($transaction['value_to_sc']);
                         } else {
