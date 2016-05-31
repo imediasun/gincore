@@ -79,7 +79,7 @@ try {
 
     $db = $all_configs['db'];
 
-    if (!$ifauth && !in_array($a0, array('login_form'))) {
+    if (!$ifauth && !in_array($a0, array('login_form', 'forgot_password', 'forgot_password_form'))) {
         if (isset($all_configs['arrequest'][0]) && !in_array($all_configs['arrequest'][0],
                 array('login_form', 'logout'))
         ) {
@@ -127,6 +127,14 @@ try {
                     </div>';
                 }
             }
+        }
+        if($all_configs['arrequest'][0] == 'forgot_password_form') {
+            $html_header = 'html_header_login.html';
+            $html_template = 'html_template_forgot_password.html';
+            
+        }
+        if($all_configs['arrequest'][0] == 'forgot_password') {
+
         }
 
         if ($all_configs['arrequest'][0] == 'logout' && $ifauth) {
@@ -424,10 +432,13 @@ try {
     $input['main'] = l('main');
     $input['exit'] = l('exit');
     $input['sign_in'] = l('sign_in');
+    $input['send'] = l('send');
+    $input['forgot_password'] = l('forgot_password');
     $input['flash'] = FlashMessage::show();
     $input['txtemail'] = l('email');
     $input['txtlogin'] = l('login');
     $input['password'] = l('password');
+    $input['you_email'] = l('you_email');
 
 ################################################################################
     if (isset($all_configs['arrequest'][0]) && !$curmod) {
