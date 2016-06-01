@@ -1678,3 +1678,21 @@ function sum_with_discount($product, $quantity = 0) {
     $count = $quantity > 0? $quantity: $product['count'];
     return price_with_discount($product)  * $count;
 }
+
+function simple_password_generator($length = 9)
+{
+    $alpha = "abcdefghijklmnopqrstuvwxyz";
+    $alpha_upper = strtoupper($alpha);
+    $numeric = "0123456789";
+
+    $chars = $alpha . $alpha_upper . $numeric;
+
+    $len = strlen($chars);
+    $password = '';
+
+    for ($i = 0; $i < $length; $i++) {
+        $password .= substr($chars, rand(0, $len - 1), 1);
+    }
+
+    return str_shuffle($password);
+}

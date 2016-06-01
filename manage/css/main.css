@@ -1001,7 +1001,9 @@ legend span.tag {
     padding: 15px;
     margin-bottom: 15px;
 }
-table.table-no-border tr td {
+table.table-no-border tr td,
+table.table-borderless tr td
+{
     border:  0px;
 }
 

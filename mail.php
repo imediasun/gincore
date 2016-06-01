@@ -96,6 +96,14 @@ class Mailer extends PHPMailer
                 $this->Body .= h($data['comment']) . "<br>";
                 break;
 
+            case('forgot-password'):
+                $this->Subject = l('Изменение пароля');
+                $this->Body = l('Уважаемый') . ' ' . $data['fio'] . "<br>";
+                $this->Body .= l('Вы воспользовались формой для восстановления пароля к аккаунту:') . "<br>";
+                $this->Body .= l('Сайт:') . ' ' . $_SERVER['SERVER_NAME'] . '<br>';
+                $this->Body .= l('Ваш логин:') . ' ' . $data['login'] . '<br>';
+                $this->Body .= l('Ваш новый пароль:') . ' ' . $data['password'];
+                break;
             case('new-order'):
                 $this->Subject = 'Подтверждение заказа';
                 // for admin note

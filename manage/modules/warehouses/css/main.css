@@ -1,22 +1,7 @@
 
 #warehouses_content {
     min-height: 200px;
-    margin-top: 40px;
-}
-
-.show_warehouse {
-    float: left;
-    height: 160px;
-}
-
-.show_warehouse > div, .show_warehouse h5 {
-    text-align: center;
-    margin: 5px 10px;
-}
-
-.show_warehouse h5 {
-    border-bottom: 1px solid #DDDDDD;
-    margin-bottom: 15px;
+    margin-top: 20px;
 }
 
 .vertical-line {
@@ -106,3 +91,64 @@
     font-size: 38px;
     line-height: 34px;
 }
+.add-warehouse-table {
+    cursor: pointer;
+    float: left;
+    width: 270px;
+    height: 130px;
+}
+.add-warehouse-table img {
+    opacity: 0.3;
+    transition: opacity 0.15s linear 0s;
+    width: 100px;
+    margin-top: 50%;
+    margin-left: 50%;
+    left: -50px;
+    top: -120px;
+    position: relative;
+}
+.warehouse-title {
+        width: 100%;
+        height: 26px;
+        background-color: #F7F9FA;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .warehouse-title > div {
+        float: left;
+        line-height: 26px;
+    }
+
+    .warehouse-title .warehouse-filter {
+        width: 30px;
+        padding: 0 5px;
+    }
+
+    .warehouse-title .warehouse-print {
+        float: right;
+        width: 30px;
+        padding: 0 5px;
+        border-left: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .warehouse-title > .title {
+        padding: 0 10px;
+        text-align: center;
+        width: 210px;
+    }
+
+    .show_warehouse {
+        float: left;
+        height: 130px;
+        margin: 0 10px 10px 0;
+        width: 273px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .show_warehouse > .warehouse-content {
+        text-align: center;
+        line-height: 26px;
+    }

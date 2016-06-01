@@ -12,6 +12,7 @@ $moduleactive[30] = !$ifauth['is_2'];
  * @property  MClients               Clients
  * @property  MCashboxesTransactions CashboxesTransactions
  * @property  MCashboxes             Cashboxes
+ * @property Transactions            Transactions
  */
 class accountings extends Controller
 {
@@ -958,14 +959,12 @@ class accountings extends Controller
     /**
      *
      */
-    function ajax()
+    public function ajax()
     {
-
         $data = array(
             'state' => false,
             'message' => l('Не известная ошибка')
         );
-
         $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
 
