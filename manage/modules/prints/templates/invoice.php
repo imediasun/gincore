@@ -42,34 +42,14 @@ class invoice extends AbstractTemplate
             $goods = $this->all_configs['db']->query('SELECT og.*, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
-            if ($goods) {
-                foreach ($goods as $product) {
-                    $products_rows[] = array(
-                        'title' => htmlspecialchars($product['title']),
-                        'price' => ($product['price'] / 100) . ' ' . viewCurrency(),
-                        'discount' => (empty($product['discount']) ? '0' : $product['discount']) . ($product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency()),
-                        'price_with_discount' => sum_with_discount($product) . ' ' . viewCurrency()
-                    );
-                }
-            }
-            $summ = $order['sum'];
 
-            $products_html_parts = array();
-            $num = 1;
-            foreach ($products_rows as $prod) {
-                $products_html_parts[] = '
-                        ' . $num . '</td>
-                        <td>' . $prod['title'] . '</td>
-                        <td>1</td>
-                        <td>' . $prod['price'] . '</td>
-                        <td>' . $prod['discount'] . '</td>
-                        <td>' . $prod['price_with_discount'] . '</td>
-                        <td>' . $prod['price_with_discount'] . '
-                    ';
-                $num++;
-            }
-            $qty_all = $num - 1;
-            $products_html = implode('</td></tr><tr><td>', $products_html_parts);
+            $view = new View($this->all_configs);
+            $summ = $order['sum'];
+            $products_html = $view->renderFile('prints/waybill_products', array(
+                'goods' => $goods,
+                'amount' => $summ
+            ));
+            $qty_all = count($products_rows);
 
             $this->editor = true;
             require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
