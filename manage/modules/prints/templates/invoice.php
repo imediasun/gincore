@@ -39,14 +39,17 @@ class invoice extends AbstractTemplate
         if ($order) {
 
             // товары и услуги
-            $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
+            $goods = $this->all_configs['db']->query('SELECT og.*, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
             if ($goods) {
                 foreach ($goods as $product) {
+                    $product['price'] *= 100;
                     $products_rows[] = array(
                         'title' => htmlspecialchars($product['title']),
-                        'price_view' => ($product['price'] / 100) . ' ' . viewCurrency()
+                        'price' => ($product['price'] / 100) . ' ' . viewCurrency(),
+                        'discount' => (empty($product['discount']) ? '0' : $product['discount']) . ($product['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency()),
+                        'price_with_discount' => sum_with_discount($product) . ' ' . viewCurrency()
                     );
                 }
             }
@@ -59,8 +62,10 @@ class invoice extends AbstractTemplate
                         ' . $num . '</td>
                         <td>' . $prod['title'] . '</td>
                         <td>1</td>
-                        <td>' . $prod['price_view'] . '</td>
-                        <td>' . $prod['price_view'] . '
+                        <td>' . $prod['price'] . '</td>
+                        <td>' . $prod['discount'] . '</td>
+                        <td>' . $prod['price_with_discount'] . '</td>
+                        <td>' . $prod['price_with_discount'] . '
                     ';
                 $num++;
             }
