@@ -101,7 +101,7 @@ class TransactionShow
         // в категорию
         $cashbox_info .= $drawer::RIGHT_ARROW . $transaction['category_name'];
         // сумма
-        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'] == $this->currency_suppliers_orders) {
+        if ($this->useSuppliersValue($transaction, $this->contractors)) {
             $exp = show_price($transaction['value_from_sc']);
         } else {
             $exp = show_price($transaction['value_from']);
@@ -145,7 +145,7 @@ class TransactionShow
         // с категории
         $cashbox_info .= $drawer::LEFT_ARROW . $transaction['category_name'];
         // сумма
-        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'] == $this->currency_suppliers_orders) {
+        if ($this->useSuppliersValue($transaction, $this->contractors)) {
             $inc = show_price($transaction['value_to_sc']);
         } else {
             $inc = show_price($transaction['value_to']);
@@ -195,7 +195,7 @@ class TransactionShow
             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
         }
         // сумма
-        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'] == $this->currency_suppliers_orders) {
+        if ($this->useSuppliersValue($transaction, $this->contractors)) {
             $exp = show_price($transaction['value_from_sc']);
         } else {
             $exp = show_price($transaction['value_from']);
@@ -258,7 +258,7 @@ class TransactionShow
         // в категорию
         $cashbox_info .= $drawer::RIGHT_ARROW . $transaction['category_name'];
         // сумма
-        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_from']]['currency'] == $this->currency_suppliers_orders) {
+        if ($this->useSuppliersValue($transaction, $this->contractors)) {
             $exp = show_price($transaction['value_from_sc']);
             $inc = show_price($transaction['value_to_sc']);
         } else {
@@ -309,7 +309,7 @@ class TransactionShow
         // с категории
         $cashbox_info .= $drawer::LEFT_ARROW . $transaction['category_name'];
         // сумма
-        if ($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'] == $this->currency_suppliers_orders) {
+        if ($this->useSuppliersValue($transaction, $this->contractors)) {
             $exp = show_price($transaction['value_from_sc']);
             $inc = show_price($transaction['value_to_sc']);
         } else {
@@ -354,5 +354,10 @@ class TransactionShow
             'total_tr_inc' => $this->total_tr_inc,
             'total_tr_exp' => $this->total_tr_exp
         );
+    }
+
+    public function useSuppliersValue($transaction, $contractors)
+    {
+        return ($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'] == $this->currency_suppliers_orders && !$contractors && $this->currency_suppliers_orders != $this->all_configs['suppliers_orders']->currency_clients_orders);
     }
 }
