@@ -99,9 +99,9 @@ class Mailer extends PHPMailer
             case('forgot-password'):
                 $this->Subject = l('Изменение пароля');
                 $this->Body = l('Уважаемый, ') . $data['fio'] . "<br>";
-                $this->Body = l('Вы воспользовались формой для восстановления пароля к аккаунту:') . "<br>";
-                $this->Body = l('Ваш логин:') . ' ' . $data['login'] . '<br>';
-                $this->Body = l('Ваш новый пароль:') . ' ' . $data['password'];
+                $this->Body .= l('Вы воспользовались формой для восстановления пароля к аккаунту:') . "<br>";
+                $this->Body .= l('Ваш логин:') . ' ' . $data['login'] . '<br>';
+                $this->Body .= l('Ваш новый пароль:') . ' ' . $data['password'];
                 break;
             case('new-order'):
                 $this->Subject = 'Подтверждение заказа';
