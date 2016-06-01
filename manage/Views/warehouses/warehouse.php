@@ -11,7 +11,8 @@
                href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?whs=<?= $warehouse['id'] ?>#show_items">
                 <?= $warehouse['title'] ?>
             </a>
-            <?= (!$i ? InfoPopover::getInstance()->createOnLoad('l_warehouses_title_info') : '') ?>
+            <?= ($warehouse['type'] == 2)  ? InfoPopover::getInstance()->createQuestion('l_warehouses_title_info_shortage') : '' ?>
+            <?= ($warehouse['type'] == 4)  ? InfoPopover::getInstance()->createQuestion('l_warehouses_title_info_client') : '' ?>
         </div>
         <div class="warehouse-print">
             <?= print_link(array_keys($warehouse['locations']), 'location'); ?>

@@ -15,6 +15,7 @@
                         name='consider_store' value='1'/>
                     <?= l('Учитывать в свободном остатке') ?>
                 </label>
+                <?= InfoPopover::getInstance()->createQuestion('l_warehouses_create_free') ?>
             </div>
             <div class='checkbox'>
                 <label>
@@ -23,20 +24,27 @@
                            value='1'/>
                     <?= l('Учитывать в общем остатке') ?>
                 </label>
+                <?= InfoPopover::getInstance()->createQuestion('l_warehouses_create_total') ?>
             </div>
         </div>
         <div class='form-group'>
             <input type='hidden' value='1' name='type'/>
         </div>
         <div class='form-group'>
-            <label><?= l('Принадлежность к Сервисному центру') ?>: </label>
+            <label>
+                <?= l('Принадлежность к Сервисному центру') ?>:
+                <?= InfoPopover::getInstance()->createQuestion('l_warehouses_create_service_center') ?>
+            </label>
             <?= $this->renderFile('warehouses/warehouses_groups', array(
                 'warehouse' => $warehouse,
                 'groups' => $groups
             )) ?>
         </div>
         <div class='form-group'>
-            <label><?= l('Категория') ?>: </label>
+            <label>
+                <?= l('Категория') ?>:
+                <?= InfoPopover::getInstance()->createQuestion('l_warehouses_create_category') ?>
+            </label>
             <?= $this->renderFile('warehouses/warehouses_types', array(
                 'warehouse' => $warehouse,
                 'types' => $types
@@ -54,7 +62,10 @@
                    value=''/>
         </div>
         <div class='form-group'>
-            <label><?= l('Локации') ?>:<b class="text-danger">*</b> </label>
+            <label>
+                <?= l('Локации') ?>:<b class="text-danger">*</b>
+                <?= InfoPopover::getInstance()->createQuestion('l_warehouses_create_location') ?>
+            </label>
             <?= $this->renderFile('warehouses/warehouses_locations', array(
                 'locations' => empty($warehouse['locations']) ? array() : $warehouse['locations']
             )) ?>
