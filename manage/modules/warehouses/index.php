@@ -1410,7 +1410,7 @@ class warehouses extends Controller
             array($order_id))->row();
         $data['state'] = true;
         $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="' . l('Приходовать') . '" />';
-        $data['content'] = $this->view->renderFile('warehouses/form_debit_so' . array(
+        $data['content'] = $this->view->renderFile('warehouses/form_debit_so', array(
                 'order' => $order,
                 'order_id' => $order_id,
                 // необходимое количество приходования
