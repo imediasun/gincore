@@ -144,7 +144,7 @@ try {
                     throw new ExceptionWithMsg(l('Пользователь с таким Email не найден'));
                 }
                 $password = simple_password_generator();
-                $user = $all_configs['db']->query('UPDATE {users} SET pass=? WHERE email=?',
+                $all_configs['db']->query('UPDATE {users} SET pass=? WHERE email=?',
                     array($password, $email))->ar();
                 require_once __DIR__ . '/../mail.php';
                 $messages = new Mailer($all_configs);
