@@ -57,7 +57,7 @@
         </tr>
         <tr>
             <td><b><?= l('Цена') ?></b></td>
-            <td><?= $this->show_price($product['price']) ?></td>
+            <td><?= $controller->show_price($product['price']) ?></td>
         </tr>
         <tr>
             <td><b><?= l('Склад') ?></b></td>
