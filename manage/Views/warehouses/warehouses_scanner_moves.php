@@ -1,4 +1,4 @@
-<?php if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')): ?>?
+<?php if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')): ?>
     <div id="scanner-moves-alert" class="alert fade">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <div id="scanner-moves-alert-body"></div>
