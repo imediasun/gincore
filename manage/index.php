@@ -419,7 +419,7 @@ try {
         if ($curmod) {
             $all_configs['curmod'] = $curmod;
             $module = new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);
-        } elseif ($all_configs['arrequest'][0] == 'printphp') {
+        } elseif (isset($all_configs['arrequest'][0]) && $all_configs['arrequest'][0] == 'printphp') {
             $curmod = $all_configs['curmod'] = 'prints';
             require_once $all_configs['path'] . 'modules/prints/index.php';
             $module = new prints($all_configs);

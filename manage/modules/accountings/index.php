@@ -44,9 +44,6 @@ class accountings extends Controller
 
     public function __construct(&$all_configs)
     {
-        print_r($_POST);
-        print_r($_GET);
-        exit;
         parent::__construct($all_configs);
 
         $this->Transactions = new Transactions($this->all_configs);

@@ -282,6 +282,12 @@ class Transactions extends Object
             $transactionTable = 'cashboxes_transactions';
         }
 
+        if(empty($this->all_configs['suppliers_orders'])) {
+
+            $all_configs['suppliers_orders'] = new Suppliers($this->all_configs);
+            $all_configs['suppliers_orders']->suppliers_orders = $all_configs['settings']['currency_suppliers_orders'];
+            $all_configs['suppliers_orders']->currency_clients_orders = $all_configs['settings']['currency_orders'];
+        }
         $supplierCurrency = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
         if ($supplierCurrency == $this->all_configs['suppliers_orders']->currency_clients_orders) {
 
