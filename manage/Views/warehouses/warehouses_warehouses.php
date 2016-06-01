@@ -25,7 +25,7 @@
             <?php $i++; ?>
         <?php endforeach; ?>
     <?php endif; ?>
-    <div class="add-warehouse-table" onclick="alert_box(this, false, 'create-warehouse')" data-toggle="tooltip"
+    <div class="add-warehouse-table" onclick="return create_warehouse_modal(this);" data-toggle="tooltip"
          data-placement="top" title="<?= l('Добавить склад') ?>">
         <img src="<?= $prefix ?>img/add_new_cashbox.png">
     </div>

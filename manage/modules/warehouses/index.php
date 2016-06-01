@@ -97,6 +97,7 @@ class warehouses extends Controller
 
 
         } elseif (isset($post['warehouse-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            Log::error('ppppp');
             // создать склад
             $consider_all = 0;
             if (isset($post['consider_all'])) {
@@ -143,6 +144,22 @@ class warehouses extends Controller
                                     array($warehouse_id, trim($location)));
                             }
                         }
+                    }
+                    FlashMessage::set(l('Склад успешно добавлен'), FlashMessage::SUCCESS);
+                    if (isset($post['modal'])) {
+                        Response::json(array(
+                            'state' => true,
+                            'reload' => true
+                        ));
+                    }
+                } else {
+                    if (isset($post['modal'])) {
+                        Response::json(array(
+                            'state' => false,
+                            'message' => l('Заполните обязательные поля')
+                        ));
+                    } else {
+                        FlashMessage::set(l('Заполните обязательные поля'), FlashMessage::DANGER);
                     }
                 }
             } else {
@@ -192,7 +209,7 @@ class warehouses extends Controller
             }
             if (isset($_POST['location']) && is_array($_POST['location'])) {
                 foreach ($_POST['location'] as $location) {
-                    if(empty($location)) {
+                    if (empty($location)) {
                         continue;
                     }
                     $location_id = $this->all_configs['db']->query(
@@ -1124,6 +1141,20 @@ class warehouses extends Controller
                 Response::json($return);
             }
         }
+        // форма создания нового склада
+        if ($act == 'create-warehouse') {
+            $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
+            $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
+            $data = array(
+                'state' => true,
+                'content' => $this->view->renderFile('warehouses/create_warehouse', array(
+                    'groups' => $groups,
+                    'types' => $types
+                )),
+                'title' => l('Создать склад')
+            );
+            Response::json($data);
+        }
 
         // експорт изделий
         if ($act == 'exports-items') {
@@ -2002,28 +2033,33 @@ class warehouses extends Controller
     private function warehouseDelete($post)
     {
         $warehouseId = $post['warehouse-id'];
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE wh_id=?i OR accept_wh_id=?i', array($warehouseId, $warehouseId))->el();
-        if($count > 0) {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE wh_id=?i OR accept_wh_id=?i',
+            array($warehouseId, $warehouseId))->el();
+        if ($count > 0) {
             FlashMessage::set(l('Не возможно удалить склад, привязаны заказы'), FlashMessage::DANGER);
             return false;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE wh_id=?i', array($warehouseId))->el();
-        if($count > 0) {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE wh_id=?i',
+            array($warehouseId))->el();
+        if ($count > 0) {
             FlashMessage::set(l('Не возможно удалить склад, имеются товары'), FlashMessage::DANGER);
             return false;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_users} WHERE wh_id=?i', array($warehouseId))->el();
-        if($count > 0) {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_users} WHERE wh_id=?i',
+            array($warehouseId))->el();
+        if ($count > 0) {
             FlashMessage::set(l('Не возможно удалить склад, привязаны пользователи'), FlashMessage::DANGER);
             return false;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE wh_id=?i', array($warehouseId))->el();
-        if($count > 0) {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE wh_id=?i',
+            array($warehouseId))->el();
+        if ($count > 0) {
             FlashMessage::set(l('Не возможно удалить склад, привязаны заказы поставщикам'), FlashMessage::DANGER);
             return false;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {chains} WHERE from_wh_id=?i OR to_wh_id=?i', array($warehouseId, $warehouseId))->el();
-        if($count > 0) {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {chains} WHERE from_wh_id=?i OR to_wh_id=?i',
+            array($warehouseId, $warehouseId))->el();
+        if ($count > 0) {
             FlashMessage::set(l('Не возможно удалить склад, привязаны транзакции'), FlashMessage::DANGER);
             return false;
         }

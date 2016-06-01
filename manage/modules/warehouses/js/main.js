@@ -351,3 +351,67 @@ function open_product_inventory(_this, goods_id) {
 function show_bind_button(_this) {
   $(_this).parents('tr').first().find('input.bind-button').first().show();
 }
+function create_warehouse_modal(_this) {
+  var buttons = {
+    success: {
+      label: "Сохранить",
+      className: "btn-success",
+      callback: function () {
+        var title = $('#create-warehouse-modal input[name="title"]').first().val(),
+          location = $('#create-warehouse-modal input[name="location[]"]').first().val();
+        if (title.length == 0) {
+          alert('Заполните название склада');
+          return false;
+        }
+        if (location.length == 0) {
+          alert('Введите название локации');
+          return false;
+        }
+        $.ajax({
+          url: prefix + 'warehouses?act=create-warehouse',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#create-warehouse-modal').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=create-warehouse',
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
