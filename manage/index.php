@@ -128,19 +128,19 @@ try {
                 }
             }
         }
-        if($all_configs['arrequest'][0] == 'forgot_password_form') {
+        if ($all_configs['arrequest'][0] == 'forgot_password_form') {
             $html_header = 'html_header_login.html';
             $html_template = 'html_template_forgot_password.html';
-            
+
         }
-        if($all_configs['arrequest'][0] == 'forgot_password') {
+        if ($all_configs['arrequest'][0] == 'forgot_password') {
             $email = trim($_POST['email']);
             try {
                 if (empty($email)) {
                     throw new ExceptionWithMsg(l('Email не может быть пустым'));
                 }
-                $user = $all_configs['db']->query('SELECT count(*) FROM {users} WHERE email=?', array($email))->el();
-                if ($user == 0) {
+                $user = $all_configs['db']->query('SELECT * FROM {users} WHERE email=?', array($email))->row();
+                if (empty($user)) {
                     throw new ExceptionWithMsg(l('Пользователь с таким Email не найден'));
                 }
                 $password = simple_password_generator();
@@ -148,7 +148,11 @@ try {
                     array($password, $email))->ar();
                 require_once __DIR__ . '/../mail.php';
                 $messages = new Mailer($all_configs);
-                $messages->group('forgot-password', $email, array('password' => $password));
+                $messages->group('forgot-password', $email, array(
+                    'fio' => empty($user['fio']) ? $user['login'] : $user['fio'],
+                    'login' => $user['login'],
+                    'password' => $password
+                ));
                 $messages->go();
                 $html_header = 'html_header_login.html';
                 $html_template = 'html_template_forgot_password_result.html';
