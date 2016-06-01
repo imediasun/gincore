@@ -19,7 +19,7 @@
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' class='btn consider_<? $i ?>'
+                    <input type='checkbox' class='btn consider_<?= $i ?>'
                            onclick='consider(this, "<?= $i ?>")' name='consider_all'
                            value='1'/>
                     <?= l('Учитывать в общем остатке') ?>

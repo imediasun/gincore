@@ -31,7 +31,7 @@
                     <div class='checkbox'>
                         <label>
                             <input <?= empty($warehouse) || $warehouse['consider_all'] == 1 ? 'checked' : '' ?>
-                                type='checkbox' class='btn consider_<? $i ?>'
+                                type='checkbox' class='btn consider_<?= $i ?>'
                                 onclick='consider(this, "<?= $i ?>")' name='consider_all'
                                 value='1'/>
                             <?= l('Учитывать в общем остатке') ?>
