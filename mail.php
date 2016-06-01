@@ -96,6 +96,10 @@ class Mailer extends PHPMailer
                 $this->Body .= h($data['comment']) . "<br>";
                 break;
 
+            case('forgot-password'):
+                $this->Subject = l('Изменение пароля');
+                $this->Body = l('Ваш новый пароль:').' '.$data['password'];
+                break;
             case('new-order'):
                 $this->Subject = 'Подтверждение заказа';
                 // for admin note

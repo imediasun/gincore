@@ -13,6 +13,9 @@ class View extends Object
      */
     public function __construct(&$all_configs = array())
     {
+        if (empty($all_configs)) {
+            global $all_configs;
+        }
         $this->all_configs = $all_configs;
         if (empty($this->all_configs)) {
             $this->basePath = __DIR__ . '/../';

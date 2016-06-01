@@ -79,7 +79,7 @@ try {
 
     $db = $all_configs['db'];
 
-    if (!$ifauth && !in_array($a0, array('login_form'))) {
+    if (!$ifauth && !in_array($a0, array('login_form', 'forgot_password', 'forgot_password_form'))) {
         if (isset($all_configs['arrequest'][0]) && !in_array($all_configs['arrequest'][0],
                 array('login_form', 'logout'))
         ) {
@@ -128,6 +128,40 @@ try {
                 }
             }
         }
+        if($all_configs['arrequest'][0] == 'forgot_password_form') {
+            $html_header = 'html_header_login.html';
+            $html_template = 'html_template_forgot_password.html';
+            
+        }
+        if($all_configs['arrequest'][0] == 'forgot_password') {
+            $email = trim($_POST['email']);
+            try {
+                if (empty($email)) {
+                    throw new ExceptionWithMsg(l('Email не может быть пустым'));
+                }
+                $user = $all_configs['db']->query('SELECT count(*) FROM {users} WHERE email=?', array($email))->el();
+                if ($user == 0) {
+                    throw new ExceptionWithMsg(l('Пользователь с таким Email не найден'));
+                }
+                $password = simple_password_generator();
+                $user = $all_configs['db']->query('UPDATE {users} SET pass=? WHERE email=?',
+                    array($password, $email))->ar();
+                require_once __DIR__ . '/../mail.php';
+                $messages = new Mailer($all_configs);
+                $messages->group('forgot-password', $email, array('password' => $password));
+                $messages->go();
+                $html_header = 'html_header_login.html';
+                $html_template = 'html_template_forgot_password_result.html';
+                $input['password_send'] = l('Пароль отправлен');
+            } catch (ExceptionWithMsg $e) {
+                $html_header = 'html_header_login.html';
+                $html_template = 'html_template_forgot_password.html';
+                $input['error_message'] = '
+                    <div class="alert alert-error">
+                        <a class="close" data-dismiss="alert" href="#">x</a>' . $e->getMessage() . '
+                    </div>';
+            }
+        }
 
         if ($all_configs['arrequest'][0] == 'logout' && $ifauth) {
             $auth->Logout($ifauth);
@@ -139,7 +173,7 @@ try {
         $input['home_active'] = 'class="active"';
     }
 
-    if ($ifauth && $all_configs['configs']['settings-master-enabled']) {
+    if ($ifauth && $all_configs['configs']['settings-master-enabled'] && !(isset($all_configs['arrequest'][1]) && $all_configs['arrequest'][1] == 'ajax' && $_GET['act'] == 'show-tariff')) {
         if (!empty($all_configs['configs']['settings-system-lang-select-enabled']) &&
             empty($all_configs['settings']['lang'])
         ) {
@@ -424,10 +458,13 @@ try {
     $input['main'] = l('main');
     $input['exit'] = l('exit');
     $input['sign_in'] = l('sign_in');
+    $input['send'] = l('send');
+    $input['forgot_password'] = l('forgot_password');
     $input['flash'] = FlashMessage::show();
     $input['txtemail'] = l('email');
     $input['txtlogin'] = l('login');
     $input['password'] = l('password');
+    $input['you_email'] = l('you_email');
 
 ################################################################################
     if (isset($all_configs['arrequest'][0]) && !$curmod) {
@@ -443,5 +480,5 @@ try {
 
     echo $html;
 } catch (Exception $e) {
-    Log::error($e->getMessage());
+    Log::error($e->getMessage(), __DIR__ . '/../logs/exceptions.log');
 }

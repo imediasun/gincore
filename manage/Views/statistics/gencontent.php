@@ -4,10 +4,10 @@
     <thead>
     <tr>
         <th class="{ sorter: false }"></th>
-        <th>'.l('Дата').'</th>
+        <th><?= l('Дата') ?></th>
         <th class="{ sorter: false }"><?= l('Показы') ?></th>
         <th class="{ sorter: false }"><?= l('Клики') ?></th>
-        <th class="{ sorter: false }"><?= l('CTR') ?></th>
+        <th class="{ sorter: false }">CTR</th>
         <th class="{ sorter: false }"><?= l('Просмотры') ?></th>
         <th class="{ sorter: false }"><?= l('Новые пользователи') ?></th>
         <th class="{ sorter: false }"><?= l('Новые пользователи %') ?></th>

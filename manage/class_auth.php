@@ -11,6 +11,10 @@ class Auth { //класс авторизации
 
     public $db;
 
+    /**
+     * Auth constructor.
+     * @param $db
+     */
     public function __construct($db)
     {
         $this->db = $db;
@@ -18,6 +22,9 @@ class Auth { //класс авторизации
             session_start();
     }
 
+    /**
+     * @param $user
+     */
     private function SetLogedIn($user)
     {
         mt_srand((double) microtime() * 1000000);
@@ -29,6 +36,11 @@ class Auth { //класс авторизации
         setcookie($this->cookie_session_name, $cidgen, time() + $this->cookie_expired, '/');
     }
 
+    /**
+     * @param $login_unchk
+     * @param $pass_unchk
+     * @return bool
+     */
     function Login($login_unchk, $pass_unchk)
     {
         if (!$login_unchk || !$pass_unchk) return false;
@@ -53,6 +65,9 @@ class Auth { //класс авторизации
         return false;
     }
 
+    /**
+     * @return bool
+     */
     function IfAuth()
     {
 
@@ -94,18 +109,25 @@ class Auth { //класс авторизации
         return false;
     }
 
+    /**
+     * @return bool
+     */
     public function checkLastLogin()
     {
         if (isset($_COOKIE[$this->cookie_session_name])) {
             $hashed_cid = md5(get_ip()) . md5(substr($_COOKIE[$this->cookie_session_name], 0, 32));
             $user = $this->db->query("SELECT * FROM {users} WHERE cid = ?", array($hashed_cid), 'row');
-            if (!empty($user) && $user['uxt'] < strtotime('+4 hours', strtotime('today'))) {
+            $border = strtotime('+4 hours', strtotime('today'));
+            if (!empty($user) && time() > $border && $user['uxt'] < $border) {
                 return $this->Logout($user);
             }
         }
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function IfAuthCert()
     {
 
@@ -131,11 +153,18 @@ class Auth { //класс авторизации
         }
     }
 
+    /**
+     * @return bool
+     */
     private function CheckCert(){
         return (isset($_SERVER['SSL_CLIENT_VERIFY'])
             && $_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') ? true : false;
     }
 
+    /**
+     * @param $user
+     * @return bool
+     */
     function Logout($user) {
         $id = $user['id'];
         if (is_numeric($id)) {
@@ -151,6 +180,11 @@ class Auth { //класс авторизации
         }
     }
 
+    /**
+     * @param $oldpass
+     * @param $newpass
+     * @return bool
+     */
     function ChangePass($oldpass, $newpass) {
 
         $id = $this->IfAuth();

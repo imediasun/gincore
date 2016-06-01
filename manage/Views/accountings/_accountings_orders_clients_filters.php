@@ -26,9 +26,9 @@
         <div class="form-group multiselect-float-right">
             <label style="line-height: 34px"><?= l('Способ оплаты') ?>:</label>
             <select name="cashless" class="form-control multiselect">
-                <option <?= !is_numeric($_GET['cashless']) ? 'selected' : '' ?> value=""><?= l('все способы оплаты') ?></option>
+                <option <?= !isset($_GET['cashless']) || !is_numeric($_GET['cashless']) ? 'selected' : '' ?> value=""><?= l('все способы оплаты') ?></option>
                 <?php foreach (array(0 => l('Нал'), 1 => l('Безнал')) as $id => $type): ?>
-                    <option <?= is_numeric($_GET['cashless']) && ($id == $_GET['cashless']) ? 'selected' : '' ?> value="<?= $id ?>">
+                    <option <?= isset($_GET['cashless']) && is_numeric($_GET['cashless']) && ($id == $_GET['cashless']) ? 'selected' : '' ?> value="<?= $id ?>">
                         <?= $type ?>
                     </option>
                 <?php endforeach; ?>

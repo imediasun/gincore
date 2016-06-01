@@ -240,6 +240,7 @@ class categories
                     intval($post['id'])
                 ))->ar();
             if (intval($ar) > 0) {
+                $this->all_configs['db']->query('UPDATE {orders} SET title=? WHERE category_id=?i', array($title, intval($post['id'])));
                 $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                     array($user_id, 'edit-category', $mod_id, intval($post['id'])));
             }

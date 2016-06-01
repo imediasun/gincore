@@ -113,3 +113,8 @@ ALTER TABLE `restore4_orders_goods` ADD COLUMN discount_type int(10) UNSIGNED DE
  */
 ALTER TABLE `restore4_warehouses_goods_items`
     CHANGE `date_add` `date_add` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+/*
+2016_06_01_082402_add_number_to_course.php
+ */
+ALTER TABLE `restore4_cashboxes_courses`
+    CHANGE `course` `course` DECIMAL(12, 3) DEFAULT 0;
