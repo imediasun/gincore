@@ -44,7 +44,7 @@ class invoicing extends AbstractTemplate
             $summ = $order['sum'];
             $products_html = $view->renderFile('prints/waybill_products', array(
                 'goods' => $goods,
-                'amount' => $summ
+                'amount' => $summ / 100
             ));
             $qty_all = count($products_rows);
 
