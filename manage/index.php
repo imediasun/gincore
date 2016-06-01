@@ -134,7 +134,33 @@ try {
             
         }
         if($all_configs['arrequest'][0] == 'forgot_password') {
-
+            $email = trim($_POST['email']);
+            try {
+                if (empty($email)) {
+                    throw new ExceptionWithMsg(l('Email не может быть пустым'));
+                }
+                $user = $all_configs['db']->query('SELECT count(*) FROM {users} WHERE email=?', array($email))->el();
+                if ($user == 0) {
+                    throw new ExceptionWithMsg(l('Пользователь с таким Email не найден'));
+                }
+                $password = simple_password_generator();
+                $user = $all_configs['db']->query('UPDATE {users} SET pass=? WHERE email=?',
+                    array($password, $email))->ar();
+                require_once __DIR__ . '/../mail.php';
+                $messages = new Mailer($all_configs);
+                $messages->group('forgot-password', $email, array('password' => $password));
+                $messages->go();
+                $html_header = 'html_header_login.html';
+                $html_template = 'html_template_forgot_password_result.html';
+                $input['password_send'] = l('Пароль отправлен');
+            } catch (ExceptionWithMsg $e) {
+                $html_header = 'html_header_login.html';
+                $html_template = 'html_template_forgot_password.html';
+                $input['error_message'] = '
+                    <div class="alert alert-error">
+                        <a class="close" data-dismiss="alert" href="#">x</a>' . $e->getMessage() . '
+                    </div>';
+            }
         }
 
         if ($all_configs['arrequest'][0] == 'logout' && $ifauth) {
