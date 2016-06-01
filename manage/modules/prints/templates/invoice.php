@@ -49,7 +49,7 @@ class invoice extends AbstractTemplate
                 'goods' => $goods,
                 'amount' => $summ / 100
             ));
-            $qty_all = count($products_rows);
+            $qty_all = count($goods);
 
             $this->editor = true;
             require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
