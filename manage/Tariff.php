@@ -115,8 +115,8 @@ class Tariff
                     'name' => l('Стартовый'),
                     'start' => date('d-m-Y H:i'),
                     'period' => date('d-m-Y H:i', strtotime('+30 days')),
-                    'number_of_users' => 1,
-                    'number_of_orders' => 30
+                    'number_of_users' => 10,
+                    'number_of_orders' => 300
                 );
             }
             self::saveTariff($response);
