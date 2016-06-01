@@ -42,7 +42,6 @@ class invoicing extends AbstractTemplate
                 array($object))->assoc();
             if ($goods) {
                 foreach ($goods as $product) {
-                    $product['price'] *= 100;
                     $products_rows[] = array(
                         'title' => htmlspecialchars($product['title']),
                         'price' => ($product['price'] / 100) . ' ' . viewCurrency(),
