@@ -103,7 +103,7 @@ class MCategoriesTree extends AModel
      */
     public function getCategoriesIdWithParent()
     {
-        return $this->query('SELECT id, parent_id, title FROM ? group by parent_id, id',
+        return $this->query('SELECT id, parent_id, title FROM ?t group by parent_id, id',
             array($this->table))->assoc('id');
     }
 

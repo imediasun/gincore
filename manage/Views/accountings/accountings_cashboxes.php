@@ -24,7 +24,7 @@
 </div>
 <div class="clearfix">
     <div class="cashbox-tables">
-    <?php if (count($cashboxes) > 0): ?>
+        <?php if (count($cashboxes) > 0): ?>
         <table class="cashboxes-table m-b-md m-t-md">
             <tbody>
             <tr>
@@ -39,7 +39,7 @@
                 <tr>
                     <?php if ($cashboxes_cur): ?>
                         <?php foreach ($cashboxes_cur as $cashbox_cur): ?>
-                            <?php if(array_key_exists($cur_id, $cashbox_cur)): ?>
+                            <?php if (array_key_exists($cur_id, $cashbox_cur)): ?>
                                 <td class="text-success center cashbox-currency-value">
                                     <div><?= $cashbox_cur[$cur_id] ?></div>
                                 </td>
@@ -87,8 +87,9 @@
             </tbody>
         </table>
     </div>
-    <div class="add-cashbox-table" onclick="alert_box(this, false, 'create-cashbox')" data-toggle="tooltip" data-placement="top" title="<?=l('Добавить кассу')?>">
-        <img src="<?=$prefix?>img/add_new_cashbox.png">
+    <div class="add-cashbox-table" onclick="alert_box(this, false, 'create-cashbox')" data-toggle="tooltip"
+         data-placement="top" title="<?= l('Добавить кассу') ?>">
+        <img src="<?= $prefix ?>img/add_new_cashbox.png">
     </div>
 </div>
 <?php else: ?>

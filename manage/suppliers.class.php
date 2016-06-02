@@ -36,7 +36,7 @@ class Suppliers extends Object
         $this->currencies = $this->all_configs['configs']['currencies'];
         $this->currency_clients_orders = $this->all_configs['settings']['currency_orders'];
         $this->currency_suppliers_orders = $this->all_configs['settings']['currency_suppliers_orders'];
-        if(empty($this->currency_suppliers_orders)) {
+        if (empty($this->currency_suppliers_orders)) {
             $this->currency_suppliers_orders = $this->currency_clients_orders;
         }
 
@@ -116,10 +116,10 @@ class Suppliers extends Object
                     'num' => $num,
                     'warehouse_type' => $warehouse_type,
                 );
-                if(!empty($warehouse)) {
+                if (!empty($warehouse)) {
                     $data['wh_id'] = $warehouse;
                 }
-                if(!empty($location)) {
+                if (!empty($location)) {
                     $data['location_id'] = $location;
                 }
                 $this->ContractorsSuppliersOrders->update($data, array('id' => $order_id));
@@ -1739,7 +1739,7 @@ class Suppliers extends Object
                     ));
                     $msg[$k] = array(
                         'state' => true,
-                        'msg' => l('Серийник ') . $debit_items[$k] . l(' успешно добавлен')
+                        'msg' => l('Серийник ') . ' ' . $debit_items[$k] . ' ' . l(' успешно добавлен')
                     );
                 } else {
                     $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
@@ -1756,7 +1756,7 @@ class Suppliers extends Object
             if ($qty > 0) {
                 // ссылка на выдачу изделий
                 $url = $this->all_configs['prefix'] . 'warehouses?by_gid=' . $order['goods_id'] . '#orders-clients_bind';
-                $html .= '<p><a href="' . $url . '"> Выдать изделия</a> под заказы на ремонт <a target="_blank" href="' . $url . '" class="btn">Ok</a></p>';
+                $html .= '<p><a href="' . $url . '">' . l('Выдать изделия') . '</a>' . l('под заказы на ремонт') . '<a target="_blank" href="' . $url . '" class="btn">Ok</a></p>';
             }
             // достаем связку заказов и менеджера
             $links = $this->all_configs['db']->query(

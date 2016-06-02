@@ -1971,7 +1971,7 @@ class Chains extends Object
                     throw new ExceptionWithMsg(l('Такой валюты нет у кассы'));
                 }
             }
-            if ($post['transaction_type'] == TRANSACTION_INPUT) {
+            if ($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_TRANSFER ) {
                 $cashboxes_currency_id_to = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
                     array($post['cashbox_to'], $post['cashbox_currencies_to']))->el();
 
@@ -2091,30 +2091,38 @@ class Chains extends Object
             if (!array_key_exists('date_transaction', $post)) {
                 throw new ExceptionWithMsg(l('Введите дату'));
             }
-
+            if ($client_order_id == 0 && (($post['transaction_type'] == TRANSACTION_OUTPUT
+                        && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from'])
+                    || ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']))
+                && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)
+            ) {
+                throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+            }
+            // таск 964
             // если тип контрагента - поставщик 2
             // сравниваем с валютой поставщиков
-
             // если другой тип контрагента с валютой клиентов
-
-            if ($client_order_id == 0 && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)) {
-                $contractor = db()->query('SELECT * FROM {contractors} WHERE id=?i', array($post['contractors_id']))->row();
-                if ($contractor['type'] == CONTRACTOR_TYPE_PROVIDER) {
-                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from']) {
-                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
-                    }
-                    if ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']) {
-                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
-                    }
-                } else {
-                    if ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_clients_orders != $post['cashbox_currencies_to']) {
-                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_clients_orders]['name']);
-                    }
-                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && $this->all_configs['suppliers_orders']->currency_clients_orders != $post['cashbox_currencies_from']) {
-                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_clients_orders]['name']);
-                    }
-                }
-            }
+            // оказалось поведение ошибочное
+            // @todo закоментил до окончательного решения руководства
+            
+//            if ($client_order_id  == 0 && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)) {
+//                $contractor = db()->query('SELECT * FROM {contractors} WHERE id=?i', array($post['contractors_id']))->row();
+//                if ($contractor['type'] == CONTRACTOR_TYPE_PROVIDER) {
+//                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_from']) {
+//                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+//                    }
+//                    if ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_suppliers_orders != $post['cashbox_currencies_to']) {
+//                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_suppliers_orders]['name']);
+//                    }
+//                } else {
+//                    if ($post['transaction_type'] == TRANSACTION_INPUT && $this->all_configs['suppliers_orders']->currency_clients_orders != $post['cashbox_currencies_to']) {
+//                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_clients_orders]['name']);
+//                    }
+//                    if ($post['transaction_type'] == TRANSACTION_OUTPUT && $this->all_configs['suppliers_orders']->currency_clients_orders != $post['cashbox_currencies_from']) {
+//                        throw new ExceptionWithMsg(l('Оплата производится только в валюте ') . $this->all_configs['configs']['currencies'][$this->all_configs['suppliers_orders']->currency_clients_orders]['name']);
+//                    }
+//                }
+//            }
 
             if ($post['transaction_type'] == TRANSACTION_OUTPUT && (!isset($post['contractor_category_id_to']) || $post['contractor_category_id_to'] == 0)) {
                 throw new ExceptionWithMsg(l('Выберите категорию'));

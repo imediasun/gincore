@@ -12,6 +12,7 @@ $moduleactive[30] = !$ifauth['is_2'];
  * @property  MClients               Clients
  * @property  MCashboxesTransactions CashboxesTransactions
  * @property  MCashboxes             Cashboxes
+ * @property Transactions            Transactions
  */
 class accountings extends Controller
 {
@@ -958,14 +959,12 @@ class accountings extends Controller
     /**
      *
      */
-    function ajax()
+    public function ajax()
     {
-
         $data = array(
             'state' => false,
             'message' => l('Не известная ошибка')
         );
-
         $user_id = $this->getUserId();
         $mod_id = $this->all_configs['configs']['accountings-manage-page'];
 
@@ -1512,7 +1511,8 @@ class accountings extends Controller
                 'out_amounts' => $out_amounts,
                 'all_amount' => $all_amount,
                 'controller' => $this,
-                'cashboxes_cur' => $cashboxes_cur
+                'cashboxes_cur' => $cashboxes_cur,
+                'prefix' => $this->all_configs['prefix']
             ));
         }
 
@@ -2934,11 +2934,11 @@ class accountings extends Controller
                 array($this->all_configs['arrequest'][2]))->vars();
 
             foreach ($contractor_categories_id as $contractor_category_id) {
-                if ($contractor_category_id > 0) {
-                    $this->all_configs['db']->query('DELETE FROM {contractors_categories_links} WHERE contractors_id=?i
+                try {
+                    $this->all_configs['db']->query('UPDATE {contractors_categories_links} SET contractors_categories_id=null WHERE contractors_id=?i
                                     AND contractors_categories_id=?i',
                         array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                }
+                } catch (Exception $e) {}
             }
             // категории
             if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {

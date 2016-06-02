@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../../gincore/vendor/autoload.php';
+
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -16,11 +18,11 @@ class Log
         if (empty($file)) {
             $file = __DIR__ . '/../../logs/error.log';
         }
-        if (empty(self::$logs[$file])) {
+        if (empty(self::$logs[$file]) && is_writable(dirname($file))) {
             self::$logs[$file] = new Logger('app');
             self::$logs[$file]->pushHandler(new StreamHandler($file, Logger::WARNING));
         }
-        return self::$logs[$file];
+        return empty(self::$logs[$file]) ? null : self::$logs[$file];
     }
 
     /**
@@ -29,7 +31,10 @@ class Log
      */
     public static function error($message, $file = '')
     {
-        Log::open($file)->error($message);
+        $log = Log::open($file);
+        if (!empty($log)) {
+            $log->error($message);
+        }
     }
 
     /**
@@ -38,6 +43,18 @@ class Log
      */
     public static function warning($message, $file = '')
     {
-        Log::open($file)->warning($message);
+        $log = Log::open($file);
+        if (!empty($log)) {
+            $log->warning($message);
+        }
+    }
+
+    /**
+     * @param        $variable
+     * @param string $file
+     */
+    public static function dump($variable, $file = '')
+    {
+        self::error(print_r($variable, true), $file);
     }
 }

@@ -262,6 +262,7 @@ class Configs
                 'warehouses',
                 'widgets',
 //            'admin_translates',
+//                'debug',
                 'import'
             ),
             //'wrapper', 'debug', 'admin_translates'
