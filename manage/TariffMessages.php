@@ -68,13 +68,21 @@ class TariffMessages
 
     private function tariffDateMessage()
     {
+        require_once __DIR__ . '/classes/php_rutils/Numeral.php';
+        require_once __DIR__ . '/classes/php_rutils/RUtils.php';
+
         $date_diff = date_diff(date_create(), date_create($this->tariff['period']));
         $days_left = $date_diff->days;
+        
+        $days = array(l('день'), l('дня'), l('дней'));
+        $day = \php_rutils\RUtils::numeral()->choosePlural($days_left, $days);
+        
 //        $days_left = 5;
         if ($days_left <= 5) {
             // l_tariff_message_date_limit
             $text = str_replace('%fio%', $this->getFio(), $this->manage_translates['l_tariff_message_date_limit']);
             $text = str_replace('%days_left%', $days_left, $text);
+            $text = str_replace('%days%', $day, $text);
             return $this->makeHtml($text, self::WARNING);
         }
         return false;

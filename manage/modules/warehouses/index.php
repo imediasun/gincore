@@ -184,7 +184,14 @@ class warehouses extends Controller
             $group_id = isset($post['group_id']) && intval($post['group_id']) > 0 ? intval($post['group_id']) : null;
             $type_id = isset($post['type_id']) && intval($post['type_id']) > 0 ? intval($post['type_id']) : null;
 
-            $this->all_configs['db']->query('UPDATE {warehouses} SET consider_all=?i, consider_store=?i, code_1c=?, title=?, print_address = ?, print_phone = ?, type=?i, group_id=?n, type_id=?n WHERE id=?i',
+            //заблокировал обновления типа (4 - Клиент), при сохраниении сбрасывался в "1". 16.06.16
+            $this->all_configs['db']->query('UPDATE {warehouses} '
+                    . 'SET consider_all=?i, consider_store=?i, code_1c=?, title=?, '
+                    . 'print_address = ?, print_phone = ?, '
+                    //. 'type=?i, '
+                    . 'group_id=?n, '
+                    . 'type_id=?n '
+                    . 'WHERE id=?i',
                 array(
                     $consider_all,
                     $consider_store,
@@ -192,7 +199,7 @@ class warehouses extends Controller
                     trim($post['title']),
                     trim($post['print_address']),
                     trim($post['print_phone']),
-                    $post['type'],
+                    //$post['type'],
                     $group_id,
                     $type_id,
                     $post['warehouse-id']
