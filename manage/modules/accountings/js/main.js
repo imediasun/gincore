@@ -23,7 +23,7 @@ $(function () {
         e.preventDefault();
         alert_box(this, false, 'create-cat-expense');
     });
-    
+
     $('#show_reports_turnover_profit_button').live('click', function(e){
       $(this).remove();
       $('.reports_turnover_profit').removeClass('invisible');
@@ -32,11 +32,11 @@ $(function () {
       $(this).remove();
       $('.reports_turnover_margin').removeClass('invisible');
     });
-    
+
     $(document).on('click', '.add-cashbox-table', function(){
         $(this).tooltip('hide');
     });
-    
+
 });
 
 function toggle_report_cashflow(_this, e, p) {
@@ -77,25 +77,27 @@ function remove_currency(_this) {
 }
 
 function add_currency(_this) {
-    var val = _this.value;
+    var val = parseInt(_this.value);
 
-    $.ajax({
-        url: prefix + module + '/ajax/?act=add-currency',
-        dataType: "json",
-        data: 'currency_id=' + val,
-        type: 'POST',
-        success: function (data) {
-            if (data['state'] == true) {
-                $('#add_new_course').html(data['add']);
-                $('#edit-courses-from').html(data['show']);
-            } else {
-                alert(data['msg']);
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.responseText);
-        }
-    });
+    if(val > 0) {
+      $.ajax({
+          url: prefix + module + '/ajax/?act=add-currency',
+          dataType: "json",
+          data: 'currency_id=' + val,
+          type: 'POST',
+          success: function (data) {
+              if (data['state'] == true) {
+                  $('#add_new_course').html(data['add']);
+                  $('#edit-courses-from').html(data['show']);
+              } else {
+                  alert(data['msg']);
+              }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+              alert(xhr.responseText);
+          }
+      });
+    }
 
     return false;
 }
