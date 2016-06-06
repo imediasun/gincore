@@ -1,3 +1,8 @@
+<style>
+    .input-group-btn:last-child > .btn, .input-group-btn:last-child > .btn-group {
+        z-index: auto !important;
+    }
+</style>
 <form method="post" action="<?= $link ?>" class="">
     <div class="clearfix theme_bg filters-box p-sm m-b-md">
         <div class="row row-15">
@@ -71,10 +76,12 @@
                     </label>
                 </div>
             </div>
-            <div class="col-sm-2 b-r">
+            <div class="col-sm-3 b-r">
                 <div>
-                    <div class="input-group">
+                    <div class="span5">
                         <p class="form-control-static"><?= l('Инженер') ?>:</p>
+                    </div>
+                    <div class="span6">
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]"
                                         multiple="multiple">
@@ -91,8 +98,10 @@
                 </div>
                 <?= $filter_manager ?>
                 <div>
-                    <div class="input-group">
+                    <div class="span5">
                         <p class="form-control-static"><?= l('Приемщик') ?>:</p>
+                    </div>
+                    <div class="span6">
                             <span class="input-group-btn">
                                 <select
                                     data-numberDisplayed="0" <?= ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
@@ -110,8 +119,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="input-group">
+                    <div class="span5">
                         <p class="form-control-static"><?= l('Статус') ?>:</p>
+                    </div>
+                    <div class="span6">
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]"
                                         multiple="multiple">
@@ -127,7 +138,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-3" style="overflow:hidden">
+            <div class="col-sm-2" style="overflow:hidden">
                 <?php if (!empty($wfs)): ?>
                     <?php $sw = isset($_GET['wh']) ? explode(',', $_GET['wh']) : array(); ?>
                     <ul class="nav nav-list well tree" id="tree">
