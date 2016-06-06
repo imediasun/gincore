@@ -101,7 +101,7 @@ class products extends Controller
      * @param array $post
      * @return array
      */
-    public function check_post(Array $post)
+    public function check_post(array $post)
     {
         $mod_id = $this->all_configs['configs']['products-manage-page'];
         $user_id = $this->getUserId();
@@ -111,74 +111,11 @@ class products extends Controller
 
         // создание продукта
         if (isset($post['create-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
+            return $this->createProduct($post, $user_id, $mod_id);
+        }
 
-            $url = transliturl(trim($post['title']));
-
-            // ошибки
-            if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
-                if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
-                    return array('error' => l('Заполните название'), 'post' => $post);
-                }
-            } else {
-                $id = $this->all_configs['db']->query('INSERT INTO {goods}
-                    (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
-                    array(
-                        trim($post['title']),
-                        '',
-                        $url,
-                        isset($post['avail']) ? 1 : 0,
-                        trim($post['price']) * 100,
-                        $user_id,
-                        '',
-                        isset($_POST['type']) ? 1 : 0
-                    ), 'id'
-                );
-
-                if ($id > 0) {
-                    $_POST['product_id'] = $id;
-
-                    if (isset($post['categories']) && count($post['categories']) > 0) {
-                        foreach ($post['categories'] as $new_cat) {
-                            if ($new_cat == 0) {
-                                continue;
-                            }
-                            $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
-                                VALUES (?i, ?i)', array($new_cat, $id));
-                        }
-                    }
-                    $this->History->save('create-goods', $mod_id, $id);
-
-                    require_once $this->all_configs['sitepath'] . 'mail.php';
-                    $messages = new Mailer($this->all_configs);
-
-                    if (isset($post['users']) && count($post['users']) > 0) {
-
-                        foreach ($post['users'] as $user) {
-                            if (intval($user) > 0) {
-                                $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager} SET user_id=?i, goods_id=?i',
-                                    array(intval($user), $id))->ar();
-
-                                if ($ar) {
-                                    $this->History->save('add-manager', $mod_id, intval($user));
-                                }
-                            }
-                        }
-                    }
-
-                    // уведомление
-                    if (isset($post['mail'])) {
-                        $content = l('Создан новый товар') . ' <a href="' . $this->all_configs['prefix'] . 'products/create/' . $id . '">';
-                        $content .= htmlspecialchars(trim($post['title'])) . '</a>.';
-                        $messages->send_message($content, l('Требуется обработка товарной позиции'),
-                            'mess-create-product', 1);
-                    }
-                    if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-                        return array('id' => $id, 'state' => true);
-                    } else {
-                        Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $id);
-                    }
-                }
-            }
+        if (isset($post['delete-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
+            return $this->softDeleteProduct($post, $user_id, $mod_id);
         }
 
         // редактирование товара
@@ -479,7 +416,7 @@ class products extends Controller
                 $this->export_product_1c($product_id);
             }
 
-            header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2]);
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2]);
         }
 
     }
@@ -1046,17 +983,14 @@ class products extends Controller
                     }
                 }
             }
-            header("Location:" . $_SERVER['REQUEST_URI']);
-            exit;
+            Response::redirect($_SERVER['REQUEST_URI']);
         }
 
         // поиск товаров
         if (isset($_POST['search'])) {
             $_GET['s'] = isset($_POST['text']) ? trim($_POST['text']) : '';
-
-            header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
                     $_GET));
-            exit;
         }
 
         // если изменяем нсатройки гарантии
@@ -1083,7 +1017,7 @@ class products extends Controller
                 }
             }
 
-            header("Location:" . $_SERVER['REQUEST_URI']);
+            Response::redirect($_SERVER['REQUEST_URI']);
         }
 
         $goods = $this->goods;
@@ -1148,25 +1082,23 @@ class products extends Controller
 
         if ($act == 'create_form') {
             $form = $this->create_product_form(true, isset($_GET['service']) ? true : false);
-            echo json_encode(array('state' => true, 'html' => $form));
-            exit;
+            Response::json(array('state' => true, 'html' => $form));
         }
 
         if ($act == 'create_new') {
             $_POST['create-product'] = true;
             $create = $this->check_post($_POST);
             if (!empty($create['error'])) {
-                echo json_encode(array('state' => false, 'msg' => $create['error']));
+                $result = array('state' => false, 'msg' => $create['error']);
             } else {
-                echo json_encode(array('state' => true, 'id' => $create['id'], 'name' => $_POST['title']));
+                $result = array('state' => true, 'id' => $create['id'], 'name' => $_POST['title']);
             }
-            exit;
+            Response::json($result);
         }
 
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
-                header("Content-Type: application/json; charset=UTF-8");
 
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
@@ -1176,15 +1108,15 @@ class products extends Controller
                                     'UTF-8')) > 0) ? trim($_POST['hashs']) : null
                         )
                     );
-                    echo json_encode(array(
+                    $result = array(
                         'html' => $function['html'],
                         'state' => true,
                         'functions' => $function['functions']
-                    ));
+                    );
                 } else {
-                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
+                    $result = array('message' => l('Не найдено'), 'state' => false);
                 }
-                exit;
+                Response::json($result);
             }
         }
 
@@ -1197,9 +1129,7 @@ class products extends Controller
         if ($act == 'create-supplier-order') {
             $_POST['goods-goods'] = isset($this->all_configs['arrequest'][2]) ? $this->all_configs['arrequest'][2] : 0;
             $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode($data);
-            exit;
+            Response::json($data);
         }
 
         // экспорт товаров
@@ -1212,22 +1142,16 @@ class products extends Controller
         // новый раздел сопутствующих товаров
         if ($act == 'goods-section') {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
             }
             if (!isset($this->all_configs['arrequest'][2])) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Произошла ошибка'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Произошла ошибка'), 'error' => true));
             }
             $cats = $this->all_configs['db']->query('SELECT category_id FROM {category_goods} WHERE goods_id=?i',
                 array($this->all_configs['arrequest'][2]))->vars();
 
             if (!$cats) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Товар должен находится в категории'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Товар должен находится в категории'), 'error' => true));
             }
             foreach ($cats as $k => $cat_id) {
                 if ($cat_id > 0) {
@@ -1241,89 +1165,25 @@ class products extends Controller
                 }
             }
 
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Успешно создана')));
-            exit;
+            Response::json(array('message' => l('Успешно создана')));
         }
 
         // форма раздела
         if ($act == 'section-form') {
-            $data['state'] = true;
-            $data['content'] = '<form method="post">';
-            if (isset($_POST['object_id']) && $_POST['object_id'] == 'del') {
-                $sections = null;
-                // достаем все категории в которых лежит товар
-                $product_categories = $this->all_configs['db']->query('SELECT cg.category_id, c.title
-                        FROM {categories} as c, {category_goods} as cg WHERE cg.goods_id=?i AND c.id=cg.category_id',
-                    array($this->all_configs['arrequest'][2]))->vars();
-                if (count($product_categories) > 0) {
-                    $sections = $this->all_configs['db']->query('SELECT name, id FROM {related_sections}
-                        WHERE category_id IN (?li) GROUP BY name', array(array_keys($product_categories)))->assoc();
-                }
-
-                $data['content'] .= '<select id="goods_section_name"><option value="">' . l('Выберите') . '</option>';
-                if (is_array($sections)) {
-                    foreach ($sections as $section) {
-                        $data['content'] .= '<option value="' . htmlspecialchars($section['name']) . '">' . htmlspecialchars($section['name']) . '</option>';
-                    }
-                }
-                $data['content'] .= '</select>';
-                $data['btns'] = '<input type="button" value="' . l('Удалить') . '" class="btn btn-danger" onclick="goods_section(this, 1)" />';
-            } else {
-                $data['content'] .= '<input type="text" id="goods_section_name" value="" placeholder="' . l('новый раздел') . '" />';
-                $data['btns'] = '<input type="button" value="' . l('Создать') . '" class="btn btn-success" onclick="goods_section(this, 0)" />';
-            }
-            $data['content'] .= '</form>';
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode($data);
-            exit;
+            $data = $this->sectionForm($data);
+            Response::json($data);
         }
 
         // перемещаем изделие
         if ($act == 'move-item') {
             $data = $this->all_configs['chains']->move_item_request($_POST, $mod_id);
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode($data);
-            exit;
+            Response::json($data);
         }
 
         // добавляем аналогичный
         if ($act == 'context') {
-            if (!isset($_POST['provider']) || !isset($this->all_configs['configs']['api-context'][$_POST['provider']])) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Неизвестный провайдер')));
-                exit;
-            }
-            if (!isset($_POST['goods_id']) || $_POST['goods_id'] == 0) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Неизвестный товар')));
-                exit;
-            }
-            if (!isset($this->all_configs['settings'][$this->all_configs['configs']['api-context'][$_POST['provider']]['avail']])
-                || $this->all_configs['settings'][$this->all_configs['configs']['api-context'][$_POST['provider']]['avail']] == 0
-            ) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Модуль отключен')));
-                exit;
-            }
-            require_once $this->all_configs['sitepath'] . 'shop/context.class.php';
-            $context = new context_class($this->all_configs);
-            // set provider
-            $context->set_provider($_POST['provider']);
-
-            // get campaign
-            $campaign = $context->get_campaign($_POST['goods_id'], true);
-            if ($campaign && array_key_exists($_POST['provider'], $campaign)) {
-                $status = key($campaign[$_POST['provider']]['items']);
-                $campaign_id = key($campaign[$_POST['provider']]['items'][$status]);
-                // update campaign
-                $data = $context->update_ads($campaign[$_POST['provider']]['items'][$status][$campaign_id]);
-            } else {
-                $data['message'] = l('Не хватает данных');
-            }
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode($data);
-            exit;
+            $data = $this->addContext($data);
+            Response::json($data);
         }
 
         // добавляем аналогичный
@@ -1346,9 +1206,7 @@ class products extends Controller
                             (first, second, second_prio) VALUES (?i, ?i, ?i)',
                         array($_POST['product_id'], $this->all_configs['arrequest'][2], 0));
                 }
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('state' => true));
-                exit;
+                Response::json(array('state' => true));
             }
         }
 
@@ -1369,9 +1227,7 @@ class products extends Controller
                 $this->all_configs['db']->query('UPDATE {goods} SET related=? WHERE id=?i',
                     array(serialize($related), $this->all_configs['arrequest'][2]));
 
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('state' => false));
-                exit;
+                Response::json(array('state' => false));
             }
         }
 
@@ -1518,9 +1374,7 @@ class products extends Controller
             $so_id = isset($_POST['order_id']) ? $_POST['order_id'] : 0;
             $co_id = isset($_POST['so_co']) ? $_POST['so_co'] : 0;
             $data = $this->all_configs['suppliers_orders']->orders_link($so_id, $co_id);
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode($data);
-            exit;
+            Response::json($data);
         }
 
         // принятие заказа
@@ -1536,22 +1390,16 @@ class products extends Controller
             }
 
             if (!isset($_GET['name'])) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Введите имя'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Введите имя'), 'error' => true));
             }
             if (!isset($_GET['market_id'])) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Произошла ошибка'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Произошла ошибка'), 'error' => true));
             }
             try {
                 $id = $this->all_configs['db']->query('INSERT INTO {exports_markets_categories} (title,market_id) VALUES (?,?i)',
                     array($_GET['name'], $_GET['market_id']), 'id');
             } catch (Exception $e) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Произошла ошибка'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Произошла ошибка'), 'error' => true));
             }
 
             $this->History->save('add-market-category', $mod_id, $id);
@@ -1561,109 +1409,21 @@ class products extends Controller
         }
 
         if (isset($_POST['act']) && $_POST['act'] == 'hotline' && $this->all_configs['oRole']->hasPrivilege('parsing')) {
-            if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
-                exit;
-            }
-            include($this->all_configs['sitepath'] . 'hotlineparse.php');
-
-            if (!isset($_POST['hotline_url']) || empty($_POST['hotline_url'])) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Заполните ссылку на hotline'), 'error' => true));
-                exit;
-            }
-            if (!isset($_POST['goods_id']) || empty($_POST['goods_id'])) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Попробуйте еще раз'), 'error' => true));
-                exit;
-            }
-
-            $prices = build_hotline_url(array('hotline_url' => $_POST['hotline_url'], 'goods_id' => $_POST['goods_id']),
-                getCourse($this->all_configs['settings']['currency_suppliers_orders']), $this->all_configs['configs']);
-
-            if (!$prices) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Неправильная ссылка'), 'error' => true));
-                exit;
-            }
-
-            // записываем в бд
-            $this->all_configs['db']->query('DELETE FROM {goods_hotline_prices} WHERE goods_id=?i',
-                array($_POST['goods_id']));
-            $this->all_configs['db']->query('INSERT INTO {goods_hotline_prices}
-                (`price`, `shop`, `goods_id`, `number_list`, `date_add`) VALUES ?v', array($prices));
-
-            $val = $this->all_configs['db']->query('SELECT e.*, g.price
-                    FROM {goods_extended} as e, {goods} as g WHERE g.id=?i AND g.id=e.goods_id',
-                array($_POST['goods_id']))->row();
-
-            $msg = '';
-            // обновление цены
-            if ($val && $val['hotline_flag'] == 1) {
-                $price = $val['price'];
-
-                if ($val['hotline_number_list_flag'] == 1) {
-                    if ($val['hotline_number_list'] > 0) {
-                        foreach ($prices as $hv) {
-                            if ($hv['number_list'] == $val['hotline_number_list']) {
-                                $price = $hv['price'];
-                                break;
-                            }
-                        }
-                    } else {
-                        $price = $prices[0]['number_list'];
-                    }
-                } elseif ($val['hotline_shop_flag'] == 1) {
-                    foreach ($prices as $hv) {
-                        if ($hv['shop'] == $val['hotline_shop']) {
-                            $price = $hv['price'];
-                            break;
-                        }
-                    }
-                }
-
-                if ($val['purchase_flag'] == 1 && $price < ($val['price_purchase'] + $val['purchase'])) {
-                    if ($val['price_purchase'] == 0) {
-                        $price = $val['price'];
-
-                    } else {
-                        $price = ($val['price_purchase'] + $val['purchase']);
-                    }
-                }
-                $price -= (intval($val['hotline_less']) * 100);
-
-                $ar = $this->all_configs['db']->query('UPDATE {goods} SET `price`=? WHERE id=?i',
-                    array($price, $_POST['goods_id']))->ar();
-                if ($ar) {
-                    $msg = l('Цена товара изменена.');
-                }
-            }
-
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array(/*'table' => $out, */
-                'message' => l('Цены успешно загружены.') . $msg
-            ));
-            exit;
+            $data = $this->saveHotlinePrices();
+            Response::json($data);
         }
 
         if (isset($_POST['act']) && $_POST['act'] == 'export_product' && $this->all_configs['configs']['onec-use'] == true) {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('У Вас недостаточно прав'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
             }
             if (!isset($_POST['goods_id']) || $_POST['goods_id'] < 1) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Такого товара не существует'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Такого товара не существует'), 'error' => true));
             }
 
             $this->export_product_1c($_POST['goods_id']);
 
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => l('Товар успешно выгружен')));
-            exit;
+            Response::json(array('message' => l('Товар успешно выгружен')));
 
         }
         if (isset($_POST['act']) && $_POST['act'] == 'goods_add_size_group') {
@@ -1703,12 +1463,12 @@ class products extends Controller
                 $data['msg'] = l('Неверный id группы');
             }
             header("Content-Type: application/json; charset=UTF-8");
-            echo $data;//json_encode($data);
+            echo $data;
             exit;
         }
 
         header("Content-Type: application/json; charset=UTF-8");
-        echo $data; //json_encode($data);
+        echo $data;
         exit;
     }
 
@@ -2246,5 +2006,237 @@ class products extends Controller
         return $option == true
             ? ' value="' . $url . '" ' . $active . ' '
             : ' onclick="javascript:window.location.href=\'' . $url . '\'; return false;" ' . $active . ' ';
+    }
+
+    /**
+     * @param array $post
+     * @param       $user_id
+     * @param       $mod_id
+     * @return array|string
+     */
+    private function createProduct(array $post, $user_id, $mod_id)
+    {
+        $url = transliturl(trim($post['title']));
+
+        // ошибки
+        if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
+            return array('error' => l('Заполните название'), 'post' => $post);
+        }
+        $id = $this->all_configs['db']->query('INSERT INTO {goods}
+                    (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
+            array(
+                trim($post['title']),
+                '',
+                $url,
+                isset($post['avail']) ? 1 : 0,
+                trim($post['price']) * 100,
+                $user_id,
+                '',
+                isset($_POST['type']) ? 1 : 0
+            ), 'id'
+        );
+
+        if ($id > 0) {
+            $_POST['product_id'] = $id;
+
+            if (isset($post['categories']) && count($post['categories']) > 0) {
+                foreach ($post['categories'] as $new_cat) {
+                    if ($new_cat == 0) {
+                        continue;
+                    }
+                    $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
+                                VALUES (?i, ?i)', array($new_cat, $id));
+                }
+            }
+            $this->History->save('create-goods', $mod_id, $id);
+
+            require_once $this->all_configs['sitepath'] . 'mail.php';
+            $messages = new Mailer($this->all_configs);
+
+            if (isset($post['users']) && count($post['users']) > 0) {
+
+                foreach ($post['users'] as $user) {
+                    if (intval($user) > 0) {
+                        $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager} SET user_id=?i, goods_id=?i',
+                            array(intval($user), $id))->ar();
+
+                        if ($ar) {
+                            $this->History->save('add-manager', $mod_id, intval($user));
+                        }
+                    }
+                }
+            }
+
+            // уведомление
+            if (isset($post['mail'])) {
+                $content = l('Создан новый товар') . ' <a href="' . $this->all_configs['prefix'] . 'products/create/' . $id . '">';
+                $content .= htmlspecialchars(trim($post['title'])) . '</a>.';
+                $messages->send_message($content, l('Требуется обработка товарной позиции'),
+                    'mess-create-product', 1);
+            }
+            if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
+                return array('id' => $id, 'state' => true);
+            } else {
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $id);
+            }
+        }
+        return '';
+    }
+
+    public function softDeleteProduct($post, $user_id, $mod_id)
+    {
+        return array();
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function sectionForm($data)
+    {
+        $data['state'] = true;
+        $data['content'] = '<form method="post">';
+        if (isset($_POST['object_id']) && $_POST['object_id'] == 'del') {
+            $sections = null;
+            // достаем все категории в которых лежит товар
+            $product_categories = $this->all_configs['db']->query('SELECT cg.category_id, c.title
+                        FROM {categories} as c, {category_goods} as cg WHERE cg.goods_id=?i AND c.id=cg.category_id',
+                array($this->all_configs['arrequest'][2]))->vars();
+            if (count($product_categories) > 0) {
+                $sections = $this->all_configs['db']->query('SELECT name, id FROM {related_sections}
+                        WHERE category_id IN (?li) GROUP BY name', array(array_keys($product_categories)))->assoc();
+            }
+
+            $data['content'] .= '<select id="goods_section_name"><option value="">' . l('Выберите') . '</option>';
+            if (is_array($sections)) {
+                foreach ($sections as $section) {
+                    $data['content'] .= '<option value="' . htmlspecialchars($section['name']) . '">' . htmlspecialchars($section['name']) . '</option>';
+                }
+            }
+            $data['content'] .= '</select>';
+            $data['btns'] = '<input type="button" value="' . l('Удалить') . '" class="btn btn-danger" onclick="goods_section(this, 1)" />';
+        } else {
+            $data['content'] .= '<input type="text" id="goods_section_name" value="" placeholder="' . l('новый раздел') . '" />';
+            $data['btns'] = '<input type="button" value="' . l('Создать') . '" class="btn btn-success" onclick="goods_section(this, 0)" />';
+        }
+        $data['content'] .= '</form>';
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function addContext($data)
+    {
+        if (!isset($_POST['provider']) || !isset($this->all_configs['configs']['api-context'][$_POST['provider']])) {
+            return array('message' => l('Неизвестный провайдер'));
+        }
+        if (!isset($_POST['goods_id']) || $_POST['goods_id'] == 0) {
+            return array('message' => l('Неизвестный товар'));
+        }
+        if (!isset($this->all_configs['settings'][$this->all_configs['configs']['api-context'][$_POST['provider']]['avail']])
+            || $this->all_configs['settings'][$this->all_configs['configs']['api-context'][$_POST['provider']]['avail']] == 0
+        ) {
+            return array('message' => l('Модуль отключен'));
+        }
+        require_once $this->all_configs['sitepath'] . 'shop/context.class.php';
+        $context = new context_class($this->all_configs);
+        // set provider
+        $context->set_provider($_POST['provider']);
+
+        // get campaign
+        $campaign = $context->get_campaign($_POST['goods_id'], true);
+        if ($campaign && array_key_exists($_POST['provider'], $campaign)) {
+            $status = key($campaign[$_POST['provider']]['items']);
+            $campaign_id = key($campaign[$_POST['provider']]['items'][$status]);
+            // update campaign
+            $data = $context->update_ads($campaign[$_POST['provider']]['items'][$status][$campaign_id]);
+        } else {
+            $data['message'] = l('Не хватает данных');
+        }
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    private function saveHotlinePrices()
+    {
+        if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
+            return array('message' => l('У Вас недостаточно прав'), 'error' => true);
+        }
+        
+        include($this->all_configs['sitepath'] . 'hotlineparse.php');
+
+        if (!isset($_POST['hotline_url']) || empty($_POST['hotline_url'])) {
+            return array('message' => l('Заполните ссылку на hotline'), 'error' => true);
+        }
+        if (!isset($_POST['goods_id']) || empty($_POST['goods_id'])) {
+            return array('message' => l('Попробуйте еще раз'), 'error' => true);
+        }
+
+        $prices = build_hotline_url(array('hotline_url' => $_POST['hotline_url'], 'goods_id' => $_POST['goods_id']),
+            getCourse($this->all_configs['settings']['currency_suppliers_orders']), $this->all_configs['configs']);
+
+        if (!$prices) {
+            return array('message' => l('Неправильная ссылка'), 'error' => true);
+        }
+
+        // записываем в бд
+        $this->all_configs['db']->query('DELETE FROM {goods_hotline_prices} WHERE goods_id=?i',
+            array($_POST['goods_id']));
+        $this->all_configs['db']->query('INSERT INTO {goods_hotline_prices}
+                (`price`, `shop`, `goods_id`, `number_list`, `date_add`) VALUES ?v', array($prices));
+
+        $val = $this->all_configs['db']->query('SELECT e.*, g.price
+                    FROM {goods_extended} as e, {goods} as g WHERE g.id=?i AND g.id=e.goods_id',
+            array($_POST['goods_id']))->row();
+
+        $msg = '';
+        // обновление цены
+        if ($val && $val['hotline_flag'] == 1) {
+            $price = $val['price'];
+
+            if ($val['hotline_number_list_flag'] == 1) {
+                if ($val['hotline_number_list'] > 0) {
+                    foreach ($prices as $hv) {
+                        if ($hv['number_list'] == $val['hotline_number_list']) {
+                            $price = $hv['price'];
+                            break;
+                        }
+                    }
+                } else {
+                    $price = $prices[0]['number_list'];
+                }
+            } elseif ($val['hotline_shop_flag'] == 1) {
+                foreach ($prices as $hv) {
+                    if ($hv['shop'] == $val['hotline_shop']) {
+                        $price = $hv['price'];
+                        break;
+                    }
+                }
+            }
+
+            if ($val['purchase_flag'] == 1 && $price < ($val['price_purchase'] + $val['purchase'])) {
+                if ($val['price_purchase'] == 0) {
+                    $price = $val['price'];
+
+                } else {
+                    $price = ($val['price_purchase'] + $val['purchase']);
+                }
+            }
+            $price -= (intval($val['hotline_less']) * 100);
+
+            $ar = $this->all_configs['db']->query('UPDATE {goods} SET `price`=? WHERE id=?i',
+                array($price, $_POST['goods_id']))->ar();
+            if ($ar) {
+                $msg = l('Цена товара изменена.');
+            }
+        }
+
+        return array(
+            'message' => l('Цены успешно загружены.') . $msg
+        );
     }
 }

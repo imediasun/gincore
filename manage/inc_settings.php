@@ -28,6 +28,15 @@ define('CONTRACTOR_TYPE_PROVIDER', 2);
 define('CONTRACTOR_TYPE_BUYER', 3);
 define('CONTRACTOR_TYPE_EMPLOYER', 4);
 
+define('GOODS_TYPE_ITEM', 0b001);
+define('GOODS_TYPE_SERVICE', 0b010);
+define('GOODS_TYPE_ITEM_DELETED', 0b101);
+define('GOODS_TYPE_SERVICE_DELETED', 0b110);
+
+define('CATEGORIES_TYPE_ACTIVE', 0b001);
+define('CATEGORIES_TYPE_DELETED', 0b101);
+
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';
