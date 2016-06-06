@@ -803,7 +803,7 @@ class manageModel
      * @param array $filters
      * @return array
      */
-    public function profit_margin($filters = array()/*, $return_table = false*/)
+    public function profit_margin($filters = array())
     {
         // фильтры
 
@@ -947,8 +947,7 @@ class manageModel
                 $orders[$order_id]['profit'] = 0;
 
                 if ($order['has_to'] > 0) {
-                    $orders[$order_id]['profit'] = $order['value_to']/* - $orders[$order_id]['purchase']*/
-                    ;
+                    $orders[$order_id]['profit'] = $order['value_to'];
                 }
                 if ($order['has_from'] > 0) {
                     $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value']/ 100);

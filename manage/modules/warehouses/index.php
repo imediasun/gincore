@@ -97,7 +97,6 @@ class warehouses extends Controller
 
 
         } elseif (isset($post['warehouse-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            Log::error('ppppp');
             // создать склад
             $consider_all = 0;
             if (isset($post['consider_all'])) {
