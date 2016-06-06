@@ -57,8 +57,8 @@ class widgets extends \service
     {
         return "jQuery(document).ready(function () {
         if (!document.getElementById('gcwidgets')) {
-            var e = $('<div></div>');
-            $('body').append(e);
+            var e = jQuery('<div></div>');
+            jQuery('body').append(e);
             e.attr('id', 'gcwidgets');
         }
         jQuery('#gcwidgets').append(decodeURIComponent('" . rawUrlEncode($html) . "'));
