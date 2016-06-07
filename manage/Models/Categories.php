@@ -8,6 +8,15 @@ class MCategories extends AModel
     /**
      * @return array
      */
+    public function getRecycleBin()
+    {
+        return $this->query('SELECT * FROM ?t WHERE url=?',
+            array($this->table, 'recycle-bin'))->row();
+    }
+    
+    /**
+     * @return array
+     */
     public function columns()
     {
         return array(

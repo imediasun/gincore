@@ -5,6 +5,12 @@ $modulename[60] = 'products';
 $modulemenu[60] = l('Товары');
 $moduleactive[60] = !$ifauth['is_2'];
 
+/**
+ * Class products
+ *
+ * @property MGoods      Goods
+ * @property MCategories Categories
+ */
 class products extends Controller
 {
     private $goods = array();
@@ -18,6 +24,10 @@ class products extends Controller
     public $count_on_page = 20;
 
     private $errors = array();
+    public $uses = array(
+        'Goods',
+        'Categories'
+    );
 
     /**
      * @inheritdoc
@@ -115,7 +125,10 @@ class products extends Controller
         }
 
         if (isset($post['delete-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            return $this->softDeleteProduct($post, $user_id, $mod_id);
+            $this->deleteProduct($post, $mod_id);
+        }
+        if (isset($post['restore-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
+            $this->restoreProduct($post, $mod_id);
         }
 
         // редактирование товара
@@ -2083,9 +2096,34 @@ class products extends Controller
         return '';
     }
 
-    public function softDeleteProduct($post, $user_id, $mod_id)
+    /**
+     * @param $post
+     * @param $mod_id
+     */
+    public function deleteProduct($post, $mod_id)
     {
-        return array();
+        $product = $this->Goods->getByPk(intval($post['id']));
+        if (!empty($product)) {
+            $this->Goods->update(array('deleted' => 1), array('id' => $product['id']));
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (!empty($recycleBin)) {
+                $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i', array(intval($post['id'])));
+                $this->all_configs['db']->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)', array(intval($post['id']), $recycleBin['id']));
+            }
+
+            $this->History->save('delete-product', $mod_id, $product['id']);
+        }
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     */
+    public function restoreProduct($post, $mod_id)
+    {
+        $this->Goods->update(array('deleted' => 0), array('id' => intval($post['id'])));
+        $this->History->save('restore-product', $mod_id, intval($post['id']));
+        $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i', array(intval($post['id'])));
     }
 
     /**
@@ -2166,7 +2204,7 @@ class products extends Controller
         if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
             return array('message' => l('У Вас недостаточно прав'), 'error' => true);
         }
-        
+
         include($this->all_configs['sitepath'] . 'hotlineparse.php');
 
         if (!isset($_POST['hotline_url']) || empty($_POST['hotline_url'])) {

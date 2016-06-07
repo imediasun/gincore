@@ -12,17 +12,17 @@ class SoftDeleteItemsAndCategories extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('categories', 'type')) {
+        if (!Schema::hasColumn('categories', 'deleted')) {
             Schema::table('categories', function ($table) {
-                $table->integer('type')->default(1);
+                $table->integer('deleted')->default(0);
             });
 
         }
         DB::table('categories')->insert(array(
-            'title' => 'Trash Bin',
+            'title' => 'Recycle Bin',
             'parent_id' => 0,
             'avail' => 0,
-            'url' => 'trash-bin',
+            'url' => 'recycle-bin',
             'content' => '',
             'page_content' => '',
             'page_title' => '',
@@ -33,7 +33,7 @@ class SoftDeleteItemsAndCategories extends Migration
             'information' => '',
             'rating' => 0,
             'votes' => 0,
-            'type' => 0b101
+            'deleted' => 0
         ));
     }
 
@@ -44,9 +44,9 @@ class SoftDeleteItemsAndCategories extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn('categories', 'type')) {
+        if (Schema::hasColumn('categories', 'deleted')) {
             Schema::table('categories', function ($table) {
-                $table->dropColumn('type');
+                $table->dropColumn('deleted');
             });
         }
     }

@@ -14,6 +14,14 @@ class forms
     private $def_lang;
     private $langs;
 
+    /**
+     * forms constructor.
+     * @param      $all_configs
+     * @param      $lang
+     * @param      $def_lang
+     * @param      $langs
+     * @param bool $init
+     */
     function __construct($all_configs, $lang, $def_lang, $langs, $init = true)
     {
         $this->def_lang = $def_lang;
@@ -41,6 +49,10 @@ class forms
         $input_html['mcontent'] = $this->gencontent();
     }
 
+    /**
+     * @param array $form
+     * @return string
+     */
     private function form($form = array())
     {
 
@@ -97,6 +109,9 @@ class forms
         return $html;
     }
 
+    /**
+     * @return string
+     */
     private function genmenu()
     {
 
@@ -123,6 +138,10 @@ class forms
         return $out;
     }
 
+    /**
+     * @param array $field
+     * @return string
+     */
     private function field_form($field = array())
     {
 
@@ -172,6 +191,9 @@ class forms
         return $form;
     }
 
+    /**
+     * @return string
+     */
     private function gencontent()
     {
 
@@ -497,6 +519,9 @@ class forms
         return $out;
     }
 
+    /**
+     *
+     */
     private function ajax()
     {
 

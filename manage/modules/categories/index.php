@@ -217,6 +217,34 @@ class categories extends Controller
 
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                 . $this->all_configs['arrequest'][1] . '/' . intval($post['id']));
+        } elseif (isset($post['delete-category']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (empty($recycleBin)) {
+                FlashMessage::set(l('Корзина не найдена. Обновите систему.'), FlashMessage::INFO);
+            } else {
+                $this->Categories->update(array(
+                    'parent' => $recycleBin['id'],
+                ), array('id' => intval($post['id'])));
+                $this->History->save('delete-category', $mod_id, intval($post['id']));
+                $this->setDeleted(1, $post['id']);
+            }
+            if ($redirect) {
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+                    . $this->all_configs['arrequest'][1]);
+            }
+        } elseif (isset($post['recovery-category']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
+            $category = $this->Categories->query('SELECT * FROM {categories} WHERE id=?',
+                array($post['id']))->row();
+            if (empty($category)) {
+                FlashMessage::set(l('Категория не в корзине.'), FlashMessage::INFO);
+            } else {
+                $this->Categories->update(array(
+                    'parent' => 0,
+                ), array('id' => intval($post['id'])));
+                $this->History->save('restore-category', $mod_id, intval($post['id']));
+                $this->setDeleted(0, $post['id']);
+            }
+
         }
         return '';
     }
@@ -721,7 +749,7 @@ class categories extends Controller
             ), array('id' => $_POST['cur_id']));
 
             // достаем всех соседей категории
-            $categories = $this->all_configs['db']->query('SELECT id, prio FROM {categories}
+            $categories = $this->Categories->query('SELECT id, prio FROM {categories}
                       WHERE parent_id IN (SELECT parent_id FROM {categories} WHERE id=?i)
                         AND id<>?i ORDER BY prio',
                 array($_POST['cur_id'], $_POST['cur_id']))->vars();
@@ -730,8 +758,6 @@ class categories extends Controller
                 $i = 1;
                 foreach ($categories as $category => $prio) {
                     $i = $i == $position ? $i + 1 : $i;
-                    $this->all_configs['db']->query('UPDATE {categories} SET prio=?i WHERE id=?i',
-                        array($i, $category));
                     $this->Categories->update(array(
                         'prio' => $i
                     ), array('id' => $category));
@@ -742,6 +768,22 @@ class categories extends Controller
             $data['state'] = true;
         }
         return $data;
+    }
+
+    /**
+     * @param $state
+     * @param $id
+     */
+    private function setDeleted($state, $id)
+    {
+        $this->Categories->update(array('deleted' => $state), array('id' => $id));
+        $ids = array($id);
+        do {
+            $this->Categories->update(array('deleted' => $state), array('id' => $ids));
+            $this->all_configs['db']->query('UPDATE {goods} SET deleted=?i WHERE id in (SELECT goods_id FROM {category_goods} WHERE category_id in (?li))', array($state, $ids));
+            $ids = $this->Categories->query('SELECT id FROM {categories} WHERE parent_id in ?li',
+                array($ids))->col();
+        } while (!empty($ids));
     }
 }
 

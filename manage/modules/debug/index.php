@@ -12,8 +12,12 @@ class debug{
 
     public $debuggers;
     public $debug_title = '';
-    
-    function __construct(&$all_configs)
+
+	/**
+	 * debug constructor.
+	 * @param $all_configs
+     */
+	function __construct(&$all_configs)
     {
         global $input_html, $ifauth;
 
@@ -57,7 +61,10 @@ class debug{
         $input_html['mcontent'] = $this->gencontent();
     }
 
-    private function genmenu(){
+	/**
+	 * @return string
+     */
+	private function genmenu(){
         $out = '<h4>'.l('debug_list')
 //                .' <a style="text-decoration:none" href="'.$this->all_configs['prefix'].'settings/add">+</a>'
                 .'</h4>';
@@ -79,7 +86,10 @@ class debug{
         return $out;
     }
 
-    private function gencontent(){
+	/**
+	 * @return mixed|string
+     */
+	private function gencontent(){
         GLOBAL $ifauth;
 
         $id = isset($_POST['id']) ? $_POST['id'] : '';
@@ -109,7 +119,10 @@ class debug{
         return $out;
     }
 
-    private function ajax(){
+	/**
+	 *
+     */
+	private function ajax(){
 
         $data = array(
             'state' => false
@@ -119,8 +132,12 @@ class debug{
         echo json_encode($data);
         exit;
     }
-    
-    private function gen_debuggers(){
+
+	/**
+	 * @return string
+	 * @throws Exception
+     */
+	private function gen_debuggers(){
         $out = '';
         $href = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1];
 
@@ -501,7 +518,12 @@ class debug{
         return $out;
     }
 
-	
+
+	/**
+	 * @param      $price_table
+	 * @param bool $competitor
+	 * @return string
+     */
 	function get_price_table_1($price_table, $competitor = false){
 	
 		$rows = null;
@@ -532,8 +554,13 @@ class debug{
 	return $tbl;
 	
 	}
-	
-	
+
+
+	/**
+	 * @param      $price_table
+	 * @param bool $competitor
+	 * @return string
+     */
 	function get_price_table_2($price_table, $competitor = false ){
 	
 		$rows = null;
@@ -576,8 +603,12 @@ class debug{
 	return $tbl;
 	
 	}
-	
-	
+
+
+	/**
+	 * @param $price
+	 * @return string
+     */
 	function get_price_mark($price){
 		if (preg_match("/от/i",$price)){
 			$price_mark = "от";
@@ -590,7 +621,11 @@ class debug{
 		}
 		return $price_mark ;
 	}
-	
+
+	/**
+	 * @param $content
+	 * @return array
+     */
 	function parse_price($content){
 		$prices = array();
 		$html = str_get_html($content); 

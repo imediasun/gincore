@@ -1679,5 +1679,5 @@ db()->query("INSERT INTO {categories} (`id`, `title`, `parent_id`, `avail`, `url
 (1673, '".lq("Nokia 305")."', 0, b'1', 'nokia-305', NULL, '', NULL, NULL, NULL, '', '', '', '', '2015-10-07 13:50:46', '', '', 0.00, 0),
 (1674, '".lq("Acer E310")."', 245, b'1', 'acer-e310', NULL, '', NULL, NULL, NULL, '', '', '', '', '2015-10-08 07:13:21', '', '', 0.00, 0)");
 
-db()->query("INSERT INTO {categories} (`id`, `title`, `parent_id`, `avail`, `url`, `prio`, `content`, `thumbs`, `image`, `cat-image`, `page_content`, `page_title`, `page_description`, `page_keywords`, `date_add`, `warehouses_suppliers`, `information`, `rating`, `votes`, `type`) VALUES
-(1675, '".lq("Корзина")."', 0, b'0', 'trash-bin', NULL, '', NULL, NULL, NULL, '', '', '', '', '2015-10-08 07:13:21', '', '', 0.00, 0, b'101')");
+db()->query("INSERT INTO {categories} (`id`, `title`, `parent_id`, `avail`, `url`, `prio`, `content`, `thumbs`, `image`, `cat-image`, `page_content`, `page_title`, `page_description`, `page_keywords`, `date_add`, `warehouses_suppliers`, `information`, `rating`, `votes`, `deleted`) VALUES
+(1675, '".lq("Корзина")."', 0, b'0', 'recycle-bin', NULL, '', NULL, NULL, NULL, '', '', '', '', '2015-10-08 07:13:21', '', '', 0.00, 0, 0)");
