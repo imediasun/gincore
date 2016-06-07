@@ -39,7 +39,7 @@ class MCategories extends AModel
             'information',
             'rating',
             'votes',
-            'type'
+            'deleted'
         );
     }
 }

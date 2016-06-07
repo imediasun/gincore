@@ -182,3 +182,13 @@
     -webkit-column-count: 4;
     column-count: 4;
 }
+.js-delete-category {
+    cursor: pointer;
+    float: right;
+    margin: 4px 5px 0 2px;
+    position: relative;
+    z-index: 2;
+}
+.glyphicon.glyphicon-remove.js-delete-category {
+    line-height: 10px;
+}

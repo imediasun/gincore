@@ -159,64 +159,7 @@ class products extends Controller
 
             //если нужно удаляeм картинку с базы и с папки
             if (isset($post['images_del'])) {
-                $secret_title = $this->all_configs['db']->query('SELECT secret_title FROM {goods} WHERE id=?i',
-                    array($product_id))->el();
-
-                foreach ($post['images_del'] AS $del_id => $image_title) {
-                    $this->all_configs['db']->query('DELETE FROM {goods_images} WHERE id=?i', array(intval($del_id)));
-                    unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $image_title);
-
-                    $path_parts = full_pathinfo($image_title);
-
-                    if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension'])) {
-                        unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension']);
-                    }
-                    if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension'])) {
-                        unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension']);
-                    }
-
-                    if (isset($post['one-image-secret_title']) && $this->all_configs['configs']['one-image-secret_title'] == true && mb_strlen($secret_title,
-                            'UTF-8') > 0
-                    ) {
-                        $del_related = $this->all_configs['db']->query('SELECT id FROM {goods} WHERE secret_title=? AND id<>?i',
-                            array($secret_title, $product_id))->assoc();
-
-                        if ($del_related && count($del_related) > 0) {
-                            foreach ($del_related as $del_r) {
-                                $this->all_configs['db']->query('DELETE FROM {goods_images} WHERE goods_id=?i AND image=?',
-                                    array($del_r['id'], $image_title));
-
-                                unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $image_title);
-
-                                $path_parts = full_pathinfo($image_title);
-
-                                if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension'])) {
-                                    unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension']);
-                                }
-                                if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension'])) {
-                                    unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension']);
-                                }
-
-                                $count_images = $this->all_configs['db']->query('SELECT count(id) FROM {goods_images} WHERE goods_id=?i',
-                                    array($del_r['id']))->el();
-
-                                if ($count_images == 0) {
-                                    $this->all_configs['db']->query('UPDATE {goods} SET image_set=?i WHERE id=?i',
-                                        array(0, $del_r['id']));
-                                }
-                            }
-                        }
-                    }
-
-                    $count_images = $this->all_configs['db']->query('SELECT count(id) FROM {goods_images} WHERE goods_id=?i',
-                        array($product_id))->el();
-
-                    if ($count_images == 0) {
-                        $this->all_configs['db']->query('UPDATE {goods} SET image_set=?i WHERE id=?i',
-                            array(0, $product_id));
-                    }
-                }
-                $this->History->save('delete-goods-image', $mod_id, $product_id);
+                $post = $this->deleteImage($post, $product_id, $mod_id);
             }
 
             if (isset($post['youtube'])) {
@@ -247,62 +190,12 @@ class products extends Controller
 
             // основные
             if (isset($post['edit-product-main'])) {
-                $url = (isset($post['url']) && !empty($post['url'])) ? trim($post['url']) : trim($post['title']);
-
-                if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
-                    return array('error' => l('Заполните название'), 'post' => $post);
-                }
-
-                $ar = $this->all_configs['db']->query('UPDATE {goods}
-                    SET title=?, secret_title=?, url=?n, prio=?i, article=?n, barcode=? WHERE id=?i',
-                    array(
-                        trim($post['title']),
-                        trim($post['secret_title']),
-                        transliturl($url),
-                        intval($post['prio']),
-                        empty($post['article']) ? null : trim($post['article']),
-                        trim($post['barcode']),
-                        $product_id
-                    ))->ar();
-
-                if (intval($ar) > 0) {
-                    $this->History->save('edit-goods', $mod_id, $product_id);
-                }
+                return $this->editProductMain($post, $product_id, $mod_id);
             }
 
             // дополнительно
             if (isset($post['edit-product-additionally'])) {
-
-                $ar = $this->all_configs['db']->query('UPDATE {goods}
-                    SET avail=?i, type=?i WHERE id=?i',
-                    array(isset($post['avail']) ? 1 : 0, isset($post['type']) ? 1 : 0, $product_id))->ar();
-
-                if (intval($ar) > 0) {
-                    $this->History->save('edit-goods', $mod_id, $product_id);
-
-                }
-
-                $query = '';
-                if (isset($post['categories']) && count($post['categories']) > 0) {
-                    $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
-                        array($post['categories']));
-                }
-                $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
-                    array($product_id, $query));
-
-                // добавляем товар в старые/новые категории
-                if (isset($post['categories']) && count($post['categories']) > 0) {
-                    foreach ($post['categories'] as $new_cat) {
-                        if ($new_cat == 0) {
-                            continue;
-                        }
-
-                        $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
-                                VALUES (?i, ?i)', array($new_cat, $product_id));
-
-                    }
-                }
-
+                $post = $this->editProductAdditionally($post, $product_id, $mod_id);
             }
 
             // менеджеры
@@ -337,91 +230,13 @@ class products extends Controller
 
             // омт уведомления
             if (isset($post['edit-product-omt_notices'])) {
-                $each_sale = 0;
-                if (isset($post['each_sale'])) {
-                    $each_sale = 1;
-                }
-                $by_balance = 0;
-                if (isset($post['by_balance'])) {
-                    $by_balance = 1;
-                }
-                $balance = 0;
-                if (isset($post['balance']) && $post['balance'] > 0) {
-                    $balance = intval($post['balance']);
-                }
-                $by_critical_balance = 0;
-                if (isset($post['by_critical_balance'])) {
-                    $by_critical_balance = 1;
-                }
-                $critical_balance = 0;
-                if (isset($post['critical_balance']) && $post['critical_balance'] > 0) {
-                    $critical_balance = intval($post['critical_balance']);
-                }
-                $seldom_sold = 0;
-                if (isset($post['seldom_sold'])) {
-                    $seldom_sold = 1;
-                }
-                $supply_goods = 0;
-                if (isset($post['supply_goods'])) {
-                    $supply_goods = 1;
-                }
-                $this->all_configs['db']->query('INSERT INTO {users_notices} (user_id, goods_id, each_sale, by_balance,
-                        balance, by_critical_balance, critical_balance, seldom_sold, supply_goods)
-                      VALUES (?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i) ON duplicate KEY
-                    UPDATE user_id=VALUES(user_id), goods_id=VALUES(goods_id), each_sale=VALUES(each_sale),
-                      by_balance=VALUES(by_balance), balance=VALUES(balance), by_critical_balance=VALUES(by_critical_balance),
-                      critical_balance=VALUES(critical_balance), seldom_sold=VALUES(seldom_sold), supply_goods=VALUES(supply_goods)',
-                    array(
-                        $_SESSION['id'],
-                        $product_id,
-                        $each_sale,
-                        $by_balance,
-                        $balance,
-                        $by_critical_balance,
-                        $critical_balance,
-                        $seldom_sold,
-                        $supply_goods
-                    ));
+                $post = $this->editProductOmtNotices($post, $product_id);
             }
 
             // омт управление закупками
             if (isset($post['edit-product-omt_procurement']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-                // если есть роль внутреннего маркета
-                $query_update = $this->all_configs['db']->makeQuery('price=?',
-                    array(trim($post['price']) * 100));
+                $post = $this->editProductOmtProcurement($post, $product_id);
 
-                // старая цена
-                if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
-                    && $this->all_configs['configs']['use-goods-old-price'] == true && isset($post['old_price'])
-                ) {
-                    $query_update = $this->all_configs['db']->makeQuery('?query, old_price=?',
-                        array($query_update, trim($post['old_price']) * 100));
-                }
-
-                $query_update = $this->all_configs['db']->makeQuery('?query, price_wholesale=?', array(
-                    $query_update,
-                    trim($post['price_wholesale']) * 100
-                ));
-
-                // редактируем количество только если отключен 1с и управление складами
-                if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
-                    $query_update = $this->all_configs['db']->makeQuery('?query, qty_store=?i, qty_wh=?i,
-                            price_purchase=?i, price_wholesale=?',
-                        array(
-                            $query_update,
-                            intval($post['exist']),
-                            intval($post['qty_wh']),
-                            trim($post['price_purchase']) * 100,
-                            trim($post['price_wholesale']) * 100
-                        ));
-                }
-                $this->all_configs['db']->query('UPDATE {goods} SET ?query WHERE id=?i',
-                    array($query_update, $product_id));
-                // сохранение по товарам в группе размеров
-                if ($this->all_configs['configs']['group-goods'] && isset($sgg_ids_query)) {
-                    $this->all_configs['db']->query('UPDATE {goods} SET ?query WHERE ?q',
-                        array($query_update, $sgg_ids_query));
-                }
             }
 
             // експорт в 1с
@@ -611,7 +426,7 @@ class products extends Controller
         // поиск
         if (isset($_GET['s']) && !empty($_GET['s'])) {
             $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim(urldecode($_GET['s'])));
-            $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%")',
+            $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%") AND g.avail=1 ',
                 array($goods_query, $s, $s));
         }
 
@@ -1599,7 +1414,7 @@ class products extends Controller
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
-            $product = $this->all_configs['db']->query('SELECT type, avail FROM {goods} WHERE id=?i',
+            $product = $this->all_configs['db']->query('SELECT type, avail, deleted FROM {goods} WHERE id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
             if ($product) {
@@ -2102,13 +1917,19 @@ class products extends Controller
      */
     public function deleteProduct($post, $mod_id)
     {
+
         $product = $this->Goods->getByPk(intval($post['id']));
         if (!empty($product)) {
-            $this->Goods->update(array('deleted' => 1), array('id' => $product['id']));
+            $this->Goods->update(array(
+                'deleted' => 1,
+                'avail' => 0
+            ), array('id' => $product['id']));
             $recycleBin = $this->Categories->getRecycleBin();
             if (!empty($recycleBin)) {
-                $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i', array(intval($post['id'])));
-                $this->all_configs['db']->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)', array(intval($post['id']), $recycleBin['id']));
+                $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i',
+                    array(intval($post['id'])));
+                $this->all_configs['db']->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)',
+                    array(intval($post['id']), $recycleBin['id']));
             }
 
             $this->History->save('delete-product', $mod_id, $product['id']);
@@ -2121,7 +1942,10 @@ class products extends Controller
      */
     public function restoreProduct($post, $mod_id)
     {
-        $this->Goods->update(array('deleted' => 0), array('id' => intval($post['id'])));
+        $this->Goods->update(array(
+            'deleted' => 0,
+            'avail' => 1
+        ), array('id' => intval($post['id'])));
         $this->History->save('restore-product', $mod_id, intval($post['id']));
         $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i', array(intval($post['id'])));
     }
@@ -2276,5 +2100,252 @@ class products extends Controller
         return array(
             'message' => l('Цены успешно загружены.') . $msg
         );
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     * @param       $mod_id
+     * @return array
+     */
+    private function deleteImage(array $post, $product_id, $mod_id)
+    {
+        $secret_title = $this->all_configs['db']->query('SELECT secret_title FROM {goods} WHERE id=?i',
+            array($product_id))->el();
+
+        foreach ($post['images_del'] AS $del_id => $image_title) {
+            $this->all_configs['db']->query('DELETE FROM {goods_images} WHERE id=?i', array(intval($del_id)));
+            unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $image_title);
+
+            $path_parts = full_pathinfo($image_title);
+
+            if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension'])) {
+                unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension']);
+            }
+            if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension'])) {
+                unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension']);
+            }
+
+            if (isset($post['one-image-secret_title']) && $this->all_configs['configs']['one-image-secret_title'] == true && mb_strlen($secret_title,
+                    'UTF-8') > 0
+            ) {
+                $del_related = $this->all_configs['db']->query('SELECT id FROM {goods} WHERE secret_title=? AND id<>?i',
+                    array($secret_title, $product_id))->assoc();
+
+                if ($del_related && count($del_related) > 0) {
+                    foreach ($del_related as $del_r) {
+                        $this->all_configs['db']->query('DELETE FROM {goods_images} WHERE goods_id=?i AND image=?',
+                            array($del_r['id'], $image_title));
+
+                        unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $image_title);
+
+                        $path_parts = full_pathinfo($image_title);
+
+                        if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension'])) {
+                            unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension']);
+                        }
+                        if (file_exists($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension'])) {
+                            unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $del_r['id'] . '/' . $path_parts['filename'] . $this->all_configs['configs']['medium-image'] . $path_parts['extension']);
+                        }
+
+                        $count_images = $this->all_configs['db']->query('SELECT count(id) FROM {goods_images} WHERE goods_id=?i',
+                            array($del_r['id']))->el();
+
+                        if ($count_images == 0) {
+                            $this->all_configs['db']->query('UPDATE {goods} SET image_set=?i WHERE id=?i',
+                                array(0, $del_r['id']));
+                        }
+                    }
+                }
+            }
+
+            $count_images = $this->all_configs['db']->query('SELECT count(id) FROM {goods_images} WHERE goods_id=?i',
+                array($product_id))->el();
+
+            if ($count_images == 0) {
+                $this->all_configs['db']->query('UPDATE {goods} SET image_set=?i WHERE id=?i',
+                    array(0, $product_id));
+            }
+        }
+        $this->History->save('delete-goods-image', $mod_id, $product_id);
+        return $post;
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     * @param       $mod_id
+     * @return array
+     */
+    private function editProductAdditionally(array $post, $product_id, $mod_id)
+    {
+        $good = $this->Goods->getByPk($product_id);
+
+        $ar = $this->all_configs['db']->query('UPDATE {goods}
+                    SET avail=?i, type=?i WHERE id=?i',
+            array(isset($post['avail']) ? 1 : 0, isset($post['type']) ? 1 : 0, $product_id))->ar();
+
+        if (intval($ar) > 0) {
+            $this->History->save('edit-goods', $mod_id, $product_id);
+        }
+
+        $query = '';
+        if (isset($post['categories']) && count($post['categories']) > 0) {
+            $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                array($post['categories']));
+        }
+        $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+            array($product_id, $query));
+
+        // добавляем товар в старые/новые категории
+        if (isset($post['categories']) && count($post['categories']) > 0) {
+            foreach ($post['categories'] as $new_cat) {
+                if ($new_cat != 0) {
+                    $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
+                                VALUES (?i, ?i)', array($new_cat, $product_id));
+                }
+            }
+        }
+        if (!isset($post['deleted']) && $good['deleted']) {
+            $this->restoreProduct(array('id' => $product_id), $mod_id);
+        }
+
+        if (isset($post['deleted']) && !$good['deleted']) {
+            $this->deleteProduct(array('id' => $product_id), $mod_id);
+        }
+        return $post;
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     * @return array
+     */
+    private function editProductOmtProcurement(array $post, $product_id)
+    {
+// если есть роль внутреннего маркета
+        $query_update = $this->all_configs['db']->makeQuery('price=?',
+            array(trim($post['price']) * 100));
+
+        // старая цена
+        if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
+            && $this->all_configs['configs']['use-goods-old-price'] == true && isset($post['old_price'])
+        ) {
+            $query_update = $this->all_configs['db']->makeQuery('?query, old_price=?',
+                array($query_update, trim($post['old_price']) * 100));
+        }
+
+        $query_update = $this->all_configs['db']->makeQuery('?query, price_wholesale=?', array(
+            $query_update,
+            trim($post['price_wholesale']) * 100
+        ));
+
+        // редактируем количество только если отключен 1с и управление складами
+        if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
+            $query_update = $this->all_configs['db']->makeQuery('?query, qty_store=?i, qty_wh=?i,
+                            price_purchase=?i, price_wholesale=?',
+                array(
+                    $query_update,
+                    intval($post['exist']),
+                    intval($post['qty_wh']),
+                    trim($post['price_purchase']) * 100,
+                    trim($post['price_wholesale']) * 100
+                ));
+        }
+        $this->all_configs['db']->query('UPDATE {goods} SET ?query WHERE id=?i',
+            array($query_update, $product_id));
+        // сохранение по товарам в группе размеров
+        if ($this->all_configs['configs']['group-goods'] && isset($sgg_ids_query)) {
+            $this->all_configs['db']->query('UPDATE {goods} SET ?query WHERE ?q',
+                array($query_update, $sgg_ids_query));
+        }
+        return $post;
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     * @return array
+     */
+    private function editProductOmtNotices(array $post, $product_id)
+    {
+        $each_sale = 0;
+        if (isset($post['each_sale'])) {
+            $each_sale = 1;
+        }
+        $by_balance = 0;
+        if (isset($post['by_balance'])) {
+            $by_balance = 1;
+        }
+        $balance = 0;
+        if (isset($post['balance']) && $post['balance'] > 0) {
+            $balance = intval($post['balance']);
+        }
+        $by_critical_balance = 0;
+        if (isset($post['by_critical_balance'])) {
+            $by_critical_balance = 1;
+        }
+        $critical_balance = 0;
+        if (isset($post['critical_balance']) && $post['critical_balance'] > 0) {
+            $critical_balance = intval($post['critical_balance']);
+        }
+        $seldom_sold = 0;
+        if (isset($post['seldom_sold'])) {
+            $seldom_sold = 1;
+        }
+        $supply_goods = 0;
+        if (isset($post['supply_goods'])) {
+            $supply_goods = 1;
+        }
+        $this->all_configs['db']->query('INSERT INTO {users_notices} (user_id, goods_id, each_sale, by_balance,
+                        balance, by_critical_balance, critical_balance, seldom_sold, supply_goods)
+                      VALUES (?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i) ON duplicate KEY
+                    UPDATE user_id=VALUES(user_id), goods_id=VALUES(goods_id), each_sale=VALUES(each_sale),
+                      by_balance=VALUES(by_balance), balance=VALUES(balance), by_critical_balance=VALUES(by_critical_balance),
+                      critical_balance=VALUES(critical_balance), seldom_sold=VALUES(seldom_sold), supply_goods=VALUES(supply_goods)',
+            array(
+                $_SESSION['id'],
+                $product_id,
+                $each_sale,
+                $by_balance,
+                $balance,
+                $by_critical_balance,
+                $critical_balance,
+                $seldom_sold,
+                $supply_goods
+            ));
+        return $post;
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     * @param       $mod_id
+     * @return array
+     */
+    private function editProductMain(array $post, $product_id, $mod_id)
+    {
+        $url = (isset($post['url']) && !empty($post['url'])) ? trim($post['url']) : trim($post['title']);
+
+        if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
+            return array('error' => l('Заполните название'), 'post' => $post);
+        }
+
+        $ar = $this->all_configs['db']->query('UPDATE {goods}
+                    SET title=?, secret_title=?, url=?n, prio=?i, article=?n, barcode=? WHERE id=?i',
+            array(
+                trim($post['title']),
+                trim($post['secret_title']),
+                transliturl($url),
+                intval($post['prio']),
+                empty($post['article']) ? null : trim($post['article']),
+                trim($post['barcode']),
+                $product_id
+            ))->ar();
+
+        if (intval($ar) > 0) {
+            $this->History->save('edit-goods', $mod_id, $product_id);
+        }
+        return array('state' => true);
     }
 }

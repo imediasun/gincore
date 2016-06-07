@@ -61,6 +61,11 @@
                             <div class="controls">
                                 <input class="btn btn-primary " type="submit" value="<?= l('Сохранить') ?>"
                                        name="edit-category"/>
+                                <?php if ($cur_category['deleted']): ?>
+                                    <input class="btn btn-primary " type="submit"
+                                           value="<?= l('Восстановить из корзины') ?>"
+                                           name="recovery-category"/>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php else: ?>

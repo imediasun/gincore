@@ -13,7 +13,7 @@ abstract class AModel extends Object
 
     public function __construct(&$all_configs = null)
     {
-        if(empty($all_configs)) {
+        if (empty($all_configs)) {
             global $all_configs;
         }
         $this->db = db();
@@ -97,10 +97,15 @@ abstract class AModel extends Object
             return $conditions;
         }
         foreach ($conditions as $field => $value) {
-            if (is_array($value)) {
-                $conditionsQuery = $this->makeQuery('?q AND ?q IN (?li)', array($conditionsQuery, $field, $value));
-            } else {
-                $conditionsQuery = $this->makeQuery('?q AND ?q=?', array($conditionsQuery, $field, $value));
+            switch (true) {
+                case is_array($value):
+                    $conditionsQuery = $this->makeQuery('?q AND ?q IN (?li)', array($conditionsQuery, $field, $value));
+                    break;
+                case is_numeric($value):
+                    $conditionsQuery = $this->makeQuery('?q AND ?q=?i', array($conditionsQuery, $field, $value));
+                    break;
+                default:
+                    $conditionsQuery = $this->makeQuery('?q AND ?q=?', array($conditionsQuery, $field, $value));
             }
         }
         return $conditionsQuery;
@@ -130,7 +135,7 @@ abstract class AModel extends Object
      */
     public function increase($field, $value, $conditions = '1=1')
     {
-        if(!in_array($field, $this->columns())) {
+        if (!in_array($field, $this->columns())) {
             return false;
         }
         return $this->query('UPDATE ?t SET ?q=?q + ? WHERE ?q', array(
@@ -150,7 +155,7 @@ abstract class AModel extends Object
      */
     public function decrease($field, $value, $conditions = '1=1')
     {
-        if(!in_array($field, $this->columns())) {
+        if (!in_array($field, $this->columns())) {
             return false;
         }
         return $this->query('UPDATE ?t SET ?q=?q - ? WHERE ?q', array(

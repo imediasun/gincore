@@ -901,7 +901,9 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
                 $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
                 $tree .= '<a href="' . $all_configs['prefix'] . 'categories/create/' . $tmp['id'] . '">';
-                $tree .= htmlspecialchars($tmp['title']) . '</a>';
+                $tree .= htmlspecialchars($tmp['title']);
+                $tree .= '<i class="glyphicon glyphicon-remove js-delete-category"></i>';
+                $tree .= '</a>';
             }
             if ($type == 3) {
                 $tree .= '<li class="' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'active' : '');

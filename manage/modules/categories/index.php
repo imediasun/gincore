@@ -130,6 +130,11 @@ class categories extends Controller
                 return false;
             }
 
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (intval($post['id']) == $recycleBin['id']) {
+                FlashMessage::set(l('Редактирование системной категории "Корзина" запрещено'), FlashMessage::DANGER);
+                return false;
+            }
             if (isset($_FILES['thumbs']) && $_FILES['thumbs']['error'] < 1 && $_FILES["thumbs"]["size"] > 0 && $_FILES["thumbs"]["size"] < 1024 * 1024 * 1 &&
                 ($_FILES["thumbs"]["type"] == "image/gif" || $_FILES["thumbs"]["type"] == "image/jpeg"
                     || $_FILES["thumbs"]["type"] == "image/jpg" || $_FILES["thumbs"]["type"] == "image/png")
@@ -217,34 +222,9 @@ class categories extends Controller
 
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                 . $this->all_configs['arrequest'][1] . '/' . intval($post['id']));
-        } elseif (isset($post['delete-category']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
-            $recycleBin = $this->Categories->getRecycleBin();
-            if (empty($recycleBin)) {
-                FlashMessage::set(l('Корзина не найдена. Обновите систему.'), FlashMessage::INFO);
-            } else {
-                $this->Categories->update(array(
-                    'parent' => $recycleBin['id'],
-                ), array('id' => intval($post['id'])));
-                $this->History->save('delete-category', $mod_id, intval($post['id']));
-                $this->setDeleted(1, $post['id']);
-            }
-            if ($redirect) {
-                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
-                    . $this->all_configs['arrequest'][1]);
-            }
-        } elseif (isset($post['recovery-category']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
-            $category = $this->Categories->query('SELECT * FROM {categories} WHERE id=?',
-                array($post['id']))->row();
-            if (empty($category)) {
-                FlashMessage::set(l('Категория не в корзине.'), FlashMessage::INFO);
-            } else {
-                $this->Categories->update(array(
-                    'parent' => 0,
-                ), array('id' => intval($post['id'])));
-                $this->History->save('restore-category', $mod_id, intval($post['id']));
-                $this->setDeleted(0, $post['id']);
-            }
 
+        } elseif (isset($post['recovery-category']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
+            $this->recoveryCategories($mod_id);
         }
         return '';
     }
@@ -551,7 +531,7 @@ class categories extends Controller
                         <td>' . $good['id'] . '</td>
                         <td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . '<i class="icon-pencil"></i></a>
                             <span style="float:right">
-                                <a href="' . $this->all_configs['siteprefix'] . $good['url'] . '/p/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
+                                <a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
                             </span></td>
                         <td>' . $good['avail'] . '</td><td>' . show_price($good['price'], 2, ' ') . '</td>' .
                         '<td><span title="' . do_nice_date($good['date_add'],
@@ -649,6 +629,7 @@ class categories extends Controller
         $data = array(
             'state' => false
         );
+        $mod_id = $this->all_configs['configs']['categories-manage-page'];
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
@@ -720,6 +701,9 @@ class categories extends Controller
             $data = $this->updateCategories($data);
         }
 
+        if ($act == 'delete-categories' && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
+            $data = $this->deleteCategories($mod_id);
+        }
         Response::json($data);
     }
 
@@ -776,14 +760,90 @@ class categories extends Controller
      */
     private function setDeleted($state, $id)
     {
-        $this->Categories->update(array('deleted' => $state), array('id' => $id));
+        $avail = !$state;
+        $this->Categories->update(array(
+            'deleted' => $state,
+            'avail' => $avail
+        ), array('id' => $id));
         $ids = array($id);
         do {
-            $this->Categories->update(array('deleted' => $state), array('id' => $ids));
-            $this->all_configs['db']->query('UPDATE {goods} SET deleted=?i WHERE id in (SELECT goods_id FROM {category_goods} WHERE category_id in (?li))', array($state, $ids));
-            $ids = $this->Categories->query('SELECT id FROM {categories} WHERE parent_id in ?li',
+            $this->Categories->update(array(
+                'deleted' => $state,
+                'avail' => $avail
+            ), array('id' => $ids));
+            $this->all_configs['db']->query('UPDATE {goods} SET deleted=?i, avail=?i WHERE id in (SELECT goods_id FROM {category_goods} WHERE category_id in (?li))',
+                array($state, $avail, $ids));
+            $ids = $this->Categories->query('SELECT id FROM {categories} WHERE parent_id in (?li)',
                 array($ids))->col();
         } while (!empty($ids));
+    }
+
+    /**
+     * @param $mod_id
+     * @return array
+     */
+    private function deleteCategories($mod_id)
+    {
+        try {
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (empty($recycleBin)) {
+                throw new ExceptionWithMsg(l('Корзина не найдена. Обновите систему.'));
+            }
+            if (intval($_POST['id']) == $recycleBin['id']) {
+                throw new ExceptionWithMsg(l('Нельзя удалить корзину'));
+            }
+            $this->Categories->update(array(
+                'parent_id' => $recycleBin['id'],
+            ), array('id' => intval($_POST['id'])));
+            $this->History->save('delete-category', $mod_id, intval($_POST['id']));
+            $this->setDeleted(1, $_POST['id']);
+            $data = array(
+                'state' => true
+            );
+
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $data;
+    }
+
+    /**
+     * @param $mod_id
+     * @return array
+     */
+    private function recoveryCategories($mod_id)
+    {
+        try {
+            $category = $this->Categories->getByPk(intval($_POST['id']));
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (empty($recycleBin)) {
+                throw new ExceptionWithMsg(l('Корзина не найдена. Обновите систему.'));
+            }
+            if (empty($category) || $category['parent_id'] !== $recycleBin['id']) {
+                throw new ExceptionWithMsg(l('Категория не в корзине.'));
+            }
+            if (intval($_POST['id']) == $recycleBin['id']) {
+                throw new ExceptionWithMsg(l('Нельзя произвести эту операцию с  корзиной'));
+            }
+            $this->Categories->update(array(
+                'parent_id' => 0,
+            ), array('id' => intval($_POST['id'])));
+            $this->History->save('restore-category', $mod_id, intval($_POST['id']));
+            $this->setDeleted(0, $_POST['id']);
+
+            $data = array(
+                'state' => true
+            );
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $data;
     }
 }
 
