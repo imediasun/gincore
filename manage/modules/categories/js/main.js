@@ -157,7 +157,6 @@ $(document).ready(function () {
     var $parent = $(this).parents('li.dd-item').first(),
       id = $parent.data('id');
     if (confirm("Вы действительно хотите удалить категорию?")) {
-    console.log('delete-category');
       $.ajax({
         url: prefix + module + '/ajax/?act=delete-categories',
         type: 'POST',

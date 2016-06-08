@@ -161,6 +161,7 @@
                         </td>
                         <td title="<?= l('Общий остаток') ?>"><?= l('Общ') ?></td>
                         <td title="<?= l('Свободный остаток') ?>"><?= l('Своб') ?></td>
+                        <td title="<?= l('Удалить товар') ?>"></td>
                     </tr>
                     </thead>
                     <tbody>
@@ -192,17 +193,20 @@
                             <td></td>
                             <td class="edit-price">
                                 <?php if ($isEditable && ($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
-                                <label>
-                                    <?= l('Розн.') ?>
-                                    <input class="input-small" onkeydown="return isNumberKey(event, this)" type="input"
-                                           name="price[<?= $good['id'] ?>]"
-                                           value="<?= number_format($good['price'] / 100, 2, '.', '') ?>"/>
+                                    <label>
+                                        <?= l('Розн.') ?>
+                                        <input class="input-small" onkeydown="return isNumberKey(event, this)"
+                                               type="input"
+                                               name="price[<?= $good['id'] ?>]"
+                                               value="<?= number_format($good['price'] / 100, 2, '.', '') ?>"/>
                                     </label>
                                     <label>
                                         <?= l('Опт.') ?>
-                                    <input class="input-small" onkeydown="return isNumberKey(event, this)" type="input"
-                                           name="price_wholesale[<?= $good['id'] ?>]"
-                                           value="<?= number_format($good['price_wholesale'] / 100, 2, '.', '') ?>"/>
+                                        <input class="input-small" onkeydown="return isNumberKey(event, this)"
+                                               type="input"
+                                               name="price_wholesale[<?= $good['id'] ?>]"
+                                               value="<?= number_format($good['price_wholesale'] / 100, 2, '.',
+                                                   '') ?>"/>
                                     </label>
                                 <?php endif; ?>
                             </td>
@@ -212,7 +216,7 @@
                                     <div class="edit_active">
                                         <label class="checkbox">
                                             <input value="1" <?= ($good['avail'] == 1 ? 'checked' : '') ?>
-                                                name="avail[<?= $good['id'] ?>]" type="radio"/>
+                                                   name="avail[<?= $good['id'] ?>]" type="radio"/>
                                             <?= l('Вкл') ?></label>
                                         <label class="checkbox">
                                             <input value="0" <?= ($good['avail'] == 1 ? '' : 'checked') ?>
@@ -235,6 +239,12 @@
                                            value="<?= intval($good['qty_store']) ?>"/>
                                 <?php else: ?>
                                     <?= intval($good['qty_store']); ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!$good['deleted']): ?>
+                                    <i class="glyphicon glyphicon-remove js-delete-product"
+                                       data-id="<?= $good['id'] ?>"></i>
                                 <?php endif; ?>
                             </td>
                         </tr>

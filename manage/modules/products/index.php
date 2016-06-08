@@ -426,7 +426,7 @@ class products extends Controller
         // поиск
         if (isset($_GET['s']) && !empty($_GET['s'])) {
             $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim(urldecode($_GET['s'])));
-            $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%") AND g.avail=1 ',
+            $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%") AND g.deleted=0 ',
                 array($goods_query, $s, $s));
         }
 
@@ -567,7 +567,7 @@ class products extends Controller
         // достаем описания товаров
         if (count($goods_ids) > 0) {
             $add_fields = array();
-            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url,
+            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url, g.deleted,
                     g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q
                   FROM {goods} AS g WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
@@ -1241,6 +1241,13 @@ class products extends Controller
             Response::json($data);
         }
 
+        if ($act == 'delete-product' && $this->all_configs['oRole']->hasPrivilege('parsing')) {
+            $this->deleteProduct($_POST, $mod_id);
+            Response::json(array(
+                'state' => true
+            ));
+        }
+
         if (isset($_POST['act']) && $_POST['act'] == 'export_product' && $this->all_configs['configs']['onec-use'] == true) {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
                 Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
@@ -1290,12 +1297,8 @@ class products extends Controller
                 $data['state'] = false;
                 $data['msg'] = l('Неверный id группы');
             }
-            header("Content-Type: application/json; charset=UTF-8");
-            echo $data;
-            exit;
+            Response::json($data);
         }
-
-        header("Content-Type: application/json; charset=UTF-8");
         echo $data;
         exit;
     }
@@ -1917,7 +1920,6 @@ class products extends Controller
      */
     public function deleteProduct($post, $mod_id)
     {
-
         $product = $this->Goods->getByPk(intval($post['id']));
         if (!empty($product)) {
             $this->Goods->update(array(
