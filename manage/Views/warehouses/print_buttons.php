@@ -8,7 +8,7 @@
             <div class="checkbox">
                 <label>
                     <input type="checkbox" name="print[]"
-                           value="<?= print_link($objectId, 'label' . $prefix, '', true) ?>">
+                           value="<?= print_link($objectId, 'label' . $prefix, '', true, !empty($addition)? $addition: '') ?>">
                     <?= l('Этикетка (штрих-код)') ?>
                 </label>
             </div>
@@ -17,7 +17,7 @@
             <div class="checkbox">
                 <label>
                     <input type="checkbox" name="print[]"
-                           value="<?= print_link($objectId, 'price_list' . $prefix, '', true) ?>">
+                           value="<?= print_link($objectId, 'price_list' . $prefix, '', true, !empty($addition)? $addition: '') ?>">
                     <?= l('Ценник') ?>
                 </label>
             </div>
@@ -27,7 +27,7 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="print[]"
-                               value="<?= print_link($objectId, 'location', '', true) ?>">
+                               value="<?= print_link($objectId, 'location', '', true, !empty($addition)? $addition: '') ?>">
                         <?= l('Этикетки') ?>
                     </label>
                 </div>

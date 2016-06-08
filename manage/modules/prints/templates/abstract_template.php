@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../../Core/View.php';
+require_once __DIR__ . '/../../../Core/Log.php';
 
 abstract class AbstractTemplate
 {
@@ -20,15 +21,11 @@ abstract class AbstractTemplate
     {
         $result = '';
         if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
-
             $objects = array_filter(explode(',', $_GET['object_id']));
-
             foreach ($objects as $object) {
-
-                if ($object == 0) {
-                    continue;
+                if ($object !== 0) {
+                    $result .= $this->draw_one($object);
                 }
-                $result .= $this->draw_one($object);
             }
         }
         return $result;
