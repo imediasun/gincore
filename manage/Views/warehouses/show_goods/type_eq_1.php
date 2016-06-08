@@ -58,7 +58,26 @@
     <?php endforeach; ?>
 
     <tr>
-        <td colspan="7"></td>
+        <td colspan="5"></td>
+        <td colspan="2">
+            <?php $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') .'ajax'; ?>
+            <form target="_blank" method="get" action="<?= $url ?>" class="form-horizontal">
+                <input name="act" value="exports-items" type="hidden"/>
+                <?php if (isset($_GET['whs'])): ?>
+                    <input name="whs" value="<?= $_GET['whs'] ?>" type="hidden"/>
+                <?php endif; ?>
+                <?php if (isset($_GET['lcs'])): ?>
+                    <input name="lcs" value="<?= $_GET['lcs'] ?>" type="hidden"/>
+                <?php endif; ?>
+                <?php if (isset($_GET['pid'])): ?>
+                    <input name="pid" value="<?= $_GET['pid'] ?>" type="hidden"/>
+                <?php endif; ?>
+                <?php if (isset($_GET['d'])): ?>
+                    <input name="d" value="<?= $_GET['d'] ?>" type="hidden"/>
+                <?php endif; ?>
+                <input type="submit" value="<?= l('Выгрузить данные') ?>" class="btn btn-small btn-primary">
+            </form>
+        </td>
         <td colspan="2">
             <?php $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') .'ajax'; ?>
             <form target="_blank" method="get" action="<?= $url ?>" class="form-horizontal">

@@ -1906,7 +1906,20 @@ $(function(){
     $(window).load(hide_flashmessages);
     
     init_input_masks();
+    $('#print_now').on('click', function () {
+        alert('test');
+        var $checks = $(this).closest('ul').find(':checked');
+        $checks.each(function () {
+            window_open($(this).val());
+        });
+    });
 });
+function print_now(_this) {
+    var $checks = $(_this).closest('ul').find(':checked');
+    $checks.each(function () {
+        window_open($(this).val());
+    });
+}
 
 function init_input_masks(){
     var $els = $('[data-phone_mask]');

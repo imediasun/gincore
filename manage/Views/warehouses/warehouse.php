@@ -15,7 +15,10 @@
             <?= ($warehouse['type'] == 4)  ? InfoPopover::getInstance()->createQuestion('l_warehouses_title_info_client') : '' ?>
         </div>
         <div class="warehouse-print">
-            <?= print_link(array_keys($warehouse['locations']), 'location'); ?>
+            <?= $this->renderFile('warehouses/print_buttons', array(
+                'objectId' => array_keys($warehouse['locations']),
+                'prefix' => '_location'
+            )) ?>
         </div>
     </div>
     <div class="warehouse-content">

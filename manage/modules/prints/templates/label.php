@@ -11,20 +11,8 @@ class label extends AbstractTemplate
                 FROM {goods} as g, {warehouses_goods_items} as i, {contractors_suppliers_orders} as o
                 WHERE i.goods_id=g.id AND i.id=?i AND o.id=i.supplier_order_id', array($object))->row();
 
-        $result = '';
-        if ($product) {
-            $result .= '<div class="label-box">';
-
-            $src = $this->all_configs['prefix'] . 'print.php?bartype=sn&barcode=' . suppliers_order_generate_serial($product);
-            $result .= '<div class="label-box-code"><img src="' . $src . '" alt="S/N" title="S/N" /></div>';
-
-            $result .= '<div class="label-box-title">' . htmlspecialchars($product['title']) . '</div>';
-
-            $num = $this->all_configs['suppliers_orders']->supplier_order_number($product, null, false);
-            $result .= '<div class="label-box-order">' . $num . '</div>';
-
-            $result .= '</div>';
-        }
-        return $result;
+        return $this->view->renderFile('prints/label', array(
+            'product' => $product
+        ));
     }
 }
