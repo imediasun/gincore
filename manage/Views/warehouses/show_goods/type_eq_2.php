@@ -15,7 +15,10 @@
             </td>
             <td>
                 <?= suppliers_order_generate_serial($product); ?>
-                <?= print_link($product['item_id'], 'label') ?>
+                <?= $this->renderFile('warehouses/print_buttons', array(
+                    'objectId' => $product['item_id'],
+                    'prefix' => ''
+                )) ?>
             </td>
         </tr>
         <?php if (mb_strlen(trim($product['serial_old']), 'utf-8') > 0): ?>

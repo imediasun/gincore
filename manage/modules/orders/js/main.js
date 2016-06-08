@@ -707,13 +707,6 @@ $(function () {
     e.stopPropagation();
   });
 
-  $('#print_now').click(function () {
-    var $checks = $(this).closest('ul').find(':checked');
-    $checks.each(function () {
-      window_open($(this).val());
-    });
-  });
-
   $('.tooltips').tooltip();
 });
 

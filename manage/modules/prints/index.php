@@ -85,7 +85,8 @@ class prints extends Controller
                     'act',
                     'invoicing',
                     'waybill',
-                    'sale_warranty'
+                    'sale_warranty',
+                    'price_list'
                 )) && isset($_POST['html'])
             ) {
                 // remove empty tags
