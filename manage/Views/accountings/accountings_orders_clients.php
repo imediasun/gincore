@@ -50,12 +50,13 @@
                         <input type="button" class="btn btn-xs" value="<?= l('Выдать оплату') ?>"
                                onclick="pay_client_order(this, 1, <?= $order['id'] ?>)"/>
                     <?php endif; ?>
+                    <?php $type = $order['type'] == ORDER_REPAIR ? 'repair' : 'sale' ?>
                     <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
                         <input type="button" class="btn btn-xs" value=" <?= l('Принять предоплату') ?>"
-                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
+                               onclick="pay_client_order(this, '<?= $type ?>', <?= $order['id'] ?>, 0, 'prepay')"/>
                     <?php elseif (intval($order['sum']) > intval($order['sum_paid'])): ?>
                         <input type="button" class="btn btn-xs" value="<?= l('Принять оплату') ?>"
-                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
+                               onclick="pay_client_order(this, '<?= $type ?>', <?= $order['id'] ?>)"/>
                     <?php endif; ?>
                 </td>
             </tr>

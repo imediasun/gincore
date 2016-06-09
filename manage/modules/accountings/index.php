@@ -48,6 +48,7 @@ class accountings extends Controller
 
         $this->Transactions = new Transactions($this->all_configs);
     }
+
     /**
      * @inheritdoc
      */
@@ -1048,6 +1049,15 @@ class accountings extends Controller
             || $act == 'begin-transaction-1-so' || $act == 'begin-transaction-2-so'
         ) {
             $data = $this->createTransactionForm($data, $user_id, $act);
+        }
+
+        // форма оплаты за ремонт
+        if ($act == 'begin-transaction-repair' || $act == 'begin-transaction-repair-co') {
+            $data = $this->createPayForm('repair', $data, $user_id);
+        }
+        // форма оплаты за продажу
+        if ($act == 'begin-transaction-sale' || $act == 'begin-transaction-sale-co') {
+            $data = $this->createPayForm('sale', $data, $user_id);
         }
 
         // форма создания категории расход контрагента
@@ -2938,7 +2948,8 @@ class accountings extends Controller
                     $this->all_configs['db']->query('UPDATE {contractors_categories_links} SET contractors_categories_id=null WHERE contractors_id=?i
                                     AND contractors_categories_id=?i',
                         array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                } catch (Exception $e) {}
+                } catch (Exception $e) {
+                }
             }
             // категории
             if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
@@ -3044,6 +3055,90 @@ class accountings extends Controller
         }
 
 
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @param $user_id
+     * @return mixed
+     */
+    private function createPayForm($formType, $data, $user_id)
+    {
+        $btn = l('Сохранить');
+        // сегодня
+        $today = date("d.m.Y");
+        $select_cashbox = '';
+        $selected_cashbox = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
+        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
+            $cashboxes = $this->cashboxes;
+        } else {
+            $cashboxes = $this->all_configs['db']->query('SELECT * FROM {cashboxes}  WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id = ?i)',
+                array(
+                    $user_id
+                ))->assoc('id');
+        }
+        // список форм для редактирования касс
+        if (count($cashboxes) > 0) {
+            $erpct = $this->all_configs['configs']['erp-cashbox-transaction'];
+            $erpt = $this->all_configs['configs']['erp-so-cashbox-terminal'];
+
+            foreach ($cashboxes as $cashbox) {
+                // выбор кассы при транзакции
+                if ($cashbox['avail'] == 1) {
+                    // кроме транзитной
+                    $dis = $cashbox['id'] == $erpct
+                        || ($cashbox['id'] == $erpt && !$this->all_configs['configs']['manage-show-terminal-cashbox']);
+
+                    $select_cashbox .= '<option' . ($dis ? ' disabled' : '');
+                    $select_cashbox .= ($cashbox['id'] == $selected_cashbox ? ' selected' : '');
+                    $select_cashbox .= ' value="' . $cashbox['id'] . '">' . htmlspecialchars($cashbox['name']) . '</option>';
+                    $selected_cashbox = $selected_cashbox == 0 ? $cashbox['id'] : $selected_cashbox;
+                }
+            }
+        }
+
+        $daf = $dc = $dccf = $dcct = ''; // disabled
+        $supplier_order_id = 0; // orders
+        $amount_from = 0; // amounts
+        // контрагенты
+        $select_contractors = '';
+        $ccg_id = 0;
+
+        list($co_id, $b_id, $t_extra, $amount_to, $client_contractor) = $this->getInfoForPayForm();
+
+
+        $cashbox_id = array_key_exists('object_id',
+            $_POST) && $_POST['object_id'] > 0 ? $_POST['object_id'] : $selected_cashbox;
+        // валюта
+
+        $data['content'] = $this->view->renderFile("accountings/pay_for_{$formType}_form", array(
+            'supplier_order_id' => $supplier_order_id,
+            'co_id' => $co_id,
+            'b_id' => $b_id,
+            't_extra' => $t_extra,
+            'select_cashbox' => $select_cashbox,
+            'selected_cashbox' => $selected_cashbox,
+            'daf' => $daf,
+            'amount_from' => $amount_from,
+            'amount_to' => $amount_to,
+            'cashbox_currencies' => $this->get_cashbox_currencies($cashbox_id),
+            'dcct' => $dcct,
+            'dccf' => $dccf,
+            'dc' => $dc,
+            'select_contractors' => $select_contractors,
+            'client_contractor' => $client_contractor,
+            'today' => $today,
+            'ccg_id' => $ccg_id,
+            'categories_from' => $this->get_contractors_categories(2),
+            'categories_to' => $this->get_contractors_categories(1),
+        ));
+
+
+        $data['btns'] = '<button type="button" onclick="create_transaction(this)" class="btn btn-success">' . $btn . '</button>';
+
+        $data['functions'] = array('reset_multiselect()');
+        $data['state'] = true;
         return $data;
     }
 
@@ -3399,5 +3494,61 @@ class accountings extends Controller
             'saleProfit' => $saleProfit,
             'repairProfit' => $repairProfit
         ));
+    }
+
+    /**
+     * @return array
+     */
+    private function getInfoForPayForm()
+    {
+// заказ клиента
+        $co_id = 0;
+        $t_extra = '';
+        $amount_to = 0;
+        $client_contractor = 0;
+        $b_id = 0;
+        if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
+            $co_id = $_POST['client_order_id'];
+            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid FROM {orders} as o', array());
+            $b_id = isset($_POST['b_id']) && $_POST['b_id'] > 0 ? $_POST['b_id'] : $b_id;
+
+            // за доставку
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'delivery') {
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.delivery_cost-o.delivery_paid FROM {orders} as o',
+                    array());
+                $t_extra = 'delivery';
+            }
+            // за комиссию
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'payment') {
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.payment_cost-o.payment_paid FROM {orders} as o',
+                    array());
+                $t_extra = 'payment';
+            }
+            // за предоплату
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'prepay') {
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.prepay-o.sum_paid FROM {orders} as o',
+                    array());
+                $t_extra = 'prepay';
+            }
+            // конкретная цепочка
+            if ($b_id > 0 && (!isset($_POST['transaction_extra']) || ($_POST['transaction_extra'] != 'payment'
+                        && $_POST['transaction_extra'] != 'delivery'))
+            ) {
+                // выдача
+                $select_query_2 = $this->all_configs['db']->makeQuery('og.price+og.warranties_cost-h.paid
+                                FROM {orders} as o
+                                LEFT JOIN {chains_headers} as h ON h.order_id=o.id
+                                    AND h.id=(SELECT chain_id FROM {chains_bodies} WHERE id=?i)
+                                LEFT JOIN {orders_goods} as og ON h.order_goods_id=og.id',
+                    array($b_id));
+            }
+            $amount_to = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
+                    array($select_query_2, $_POST['client_order_id']))->el() / 100;
+
+            $client_contractor = $this->all_configs['db']->query('SELECT c.contractor_id
+                        FROM {orders} as o, {clients} as c WHERE o.id=?i AND o.user_id=c.id',
+                array($_POST['client_order_id']))->el();
+        }
+        return array($co_id, $b_id, $t_extra, $amount_to, $client_contractor);
     }
 }
