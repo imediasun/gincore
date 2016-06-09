@@ -17,13 +17,15 @@ class price_list_location extends AbstractTemplate
 
             foreach ($goods as $good) {
                 $arr = array(
-                    'id' => array('value' => intval($good['id']), 'name' => l('ID товара')),
-                    'title' => array('value' => intval($good['title']), 'name' => l('Название товара')),
-                    'price' => array('value' => intval($good['price']), 'name' => l('Цена')),
-                    'article' => array('value' => intval($good['article']), 'name' => l('Артикул')),
-                    'barcode' => array('value' => intval($good['barcode']), 'name' => l('Штрих код')),
+                    'title' => array('value' => h($good['title']), 'name' => l('Название товара')),
+                    'price' => array(
+                        'value' => intval($good['price']) . '&nbsp;' . viewCurrency(),
+                        'name' => l('Цена')
+                    ),
+                    'article' => array('value' => h($good['article']), 'name' => l('Артикул')),
+                    'barcode' => array('value' => h($good['barcode']), 'name' => l('Штрих код')),
                     'company' => array(
-                        'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                        'value' => h($this->all_configs['settings']['site_name']),
                         'name' => l('Название компании')
                     ),
                 );
