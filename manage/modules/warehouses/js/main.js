@@ -5,7 +5,6 @@ $(document).ready(function () {
     $(this).tooltip('hide');
   });
   $('.js-go-to').on('click', function () {
-    alert('test');
     var id = $(this).attr('data-goto_id');
     if (id) {
       $(id).click();
