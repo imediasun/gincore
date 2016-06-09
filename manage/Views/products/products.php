@@ -243,7 +243,7 @@
                             </td>
                             <td>
                                 <?php if (!$good['deleted']): ?>
-                                    <i class="glyphicon glyphicon-remove js-delete-product"
+                                    <i class="js-delete-product fa fa-times" aria-hidden="true"
                                        data-id="<?= $good['id'] ?>"></i>
                                 <?php endif; ?>
                             </td>

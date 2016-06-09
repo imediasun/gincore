@@ -371,6 +371,21 @@ class products extends Controller
     }
 
     /**
+     * @param $categories
+     * @return bool
+     */
+    protected function showDeleted($categories)
+    {
+        $deletedCategories = 0;
+        $recycleBin = $this->Categories->getRecycleBin();
+        if(!empty($categories)) {
+            $deletedCategories = $this->Categories->query('SELECT count(*) FROM {categories} WHERE deleted=1 AND id in (?li)', array($categories));
+        }
+
+        return !empty($categories) && (in_array($recycleBin['id'], $categories) || $deletedCategories > 0);
+    }
+
+    /**
      * @return mixed
      */
     private function get_goods_ids()
@@ -385,7 +400,11 @@ class products extends Controller
             $goods_query = $this->all_configs['db']->makeQuery(', {category_goods} AS cg
                     ?query AND cg.category_id IN (?li) AND g.id=cg.goods_id',
                 array($goods_query, array_values($categories)));
+
         }
+
+        // выводим удаленные только если выбрана категория Корзина
+        $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, (int) $this->showDeleted($categories)));
 
         // Отобразить
         if (isset($_GET['show'])) {
@@ -729,7 +748,7 @@ class products extends Controller
         // быстрое обновление
         if (isset($_POST['quick-edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
             // обновление активности товара
-            if (isset($_POST['avail']) && is_array($_POST['avail'])/* && $this->all_configs['oRole']->hasPrivilege('external-marketing')*/) {
+            if (isset($_POST['avail']) && is_array($_POST['avail'])) {
                 foreach ($_POST['avail'] as $p_id => $p_avail) {
                     if ($p_id > 0) {
                         $ar = $this->all_configs['db']->query('UPDATE {goods} SET avail=?i WHERE id=?i',
