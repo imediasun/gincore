@@ -11,7 +11,7 @@ class price_list_location extends AbstractTemplate
             'SELECT g.*
                 FROM {warehouses_goods_items} as wgi
                 LEFT JOIN {goods} as g ON wgi.goods_id=g.id
-                WHERE wgi.location_id=?i', array($object))->assoc();
+                WHERE wgi.location_id=?i GROUP BY g.id', array($object))->assoc();
         if ($goods) {
             $this->editor = false;
 

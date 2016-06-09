@@ -103,4 +103,19 @@
         <?php $currencies = $this->all_configs['suppliers_orders']->currencies; ?>
         <?= $currencies[$currency_suppliers_orders]['shortName'] ?></p>
 <?php endif; ?>
-<p><?= l('Печать') ?>: <a onclick="global_print_labels()"><i class="cursor-pointer fa fa-print"></i></a></p>
+<!--<p>--><?//= l('Печать') ?><!--: <a onclick="global_print_labels()"><i class="cursor-pointer fa fa-print"></i></a></p>-->
+<?php $addition = ''; ?>
+<?php if (isset($_GET['whs'])): ?>
+    <?php $addition .= '&whs=' . $_GET['whs'] ?>
+<?php endif; ?>
+<?php if (isset($_GET['lcs'])): ?>
+    <?php $addition .= '&lcs=' . $_GET['lcs'] ?>
+<?php endif; ?>
+<?php if (isset($_GET['pid'])): ?>
+    <?php $addition .= '&pid=' . $_GET['pid'] ?>
+<?php endif; ?>
+<?= $this->renderFile('warehouses/print_buttons', array(
+    'prefix' => '_filtered',
+    'objectId' => 'none',
+    'addition' => $addition
+)) ?>

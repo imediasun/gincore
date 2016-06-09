@@ -24,7 +24,7 @@ class price_list_filtered extends AbstractTemplate
             'SELECT g.*
                 FROM {warehouses_goods_items} as wgi
                 LEFT JOIN {goods} as g ON wgi.goods_id=g.id
-                WHERE ?query', array($query))->assoc();
+                WHERE ?query GROUP by g.id', array($query))->assoc();
         if ($goods) {
             $this->editor = false;
 
