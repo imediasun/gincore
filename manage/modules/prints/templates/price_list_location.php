@@ -13,7 +13,7 @@ class price_list_location extends AbstractTemplate
                 LEFT JOIN {goods} as g ON wgi.goods_id=g.id
                 WHERE wgi.location_id=?i', array($object))->assoc();
         if ($goods) {
-            $this->editor = true;
+            $this->editor = false;
 
             foreach ($goods as $good) {
                 $arr = array(

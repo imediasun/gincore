@@ -16,7 +16,6 @@ class SoftDeleteItemsAndCategories extends Migration
             Schema::table('categories', function ($table) {
                 $table->integer('deleted')->default(0);
             });
-
         }
         DB::table('categories')->insert(array(
             'title' => 'Recycle Bin',
@@ -35,6 +34,11 @@ class SoftDeleteItemsAndCategories extends Migration
             'votes' => 0,
             'deleted' => 0
         ));
+        if (!Schema::hasColumn('goods', 'deleted')) {
+            Schema::table('goods', function ($table) {
+                $table->integer('deleted')->default(0);
+            });
+        }
     }
 
     /**
@@ -46,6 +50,11 @@ class SoftDeleteItemsAndCategories extends Migration
     {
         if (Schema::hasColumn('categories', 'deleted')) {
             Schema::table('categories', function ($table) {
+                $table->dropColumn('deleted');
+            });
+        }
+        if (Schema::hasColumn('goods', 'deleted')) {
+            Schema::table('goods', function ($table) {
                 $table->dropColumn('deleted');
             });
         }
