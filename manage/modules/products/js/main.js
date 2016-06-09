@@ -94,51 +94,32 @@ $(document).ready(function () {
     $("#remove-search-info").click(function () {
         window.location = $(this).data('url');
     });
-
-    /*$('.export-supplier-order').click(function () {
-        var order_id = $(this).data('id');
-
-        $.ajax({
-            url: prefix + module + '/ajax/?act=export-supplier-order',
-            dataType: "json",
-
-            data: '&order_id=' + order_id,
-            type: 'POST',
-            success: function (msg) {
-                if (msg['error']) {
-                    alert(msg['message']);
-                } else {
-                    alert('Успешно выгружено');
+    $('.js-delete-product').on('click', function () {
+          var id = $(this).data('id');
+        if (confirm("Вы действительно хотите удалить товар?")) {
+            $.ajax({
+                url: prefix + module + '/ajax/?act=delete-product',
+                type: 'POST',
+                dataType: "json",
+                data: '&id=' + id,
+                success: function (msg) {
+                    if (msg) {
+                        if (msg['state'] == false && msg['message']) {
+                            alert(msg['message']);
+                        }
+                        if (msg['state'] && msg['state'] == true) {
+                            window.location.reload();
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
                 }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(xhr.responseText);
-            }
-        });
+            });
 
+        }
         return false;
-    });*/
-
-    /*$('.export_product').click(function () {
-        var goods_id = $(this).attr('data');
-
-        $.ajax({
-            url: prefix + module + '/ajax/',
-            type: 'POST',
-            data: 'act=export_product&goods_id=' + goods_id,
-            success: function (msg) {
-                if (msg['error']) {
-                    alert(msg['message']);
-                } else {
-                    alert(msg['message']);
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(xhr.responseText);
-            }
-        });
-        return false;
-    });*/
+    });
 
 });
 
@@ -159,37 +140,6 @@ Array.prototype.clean = function(deleteValue) {
     }
     return this;
 };
-
-/*
-function checkbox_select(el, val, revers, childs) {
-
-    var req = val.split('-');
-
-    if ((el.checked == false && revers) || (el.checked == true && !revers)) {
-        if (childs) {
-            var req1 = childs.split('-');
-            req = req.concat(req1);
-        }
-        req.push(el.value)
-    } else {
-        if (childs) {
-            var req1 = childs.split('-');
-            //req = req.concat(req1);
-            for (var i = 0; i < req1.length; i++) {
-                req.clean(req1[i]);
-            }
-        }
-        req.clean(el.value);
-    }
-
-    if (req.length > 1)
-        req.clean('all');
-
-    req.clean();
-    var url = req.join('-');
-
-    window.location = prefix + module + '/' + url
-}*/
 
 function add_related(_this, product_id) {
     $.ajax({
@@ -250,8 +200,6 @@ if ($("#file-uploader")[0]) {
                     '<input class="span4 " placeholder="title" value="" name="images_title[' + responseJSON.img_id + ']" /> ' +
                     '<input class="span2" onkeydown="return isNumberKey(event)" placeholder="' + L['priority'] + '" name="image_prio[' + responseJSON.img_id + ']" value="" />' +
                     ' <input type="checkbox" name="images_del[' + responseJSON.img_id + ']" value="' + responseJSON.filename + '" /> ' + L['delete'] + '</p>';
-                //$("#picture").val(fileName).change();
-                //$("#current_picture").attr('src', siteprefix+'images/'+$("#sel_gallery").val()+'/'+fileName);
             }
         }
     });
@@ -313,59 +261,6 @@ $(function () {
             });
         }
     });
-
-    /*$("#dialog").dialog({
-        autoOpen: false,
-        show: {
-            effect: "blind",
-            duration: 1000
-        },
-        hide: {
-            effect: "explode",
-            duration: 1000
-        },
-        buttons: {
-            "Создать": function () {
-                var bValid = true;
-                bValid = bValid && checkLength(jQuery('#new_section_name'), "названия", 3, 200);
-                if (bValid) {
-
-                    var name = $('#new_section_name').val();
-
-                    $.ajax({
-                        url: prefix + module + '/ajax/',
-                        data: 'act=new_sections&id=' + arrequest()[2] + '&name=' + name,
-                        success: function (msg) {
-                            if (msg['error']) {
-                                alert(msg['message']);
-                            } else {
-                                if (msg['add']) {
-                                    click_tab_hash();
-                                    //$('.select-section').prepend("<option value='" + msg['add'] + "'>" + name + "</option>");
-                                }
-                            }
-                        }
-                    });
-                    $(this).dialog("close");
-                }
-            },
-            'Отменить': function () {
-                $(this).dialog("close");
-            }
-        },
-        open: function () {
-            $("#dialog").keypress(function (e) {
-                if (e.keyCode == $.ui.keyCode.ENTER) {
-                    $(this).parent().find("button:eq(0)").trigger("click");
-                    return false;
-                }
-            });
-        }
-    });
-
-    $("#opener").click(function () {
-        $("#dialog").dialog("open");
-    });*/
 
     $('#goods_add_size_group').change(function(){
         var $this = $(this),

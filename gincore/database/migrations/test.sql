@@ -118,3 +118,8 @@ ALTER TABLE `restore4_warehouses_goods_items`
  */
 ALTER TABLE `restore4_cashboxes_courses`
     CHANGE `course` `course` DECIMAL(12, 3) DEFAULT 0;
+/*
+2016_06_06_114027_soft_delete_items_and_categories.php
+ */
+ALTER TABLE `restore4_categories` ADD COLUMN deleted int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN deleted int(10) UNSIGNED DEFAULT 0;

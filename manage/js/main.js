@@ -1907,7 +1907,6 @@ $(function(){
     
     init_input_masks();
     $('#print_now').on('click', function () {
-        alert('test');
         var $checks = $(this).closest('ul').find(':checked');
         $checks.each(function () {
             window_open($(this).val());

@@ -559,7 +559,7 @@ function typeahead($db, $table = 'goods', $show_categories = false, $object_id =
                 $tbl = 'goods';
             }
             if($table == 'categories-last' || $table == 'categories-goods'){
-                $tbl_where = ' AND avail = 1';
+                $tbl_where = ' AND (avail = 1 OR deleted=1)';
                 $tbl = 'categories';
             }
             $object = $db->query('SELECT * FROM {'.$tbl.'}
@@ -901,7 +901,9 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
                 $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
                 $tree .= '<a href="' . $all_configs['prefix'] . 'categories/create/' . $tmp['id'] . '">';
-                $tree .= htmlspecialchars($tmp['title']) . '</a>';
+                $tree .= htmlspecialchars($tmp['title']);
+                $tree .= '<i class="js-delete-category fa fa-times" aria-hidden="true"></i>';
+                $tree .= '</a>';
             }
             if ($type == 3) {
                 $tree .= '<li class="' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'active' : '');

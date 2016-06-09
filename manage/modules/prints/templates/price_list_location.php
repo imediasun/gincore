@@ -11,19 +11,21 @@ class price_list_location extends AbstractTemplate
             'SELECT g.*
                 FROM {warehouses_goods_items} as wgi
                 LEFT JOIN {goods} as g ON wgi.goods_id=g.id
-                WHERE wgi.location_id=?i', array($object))->assoc();
+                WHERE wgi.location_id=?i GROUP BY g.id', array($object))->assoc();
         if ($goods) {
-            $this->editor = true;
+            $this->editor = false;
 
             foreach ($goods as $good) {
                 $arr = array(
-                    'id' => array('value' => intval($good['id']), 'name' => l('ID товара')),
-                    'title' => array('value' => intval($good['title']), 'name' => l('Название товара')),
-                    'price' => array('value' => intval($good['price']), 'name' => l('Цена')),
-                    'article' => array('value' => intval($good['article']), 'name' => l('Артикул')),
-                    'barcode' => array('value' => intval($good['barcode']), 'name' => l('Штрих код')),
+                    'title' => array('value' => h($good['title']), 'name' => l('Название товара')),
+                    'price' => array(
+                        'value' => intval($good['price']) . '&nbsp;' . viewCurrency(),
+                        'name' => l('Цена')
+                    ),
+                    'article' => array('value' => h($good['article']), 'name' => l('Артикул')),
+                    'barcode' => array('value' => h($good['barcode']), 'name' => l('Штрих код')),
                     'company' => array(
-                        'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                        'value' => h($this->all_configs['settings']['site_name']),
                         'name' => l('Название компании')
                     ),
                 );

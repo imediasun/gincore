@@ -14,6 +14,14 @@ class flayers
     private $def_lang;
     private $langs;
 
+    /**
+     * flayers constructor.
+     * @param      $all_configs
+     * @param      $lang
+     * @param      $def_lang
+     * @param      $langs
+     * @param bool $init
+     */
     function __construct($all_configs, $lang, $def_lang, $langs, $init = true)
     {
         $this->def_lang = $def_lang;
@@ -36,6 +44,9 @@ class flayers
         $input_html['mcontent'] = $this->gencontent();
     }
 
+    /**
+     * @return string
+     */
     private function genmenu()
     {
 
@@ -96,6 +107,9 @@ class flayers
         return $out;
     }
 
+    /**
+     * @return mixed|string
+     */
     private function save_photo()
     {
         $filename = '';
@@ -124,6 +138,10 @@ class flayers
         return $filename;
     }
 
+    /**
+     * @param array $flayer
+     * @return string
+     */
     private function form($flayer = array())
     {
 
@@ -201,6 +219,9 @@ class flayers
         return $form;
     }
 
+    /**
+     * @return string
+     */
     private function gencontent()
     {
 
@@ -423,6 +444,9 @@ class flayers
         return $out;
     }
 
+    /**
+     *
+     */
     private function ajax()
     {
 
