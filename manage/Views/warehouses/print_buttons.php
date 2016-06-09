@@ -28,7 +28,7 @@
                     <label>
                         <input type="checkbox" name="print[]"
                                value="<?= print_link($objectId, 'location', '', true, !empty($addition)? $addition: '') ?>">
-                        <?= l('Этикетки') ?>
+                        <?= l('Локация') ?>
                     </label>
                 </div>
             </li>
