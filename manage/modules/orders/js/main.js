@@ -3,9 +3,16 @@ function gen_tree() {
 }
 
 function orders_quick_search(_this, param) {
-  var query = $.trim($('#orders_quick_search_query').val());
+  var hash = '', query = $.trim($('#orders_quick_search_query').val()), active = $(_this).parents('ul').first().find('li.active >a').first();
+
+  if(active) {
+    hash += active.data('open_tab');
+  } else {
+    hash += 'show_orders-orders';
+  }
+  console.log(hash);
   if (query) {
-    window.location = prefix + 'orders?' + param + '=' + encodeURI(query) + '&qsq=' + encodeURI(query) + '#show_orders-orders'
+    window.location = prefix + 'orders?' + param + '=' + encodeURI(query) + '&qsq=' + encodeURI(query) + '&hash=' + encodeURI(hash);
   }
 }
 
