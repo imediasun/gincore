@@ -229,8 +229,9 @@ class orders extends Controller
                 }
             }
 
-            $hash = isset($post['sale-order'])?'#show_orders-sold':'#show_orders-orders';
-            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&', $url)) . $hash);
+            $hash = isset($post['sale-order']) ? '#show_orders-sold' : '#show_orders-orders';
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&',
+                        $url)) . $hash);
         }
 
         // принимаем заказ
@@ -293,7 +294,7 @@ class orders extends Controller
             'managers' => $managers
         ));
     }
-    
+
     /**
      * @param bool $full_link
      * @return string
@@ -459,6 +460,12 @@ class orders extends Controller
                 && trim($hash) != '#show_orders-return' && trim($hash) != '#show_orders-writeoff')
         ) {
             $hash = '#show_orders-orders';
+            if (!empty($_GET['hash'])) {
+                $parts = explode('_', $_GET['hash']);
+                if (!empty($parts[2])) {
+                    $hash = '#show_orders-' . $parts[2];
+                }
+            }
         }
 
         return array(
@@ -543,12 +550,17 @@ class orders extends Controller
      */
     public function show_orders_sold()
     {
-        $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_SELL) + $_GET);
-        $query = $queries['query'];
-
-        // достаем заказы
-        $orders = $this->all_configs['manageModel']->get_clients_orders($query, $queries['skip'], $this->count_on_page,
-            'co');
+        $filters = array('type' => ORDER_SELL);
+        if (isset($_GET['simple'])) {
+            $search = $_GET['simple'];
+            unset($_GET['simple']);
+            list($query, $orders) = $this->simpleSearch($search, $filters + $_GET);
+        } else {
+            $queries = $this->all_configs['manageModel']->clients_orders_query($filters + $_GET);
+            $query = $queries['query'];
+            // достаем заказы
+            $orders = $this->getOrders($query, $queries['skip'], $this->count_on_page, 'co');
+        }
 
         $this->view->load('DisplayOrder');
         return array(
@@ -1292,7 +1304,7 @@ class orders extends Controller
                 $p = round($qty / $orders_summ * 100, 2);
                 $title = $this->get_order_status_name_by_color($color);
                 $colors_percents .= '
-                    <span '.($title ? ' data-toggle="tooltip" title="'.$title.'" ' : '').' style="border-radius:5px;margin-right:10px;color:#fff;padding:5px 10px;background-color:#' . $color . '">' .
+                    <span ' . ($title ? ' data-toggle="tooltip" title="' . $title . '" ' : '') . ' style="border-radius:5px;margin-right:10px;color:#fff;padding:5px 10px;background-color:#' . $color . '">' .
                     $p . '%
                     </span>
                 ';
@@ -1312,18 +1324,19 @@ class orders extends Controller
         }
     }
 
-    private function get_order_status_name_by_color($color){
-        if($color == 'FF0000'){
+    private function get_order_status_name_by_color($color)
+    {
+        if ($color == 'FF0000') {
             return l('Просроченные');
         }
-        foreach($this->all_configs['configs']['order-status'] as $status_data){
-            if($status_data['color'] == $color){
+        foreach ($this->all_configs['configs']['order-status'] as $status_data) {
+            if ($status_data['color'] == $color) {
                 return $status_data['name'];
             }
         }
         return null;
     }
-    
+
     /**
      * @return array
      */
@@ -2038,7 +2051,7 @@ class orders extends Controller
             } else {
                 $data['msg'] = l('У вас нет прав на изменение статуса заказа');
             }
-            
+
         }
 
         preg_match('/changes:(.+)/', $act, $arr);
@@ -2340,7 +2353,7 @@ class orders extends Controller
             'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
         ));
         $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . ' '
-                         .InfoPopover::getInstance()->createQuestion('l_manager_setup_info').'</center>';
+            . InfoPopover::getInstance()->createQuestion('l_manager_setup_info') . '</center>';
 
         Response::json($data);
     }
@@ -3116,7 +3129,7 @@ class orders extends Controller
                     $ids = array($key);
                 }
                 foreach ($ids as $id) {
-                    if(!isset($products[$id])) {
+                    if (!isset($products[$id])) {
                         continue;
                     }
                     $product = $products[$id];
