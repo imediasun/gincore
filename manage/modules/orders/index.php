@@ -296,6 +296,23 @@ class orders extends Controller
     }
 
     /**
+     * @return string
+     */
+    function show_filter_manager_small()
+    {
+        $managers = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
+            array('edit-clients-orders', 'site-administration'))->assoc();
+        $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
+            (isset($_GET['managers']) ? $_GET['managers'] : array());
+        return $this->view->renderFile('orders/show_filter_manager_small', array(
+            'mg_get' => $mg_get,
+            'managers' => $managers
+        ));
+    }
+
+    /**
      * @param bool $full_link
      * @return string
      */
@@ -1464,7 +1481,7 @@ class orders extends Controller
                 <div>
                     <form class="form-inline well">
                         ' . $this->all_configs['suppliers_orders']->show_filter_service_center() . '
-                        ' . $this->show_filter_manager(true, false) . '
+                        ' . $this->show_filter_manager_small() . '
                         <input type="text" placeholder="' . l('Дата') . '" name="date" class="daterangepicker form-control " value="' . $get_date . '" />
                         <input type="submit" class="btn btn-primary" value="' . l('Фильтровать') . '">
                         <button type="button" class="btn fullscreen"><i class="fa fa-arrows-alt"></i></button>
