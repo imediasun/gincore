@@ -3105,7 +3105,7 @@ class accountings extends Controller
         $select_contractors = '';
         $ccg_id = 0;
 
-        list($co_id, $b_id, $t_extra, $amount_to, $client_contractor) = $this->getInfoForPayForm();
+        list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
 
 
         $cashbox_id = array_key_exists('object_id',
@@ -3127,7 +3127,7 @@ class accountings extends Controller
             'dccf' => $dccf,
             'dc' => $dc,
             'select_contractors' => $select_contractors,
-            'client_contractor' => $client_contractor,
+            'order' => $order,
             'today' => $today,
             'ccg_id' => $ccg_id,
             'categories_from' => $this->get_contractors_categories(2),
@@ -3505,7 +3505,7 @@ class accountings extends Controller
         $co_id = 0;
         $t_extra = '';
         $amount_to = 0;
-        $client_contractor = 0;
+        $order = array();
         $b_id = 0;
         if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
             $co_id = $_POST['client_order_id'];
@@ -3545,10 +3545,10 @@ class accountings extends Controller
             $amount_to = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
                     array($select_query_2, $_POST['client_order_id']))->el() / 100;
 
-            $client_contractor = $this->all_configs['db']->query('SELECT c.contractor_id
+            $order = $this->all_configs['db']->query('SELECT o.*, c.contractor_id
                         FROM {orders} as o, {clients} as c WHERE o.id=?i AND o.user_id=c.id',
-                array($_POST['client_order_id']))->el();
+                array($_POST['client_order_id']))->row();
         }
-        return array($co_id, $b_id, $t_extra, $amount_to, $client_contractor);
+        return array($co_id, $b_id, $t_extra, $amount_to, $order);
     }
 }
