@@ -41,7 +41,7 @@ class MOrdersGoods extends AModel
         // если запчастей все запчасти отвязаны c заказа
         $orders_goods = $this->query("SELECT count(*) FROM ?t WHERE order_id = ?i", array($this->table, $order['id']),
             'el');
-        if (!$orders_goods) {
+        if (empty($orders_goods)) {
             update_order_status($order, $this->all_configs['configs']['order-status-new']);
             $data['reload'] = 1;
         }

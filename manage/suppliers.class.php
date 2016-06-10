@@ -1593,7 +1593,7 @@ class Suppliers extends Object
             $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
                 array($order_id))->row();
             if (empty($order)) {
-                throw  new ExceptionWithMsg(l('Pаказ не найден'));
+                throw  new ExceptionWithMsg(l('Заказ не найден'));
             }
             if ($order['confirm'] == 0) {
                 //$data['state'] = false;
