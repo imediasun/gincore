@@ -2300,6 +2300,7 @@ class orders extends Controller
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
         }
         if ($act == 'remove_product') {
+            $_POST['remove'] = 1;
             $data = $this->all_configs['chains']->remove_product_order($_POST, $mod_id);
         }
 

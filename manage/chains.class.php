@@ -3,6 +3,7 @@
 require_once __DIR__ . '/Core/Object.php';
 require_once __DIR__ . '/Core/View.php';
 require_once __DIR__ . '/Core/Exceptions.php';
+require_once __DIR__ . '/Core/Log.php';
 
 /**
  * @property MHistory                    History
@@ -895,8 +896,8 @@ class Chains extends Object
                 throw new ExceptionWithMsg('Выберите товар');
             }
             $product = $this->all_configs['db']->query(
-                'SELECT g.id as goods_id, g.* FROM {goods} as g WHERE g.id=?i AND g.avail=?i',
-                array($post['product_id'], 1))->row();
+                'SELECT g.id as goods_id, g.* FROM {goods} as g WHERE g.id=?i',
+                array($post['product_id']))->row();
             if (!$product && !isset($post['remove'])) {
                 throw new ExceptionWithMsg(l('Товар не активен.') . ' ' . l('Зайдите в товар и поставьте галочку "активность"'));
             }
