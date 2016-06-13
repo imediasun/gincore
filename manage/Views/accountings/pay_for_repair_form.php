@@ -19,10 +19,11 @@
 <hr>
 <form method="post" id="transaction_form">
     <fieldset>
-        <input type="hidden" name="transaction_type" id="transaction_type" value="2"/>
+        <input type="hidden" name="transaction_type" id="transaction_type" value="<?= TRANSACTION_INPUT ?>"/>
         <input type="hidden" name="client_order_id" value="<?= $co_id ?>"/>
         <input type="hidden" name="b_id" value="<?= $b_id ?>"/>
         <input type="hidden" name="transaction_extra" value="<?= $t_extra ?>"/>
+        <input type="hidden" name="cashbox_currencies_to" value="<?= $this->all_configs['settings']['currency_orders'] ?>"/>
 
         <div id="transaction_form_body" class="hide-conversion-3 transaction_type-repair">
             <table>
