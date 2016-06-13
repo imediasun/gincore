@@ -46,8 +46,8 @@
                     <td class="hide-conversion">
                         <span>
                             <input class="form-control input-sm"
-                                   id="amount" type="text" style="width:80px"
-                                   name="amount_to" value="<?= $amount_to ?>"
+                                   id="amount_without_discount" type="text" style="width:80px"
+                                   name="amount_without_discount" value="<?= $amount_to ?>"
                                    onkeydown="return isNumberKey(event, this)"
                                    onkeyup="recalculate_amount_pay();"
                             />
@@ -56,9 +56,9 @@
                     <td class="hide-conversion">
                         <div class="input-group">
                             <input type="text" class="form-control js-repair-discount"
-                                   onkeyup="recalculate_amount_pay();" value="0"  name='discount' style="min-width: 50px"/>
-                            <div class="input-group-addon" onclick="change_discount_type(this)" style="cursor: pointer">
-                                <input type="hidden" name='discount-type' class="form-control js-product-discount-type js-repair-discount_type" value="1"/>
+                                   onkeyup="recalculate_amount_pay();" value="0"  name='discount'/>
+                            <div class="input-group-addon" onclick="change_discount_type_show(this); recalculate_amount_pay();" style="cursor: pointer">
+                                <input type="hidden" name='discount-type' class="form-control js-repair-discount_type js-product-discount-type" value="1"/>
                                 <span class="currency" style="display:none"><?= viewCurrency() ?></span>
                                 <span class="percent" >%</span>
                             </div>
@@ -68,7 +68,7 @@
                         <span>
                             <input class="form-control input-sm" readonly
                                    id="amount-with-discount" type="text" style="width:80px"
-                                   name="amount_to_with_discount" value="<?= $amount_to ?>"/>
+                                   name="amount_to" value="<?= $amount_to ?>"/>
                         </span>
                     </td>
                 </tr>

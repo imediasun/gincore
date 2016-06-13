@@ -175,6 +175,7 @@ class MOrders extends AModel
             'prepay',
             'prepay_comment',
             'discount',
+            'discount_type',
             'manager',
             'accepter',
             'engineer',

@@ -9,6 +9,7 @@ $moduleactive[30] = !$ifauth['is_2'];
 
 /**
  * @property  MUsers                 Users
+ * @property  MOrders                Orders
  * @property  MClients               Clients
  * @property  MCashboxesTransactions CashboxesTransactions
  * @property  MCashboxes             Cashboxes
@@ -39,7 +40,8 @@ class accountings extends Controller
         'Users',
         'Cashboxes',
         'CashboxesTransactions',
-        'Clients'
+        'Clients',
+        'Orders'
     );
 
     public function __construct(&$all_configs)
@@ -1393,6 +1395,31 @@ class accountings extends Controller
             $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
         }
 
+        // создаем транзакцию оплаты за ремонт
+        if ($act == 'create-transaction-repair') {
+            $_POST['cashbox_from'] = $_POST['cashbox_to'];
+            $_POST['amount_from'] = 0;
+            $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
+            if (!empty($_POST['discount'])) {
+                $this->Orders->update(array(
+                    'discount' => $_POST['discount'],
+                    'discount_type' => empty($_POST['discount-type']) ? DISCOUNT_TYPE_PERCENT : $_POST['discount-type']
+                ), array(
+                    'id' => $_POST['client_order_id']
+                ));
+                $this->History->save('change-orders-discount', $mod_id, $_POST['client_order_id'],
+                    l('Новое значение') . ':' . $_POST['discount'] . ($_POST['discount_type'] == DISCOUNT_TYPE_PERCENT) ? '%' : viewCurrency());
+            }
+            $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+        }
+
+        // создаем транзакцию оплаты за продажу
+        if ($act == 'create-transaction-sale') {
+            $_POST['cashbox_from'] = $_POST['cashbox_to'];
+            $_POST['amount_from'] = 0;
+            $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
+            $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+        }
         Response::json($data);
     }
 
@@ -3065,7 +3092,7 @@ class accountings extends Controller
      */
     private function createPayForm($formType, $data, $user_id)
     {
-        $btn = l('Сохранить');
+        $btn = l('Внести в кассу');
         // сегодня
         $today = date("d.m.Y");
         $select_cashbox = '';
@@ -3135,7 +3162,7 @@ class accountings extends Controller
         ));
 
 
-        $data['btns'] = '<button type="button" onclick="create_transaction(this)" class="btn btn-success">' . $btn . '</button>';
+        $data['btns'] = '<button type="button" onclick="create_transaction_for(\'' . $formType . '\', this)" class="btn btn-success">' . $btn . '</button>';
 
         $data['functions'] = array('reset_multiselect()');
         $data['state'] = true;

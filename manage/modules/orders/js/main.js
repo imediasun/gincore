@@ -5,7 +5,7 @@ function gen_tree() {
 function orders_quick_search(_this, param) {
   var hash = '', query = $.trim($('#orders_quick_search_query').val()), active = $(_this).parents('ul').first().find('li.active >a').first();
 
-  if(active) {
+  if (active) {
     hash += active.data('open_tab');
   } else {
     hash += 'show_orders-orders';
@@ -564,7 +564,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
     }
   }
 
-  if(remove == 1) {
+  if (remove == 1) {
     url = prefix + module + '/ajax/' + order_id + '?act=remove_product';
   } else {
     url = prefix + module + '/ajax/' + order_id + '?act=add_product';
@@ -742,7 +742,7 @@ function bind_group_product(_this, product_id, order_id) {
   $.ajax({
     url: prefix + module + '/ajax/?act=bind-group-product-to-order',
     type: 'POST',
-    data: 'product_id=' + product_id + (order_id?'&order_id='+order_id:''),
+    data: 'product_id=' + product_id + (order_id ? '&order_id=' + order_id : ''),
     success: function (msg) {
       var buttons = {};
       if (msg['state'] == false && msg['message']) {
@@ -904,7 +904,7 @@ function recalculate_amount_quick() {
     total += parseFloat($row.find('.js-quick-sum').first().val());
   });
   if (total == 0) {
-    if($body.find('tr').length <= 1) {
+    if ($body.find('tr').length <= 1) {
       $body.parent().hide();
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
@@ -960,7 +960,7 @@ function add_eshop_item_to_table() {
     $clone.find('.js-eshop-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']');
     $clone.find('.js-eshop-discount').first().val(discount).attr('name', 'discount[' + rnd + ']');
     $clone.find('.js-eshop-discount_type').first().val(discount_type).attr('name', 'discount_type[' + rnd + ']');
-    if(discount_type == 1) {
+    if (discount_type == 1) {
       $clone.find('.percent').show();
       $clone.find('.currency').hide();
     } else {
@@ -1002,7 +1002,7 @@ function recalculate_amount_eshop() {
     total += parseFloat($row.find('.js-eshop-sum').first().val());
   });
   if (total == 0) {
-    if($body.find('tr').length <= 1) {
+    if ($body.find('tr').length <= 1) {
       $body.parent().hide();
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
@@ -1148,6 +1148,10 @@ function toggle_delivery_to(state) {
   }
 }
 function change_discount_type(_this) {
+  change_discount_type_show(_this);
+  $("#update-order").click();
+}
+function change_discount_type_show(_this) {
   var $this = $(_this),
     $input = $this.find('.js-product-discount-type').first();
   if ($input.val() == 1) {
@@ -1159,7 +1163,6 @@ function change_discount_type(_this) {
     $this.find('.percent').show();
     $this.find('.currency').hide();
   }
-  $("#update-order").click();
 }
 function change_status(_this) {
   var $this = $(_this),
@@ -1187,4 +1190,53 @@ function toggle_items(hash) {
   $group.find('.items-show').toggle();
   $group.find('.items-hide').toggle();
   $('.' + hash + '_item').toggle();
+}
+
+function recalculate_amount_pay(_this) {
+  var $parent = $('#transaction_form').first(),
+    discount = $parent.find('input[name="discount"]').first().val() || 0,
+    discount_type = $parent.find('input[name="discount-type"]').first().val() || 1,
+    amount = $parent.find('input#amount_without_discount').first().val(),
+    result = 0;
+
+  if (discount_type == 1) {
+    result = amount * (1 - discount / 100);
+  } else {
+    result = amount - discount;
+  }
+  $parent.find('#amount-with-discount').first().val(result);
+}
+function create_transaction_for(type, _this, conf) {
+
+  $(_this).button('loading');
+
+  $.ajax({
+    url: prefix + '/accountings/ajax/?act=create-transaction-' + type,
+    dataType: "json",
+    data: $('#transaction_form').serialize() + (conf == 1 ? '&confirm=1' : ''),
+    type: 'POST',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          location.reload();
+        } else {
+          if (data['msg']) {
+            if (data['confirm']) {
+              if (confirm(data['msg'])) {
+                create_transaction(_this, 1);
+              }
+            } else {
+              alert(data['msg']);
+            }
+          }
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
 }
