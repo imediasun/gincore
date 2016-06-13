@@ -57,7 +57,7 @@ class sale_warranty extends AbstractTemplate
                         'value' => h($this->all_configs['settings']['site_name']),
                         'name' => l('Название компании')
                     ),
-                    'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                    'wh_phone' => array('value' => h($order['print_phone']), 'name' => 'Телефон склада'),
                 );
                 $print_html .= $this->generate_template($arr, 'sale_warranty', $id == 0);
             }

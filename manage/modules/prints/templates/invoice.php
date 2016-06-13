@@ -52,18 +52,8 @@ class invoice extends AbstractTemplate
             $qty_all = count($goods);
 
             $this->editor = true;
-            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-            $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($summ / 100, false,
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
-            $params = new \php_rutils\struct\TimeParams();
-            $params->date = null;
-            $params->format = 'd F Y';
-            $params->monthInflected = true;
-            $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
+            $sum_in_words = $this->amountAsWord($summ/100);
+            $str_date = $this->dateAsWord();
 
 
             if ($order['type'] == 0) {

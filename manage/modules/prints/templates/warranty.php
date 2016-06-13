@@ -30,11 +30,11 @@ class warranty extends AbstractTemplate
             if ($goods) {
                 foreach ($goods as $product) {
                     if ($product['type'] == 0) {
-                        $products .= htmlspecialchars($product['title']) . '<br/>';
+                        $products .= h($product['title']) . '<br/>';
                         $products_cost .= ($product['price'] / 100) . ' ' . viewCurrency() . '<br />';
                     }
                     if ($product['type'] == 1) {
-                        $services .= htmlspecialchars($product['title']) . '<br/>';
+                        $services .= h($product['title']) . '<br/>';
                         $services_cost[] = ($product['price'] / 100);
                     }
                 }

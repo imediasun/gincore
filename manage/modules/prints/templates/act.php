@@ -48,7 +48,6 @@ class act extends AbstractTemplate
                     }
                 }
             }
-            $summ = $order['sum'];
 
             $products_html_parts = array();
             $num = 1;
@@ -62,21 +61,9 @@ class act extends AbstractTemplate
                     ';
                 $num++;
             }
-            $qty_all = $num - 1;
             $products_html = implode('</td></tr><tr><td>', $products_html_parts);
 
-            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-            $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false,
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
-            $params = new \php_rutils\struct\TimeParams();
-            $params->date = null;
-            $params->format = 'd F Y';
-            $params->monthInflected = true;
-            $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
+            $str_date = $this->dateAsWord();
 
             $sum_with_discount = $order['sum'] / 100;
             if ($order['discount_type'] == DISCOUNT_TYPE_PERCENT) {
