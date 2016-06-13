@@ -142,17 +142,38 @@ abstract class AbstractTemplate
     }
 
     /**
-     * @param $amount
      * @return string
      */
-    public function amountAsWord($amount)
+    public function dateAsWord()
     {
         require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
         require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
         require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
         require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-        return \php_rutils\RUtils::numeral()->getRubles($amount, false,
-            $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-            $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
+        $params = new \php_rutils\struct\TimeParams();
+        $params->date = null;
+        $params->format = 'd F Y';
+        $params->monthInflected = true;
+        return \php_rutils\RUtils::dt()->ruStrFTime($params);
+    }
+
+    /**
+     * @param $amount
+     * @return string
+     */
+    public function amountAsWord($amount)
+    {
+        if ($this->all_configs['settings']['lang'] == 'ru') {
+            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
+            $result = \php_rutils\RUtils::numeral()->getRubles($amount, false,
+                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
+                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
+        } else {
+            $result = convert_number_to_words($amount);
+        }
+        return $result;
     }
 }

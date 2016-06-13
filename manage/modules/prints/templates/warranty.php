@@ -30,11 +30,11 @@ class warranty extends AbstractTemplate
             if ($goods) {
                 foreach ($goods as $product) {
                     if ($product['type'] == 0) {
-                        $products .= htmlspecialchars($product['title']) . '<br/>';
+                        $products .= h($product['title']) . '<br/>';
                         $products_cost .= ($product['price'] / 100) . ' ' . viewCurrency() . '<br />';
                     }
                     if ($product['type'] == 1) {
-                        $services .= htmlspecialchars($product['title']) . '<br/>';
+                        $services .= h($product['title']) . '<br/>';
                         $services_cost[] = ($product['price'] / 100);
                     }
                 }
@@ -52,11 +52,11 @@ class warranty extends AbstractTemplate
                     'value' => $order['warranty'] > 0 ? $order['warranty'] . ' ' . l('мес') . '' : 'Без гарантии',
                     'name' => 'Гарантия'
                 ),
-                'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
-                'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
-                'defect' => array('value' => htmlspecialchars($order['defect']), 'name' => 'Неисправность'),
-                'engineer' => array('value' => htmlspecialchars($order['engineer']), 'name' => 'Инженер'),
-                'comment' => array('value' => htmlspecialchars($order['comment']), 'name' => 'Внешний вид'),
+                'fio' => array('value' => h($order['fio']), 'name' => 'ФИО клиента'),
+                'phone' => array('value' => h($order['phone']), 'name' => 'Телефон клиента'),
+                'defect' => array('value' => h($order['defect']), 'name' => 'Неисправность'),
+                'engineer' => array('value' => h($order['engineer']), 'name' => 'Инженер'),
+                'comment' => array('value' => h($order['comment']), 'name' => 'Внешний вид'),
                 'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
                 'sum_paid' => array('value' => $order['sum_paid'] / 100, 'name' => 'Оплаченная сумма'),
                 'products' => array('value' => $products, 'name' => 'Установленные запчасти'),
@@ -66,23 +66,23 @@ class warranty extends AbstractTemplate
                     'value' => implode(' ' . viewCurrency() . '<br />', $services_cost),
                     'name' => 'Стоимость услуг'
                 ),
-                'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                'serial' => array('value' => h($order['serial']), 'name' => 'Серийный номер'),
                 'product' => array(
-                    'value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']),
+                    'value' => h($order['title']) . ' ' . h($order['note']),
                     'name' => 'Устройство'
                 ),
-                'warehouse' => array('value' => htmlspecialchars($order['wh_title']), 'name' => 'Название склада'),
+                'warehouse' => array('value' => h($order['wh_title']), 'name' => 'Название склада'),
                 'warehouse_accept' => array(
-                    'value' => htmlspecialchars($order['aw_title']),
+                    'value' => h($order['aw_title']),
                     'name' => 'Название склада приема'
                 ),
                 'wh_address' => array(
-                    'value' => htmlspecialchars($order['print_address']),
+                    'value' => h($order['print_address']),
                     'name' => 'Адрес склада'
                 ),
-                'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
+                'wh_phone' => array('value' => h($order['print_phone']), 'name' => 'Телефон склада'),
                 'company' => array(
-                    'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                    'value' => h($this->all_configs['settings']['site_name']),
                     'name' => 'Название компании'
                 ),
                 'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
