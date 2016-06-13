@@ -64,7 +64,7 @@
                 ],
                 toolbar1: 'insertfile undo redo | styleselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
                 toolbar2: "bold italic | forecolor backcolor |  fontselect |  fontsizeselect",
-                fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt"
+                fontsize_formats: "4pt 6pt 8pt 10pt 12pt 14pt 18pt 24pt 36pt"
             });
         });
     </script>
