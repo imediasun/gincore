@@ -615,10 +615,11 @@ class Transactions extends Object
                     $this->currency_suppliers_orders), $transactions);
                 $out = '<div class="out-transaction">';
                 if ($show_balace == true) {
-                    $out .= $this->balance($query_balance, $contractors, $currencies, $TransactionShow->totals(),
-                        $by_day);
+                    $totals = $TransactionShow->totals();
+                    $out .= $this->balance($query_balance, $contractors, $currencies, $totals['total'], $by_day);
                 }
-                $out .= $table . '</div>';
+                $out .= $table;
+                $out .= '</div>';
             }
         } else {
             if ($show_balace == true) {
