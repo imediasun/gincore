@@ -631,6 +631,11 @@ class Transactions extends Object
         return supplier_order_number($order, $title, $link);
     }
 
+    /**
+     * @param $transaction
+     * @param $contractors
+     * @return bool
+     */
     public function use_s_value($transaction, $contractors)
     {
         return ($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'] == $this->currency_suppliers_orders && !$contractors && $this->currency_suppliers_orders != $this->all_configs['suppliers_orders']->currency_clients_orders);
