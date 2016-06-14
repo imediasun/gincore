@@ -282,7 +282,7 @@ class Transactions extends Object
             $transactionTable = 'cashboxes_transactions';
         }
 
-        if(empty($this->all_configs['suppliers_orders'])) {
+        if (empty($this->all_configs['suppliers_orders'])) {
 
             $all_configs['suppliers_orders'] = new Suppliers($this->all_configs);
             $all_configs['suppliers_orders']->suppliers_orders = $all_configs['settings']['currency_suppliers_orders'];
@@ -600,15 +600,25 @@ class Transactions extends Object
         $out = '';
 
         if ($transactions) {
-            require_once __DIR__.'/TransactionShow.php';
-            $TransactionShow = new TransactionShow($this->all_configs, $currencies, $contractors, $this->currency_suppliers_orders);
+            require_once __DIR__ . '/TransactionShow.php';
+            $TransactionShow = new TransactionShow($this->all_configs, $currencies, $contractors,
+                $this->currency_suppliers_orders);
             if ($return_array == true) {
-                require_once __DIR__.'/TransactionAsArray.php';
-                
-                $out = $TransactionShow->result(new TransactionAsArray($this->all_configs, $currencies, $contractors, $this->currency_suppliers_orders), $transactions);
+                require_once __DIR__ . '/TransactionAsArray.php';
+
+                $out = $TransactionShow->result(new TransactionAsArray($this->all_configs, $currencies, $contractors,
+                    $this->currency_suppliers_orders), $transactions);
             } else {
-                require_once __DIR__.'/TransactionAsTable.php';
-                $out = $TransactionShow->result(new TransactionAsTable($this->all_configs, $currencies, $contractors, $this->currency_suppliers_orders), $transactions);
+                require_once __DIR__ . '/TransactionAsTable.php';
+
+                $table = $TransactionShow->result(new TransactionAsTable($this->all_configs, $currencies, $contractors,
+                    $this->currency_suppliers_orders), $transactions);
+                $out = '<div class="out-transaction">';
+                if ($show_balace == true) {
+                    $out .= $this->balance($query_balance, $contractors, $currencies, $TransactionShow->totals(),
+                        $by_day);
+                }
+                $out .= $table . '</div>';
             }
         } else {
             if ($show_balace == true) {
