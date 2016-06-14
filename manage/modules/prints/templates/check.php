@@ -24,6 +24,13 @@ class check extends AbstractTemplate
 
             $src = $this->all_configs['prefix'] . 'print.php?bartype=sn&barcode=Z-' . $order['id'];
             $barcode = '<img src="' . $src . '" alt="S/N" title="S/N" />';
+            
+            $sum_with_discount = $order['sum'] / 100;
+            if ($order['discount_type'] == DISCOUNT_TYPE_PERCENT) {
+                $sum_with_discount *= (1 - $order['discount'] / 100);
+            } else {
+                $sum_with_discount -= abs($order['discount']);
+            }
 
             $arr = array(
                 'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
@@ -33,6 +40,14 @@ class check extends AbstractTemplate
                 'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
                 'prepay' => array('value' => $order['prepay'] / 100, 'name' => l('Предоплата')),
                 'sum' => array('value' => $order['sum'] / 100, 'name' => l('Сумма за ремонт')),
+                'discount' => array(
+                    'value' => $order['discount'] . ($order['discount_type'] == DISCOUNT_TYPE_PERCENT ? "%" : viewCurrency()),
+                    'name' => l('Скидка на заказ')
+                ),
+                'sum_with_discount' => array(
+                    'value' => $sum_with_discount,
+                    'name' => l('Сумма за ремонт с учетом скидки')
+                ),
                 'repair' => array('value' => '', 'name' => l('Вид ремонта')),
                 'complect' => array('value' => '', 'name' => l('Комплектация')),
                 'date' => array(

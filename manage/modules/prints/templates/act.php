@@ -65,24 +65,10 @@ class act extends AbstractTemplate
 
             $str_date = $this->dateAsWord();
 
-            $sum_with_discount = $order['sum'] / 100;
-            if ($order['discount_type'] == DISCOUNT_TYPE_PERCENT) {
-                $sum_with_discount *= (1 - $order['discount'] / 100);
-            } else {
-                $sum_with_discount -= abs($order['discount']);
-            }
             $arr = array(
                 'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
                 'now' => array('value' => $str_date, 'name' => l('Текущая дата')),
-                'discount' => array(
-                    'value' => $order['discount'] . ($order['discount_type'] == DISCOUNT_TYPE_PERCENT ? "%" : viewCurrency()),
-                    'name' => l('Скидка на заказ')
-                ),
                 'sum' => array('value' => $order['sum'] / 100, 'name' => l('Сумма за ремонт')),
-                'sum_with_discount' => array(
-                    'value' => $sum_with_discount,
-                    'name' => l('Сумма за ремонт с учетом скидки')
-                ),
                 'sum_by_products_and_services' => array(
                     'value' => $sum_by_products_and_services / 100,
                     'name' => l('Сумма за запчасти и услуги')
