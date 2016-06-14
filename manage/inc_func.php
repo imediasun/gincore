@@ -924,12 +924,21 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= ' value="' . $tmp['id'] . '">' . $space . $arrow . htmlspecialchars($tmp['title']) . '</option>';
             }
             if ($type == 2) {
+                if(empty($recycledBin)) {
+                    require_once __DIR__.'/Models/Categories.php';
+                    $Categories = new MCategories($all_configs);
+                    $recycledBin = $Categories->getRecycleBin();
+                }
                 $tree .= '<li class=" ' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'active' : '');
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
                 $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
-                $tree .= '<a href="' . $all_configs['prefix'] . 'categories/create/' . $tmp['id'] . '">';
+                $tree .= '<a href="' . $all_configs['prefix'] . 'categories/create/' . $tmp['id'] . '" class="' . (($tmp['id'] == $recycledBin['id']) ? 'recyclebin' : '') . '">';
                 $tree .= htmlspecialchars($tmp['title']);
-                $tree .= '<i class="js-delete-category fa fa-times" aria-hidden="true"></i>';
+                if ($tmp['id'] != $recycledBin['id']) {
+                    $tree .= '<i class="js-delete-category fa fa-times" aria-hidden="true"></i>';
+                } else {
+                    $tree .= InfoPopover::getInstance()->createQuestion('l_recycled_bin_info', 'js-recycle-bin');
+                }
                 $tree .= '</a>';
             }
             if ($type == 3) {
