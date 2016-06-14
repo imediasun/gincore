@@ -97,14 +97,19 @@ $(function () {
         var $this = $(this),
           text = $this.text().toLowerCase(),
           search_pos = text.indexOf(query),
-          li = $this.parents('li'),
+          li = $this.parents('li').first(),
           id = li.attr('id'),
+          item_id = li.data('id'),
           goto_el = '<span class="goto_level" data-id="' + id + '">' + L['menu'] + '</span>';
         if (search_pos >= 0) {
-          els.push('<li><span title="' + li.parents('li').attr('title') + '">' + $this[0].outerHTML + '</span>, ' + /*goto_el+*/'</li>');
+          els.push('<li data-id="' + item_id + '" class="dd-item"><span title="' + li.parents('li').attr('title') + '">' + $this[0].outerHTML + '</span>, ' + /*goto_el+*/'</li>');
         }
       });
       $search_result.show().find('ul').html(els.join(''));
+      $('.js-delete-category').on('click', function () {
+        var $parent = $(this).parents('li.dd-item').first();
+        return delete_category($parent);
+      });
     } else {
       $search_result.hide().find('ul').html('');
     }
@@ -154,30 +159,35 @@ $(document).ready(function () {
     }
   });
   $('.js-delete-category').on('click', function () {
-    var $parent = $(this).parents('li.dd-item').first(),
-      id = $parent.data('id');
-    if (confirm("Вы действительно хотите удалить категорию?")) {
-      $.ajax({
-        url: prefix + module + '/ajax/?act=delete-categories',
-        type: 'POST',
-        dataType: "json",
-        data: '&id=' + id,
-        success: function (msg) {
-          if (msg) {
-            if (msg['state'] == false && msg['message']) {
-              alert(msg['message']);
-            }
-            if (msg['state'] && msg['state'] == true) {
-              window.location.reload();
-            }
-          }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          alert(xhr.responseText);
-        }
-      });
-
-    }
-    return false;
+    var $parent = $(this).parents('li.dd-item').first();
+    return delete_category($parent);
   });
 });
+
+function delete_category($parent) {
+
+  var id = $parent.data('id');
+  if (confirm("Вы действительно хотите удалить категорию?")) {
+    $.ajax({
+      url: prefix + module + '/ajax/?act=delete-categories',
+      type: 'POST',
+      dataType: "json",
+      data: '&id=' + id,
+      success: function (msg) {
+        if (msg) {
+          if (msg['state'] == false && msg['message']) {
+            alert(msg['message']);
+          }
+          if (msg['state'] && msg['state'] == true) {
+            window.location.reload();
+          }
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.responseText);
+      }
+    });
+
+  }
+  return false;
+}
