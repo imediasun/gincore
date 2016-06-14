@@ -56,6 +56,10 @@ switch($act){
     // достаем аналитику с гугла
     case 'crm_ga_analitics':
         
+        if (!$profileId) {
+            exit;
+        }
+        
         $date_first = date("Y-m-d", strtotime('-1 month')); //'2015-08-03'; // дата старта
 
         // каждый день начиная с даты старта кроме тех дней что уже спарсены
