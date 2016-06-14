@@ -12,6 +12,7 @@
                     <option class="<?= $serial['order_id'] > 0 ? 'text-danger' : '' ?>"
                             value="<?= $serial['item_id'] ?>">
                         <?= suppliers_order_generate_serial($serial) ?>
+                        <b class="danger">(<?= $serial['wh_title'] ?> <?= ',' . $serial['location'] ?>)</b>
                     </option>
                 <?php endforeach; ?>
             <?php endif; ?>
