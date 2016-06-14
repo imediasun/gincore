@@ -56,10 +56,25 @@ class invoice extends AbstractTemplate
             $str_date = $this->dateAsWord();
 
 
+            $sum_with_discount = $order['sum'] / 100;
+            if ($order['discount_type'] == DISCOUNT_TYPE_PERCENT) {
+                $sum_with_discount *= (1 - $order['discount'] / 100);
+            } else {
+                $sum_with_discount -= abs($order['discount']);
+            }
+            
             if ($order['type'] == 0) {
                 $arr = array(
                     'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
                     'sum' => array('value' => $summ / 100, 'name' => l('Сумма за ремонт')),
+                    'discount' => array(
+                        'value' => $order['discount'] . ($order['discount_type'] == DISCOUNT_TYPE_PERCENT ? "%" : viewCurrency()),
+                        'name' => l('Скидка на заказ')
+                    ),
+                    'sum_with_discount' => array(
+                        'value' => $sum_with_discount,
+                        'name' => l('Сумма за ремонт с учетом скидки')
+                    ),
                     'qty_all' => array('value' => $qty_all, 'name' => l('Количество наименований')),
                     'sum_in_words' => array('value' => $sum_in_words, 'name' => l('Сумма за ремонт прописью')),
                     'address' => array('value' => htmlspecialchars($order['accept_address']), 'name' => l('Адрес')),
