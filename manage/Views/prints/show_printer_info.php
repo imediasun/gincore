@@ -1,4 +1,4 @@
-<?php if (in_array($act, array('location', 'label'))): ?>
+<?php if (in_array($act, array('location', 'label', 'price_list', 'price_list_filtered', 'price_list_location'))): ?>
     <div class="printer_preview unprint">
         <div class="row" style="text-align: center">
             <button class="btn btn-primary" onclick="javascript:window.print()">
