@@ -19,7 +19,7 @@ class price_list_location extends AbstractTemplate
                 $arr = array(
                     'title' => array('value' => h($good['title']), 'name' => l('Название товара')),
                     'price' => array(
-                        'value' => intval($good['price']) . '&nbsp;' . viewCurrency(),
+                        'value' => intval($good['price'] / 100) . '&nbsp;' . viewCurrency(),
                         'name' => l('Цена')
                     ),
                     'article' => array('value' => h($good['article']), 'name' => l('Артикул')),

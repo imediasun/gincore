@@ -137,8 +137,9 @@ abstract class AbstractTemplate
                 'variables' => $this->variables,
                 'print_html' => $print_html
             ));
+
         }
-        return $print_html;
+        return empty($print_html) ? '' : $this->before() . $print_html . $this->after();
     }
 
     /**
@@ -175,5 +176,28 @@ abstract class AbstractTemplate
             $result = convert_number_to_words($amount);
         }
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function before()
+    {
+        return $this->view->renderFile('prints/show_lang_select', array(
+            'act' => $this->act(),
+            'cur_lang' => $this->cur_lang,
+            'langs' => get_langs(),
+            'object_id' => $_GET['object_id']
+        ));
+    }
+
+    /**
+     * @return string
+     */
+    public function after()
+    {
+        return $this->view->renderFile('prints/show_printer_info', array(
+            'act' => $this->act(),
+        ));
     }
 }
