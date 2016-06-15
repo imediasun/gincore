@@ -1400,15 +1400,21 @@ class accountings extends Controller
             $_POST['cashbox_from'] = $_POST['cashbox_to'];
             $_POST['amount_from'] = 0;
             $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
+            list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+
+            if($amount_to < $_POST['amount_to']) {
+                $data  = array(
+                    'state' => false,
+                    'msg' => l('Сумма платежа больше суммы задолженности')
+                );
+                Response::json($data);
+            }
             if (!empty($_POST['discount'])) {
-                $this->Orders->update(array(
-                    'discount' => $_POST['discount'],
-                    'discount_type' => empty($_POST['discount-type']) ? DISCOUNT_TYPE_PERCENT : $_POST['discount-type']
-                ), array(
+                $this->Orders->increase( 'discount', $_POST['discount'] * 100, array(
                     'id' => $_POST['client_order_id']
                 ));
                 $this->History->save('change-orders-discount', $mod_id, $_POST['client_order_id'],
-                    l('Новое значение') . ':' . $_POST['discount'] . ($_POST['discount_type'] == DISCOUNT_TYPE_PERCENT) ? '%' : viewCurrency());
+                    l('Сделана скидка на сумму') . ':' . $_POST['discount'] . viewCurrency());
             }
             $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
         }
@@ -2658,7 +2664,7 @@ class accountings extends Controller
 
             $count = $this->all_configs['manageModel']->get_count_accounting_clients_orders($query);
             $orders = $this->all_configs['db']->query('SELECT o.id, o.course_value, o.sum, o.sum_paid, o.fio,
-                        o.phone, o.email, o.date_add, o.date_pay, o.prepay,
+                        o.phone, o.email, o.date_add, o.date_pay, o.prepay, o.discount, 
                         a.email as a_email, a.fio as a_fio, a.phone as a_phone, a.login as a_login
                     FROM {orders} as o
                     LEFT JOIN {orders_goods} as og ON og.order_id=o.id
@@ -3536,24 +3542,24 @@ class accountings extends Controller
         $b_id = 0;
         if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
             $co_id = $_POST['client_order_id'];
-            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid FROM {orders} as o', array());
+            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid-o.discount FROM {orders} as o', array());
             $b_id = isset($_POST['b_id']) && $_POST['b_id'] > 0 ? $_POST['b_id'] : $b_id;
 
             // за доставку
             if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'delivery') {
-                $select_query_2 = $this->all_configs['db']->makeQuery('o.delivery_cost-o.delivery_paid FROM {orders} as o',
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.delivery_cost-o.delivery_paid-o.discount FROM {orders} as o',
                     array());
                 $t_extra = 'delivery';
             }
             // за комиссию
             if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'payment') {
-                $select_query_2 = $this->all_configs['db']->makeQuery('o.payment_cost-o.payment_paid FROM {orders} as o',
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.payment_cost-o.payment_paid-o.discount FROM {orders} as o',
                     array());
                 $t_extra = 'payment';
             }
             // за предоплату
             if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'prepay') {
-                $select_query_2 = $this->all_configs['db']->makeQuery('o.prepay-o.sum_paid FROM {orders} as o',
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.prepay-o.sum_paid-o.discount FROM {orders} as o',
                     array());
                 $t_extra = 'prepay';
             }

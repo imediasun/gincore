@@ -123,7 +123,3 @@ ALTER TABLE `restore4_cashboxes_courses`
  */
 ALTER TABLE `restore4_categories` ADD COLUMN deleted int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_goods` ADD COLUMN deleted int(10) UNSIGNED DEFAULT 0;
-/*
-2016_06_13_092700_add_discount_type_to_orders.ph
- */
-ALTER TABLE `restore4_orders` ADD COLUMN discount_type int(10) UNSIGNED DEFAULT 0;

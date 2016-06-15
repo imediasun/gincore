@@ -418,7 +418,7 @@
                                             <input type="button" class="btn btn-success btn-xs"
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
                                                    onclick="pay_client_order(this, 'repair', <?= $order['id'] ?>, 0, 'prepay')"/>
-                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
+                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > (intval($order['sum_paid'] + $oder['discount']))): ?>
                                             <input type="button"
                                                    class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
                                                    value="<?= l('Принять оплату') ?>"
@@ -441,6 +441,9 @@
                                 <span class="text-success">
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
                                     <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                                    <?php if ($order['discount'] > 0): ?>
+                                        <?= l('Скидка') . ': ' . $order['discount'] ?> <?= viewCurrency() ?>
+                                    <?php endif; ?>
                             </span>
                             </div>
                         </div>
@@ -452,7 +455,7 @@
                     </div>
                 </div>
 
-            <?php elseif ($onlyEngineer && $order['sum'] == $order['sum_paid'] && $order['sum'] > 0): ?>
+            <?php elseif ($onlyEngineer && $order['sum'] == ($order['sum_paid'] + $order['discount']) && $order['sum'] > 0): ?>
                 <b class="text-success"><?= l('Заказ клиентом оплачен') ?></b>
             <?php endif; ?>
         </div>

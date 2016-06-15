@@ -1,6 +1,6 @@
 <div class="row-fluid">
     <div class="col-sm-6" style="margin-bottom: 0">
-        <table class="table table-borderless" style="margin-bottom: 0">
+        <table class="table table-borderless table-compact" style="margin-bottom: 0; font-size: 13px">
             <tr>
                 <td> <?= l('Стоимость ремонта') ?> </td>
                 <td> <?= $order['sum'] / 100 ?> <?= viewCurrency(); ?> </td>
@@ -10,8 +10,12 @@
                 <td> <?= $order['sum_paid'] / 100 ?> <?= viewCurrency(); ?> </td>
             </tr>
             <tr>
+                <td> <?= l('Скидка') ?> </td>
+                <td> <?= $order['discount'] / 100 ?> <?= viewCurrency(); ?> </td>
+            </tr>
+            <tr>
                 <td> <?= l('Не оплачено') ?> </td>
-                <td> <?= ($order['sum'] - $order['sum_paid']) / 100 ?> <?= viewCurrency(); ?> </td>
+                <td> <?= $amount_to ?> <?= viewCurrency(); ?> </td>
             </tr>
         </table>
     </div>
@@ -29,21 +33,24 @@
             <table>
                 <thead>
                 <tr>
-                    <td>* <?= l('В кассу') ?></td>
-                    <td><?= l('Сумма') ?></td>
-                    <td><?= l('Скидка') ?></td>
-                    <td><?= l('К оплате') ?></td>
-                    <td class="hide-not-tt-1 hide-not-tt-2"></td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: center"><?= l('Сумма') ?></td>
+                    <td style="text-align: center"><?= l('Скидка') ?></td>
+                    <td style="text-align: center"><?= l('К оплате') ?></td>
                 </tr>
                 </thead>
                 <tbody>
 
                 <tr class="hide-not-tt-1">
-                    <td>
+                    <td width="20%">
+                        * <?= l('В кассу') ?>
+                    </td>
+                    <td width="40%">
                         <select onchange="select_cashbox(this, 2)" name="cashbox_to"
                                 class="form-control input-sm cashbox-2"><?= $select_cashbox ?></select>
                     </td>
-                    <td class="hide-conversion">
+                    <td  width="10%">
                         <span>
                             <input class="form-control input-sm"
                                    id="amount_without_discount" type="text" style="width:80px"
@@ -53,18 +60,12 @@
                             />
                         </span>
                     </td>
-                    <td class="hide-conversion">
-                        <div class="input-group">
-                            <input type="text" class="form-control js-repair-discount"
-                                   onkeyup="recalculate_amount_pay();" value="0"  name='discount'/>
-                            <div class="input-group-addon" onclick="change_discount_type_show(this); recalculate_amount_pay();" style="cursor: pointer">
-                                <input type="hidden" name='discount-type' class="form-control js-repair-discount_type js-product-discount-type" value="1"/>
-                                <span class="currency" style="display:none"><?= viewCurrency() ?></span>
-                                <span class="percent" >%</span>
-                            </div>
-                        </div>
+                    <td  width="10%">
+                        <span>
+                            <input type="text" class="form-control js-repair-discount" onkeyup="recalculate_amount_pay();" value="0"  name='discount'/>
+                        </span>
                     </td>
-                    <td class="hide-conversion">
+                    <td  width="20%">
                         <span>
                             <input class="form-control input-sm" readonly
                                    id="amount-with-discount" type="text" style="width:80px"

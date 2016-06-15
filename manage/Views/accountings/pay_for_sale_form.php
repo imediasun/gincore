@@ -1,6 +1,6 @@
 <div class="row-fluid">
     <div class="col-sm-6" style="margin-bottom: 0">
-        <table class="table table-borderless" style="margin-bottom: 0">
+        <table class="table table-borderless table-compact" style="margin-bottom: 0; font-size: 13px">
             <tr>
                 <td> <?= l('Стоимость ремонта') ?> </td>
                 <td> <?= $order['sum'] / 100 ?> <?= viewCurrency(); ?> </td>
@@ -11,7 +11,7 @@
             </tr>
             <tr>
                 <td> <?= l('Не оплачено') ?> </td>
-                <td> <?= ($order['sum'] - $order['sum_paid']) / 100 ?> <?= viewCurrency(); ?> </td>
+                <td> <?= $amount_to ?> <?= viewCurrency(); ?> </td>
             </tr>
         </table>
     </div>
@@ -29,20 +29,23 @@
             <table>
                 <thead>
                 <tr>
-                    <td>* <?= l('В кассу') ?></td>
+                    <td></td>
+                    <td></td>
                     <td><?= l('Сумма') ?></td>
                     <td><?= l('К оплате') ?></td>
-                    <td class="hide-not-tt-1 hide-not-tt-2"></td>
                 </tr>
                 </thead>
                 <tbody>
 
                 <tr class="hide-not-tt-1">
-                    <td>
+                    <td width="20%">
+                        * <?= l('В кассу') ?>
+                    </td>
+                    <td width="40%">
                         <select onchange="select_cashbox(this, 2)" name="cashbox_to"
                                 class="form-control input-sm cashbox-2"><?= $select_cashbox ?></select>
                     </td>
-                    <td class="hide-conversion">
+                    <td width="20%">
                         <span>
                             <input class="form-control input-sm"
                                    id="amount_without_discount" type="text" style="width:80px"
@@ -52,7 +55,7 @@
                             />
                         </span>
                     </td>
-                    <td class="hide-conversion">
+                    <td width="20%">
                         <span>
                             <input class="form-control input-sm" readonly
                                    id="amount-with-discount" type="text" style="width:80px"
