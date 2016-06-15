@@ -56,6 +56,12 @@ switch($act){
     // достаем аналитику с гугла
     case 'crm_ga_analitics':
         
+        if (!$profileId 
+                || !$all_configs['settings']['ga-service-account-email']
+                || !$all_configs['settings']['ga-private-key']) {
+            exit;
+        }
+        
         $date_first = date("Y-m-d", strtotime('-1 month')); //'2015-08-03'; // дата старта
 
         // каждый день начиная с даты старта кроме тех дней что уже спарсены
@@ -317,7 +323,13 @@ function getService()
     // Read the generated client_secrets.p12 key.
     #$key = file_get_contents($key_file_location);
     $cred = new Google_Auth_AssertionCredentials(
-            $service_account_email, array(Google_Service_Analytics::ANALYTICS_READONLY), $key
+            $service_account_email, 
+            array(Google_Service_Analytics::ANALYTICS_READONLY), 
+            $key,
+            'notasecret',
+            'http://oauth.net/grant_type/jwt/1.0/bearer',
+            false,
+            false
     );
     $client->setAssertionCredentials($cred);
     if ($client->getAuth()->isAccessTokenExpired()) {
