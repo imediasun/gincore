@@ -418,7 +418,7 @@
                                             <input type="button" class="btn btn-success btn-xs"
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
                                                    onclick="pay_client_order(this, 'repair', <?= $order['id'] ?>, 0, 'prepay')"/>
-                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > (intval($order['sum_paid'] + $oder['discount']))): ?>
+                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > (intval($order['sum_paid'] + $order['discount']))): ?>
                                             <input type="button"
                                                    class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
                                                    value="<?= l('Принять оплату') ?>"
