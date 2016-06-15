@@ -52,26 +52,34 @@ class invoice extends AbstractTemplate
             $qty_all = count($goods);
 
             $this->editor = true;
-            $sum_in_words = $this->amountAsWord($summ/100);
+            $sum_in_words = $this->amountAsWord($summ / 100);
             $str_date = $this->dateAsWord();
 
 
             $sum_with_discount = $order['sum'] - $order['discount'];
-            
+
             if ($order['type'] == 0) {
                 $arr = array(
                     'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
                     'sum' => array('value' => $summ / 100, 'name' => l('Сумма за ремонт')),
                     'discount' => array(
-                        'value' => $order['discount'] . viewCurrency(),
+                        'value' => $order['discount'] > 0? $order['discount'] . viewCurrency(): '',
                         'name' => l('Скидка на заказ')
                     ),
                     'sum_with_discount' => array(
-                        'value' => $sum_with_discount,
+                        'value' => $sum_with_discount / 100,
                         'name' => l('Сумма за ремонт с учетом скидки')
                     ),
                     'qty_all' => array('value' => $qty_all, 'name' => l('Количество наименований')),
                     'sum_in_words' => array('value' => $sum_in_words, 'name' => l('Сумма за ремонт прописью')),
+                    'sum_paid' => array(
+                        'value' => $order['sum_paid'] > 0 ? $order['sum_paid'] : '',
+                        'name' => l('Оплачено')
+                    ),
+                    'sum_paid_in_words' => array(
+                        'value' => $order['sum_paid'] > 0 ? $this->amountAsWord($order['sum_paid'] / 100) : '',
+                        'name' => l('Оплачено прописью')
+                    ),
                     'address' => array('value' => htmlspecialchars($order['accept_address']), 'name' => l('Адрес')),
                     'now' => array('value' => $str_date, 'name' => l('Текущая дата')),
                     'wh_phone' => array(

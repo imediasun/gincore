@@ -1402,21 +1402,28 @@ class accountings extends Controller
             $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
             list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
 
-            if($amount_to < $_POST['amount_to']) {
-                $data  = array(
+            if ($amount_to < $_POST['amount_to']) {
+                $data = array(
                     'state' => false,
                     'msg' => l('Сумма платежа больше суммы задолженности')
                 );
                 Response::json($data);
             }
             if (!empty($_POST['discount'])) {
-                $this->Orders->increase( 'discount', $_POST['discount'] * 100, array(
+                $this->Orders->increase('discount', $_POST['discount'] * 100, array(
                     'id' => $_POST['client_order_id']
                 ));
                 $this->History->save('change-orders-discount', $mod_id, $_POST['client_order_id'],
                     l('Сделана скидка на сумму') . ':' . $_POST['discount'] . viewCurrency());
             }
             $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+            if ($data['state'] && !empty($_POST['issued'])) {
+                $order = $this->Orders->getByPk($_POST['client_order_id']);
+                $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
+                if (!empty($order)) {
+                    $this->changeOrderStatus($order, array('state' => true), l('Статус не изменился'));
+                }
+            }
         }
 
         // создаем транзакцию оплаты за продажу
@@ -1425,6 +1432,13 @@ class accountings extends Controller
             $_POST['amount_from'] = 0;
             $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
             $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+            if ($data['state'] && !empty($_POST['issued'])) {
+                $order = $this->Orders->getByPk($_POST['client_order_id']);
+                $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
+                if (!empty($order)) {
+                    $this->changeOrderStatus($order, array('state' => true), l('Статус не изменился'));
+                }
+            }
         }
         Response::json($data);
     }
@@ -3098,7 +3112,6 @@ class accountings extends Controller
      */
     private function createPayForm($formType, $data, $user_id)
     {
-        $btn = l('Внести в кассу');
         // сегодня
         $today = date("d.m.Y");
         $select_cashbox = '';
@@ -3167,8 +3180,11 @@ class accountings extends Controller
             'categories_to' => $this->get_contractors_categories(1),
         ));
 
-
-        $data['btns'] = '<button type="button" onclick="create_transaction_for(\'' . $formType . '\', this)" class="btn btn-success">' . $btn . '</button>';
+        $data['btns'] = '<button type="button" onclick="create_transaction_for(\'' . $formType . '\', this, {issued:' . (empty($_POST['issued'])?'false':'true') . '})" class="btn btn-success">' . l('Внести в кассу') . '</button>';
+        $data['no-cancel-button'] = true;
+        if ($formType == 'repair') {
+            $data['btns'] .= '<button type="button" onclick="give_without_pay(\'' . $formType . '\', this)" class="btn btn-primary">' . l('Выдать без оплаты') . '</button>';
+        }
 
         $data['functions'] = array('reset_multiselect()');
         $data['state'] = true;
@@ -3542,7 +3558,8 @@ class accountings extends Controller
         $b_id = 0;
         if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
             $co_id = $_POST['client_order_id'];
-            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid-o.discount FROM {orders} as o', array());
+            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid-o.discount FROM {orders} as o',
+                array());
             $b_id = isset($_POST['b_id']) && $_POST['b_id'] > 0 ? $_POST['b_id'] : $b_id;
 
             // за доставку
@@ -3583,5 +3600,23 @@ class accountings extends Controller
                 array($_POST['client_order_id']))->row();
         }
         return array($co_id, $b_id, $t_extra, $amount_to, $order);
+    }
+
+    /**
+     * @param        $order
+     * @param        $data
+     * @param string $defaultMessage
+     * @return mixed
+     */
+    protected function changeOrderStatus($order, $data, $defaultMessage = '')
+    {
+// меняем статус
+        $response = update_order_status($order, $_POST['status']);
+        if (!isset($response['state']) || $response['state'] == false) {
+            $data['state'] = false;
+            $_POST['status'] = $order['status'];
+            $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
+        }
+        return $data;
     }
 }

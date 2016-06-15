@@ -390,7 +390,7 @@
                         ?>
                         <?php if ($showButtons): ?>
                             <input id="close-order" <?= $hide ?> class="btn btn-success"
-                                   onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
+                                   onclick="issue_order(this, 'repair', <?= $order['id'] ?>)" data-status="<?= $status ?>"  data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>" type="button"
                                    value="<?= l('Выдать') ?>"/>
                             <input id="update-order" class="btn btn-info" onclick="update_order(this)"
                                    data-o_id="<?= $order['id'] ?>" data-alert_box_not_disabled="true"

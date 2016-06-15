@@ -46,8 +46,8 @@ function create_transaction(_this, conf) {
   return false;
 }
 
-function pay_client_order(_this, tt, order_id, b_id, extra) {
-  var data = {client_order_id: order_id, b_id: b_id, transaction_extra: extra};
+function pay_client_order(_this, tt, order_id, b_id, extra, issued) {
+  var data = {client_order_id: order_id, b_id: b_id, transaction_extra: extra, issued: issued};
   alert_box(_this, false, 'begin-transaction-' + tt + '-co', data, null, 'accountings/ajax/');
   return false;
 }
@@ -232,13 +232,12 @@ function display_service_information(_this) {
   });
 }
 
-function issue_order(_this) {
-  if ($('[name="is_replacement_fund"]').prop('checked')) {
-    alert(L['do-not-forget-to-pick-up-a-client-replacement-fund']);
+function issue_order(_this, type, order_id) {
+  if (parseInt($(_this).data('debt')) > 0) {
+    pay_client_order(_this, type, order_id, null, null, true);
+  } else {
+    give_without_pay(type, _this, order_id);
   }
-  var status = $(_this).data('status');
-  $('form#order-form select.order-status').val(status).prop('selected', true);
-  $('#update-order').click();
 }
 
 function table_sorter() {
@@ -1201,16 +1200,17 @@ function recalculate_amount_pay(_this) {
   result = amount - discount;
   $parent.find('#amount-with-discount').first().val(result);
 }
-function create_transaction_for(type, _this, conf) {
 
+function create_transaction_for(type, _this, conf) {
   $(_this).button('loading');
 
   $.ajax({
     url: prefix + '/accountings/ajax/?act=create-transaction-' + type,
     dataType: "json",
-    data: $('#transaction_form').serialize() + (conf == 1 ? '&confirm=1' : ''),
+    data: $('#transaction_form').serialize() + (conf.issued ? '&issued=1' : ''),
     type: 'POST',
     success: function (data) {
+      open_print_forms();
       if (data) {
         if (data['state'] == true) {
           location.reload();
@@ -1224,6 +1224,46 @@ function create_transaction_for(type, _this, conf) {
               alert(data['msg']);
             }
           }
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}
+
+function open_print_forms() {
+  var $selectPrintForm = $('.select-print-form').first(),
+    order_id = $('#order_id').val(),
+    url;
+
+  $.each($selectPrintForm.find('ul.print_menu input[name="print[]"]'), function (ind, value) {
+    if ($(value).is(':checked')) {
+      url = prefix + 'print.php?act=' + $(value).val() + '&object_id=' + order_id;
+      window.open(url, '_blank');
+    }
+  });
+}
+
+function give_without_pay(type, _this, order_id) {
+  $(_this).button('loading');
+
+  $.ajax({
+    url: prefix + '/orders/ajax/?act=issued-order',
+    dataType: "json",
+    data: {order_id: (order_id ? order_id : $('#order_id').val())},
+    type: 'POST',
+    success: function (data) {
+      open_print_forms();
+      if (data) {
+        if (data['state'] == true) {
+          location.reload();
+        } else {
+          alert(data['msg']);
         }
       }
       $(_this).button('reset');

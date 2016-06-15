@@ -1254,10 +1254,6 @@ function reset_multiselect() {
   $('.multiselect').multiselect('destroy');
 
   init_multiselect();
-//    $('.multiselect').multiselect(multiselect);//.trigger('reset');
-  //$('.multiselect').multiselect('setOptions', multiselect)//.multiselect('rebuild');
-  //$('.multiselect').multiselect('refresh');
-  //$('.multiselect').multiselect('rebuild');
 }
 
 function close_alert_box() {
@@ -1331,7 +1327,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
   });
 
   if (content) {
-    close_alert_box()
+    close_alert_box();
     $('.bootbox.bootbox-alert').remove();
     $('.modal-backdrop').remove();
 
@@ -1340,10 +1336,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
       btns = content['btns'];
       content = content['content'];
     }
-    bootbox.alert(content/*, function() {
-     $(_this).button('reset');
-     return false;
-     }*/);
+    bootbox.alert(content);
     if (btns) {
       $('.bootbox-alert .modal-footer').prepend(btns);
     }
@@ -1358,8 +1351,6 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
       url: prefix + (url ? url : module + '/ajax/' + arrequest()[2]) + '?act=' + ajax_act + '&show=modal',
       type: 'POST',
       data: data,
-      //contentType: 'application/json',
-      //dataType: 'json',
       success: function (msg) {
         $('.bootbox.bootbox-alert').remove();
         $('.modal-backdrop').remove();
@@ -1368,10 +1359,12 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
           if (msg['state'] == true && msg['content']) {
             bootbox.alert(msg['content']);
 
+            if(msg['no-cancel-button']) {
+              $('.bootbox-alert .modal-footer').html('');
+            }
             if (msg['btns']) {
               $('.bootbox-alert .modal-footer').prepend(msg['btns']);
             }
-//                        if (typeof callback == 'function') callback(msg);
           }
           if (msg['functions'] && msg['functions'].length > 0) {
             for (i in msg['functions']) {
@@ -1381,16 +1374,6 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         }
         if (msg['width']) {
           $('.bootbox.modal').addClass('bootbox-big');
-//                    $('.modal-body').css({maxHeight: '500px'});
-//                    $('.bootbox.modal').css({
-//                        left: '20px',
-//                        marginLeft: '0',
-//                        marginRight: '0',
-//                        maxWidth: '100%',
-//                        right: '20px',
-//                        width: 'auto',
-//                        top: '45%'
-//                    });
         }
         $(_this).button('reset');
         return false;

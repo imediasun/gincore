@@ -27,7 +27,8 @@
         <input type="hidden" name="client_order_id" value="<?= $co_id ?>"/>
         <input type="hidden" name="b_id" value="<?= $b_id ?>"/>
         <input type="hidden" name="transaction_extra" value="<?= $t_extra ?>"/>
-        <input type="hidden" name="cashbox_currencies_to" value="<?= $this->all_configs['settings']['currency_orders'] ?>"/>
+        <input type="hidden" name="cashbox_currencies_to"
+               value="<?= $this->all_configs['settings']['currency_orders'] ?>"/>
 
         <div id="transaction_form_body" class="hide-conversion-3 transaction_type-repair">
             <table>
@@ -50,7 +51,7 @@
                         <select onchange="select_cashbox(this, 2)" name="cashbox_to"
                                 class="form-control input-sm cashbox-2"><?= $select_cashbox ?></select>
                     </td>
-                    <td  width="10%">
+                    <td width="10%">
                         <span>
                             <input class="form-control input-sm"
                                    id="amount_without_discount" type="text" style="width:80px"
@@ -60,12 +61,13 @@
                             />
                         </span>
                     </td>
-                    <td  width="10%">
+                    <td width="10%">
                         <span>
-                            <input type="text" class="form-control js-repair-discount" onkeyup="recalculate_amount_pay();" value="0"  name='discount'/>
+                            <input type="text" class="form-control js-repair-discount"
+                                   onkeyup="recalculate_amount_pay();" value="0" name='discount'/>
                         </span>
                     </td>
-                    <td  width="20%">
+                    <td width="20%">
                         <span>
                             <input class="form-control input-sm" readonly
                                    id="amount-with-discount" type="text" style="width:80px"
@@ -95,3 +97,9 @@
         </div>
     </fieldset>
 </form>
+<hr>
+
+<?= $this->renderFile('accountings/repair_print_buttons', array(
+    'order' => $order
+));
+?>

@@ -242,7 +242,7 @@
                                     <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
                                     <?php if ($showButtons && !empty($goods) && $status != $order['status']): ?>
                                         <input id="close-order" class="btn btn-success"
-                                               onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
+                                               onclick="issue_order(this, 'sale', <?= $order['id'] ?>)" data-status="<?= $status ?>" data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>" type="button"
                                                value="<?= l('Выдать') ?>"/>
                                     <?php endif; ?>
                                     <input id="update-order" class="btn btn-info" onclick="update_order(this)"

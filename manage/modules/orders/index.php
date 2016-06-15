@@ -2303,6 +2303,18 @@ class orders extends Controller
             $_POST['remove'] = 1;
             $data = $this->all_configs['chains']->remove_product_order($_POST, $mod_id);
         }
+        if ($act == 'issued-order') {
+            $order = $this->Orders->getByPk($_POST['order_id']);
+            $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
+            if (!empty($order)) {
+                $data = $this->changeStatus($order, array('state' => true), l('Статус не изменился'));
+            } else {
+                $data = array(
+                    'state' => false,
+                    'msg' => l('Заказ не найден')
+                );
+            }
+        }
 
         Response::json($data);
     }
