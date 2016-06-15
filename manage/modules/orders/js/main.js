@@ -478,6 +478,11 @@ function update_order(_this) {
           $(_this).button('reset');
           return;
         }
+        if (msg['paid']) {
+          $('.js-pay-button').click();
+          $(_this).button('reset');
+          return;
+        }
         if (msg['location']) {
           window.location.href = msg['location'];
         }

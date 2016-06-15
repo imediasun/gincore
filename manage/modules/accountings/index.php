@@ -1420,7 +1420,7 @@ class accountings extends Controller
             if ($data['state'] && !empty($_POST['issued'])) {
                 $order = $this->Orders->getByPk($_POST['client_order_id']);
                 $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
-                if (!empty($order)) {
+                if (!empty($order) && $order['status'] != $_POST['status']) {
                     $this->changeOrderStatus($order, array('state' => true), l('Статус не изменился'));
                 }
             }
@@ -1449,7 +1449,7 @@ class accountings extends Controller
             if ($data['state'] && !empty($_POST['issued'])) {
                 $order = $this->Orders->getByPk($_POST['client_order_id']);
                 $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
-                if (!empty($order)) {
+                if (!empty($order) && $order['status'] != $_POST['status']) {
                     $data = $this->changeOrderStatus($order, $data, l('Статус не изменился'));
                 }
             }

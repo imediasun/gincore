@@ -2553,6 +2553,9 @@ class orders extends Controller
                 $order['manager'] = $user_id;
                 $this->History->save('manager-accepted-order', $mod_id, $order_id);
             }
+            if ($order['status'] != $this->all_configs['configs']['order-status-issued']  && $_POST['status'] == $this->all_configs['configs']['order-status-issued']) {
+                $data['paid'] = true;
+            }
             $data = $this->changeStatus($order, $data);
             // устройство у клиента
             if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
