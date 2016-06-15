@@ -62,8 +62,8 @@
             <td>&#931;&nbsp;<?= $exp ?><br>&#931;&nbsp;<?= $exp_sc ?></td>
         <?php else: ?>
             <td><?= $transaction['chain_id'] ?></td>
-            <td><?= $inc ?></td>
-            <td><?= $exp ?></td>
+            <td><?= empty($inc) ? $inc_sc : $inc ?></td>
+            <td><?= empty($exp) ? $exp_sc : $exp ?></td>
         <?php endif; ?>
     <?php endif; ?>
     <td><?= get_user_name($transaction) ?></td>
