@@ -63,7 +63,7 @@ class invoice extends AbstractTemplate
                     'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
                     'sum' => array('value' => $summ / 100, 'name' => l('Сумма за ремонт')),
                     'discount' => array(
-                        'value' => $order['discount'] > 0? $order['discount'] . viewCurrency(): '',
+                        'value' => $order['discount'] > 0? ($order['discount']/ 100) . viewCurrency(): '',
                         'name' => l('Скидка на заказ')
                     ),
                     'sum_with_discount' => array(

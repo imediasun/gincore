@@ -1428,15 +1428,29 @@ class accountings extends Controller
 
         // создаем транзакцию оплаты за продажу
         if ($act == 'create-transaction-sale') {
+            list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+            Log::dump($amount_to);
             $_POST['cashbox_from'] = $_POST['cashbox_to'];
             $_POST['amount_from'] = 0;
             $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
-            $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+            $data = array(
+                'state' => true
+            );
+            if($amount_to > 0) {
+                if ($amount_to < $_POST['amount_to']) {
+                    $data = array(
+                        'state' => false,
+                        'msg' => l('Сумма платежа больше суммы задолженности')
+                    );
+                    Response::json($data);
+                }
+                $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+            }
             if ($data['state'] && !empty($_POST['issued'])) {
                 $order = $this->Orders->getByPk($_POST['client_order_id']);
                 $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
                 if (!empty($order)) {
-                    $this->changeOrderStatus($order, array('state' => true), l('Статус не изменился'));
+                    $data = $this->changeOrderStatus($order, $data, l('Статус не изменился'));
                 }
             }
         }

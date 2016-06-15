@@ -63,7 +63,7 @@
                     </td>
                     <td width="10%">
                         <span>
-                            <input type="text" class="form-control js-repair-discount"
+                            <input type="text" class="form-control js-repair-discount input-sm"
                                    onkeyup="recalculate_amount_pay();" value="0" name='discount'/>
                         </span>
                     </td>
