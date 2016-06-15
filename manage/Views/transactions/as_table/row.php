@@ -39,8 +39,8 @@
             </a>
         </td>
         <?php if ((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2): ?>
-            <td><?= empty($inc) ? $inc_sc : $inc ?></td>
-            <td><?= empty($exp) ? $exp_sc : $exp ?></td>
+            <td><?= $inc ?></td>
+            <td><?= $exp ?></td>
         <?php else: ?>
             <td>&#931;&nbsp;<?= $inc ?></td>
             <td>&#931;&nbsp;<?= $exp ?></td>
@@ -62,8 +62,8 @@
             <td>&#931;&nbsp;<?= $exp ?><br>&#931;&nbsp;<?= $exp_sc ?></td>
         <?php else: ?>
             <td><?= $transaction['chain_id'] ?></td>
-            <td><?= empty($inc) ? $inc_sc : $inc ?></td>
-            <td><?= empty($exp) ? $exp_sc : $exp ?></td>
+            <td><?= $inc ?></td>
+            <td><?= $exp ?></td>
         <?php endif; ?>
     <?php endif; ?>
     <td><?= get_user_name($transaction) ?></td>
