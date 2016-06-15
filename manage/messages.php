@@ -688,8 +688,6 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
     $qty_unread = 0;
     $data = array();
     if (isset($_GET['last_seconds']) && $_GET['last_seconds'] > 0) {
-        /*$is_new = $all_configs['db']->query('SELECT COUNT(id) FROM {orders} WHERE UNIX_TIMESTAMP(date_add)>?',
-            array($_GET['last_seconds']))->el();*/
         $qty_unread = $all_configs['db']->query(
             'SELECT COUNT(id) FROM {messages} WHERE UNIX_TIMESTAMP(date_add)>? AND is_read=?i AND user_id=?i',
             array($_GET['last_seconds'], 0, $user_id))->el();
@@ -701,7 +699,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
 
     $query = $all_configs['manageModel']->global_filters($_GET,
         array('date', 'category', 'product', 'operators', 'client', 'client_orders_id'));
-    $query = $all_configs['db']->makeQuery('?query AND (o.sum>o.sum_paid OR o.sum<o.sum_paid)', array($query));
+    $query = $all_configs['db']->makeQuery('?query AND (o.sum>(o.sum_paid + o.discount) OR o.sum<o.sum_paid)', array($query));
     $data['tc_accountings_clients_orders'] = $all_configs['manageModel']->get_count_accounting_clients_orders($query);
     $q1 = $all_configs['manageModel']->suppliers_orders_query($_GET + array('type' => 'pay'));
     $data['tc_accountings_suppliers_orders'] = $all_configs['manageModel']->get_count_suppliers_orders($q1['query']);
