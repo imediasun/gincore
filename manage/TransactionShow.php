@@ -88,7 +88,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function outgo($drawer, Array $transaction)
+    protected function outgo($drawer, Array $transaction)
     {
         // с кассы
         $cashbox_info = '';
@@ -132,7 +132,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function income($drawer, Array $transaction)
+    protected function income($drawer, Array $transaction)
     {
         // в кассу
         $cashbox_info = '';
@@ -176,7 +176,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function transfer($drawer, Array $transaction)
+    protected function transfer($drawer, Array $transaction)
     {
         // с кассы
         $cashbox_info = '';
@@ -245,7 +245,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function outgoGrouped($drawer, Array $transaction)
+    protected function outgoGrouped($drawer, Array $transaction)
     {
         // с кассы
         $cashbox_info = '';
@@ -296,7 +296,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function incomeGrouped($drawer, Array $transaction)
+    protected function incomeGrouped($drawer, Array $transaction)
     {
         // в кассу
         $cashbox_info = '';

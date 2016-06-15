@@ -1,4 +1,4 @@
-<?php $group_url = $this->renderFile('trransactions/as_table/group_url', array(
+<?php $group_url = $this->renderFile('transactions/as_table/group_url', array(
     'transaction' => $transaction
 )); ?>
 <tr>
