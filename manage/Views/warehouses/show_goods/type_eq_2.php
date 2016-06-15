@@ -84,7 +84,7 @@
             <td>
                 <?php if ($product['order_id'] > 0): ?>
                     <a class="hash_link"
-                       href="<?= $this->all_configs['prefix'] ?>orders/create/<?= $product['order_id'] ?>">
+                       href="orders/create/<?= $product['order_id'] ?>">
                         <?= $product['order_id'] ?>
                     </a>
                 <?php endif; ?>
