@@ -39,8 +39,8 @@
             </a>
         </td>
         <?php if ((isset($_GET['grp']) && $_GET['grp'] == 1) || $transaction['count_t'] < 2): ?>
-            <td><?= $inc ?></td>
-            <td><?= $exp ?></td>
+            <td><?= empty($inc) ? $inc_sc : $inc ?></td>
+            <td><?= empty($exp) ? $exp_sc : $exp ?></td>
         <?php else: ?>
             <td>&#931;&nbsp;<?= $inc ?></td>
             <td>&#931;&nbsp;<?= $exp ?></td>
