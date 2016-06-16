@@ -36,8 +36,27 @@
                 <tr>
                     <td></td>
                     <td></td>
-                    <td style="text-align: center"><?= l('Сумма') ?></td>
-                    <td style="text-align: center"><?= l('Скидка') ?></td>
+                    <td style="text-align: center">
+                        <?= l('Сумма') ?>
+                    </td>
+                    <td style="text-align: center">
+                        <input type="hidden" id="pay_for_repair_discount_type" name="discount_type" value="1"/>
+                        <div class="dropdown dropdown-inline">
+                            <button class="as_link" type="button" id="dropdownMenuCashboxes"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="btn-title-discount_type"><?= l('%') ?></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
+                                <li><a href="#" data-discount_type="1"
+                                       onclick="return select_discount_type(this) || recalculate_amount_pay()"><?= l('%') ?></a>
+                                </li>
+                                <li><a href="#" data-discount_type="2"
+                                       onclick="return select_discount_type(this) || recalculate_amount_pay()"><?= l('$') ?></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
                     <td style="text-align: center"><?= l('К оплате') ?></td>
                 </tr>
                 </thead>

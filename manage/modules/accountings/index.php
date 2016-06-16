@@ -1410,7 +1410,8 @@ class accountings extends Controller
                 Response::json($data);
             }
             if (!empty($_POST['discount'])) {
-                $this->Orders->increase('discount', $_POST['discount'] * 100, array(
+                $discount = $_POST['amount_without_discount'] - $_POST['amount_to'];
+                $this->Orders->increase('discount', $discount * 100, array(
                     'id' => $_POST['client_order_id']
                 ));
                 $this->History->save('change-orders-discount', $mod_id, $_POST['client_order_id'],
@@ -1436,7 +1437,7 @@ class accountings extends Controller
             $data = array(
                 'state' => true
             );
-            if($amount_to > 0) {
+            if ($amount_to > 0) {
                 if ($amount_to < $_POST['amount_to']) {
                     $data = array(
                         'state' => false,
@@ -3194,7 +3195,7 @@ class accountings extends Controller
             'categories_to' => $this->get_contractors_categories(1),
         ));
 
-        $data['btns'] = '<button type="button" onclick="create_transaction_for(\'' . $formType . '\', this, {issued:' . (empty($_POST['issued'])?'false':'true') . '})" class="btn btn-success">' . l('Внести в кассу') . '</button>';
+        $data['btns'] = '<button type="button" onclick="create_transaction_for(\'' . $formType . '\', this, {issued:' . (empty($_POST['issued']) ? 'false' : 'true') . '})" class="btn btn-success">' . l('Внести в кассу') . '</button>';
         $data['no-cancel-button'] = true;
         if ($formType == 'repair') {
             $data['btns'] .= '<button type="button" onclick="give_without_pay(\'' . $formType . '\', this)" class="btn btn-primary">' . l('Выдать без оплаты') . '</button>';
