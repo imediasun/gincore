@@ -3167,6 +3167,10 @@ class accountings extends Controller
 
         list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
 
+        if(!empty($_POST['transaction_extra']) && $amount_to == 0) {
+            $_POST['transaction_extra'] = '';
+            list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+        }
 
         $cashbox_id = array_key_exists('object_id',
             $_POST) && $_POST['object_id'] > 0 ? $_POST['object_id'] : $selected_cashbox;
