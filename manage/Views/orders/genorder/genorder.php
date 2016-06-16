@@ -442,7 +442,7 @@
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
                                     <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
                                     <?php if ($order['discount'] > 0): ?>
-                                        <?= l('Скидка') . ': ' . $order['discount'] ?> <?= viewCurrency() ?>
+                                        <?= l('Скидка') . ': ' . $order['discount']/100 ?> <?= viewCurrency() ?>
                                     <?php endif; ?>
                             </span>
                             </div>
