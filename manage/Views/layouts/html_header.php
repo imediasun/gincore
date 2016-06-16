@@ -182,7 +182,9 @@ use Assetic\AssetWriter;
 
     <script type="text/javascript">
         c = window.open('','','height=100,width=100');
-        if (!c) {
+        if (c) {
+            c.close();
+        } else {
             alert('<?= l("В вашем браузере запрещены всплывающие окна. Система не может полноценно работать") ?>');
         }
     </script>
