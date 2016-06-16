@@ -1430,7 +1430,6 @@ class accountings extends Controller
         // создаем транзакцию оплаты за продажу
         if ($act == 'create-transaction-sale') {
             list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
-            Log::dump($amount_to);
             $_POST['cashbox_from'] = $_POST['cashbox_to'];
             $_POST['amount_from'] = 0;
             $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];

@@ -414,7 +414,7 @@
                                     <div class="input-group-addon"><?= viewCurrency() ?></div>
                                     <div class="input-group-btn">
                                         <?php $pay_btn = ''; ?>
-                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
+                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > (intval($order['sum_paid'] + $order['discount']))): ?>
                                             <input type="button" class="btn btn-success btn-xs"
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
                                                    onclick="pay_client_order(this, 'repair', <?= $order['id'] ?>, 0, 'prepay')"/>
