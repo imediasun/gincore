@@ -58,13 +58,13 @@ class invoice extends AbstractTemplate
 
             $sum_with_discount = $order['sum'] - $order['discount'];
             $sum_for_paid = $sum_with_discount - $order['sum_paid'];
-            
+
             if ($order['type'] == 0) {
                 $arr = array(
                     'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
                     'sum' => array('value' => $summ / 100, 'name' => l('Сумма за ремонт')),
                     'discount' => array(
-                        'value' => $order['discount'] > 0? ($order['discount']/ 100) . viewCurrency(): '',
+                        'value' => $order['discount'] > 0 ? ($order['discount'] / 100) . viewCurrency() : '',
                         'name' => l('Скидка на заказ')
                     ),
                     'sum_with_discount' => array(
@@ -82,7 +82,7 @@ class invoice extends AbstractTemplate
                         'name' => l('Оплачено прописью')
                     ),
                     'sum_for_paid' => array(
-                        'value' => $sum_for_paid > 0 ? $sum_for_paid : '',
+                        'value' => $sum_for_paid > 0 ? $sum_for_paid / 100 : '',
                         'name' => l('К оплате')
                     ),
                     'sum_for_paid_in_words' => array(
