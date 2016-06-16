@@ -32,12 +32,12 @@
                 <?php unset($_f_goods[$pos]); ?>
             <?php endif; ?>
             <?php $url = $queryString . implode('-', $_f_goods); ?>
-            <tr class="border-top well cursor-pointer" onclick="window.location.href='<?= $url ?> + window.location.hash">
+            <tr class="border-top well cursor-pointer" onclick="window.location.href='<?= $url ?>' + window.location.hash">
             <td><i class="glyphicon glyphicon-chevron-up"></i></td>
         <?php else: ?>
             <?php array_push($_f_goods, $product['goods_id']); ?>
             <?php $url = $queryString . implode('-', $_f_goods); ?>
-            <tr class="border-top cursor-pointer" onclick="window.location.href='<?= $url ?> + window.location.hash">
+            <tr class="border-top cursor-pointer" onclick="window.location.href='<?= $url ?>' + window.location.hash">
             <td><i class="glyphicon glyphicon-chevron-down"></i></td>
         <?php endif; ?>
         <td></td>
