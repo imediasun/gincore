@@ -22,7 +22,7 @@
         <table class="table table-borderless">
             <tbody>
             <tr>
-                <td>
+                <td class="td-name">
                     <?= l('Общий остаток') ?>:
                 </td>
                 <td>
@@ -31,8 +31,8 @@
             </tr>
             <?php if ($this->all_configs['oRole']->hasPrivilege('logistics')): ?>
                 <tr>
-                    <td>
-                        <?= l('Общая сумма') ?>
+                    <td class="td-name">
+                        <?= l('Общая сумма') ?>:
                     </td>
                     <td>
                         <?= $controller->show_price($warehouse['all_amount'], 2,

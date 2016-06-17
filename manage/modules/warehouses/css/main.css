@@ -111,7 +111,7 @@
         width: 100%;
         height: 26px;
         background-color: #F7F9FA;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         border-bottom: 1px solid #ddd;
     }
 
@@ -151,4 +151,9 @@
     .show_warehouse > .warehouse-content {
         text-align: center;
         line-height: 26px;
+    }
+    
+    .warehouse-content table td.td-name{
+        width: 50%;
+        white-space: nowrap;
     }
