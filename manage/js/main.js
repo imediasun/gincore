@@ -2141,3 +2141,29 @@ function recalculate_amount_pay(_this) {
 }
 
 
+function give_without_pay(type, _this, order_id) {
+  $(_this).button('loading');
+
+  $.ajax({
+    url: prefix + '/orders/ajax/?act=issued-order',
+    dataType: "json",
+    data: {order_id: (order_id ? order_id : $('#order_id').val())},
+    type: 'POST',
+    success: function (data) {
+      open_print_forms();
+      if (data) {
+        if (data['state'] == true) {
+          location.reload();
+        } else {
+          alert(data['msg']);
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}
