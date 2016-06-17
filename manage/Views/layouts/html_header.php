@@ -180,14 +180,6 @@ use Assetic\AssetWriter;
         var L = {-txt-manage_translates_js} ;
     </script>
 
-    <script type="text/javascript">
-        c = window.open('','_blank','height=1,width=1');
-        if (c) {
-            c.close();
-        } else {
-            alert('<?= l("В вашем браузере запрещены всплывающие окна. Система не может полноценно работать") ?>');
-        }
-    </script>
     {-css-module}
 
     <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?23"></script>

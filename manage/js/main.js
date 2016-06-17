@@ -2090,7 +2090,10 @@ function open_print_forms() {
   $.each($selectPrintForm.find('ul.print_menu input[name="print[]"]'), function (ind, value) {
     if ($(value).is(':checked')) {
       url = prefix + 'print.php?act=' + $(value).val() + '&object_id=' + order_id;
-      window.open(url, '_blank');
+      var w = window.open(url, '_blank');
+      if (!w && typeof L.window_open_error_msg != 'undefined') {
+        alert(L.window_open_error_msg);
+      }
     }
   });
 }
