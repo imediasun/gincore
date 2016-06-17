@@ -181,7 +181,7 @@ use Assetic\AssetWriter;
     </script>
 
     <script type="text/javascript">
-        c = window.open('','','height=1,width=1');
+        c = window.open('','_blank','height=1,width=1');
         if (c) {
             c.close();
         } else {
