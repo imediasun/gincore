@@ -404,7 +404,9 @@ class products extends Controller
         }
 
         // выводим удаленные только если выбрана категория Корзина
-        $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, (int) $this->showDeleted($categories)));
+        if(! $this->showDeleted($categories)) {
+            $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, 0));
+        }
 
         // Отобразить
         if (isset($_GET['show'])) {

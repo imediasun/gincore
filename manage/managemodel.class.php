@@ -816,94 +816,8 @@ class manageModel
         if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
             $day_to = $filters['dt'] . ' 23:59:59';
         }
-        $query = '';
 
-        // фильтр по менеджерам
-        if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
-                array($query, array_filter(explode(',', $filters['mg']))));
-        }
-        // фильтр по приемщику
-        if (array_key_exists('acp', $filters) && count(array_filter(explode(',', $filters['acp']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
-                array($query, array_filter(explode(',', $filters['acp']))));
-        }
-        // фильтр по Инженер
-        if (array_key_exists('eng', $filters) && count(array_filter(explode(',', $filters['eng']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
-                array($query, array_filter(explode(',', $filters['eng']))));
-        }
-        // фильтр по статусу
-        if (array_key_exists('sts', $filters)) {
-            $states = explode(',', $filters['sts']);
-            if(count($states) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
-                    array($query, $states));
-            }
-        }
-        // фильтр по оператору
-        if (array_key_exists('op', $filters) && count(array_filter(explode(',', $filters['op']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
-                array($query, array_filter(explode(',', $filters['op']))));
-        }
-        // фильтр по товару
-        if (array_key_exists('by_gid', $filters) && $filters['by_gid'] > 0) {
-            $cos = $this->all_configs['db']->query('SELECT DISTINCT order_id FROM {orders_goods} WHERE goods_id=?i',
-                array(intval($filters['by_gid'])))->vars();
-            if (count($cos) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
-                    array($query, array_keys($cos)));
-            } else {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i', array($query, 0));
-            }
-        }
-        // принято через новую почту
-        if (array_key_exists('np', $filters) && $filters['np'] == 1) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.np_accept=?i',
-                array($query, 1));
-        }
-        // гарантийный
-        if (array_key_exists('wrn', $filters) && $filters['wrn'] == 1 && (!array_key_exists('nowrn',
-                    $filters) || $filters['nowrn'] <> 1)
-        ) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.repair=?i',
-                array($query, 1));
-        }
-        // негарантийный
-        if (array_key_exists('nowrn', $filters) && $filters['nowrn'] == 1 && (!array_key_exists('wrn',
-                    $filters) || $filters['wrn'] <> 1)
-        ) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.repair<>?i',
-                array($query, 1));
-        }
-        // не учитывать возвраты поставщикам и списания
-        if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
-                array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
-        }
-        // не учитывать доставку
-        if (array_key_exists('dlv', $filters)) {
-            $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 7));
-        }
-        // не учитывать комиссию
-        if (array_key_exists('cms', $filters)) {
-            $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 6));
-        }
-        // категория
-        if (array_key_exists('dev', $filters) && intval($filters['dev']) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND cg.id=?i',
-                array($query, intval($filters['dev'])));
-        }
-        // только продажи
-        if (array_key_exists('sale', $filters) && intval($filters['sale']) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
-                array($query, ORDER_SELL));
-        }
-        // только ремонты
-        if (array_key_exists('repair', $filters) && intval($filters['repair']) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
-                array($query, ORDER_REPAIR));
-        }
+        $query = $this->getProfitMarginCondition($filters);
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         $orders = $this->all_configs['db']->query('SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
@@ -1217,6 +1131,103 @@ class manageModel
         }
 
         return $goods;
+    }
+
+    /**
+     * @param $filters
+     * @return array
+     */
+    private function getProfitMarginCondition($filters)
+    {
+        $query = '';
+
+        // фильтр по менеджерам
+        if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
+                array($query, array_filter(explode(',', $filters['mg']))));
+        }
+        // фильтр по приемщику
+        if (array_key_exists('acp', $filters) && count(array_filter(explode(',', $filters['acp']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
+                array($query, array_filter(explode(',', $filters['acp']))));
+        }
+        // фильтр по Инженер
+        if (array_key_exists('eng', $filters) && count(array_filter(explode(',', $filters['eng']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                array($query, array_filter(explode(',', $filters['eng']))));
+        }
+        // фильтр по статусу
+        if (array_key_exists('sts', $filters)) {
+            $states = explode(',', $filters['sts']);
+            if (count($states) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
+                    array($query, $states));
+            }
+        }
+        // фильтр по оператору
+        if (array_key_exists('op', $filters) && count(array_filter(explode(',', $filters['op']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
+                array($query, array_filter(explode(',', $filters['op']))));
+        }
+        // фильтр по товару
+        if (array_key_exists('by_gid', $filters) && $filters['by_gid'] > 0) {
+            $cos = $this->all_configs['db']->query('SELECT DISTINCT order_id FROM {orders_goods} WHERE goods_id=?i',
+                array(intval($filters['by_gid'])))->vars();
+            if (count($cos) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
+                    array($query, array_keys($cos)));
+            } else {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i', array($query, 0));
+            }
+        }
+        // принято через новую почту
+        if (array_key_exists('np', $filters) && $filters['np'] == 1) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.np_accept=?i',
+                array($query, 1));
+        }
+        // гарантийный
+        if (array_key_exists('wrn', $filters) && $filters['wrn'] == 1 && (!array_key_exists('nowrn',
+                    $filters) || $filters['nowrn'] <> 1)
+        ) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.repair=?i',
+                array($query, 1));
+        }
+        // негарантийный
+        if (array_key_exists('nowrn', $filters) && $filters['nowrn'] == 1 && (!array_key_exists('wrn',
+                    $filters) || $filters['wrn'] <> 1)
+        ) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.repair<>?i',
+                array($query, 1));
+        }
+        // не учитывать возвраты поставщикам и списания
+        if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
+                array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
+        }
+        // не учитывать доставку
+        if (array_key_exists('dlv', $filters)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 7));
+        }
+        // не учитывать комиссию
+        if (array_key_exists('cms', $filters)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 6));
+        }
+        // категория
+        if (array_key_exists('dev', $filters) && intval($filters['dev']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cg.id=?i',
+                array($query, intval($filters['dev'])));
+        }
+        // только продажи
+        if (array_key_exists('sale', $filters) && intval($filters['sale']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
+                array($query, ORDER_SELL));
+        }
+        // только ремонты
+        if (array_key_exists('repair', $filters) && intval($filters['repair']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
+                array($query, ORDER_REPAIR));
+        }
+        return $query;
     }
 
 }

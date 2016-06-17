@@ -390,7 +390,7 @@
                         ?>
                         <?php if ($showButtons): ?>
                             <input id="close-order" <?= $hide ?> class="btn btn-success"
-                                   onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
+                                   onclick="issue_order(this, 'repair', <?= $order['id'] ?>)" data-status="<?= $status ?>"  data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>" type="button"
                                    value="<?= l('Выдать') ?>"/>
                             <input id="update-order" class="btn btn-info" onclick="update_order(this)"
                                    data-o_id="<?= $order['id'] ?>" data-alert_box_not_disabled="true"
@@ -414,15 +414,15 @@
                                     <div class="input-group-addon"><?= viewCurrency() ?></div>
                                     <div class="input-group-btn">
                                         <?php $pay_btn = ''; ?>
-                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
-                                            <input type="button" class="btn btn-success btn-xs"
+                                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > (intval($order['sum_paid'] + $order['discount']))): ?>
+                                            <input type="button" class="btn btn-success btn-xs  js-pay-button"
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
-                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
-                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
+                                                   onclick="pay_client_order(this, 'repair', <?= $order['id'] ?>, 0, 'prepay')"/>
+                                        <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > (intval($order['sum_paid'] + $order['discount']))): ?>
                                             <input type="button"
                                                    class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
                                                    value="<?= l('Принять оплату') ?>"
-                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
+                                                   onclick="pay_client_order(this, 'repair', <?= $order['id'] ?>)"/>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -441,6 +441,9 @@
                                 <span class="text-success">
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
                                     <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                                    <?php if ($order['discount'] > 0): ?>
+                                        <?= l('Скидка') . ': ' . $order['discount']/100 ?> <?= viewCurrency() ?>
+                                    <?php endif; ?>
                             </span>
                             </div>
                         </div>
@@ -452,7 +455,7 @@
                     </div>
                 </div>
 
-            <?php elseif ($onlyEngineer && $order['sum'] == $order['sum_paid'] && $order['sum'] > 0): ?>
+            <?php elseif ($onlyEngineer && $order['sum'] == ($order['sum_paid'] + $order['discount']) && $order['sum'] > 0): ?>
                 <b class="text-success"><?= l('Заказ клиентом оплачен') ?></b>
             <?php endif; ?>
         </div>

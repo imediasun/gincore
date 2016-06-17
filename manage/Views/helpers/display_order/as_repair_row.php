@@ -27,7 +27,8 @@
         <?= $this->renderFile('orders/_sale_order_status', array(
             'active' => $order['status'],
             'orderId' => $order['order_id'],
-            'status' => $this->all_configs['configs']['order-status']
+            'status' => $this->all_configs['configs']['order-status'],
+            'type' => 'repair'
         )); ?>
     </td>
     <td class="center"><?= $ordered ?></td>

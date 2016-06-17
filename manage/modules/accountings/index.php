@@ -9,6 +9,7 @@ $moduleactive[30] = !$ifauth['is_2'];
 
 /**
  * @property  MUsers                 Users
+ * @property  MOrders                Orders
  * @property  MClients               Clients
  * @property  MCashboxesTransactions CashboxesTransactions
  * @property  MCashboxes             Cashboxes
@@ -39,7 +40,8 @@ class accountings extends Controller
         'Users',
         'Cashboxes',
         'CashboxesTransactions',
-        'Clients'
+        'Clients',
+        'Orders'
     );
 
     public function __construct(&$all_configs)
@@ -48,6 +50,7 @@ class accountings extends Controller
 
         $this->Transactions = new Transactions($this->all_configs);
     }
+
     /**
      * @inheritdoc
      */
@@ -1050,6 +1053,15 @@ class accountings extends Controller
             $data = $this->createTransactionForm($data, $user_id, $act);
         }
 
+        // форма оплаты за ремонт
+        if ($act == 'begin-transaction-repair' || $act == 'begin-transaction-repair-co') {
+            $data = $this->createPayForm('repair', $data, $user_id);
+        }
+        // форма оплаты за продажу
+        if ($act == 'begin-transaction-sale' || $act == 'begin-transaction-sale-co') {
+            $data = $this->createPayForm('sale', $data, $user_id);
+        }
+
         // форма создания категории расход контрагента
         if ($act == 'create-cat-expense') {
             $data['state'] = true;
@@ -1383,6 +1395,65 @@ class accountings extends Controller
             $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
         }
 
+        // создаем транзакцию оплаты за ремонт
+        if ($act == 'create-transaction-repair') {
+            $_POST['cashbox_from'] = $_POST['cashbox_to'];
+            $_POST['amount_from'] = 0;
+            $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
+            list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+
+            if ($amount_to < $_POST['amount_to']) {
+                $data = array(
+                    'state' => false,
+                    'msg' => l('Сумма платежа больше суммы задолженности')
+                );
+                Response::json($data);
+            }
+            if (!empty($_POST['discount'])) {
+                $discount = $_POST['amount_without_discount'] - $_POST['amount_to'];
+                $this->Orders->increase('discount', $discount * 100, array(
+                    'id' => $_POST['client_order_id']
+                ));
+                $this->History->save('change-orders-discount', $mod_id, $_POST['client_order_id'],
+                    l('Сделана скидка на сумму') . ':' . $_POST['discount'] . viewCurrency());
+            }
+            $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+            if ($data['state'] && !empty($_POST['issued'])) {
+                $order = $this->Orders->getByPk($_POST['client_order_id']);
+                $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
+                if (!empty($order) && $order['status'] != $_POST['status']) {
+                    $this->changeOrderStatus($order, array('state' => true), l('Статус не изменился'));
+                }
+            }
+        }
+
+        // создаем транзакцию оплаты за продажу
+        if ($act == 'create-transaction-sale') {
+            list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+            $_POST['cashbox_from'] = $_POST['cashbox_to'];
+            $_POST['amount_from'] = 0;
+            $_POST['cashbox_currencies_from'] = $_POST['cashbox_currencies_to'];
+            $data = array(
+                'state' => true
+            );
+            if ($amount_to > 0) {
+                if ($amount_to < $_POST['amount_to']) {
+                    $data = array(
+                        'state' => false,
+                        'msg' => l('Сумма платежа больше суммы задолженности')
+                    );
+                    Response::json($data);
+                }
+                $data = $this->all_configs['chains']->create_transaction($_POST, $mod_id);
+            }
+            if ($data['state'] && !empty($_POST['issued'])) {
+                $order = $this->Orders->getByPk($_POST['client_order_id']);
+                $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
+                if (!empty($order) && $order['status'] != $_POST['status']) {
+                    $data = $this->changeOrderStatus($order, $data, l('Статус не изменился'));
+                }
+            }
+        }
         Response::json($data);
     }
 
@@ -2621,7 +2692,7 @@ class accountings extends Controller
 
             $count = $this->all_configs['manageModel']->get_count_accounting_clients_orders($query);
             $orders = $this->all_configs['db']->query('SELECT o.id, o.course_value, o.sum, o.sum_paid, o.fio,
-                        o.phone, o.email, o.date_add, o.date_pay, o.prepay,
+                        o.phone, o.email, o.date_add, o.date_pay, o.prepay, o.discount, 
                         a.email as a_email, a.fio as a_fio, a.phone as a_phone, a.login as a_login
                     FROM {orders} as o
                     LEFT JOIN {orders_goods} as og ON og.order_id=o.id
@@ -2938,7 +3009,8 @@ class accountings extends Controller
                     $this->all_configs['db']->query('UPDATE {contractors_categories_links} SET contractors_categories_id=null WHERE contractors_id=?i
                                     AND contractors_categories_id=?i',
                         array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                } catch (Exception $e) {}
+                } catch (Exception $e) {
+                }
             }
             // категории
             if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
@@ -3044,6 +3116,96 @@ class accountings extends Controller
         }
 
 
+        return $data;
+    }
+
+    /**
+     * @param $data
+     * @param $user_id
+     * @return mixed
+     */
+    private function createPayForm($formType, $data, $user_id)
+    {
+        // сегодня
+        $today = date("d.m.Y");
+        $select_cashbox = '';
+        $selected_cashbox = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
+        if ($this->all_configs['oRole']->hasPrivilege('accounting')) {
+            $cashboxes = $this->cashboxes;
+        } else {
+            $cashboxes = $this->all_configs['db']->query('SELECT * FROM {cashboxes}  WHERE id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id = ?i)',
+                array(
+                    $user_id
+                ))->assoc('id');
+        }
+        // список форм для редактирования касс
+        if (count($cashboxes) > 0) {
+            $erpct = $this->all_configs['configs']['erp-cashbox-transaction'];
+            $erpt = $this->all_configs['configs']['erp-so-cashbox-terminal'];
+
+            foreach ($cashboxes as $cashbox) {
+                // выбор кассы при транзакции
+                if ($cashbox['avail'] == 1) {
+                    // кроме транзитной
+                    $dis = $cashbox['id'] == $erpct
+                        || ($cashbox['id'] == $erpt && !$this->all_configs['configs']['manage-show-terminal-cashbox']);
+
+                    $select_cashbox .= '<option' . ($dis ? ' disabled' : '');
+                    $select_cashbox .= ($cashbox['id'] == $selected_cashbox ? ' selected' : '');
+                    $select_cashbox .= ' value="' . $cashbox['id'] . '">' . htmlspecialchars($cashbox['name']) . '</option>';
+                    $selected_cashbox = $selected_cashbox == 0 ? $cashbox['id'] : $selected_cashbox;
+                }
+            }
+        }
+
+        $daf = $dc = $dccf = $dcct = ''; // disabled
+        $supplier_order_id = 0; // orders
+        $amount_from = 0; // amounts
+        // контрагенты
+        $select_contractors = '';
+        $ccg_id = 0;
+
+        list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+
+        if(!empty($_POST['transaction_extra']) && $amount_to == 0) {
+            $_POST['transaction_extra'] = '';
+            list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
+        }
+
+        $cashbox_id = array_key_exists('object_id',
+            $_POST) && $_POST['object_id'] > 0 ? $_POST['object_id'] : $selected_cashbox;
+        // валюта
+
+        $data['content'] = $this->view->renderFile("accountings/pay_for_{$formType}_form", array(
+            'supplier_order_id' => $supplier_order_id,
+            'co_id' => $co_id,
+            'b_id' => $b_id,
+            't_extra' => $t_extra,
+            'select_cashbox' => $select_cashbox,
+            'selected_cashbox' => $selected_cashbox,
+            'daf' => $daf,
+            'amount_from' => $amount_from,
+            'amount_to' => $amount_to,
+            'cashbox_currencies' => $this->get_cashbox_currencies($cashbox_id),
+            'dcct' => $dcct,
+            'dccf' => $dccf,
+            'dc' => $dc,
+            'select_contractors' => $select_contractors,
+            'order' => $order,
+            'today' => $today,
+            'ccg_id' => $ccg_id,
+            'categories_from' => $this->get_contractors_categories(2),
+            'categories_to' => $this->get_contractors_categories(1),
+        ));
+
+        $data['btns'] = '<button type="button" onclick="create_transaction_for(\'' . $formType . '\', this, {issued:' . (empty($_POST['issued']) ? 'false' : 'true') . '})" class="btn btn-success">' . l('Внести в кассу') . '</button>';
+        $data['no-cancel-button'] = true;
+        if ($formType == 'repair') {
+            $data['btns'] .= '<button type="button" onclick="give_without_pay(\'' . $formType . '\', this)" class="btn btn-primary">' . l('Выдать без оплаты') . '</button>';
+        }
+
+        $data['functions'] = array('reset_multiselect()');
+        $data['state'] = true;
         return $data;
     }
 
@@ -3399,5 +3561,80 @@ class accountings extends Controller
             'saleProfit' => $saleProfit,
             'repairProfit' => $repairProfit
         ));
+    }
+
+    /**
+     * @return array
+     */
+    private function getInfoForPayForm()
+    {
+// заказ клиента
+        $co_id = 0;
+        $t_extra = '';
+        $amount_to = 0;
+        $order = array();
+        $b_id = 0;
+        if (isset($_POST['client_order_id']) && $_POST['client_order_id'] > 0) {
+            $co_id = $_POST['client_order_id'];
+            $select_query_2 = $this->all_configs['db']->makeQuery('o.sum-o.sum_paid-o.discount FROM {orders} as o',
+                array());
+            $b_id = isset($_POST['b_id']) && $_POST['b_id'] > 0 ? $_POST['b_id'] : $b_id;
+
+            // за доставку
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'delivery') {
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.delivery_cost-o.delivery_paid-o.discount FROM {orders} as o',
+                    array());
+                $t_extra = 'delivery';
+            }
+            // за комиссию
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'payment') {
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.payment_cost-o.payment_paid-o.discount FROM {orders} as o',
+                    array());
+                $t_extra = 'payment';
+            }
+            // за предоплату
+            if (isset($_POST['transaction_extra']) && $_POST['transaction_extra'] == 'prepay') {
+                $select_query_2 = $this->all_configs['db']->makeQuery('o.prepay-o.sum_paid-o.discount FROM {orders} as o',
+                    array());
+                $t_extra = 'prepay';
+            }
+            // конкретная цепочка
+            if ($b_id > 0 && (!isset($_POST['transaction_extra']) || ($_POST['transaction_extra'] != 'payment'
+                        && $_POST['transaction_extra'] != 'delivery'))
+            ) {
+                // выдача
+                $select_query_2 = $this->all_configs['db']->makeQuery('og.price+og.warranties_cost-h.paid
+                                FROM {orders} as o
+                                LEFT JOIN {chains_headers} as h ON h.order_id=o.id
+                                    AND h.id=(SELECT chain_id FROM {chains_bodies} WHERE id=?i)
+                                LEFT JOIN {orders_goods} as og ON h.order_goods_id=og.id',
+                    array($b_id));
+            }
+            $amount_to = $this->all_configs['db']->query('SELECT ?query WHERE o.id=?i GROUP BY o.id',
+                    array($select_query_2, $_POST['client_order_id']))->el() / 100;
+
+            $order = $this->all_configs['db']->query('SELECT o.*, c.contractor_id
+                        FROM {orders} as o, {clients} as c WHERE o.id=?i AND o.user_id=c.id',
+                array($_POST['client_order_id']))->row();
+        }
+        return array($co_id, $b_id, $t_extra, $amount_to, $order);
+    }
+
+    /**
+     * @param        $order
+     * @param        $data
+     * @param string $defaultMessage
+     * @return mixed
+     */
+    protected function changeOrderStatus($order, $data, $defaultMessage = '')
+    {
+// меняем статус
+        $response = update_order_status($order, $_POST['status']);
+        if (!isset($response['state']) || $response['state'] == false) {
+            $data['state'] = false;
+            $_POST['status'] = $order['status'];
+            $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
+        }
+        return $data;
     }
 }

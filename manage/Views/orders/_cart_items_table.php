@@ -27,8 +27,6 @@
                                onkeyup="recalculate_amount_<?= $prefix ?>();" value="" name=""/>
                 </td>
                 <td>
-
-
                     <div class="input-group">
                         <input type="text" class="form-control js-<?= $prefix ?>-discount"
                                onkeyup="recalculate_amount_<?= $prefix ?>();" value="0"  style="min-width: 50px"/>

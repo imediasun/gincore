@@ -144,7 +144,8 @@
                             false) ?>"><?= do_nice_date($history['date_move']) ?></span></td>
                     <td><?= h($history['comment']) ?></td>
                     <td>
-                        <a href="<?= $this->all_configs['prefix'] ?>orders/create/<?= $history['order_id'] ?>">
+                        <?php $prefix = str_replace('warehouses', '', $this->all_configs['prefix']); ?>
+                        <a href="<?= $prefix ?>orders/create/<?= $history['order_id'] ?>">
                             <?= $history['order_id'] ?>
                         </a>
                     </td>

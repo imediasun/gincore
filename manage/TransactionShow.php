@@ -62,19 +62,19 @@ class TransactionShow
                 $exp_sc = $inc_sc = 0;
             }
 
-            if ($transaction['transaction_type'] == TRANSACTION_OUTPUT && $transaction['count_t'] == 0) {
+            if ($transaction['transaction_type'] == TRANSACTION_OUTPUT && $transaction['count_t'] <= 1) {
                 list($cashbox_info, $exp) = $this->outgo($drawer, $transaction);
             }
-            if ($transaction['transaction_type'] == TRANSACTION_INPUT && $transaction['count_t'] == 0) {
+            if ($transaction['transaction_type'] == TRANSACTION_INPUT && $transaction['count_t'] <= 1) {
                 list($cashbox_info, $inc) = $this->income($drawer, $transaction);
             }
             if ($transaction['transaction_type'] == TRANSACTION_TRANSFER) {
                 list($cashbox_info, $exp, $inc) = $this->transfer($drawer, $transaction);
             }
-            if ($transaction['transaction_type'] == TRANSACTION_OUTPUT && $transaction['count_t'] > 0) {
+            if ($transaction['transaction_type'] == TRANSACTION_OUTPUT && $transaction['count_t'] > 1) {
                 list($cashbox_info, $exp, $inc) = $this->outgoGrouped($drawer, $transaction);
             }
-            if ($transaction['transaction_type'] == TRANSACTION_INPUT && $transaction['count_t'] > 0) {
+            if ($transaction['transaction_type'] == TRANSACTION_INPUT && $transaction['count_t'] > 1) {
                 list($cashbox_info, $exp, $inc) = $this->incomeGrouped($drawer, $transaction);
             }
             $out[$transaction_id] = $drawer->row($transaction, $transaction_id, $cashbox_info, $inc, $exp, $exp_sc,
@@ -88,7 +88,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function outgo($drawer, Array $transaction)
+    protected function outgo($drawer, Array $transaction)
     {
         // с кассы
         $cashbox_info = '';
@@ -101,7 +101,7 @@ class TransactionShow
         // в категорию
         $cashbox_info .= $drawer::RIGHT_ARROW . $transaction['category_name'];
         // сумма
-        if ($this->useSuppliersValue($transaction, $this->contractors)) {
+        if ($this->useSuppliersValue($transaction, $this->contractors, 'from')) {
             $exp = show_price($transaction['value_from_sc']);
         } else {
             $exp = show_price($transaction['value_from']);
@@ -132,7 +132,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function income($drawer, Array $transaction)
+    protected function income($drawer, Array $transaction)
     {
         // в кассу
         $cashbox_info = '';
@@ -145,7 +145,7 @@ class TransactionShow
         // с категории
         $cashbox_info .= $drawer::LEFT_ARROW . $transaction['category_name'];
         // сумма
-        if ($this->useSuppliersValue($transaction, $this->contractors)) {
+        if ($this->useSuppliersValue($transaction, $this->contractors, 'to')) {
             $inc = show_price($transaction['value_to_sc']);
         } else {
             $inc = show_price($transaction['value_to']);
@@ -176,7 +176,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function transfer($drawer, Array $transaction)
+    protected function transfer($drawer, Array $transaction)
     {
         // с кассы
         $cashbox_info = '';
@@ -195,7 +195,7 @@ class TransactionShow
             $cashbox_info .= $transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['name'];
         }
         // сумма
-        if ($this->useSuppliersValue($transaction, $this->contractors)) {
+        if ($this->useSuppliersValue($transaction, $this->contractors, 'from')) {
             $exp = show_price($transaction['value_from_sc']);
         } else {
             $exp = show_price($transaction['value_from']);
@@ -245,7 +245,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function outgoGrouped($drawer, Array $transaction)
+    protected function outgoGrouped($drawer, Array $transaction)
     {
         // с кассы
         $cashbox_info = '';
@@ -258,7 +258,7 @@ class TransactionShow
         // в категорию
         $cashbox_info .= $drawer::RIGHT_ARROW . $transaction['category_name'];
         // сумма
-        if ($this->useSuppliersValue($transaction, $this->contractors)) {
+        if ($this->useSuppliersValue($transaction, $this->contractors, 'from')) {
             $exp = show_price($transaction['value_from_sc']);
             $inc = show_price($transaction['value_to_sc']);
         } else {
@@ -296,7 +296,7 @@ class TransactionShow
      * @param array $transaction
      * @return array
      */
-    public function incomeGrouped($drawer, Array $transaction)
+    protected function incomeGrouped($drawer, Array $transaction)
     {
         // в кассу
         $cashbox_info = '';
@@ -309,7 +309,7 @@ class TransactionShow
         // с категории
         $cashbox_info .= $drawer::LEFT_ARROW . $transaction['category_name'];
         // сумма
-        if ($this->useSuppliersValue($transaction, $this->contractors)) {
+        if ($this->useSuppliersValue($transaction, $this->contractors, 'to')) {
             $exp = show_price($transaction['value_from_sc']);
             $inc = show_price($transaction['value_to_sc']);
         } else {
@@ -356,8 +356,15 @@ class TransactionShow
         );
     }
 
-    public function useSuppliersValue($transaction, $contractors)
+    /**
+     * @param $transaction
+     * @param $contractors
+     * @param $direction
+     * @return bool
+     */
+    public function useSuppliersValue($transaction, $contractors, $direction)
     {
-        return ($transaction['cashboxes'][$transaction['cashboxes_currency_id_to']]['currency'] == $this->currency_suppliers_orders && !$contractors && $this->currency_suppliers_orders != $this->all_configs['suppliers_orders']->currency_clients_orders);
+        return ($transaction['cashboxes'][$transaction['cashboxes_currency_id_'.$direction]]['currency'] == $this->currency_suppliers_orders
+            && $this->currency_suppliers_orders != $this->all_configs['suppliers_orders']->currency_clients_orders);
     }
 }
