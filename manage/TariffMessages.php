@@ -45,8 +45,9 @@ class TariffMessages
             return $this->makeHtml($text, self::DANGER);
         } elseif ($current_users == $this->tariff['number_of_users']) {
             // l_tariff_message_limit_users
-            $text = str_replace('%fio%', $this->getFio(), $this->manage_translates['l_tariff_message_limit_users']);
-            return $this->makeHtml($text, self::INFO);
+// сообщение о достигнутом лимите сотрудников отключено
+//            $text = str_replace('%fio%', $this->getFio(), $this->manage_translates['l_tariff_message_limit_users']);
+//            return $this->makeHtml($text, self::INFO);
         }
         return false;
     }
