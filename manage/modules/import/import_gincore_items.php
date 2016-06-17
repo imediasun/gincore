@@ -7,6 +7,7 @@ require_once $this->all_configs['sitepath'] . 'mail.php';
  * Class import_gincore_items
  *
  * @property exported_gincore_items $provider
+ * @property  MCategories Categories
  */
 class import_gincore_items extends abstract_import_handler
 {
@@ -15,6 +16,9 @@ class import_gincore_items extends abstract_import_handler
     public $userAsManager = true;
     protected $userId;
     protected $logQuery = array();
+    public $uses = array(
+        'Categories'
+    );
 
     /**
      * @inheritdoc
@@ -138,6 +142,7 @@ class import_gincore_items extends abstract_import_handler
     }
 
     /**
+     * @param $good
      * @param $row
      * @return array
      */
@@ -149,6 +154,9 @@ class import_gincore_items extends abstract_import_handler
             $value = $this->provider->$field($row);
             if (strpos($field, 'price') !== false) {
                 $value *= 100;
+            }
+            if (strpos($field, 'category') !== false && $value === false) {
+                $value = $this->createCategory($this->provider->getColValue('category', $row));
             }
             if ($value !== false && $good[$field] != $value) {
                 $data[$field] = $value;
@@ -167,5 +175,21 @@ class import_gincore_items extends abstract_import_handler
             db()->query('DELETE FROM {category_goods} WHERE goods_id=?i', array($id));
             db()->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)', array($id, $value));
         }
+    }
+
+    /**
+     * @param $title
+     * @return bool|int
+     */
+    private function createCategory($title)
+    {
+        return $this->Categories->insert(array(
+            'title' => $title,
+            'url' => transliturl($title),
+            'content' => '',
+            'parent_id' => 0,
+            'avail' => 1
+
+        ));
     }
 }
