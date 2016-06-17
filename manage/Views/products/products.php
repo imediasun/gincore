@@ -179,7 +179,7 @@
                             </td>
                             <td>
                                 <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create/<?= $good['id'] ?>/">
-                                    <?= htmlspecialchars($good['title']) . $add_name ?>
+                                    <?= htmlspecialchars($good['title']) . (isset($add_name)?$add_name:'') ?>
                                 </a>
                                 <i class="glyphicon glyphicon-move popover-info"
                                    data-content="<?= (isset($serials[$id]) ? $serials[$id] : l('Нет на складе')) ?>"
