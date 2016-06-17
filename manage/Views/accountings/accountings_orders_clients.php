@@ -38,7 +38,7 @@
                 <td>
                     <a href="<?= $href ?>">№<?= $order['id'] ?></a>
                 </td>
-                <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
+                <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'] + $order['discount'])): ?>
                     <td><?= show_price($order['prepay']) ?></td>
                     <td><?= show_price($order['sum_paid']) ?></td>
                 <?php else: ?>
@@ -55,7 +55,7 @@
                     <?php endif; ?>
                     <?php $type = $order['type'] == ORDER_REPAIR ? 'repair' : 'sale' ?>
                     <?php if (intval($order['sum']) > (intval($order['sum_paid']) + $order['discount'])): ?>
-                        <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > (intval($order['sum_paid']+$order['discount]']))): ?>
+                        <?php if (intval($order['prepay']) > 0 && $order['prepay'] > ($order['sum_paid'] + $order['discount]'])): ?>
                             <input type="button" class="btn btn-xs" value=" <?= l('Принять предоплату') ?>"
                                    onclick="pay_client_order(this, '<?= $type ?>', <?= $order['id'] ?>, 0, 'prepay')"/>
                         <?php else: ?>
