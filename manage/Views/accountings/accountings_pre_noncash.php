@@ -55,8 +55,9 @@
                         <?php if ($order['sum'] > $order['sum_paid'] && ($order['status'] == $this->all_configs['configs']['order-status-wait-pay']
                                 || $order['status'] == $this->all_configs['configs']['order-status-part-pay'])
                         ): ?>
+                            <?php $type = $order['type'] == ORDER_REPAIR ? 'repair' : 'sale' ?>
                             <input type="button" class="btn btn-xs" value="<?= l('Принять оплату') ?>"
-                                   onclick="pay_client_order(this, 2, <?= $order['order_id'] ?>, 0)"/>
+                                   onclick="pay_client_order(this, '<?= $type ?>', <?= $order['order_id'] ?>, 0)"/>
                         <?php endif; ?>
                     </td>
                 </tr>

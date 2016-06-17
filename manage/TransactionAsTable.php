@@ -107,7 +107,7 @@ class TransactionAsTable implements TransactionAsInterface
     public function row($transaction, $transaction_id, $cashbox_info, $inc, $exp, $inc_sc = 0, $exp_sc = 0)
     {
         return $this->view->renderFile('transactions/as_table/row', array(
-            'transactions' => $transaction,
+            'transaction' => $transaction,
             'transaction_id' => $transaction_id,
             'cashbox_info' => $cashbox_info,
             'inc' => $inc,
