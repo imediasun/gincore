@@ -1,6 +1,7 @@
 <?php
 
 include_once 'inc_func_lang.php';
+require_once __DIR__ . '/Core/View.php';
 
 function avatar($avatar_img)
 {
@@ -19,15 +20,13 @@ function avatar($avatar_img)
 function viewCurrencySuppliers($show = 'viewName')
 {
     global $all_configs;
-    $s = $all_configs['configs']['currencies'][$all_configs['settings']['currency_suppliers_orders']][$show];
-    return $s;
+    return $all_configs['configs']['currencies'][$all_configs['settings']['currency_suppliers_orders']][$show];
 }
 
 function viewCurrency($show = 'viewName')
 {
     global $all_configs;
-    $s = $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']][$show];
-    return $s;
+    return $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']][$show];
 }
 
 function db()
@@ -61,18 +60,6 @@ function get_langs()
     return $return;
 }
 
-//function l($param)
-//{
-//    global $lang, $lang_arr, $def_lang;
-//    if (isset($lang_arr[$param][$lang]) && trim($lang_arr[$param][$lang])) {
-//        $text = $lang_arr[$param][$lang];
-//    } else {
-//        $text = $lang_arr[$param][$def_lang];
-//    }
-//    return $text;
-//}
-
-
 function clear_empty_inarray($array)
 {
     $ret_arr = array();
@@ -99,7 +86,6 @@ function quote_smart($value)
     // Если переменная - число, то экранировать её не нужно
     // если нет - то окружем её кавычками, и экранируем
     if (!is_numeric($value)) {
-//        $value = "'" . mysql_real_escape_string($value) . "'";
         $value = "'" . mysql_escape_string($value) . "'"; // if DB error mysql_real_escape_string()
     }
     return $value;
@@ -166,12 +152,6 @@ function resize_photo($file, $width, $height, $color_fill = array(255, 255, 255)
         imagecopyresampled($realimg, $userimg, $rx, 0, 0, 0, $rw, $height, $uw, $uh);
     }
 
-//    //Функция обработки прозрачности
-//    if ($format_tmp == 'png') {
-//        imagealphablending($target, false);
-//        imagesavealpha($target,true);
-//    }
-
     if ($size['mime'] == 'image/png') {
         imagepng($realimg, $file);
     }
@@ -229,38 +209,15 @@ function resize_photo_png($file, $width, $height, $color_fill = array(255, 255, 
         imagecopyresampled($realimg, $userimg, $rx, 0, 0, 0, $rw, $height, $uw, $uh);
     }
 
-//    //Функция обработки прозрачности
-//    if ($format_tmp == 'png') {
-//        imagealphablending($target, false);
-//        imagesavealpha($target,true);
-//    }
-
     imagepng($realimg, $file);
 
     imagedestroy($realimg);
     imagedestroy($userimg);
 }
 
-//
-function convert_photo($file, $newfile)
-{
-
-    if ($size['mime'] == 'image/png') {
-        $userimg = imagecreatefrompng($file);
-    }
-    if ($size['mime'] == 'image/jpeg') {
-        $userimg = imagecreatefromjpeg($file);
-    }
-    if ($size['mime'] == 'image/gif') {
-        $userimg = imagecreatefromgif($file);
-    }
-
-    imagepng($userimg, $newfile);
-}
-
 function resample_photo($file, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
 {
-    $size = GetImageSize($file);
+    $size = getimagesize($file);
 
     $realimg = imagecreatetruecolor($dst_w, $dst_h);
 
@@ -271,9 +228,6 @@ function resample_photo($file, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
 
         imagealphablending($realimg, false);
         imagesavealpha($realimg, true);
-
-        #$color =imagecolorallocatealpha($realimg, 255,255,255, 127);
-        #imagefill($realimg, 0, 0, $color);
     }
     if ($size['mime'] == 'image/jpeg') {
         $userimg = imagecreatefromjpeg($file);
@@ -281,9 +235,6 @@ function resample_photo($file, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
     if ($size['mime'] == 'image/gif') {
         $userimg = imagecreatefromgif($file);
     }
-
-    //$color = imagecolorallocate($realimg, $color_fill[0], $color_fill[1], $color_fill[2]); //r g b
-    //imagefill($realimg, 0, 0, $color);
 
     imagecopyresampled($realimg, $userimg, 0, 0, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
 
@@ -315,9 +266,6 @@ function send_mail($to, $sbj, $msgtxt)
     $headers .= "Content-Type: text/html; charset=UTF-8 \r\n";
     $headers .= "X-originating-IP: " . $ip . "\r\n";
     $headers .= 'From: ' . $all_configs['settings']['site_name'] . ' <' . $all_configs['settings']['content_email'] . '>' . "\r\n";
-    //
-    //$headers .= 'BC: '.$settings['admin_email'] . "\r\n";
-    //$headers .= 'Bc: ragenoir@gmail.com' . "\r\n";
 
     return (bool)(mail($to, $subject, $message, $headers));
 }
@@ -379,13 +327,13 @@ function gen_full_link($page_id)
 
 function getMapIdByProductId($product_id)
 {
-    global $link, $all_configs;
+    global $all_configs;
     return $all_configs['db']->query("SELECT id FROM {map} WHERE category_id = ?i", array($product_id), 'el');
 }
 
 function getUsernameById($id)
 {
-    global $link, $all_configs;
+    global $all_configs;
     $user = $all_configs['db']->query("SELECT `fio`, `login` FROM {users} WHERE id = ?i", array($id), 'row');
     return ($user['fio'] ? $user['fio'] : $user['login']);
 }
@@ -608,7 +556,24 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
 
 /**
  * autocomplete
- * */
+ * @param        $db
+ * @param string $table
+ * @param bool   $show_categories
+ * @param int    $object_id
+ * @param int    $i
+ * @param string $class
+ * @param string $class_select
+ * @param string $function
+ * @param bool   $multi
+ * @param bool   $anyway
+ * @param string $m
+ * @param bool   $no_clear_if_null
+ * @param string $placeholder
+ * @param array  $add_btn
+ * @param bool   $disabled
+ * @param string $add_attr
+ * @return string
+ */
 function typeahead(
     $db,
     $table = 'goods',
@@ -631,11 +596,8 @@ function typeahead(
     if (empty($placeholder)) {
         $placeholder = l('Введите');
     }
-    //static $iterator = 0; $iterator++;
-    //$iterator += $i;
     $iterator = $i;
 
-    $out = '';
     $object_name = '';
     if ($object_id > 0) {
         if ($table == 'locations') {
@@ -661,41 +623,30 @@ function typeahead(
                 (array_key_exists('fio', $object) ? get_user_name($object) : '');
         }
     }
-    if ($show_categories == true) {
-        $out = '<div class="form-group-row clearfix"><div class="col-sm-5"><select' . ($disabled ? ' disabled' : '') . ' class="' . $class_select . ' select-typeahead-' . $iterator . ' form-control"><option value="0">' . l('Все разделы') . '</option>';
-        $categories = $db->query('SELECT title, url, id FROM {categories}
+    $categories = $db->query('SELECT title, url, id FROM {categories}
                 WHERE avail=1 AND parent_id=0 GROUP BY title ORDER BY title')->assoc();
-        foreach ($categories as $category) {
-            $out .= '<option value="' . $category['id'] . '">' . $category['title'] . '</option>';
-        }
-        $out .= '</select></div><div class="col-sm-7">';
-    }
-    $out .= '
-        <input type="hidden" value="' . $object_id . '" name="' . $table . ($multi ? '[' . $m . ']' : '') . '" class="typeahead-value-' . $table . $iterator . '">
-        <input ' . ($no_clear_if_null ? ' data-no_clear_if_null="1"' : '') . ' data-required="true" data-placement="right" 
-            name="' . $table . '-value' . ($multi ? '[' . $m . ']' : '') . '"' . ($disabled ? ' disabled' : '') . ' type="text" value="' . $object_name . '" data-input="' . $table . $iterator . '" 
-            data-function="' . $function . '" data-select="' . $iterator . '" data-table="' . $table . '" ' .
-        ($anyway == true ? 'data-anyway="1"' : '') . ' autocomplete="off" class="form-control global-typeahead ' . $class . '" placeholder="' . $placeholder . '" ' . $add_attr . '>
-    ';
-    if ($show_categories) {
-        $out .= "</div></div>";
-    }
 
-    if ($add_btn) {
-        $out = '
-            <div class="input-group">
-                ' . $out . '
-                <div class="input-group-btn">
-                    <button' . ($disabled ? ' disabled' : '') . ' type="button" 
-                            data-form_id="' . $add_btn['form_id'] . '" 
-                            data-action="' . $add_btn['action'] . '" 
-                            class="typeahead_add_form btn btn-info">' . $add_btn['name'] . '</button>
-                </div>
-            </div>
-        ';
-    }
-
-    return $out;
+    $template = $add_btn ? 'typeahead_with_btn' : 'typeahead';
+    $view = new View();
+    return $view->renderFile("inc_func/{$template}", array(
+        'add_btn' => $add_btn,
+        'show_categories' => $show_categories,
+        'categories' => isset($categories) ? $categories : array(),
+        'disabled' => $disabled,
+        'class_select' => $class_select,
+        'iterator' => $iterator,
+        'no_clear_if_null' => $no_clear_if_null,
+        'table' => $table,
+        'multi' => $multi,
+        'm' => $m,
+        'placeholder' => $placeholder,
+        'add_attr' => $add_attr,
+        'anyway' => $anyway,
+        'function' => $function,
+        'object_name' => $object_name,
+        'object_id' => $object_id,
+        'class' => $class
+    ));
 }
 
 function input_phone_mask_attr()
@@ -712,8 +663,9 @@ function input_phone_mask_attr()
 function client_double_typeahead($id = null, $callbacks = '')
 {
     global $all_configs;
-    $input_id = 'typeahead-double-' . microtime(true) . rand(1, 99999);
     $client = $all_configs['db']->query("SELECT * FROM {clients} WHERE id = ?i", array($id), 'row');
+
+    $input_id = 'typeahead-double-' . microtime(true) . rand(1, 99999);
     $value_field = '<input class="typeahead-double-value" id="' . $input_id . '" type="hidden" name="client_id" value="' . ($id ?: '') . '">';
     $phone_field = '<input' . input_phone_mask_attr() . ' data-function="' . $callbacks . '" data-table="clients" data-field="phone" 
                      class="form-control typeahead-double" data-id="' . $input_id . '" type="text" 
@@ -759,47 +711,24 @@ function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 
 
 /**
  * страниная навигация
- * */
+ * @param        $count_page
+ * @param        $count
+ * @param string $hash
+ * @param null   $a_url
+ * @return string
+ */
 function page_block($count_page, $count, $hash = '', $a_url = null)
 {
-    $page = '';
-
     $count_page = ceil($count_page);
 
-    if ($count_page > 1) {
-        $a_url = $a_url === null || !is_array($a_url) ? $_GET : /*(array)*/
-            $a_url;
-
-        $url = '&' . get_to_string('p', $a_url) . $hash;
-
-        foreach (check_page($count_page, (isset($_GET['p']) ? $_GET['p'] : 1), 1) as $p) {
-            if ($p == (isset($_GET['p']) ? $_GET['p'] : 1)) {
-                $page .= '<li class="disabled"><a href="?p=' . $p . $url . '" class="text-bold">' . $p . '</a></li>';
-            } else {
-                if (intval($p) > 0) {
-                    $page .= '<li><a href="?p=' . $p . $url . '">' . $p . '</a></li>';
-                } else {
-                    $page .= '<li class="disabled"><a>' . $p . '</a></li>';
-                }
-            }
-        }
-        if ((isset($_GET['p']) && $_GET['p'] == 1) || !isset($_GET['p'])) {
-            $page = '<li class="disabled"><a href="?p=1' . $url . '">« ' . l('Предыдущая') . '</a></li>' . $page .
-                '<li><a href="?p=2' . $url . '">' . l('Следующая') . ' »</a></li>';
-        } else {
-            if ($count_page == $_GET['p']) {
-                $page = '<li><a href="?p=' . ($_GET['p'] - 1) . $url . '">« ' . l('Предыдущая') . '</a></li>' . $page .
-                    '<li class="disabled"><a href="?p=' . $_GET['p'] . $url . '">' . l('Следующая') . ' »</a></li>';
-            } else {
-                $page = '<li><a href="?p=' . ($_GET['p'] - 1) . '">« ' . l('Предыдущая') . '</a></li>' . $page .
-                    '<li><a href="?p=' . ($_GET['p'] + 1) . $url . '">' . l('Следующая') . ' »</a></li>';
-            }
-        }
-    }
-
-    $out = '<div class="count_on_page">' . select_count_on_page() . '</div><ul style="margin:1px" class="pagination">' . $page . '</ul>';
-    $out .= '<div class="count_all_records"> <span class="form-control">' . l('Всего') . ':' . $count . l('записей') . '</span></div>';
-    return $out;
+    $a_url = $a_url === null || !is_array($a_url) ? $_GET : $a_url;
+    $view = new View();
+    return $view->renderFile('inc_func/page_block', array(
+        'count_page' => $count_page,
+        'count' => $count,
+        'hash' => $hash,
+        'a_url' => $a_url
+    ));
 }
 
 function check_page($count, $cur = 1, $need = 1)
@@ -807,7 +736,6 @@ function check_page($count, $cur = 1, $need = 1)
     $ar = array();
 
     if ($cur == 1 || empty($cur)) {
-        //$ar[] = 'Previous | ';
         for ($i = 1; $i < 2 + $need; $i++) {
             $ar[] = $i;
         }
@@ -818,7 +746,6 @@ function check_page($count, $cur = 1, $need = 1)
             $ar[] = $count;
         }
 
-        //$ar[] = ' | Next';
         return $ar;
     }
     if ($cur >= $need + 2) {
@@ -834,8 +761,6 @@ function check_page($count, $cur = 1, $need = 1)
             $ar[] = $i;
             continue;
         }
-        //if ( $count-2 == $i )
-        //    $ar[] = $i;
     }
     if ($cur + $need < $count) {
         if ($cur < $count - 2) {
@@ -849,21 +774,19 @@ function check_page($count, $cur = 1, $need = 1)
 
 /**
  * for page_block
- * */
+ * @param null $count
+ * @return string
+ */
 function select_count_on_page($count = null)
 {
     global $all_configs;
 
     $count = $count === null ? count_on_page() : $count;
 
-    $out = '<select class="form-control" onchange="set_cookie(this, \'' . $all_configs['configs']['count-on-page'] . '\', this.value, 1)">';
-    foreach ($all_configs['configs']['manage-count-on-page'] as $k => $v) {
-        $s = ($count == $k ? 'selected' : '');
-        $out .= '<option ' . $s . ' value="' . $k . '">' . htmlspecialchars($v) . '</option>';
-    }
-    $out .= '</select>';
-
-    return $out;
+    $view = new View($all_configs);
+    return $view->renderFile('inc_func/select_count_on_page', array(
+        'count' => $count,
+    ));
 }
 
 // возвращает курс $currency к основной валюте 
@@ -1105,7 +1028,6 @@ function get_childs_categories($db, $id, $data = array())
         if ($parents) {
             foreach ($parents as $parent) {
                 if ($parent['id'] > 0) {
-                    //array_push($data, $parent['id']);
                     $data = get_childs_categories($db, $parent['id'], $data);
                 }
             }
@@ -1266,27 +1188,9 @@ if (!function_exists('mb_wordwrap')) {
     }
 }
 
-/*function UTFChunk($Text, $Len = 10, $End = "\r\n")
-{
-    if (mb_detect_encoding($Text) == "UTF-8") {
-        return mb_convert_encoding(
-            chunk_split(
-                mb_convert_encoding($Text, "KOI8-R", "UTF-8"), $Len, $End
-            ),
-            "UTF-8", "KOI8-R"
-        );
-    } else {
-        return chunk_split($Text, $Len, $End);
-    }
-}*/
-
 function cut_string($str, $count = 30, $show_tooltip = true)
 {
     // режем длинные слова
-    //$str = mb_strlen($str, 'UTF-8') > 30 ? wordwrap($str, 30, "\n", true) : $str;
-    //$str = iconv('cp1251', 'utf8', wordwrap(iconv('utf8', 'cp1251', $str), $count, " "));
-    //$str = UTFChunk($str, 30, ' ');
-
     $tree_dots = '...';
     if (mb_strlen($str, 'UTF-8') <= ($count + mb_strlen($tree_dots, 'UTF-8'))) {
         $out = htmlspecialchars($str);
@@ -1489,25 +1393,18 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
     }
 }
 
+/**
+ * @param      $order_id
+ * @param bool $show_timer
+ * @return string
+ */
 function timerout($order_id, $show_timer = false)
 {
-    global $all_configs;
-    $html = '';
-
-//    if ($all_configs['oRole']->hasPrivilege('alarm')) {
-    $onclick = 'onclick="alert_box(this, false, \'alarm-clock\', undefined, undefined, \'messages.php\')"';
-    $hidden = $show_timer == false ? 'hidden' : '';
-
-    $html = '<a href="#" data-o_id="' . $order_id . '"  id="btn-timer-' . $order_id . '" class="label-menu-corner" ' . $onclick . '>';
-    $html .= '<i href="javascript:void(0);" class="fa fa-bell cursor-pointer btn-timer"></i>';
-    $html .= ' <span id="alarm-timer-' . $order_id . '" data-o_id="' . $order_id . '" class="' . $hidden . ' alarm-timer"></span>';
-    if ($order_id == 0) {
-        $html .= '<span data-o_id="1" onclick="alert_box(this, false, \'get-messages\', undefined, undefined, \'messages.php\', event)" class="count-alarm-timer cursor-pointer label label-success"></span>';
-    }
-    $html .= '</a>';
-//    }
-
-    return $html;
+    $view = new View();
+    return $view->renderFile('inc_func/timerout', array(
+        'order_id' => $order_id,
+        'show_timer' => $show_timer
+    ));
 }
 
 function update_order_status($order, $new_status)

@@ -1254,10 +1254,6 @@ function reset_multiselect() {
   $('.multiselect').multiselect('destroy');
 
   init_multiselect();
-//    $('.multiselect').multiselect(multiselect);//.trigger('reset');
-  //$('.multiselect').multiselect('setOptions', multiselect)//.multiselect('rebuild');
-  //$('.multiselect').multiselect('refresh');
-  //$('.multiselect').multiselect('rebuild');
 }
 
 function close_alert_box() {
@@ -1331,7 +1327,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
   });
 
   if (content) {
-    close_alert_box()
+    close_alert_box();
     $('.bootbox.bootbox-alert').remove();
     $('.modal-backdrop').remove();
 
@@ -1340,10 +1336,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
       btns = content['btns'];
       content = content['content'];
     }
-    bootbox.alert(content/*, function() {
-     $(_this).button('reset');
-     return false;
-     }*/);
+    bootbox.alert(content);
     if (btns) {
       $('.bootbox-alert .modal-footer').prepend(btns);
     }
@@ -1358,8 +1351,6 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
       url: prefix + (url ? url : module + '/ajax/' + arrequest()[2]) + '?act=' + ajax_act + '&show=modal',
       type: 'POST',
       data: data,
-      //contentType: 'application/json',
-      //dataType: 'json',
       success: function (msg) {
         $('.bootbox.bootbox-alert').remove();
         $('.modal-backdrop').remove();
@@ -1368,10 +1359,12 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
           if (msg['state'] == true && msg['content']) {
             bootbox.alert(msg['content']);
 
+            if(msg['no-cancel-button']) {
+              $('.bootbox-alert .modal-footer').html('');
+            }
             if (msg['btns']) {
               $('.bootbox-alert .modal-footer').prepend(msg['btns']);
             }
-//                        if (typeof callback == 'function') callback(msg);
           }
           if (msg['functions'] && msg['functions'].length > 0) {
             for (i in msg['functions']) {
@@ -1381,16 +1374,6 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
         }
         if (msg['width']) {
           $('.bootbox.modal').addClass('bootbox-big');
-//                    $('.modal-body').css({maxHeight: '500px'});
-//                    $('.bootbox.modal').css({
-//                        left: '20px',
-//                        marginLeft: '0',
-//                        marginRight: '0',
-//                        maxWidth: '100%',
-//                        right: '20px',
-//                        width: 'auto',
-//                        top: '45%'
-//                    });
         }
         $(_this).button('reset');
         return false;
@@ -2063,3 +2046,127 @@ function show_infopopover_modal(modal_html) {
   });
 
 })(jQuery, document);
+
+function create_transaction_for(type, _this, conf) {
+  $(_this).button('loading');
+
+  $.ajax({
+    url: prefix + '/accountings/ajax/?act=create-transaction-' + type,
+    dataType: "json",
+    data: $('#transaction_form').serialize() + (conf.issued ? '&issued=1' : ''),
+    type: 'POST',
+    success: function (data) {
+      open_print_forms();
+      if (data) {
+        if (data['state'] == true) {
+          location.reload();
+        } else {
+          if (data['msg']) {
+            if (data['confirm']) {
+              if (confirm(data['msg'])) {
+                create_transaction(_this, 1);
+              }
+            } else {
+              alert(data['msg']);
+            }
+          }
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}
+
+function open_print_forms() {
+  var $selectPrintForm = $('.select-print-form').first(),
+    order_id = $('#order_id').val(),
+    url;
+
+  $.each($selectPrintForm.find('ul.print_menu input[name="print[]"]'), function (ind, value) {
+    if ($(value).is(':checked')) {
+      url = prefix + 'print.php?act=' + $(value).val() + '&object_id=' + order_id;
+      var w = window.open(url, '_blank');
+      if (!w && typeof L.window_open_error_msg != 'undefined') {
+        alert(L.window_open_error_msg);
+      }
+    }
+  });
+}
+
+function create_transaction(_this, conf) {
+  $(_this).button('loading');
+  $.ajax({
+    url: prefix + 'accountings/ajax/?act=create-transaction',
+    dataType: "json",
+    data: $('#transaction_form').serialize() + (conf == 1 ? '&confirm=1' : ''),
+    type: 'POST',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          location.reload();
+        } else {
+          if (data['msg']) {
+            if (data['confirm']) {
+              if (confirm(data['msg'])) {
+                create_transaction(_this, 1);
+              }
+            } else {
+              alert(data['msg']);
+            }
+          }
+        }
+      }
+      $(_this).button('reset');
+    }
+  });
+
+  return false;
+}
+function recalculate_amount_pay(_this) {
+  var $parent = $('#transaction_form').first(),
+    discount = $parent.find('input[name="discount"]').first().val() || 0,
+    discount_type = $('#pay_for_repair_discount_type').val(),
+    amount = $parent.find('input#amount_without_discount').first().val(),
+    result;
+
+  console.log('test');
+  if(discount_type == 1) {
+    result = amount * (1 - discount/100);
+  } else {
+    result = amount - discount;
+  }
+  $parent.find('#amount-with-discount').first().val(result);
+}
+
+
+function give_without_pay(type, _this, order_id) {
+  $(_this).button('loading');
+
+  $.ajax({
+    url: prefix + '/orders/ajax/?act=issued-order',
+    dataType: "json",
+    data: {order_id: (order_id ? order_id : $('#order_id').val())},
+    type: 'POST',
+    success: function (data) {
+      open_print_forms();
+      if (data) {
+        if (data['state'] == true) {
+          location.reload();
+        } else {
+          alert(data['msg']);
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}

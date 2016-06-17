@@ -2303,6 +2303,21 @@ class orders extends Controller
             $_POST['remove'] = 1;
             $data = $this->all_configs['chains']->remove_product_order($_POST, $mod_id);
         }
+        if ($act == 'issued-order') {
+            $order = $this->Orders->getByPk($_POST['order_id']);
+            $_POST['status'] = $this->all_configs['configs']['order-status-issued'];
+            $data = array(
+                'state' => true
+            );
+            if (empty($order)) {
+                $data = array(
+                    'state' => false,
+                    'msg' => l('Заказ не найден')
+                );
+            } elseif ($order['status'] != $_POST['status']) {
+                $data = $this->changeStatus($order, array('state' => true), l('Статус не изменился'));
+            }
+        }
 
         Response::json($data);
     }
@@ -2540,6 +2555,9 @@ class orders extends Controller
             if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $order['manager'] = $user_id;
                 $this->History->save('manager-accepted-order', $mod_id, $order_id);
+            }
+            if ($order['status'] != $this->all_configs['configs']['order-status-issued'] && $_POST['status'] == $this->all_configs['configs']['order-status-issued'] && $order['sum'] > ($order['sum_paid'] + $order['discount'])) {
+                $data['paid'] = true;
             }
             $data = $this->changeStatus($order, $data);
             // устройство у клиента

@@ -26,13 +26,13 @@ function product_exports_form($all_configs)
 
     $arr = array(
         array('label' => 'ID', 'name' => 'id'),
-        array('label' => l('Категория'), 'name' => 'categories'),
-        array('label' => l('Наименование'), 'name' => 'title'),
-        array('label' => l('Цена закупки'), 'name' => 'price_purchase'),
-        array('label' => l('Цена оптовая'), 'name' => 'price_wholesale'),
-        array('label' => l('Цена розничная'), 'name' => 'price'),
-        array('label' => l('Свободный остаток'), 'name' => 'qty_store'),
-        array('label' => l('manager'), 'name' => 'managers'),
+        array('label' => lq('Категория'), 'name' => 'categories'),
+        array('label' => lq('Наименование'), 'name' => 'title'),
+        array('label' => lq('Цена закупки'), 'name' => 'price_purchase'),
+        array('label' => lq('Цена оптовая'), 'name' => 'price_wholesale'),
+        array('label' => lq('Цена розничная'), 'name' => 'price'),
+        array('label' => lq('Свободный остаток'), 'name' => 'qty_store'),
+        array('label' => lq('manager'), 'name' => 'managers'),
     );
 
     foreach ($arr as $item) {
@@ -62,25 +62,25 @@ function exports_goods($all_configs, $ids)
     // какие данные нужно
     $select[] = 'DISTINCT g.id as ID';//обязательно
     if (isset($_GET['title']) && $_GET['title'] == 1) {
-        $select[] = 'g.title as `' . l('Наименование') . '`';
+        $select[] = 'g.title as `' . lq('Наименование') . '`';
     }
     if (isset($_GET['url']) && $_GET['url'] == 1) {
         $select[] = 'CONCAT("http://' . $_SERVER['HTTP_HOST'] . $all_configs['siteprefix'] . '", g.url, "/' . $all_configs['configs']['product-page'] . '/", g.id) as `Ссылка на товар`';
     }
     if (isset($_GET['price_purchase']) && $_GET['price_purchase'] == 1) {
-        $select[] = 'g.price_purchase/100 as `' . l('Цена закупки') . '`';
+        $select[] = 'g.price_purchase/100 as `' . lq('Цена закупки') . '`';
     }
     if (isset($_GET['price_wholesale']) && $_GET['price_wholesale'] == 1) {
-        $select[] = 'g.price_wholesale/100 as `' . l('Цена оптовая') . '`';
+        $select[] = 'g.price_wholesale/100 as `' . lq('Цена оптовая') . '`';
     }
     if (isset($_GET['price']) && $_GET['price'] == 1) {
-        $select[] = 'g.price/100 as `' . l('Цена розничная') . '`';
+        $select[] = 'g.price/100 as `' . lq('Цена розничная') . '`';
     }
     if (isset($_GET['qty_store']) && $_GET['qty_store'] == 1) {
-        $select[] = 'g.qty_store as `' . l('Свободный остаток') . '`';
+        $select[] = 'g.qty_store as `' . lq('Свободный остаток') . '`';
     }
     if (isset($_GET['foreign_warehouse']) && $_GET['foreign_warehouse'] == 1) {
-        $select[] = 'g.foreign_warehouse as `' . l('Наличие у поставщика') . '`';
+        $select[] = 'g.foreign_warehouse as `' . lq('Наличие у поставщика') . '`';
     }
     if (isset($_GET['warranties']) && $_GET['warranties'] == 1) {
         $select[] = 'g.warranties';
@@ -137,7 +137,7 @@ function exports_goods($all_configs, $ids)
                     if (isset($goods[$manager['goods_id']])) {
                         $arr = array($manager['login'], $manager['email'], $manager['fio'], $manager['phone']);
                         $goods[$manager['goods_id']][$isset($goods[$manager['goods_id']],
-                            l('manager') . ' ')] = implode(', ', $arr);
+                            lq('manager') . ' ')] = implode(', ', $arr);
                     }
                 }
             }
@@ -152,7 +152,7 @@ function exports_goods($all_configs, $ids)
                 foreach ($categories as $category) {
                     if (isset($goods[$category['goods_id']])) {
                         $goods[$category['goods_id']][$isset($goods[$category['goods_id']],
-                            l('Категория '))] = $category['title'];
+                            lq('Категория '))] = $category['title'];
                     }
                 }
             }

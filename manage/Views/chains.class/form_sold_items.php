@@ -11,6 +11,8 @@
                 <input type="text" name="price" required class="form-control"
                        placeholder="<?= l('укажите стоимость') ?>"/>
             </div>
+            <input type="hidden" name="total_as_sum" class="form-control" value="1"/>
+            <input type="hidden" name="set-order-status" class="form-control" value="0"/>
             <?php if ($can): ?>
                 <input type="button" class="btn" onclick="sold_item(this, <?= $item_id ?>)"
                        value="<?= l('Продать') ?>"/>

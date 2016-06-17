@@ -191,7 +191,7 @@
                                 <?php endif; ?>
                             </td>
                             <td></td>
-                            <td class="edit-price">
+                            <td class="<?= ($isEditable && ($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing'))?'edit-price': '' ?>">
                                 <?php if ($isEditable && ($_GET['edit'] == 'price' || $_GET['edit'] == 'active_price') && $this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
                                     <label>
                                         <?= l('Розн.') ?>
