@@ -74,7 +74,7 @@ class invoice extends AbstractTemplate
                     'qty_all' => array('value' => $qty_all, 'name' => l('Количество наименований')),
                     'sum_in_words' => array('value' => $sum_in_words, 'name' => l('Сумма за ремонт прописью')),
                     'sum_paid' => array(
-                        'value' => $order['sum_paid'] > 0 ? $order['sum_paid'] : '',
+                        'value' => $order['sum_paid'] > 0 ? $order['sum_paid'] / 100 : '',
                         'name' => l('Оплачено')
                     ),
                     'sum_paid_in_words' => array(
