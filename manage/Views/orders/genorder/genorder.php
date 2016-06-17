@@ -415,7 +415,7 @@
                                     <div class="input-group-btn">
                                         <?php $pay_btn = ''; ?>
                                         <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > (intval($order['sum_paid'] + $order['discount']))): ?>
-                                            <input type="button" class="btn btn-success btn-xs"
+                                            <input type="button" class="btn btn-success btn-xs  js-pay-button"
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
                                                    onclick="pay_client_order(this, 'repair', <?= $order['id'] ?>, 0, 'prepay')"/>
                                         <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > (intval($order['sum_paid'] + $order['discount']))): ?>
