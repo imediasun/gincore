@@ -127,7 +127,7 @@
 
     .warehouse-title .warehouse-print {
         float: right;
-        width: 30px;
+        width: 40px;
         padding: 0 5px;
         border-left: 1px solid #ddd;
         text-align: center;
@@ -136,7 +136,7 @@
     .warehouse-title > .title {
         padding: 0 10px;
         text-align: center;
-        width: 210px;
+        width: 200px;
     }
 
     .show_warehouse {
@@ -157,3 +157,21 @@
         width: 50%;
         white-space: nowrap;
     }
+ul.dropdown-menu {
+    padding: 10px;
+}
+.dropdown-btn_location {
+    padding: 0;
+    border-radius: 0;
+    border: 1px solid transparent !important;
+    background-color: transparent;
+}
+.dropdown-btn_location:hover {
+    background-color: transparent;
+}
+.open > .dropdown-btn_location:focus,
+.open > .dropdown-btn_location.focus,
+.open > .dropdown-btn_location.hover
+{
+    background-color: transparent !important;
+}

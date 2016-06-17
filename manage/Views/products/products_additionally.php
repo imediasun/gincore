@@ -10,6 +10,14 @@
     <div class="form-group">
         <div class="checkbox">
             <label>
+                <input name="deleted" <?= $product['deleted'] == 1 ? 'checked' : '' ?> type="checkbox">
+                <?= l('Удален в корзину') ?>
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="checkbox">
+            <label>
                 <input name="type" <?= $product['type'] == 1 ? 'checked' : '' ?> type="checkbox">
                 <?= l('Услуга') ?>
             </label>

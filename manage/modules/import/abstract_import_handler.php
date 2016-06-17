@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Object.php';
 
-abstract class abstract_import_handler
+abstract class abstract_import_handler extends Object
 {
     protected $all_configs;
     protected $import_settings;
@@ -23,6 +24,7 @@ abstract class abstract_import_handler
         $this->provider = $provider;
         $this->import_settings = $import_settings;
         $this->view = new View($all_configs);
+        $this->applyUses();
     }
 
     /**

@@ -3,44 +3,21 @@ function gen_tree() {
 }
 
 function orders_quick_search(_this, param) {
-  var query = $.trim($('#orders_quick_search_query').val());
+  var hash = '', query = $.trim($('#orders_quick_search_query').val()), active = $(_this).parents('ul').first().find('li.active >a').first();
+
+  if (active) {
+    hash += active.data('open_tab');
+  } else {
+    hash += 'show_orders-orders';
+  }
+  console.log(hash);
   if (query) {
-    window.location = prefix + 'orders?' + param + '=' + encodeURI(query) + '&qsq=' + encodeURI(query) + '#show_orders-orders'
+    window.location = prefix + 'orders?' + param + '=' + encodeURI(query) + '&qsq=' + encodeURI(query) + '&hash=' + encodeURI(hash);
   }
 }
 
-function create_transaction(_this, conf) {
-  $(_this).button('loading');
-  $.ajax({
-    url: prefix + 'accountings/ajax/?act=create-transaction',
-    dataType: "json",
-    data: $('#transaction_form').serialize() + (conf == 1 ? '&confirm=1' : ''),
-    type: 'POST',
-    success: function (data) {
-      if (data) {
-        if (data['state'] == true) {
-          location.reload();
-        } else {
-          if (data['msg']) {
-            if (data['confirm']) {
-              if (confirm(data['msg'])) {
-                create_transaction(_this, 1);
-              }
-            } else {
-              alert(data['msg']);
-            }
-          }
-        }
-      }
-      $(_this).button('reset');
-    }
-  });
-
-  return false;
-}
-
-function pay_client_order(_this, tt, order_id, b_id, extra) {
-  var data = {client_order_id: order_id, b_id: b_id, transaction_extra: extra};
+function pay_client_order(_this, tt, order_id, b_id, extra, issued) {
+  var data = {client_order_id: order_id, b_id: b_id, transaction_extra: extra, issued: issued};
   alert_box(_this, false, 'begin-transaction-' + tt + '-co', data, null, 'accountings/ajax/');
   return false;
 }
@@ -225,13 +202,12 @@ function display_service_information(_this) {
   });
 }
 
-function issue_order(_this) {
-  if ($('[name="is_replacement_fund"]').prop('checked')) {
-    alert(L['do-not-forget-to-pick-up-a-client-replacement-fund']);
+function issue_order(_this, type, order_id) {
+  if (parseInt($(_this).data('debt')) > 0) {
+    pay_client_order(_this, type, order_id, null, null, true);
+  } else {
+    give_without_pay(type, _this, order_id);
   }
-  var status = $(_this).data('status');
-  $('form#order-form select.order-status').val(status).prop('selected', true);
-  $('#update-order').click();
 }
 
 function table_sorter() {
@@ -472,6 +448,11 @@ function update_order(_this) {
           $(_this).button('reset');
           return;
         }
+        if (msg['paid']) {
+          $('.js-pay-button').click();
+          $(_this).button('reset');
+          return;
+        }
         if (msg['location']) {
           window.location.href = msg['location'];
         }
@@ -557,7 +538,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
     }
   }
 
-  if(remove == 1) {
+  if (remove == 1) {
     url = prefix + module + '/ajax/' + order_id + '?act=remove_product';
   } else {
     url = prefix + module + '/ajax/' + order_id + '?act=add_product';
@@ -707,13 +688,6 @@ $(function () {
     e.stopPropagation();
   });
 
-  $('#print_now').click(function () {
-    var $checks = $(this).closest('ul').find(':checked');
-    $checks.each(function () {
-      window_open($(this).val());
-    });
-  });
-
   $('.tooltips').tooltip();
 });
 
@@ -742,7 +716,7 @@ function bind_group_product(_this, product_id, order_id) {
   $.ajax({
     url: prefix + module + '/ajax/?act=bind-group-product-to-order',
     type: 'POST',
-    data: 'product_id=' + product_id + (order_id?'&order_id='+order_id:''),
+    data: 'product_id=' + product_id + (order_id ? '&order_id=' + order_id : ''),
     success: function (msg) {
       var buttons = {};
       if (msg['state'] == false && msg['message']) {
@@ -904,7 +878,7 @@ function recalculate_amount_quick() {
     total += parseFloat($row.find('.js-quick-sum').first().val());
   });
   if (total == 0) {
-    if($body.find('tr').length <= 1) {
+    if ($body.find('tr').length <= 1) {
       $body.parent().hide();
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
@@ -960,7 +934,7 @@ function add_eshop_item_to_table() {
     $clone.find('.js-eshop-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']');
     $clone.find('.js-eshop-discount').first().val(discount).attr('name', 'discount[' + rnd + ']');
     $clone.find('.js-eshop-discount_type').first().val(discount_type).attr('name', 'discount_type[' + rnd + ']');
-    if(discount_type == 1) {
+    if (discount_type == 1) {
       $clone.find('.percent').show();
       $clone.find('.currency').hide();
     } else {
@@ -1002,7 +976,7 @@ function recalculate_amount_eshop() {
     total += parseFloat($row.find('.js-eshop-sum').first().val());
   });
   if (total == 0) {
-    if($body.find('tr').length <= 1) {
+    if ($body.find('tr').length <= 1) {
       $body.parent().hide();
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
@@ -1148,6 +1122,10 @@ function toggle_delivery_to(state) {
   }
 }
 function change_discount_type(_this) {
+  change_discount_type_show(_this);
+  $("#update-order").click();
+}
+function change_discount_type_show(_this) {
   var $this = $(_this),
     $input = $this.find('.js-product-discount-type').first();
   if ($input.val() == 1) {
@@ -1159,7 +1137,6 @@ function change_discount_type(_this) {
     $this.find('.percent').show();
     $this.find('.currency').hide();
   }
-  $("#update-order").click();
 }
 function change_status(_this) {
   var $this = $(_this),
@@ -1188,3 +1165,4 @@ function toggle_items(hash) {
   $group.find('.items-hide').toggle();
   $('.' + hash + '_item').toggle();
 }
+

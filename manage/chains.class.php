@@ -3,6 +3,7 @@
 require_once __DIR__ . '/Core/Object.php';
 require_once __DIR__ . '/Core/View.php';
 require_once __DIR__ . '/Core/Exceptions.php';
+require_once __DIR__ . '/Core/Log.php';
 
 /**
  * @property MHistory                    History
@@ -244,7 +245,7 @@ class Chains extends Object
             if (empty($item)) {
                 throw new ExceptionWithMsg(l('Укажите существующее изделие'));
             }
-            if(!empty($item['order_id'])) {
+            if (!empty($item['order_id'])) {
                 throw new ExceptionWithMsg(l('Серийный номер привязан к другому заказу'));
             }
 
@@ -895,8 +896,8 @@ class Chains extends Object
                 throw new ExceptionWithMsg('Выберите товар');
             }
             $product = $this->all_configs['db']->query(
-                'SELECT g.id as goods_id, g.* FROM {goods} as g WHERE g.id=?i AND g.avail=?i',
-                array($post['product_id'], 1))->row();
+                'SELECT g.id as goods_id, g.* FROM {goods} as g WHERE g.id=?i',
+                array($post['product_id']))->row();
             if (!$product && !isset($post['remove'])) {
                 throw new ExceptionWithMsg(l('Товар не активен.') . ' ' . l('Зайдите в товар и поставьте галочку "активность"'));
             }
@@ -974,7 +975,7 @@ class Chains extends Object
                 WHERE o.count_debit=0 AND o.goods_id=?i AND (o.supplier IS NULL OR
                 (SELECT COUNT(id) FROM {orders_suppliers_clients} as l WHERE l.supplier_order_id=o.id) < IF(o.count_come>0, o.count_come, o.count))',
                     array($product['goods_id']))->row();
-                $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?').' '.InfoPopover::getInstance()->createQuestion('l_part_for_order_not_in_stock_info');
+                $data['confirm']['content'] = l('Товара нет в наличии, подтвердить?') . ' ' . InfoPopover::getInstance()->createQuestion('l_part_for_order_not_in_stock_info');
                 $data['confirm']['btns'] = $this->view->renderFile('chains.class/add_product_order_confirm', array(
                     'qty' => $qty,
                     'product' => $product
@@ -1584,7 +1585,8 @@ class Chains extends Object
             if (!empty($items)) {
                 $this->addSpares($items, $order['id'], $mod_id);
             }
-            $this->changeOrderStatus($order, $this->all_configs['configs']['order-status-issued'], $post);
+            $setStatus = isset($post['set-order-status']) ? intval($post['set-order-status']) : $this->all_configs['configs']['order-status-issued'];
+            $this->changeOrderStatus($order, $setStatus, $post);
 
             $data = array(
                 'state' => true,
@@ -1971,7 +1973,7 @@ class Chains extends Object
                     throw new ExceptionWithMsg(l('Такой валюты нет у кассы'));
                 }
             }
-            if ($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_TRANSFER ) {
+            if ($post['transaction_type'] == TRANSACTION_INPUT || $post['transaction_type'] == TRANSACTION_TRANSFER) {
                 $cashboxes_currency_id_to = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE cashbox_id=?i AND currency=?i',
                     array($post['cashbox_to'], $post['cashbox_currencies_to']))->el();
 
@@ -1992,7 +1994,7 @@ class Chains extends Object
             if (isset($post['amount_from']) && $post['transaction_type'] == TRANSACTION_INPUT) {
                 $post['amount_from'] = 0;
             }
-            if(empty($post['amount_from']) && empty($post['amount_to'])) {
+            if (empty($post['amount_from']) && empty($post['amount_to'])) {
                 throw new ExceptionWithMsg(l('Сумма не может быть нулевой'));
             }
 
@@ -2104,7 +2106,7 @@ class Chains extends Object
             // если другой тип контрагента с валютой клиентов
             // оказалось поведение ошибочное
             // @todo закоментил до окончательного решения руководства
-            
+
 //            if ($client_order_id  == 0 && (!isset($post['without_contractor']) || $post['without_contractor'] == 0)) {
 //                $contractor = db()->query('SELECT * FROM {contractors} WHERE id=?i', array($post['contractors_id']))->row();
 //                if ($contractor['type'] == CONTRACTOR_TYPE_PROVIDER) {
@@ -2247,8 +2249,8 @@ class Chains extends Object
             'user_id' => $user_id,
             'goods_id' => $goods_id,
             '`type`' => $type,
-            'cashboxes_currency_id_from' =>$cashboxes_currency_id_from,
-            'cashboxes_currency_id_to' =>$cashboxes_currency_id_to
+            'cashboxes_currency_id_from' => $cashboxes_currency_id_from,
+            'cashboxes_currency_id_to' => $cashboxes_currency_id_to
         );
         if (!empty($supplier_order_id)) {
             $data['supplier_order_id'] = $supplier_order_id;
@@ -2342,7 +2344,7 @@ class Chains extends Object
                     // транзакция выдачи/внесения
                     $a = $this->create_transaction($transaction, $mod_id);
                 }
-            } elseif ( $this->all_configs['suppliers_orders']->currency_suppliers_orders == $this->all_configs['suppliers_orders']->currency_clients_orders &&$post['client_order_id'] > 0 ) {
+            } elseif ($this->all_configs['suppliers_orders']->currency_suppliers_orders == $this->all_configs['suppliers_orders']->currency_clients_orders && $post['client_order_id'] > 0) {
                 $amount_from = $order['course_value'] > 0 ? $post['amount_from'] / ($order['course_value'] / 100) : 0;
                 $amount_to = $order['course_value'] > 0 ? $post['amount_to'] / ($order['course_value'] / 100) : 0;
                 $post['contractor_category_id_from'] = isset($post['contractor_category_id_from']) ? $post['contractor_category_id_from'] : '';
@@ -2911,8 +2913,8 @@ class Chains extends Object
             'delivery_to' => isset($post['delivery_to']) ? $post['delivery_to'] : '',
             'total_as_sum' => isset($post['total_as_sum']) ? $post['total_as_sum'] : 0,
             'private_comment' => isset($post['private_comment']) ? $post['private_comment'] : '',
-            'code' => isset($post['code'])? $post['code']:'',
-            'referer_id' => isset($post['referer_id'])?$post['referer_id']:0
+            'code' => isset($post['code']) ? $post['code'] : '',
+            'referer_id' => isset($post['referer_id']) ? $post['referer_id'] : 0
         );
         $order = $this->add_order($arr, $modId, false);
         // ошибка при создании заказа
@@ -2935,7 +2937,7 @@ class Chains extends Object
 // добавляем запчасти
         foreach ($items as $item) {
             $arr = array(
-                'confirm' => isset($item['confirm'])?$item['confirm']:0,
+                'confirm' => isset($item['confirm']) ? $item['confirm'] : 0,
                 'order_id' => isset($orderId) ? $orderId : 0,
                 'product_id' => $item['goods_id'],
                 'price' => $item['price'],

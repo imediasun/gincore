@@ -105,7 +105,7 @@ class exported_gincore_items extends abstract_import_provider
             return call_user_func_array($name, $arguments);
         }
         $method = 'get_' . $name;
-        $colPosition = $this->getColPosition($name);
+        $colPosition = $this->getColPosition($this->cols[$name]);
         if (!empty($colPosition) && method_exists($this, $method)) {
             return call_user_func_array(array($this, $method), $arguments);
         }
@@ -120,10 +120,10 @@ class exported_gincore_items extends abstract_import_provider
      * @param $row
      * @return bool
      */
-    private function getColValue($name, $row)
+    public function getColValue($name, $row)
     {
         $col = $this->getColPosition($this->cols[$name]);
-        return $col !== false && isset($row[$col]) ? $row[$col] : false;
+        return $col !== false && isset($row[$col])  && !empty($row[$col])? $row[$col] : false;
     }
 
     /**
@@ -132,7 +132,7 @@ class exported_gincore_items extends abstract_import_provider
      */
     private function getColPosition($colName)
     {
-        return isset($this->header_row[$colName]) ? $this->header_row[$colName] : false;
+        return isset($this->header_row[$colName])? $this->header_row[$colName] : false;
     }
 
     /**

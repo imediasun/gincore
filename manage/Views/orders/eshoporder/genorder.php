@@ -242,7 +242,7 @@
                                     <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
                                     <?php if ($showButtons && !empty($goods) && $status != $order['status']): ?>
                                         <input id="close-order" class="btn btn-success"
-                                               onclick="issue_order(this)" data-status="<?= $status ?>" type="button"
+                                               onclick="issue_order(this, 'sale', <?= $order['id'] ?>)" data-status="<?= $status ?>" data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>" type="button"
                                                value="<?= l('Выдать') ?>"/>
                                     <?php endif; ?>
                                     <input id="update-order" class="btn btn-info" onclick="update_order(this)"
@@ -270,12 +270,12 @@
                                         <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
                                             <input type="button" class="btn btn-success"
                                                    value="<?= ($order['type'] != 3 ? l('Принять предоплату') : l('Принять оплату')) ?>"
-                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
+                                                   onclick="pay_client_order(this, 'sale', <?= $order['id'] ?>, 0, 'prepay')"/>
                                         <?php elseif (intval($order['sum']) == 0 || intval($order['sum']) > intval($order['sum_paid'])): ?>
                                             <input type="button"
                                                    class="btn btn-success js-pay-button <?= intval($order['sum']) == 0 ? 'disabled' : '' ?>"
                                                    value="<?= l('Принять оплату') ?>"
-                                                   onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
+                                                   onclick="pay_client_order(this, 'sale', <?= $order['id'] ?>)"/>
                                         <?php endif; ?>
                                     </td>
                                     <td>

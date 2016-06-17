@@ -10,17 +10,8 @@ class location extends AbstractTemplate
                 FROM {warehouses} as w, {warehouses_locations} as l
                 WHERE l.id=?i AND l.wh_id=w.id', array($object))->row();
 
-        $result = '';
-        if ($location) {
-            $result .= '<div class="label-box">';
-
-            $src = $this->all_configs['prefix'] . 'print.php?bartype=sn&barcode=L-' . $location['id'];
-            $result .= '<div class="label-box-code"><img src="' . $src . '" alt="S/N" title="S/N" /></div>';
-
-            $result .= '<div style="font-size: 1.4em;" class="label-box-title">' . htmlspecialchars($location['location']) . '</div>';
-
-            $result .= '</div>';
-        }
-        return $result;
+        return $this->view->renderFile('prints/location', array(
+            'location' => $location
+        ));
     }
 }

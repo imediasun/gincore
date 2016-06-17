@@ -469,6 +469,8 @@ try {
     $input['txtlogin'] = l('login');
     $input['password'] = l('password');
     $input['you_email'] = l('you_email');
+    $input['logout_title'] = l('Выход из системы');
+    $input['logout_confirm'] = l('Выйти из системы?');
 
 ################################################################################
     if (isset($all_configs['arrequest'][0]) && !$curmod) {

@@ -48,7 +48,6 @@ class act extends AbstractTemplate
                     }
                 }
             }
-            $summ = $order['sum'];
 
             $products_html_parts = array();
             $num = 1;
@@ -62,60 +61,49 @@ class act extends AbstractTemplate
                     ';
                 $num++;
             }
-            $qty_all = $num - 1;
             $products_html = implode('</td></tr><tr><td>', $products_html_parts);
 
-            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-            $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($order['sum'] / 100, false,
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
-            $params = new \php_rutils\struct\TimeParams();
-            $params->date = null;
-            $params->format = 'd F Y';
-            $params->monthInflected = true;
-            $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
+            $str_date = $this->dateAsWord();
 
             $arr = array(
-                'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
-                'sum' => array('value' => $order['sum'] / 100, 'name' => 'Сумма за ремонт'),
+                'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
+                'now' => array('value' => $str_date, 'name' => l('Текущая дата')),
+                'sum' => array('value' => $order['sum'] / 100, 'name' => l('Сумма за ремонт')),
                 'sum_by_products_and_services' => array(
                     'value' => $sum_by_products_and_services / 100,
-                    'name' => 'Сумма за запчасти и услуги'
+                    'name' => l('Сумма за запчасти и услуги')
                 ),
-                'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
-                'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
-                'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
+                'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
+                'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => l('Телефон клиента')),
+                'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
                 'product' => array(
                     'value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']),
-                    'name' => 'Устройство'
+                    'name' => l('Устройство')
                 ),
                 'color' => array(
                     'value' => $order['color'] ? htmlspecialchars($this->all_configs['configs']['devices-colors'][$order['color']]) : '',
-                    'name' => 'Устройство'
+                    'name' => l('Устройство')
                 ),
-                'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => l('Серийный номер')),
                 'company' => array(
                     'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
-                    'name' => 'Название компании'
+                    'name' => l('Название компании')
                 ),
-                'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => 'Телефон склада'),
-                'products' => array('value' => $products, 'name' => 'Установленные запчасти'),
-                'products_cost' => array('value' => $products_cost, 'name' => 'Установленные запчасти'),
-                'sum_by_products' => array('value' => $sum_by_products / 100, 'name' => 'Сумма за запчасти'),
-                'services' => array('value' => $services, 'name' => 'Услуги'),
+                'wh_phone' => array('value' => htmlspecialchars($order['print_phone']), 'name' => l('Телефон склада')),
+                'products' => array('value' => $products, 'name' => l('Установленные запчасти')),
+                'products_cost' => array('value' => $products_cost, 'name' => l('Установленные запчасти')),
+                'sum_by_products' => array('value' => $sum_by_products / 100, 'name' => l('Сумма за запчасти')),
+                'services' => array('value' => $services, 'name' => l('Услуги')),
                 'services_cost' => array(
                     'value' => implode(' ' . viewCurrency() . '<br />', $services_cost),
-                    'name' => 'Стоимость услуг'
+                    'name' => l('Стоимость услуг')
                 ),
-                'sum_by_services' => array('value' => $sum_by_services / 100, 'name' => 'Сумма за услуги'),
+                'sum_by_services' => array('value' => $sum_by_services / 100, 'name' => l('Сумма за услуги')),
                 'products_and_services' => array(
                     'value' => $products_html,
-                    'name' => 'Товары и услуги (вставляется внутрь таблицы)'
+                    'name' => l('Товары и услуги (вставляется внутрь таблицы)')
                 ),
+
             );
             $print_html = $this->generate_template($arr, 'act');
         }

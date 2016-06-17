@@ -191,7 +191,7 @@ class Configs
                         'code' => 371,
                         'short_code' => 0,
                         'length' => 9,
-                        'mask' => '371ddddddddd'
+                        'mask' => '371dddddddd'
                     )
                 ),
                 15 => array(

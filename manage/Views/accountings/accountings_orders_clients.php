@@ -8,8 +8,10 @@
             <td><?= l('Кто запросил') ?></td>
             <td><?= l('Дата запроса') ?></td>
             <td><?= l('Заказ') ?></td>
-            <td><?= l('Оплата') ?></td>
+            <td><?= l('Сумма') ?></td>
             <td><?= l('Оплачено') ?></td>
+            <td><?= l('Скидка') ?></td>
+            <td><?= l('К оплате') ?></td>
             <td><?= l('Управление') ?></td>
         </tr>
         </thead>
@@ -36,26 +38,30 @@
                 <td>
                     <a href="<?= $href ?>">№<?= $order['id'] ?></a>
                 </td>
-                <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
-                <td><?= show_price($order['prepay']) ?></td>
-                <td><?= show_price($order['sum_paid']) ?></td>
+                <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'] + $order['discount'])): ?>
+                    <td><?= show_price($order['prepay']) ?></td>
+                    <td><?= show_price($order['sum_paid']) ?></td>
+                <?php else: ?>
+                    <td><?= show_price($order['sum']) ?></td>
+                    <td><?= show_price($order['sum_paid']) ?></td>
+                <?php endif; ?>
+                <td><?= show_price($order['discount']) ?></td>
+                <td><?= show_price($order['sum'] - $order['sum_paid'] - $order['discount']) ?></td>
                 <td>
-                    <?php else: ?>
-                <td><?= show_price($order['sum']) ?></td>
-                <td><?= show_price($order['sum_paid']) ?></td>
-                <td>
-                    <?php endif; ?>
 
                     <?php if (intval($order['sum']) < intval($order['sum_paid'])): ?>
                         <input type="button" class="btn btn-xs" value="<?= l('Выдать оплату') ?>"
                                onclick="pay_client_order(this, 1, <?= $order['id'] ?>)"/>
                     <?php endif; ?>
-                    <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
-                        <input type="button" class="btn btn-xs" value=" <?= l('Принять предоплату') ?>"
-                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>, 0, 'prepay')"/>
-                    <?php elseif (intval($order['sum']) > intval($order['sum_paid'])): ?>
-                        <input type="button" class="btn btn-xs" value="<?= l('Принять оплату') ?>"
-                               onclick="pay_client_order(this, 2, <?= $order['id'] ?>)"/>
+                    <?php $type = $order['type'] == ORDER_REPAIR ? 'repair' : 'sale' ?>
+                    <?php if (intval($order['sum']) > (intval($order['sum_paid']) + $order['discount'])): ?>
+                        <?php if (intval($order['prepay']) > 0 && $order['prepay'] > ($order['sum_paid'] + $order['discount'])): ?>
+                            <input type="button" class="btn btn-xs" value=" <?= l('Принять предоплату') ?>"
+                                   onclick="pay_client_order(this, '<?= $type ?>', <?= $order['id'] ?>, 0, 'prepay')"/>
+                        <?php else: ?>
+                            <input type="button" class="btn btn-xs" value="<?= l('Принять оплату') ?>"
+                                   onclick="pay_client_order(this, '<?= $type ?>', <?= $order['id'] ?>)"/>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </td>
             </tr>

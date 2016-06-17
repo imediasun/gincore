@@ -15,7 +15,10 @@
             </td>
             <td>
                 <?= suppliers_order_generate_serial($product); ?>
-                <?= print_link($product['item_id'], 'label') ?>
+                <?= $this->renderFile('warehouses/print_buttons', array(
+                    'objectId' => $product['goods_id'],
+                    'prefix' => ''
+                )) ?>
             </td>
         </tr>
         <?php if (mb_strlen(trim($product['serial_old']), 'utf-8') > 0): ?>
@@ -81,7 +84,7 @@
             <td>
                 <?php if ($product['order_id'] > 0): ?>
                     <a class="hash_link"
-                       href="<?= $this->all_configs['prefix'] ?>orders/create/<?= $product['order_id'] ?>">
+                       href="orders/create/<?= $product['order_id'] ?>">
                         <?= $product['order_id'] ?>
                     </a>
                 <?php endif; ?>
@@ -141,7 +144,8 @@
                             false) ?>"><?= do_nice_date($history['date_move']) ?></span></td>
                     <td><?= h($history['comment']) ?></td>
                     <td>
-                        <a href="<?= $this->all_configs['prefix'] ?>orders/create/<?= $history['order_id'] ?>">
+                        <?php $prefix = str_replace('warehouses', '', $this->all_configs['prefix']); ?>
+                        <a href="<?= $prefix ?>orders/create/<?= $history['order_id'] ?>">
                             <?= $history['order_id'] ?>
                         </a>
                     </td>

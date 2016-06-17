@@ -32,12 +32,12 @@
                 <?php unset($_f_goods[$pos]); ?>
             <?php endif; ?>
             <?php $url = $queryString . implode('-', $_f_goods); ?>
-            <tr class="border-top well cursor-pointer" onclick="window.location.href='<?= $url ?> + window.location.hash">
+            <tr class="border-top well cursor-pointer" onclick="window.location.href='<?= $url ?>' + window.location.hash">
             <td><i class="glyphicon glyphicon-chevron-up"></i></td>
         <?php else: ?>
             <?php array_push($_f_goods, $product['goods_id']); ?>
             <?php $url = $queryString . implode('-', $_f_goods); ?>
-            <tr class="border-top cursor-pointer" onclick="window.location.href='<?= $url ?> + window.location.hash">
+            <tr class="border-top cursor-pointer" onclick="window.location.href='<?= $url ?>' + window.location.hash">
             <td><i class="glyphicon glyphicon-chevron-down"></i></td>
         <?php endif; ?>
         <td></td>
@@ -103,4 +103,19 @@
         <?php $currencies = $this->all_configs['suppliers_orders']->currencies; ?>
         <?= $currencies[$currency_suppliers_orders]['shortName'] ?></p>
 <?php endif; ?>
-<p><?= l('Печать') ?>: <a onclick="global_print_labels()"><i class="cursor-pointer fa fa-print"></i></a></p>
+<!--<p>--><?//= l('Печать') ?><!--: <a onclick="global_print_labels()"><i class="cursor-pointer fa fa-print"></i></a></p>-->
+<?php $addition = ''; ?>
+<?php if (isset($_GET['whs'])): ?>
+    <?php $addition .= '&whs=' . $_GET['whs'] ?>
+<?php endif; ?>
+<?php if (isset($_GET['lcs'])): ?>
+    <?php $addition .= '&lcs=' . $_GET['lcs'] ?>
+<?php endif; ?>
+<?php if (isset($_GET['pid'])): ?>
+    <?php $addition .= '&pid=' . $_GET['pid'] ?>
+<?php endif; ?>
+<?= $this->renderFile('warehouses/print_buttons', array(
+    'prefix' => '_filtered',
+    'objectId' => 'none',
+    'addition' => $addition
+)) ?>

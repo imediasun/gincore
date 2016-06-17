@@ -73,3 +73,6 @@ td.edit-price .input-small {
 .edit_active {
     white-space: nowrap;
 }
+.js-delete-product {
+    cursor: pointer;
+}

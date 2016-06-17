@@ -1,54 +1,58 @@
 <?php
 
+require_once __DIR__ . '/../../Core/Controller.php';
 
 $modulename[70] = 'categories';
 $modulemenu[70] = l('Категории');
 $moduleactive[70] = !$ifauth['is_2'];
 
-class categories
+/**
+ * @property  MCategories Categories
+ */
+class categories extends Controller
 {
-
     public $cat_id;
     public $cat_img;
-    protected $all_configs;
 
-    public $count_on_page;
+    public $uses = array(
+        'Categories'
+    );
 
     /**
      * categories constructor.
      * @param $all_configs
      */
-    function __construct($all_configs)
+    public function __construct(&$all_configs)
     {
-        $this->all_configs = $all_configs;
-        $this->count_on_page = count_on_page();
+        parent::__construct($all_configs);
+
         $this->cat_img = $this->all_configs['configs']['cat-img'];
         $this->cat_id = isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0 ?
             $this->all_configs['arrequest'][2] : null;
+    }
 
-        global $input_html;
-
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-            $this->ajax();
-        }
-
-        if ($this->can_show_module() == false) {
-            return $input_html['mcontent'] = '<div class="span3"></div>
+    /**
+     * @return string
+     */
+    public function renderCanShowModuleError()
+    {
+        return '<div class="span3"></div>
                 <div class="span9"><p  class="text-error">' . l('У Вас нет прав для просмотра категорий') . '</p></div>';
-        }
 
-        // если отправлена форма изменения продукта
-        if (!empty($_POST)) {
-            $this->check_post($_POST);
-        }
+    }
 
-
+    /**
+     * @param $get
+     * @return string
+     */
+    public function check_get($get)
+    {
+        global $input_html;
         if (!array_key_exists(1, $this->all_configs['arrequest'])) {// выбрана ли категория
-            $input_html['mcontent'] = $this->show_categories();
-        } else {
-            $input_html['mmenu'] = '<div class="span3">' . $this->genmenu() . '</div>';
-            $input_html['mcontent'] = '<div class="span9">' . $this->gencontent() . '</div>';
+            return $this->show_categories();
         }
+        $input_html['mmenu'] = '<div class="span3">' . $this->genmenu() . '</div>';
+        return '<div class="span9">' . $this->gencontent() . '</div>';
     }
 
     /**
@@ -56,7 +60,7 @@ class categories
      * @param bool $redirect
      * @return array
      */
-    private function check_post($post, $redirect = true)
+    public function check_post(Array $post, $redirect = true)
     {
         $mod_id = $this->all_configs['configs']['categories-manage-page'];
 
@@ -64,7 +68,6 @@ class categories
         $content = isset($post['content']) ? $post['content'] : '';
         $avail = isset($post['avail']) ? 1 : null;
         $url = isset($post['url']) ? $this->transliturl($post['url']) : $this->transliturl($title);
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
 
         // создание категории
         if (isset($post['create-category']) && $this->all_configs['oRole']->hasPrivilege('create-filters-categories')) {
@@ -74,61 +77,44 @@ class categories
 
             if ($category_url) {
                 if ($redirect) {
-                    header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+                    Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                         . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2] . '/?error=url');
-                    exit;
-                } else {
-                    return array('error' => l('Категория с таким названием уже существует.'));
                 }
+                return array('error' => l('Категория с таким названием уже существует.'));
             }
 
-            $id = $this->all_configs['db']->query('INSERT INTO {categories}
-                SET title=?,
-                    url=?,
-                    content=?,
-                    parent_id=?i,
-                    avail=?i',
-                array(
-                    $title,
-                    $url,
-                    $content,
-                    intval($post['categories']),
-                    $avail
-                ), 'id');
+            $id = $this->Categories->insert(array(
+                'title' => $title,
+                'url' => $url,
+                'content' => $content,
+                'parent_id' => intval($post['categories']),
+                'avail' => $avail
 
-            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                array($user_id, 'create-category', $mod_id, $id));
+            ));
+
+            $this->History->save('create-category', $mod_id, $id);
 
             if ($redirect) {
-                header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                     . $this->all_configs['arrequest'][1] . '/' . $id);
-                exit;
-            } else {
-                return $id;
             }
+            return $id;
         } elseif (isset($post['edit-seo']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
             // редактирование seo
-            $ar = $this->all_configs['db']->query('UPDATE {categories}
-                SET page_title=?,
-                    page_description=?,
-                    page_keywords=?,
-                    page_content=?
-                WHERE id=?i',
-                array(
-                    trim($post['page_title']),
-                    trim($post['page_description']),
-                    trim($post['page_keywords']),
-                    trim($post['page_content']),
-                    intval($post['category_id'])
-                ))->ar();
+            $ar = $this->Categories->update(array(
+                'page_title' => trim($post['page_title']),
+                'page_description' => trim($post['page_description']),
+                'page_keywords' => trim($post['page_keywords']),
+                'page_content' => trim($post['page_content'])
+            ), array(
+                'id' => intval($post['category_id'])
+            ));
             if (intval($ar) > 0) {
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'edit-seo-category', $mod_id, intval($post['category_id'])));
+                $this->History->save('edit-seo-category', $mod_id, intval($post['category_id']));
             }
 
-            header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                 . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2]);
-            exit;
         } elseif (isset($post['edit-context'])) {
             // редактирование контекстной рекламы
             if (isset($post['campaign_id'])) {
@@ -144,6 +130,11 @@ class categories
                 return false;
             }
 
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (intval($post['id']) == $recycleBin['id']) {
+                FlashMessage::set(l('Редактирование системной категории "Корзина" запрещено'), FlashMessage::DANGER);
+                return false;
+            }
             if (isset($_FILES['thumbs']) && $_FILES['thumbs']['error'] < 1 && $_FILES["thumbs"]["size"] > 0 && $_FILES["thumbs"]["size"] < 1024 * 1024 * 1 &&
                 ($_FILES["thumbs"]["type"] == "image/gif" || $_FILES["thumbs"]["type"] == "image/jpeg"
                     || $_FILES["thumbs"]["type"] == "image/jpg" || $_FILES["thumbs"]["type"] == "image/png")
@@ -154,16 +145,13 @@ class categories
                     if (move_uploaded_file($_FILES["thumbs"]["tmp_name"],
                         $this->all_configs['sitepath'] . $this->cat_img . $url . '.' . $path_parts['extension'])) {
 
-                        $ar = $this->all_configs['db']->query('UPDATE {categories}
-                            SET thumbs=?
-                            WHERE id=?i',
-                            array(
-                                $url . '.' . $path_parts['extension'],
-                                intval($post['id'])
-                            ))->ar();
+                        $ar = $this->Categories->update(array(
+                            'thumbs' => $url . '.' . $path_parts['extension']
+                        ), array(
+                            'id' => intval($post['id'])
+                        ));
                         if (intval($ar) > 0) {
-                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                                array($user_id, 'edit-category-thumbs', $mod_id, intval($post['id'])));
+                            $this->History->save('edit-category-thumbs', $mod_id, intval($post['id']));
                         }
                     }
                 }
@@ -174,16 +162,13 @@ class categories
                 if (move_uploaded_file($_FILES["image"]["tmp_name"],
                     $this->all_configs['sitepath'] . $this->cat_img . $url . '_image.png')) {
 
-                    $ar = $this->all_configs['db']->query('UPDATE {categories}
-                        SET image=?
-                        WHERE id=?i',
-                        array(
-                            $url . '_image.png',
-                            intval($post['id'])
-                        ))->ar();
+                    $ar = $this->Categories->update(array(
+                        'image' => $url . '_image.png'
+                    ), array(
+                        'id' => intval($post['id'])
+                    ));
                     if (intval($ar) > 0) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'edit-category-image', $mod_id, intval($post['id'])));
+                        $this->History->save('edit-category-image', $mod_id, intval($post['id']));
                     }
                 }
             }
@@ -196,11 +181,13 @@ class categories
                 if (move_uploaded_file($_FILES["cat-image"]["tmp_name"],
                     $this->all_configs['sitepath'] . $this->cat_img . $url . '_cat.' . $path_parts['extension'])) {
 
-                    $ar = $this->all_configs['db']->query('UPDATE {categories} SET `cat-image`=? WHERE id=?i',
-                        array($url . '_cat.' . $path_parts['extension'], intval($post['id'])))->ar();
+                    $ar = $this->Categories->update(array(
+                        'cat-image' => $url . '_cat.' . $path_parts['extension']
+                    ), array(
+                        'id' => intval($post['id'])
+                    ));
                     if (intval($ar) > 0) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'edit-category-cat-image', $mod_id, intval($post['id'])));
+                        $this->History->save('edit-category-cat-image', $mod_id, intval($post['id']));
                     }
                 }
             }
@@ -209,46 +196,37 @@ class categories
                 array($url, intval($post['id'])))->el();
 
             if ($category_url) {
-                header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                     . $this->all_configs['arrequest'][1] . '/' . $this->all_configs['arrequest'][2] . '/?error=url');
-                exit;
             }
 
-            $ar = $this->all_configs['db']->query('UPDATE {categories}
-                        SET title=?,
-                            url=?,
-                            content=?,
-                            parent_id=?i,
-                            prio=?i,
-                            warehouses_suppliers=?,
-                            information=?,
-                            avail=?i,
-                            rating=?,
-                            votes=?
-                        WHERE id=?i',
-                array(
-                    $title,
-                    $url,
-                    $content,
-                    intval($post['categories']),
-                    $post['prio'],
-                    isset($post['warehouses_suppliers']) ? trim($post['warehouses_suppliers']) : '',
-                    isset($post['information']) ? trim($post['information']) : '',
-                    $avail,
-                    isset($post['rating']) ? trim($post['rating']) : 0,
-                    isset($post['votes']) ? trim($post['votes']) : 0,
-                    intval($post['id'])
-                ))->ar();
+            $ar = $this->Categories->update(array(
+                'title' => $title,
+                'url' => $url,
+                'content' => $content,
+                'parent_id' => intval($post['categories']),
+                'prio' => $post['prio'],
+                'warehouses_suppliers' => isset($post['warehouses_suppliers']) ? trim($post['warehouses_suppliers']) : '',
+                'information' => isset($post['information']) ? trim($post['information']) : '',
+                'avail' => $avail,
+                'rating' => isset($post['rating']) ? trim($post['rating']) : 0,
+                'votes' => isset($post['votes']) ? trim($post['votes']) : 0
+            ), array(
+                'id' => intval($post['id'])
+            ));
             if (intval($ar) > 0) {
-                $this->all_configs['db']->query('UPDATE {orders} SET title=? WHERE category_id=?i', array($title, intval($post['id'])));
-                $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                    array($user_id, 'edit-category', $mod_id, intval($post['id'])));
+                $this->all_configs['db']->query('UPDATE {orders} SET title=? WHERE category_id=?i',
+                    array($title, intval($post['id'])));
+                $this->History->save('edit-category', $mod_id, intval($post['id']));
             }
 
-            header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/'
                 . $this->all_configs['arrequest'][1] . '/' . intval($post['id']));
-            exit;
+
+        } elseif (isset($post['recovery-category']) && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
+            $this->recoveryCategories($mod_id);
         }
+        return '';
     }
 
     /**
@@ -258,43 +236,10 @@ class categories
      */
     private function gencreate($name = '', $ajax = false)
     {
-        if (!$this->all_configs['oRole']->hasPrivilege('create-filters-categories')) {
-            return '<p  class="text-error">' . l('У Вас нет прав для создания новой категории') . '</p>';
-        }
-
-        $attr = 'form method="post"';
-        $form_close = 'form';
-        if ($ajax) {
-            $attr = 'div class="emulate_form ajax_form" data-callback="select_typeahead_device" data-method="post" '
-                . 'data-action="' . $this->all_configs['prefix'] . 'categories/ajax/?act=create_new"';
-            $form_close = 'div';
-        }
-
-        // строим форму добавления категории
-        $category_html = '<' . $attr . '><fieldset><legend>' . l('Добавление новой категории') . ' (' . l('название устройства') . ')</legend>';
-        if (isset($_GET['error']) && $_GET['error'] == 'url') {
-            $category_html .= '<p class="text-error">' . l('Категория с таким названием уже существует') . '</p>';
-        }
-        $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
-            <input autocomplete="off" placeholder="' . l('Укажите название устройства или категории. Пример: IPhone 5') . '" class="form-control global-typeahead" data-anyway="1" data-table="categories" name="title" value="' . ($name ? htmlspecialchars($name) : '') . '" /></div>';
-        $category_html .= '<div class="form-group"><div class="checkbox"><label>
-            <input name="avail" type="checkbox" checked="checked">' . l('Активность') . '</label> ' . InfoPopover::getInstance()->createQuestion('l_create_category_active_info') . '</div></div>';
-        $category_html .= '<div class="form-group"><label>' . l('Высшая (родительская) категория') . ':</label>
-            ' . typeahead($this->all_configs['db'], 'categories', false, 0, 1, 'input-large', '', '',
-                false, false, '', false,
-                l('Укажите название высшей категории или оставьте пустым. Пример: Iphone')) . '</div>';
-        $category_html .= '<div class="form-group"><label>' . l('Описание') . ':</label>
-            <textarea placeholder="' . l('краткое описание') . '" name="content" class="form-control" rows="3"></textarea></div>';
-
-        $category_html .= '
-            <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="' . l('Создать') . '" name="create-category" />
-                ' . ($ajax ? '<button type="button" class="btn btn-default hide_typeahead_add_form">' . l('Отмена') . '</button>' : '') . '
-            </div>';
-
-        $category_html .= '</fieldset></' . $form_close . '>';
-
-        return $category_html;
+        return $this->view->renderFile('categories/gencreate', array(
+            'ajax' => $ajax,
+            'name' => $name
+        ));
     }
 
     /**
@@ -302,25 +247,9 @@ class categories
      */
     private function show_categories()
     {
-        $categories = $this->get_categories();
-        $categories_html = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('create-filters-categories')) {
-            $categories_html .= '<p><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create" class="btn btn-success">' . l('Создать категорию') . '</a>
-                </p>';
-        }
-        if (count($categories) > 0) {
-            $categories_html .= '<p><input class="form-control" id="tree_search" type="text" name="tree_search" placeholder="' . l('поиск по дереву') . '"></p>';
-            $categories_html .= '<div class="well four-column" id="search_results" style="display: none;"><ul></ul></div>';
-            $categories = $this->get_categories();
-            $categories_html .= '<div class="four-column dd backgroud-white" id="categories-tree">' .
-                build_array_tree($categories, array(), 2) .
-                '</div>';
-        } else {
-            $categories_html .= '<p  class="text-error">' . l('Не существует ниодной категории') . '</p>';
-        }
-
-        return $categories_html;
+        return $this->view->renderFile('categories/show_categories', array(
+            'categories' => $this->get_categories()
+        ));
     }
 
     /**
@@ -328,9 +257,7 @@ class categories
      */
     private function get_categories()
     {
-        $categories = $this->all_configs['db']->query("SELECT * FROM {categories} ORDER BY prio")->assoc();
-
-        return $categories;
+        return $this->all_configs['db']->query("SELECT * FROM {categories} ORDER BY prio")->assoc();
     }
 
     /**
@@ -338,17 +265,10 @@ class categories
      */
     private function genmenu()
     {
-
-        $categories = $this->get_categories();
-        $categories_html = '';
-        if ($this->all_configs['oRole']->hasPrivilege('create-filters-categories')) {
-            $categories_html .= '<p><a href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create" class="btn btn-success">' . l('Создать категорию') . '</a>
-                </p>';//<a href="" class="btn btn-danger">Удалить</a>
-        }
-        $categories_html .= '<div class="dd" id="categories-tree">' . build_array_tree($categories,
-                array($this->cat_id), 2) . '</div>';
-
-        return $categories_html;
+        return $this->view->renderFile('categories/genmenu', array(
+            'categories' => $this->get_categories(),
+            'cat_id' => $this->cat_id
+        ));
     }
 
     /**
@@ -358,7 +278,7 @@ class categories
      * @param int  $c
      * @return string
      */
-    function categories_tree_menu($cats, $count = 0, $pid = null, $c = 0)
+    public function categories_tree_menu($cats, $count = 0, $pid = null, $c = 0)
     {
         static $i = 1, $table = 1;
         $tree = '';
@@ -437,7 +357,7 @@ class categories
      * @param $parent
      * @return array
      */
-    function createTree(&$list, $parent)
+    public function createTree(&$list, $parent)
     {
         $tree = array();
         foreach ($parent as $k => $l) {
@@ -452,17 +372,16 @@ class categories
     /**
      * @return mixed
      */
-    function get_cur_category()
+    public function get_cur_category()
     {
-        return $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
-            array($this->cat_id))->row();
+        return $this->Categories->getByPk($this->cat_id);
     }
 
     /**
      * @param bool $filters_values
      * @return mixed
      */
-    function get_filters($filters_values = false)
+    public function get_filters($filters_values = false)
     {
         // добываем все группы фильтров по текущей категории
         $filters = $this->all_configs['db']->query('SELECT fn.id, fn.title, fn.type, fn.prio
@@ -497,61 +416,13 @@ class categories
     /**
      * @return array
      */
-    function categories_edit_tab_category()
+    public function categories_edit_tab_category()
     {
-        $category_html = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('show-categories-filters')) {
-            $cur_category = $this->get_cur_category();
-            // строим форму редактирования категорий для текущей категории
-            $thumbs = '';
-            if (!empty($cur_category['thumbs'])) {
-                $thumbs = '<img src="' . $this->all_configs['siteprefix'] . $this->cat_img . $cur_category['thumbs'] . '" />';
-            }
-
-            $category_html .= '<form method="post" enctype="multipart/form-data"><fieldset>
-                <legend>' . $thumbs . ' ' . l('Редактирование категории') . ' ID: ' . $cur_category['id'] . '. ' . $cur_category['title'] . '</legend>';
-            if (isset($_GET['error']) && $_GET['error'] == 'url') {
-                $category_html .= '<p  class="text-error">' . l('Категория с таким названием уже существует') . '</p>';
-            }
-            $category_html .= '<div class="form-group"><label>' . l('Название') . ':</label>
-                <input class="form-control" name="title" value="' . $cur_category['title'] . '" /></div>';
-            $category_html .= '<input type="hidden" class="span5" name="id" value="' . $cur_category['id'] . '" />';
-
-            $checked = '';
-            if ($cur_category['avail'] == 1) {
-                $checked = 'checked';
-            }
-            $category_html .= '<div class="form-group"><div class="checkbox">
-                <label><input name="avail" ' . $checked . ' type="checkbox">' . l('Активность') . '</label></div></div>';
-            $category_html .= '<div class="form-group"><label class="control-label">' . l('Родитель') . ':</label>
-                <div class="controls">' . typeahead($this->all_configs['db'], 'categories', false,
-                    $cur_category['parent_id'], 2, 'input-large') . '</div>';
-            $category_html .= '<div class="form-group"><label>' . l('Описание') . ': </label>
-                <div class="controls"><textarea name="content" class="form-control" rows="3">' . htmlspecialchars($cur_category['content']) . '</textarea></div>';
-            $category_html .= '<div class="form-group"><label>' . l('Приоритет') . ': </label>
-                    <input class="form-control" type="text" value="' . $cur_category['prio'] . '" name="prio"  /></div>';
-            $category_html .= '<div class="form-group"><label>' . l('Важная информация') . ': </label>
-                <textarea name="information" class="form-control" rows="3">' . $cur_category['information'] . '</textarea></div>';
-
-            $category_html .= '<div class="form-group"><label>' . l('Рейтинг') . ': </label>
-                        <input class="form-control" type=text" onkeydown="return isNumberKey(event, this)" placeholder="' . l('рейтинг') . '" value="' . $cur_category['rating'] . '" name="rating" /></div>';
-            $category_html .= '<div class="form-group"><label>' . l('Количество голосов') . ': </label>
-                        <input class="form-control" onkeydown="return isNumberKey(event)" type=text" placeholder="' . l('голоса') . '" value="' . $cur_category['votes'] . '" name="votes" /></div>';
-
-            if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
-                $category_html .= '<div class="form-group"><div class="controls">
-                    <input class="btn btn-primary " type="submit" value="' . l('Сохранить') . '" name="edit-category" /></div></div>';
-            } else {
-                $category_html .= '<script>$(":input:not(:disabled)").prop("disabled",true)</script>';
-            }
-            $category_html .= '</fieldset></form>';
-        } else {
-            $category_html .= '<p  class="text-error">' . l('У Вас нет прав для просмотра категорий') . '</p>';
-        }
-
         return array(
-            'html' => $category_html,
+            'html' => $this->view->renderFile('categories/categories_edit_tab_category', array(
+                'cur_category' => $this->get_cur_category(),
+                'cat_img' => $this->cat_img
+            )),
             'functions' => array(),
         );
     }
@@ -559,7 +430,7 @@ class categories
     /**
      * @return array
      */
-    function categories_edit_tab_goods()
+    public function categories_edit_tab_goods()
     {
         $category_html = '';
 
@@ -660,7 +531,7 @@ class categories
                         <td>' . $good['id'] . '</td>
                         <td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . '<i class="icon-pencil"></i></a>
                             <span style="float:right">
-                                <a href="' . $this->all_configs['siteprefix'] . $good['url'] . '/p/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
+                                <a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
                             </span></td>
                         <td>' . $good['avail'] . '</td><td>' . show_price($good['price'], 2, ' ') . '</td>' .
                         '<td><span title="' . do_nice_date($good['date_add'],
@@ -690,30 +561,13 @@ class categories
     /**
      * @return array
      */
-    function categories_edit_tab_seo()
+    public function categories_edit_tab_seo()
     {
-        $category_html = '';
-
-        if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
-            $cur_category = $this->get_cur_category();
-            $category_html .= '<form method="post"><input type="hidden" value="' . $this->cat_id . '" name="category_id" />';
-            $category_html .= '<div class="form-group"><label>' . l('Заголовок страницы') . ': </label>
-                        <input class="form-control" data-symbol_counter="70" type="text" value="' . $cur_category['page_title'] . '" name="page_title"  /></div>';
-            $category_html .= '<div class="form-group"><label>' . l('Описание страницы') . ': </label>
-                        <input class="form-control seo_description" data-symbol_counter="150" type="text" value="' . $cur_category['page_description'] . '" name="page_description"  /></div>';
-            $category_html .= '<div class="form-group"><label>' . l('Ключевые слова') . ': </label>
-                        <input class="form-control seo_keywords" data-symbol_counter="150" type="text" value="' . $cur_category['page_keywords'] . '" name="page_keywords"  /></div>';
-            $category_html .= '<div class="form-group">
-                <label style="float: left; margin: 4px 10px 0 0">' . l('Редактор') . ':</label>
-                <input type="checkbox" id="toggle_mce"' . ((isset($_COOKIE['mce_on']) && $_COOKIE['mce_on']) || !isset($_COOKIE['mce_on']) ? 'checked="checked"' : '') . '>
-                <textarea id="page_content" name="page_content" class="mcefull" rows="18" cols="80" style="width:650px;height:320px;">' . $cur_category['page_content'] . '</textarea></div>';
-            $category_html .= '<div class="form-group">
-                <input class="btn btn-primary" type="submit" value="' . l('Сохранить') . '" name="edit-seo" /></div>';
-            $category_html .= '</form></div>';
-        }
-
         return array(
-            'html' => $category_html,
+            'html' => $this->view->renderFile('categories/categories_edit_tab_seo', array(
+                'cur_category' => $this->get_cur_category(),
+                'cat_id' => $this->cat_id
+            )),
             'functions' => array('tiny_mce()'),
         );
     }
@@ -721,12 +575,11 @@ class categories
     /**
      * @return string
      */
-    private function gencontent()
+    public function gencontent()
     {
         // добываем текущюю категорию
         if ($this->cat_id > 0) {
-            $cur_category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
-                array($this->cat_id))->row();
+            $cur_category = $this->get_cur_category();
 
             // проверяем на наличие категории
             if (empty($cur_category)) {
@@ -763,57 +616,47 @@ class categories
     /**
      * @return bool
      */
-    private function can_show_module()
+    public function can_show_module()
     {
-        if ($this->all_configs['oRole']->hasPrivilege('show-goods')) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->all_configs['oRole']->hasPrivilege('show-goods');
     }
 
     /**
      *
      */
-    private function ajax()
+    public function ajax()
     {
         $data = array(
             'state' => false
         );
-
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-        $mod_id = $this->all_configs['configs']['products-manage-page'];
+        $mod_id = $this->all_configs['configs']['categories-manage-page'];
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
         // проверка доступа
         if ($this->can_show_module() == false) {
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array('message' => 'Нет прав', 'state' => false));
-            exit;
+            Response::json(array('message' => 'Нет прав', 'state' => false));
         }
 
         if ($act == 'create_form') {
             $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-            echo json_encode(array('html' => $this->gencreate($name, true), 'state' => true));
-            exit;
+            Response::json(array('html' => $this->gencreate($name, true), 'state' => true));
         }
 
         if ($act == 'create_new') {
             $_POST['create-category'] = true;
             $create = $this->check_post($_POST, false);
             if (isset($create['error'])) {
-                echo json_encode(array('state' => false, 'msg' => $create['error']));
+                $result = array('state' => false, 'msg' => $create['error']);
             } else {
-                echo json_encode(array('state' => true, 'id' => $create, 'name' => $_POST['title']));
+                $result = array('state' => true, 'id' => $create, 'name' => $_POST['title']);
             }
-            exit;
+            Response::json($result);
         }
 
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
-                header("Content-Type: application/json; charset=UTF-8");
 
                 if (method_exists($this, $_POST['tab'])) {
                     $function = call_user_func_array(
@@ -823,15 +666,15 @@ class categories
                                     'UTF-8')) > 0) ? trim($_POST['hashs']) : null
                         )
                     );
-                    echo json_encode(array(
+                    $result = array(
                         'html' => $function['html'],
                         'state' => true,
                         'functions' => $function['functions']
-                    ));
+                    );
                 } else {
-                    echo json_encode(array('message' => l('Не найдено'), 'state' => false));
+                    $result = array('message' => l('Не найдено'), 'state' => false);
                 }
-                exit;
+                Response::json($result);
             }
         }
 
@@ -855,46 +698,152 @@ class categories
 
         // drag-and-drop категорий товаров
         if ($act == 'update-categories') {
-            if (isset($_POST['cur_id']) && $_POST['cur_id'] > 0) {
-                $position = isset($_POST['position']) ? intval($_POST['position']) + 1 : 1;
-                $parent_id = isset($_POST['parent_id']) ? intval($_POST['parent_id']) : 0;
-
-                // обновляем парент ид
-                $this->all_configs['db']->query('UPDATE {categories} SET parent_id=?i, prio=?i WHERE id=?i',
-                    array($parent_id, $position, $_POST['cur_id']));
-
-                // достаем всех соседей категории
-                $categories = $this->all_configs['db']->query('SELECT id, prio FROM {categories}
-                      WHERE parent_id IN (SELECT parent_id FROM {categories} WHERE id=?i)
-                        AND id<>?i ORDER BY prio',
-                    array($_POST['cur_id'], $_POST['cur_id']))->vars();
-
-                if ($categories) {
-                    $i = 1;
-                    foreach ($categories as $category => $prio) {
-                        $i = $i == $position ? $i + 1 : $i;
-                        $this->all_configs['db']->query('UPDATE {categories} SET prio=?i WHERE id=?i',
-                            array($i, $category));
-                        $i++;
-                    }
-                }
-
-                $data['state'] = true;
-            }
+            $data = $this->updateCategories($data);
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        if ($act == 'delete-categories' && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
+            $data = $this->deleteCategories($mod_id);
+        }
+        Response::json($data);
     }
 
     /**
      * @param $str
      * @return mixed|string
      */
-    function transliturl($str)
+    public function transliturl($str)
     {
         return transliturl($str);
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function updateCategories($data)
+    {
+        if (isset($_POST['cur_id']) && $_POST['cur_id'] > 0) {
+            $position = isset($_POST['position']) ? intval($_POST['position']) + 1 : 1;
+            $parent_id = isset($_POST['parent_id']) ? intval($_POST['parent_id']) : 0;
+
+            // обновляем парент ид
+            $this->Categories->update(array(
+                'parent_id' => $parent_id,
+                'prio' => $position
+            ), array('id' => $_POST['cur_id']));
+
+            // достаем всех соседей категории
+            $categories = $this->Categories->query('SELECT id, prio FROM {categories}
+                      WHERE parent_id IN (SELECT parent_id FROM {categories} WHERE id=?i)
+                        AND id<>?i ORDER BY prio',
+                array($_POST['cur_id'], $_POST['cur_id']))->vars();
+
+            if ($categories) {
+                $i = 1;
+                foreach ($categories as $category => $prio) {
+                    $i = $i == $position ? $i + 1 : $i;
+                    $this->Categories->update(array(
+                        'prio' => $i
+                    ), array('id' => $category));
+                    $i++;
+                }
+            }
+
+            $data['state'] = true;
+        }
+        return $data;
+    }
+
+    /**
+     * @param $state
+     * @param $id
+     */
+    private function setDeleted($state, $id)
+    {
+        $avail = !$state;
+        $this->Categories->update(array(
+            'deleted' => $state,
+            'avail' => $avail
+        ), array('id' => $id));
+        $ids = array($id);
+        do {
+            $this->Categories->update(array(
+                'deleted' => $state,
+                'avail' => $avail
+            ), array('id' => $ids));
+            $this->all_configs['db']->query('UPDATE {goods} SET deleted=?i, avail=?i WHERE id in (SELECT goods_id FROM {category_goods} WHERE category_id in (?li))',
+                array($state, $avail, $ids));
+            $ids = $this->Categories->query('SELECT id FROM {categories} WHERE parent_id in (?li)',
+                array($ids))->col();
+        } while (!empty($ids));
+    }
+
+    /**
+     * @param $mod_id
+     * @return array
+     */
+    private function deleteCategories($mod_id)
+    {
+        try {
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (empty($recycleBin)) {
+                throw new ExceptionWithMsg(l('Корзина не найдена. Обновите систему.'));
+            }
+            if (intval($_POST['id']) == $recycleBin['id']) {
+                throw new ExceptionWithMsg(l('Нельзя удалить корзину'));
+            }
+            $this->Categories->update(array(
+                'parent_id' => $recycleBin['id'],
+            ), array('id' => intval($_POST['id'])));
+            $this->History->save('delete-category', $mod_id, intval($_POST['id']));
+            $this->setDeleted(1, $_POST['id']);
+            $data = array(
+                'state' => true
+            );
+
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $data;
+    }
+
+    /**
+     * @param $mod_id
+     * @return array
+     */
+    private function recoveryCategories($mod_id)
+    {
+        try {
+            $category = $this->Categories->getByPk(intval($_POST['id']));
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (empty($recycleBin)) {
+                throw new ExceptionWithMsg(l('Корзина не найдена. Обновите систему.'));
+            }
+            if (empty($category) || $category['parent_id'] !== $recycleBin['id']) {
+                throw new ExceptionWithMsg(l('Категория не в корзине.'));
+            }
+            if (intval($_POST['id']) == $recycleBin['id']) {
+                throw new ExceptionWithMsg(l('Нельзя произвести эту операцию с  корзиной'));
+            }
+            $this->Categories->update(array(
+                'parent_id' => 0,
+            ), array('id' => intval($_POST['id'])));
+            $this->History->save('restore-category', $mod_id, intval($_POST['id']));
+            $this->setDeleted(0, $_POST['id']);
+
+            $data = array(
+                'state' => true
+            );
+        } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $data;
     }
 }
 

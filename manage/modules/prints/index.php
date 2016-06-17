@@ -85,7 +85,8 @@ class prints extends Controller
                     'act',
                     'invoicing',
                     'waybill',
-                    'sale_warranty'
+                    'sale_warranty',
+                    'price_list'
                 )) && isset($_POST['html'])
             ) {
                 // remove empty tags
@@ -148,50 +149,10 @@ class prints extends Controller
             Response::redirect($this->all_configs['prefix']);
         }
         $print_html = $this->template->add_edit_form($print_html);
-        $print_html = $this->show_select_location($print_html);
         echo $this->view->renderFile('prints/index', array(
             'print_html' => $print_html,
         ));
         exit;
-    }
-
-    /**
-     * @todo разобраться где место этому методу
-     *
-     * @param $print_html
-     * @return string
-     */
-    public function show_select_location($print_html)
-    {
-        if ($print_html) {
-            $l_sel = '';
-            if (!empty($all_configs['configs']['manage-print-city-select']) && in_array($this->act,
-                    array('check', 'warranty', 'act', 'invoice'))
-            ) {
-                $langs_select = '';
-                foreach ($this->langs['langs'] as $l) {
-                    $langs_select .= '<option' . ($this->cur_lang == $l['url'] ? ' selected' : '') . ' value="' . $l['url'] . '">' . $l['name'] . '</option>';
-                }
-                $l_sel = '<div style="margin:0" class="well unprint"><form style="margin:0" method="get" action="' . $this->all_configs['prefix'] . 'print.php">'
-                    . '<input type="hidden" name="act" value="' . $_GET['act'] . '">' .
-                    '<input type="hidden" name="object_id" value="' . $_GET['object_id'] . '">' .
-                    '<select id="lang_change" name="lang">' . $langs_select . '</select>' .
-                    '</form></div>';
-            }
-            if ($this->act == 'location') {
-                $print_html .= '
-                <div class="printer_preview unprint">
-                    <div class="row" style="text-align: center">
-                        <button class="btn btn-primary" onclick="javascript:window.print()"><i class="cursor-pointer fa fa-print"></i> Печать</button>
-                    </div>
-                    <p><i class="fa fa-info-circle"></i>Формат этикеток настроен под печать на термопринтере HPRT LPQ58</p>
-                    <img src="' . $this->all_configs['prefix'] . 'img/hprt_lpq58.jpg">
-                </div>
-            ';
-            }
-            $print_html = $l_sel . $print_html;
-        }
-        return $print_html;
     }
 
     public function barcode_generate($barcode, $type)

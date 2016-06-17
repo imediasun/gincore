@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../../Core/View.php';
+require_once __DIR__ . '/../../../Core/Log.php';
 
 abstract class AbstractTemplate
 {
@@ -20,15 +21,11 @@ abstract class AbstractTemplate
     {
         $result = '';
         if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
-
             $objects = array_filter(explode(',', $_GET['object_id']));
-
             foreach ($objects as $object) {
-
-                if ($object == 0) {
-                    continue;
+                if ($object !== 0) {
+                    $result .= $this->draw_one($object);
                 }
-                $result .= $this->draw_one($object);
             }
         }
         return $result;
@@ -140,8 +137,30 @@ abstract class AbstractTemplate
                 'variables' => $this->variables,
                 'print_html' => $print_html
             ));
+
         }
-        return $print_html;
+        return empty($print_html) ? '' : $this->before() . $print_html . $this->after();
+    }
+
+    /**
+     * @return string
+     */
+    public function dateAsWord()
+    {
+        if ($this->all_configs['settings']['lang'] == 'ru') {
+            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
+            $params = new \php_rutils\struct\TimeParams();
+            $params->date = null;
+            $params->format = 'd F Y';
+            $params->monthInflected = true;
+            $result = \php_rutils\RUtils::dt()->ruStrFTime($params);
+        } else {
+            $result = date('d F Y');
+        }
+        return $result;
     }
 
     /**
@@ -150,12 +169,40 @@ abstract class AbstractTemplate
      */
     public function amountAsWord($amount)
     {
-        require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-        require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-        require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-        require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-        return \php_rutils\RUtils::numeral()->getRubles($amount, false,
-            $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-            $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
+        if ($this->all_configs['settings']['lang'] == 'ru') {
+            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
+            $result = \php_rutils\RUtils::numeral()->getRubles($amount, false,
+                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
+                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
+        } else {
+            $result = convert_number_to_words($amount);
+        }
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function before()
+    {
+        return $this->view->renderFile('prints/show_lang_select', array(
+            'act' => $this->act(),
+            'cur_lang' => $this->cur_lang,
+            'langs' => get_langs(),
+            'object_id' => $_GET['object_id']
+        ));
+    }
+
+    /**
+     * @return string
+     */
+    public function after()
+    {
+        return $this->view->renderFile('prints/show_printer_info', array(
+            'act' => $this->act(),
+        ));
     }
 }

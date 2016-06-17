@@ -82,7 +82,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_status_id($data)
     {
-        $value = (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[3] : iconv('cp1251', 'utf8', mb_ucfirst(import_helper::remove_whitespace($data[3])));
+        $value = (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[3] : mb_ucfirst(iconv('cp1251', 'utf8', import_helper::remove_whitespace($data[3])));
         foreach ($this->all_configs['configs']['order-status'] as $id => $status) {
             if($status['name'] == $value) {
                 return $id;

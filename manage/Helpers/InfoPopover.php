@@ -10,13 +10,15 @@ class InfoPopover
     private $view;
 
     /**
-     * @param $text_var
+     * @param        $text_var
+     * @param string $class
      * @return mixed
      */
-    public function createQuestion($text_var)
+    public function createQuestion($text_var, $class = '')
     {
         return $this->view->renderFile('helpers/InfoPopover/question', array(
-            'content' => $this->getText($text_var)
+            'content' => $this->getText($text_var),
+            'class' => $class
         ));
     }
 

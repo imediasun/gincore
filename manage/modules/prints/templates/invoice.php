@@ -52,53 +52,70 @@ class invoice extends AbstractTemplate
             $qty_all = count($goods);
 
             $this->editor = true;
-            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-            $sum_in_words = \php_rutils\RUtils::numeral()->getRubles($summ / 100, false,
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
-            $params = new \php_rutils\struct\TimeParams();
-            $params->date = null;
-            $params->format = 'd F Y';
-            $params->monthInflected = true;
-            $str_date = \php_rutils\RUtils::dt()->ruStrFTime($params);
+            $sum_in_words = $this->amountAsWord($summ / 100);
+            $str_date = $this->dateAsWord();
 
+
+            $sum_with_discount = $order['sum'] - $order['discount'];
+            $sum_for_paid = $sum_with_discount - $order['sum_paid'];
 
             if ($order['type'] == 0) {
                 $arr = array(
-                    'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                    'sum' => array('value' => $summ / 100, 'name' => 'Сумма за ремонт'),
-                    'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
-                    'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
-                    'address' => array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
-                    'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
+                    'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
+                    'sum' => array('value' => $summ / 100, 'name' => l('Сумма за ремонт')),
+                    'discount' => array(
+                        'value' => $order['discount'] > 0 ? ($order['discount'] / 100) . viewCurrency() : '',
+                        'name' => l('Скидка на заказ')
+                    ),
+                    'sum_with_discount' => array(
+                        'value' => $sum_with_discount / 100,
+                        'name' => l('Сумма за ремонт с учетом скидки')
+                    ),
+                    'qty_all' => array('value' => $qty_all, 'name' => l('Количество наименований')),
+                    'sum_in_words' => array('value' => $sum_in_words, 'name' => l('Сумма за ремонт прописью')),
+                    'sum_paid' => array(
+                        'value' => $order['sum_paid'] > 0 ? $order['sum_paid'] / 100 : '',
+                        'name' => l('Оплачено')
+                    ),
+                    'sum_paid_in_words' => array(
+                        'value' => $order['sum_paid'] > 0 ? $this->amountAsWord($order['sum_paid'] / 100) : '',
+                        'name' => l('Оплачено прописью')
+                    ),
+                    'sum_for_paid' => array(
+                        'value' => $sum_for_paid > 0 ? $sum_for_paid / 100 : '',
+                        'name' => l('К оплате')
+                    ),
+                    'sum_for_paid_in_words' => array(
+                        'value' => $sum_for_paid > 0 ? $this->amountAsWord($sum_for_paid / 100) : '',
+                        'name' => l('К оплате прописью')
+                    ),
+                    'address' => array('value' => htmlspecialchars($order['accept_address']), 'name' => l('Адрес')),
+                    'now' => array('value' => $str_date, 'name' => l('Текущая дата')),
                     'wh_phone' => array(
                         'value' => htmlspecialchars($order['print_phone']),
-                        'name' => 'Телефон склада'
+                        'name' => l('Телефон склада')
                     ),
-                    'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
-                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => 'Телефон клиента'),
-                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => 'ФИО клиента'),
+                    'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
+                    'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => l('Телефон клиента')),
+                    'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
                     'product' => array(
                         'value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']),
-                        'name' => 'Устройство'
+                        'name' => l('Устройство')
                     ),
-                    'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
+                    'products_and_services' => array('value' => $products_html, 'name' => l('Товары и услуги')),
                     'color' => array(
                         'value' => $order['color'] ? htmlspecialchars($this->all_configs['configs']['devices-colors'][$order['color']]) : '',
-                        'name' => 'Устройство'
+                        'name' => l('Устройство')
                     ),
-                    'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => 'Серийный номер'),
+                    'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => l('Серийный номер')),
                     'company' => array(
                         'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
-                        'name' => 'Название компании'
+                        'name' => l('Название компании')
                     ),
-                    'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                    'order' => array('value' => $order['id'], 'name' => l('Номер заказа')),
                     'order_data' => array(
                         'value' => date('d/m/Y', strtotime($order['date_add'])),
-                        'name' => 'Дата создания заказа'
+                        'name' => l('Дата создания заказа')
                     ),
                 );
             }

@@ -1593,7 +1593,7 @@ class Suppliers extends Object
             $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
                 array($order_id))->row();
             if (empty($order)) {
-                throw  new ExceptionWithMsg(l('Pаказ не найден'));
+                throw  new ExceptionWithMsg(l('Заказ не найден'));
             }
             if ($order['confirm'] == 0) {
                 //$data['state'] = false;
@@ -1846,11 +1846,14 @@ class Suppliers extends Object
                 WHERE contractors_categories_id=?i AND contractors_id=?i',
                 array($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']))->el();
 
+            $cashboxes_currency_id = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE currency=? LIMIT 1', array(
+                $this->currency_suppliers_orders
+            ))->el();
             // транзакция контрагенту и зачисление ему сумы
             $Transactions = new Transactions($this->all_configs);
-            $Transactions->add_contractors_transaction(
-                array(
+            $Transactions->add_contractors_transaction( array(
                     'transaction_type' => 2,
+                    'cashboxes_currency_id_to' => $cashboxes_currency_id,
                     'value_to' => ($order['price'] / 100),
                     'comment' => 'Товар ' . $order['g_title'] . ' приходован на склад ' . $order['wh_title'] . '. Заказ поставщика ' .
                         $this->supplier_order_number($order) . ', серийник ' . suppliers_order_generate_serial(array(
@@ -1864,8 +1867,7 @@ class Suppliers extends Object
                     'goods_id' => $order['goods_id'],
 
                     'contractors_id' => $order['supplier'],
-                )
-            );
+                ) );
 
             // история
             $this->History->save('debit-supplier-order', $mod_id, intval($order['id']));
