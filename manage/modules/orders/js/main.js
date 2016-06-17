@@ -1166,23 +1166,6 @@ function toggle_items(hash) {
   $('.' + hash + '_item').toggle();
 }
 
-function recalculate_amount_pay(_this) {
-  var $parent = $('#transaction_form').first(),
-    discount = $parent.find('input[name="discount"]').first().val() || 0,
-    discount_type = $('#pay_for_repair_discount_type').val(),
-    amount = $parent.find('input#amount_without_discount').first().val(),
-    result;
-
-  console.log('test');
-  if(discount_type == 1) {
-    result = amount * (1 - discount/100);
-  } else {
-  result = amount - discount;
-  }
-  $parent.find('#amount-with-discount').first().val(result);
-}
-
-
 function give_without_pay(type, _this, order_id) {
   $(_this).button('loading');
 
