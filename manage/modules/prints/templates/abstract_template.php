@@ -147,15 +147,20 @@ abstract class AbstractTemplate
      */
     public function dateAsWord()
     {
-        require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
-        require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
-        require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
-        require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
-        $params = new \php_rutils\struct\TimeParams();
-        $params->date = null;
-        $params->format = 'd F Y';
-        $params->monthInflected = true;
-        return \php_rutils\RUtils::dt()->ruStrFTime($params);
+        if ($this->all_configs['settings']['lang'] == 'ru') {
+            require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
+            require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
+            $params = new \php_rutils\struct\TimeParams();
+            $params->date = null;
+            $params->format = 'd F Y';
+            $params->monthInflected = true;
+            $result = \php_rutils\RUtils::dt()->ruStrFTime($params);
+        } else {
+            $result = date('d F Y');
+        }
+        return $result;
     }
 
     /**
