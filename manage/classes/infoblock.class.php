@@ -36,6 +36,27 @@ class Infoblock
                     <div id="glossary_content" class="glossary_content"></div>
                 </div>
                 <div id="glossary_alpha" class="glossary_alpha"></div>
+                
+                <div class="zadarma_button_call_consultant" id="zadarma_button_call_consultant">
+                    <script type="text/javascript" src="https://zadarma.com/swfobject.js"></script>
+                    <script type="text/javascript">
+                    var flashvars = {};
+                    flashvars.phone="381801";
+                    flashvars.img1="' . $this->all_configs['prefix'] . 'img/call3_blue_ru_free.png";
+                    flashvars.img2="' . $this->all_configs['prefix'] . 'img/call2_green_ru_connecting.png";
+                    flashvars.img3="' . $this->all_configs['prefix'] . 'img/call2_green_ru_reset.png";
+                    flashvars.img4="' . $this->all_configs['prefix'] . 'img/call2_green_ru_error.png";
+                    var params = {};
+                    params.wmode="transparent";
+                    var attributes = {};
+                    swfobject.embedSWF("' . $this->all_configs['prefix'] . 'img/pbutton.swf", "myAlternativeContent", "215", "138", "9.0.0", false, flashvars, params, attributes);
+                    </script>
+                    <div id="myAlternativeContent">
+                    <a href="http://www.adobe.com/go/getflashplayer">
+                    <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                    </a>
+                    </div>
+                </div>
             ';
         }else{
             $info = $this->getinfo($this->all_configs['curmod'] . (isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : ''));
