@@ -843,6 +843,16 @@ input.row-input {
 
 /* / glossary */
 
+.zadarma_button_call_consultant{
+    position: fixed;
+    right: 0px;
+    bottom: 0px;
+    z-index: 1002;
+    width:57px;
+    overflow: hidden;
+}
+
+
 .toggle_btn{
     border-bottom: 1px dashed;
     display: inline-block;
