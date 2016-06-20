@@ -1868,7 +1868,7 @@ $(function () {
     $(this).css('width', '194px');
   });
  zadarma_button_call_consultant.mouseout(function(){
-    $(this).css('width', '58px');
+    $(this).css('width', '57px');
   
   });
   
