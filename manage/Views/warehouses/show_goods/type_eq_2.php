@@ -18,7 +18,7 @@
                 <?= $this->renderFile('warehouses/print_buttons', array(
                     'objectId' => $product['goods_id'],
                     'prefix' => '',
-                    'whItemId' => $product['id']
+                    'whItemId' => $product['item_id']
                 )) ?>
             </td>
         </tr>
