@@ -74,9 +74,9 @@ abstract class AbstractTemplate
      */
     public function generateVariables($arr)
     {
-        foreach ($arr as $k => $v) {
-            $this->variables .= '<p><b>{{' . $k . '}}</b> - ' . $v['name'] . '</p>';
-        }
+        $this->variables = $this->view->renderFile('prints/variables', array(
+           'variables' => $arr 
+        ));
     }
 
     /**
