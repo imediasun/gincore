@@ -10,3 +10,4 @@ nbproject/
 /manage/assets/*.css
 /manage/services/wh_helper/cache/
 /logs/*.log
+/gincore/composer.lock

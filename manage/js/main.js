@@ -1861,7 +1861,19 @@ $(function () {
   if ($.cookie('show_intro')) {
     $('#show_glossary').click();
   }
-
+  
+  
+  var zadarma_button_call_consultant = $('#zadarma_button_call_consultant');
+  zadarma_button_call_consultant.mouseenter(function(){
+    $(this).css('width', '194px');
+  });
+ zadarma_button_call_consultant.mouseout(function(){
+    $(this).css('width', '58px');
+  
+  });
+  
+  
+  
   $(document).on('click', function (e) {
     if (!$glossary.is(':visible')) return;
     var $this = $(e.target);

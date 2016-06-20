@@ -39,7 +39,10 @@ if (isset($_POST['vpbx_api_key']) && isset($_POST['json'])) {
     }
 }
 
-
+#binotel
+if (isset($_POST['requestType']) && $_POST['requestType'] == 'gettingCallSettings'){
+    $phone = isset($_POST['didNumber']) ? trim($_POST['didNumber']) : $phone;
+}
 
 
 
