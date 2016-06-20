@@ -1176,9 +1176,14 @@ class Chains extends Object
                 }
 
                 if (!isset($post['id']) || intval($post['id']) == 0) {
+                    $order_first_num = (isset($this->all_configs['settings']['order-first-number']) 
+                            && is_infinite($this->all_configs['settings']['order-first-number']))
+                            ? $this->all_configs['settings']['order-first-number']
+                            : 0;
                     $post['id'] = $this->all_configs['db']->query('SELECT o.id+1
-                    FROM (SELECT 0 as id UNION SELECT id FROM {orders}) o
-                    WHERE NOT EXISTS (SELECT 1 FROM {orders} su WHERE su.id=o.id+1) ORDER BY o.id LIMIT 1')->el();
+                    FROM (SELECT ?i as id UNION SELECT id FROM {orders} WHERE id > ?i) o
+                    WHERE NOT EXISTS (SELECT 1 FROM {orders} su WHERE su.id=o.id+1) ORDER BY o.id LIMIT 1',
+                    array($order_first_num, $order_first_num))->el();
                 }
 
                 $post['warranty'] = $warranty;
