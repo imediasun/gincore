@@ -21,7 +21,7 @@ class UsersFields extends Migration
                 $table->integer('avail')->integer(10)->default(1)->unsigned();
                 $table->integer('deleted')->integer(10)->default(0)->unsigned();
                 $table->unique('name');
-                $table->index('state');
+                $table->index('avail');
                 $table->index('deleted');
             });
         }
