@@ -2606,6 +2606,7 @@ class orders extends Controller
             $order = $this->changeDeliveryTo($order, $mod_id);
             $order = $this->changeProducts($order, $mod_id);
             $order = $this->changeCart($order, $mod_id);
+            $order = $this->changeUsersFields($order, $mod_id);
             if ($order['total_as_sum']) {
                 $order['sum'] = $this->Orders->getTotalSum($order);
             } else {
@@ -3285,10 +3286,49 @@ class orders extends Controller
     private function getUsersFieldsValues($orderId)
     {
         return db()->query('
-            SELECT ouf.*, uf.* 
+            SELECT ouf.*, uf.*, uf.id as uf_id, ouf.id as ouf_id 
             FROM {users_fields} uf 
             LEFT JOIN {orders_users_fields} ouf ON uf.id=ouf.users_field_id AND  ouf.order_id=? 
             WHERE uf.deleted=0',
-            array($orderId))->assoc();
+            array($orderId))->assoc('name');
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    private function changeUsersFields($order, $mod_id)
+    {
+        if (!empty($_POST['users_fields'])) {
+            $usersFieldsValues = $this->getUsersFieldsValues($order['id']);
+            foreach ($_POST['users_fields'] as $name => $value) {
+               if(isset($usersFieldsValues[$name])) {
+                  if(empty($usersFieldsValues[$name]['value'])) {
+                      db()->query('INSERT INTO {orders_users_fields} (order_id, users_field_id, value) VALUES (?i, ?i, ?)',
+                          array($order['id'], $usersFieldsValues[$name]['uf_id'], $value));
+
+                      $this->History->save(
+                          'update-order-'.$name,
+                          $mod_id,
+                          $order['id'],
+                          $usersFieldsValues[$name]['value']
+                      );
+                  } elseif($usersFieldsValues[$name]['value'] != $value) {
+                      db()->query('UPDATE {orders_users_fields} SET value=? WHERE id=?i',
+                          array($value, $usersFieldsValues[$name]['ouf_id']));
+                      $this->History->save(
+                          'update-order-'.$name,
+                          $mod_id,
+                          $order['id'],
+                          $usersFieldsValues[$name]['value']
+                      );
+
+                  }
+               }
+            }
+        }
+
+        return $order;
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/abstract_template.php';
+require_once __DIR__ . '/abstract_orders_template.php';
 
 // гарантийный талон на продажу
-class sale_warranty extends AbstractTemplate
+class sale_warranty extends AbstractOrdersTemplate
 {
     public function draw_one($object)
     {
@@ -59,7 +59,7 @@ class sale_warranty extends AbstractTemplate
                     ),
                     'wh_phone' => array('value' => h($order['print_phone']), 'name' => 'Телефон склада'),
                 );
-                $print_html .= $this->generate_template($arr, 'sale_warranty', $id == 0);
+                $print_html .= $this->generate_template($this->addUsersFieldsValues($order, $arr), 'sale_warranty', $id == 0);
             }
         }
         return $print_html;

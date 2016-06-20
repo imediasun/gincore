@@ -1,10 +1,10 @@
 <?php
 
-require_once __DIR__ . '/abstract_template.php';
+require_once __DIR__ . '/abstract_orders_template.php';
 
 // Счет на оплату
 // чек
-class invoicing extends AbstractTemplate
+class invoicing extends AbstractOrdersTemplate
 {
     public function draw_one($object)
     {
@@ -125,7 +125,7 @@ class invoicing extends AbstractTemplate
                     ),
                 );
             }
-            $print_html = $this->generate_template($arr, 'invoicing');
+            $print_html = $this->generate_template($this->addUsersFieldsValues($order, $arr), 'invoicing');
 
         }
         return $print_html;

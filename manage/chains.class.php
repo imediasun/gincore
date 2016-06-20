@@ -3121,7 +3121,7 @@ class Chains extends Object
         try {
             $id = $this->Orders->save($params);
             if (!empty($_POST['users_fields'])) {
-                $this->saveUsersFields(array('id' => $id), $_POST['users_fields']);
+                $this->saveUsersFields($params, $_POST['users_fields']);
             }
 
             $config = $this->Settings->getByName('order-send-sms-with-client-code');

@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/abstract_template.php';
+require_once __DIR__ . '/abstract_orders_template.php';
 
 // накладаная на отгрузку товара при продаже
-class waybill extends AbstractTemplate
+class waybill extends AbstractOrdersTemplate
 {
     public function draw_one($object)
     {
@@ -76,7 +76,7 @@ class waybill extends AbstractTemplate
                 ),
             );
 
-            $print_html = $this->generate_template($arr, 'waybill');
+            $print_html = $this->generate_template($this->addUsersFieldsValues($order, $arr), 'waybill');
         }
         return $print_html;
     }
