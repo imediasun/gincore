@@ -1,13 +1,13 @@
-<div class="row-fluid bordered">
-    <?php if (!empty($users_fields)): ?>
+<?php if (!empty($users_fields)): ?>
+    <div class="row-fluid bordered">
         <?php $count = ceil(count($users_fields) / 2); ?>
         <?php $i = 0; ?>
         <div class="span6">
-        <?php foreach ($users_fields as $field): ?>
+            <?php foreach ($users_fields as $field): ?>
             <?php if ($i == $count): ?>
-                <?php $i = 0; ?>
-                </div>
-                <div class="span6">
+            <?php $i = 0; ?>
+        </div>
+        <div class="span6">
             <?php endif; ?>
             <div class="form-group clearfix <?= !isset($hide[$field['name']]) ? 'hide-field' : '' ?>">
                 <label>
@@ -22,7 +22,7 @@
             </div>
 
             <?php $i++ ?>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
         </div>
-    <?php endif; ?>
-</div>
+    </div>
+<?php endif; ?>
