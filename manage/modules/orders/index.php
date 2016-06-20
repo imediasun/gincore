@@ -268,7 +268,8 @@ class orders extends Controller
         }
 
         if (isset($_POST['hide-fields'])) {
-            $this->order_fields_setup();
+            $config = empty($_POST['config']) ? array() : $_POST['config'];
+            $this->order_fields_setup($config);
         }
 
         Response::redirect($_SERVER['REQUEST_URI']);
@@ -675,6 +676,7 @@ class orders extends Controller
                 'order_data' => $order_data,
                 'available' => Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'],
                     $this->all_configs['configs']['host']),
+                'users_fields' => $this->getUsersFields()
             ));
         }
 
@@ -1703,6 +1705,7 @@ class orders extends Controller
             'deliveryByList' => $this->Orders->getDeliveryByList(),
             'repairOrdersFilters' => $this->repair_orders_filters(true),
             'saleOrdersFilters' => $this->sale_orders_filters(true),
+            'users_fields' => $this->getUsersFieldsValues($order_id)
         ));
     }
 
@@ -1903,28 +1906,7 @@ class orders extends Controller
 
         // фото
         if ($act == 'webcam_upload') {
-            require_once $this->all_configs['path'] . 'class_webcam.php';
-
-            $webcam = new Products_webcam($this->all_configs);
-
-            $w = isset($_GET['w']) ? $_GET['w'] : '';
-            $h = isset($_GET['h']) ? $_GET['h'] : '';
-            $x = isset($_GET['x']) ? $_GET['x'] : '';
-            $y = isset($_GET['y']) ? $_GET['y'] : '';
-            $base64dataUrl = isset($_POST['base64dataUrl']) ? $_POST['base64dataUrl'] : '';
-            $order_id = isset($_GET['order_id']) && is_numeric($_GET['order_id']) ? $_GET['order_id'] : '';
-
-            if ($order_id > 0) {
-                $data = $webcam->upload_image($base64dataUrl, $w, $h, $x, $y, $order_id);
-
-                if ($data && isset($data['state']) && $data['state'] == true && isset($data['imgname'])) {
-                    $data['imgid'] = $this->insert_image_to_order($data['imgname'], $order_id);
-                } else {
-                    $data['msg'] = isset($data['msg']) ? $data['msg'] : l('Произошла ошибка при сохранении');
-                }
-            } else {
-                $data['msg'] = 'Заказ не найден';
-            }
+            $data = $this->webcamUpload($data);
         }
 
         // управление заказами поставщика
@@ -2318,6 +2300,15 @@ class orders extends Controller
                 $data = $this->changeStatus($order, array('state' => true), l('Статус не изменился'));
             }
         }
+        if ($act == 'add-users-field') {
+            $data = array(
+                'state' => false,
+                'msg' => l('Проблемы при добавлении пользовательского поля в заказ')
+            );
+            if (!empty($_POST['name'])) {
+                $data = $this->addUsersField($_POST, $data);
+            }
+        }
 
         Response::json($data);
     }
@@ -2461,11 +2452,10 @@ class orders extends Controller
     }
 
     /**
-     *
+     * @param $config
      */
-    private function order_fields_setup()
+    private function order_fields_setup($config)
     {
-        $config = empty($_POST['config']) ? array() : $_POST['config'];
         $current = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-fields-hide'")->assoc();
         if (empty($current)) {
             $this->setDefaultHideFieldsConfig();
@@ -3212,5 +3202,93 @@ class orders extends Controller
             $this->all_configs['chains']->addProducts($post, $order['id'], $mod_id);
         }
         return $order;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function webcamUpload($data)
+    {
+        require_once $this->all_configs['path'] . 'class_webcam.php';
+
+        $webcam = new Products_webcam($this->all_configs);
+
+        $w = isset($_GET['w']) ? $_GET['w'] : '';
+        $h = isset($_GET['h']) ? $_GET['h'] : '';
+        $x = isset($_GET['x']) ? $_GET['x'] : '';
+        $y = isset($_GET['y']) ? $_GET['y'] : '';
+        $base64dataUrl = isset($_POST['base64dataUrl']) ? $_POST['base64dataUrl'] : '';
+        $order_id = isset($_GET['order_id']) && is_numeric($_GET['order_id']) ? $_GET['order_id'] : '';
+
+        if ($order_id > 0) {
+            $data = $webcam->upload_image($base64dataUrl, $w, $h, $x, $y, $order_id);
+
+            if ($data && isset($data['state']) && $data['state'] == true && isset($data['imgname'])) {
+                $data['imgid'] = $this->insert_image_to_order($data['imgname'], $order_id);
+            } else {
+                $data['msg'] = isset($data['msg']) ? $data['msg'] : l('Произошла ошибка при сохранении');
+            }
+        } else {
+            $data['msg'] = 'Заказ не найден';
+        }
+        return $data;
+    }
+
+    /**
+     * @param $post
+     * @param $data
+     * @return mixed
+     */
+    private function addUsersField($post, $data)
+    {
+        $title = trim($post['name']);
+        if (empty($title)) {
+            return array(
+                'state' => false,
+                'msg' => l('Название поля не может быть пустым')
+            );
+        }
+        $name = transliturl($title);
+        if (db()->query('SELECT count(*) FROM {users_fields} WHERE name=?', array($name))->el() == 0) {
+            $ar = db()->query('INSERT INTO {users_fields} (name, title) VALUES (?, ?)',
+                array($name, $title))->ar();
+            if ($ar) {
+                $config = $this->all_configs['db']->query("SELECT value FROM {settings} WHERE name = 'order-fields-hide'")->el();
+                if (!empty($config)) {
+                    $configAsArray = json_decode($config, true);
+                    $configAsArray[$name] = 'on';
+                    $this->order_fields_setup($configAsArray);
+                }
+                $data = array(
+                    'state' => true,
+                    'name' => $name,
+                    'title' => $title
+                );
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getUsersFields()
+    {
+        return db()->query('SELECT * FROM {users_fields} WHERE avail=1 AND deleted=0', array())->assoc();
+    }
+
+    /**
+     * @param $orderId
+     * @return mixed
+     */
+    private function getUsersFieldsValues($orderId)
+    {
+        return db()->query('
+            SELECT ouf.*, uf.* 
+            FROM {users_fields} uf 
+            LEFT JOIN {orders_users_fields} ouf ON uf.id=ouf.users_field_id AND  ouf.order_id=? 
+            WHERE uf.deleted=0',
+            array($orderId))->assoc();
     }
 }

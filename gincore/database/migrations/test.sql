@@ -123,3 +123,29 @@ ALTER TABLE `restore4_cashboxes_courses`
  */
 ALTER TABLE `restore4_categories` ADD COLUMN deleted int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_goods` ADD COLUMN deleted int(10) UNSIGNED DEFAULT 0;
+/*
+2016_06_20_053344_users_fields.ph
+ */
+CREATE TABLE IF NOT EXISTS `restore4_users_fields` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR (255) NOT NULL,
+    `title` VARCHAR (255) DEFAULT '' NOT NULL,
+    `avail` int(10) UNSIGNED DEFAULT 1,
+    `deleted` int(10) UNSIGNED DEFAULT 0,
+PRIMARY KEY (`id`),
+INDEX(`avail`),
+INDEX(`deleted`),
+UNIQUE INDEX (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_06_20_053352_orders_users_fields.ph
+ */
+CREATE TABLE IF NOT EXISTS `restore4_orders_users_fields` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `order_id` int(10) UNSIGNED NOT NULL,
+    `users_field_id` int(10) UNSIGNED NOT NULL,
+    `value` text default '',
+PRIMARY KEY (`id`),
+INDEX(`order_id`),
+INDEX(`users_field_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;

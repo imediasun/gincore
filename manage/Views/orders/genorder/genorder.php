@@ -376,6 +376,11 @@
                     <?php endif; ?>
                 </div>
             </div>
+            <?= $this->renderFile('orders/genorder/_users_fields', array(
+                'order' => $order,
+                'users_fields' => $users_fields,
+                'hide' => $hide
+            )); ?>
             <?php if ($hasEditorPrivilege): ?>
                 <div class="row-fluid">
                     <div class="span3">

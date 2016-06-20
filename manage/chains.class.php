@@ -3120,6 +3120,9 @@ class Chains extends Object
         // создаем заказ
         try {
             $id = $this->Orders->save($params);
+            if (!empty($_POST['users_fields'])) {
+                $this->saveUsersFields(array('id' => $id), $_POST['users_fields']);
+            }
 
             $config = $this->Settings->getByName('order-send-sms-with-client-code');
             $host = $this->Settings->getByName('site-for-add-rating');
@@ -3466,6 +3469,21 @@ class Chains extends Object
                 break;
         }
         return $data;
+    }
+
+    /**
+     * @param $order
+     * @param $fields
+     */
+    private function saveUsersFields($order, $fields)
+    {
+        $usersFields = db()->query('SELECT * FROM {users_fields}')->assoc('name');
+        foreach ($fields as $name => $value) {
+            if (isset($usersFields[$name])) {
+                db()->query('INSERT INTO {orders_users_fields} (order_id, users_field_id, value) VALUES (?i, ?i, ?)',
+                    array($order['id'], $usersFields[$name]['id'], $value));
+            }
+        }
     }
 }
 

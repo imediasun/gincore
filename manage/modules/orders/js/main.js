@@ -337,9 +337,39 @@ $(function () {
     .keyup(resizeInput)
     // resize on page load
     .each(resizeInput);
-  //$('div.floating-width').css('width', )
 });
 
+function create_new_users_fields(_this) {
+  var name = $('input[name="users_field_name"]').val();
+  if (name) {
+    $.ajax({
+      url: prefix + module + '/ajax/?act=add-users-field',
+      dataType: "json",
+      data: {name: name},
+      type: 'POST',
+      success: function (msg) {
+        if (msg['state']) {
+          var $div = $('.js-new_field').clone();
+          $div.children('label').html(msg['title']);
+          $div.children('textarea').attr('name', 'users_fields[' + msg.name + ']');
+          $('div.new_fields').append($div);
+          $div.show();
+          var height = $('.js-new_field_height').height();
+          $('.js-new_field_height').css('height', height + 78 + 15 + 'px');
+          $('input[name="users_field_name"]').val('')
+        } else {
+          alert(msg['msg']);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.responseText);
+      }
+    });
+  } else {
+    $('input[name="users_filed_name"]').css('border-color', 'red');
+  }
+  return false;
+}
 
 function create_client(_this) {
   $(_this).button('loading');

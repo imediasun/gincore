@@ -32,13 +32,15 @@
                 </div>
                 <div class="row">
                     <?= $this->renderFile('orders/hide_order_fields_form', array(
-                        'hide' => $hide
+                        'hide' => $hide,
+                        'users_fields' => $users_fields
                     )); ?>
                     <form method="post" id="order-form">
                         <div class="col-sm-6 js-fields">
                             <fieldset>
                                 <div class="order_id_input clearfix">
-                                    <input style="max-width:200px;float:left" placeholder="<?= l('введите номер заказа') ?>"
+                                    <input style="max-width:200px;float:left"
+                                           placeholder="<?= l('введите номер заказа') ?>"
                                            type="text"
                                            class="form-control" name="id">&nbsp;
                                     <?= InfoPopover::getInstance()->createQuestion('l_order_custom_id_info') ?>
@@ -292,6 +294,41 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div style="clear: both"></div>
+                                <?php if (!empty($users_fields)): ?>
+                                    <?php foreach ($users_fields as $field): ?>
+                                        <div
+                                            class="form-group <?= !isset($hide[$field['name']]) ? 'hide-field' : '' ?>">
+                                            <label class="control-label"><?= $field['title'] ?>: </label>
+                                            <textarea class="form-control"
+                                                      name="users_fields[<?= $field['name'] ?>]"></textarea>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+
+                                <div class="new_fields form-group">
+                                    <div
+                                        class="form-group js-new_field" style='display:none'>
+                                        <label class="control-label"></label>
+                                        <textarea class="form-control" name=""></textarea>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group col-sm-12 js-new_users_fields hide-field"
+                                     style="padding-left:0; display:none">
+                                    <label class="control-label"><?= l('Добавить новое поле') ?>: </label>
+                                    <div class="input-group">
+                                        <input class="form-control" name="users_field_name"
+                                               placeholder="<?= l('Введите название поля') ?>"
+                                               aria-describedby="js-add_new_user_fields"/>
+                                        <span class="input-group-addon"
+                                              id='js-add_new_user_fields'
+                                              onclick="return create_new_users_fields(this);"
+                                              style="cursor:pointer">+</span>
+                                    </div>
+                                </div>
+
                                 <div class="form-group col-sm-12" style="padding-left:0">
                                     <div class="btn-group dropup col-6 js-request">
                                         <input id="add-client-order" class="btn btn-primary submit-from-btn"
@@ -350,7 +387,8 @@
         <?php else: ?>
             <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
             <div class="form-group">
-                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs" target="_blank"
+                   class="btn btn-primary"><?= l('Изменить тариф') ?></a>
             </div>
         <?php endif; ?>
     </div>
@@ -359,8 +397,10 @@
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation"  class="active"><a href="#quick-sale-pane" aria-controls="messages" role="tab" data-toggle="tab"><?= l('Быстрая продажа') ?></a></li>
-                <li role="presentation"><a href="#eshop-sale-pane" aria-controls="settings" role="tab" data-toggle="tab"><?= l('Интернет-магазин') ?></a></li>
+                <li role="presentation" class="active"><a href="#quick-sale-pane" aria-controls="messages" role="tab"
+                                                          data-toggle="tab"><?= l('Быстрая продажа') ?></a></li>
+                <li role="presentation"><a href="#eshop-sale-pane" aria-controls="settings" role="tab"
+                                           data-toggle="tab"><?= l('Интернет-магазин') ?></a></li>
             </ul>
 
             <!-- Tab panes -->
@@ -376,7 +416,8 @@
         <?php else: ?>
             <p><?= l('Создание новых заказов запрещено условиями текущего тарифа') ?></p>
             <div class="form-group">
-                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs"  target="_blank" class="btn btn-primary"><?= l('Изменить тариф') ?></a>
+                <a href="<?= $this->all_configs['prefix'] ?>settings/tariffs" target="_blank"
+                   class="btn btn-primary"><?= l('Изменить тариф') ?></a>
             </div>
         <?php endif; ?>
     </div>

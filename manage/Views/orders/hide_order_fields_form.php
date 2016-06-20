@@ -104,7 +104,7 @@
                        class="test-toggle">
             </div>
         </div>
-        <div class="form-group" style="margin-top: 30px;">
+        <div class="form-group" style="margin-top: 30px; margin-bottom: 130px">
             <label>&nbsp;</label><br>
             <div class="input-group">
                 <input type="checkbox"
@@ -112,7 +112,20 @@
                        class="test-toggle">
             </div>
         </div>
-        <div class="form-group" style="margin-top: 124px;">
+        <?php if (!empty($users_fields)): ?>
+            <?php foreach ($users_fields as $field): ?>
+                <div class="form-group" style="height: 78px">
+                    <label>&nbsp;</label>
+                    <div class="input-group">
+                        <input type="checkbox"
+                               name="config[<?= $field['name'] ?>]" <?= isset($hide[$field['name']]) ? 'checked' : '' ?>
+                               class="test-toggle">
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        <div class="form-group js-new_field_height" style="height: 50px"></div>
+        <div class="form-group" style="margin-top: 0px;">
             <button id='apply-hide' type="submit" class="btn btn-primary"
                     onclick="apply_hide(this)"><?= l('Применить') ?></button>
         </div>
