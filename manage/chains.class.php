@@ -1177,8 +1177,8 @@ class Chains extends Object
 
                 if (!isset($post['id']) || intval($post['id']) == 0) {
                     $order_first_num = (isset($this->all_configs['settings']['order-first-number']) 
-                            && is_integer($this->all_configs['settings']['order-first-number']))
-                            ? $this->all_configs['settings']['order-first-number']
+                            && is_numeric($this->all_configs['settings']['order-first-number']))
+                            ? intval($this->all_configs['settings']['order-first-number'])
                             : 0;
                     $post['id'] = $this->all_configs['db']->query('SELECT o.id+1
                     FROM (SELECT ?i as id UNION SELECT id FROM {orders} WHERE id > ?i) o
