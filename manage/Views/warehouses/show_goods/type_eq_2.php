@@ -17,7 +17,8 @@
                 <?= suppliers_order_generate_serial($product); ?>
                 <?= $this->renderFile('warehouses/print_buttons', array(
                     'objectId' => $product['goods_id'],
-                    'prefix' => ''
+                    'prefix' => '',
+                    'whItemId' => $product['id']
                 )) ?>
             </td>
         </tr>
