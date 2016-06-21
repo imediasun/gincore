@@ -183,7 +183,7 @@
 
                             </td>
                             <td class="col-sm-6">
-                                <div class="input-group col-sm-3">
+                                <div class="input-group col-sm-4">
                                     <input type="text" class="form-control" value="<?= (isset($form_data['salary_from_repair']) ? h($form_data['salary_from_repair']) : '') ?>" name="salary_from_repair" aria-describedby="basic-addon1"/>
                                     <span class="input-group-addon" id="basic-addon1">%</span>
                                 </div>
@@ -199,7 +199,7 @@
 
                             </td>
                             <td class="col-sm-6">
-                                <div class="input-group col-sm-3">
+                                <div class="input-group col-sm-4">
                                     <input type="text" class="form-control" value="<?= (isset($form_data['salary_from_sale']) ? h($form_data['salary_from_sale']) : '') ?>" name="salary_from_sale" aria-describedby="basic-addon2"/>
                                     <span class="input-group-addon" id="basic-addon2">%</span>
                                 </div>
