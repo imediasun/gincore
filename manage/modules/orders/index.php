@@ -1948,7 +1948,11 @@ class orders extends Controller
 
             $data['content'] = $this->view->renderFile('orders/sms_form', array(
                 'order' => $order,
-                'order_id' => $order_id
+                'order_id' => $order_id,
+                'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
+                    '{{order_id}}' => $order_id,
+                    '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount'])/100) . viewCurrency()
+                ))
             ));
             if ($order) {
                 $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';

@@ -263,6 +263,7 @@ class Configs
                 'widgets',
 //            'admin_translates',
 //                'debug',
+            'sms_templates',
                 'import'
             ),
             //'wrapper', 'debug', 'admin_translates'
@@ -1185,6 +1186,10 @@ class Configs
                 12 => 50, // %
             ),
             'blacklist-tag-id' => '4',
+            'sms-types' => array(
+                'requests' => 1,
+                'orders' => 2
+            ),
         );  // object instance
 
         if (is_callable(self::$configs_extend_function)) {

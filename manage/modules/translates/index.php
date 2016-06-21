@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../Core/View.php';
 require_once __DIR__ . '/../../Core/Response.php';
+require_once __DIR__ . '/../../Core/Exceptions.php';
 
 ini_set('memory_limit', '512M');
 
