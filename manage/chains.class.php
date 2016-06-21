@@ -401,7 +401,7 @@ class Chains extends Object
                 }
 
                 $products = $this->all_configs['db']->query(
-                    'SELECT count(id) as goods, count(item_id) as items FROM {orders_goods} WHERE order_id=?i',
+                    'SELECT count(id) as goods, count(item_id) as items FROM {orders_goods} WHERE order_id=?i AND type=0',
                     array($order_product['id']))->row();
 
                 if ($products && $products['goods'] == $products['items']) {
