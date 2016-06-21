@@ -1,5 +1,6 @@
 <tr class="remove-marked-object">
     <td class="floatleft">
+        <?= show_marked($order['order_id'], 'co', $order['m_id']) ?>
         <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ||
             $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
         ): ?>
