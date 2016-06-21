@@ -14,14 +14,12 @@
                         <?php if($types[$translate['type']] == 'orders'): ?>
                             <?= l('В шаблоне возможно использование следующих переменных:') ?>
                             <table class="table-compact">
-                                <tr>
-                                    <td> {{order_id}} </td>
-                                    <td> <?= l('Номер заказа') ?> </td>
-                                </tr>
-                                <tr>
-                                    <td> {{pay}} </td>
-                                    <td> <?= l('Сумма к оплате') ?> </td>
-                                </tr>
+                                <tr> <td> {{order_id}} </td> <td> <?= l('Номер заказа') ?> </td> </tr>
+                                <tr> <td> {{pay}} </td> <td> <?= l('Сумма к оплате') ?> </td> </tr>
+                                <tr> <td> {{order_sum}} </td> <td> <?= l('Сумма заказа') ?> </td> </tr>
+                                <tr> <td> {{client}} </td> <td> <?= l('ФИО клиента') ?> </td> </tr>
+                                <tr> <td> {{warehouse}} </td> <td> <?= l('Склад') ?> </td> </tr>
+                                <tr> <td> {{location}} </td> <td> <?= l('Локация') ?> </td> </tr>
                             </table>
                         <?php endif; ?>
                         <?php $value = h($translate[$field]); ?>
