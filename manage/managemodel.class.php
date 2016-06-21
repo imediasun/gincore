@@ -1200,10 +1200,10 @@ class manageModel
                 array($query, 1));
         }
         // не учитывать возвраты поставщикам и списания
-        if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
+//        if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
                 array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
-        }
+//        }
         // не учитывать доставку
         if (array_key_exists('dlv', $filters)) {
             $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 7));
