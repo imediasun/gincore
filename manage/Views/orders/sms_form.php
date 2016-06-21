@@ -13,7 +13,7 @@
                 <?= $this->renderFile('services/crm/sms/templates_list', array(
                     'templates' => $templates
                 )) ?>
-                <textarea id='sms_body' class="form-control show-length" maxlength="69" name="text" style="text-align:left"> <?= l('Ваш заказ')?> №<?= $order['id'] ?> <?= l('готов') ?>. <?= l('Стоимость ремонта') ?>: <?= ($order['sum'] / 100) ?> <?= viewCurrency() ?> </textarea>
+                <textarea id='sms_body' class="form-control show-length" maxlength="69" name="text" style="text-align:left"><?= l('Ваш заказ')?> №<?= $order['id'] ?> <?= l('готов') ?>. <?= l('Стоимость ремонта') ?>: <?= ($order['sum'] / 100) ?> <?= viewCurrency() ?></textarea>
             </div>
         </div>
         <input type="hidden" name="order_id" value="<?= $order_id ?>"/>

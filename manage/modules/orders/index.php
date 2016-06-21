@@ -399,7 +399,8 @@ class orders extends Controller
             WHERE manager IS NULL OR manager=""', array())->el();
         $count_marked = $this->all_configs['db']->query('SELECT COUNT(um.id) FROM {users_marked} um
             JOIN {orders} o ON o.id=um.object_id 
-            WHERE um.user_id=?i AND um.type=? AND o.type in (?li)', array($_SESSION['id'], 'co', array(ORDER_REPAIR, ORDER_WRITE_OFF)))->el();
+            WHERE um.user_id=?i AND um.type=? AND o.type in (?li)',
+            array($_SESSION['id'], 'co', array(ORDER_REPAIR, ORDER_WRITE_OFF)))->el();
         // индинеры
         $engineers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
@@ -1953,7 +1954,7 @@ class orders extends Controller
                 'order_id' => $order_id,
                 'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
                     '{{order_id}}' => $order_id,
-                    '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount'])/100) . viewCurrency()
+                    '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount']) / 100) . ' ' . viewCurrency()
                 ))
             ));
             if ($order) {
@@ -2178,7 +2179,6 @@ class orders extends Controller
                 if ($order && array_key_exists($order['payment'], $this->all_configs['configs']['payment-msg'])
                     && $this->all_configs['configs']['payment-msg'][$order['payment']]['pay'] == 'pre'
                 ) {
-
                     $data = array('status' => $order['status'], 'confirm' => true);
                 }
             }
@@ -3309,29 +3309,29 @@ class orders extends Controller
         if (!empty($_POST['users_fields'])) {
             $usersFieldsValues = $this->getUsersFieldsValues($order['id']);
             foreach ($_POST['users_fields'] as $name => $value) {
-               if(isset($usersFieldsValues[$name])) {
-                  if(empty($usersFieldsValues[$name]['value'])) {
-                      db()->query('INSERT INTO {orders_users_fields} (order_id, users_field_id, value) VALUES (?i, ?i, ?)',
-                          array($order['id'], $usersFieldsValues[$name]['uf_id'], $value));
+                if (isset($usersFieldsValues[$name])) {
+                    if (empty($usersFieldsValues[$name]['value'])) {
+                        db()->query('INSERT INTO {orders_users_fields} (order_id, users_field_id, value) VALUES (?i, ?i, ?)',
+                            array($order['id'], $usersFieldsValues[$name]['uf_id'], $value));
 
-                      $this->History->save(
-                          'update-order-'.$name,
-                          $mod_id,
-                          $order['id'],
-                          $usersFieldsValues[$name]['value']
-                      );
-                  } elseif($usersFieldsValues[$name]['value'] != $value) {
-                      db()->query('UPDATE {orders_users_fields} SET value=? WHERE id=?i',
-                          array($value, $usersFieldsValues[$name]['ouf_id']));
-                      $this->History->save(
-                          'update-order-'.$name,
-                          $mod_id,
-                          $order['id'],
-                          $usersFieldsValues[$name]['value']
-                      );
+                        $this->History->save(
+                            'update-order-' . $name,
+                            $mod_id,
+                            $order['id'],
+                            $usersFieldsValues[$name]['value']
+                        );
+                    } elseif ($usersFieldsValues[$name]['value'] != $value) {
+                        db()->query('UPDATE {orders_users_fields} SET value=? WHERE id=?i',
+                            array($value, $usersFieldsValues[$name]['ouf_id']));
+                        $this->History->save(
+                            'update-order-' . $name,
+                            $mod_id,
+                            $order['id'],
+                            $usersFieldsValues[$name]['value']
+                        );
 
-                  }
-               }
+                    }
+                }
             }
         }
 
