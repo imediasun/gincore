@@ -21,7 +21,7 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="print[]"
-                               value="<?= print_link($whItemId, 'label' . $prefix, '', true,
+                               value="<?= print_link(isset($whItemId) ? $whItemId : $objectId, 'label' . $prefix, '', true,
                                    !empty($addition) ? $addition : '') ?>">
                         <?= l('Этикетка (штрих-код)') ?>
                     </label>
