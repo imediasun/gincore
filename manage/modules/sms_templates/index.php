@@ -1,6 +1,6 @@
 <?php
 
-include $all_configs['path'] . 'modules/translates/index.php';
+require_once $all_configs['path'] . 'modules/translates/index.php';
 
 // настройки
 $modulename[210] = 'sms_templates';

@@ -1,7 +1,7 @@
 <?php
 ini_set('memory_limit', '512M');
 
-include $all_configs['path'] . 'modules/translates/index.php';
+require_once $all_configs['path'] . 'modules/translates/index.php';
 
 // настройки
 $modulename[145] = 'admin_translates';
