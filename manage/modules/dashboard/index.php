@@ -564,8 +564,8 @@ class ChartUtils
                 array());
         }
 
-        $typeQuery = empty($options['types']) ? $this->db->makeQuery("AND {$prefix}type = 0", array())
-            : $this->db->makeQuery("AND {$prefix}type in (?li)", array($options['types']));
+        $typeQuery = empty($options['types']) ? $this->db->makeQuery(" AND {$prefix}type = 0", array())
+            : $this->db->makeQuery(" AND {$prefix}type in (?li)", array($options['types']));
         return array(
             $warrantyQuery,
             $typeQuery
