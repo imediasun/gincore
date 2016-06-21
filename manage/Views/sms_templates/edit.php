@@ -20,6 +20,8 @@
                                 <tr> <td> {{client}} </td> <td> <?= l('ФИО клиента') ?> </td> </tr>
                                 <tr> <td> {{warehouse}} </td> <td> <?= l('Склад') ?> </td> </tr>
                                 <tr> <td> {{location}} </td> <td> <?= l('Локация') ?> </td> </tr>
+                                <tr> <td> {{warehouse_address}} </td> <td> <?= l('Адрес склада') ?> </td> </tr>
+                                <tr> <td> {{warehouse_phone}} </td> <td> <?= l('Телефон склада') ?> </td> </tr>
                             </table>
                         <?php endif; ?>
                         <?php $value = h($translate[$field]); ?>

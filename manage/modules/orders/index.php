@@ -1947,7 +1947,7 @@ class orders extends Controller
             $data['state'] = true;
             $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
             $order = $this->all_configs['db']->query('
-                SELECT o.*, c.fio, w.title, l.location 
+                SELECT o.*, c.fio, w.title, w.print_address, w.print_phone, l.location 
                 FROM {orders} o
                 LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {warehouses} as w ON w.id=o.wh_id
@@ -1964,6 +1964,8 @@ class orders extends Controller
                     '{{order_sum}}' => $order['sum'] . ' ' . viewCurrency(),
                     '{{client}}' => $order['fio'],
                     '{{warehouse}}' => $order['title'],
+                    '{{warehouse_address}}' => $order['print_address'],
+                    '{{warehouse_phone}}' => $order['print_phone'],
                     '{{location}}' => $order['location']
                 ))
             ));
