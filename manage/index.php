@@ -258,7 +258,7 @@ try {
                 $input['profile_color'] = 'color: #fff; background:' . $profile_color;
                 $input['profile_color_percent'] =
                     '<a class="manager_fail_percent module_submenu_click_tab_event" data-href="#orders_manager" '
-                    . 'href="' . $all_configs['prefix'] . 'orders?managers[]=' . $_SESSION['id'] . '#orders_manager">' . $orders_fail_percent . '%</a><br><br>';
+                    . 'href="' . $all_configs['prefix'] . 'orders?managers[]=' . $_SESSION['id'] . '#orders_manager">' . $orders_fail_percent . '%</a>';
             }
         }
     }

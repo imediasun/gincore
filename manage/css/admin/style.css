@@ -2159,8 +2159,8 @@ body {
 }
 
 .profile-picture {
-    padding: 20px 20px;
-    text-align: center
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .stats-box div {
