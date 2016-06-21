@@ -67,9 +67,13 @@ class widgets extends Controller
         $sendSms = null;
         $host = null;
         $sendEmail = null;
+        $bg_color = '';
+        $fg_color = '';
         switch ($this->current) {
             case 'status':
                 $title = l('Виджет «Статус заказа»');
+                $bg_color = $this->Settings->getByName('widget-order-state-bg-color');
+                $fg_color = $this->Settings->getByName('widget-order-state-fg-color');
                 $widget = $this->current;
                 break;
             case 'feedback':
@@ -77,6 +81,8 @@ class widgets extends Controller
                 $sendSms = $this->Settings->getByName('order-send-sms-with-client-code');
                 $host = $this->Settings->getByName('site-for-add-rating');
                 $sendEmail = $this->Settings->getByName('email-to-receive-new-comments');
+                $bg_color = $this->Settings->getByName('widget-order-feedback-bg-color');
+                $fg_color = $this->Settings->getByName('widget-order-feedback-fg-color');
                 $widget = $this->current;
                 break;
             default:
@@ -88,7 +94,9 @@ class widgets extends Controller
             'widget' => $widget,
             'sendSms' => $sendSms,
             'sendEmail' => $sendEmail,
-            'host' => $host
+            'host' => $host,
+            'bg_color' => $bg_color,
+            'fg_color' => $fg_color,
         ));
     }
 
@@ -117,8 +125,8 @@ class widgets extends Controller
                     $this->Settings->insert(array(
                         'name' => 'order-send-sms-with-client-code',
                         'value' => $post['send_sms'],
-                        'title' => l('Отправлять клиентам смс с кодом'),
-                        'description' => l('Отправлять клиентам смс с кодом'),
+                        'title' => lq('Отправлять клиентам смс с кодом'),
+                        'description' => lq('Отправлять клиентам смс с кодом'),
                     ));
                 } else {
                     $this->Settings->update(array('value' => $post['send_sms']),
@@ -133,8 +141,8 @@ class widgets extends Controller
                     $this->Settings->insert(array(
                         'name' => 'site-for-add-rating',
                         'value' => $post['host'],
-                        'title' => l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
-                        'description' => l('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                        'title' => lq('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                        'description' => lq('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
                     ));
                 } else {
                     $this->Settings->update(array('value' => $post['host']),
@@ -147,8 +155,8 @@ class widgets extends Controller
                     $this->Settings->insert(array(
                         'name' => 'email-to-receive-new-comments',
                         'value' => $post['send_email'],
-                        'title' => l('Уведомлять о новых отзывах на почту'),
-                        'description' => l('Уведомлять о новых отзывах на почту'),
+                        'title' => lq('Уведомлять о новых отзывах на почту'),
+                        'description' => lq('Уведомлять о новых отзывах на почту'),
                     ));
                 } else {
                     $this->Settings->update(array('value' => $post['send_email']),
@@ -157,7 +165,39 @@ class widgets extends Controller
             } else {
                 $this->Settings->deleteAll(array('name' => 'email-to-receive-new-comments'));
             }
-            FlashMessage::set(l('Настройки сохранены'), FlashMessage::SUCCESS);
+            $this->saveSetting($post, 'bg-color', 'Цвет фона виджета статуса заказов',
+                'Цвет фона виджета статуса заказов');
+            if (isset($post['bg-color'])) {
+                $config = db()->query("SELECT count(*) FROM {settings} WHERE name='widget-order-feedback-color'")->el();
+                if (empty($config)) {
+                    $this->Settings->insert(array(
+                        'name' => 'widget-order-feedback-color',
+                        'value' => $post['bg-color'],
+                        'title' => lq('Цвет фона виджета отзывов о работе сервиса'),
+                        'description' => lq('Цвет фона виджета отзывов о работе сервиса'),
+                    ));
+                } else {
+                    $this->Settings->update(array('value' => $post['bg-color']),
+                        array('name' => 'widget-order-feedback-color'));
+                }
+            } else {
+                $this->Settings->deleteAll(array('name' => 'widget-order-feedback-color'));
+            }
+            $value = isset($post['bg-color']) ? $post['bg-color'] : array();
+            $this->saveSetting('widget-order-feedback-bg-color', $value, 'Цвет фона виджета отзывов о работе сервиса',
+                'Цвет фона виджета отзывов о работе сервиса');
+            $value = isset($post['fg-color']) ? $post['fg-color'] : array();
+            $this->saveSetting('widget-order-feedback-fg-color', $value, 'Цвет текста виджета отзывов о работе сервиса',
+                'Цвет текста виджета отзывов о работе сервиса');
+            FlashMessage::set(lq('Настройки сохранены'), FlashMessage::SUCCESS);
+        }
+        if (isset($post['status-form'])) {
+            $value = isset($post['bg-color']) ? $post['bg-color'] : array();
+            $this->saveSetting('widget-order-state-bg-color', $value, 'Цвет фона виджета статуса заказов',
+                'Цвет фона виджета статуса заказов');
+            $value = isset($post['fg-color']) ? $post['fg-color'] : array();
+            $this->saveSetting('widget-order-state-fg-color', $value, 'Цвет текста виджета статуса заказов',
+                'Цвет текста виджета статуса заказов');
         }
         Response::redirect(Response::referrer());
     }
@@ -168,5 +208,31 @@ class widgets extends Controller
     public function can_show_module()
     {
         return true;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @param $title
+     * @param $description
+     */
+    private function saveSetting($name, $value, $title, $description)
+    {
+        if (isset($value)) {
+            $config = db()->query("SELECT count(*) FROM {settings} WHERE name=?", array($name))->el();
+            if (empty($config)) {
+                $this->Settings->insert(array(
+                    'name' => $name,
+                    'value' => $value,
+                    'title' => lq($title),
+                    'description' => lq($description),
+                ));
+            } else {
+                $this->Settings->update(array('value' => $value),
+                    array('name' => $name));
+            }
+        } else {
+            $this->Settings->deleteAll(array('name' => $name));
+        }
     }
 }

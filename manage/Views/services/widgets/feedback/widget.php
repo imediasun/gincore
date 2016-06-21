@@ -5,7 +5,7 @@
     }
 </style>
 <div class="gcw">
-    <div class="gcw_title gcw_show_modal gcw_feedback_modal" data-id="gcw_feedback_modal">
+    <div class="gcw_title gcw_show_modal gcw_feedback_modal" data-id="gcw_feedback_modal" style="background-color: <?= $bg_color ?>; color: <?= $fg_color ?>">
         <i class="fa fa-comment" style="color:white; font-size: 1.2em; margin-right: 5px"></i>
         <?= l('Оставить отзыв') ?>
     </div>

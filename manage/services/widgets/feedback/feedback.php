@@ -33,8 +33,11 @@ class feedback extends \service
      */
     private function widget_html()
     {
+        global $all_configs;
         return $this->view->renderFile('services/widgets/feedback/widget', array(
-            'widgets' => $this->widgets
+            'widgets' => $this->widgets,
+            'bg_color' => $all_configs['settings']['widget-order-feedback-bg-color'],
+            'fg_color' => $all_configs['settings']['widget-order-feedback-fg-color'],
         ));
     }
 
