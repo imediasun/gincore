@@ -1,5 +1,5 @@
 <tr>
-    <td>
+    <td width="70%">
         <label> <?= l('Выберите цвет фона для виджета') ?></label>
     </td>
     <td>
@@ -18,8 +18,7 @@
         <label> <?= l('Выберите цвет текста для виджета') ?></label>
     </td>
     <td>
-        <div id="demo_endis"
-             class="input-group colorpicker-auto colorpicker-component colorpicker-element">
+        <div id="demo_endis" class="input-group colorpicker-auto colorpicker-component colorpicker-element">
             <input class="form-control colorpicker" type="text" name="fg-color"
                    placeholder='<?= l('введите цвет') ?>' value="<?= $fg_color ?>">
                                         <span class="input-group-addon">
@@ -28,3 +27,12 @@
         </div>
     </td>
 </tr>
+<script>
+    function init_colorpickers(){
+        $('.colorpicker.colorpicker-element').colorpicker('destroy');
+        $('.colorpicker-auto').colorpicker();
+    }
+    jQuery(document).ready(function () {
+        init_colorpickers();
+    });
+</script>

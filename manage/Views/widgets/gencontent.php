@@ -18,7 +18,7 @@
         <form action="<?= $this->all_configs['prefix'] ?>/widgets/set" method="POST">
             <fieldset>
                 <input type="hidden" name="status-form" value="1"/>
-                <div class="col-sm-6">
+                <div class="col-sm-10">
                     <table class="table table-no-border">
                         <?= $this->renderFile('widgets/_colors', array(
                             'bg_color' => $bg_color,
@@ -36,14 +36,14 @@
         <form action="<?= $this->all_configs['prefix'] ?>/widgets/set" method="POST">
             <fieldset>
                 <input type="hidden" name="feedback-form" value="1"/>
-                <div class="col-sm-6">
+                <div class="col-sm-10">
                     <table class="table table-no-border">
                         <?= $this->renderFile('widgets/_colors', array(
                             'bg_color' => $bg_color,
                             'fg_color' => $fg_color
                         )) ?>
                         <tr>
-                            <td>
+                            <td width="70%">
                                 <label><?= l('Отправлять клиентам смс с кодом'); ?></label><?= InfoPopover::getInstance()->createQuestion('l_widget_sms_info') ?>
                             </td>
                             <td>
@@ -76,12 +76,3 @@
         </form>
     <?php endif; ?>
 <?php endif; ?>
-<script>
-        function init_colorpickers(){
-            $('.colorpicker.colorpicker-element').colorpicker('destroy');
-            $('.colorpicker-auto').colorpicker();
-        }
-    jQuery(document).ready(function () {
-        init_colorpickers();
-    });
-</script>
