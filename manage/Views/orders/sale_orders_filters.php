@@ -19,6 +19,12 @@
                         <?= l('Необработано') ?>: <span
                             id="count-clients-untreated-orders"><?= $count_unworked ?></span>
                     </a>
+                    <a class="btn btn-default <?= (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') ?> text-left"
+                       href="
+                            <?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?marked=co#show_orders">
+                        <?= l('Отмеченные') ?>: <span class="icons-marked star-marked-active"> </span> <span
+                            id="count-marked-co"><?= $count_marked ?></span>
+                    </a>
                 </div>
                 <br><br>
                 <input type="submit" name="filter-orders" class="btn btn-primary" value="<?= l('Фильтровать') ?>">

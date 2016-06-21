@@ -331,8 +331,9 @@ class orders extends Controller
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
             WHERE manager IS NULL OR manager=""', array())->el();
-        $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
-            WHERE user_id=?i AND type=?', array($_SESSION['id'], 'co'))->el();
+        $count_marked = $this->all_configs['db']->query('SELECT COUNT(um.id) FROM {users_marked} um
+            JOIN {orders} o ON o.id=um.object_id 
+            WHERE um.user_id=?i AND um.type=? AND o.type=?i', array($_SESSION['id'], 'co', ORDER_SELL))->el();
         // индинеры
         $engineers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
@@ -396,8 +397,9 @@ class orders extends Controller
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
             WHERE manager IS NULL OR manager=""', array())->el();
-        $count_marked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {users_marked}
-            WHERE user_id=?i AND type=?', array($_SESSION['id'], 'co'))->el();
+        $count_marked = $this->all_configs['db']->query('SELECT COUNT(um.id) FROM {users_marked} um
+            JOIN {orders} o ON o.id=um.object_id 
+            WHERE um.user_id=?i AND um.type=? AND o.type in (?li)', array($_SESSION['id'], 'co', array(ORDER_REPAIR, ORDER_WRITE_OFF)))->el();
         // индинеры
         $engineers = $this->all_configs['db']->query(
             'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
