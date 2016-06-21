@@ -200,5 +200,9 @@
 }
 span.category-title {
     display: inline-block;
-    width: 82%;
+    width: 85%;
+}
+
+.dd-item:hover span.category-title {
+    width: 75%;
 }
