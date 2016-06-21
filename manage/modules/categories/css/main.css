@@ -198,3 +198,7 @@
 .recyclebin {
     background-color: #FEEBEC !important;
 }
+span.category-title {
+    display: inline-block;
+    width: 85%;
+}

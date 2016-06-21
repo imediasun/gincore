@@ -933,7 +933,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
                 $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
                 $tree .= '<a href="' . $all_configs['prefix'] . 'categories/create/' . $tmp['id'] . '" class="' . (($tmp['id'] == $recycledBin['id']) ? 'recyclebin' : '') . '">';
-                $tree .= htmlspecialchars($tmp['title']);
+                $tree .= '<span class="category-title">' . htmlspecialchars($tmp['title']) . '</span>';
                 if ($tmp['id'] != $recycledBin['id']) {
                     $tree .= '<i class="js-delete-category fa fa-times" aria-hidden="true"></i>';
                 } else {
