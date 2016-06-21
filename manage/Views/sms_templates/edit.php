@@ -11,6 +11,19 @@
                 <?php foreach ($langs as $lng => $translate): ?>
                     <?php if ($lng == $manage_lang): ?>
                         <legend><?= $translate['var'] ?> (<?= l($types[$translate['type']]) ?>)</legend>
+                        <?php if($types[$translate['type']] == 'orders'): ?>
+                            <?= l('В шаблоне возможно использование следующих переменных:') ?>
+                            <table class="table-compact">
+                                <tr>
+                                    <td> {{order_id}} </td>
+                                    <td> <?= l('Номер заказа') ?> </td>
+                                </tr>
+                                <tr>
+                                    <td> {{pay}} </td>
+                                    <td> <?= l('Сумма к оплате') ?> </td>
+                                </tr>
+                            </table>
+                        <?php endif; ?>
                         <?php $value = h($translate[$field]); ?>
                         <span class="form-group" style="display:block">
                                 <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
