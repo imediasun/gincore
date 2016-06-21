@@ -19,7 +19,6 @@
     </div>
     <div class='form-group'>
         <label><?= l('Родительская статья') ?>: </label>
-        {$category_html}
 
         <?php if ($contractor_category): ?>
             <select class='multiselect' name='parent_id'>

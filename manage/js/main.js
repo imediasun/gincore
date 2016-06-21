@@ -1997,7 +1997,13 @@ function init_popover($els, add_close_btn, trigger_event) {
 }
 function show_infopopover_modal(modal_html) {
   if (modal_html) {
+    bootbox.addLocale('ru', {
+      OK: 'Ok',
+      CANCEL: 'Ok',
+      CONFIRM: L['confirm']
+    });
     bootbox.alert(modal_html);
+
   }
 }
 (function ($, document) {
