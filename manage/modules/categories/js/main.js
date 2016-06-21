@@ -129,7 +129,7 @@ $(document).ready(function () {
   $('#categories-tree').nestable({
     group: 1,
     maxDepth: 15,
-    depthCollapse: 1,
+    depthCollapse: 0,
     onChange: function (el) {
       var cur_id = $(el).data('id');
       var parent_id = $(el).parents(this.options.itemNodeName + '.' + this.options.itemClass).data('id');
