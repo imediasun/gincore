@@ -165,24 +165,6 @@ class widgets extends Controller
             } else {
                 $this->Settings->deleteAll(array('name' => 'email-to-receive-new-comments'));
             }
-            $this->saveSetting($post, 'bg-color', 'Цвет фона виджета статуса заказов',
-                'Цвет фона виджета статуса заказов');
-            if (isset($post['bg-color'])) {
-                $config = db()->query("SELECT count(*) FROM {settings} WHERE name='widget-order-feedback-color'")->el();
-                if (empty($config)) {
-                    $this->Settings->insert(array(
-                        'name' => 'widget-order-feedback-color',
-                        'value' => $post['bg-color'],
-                        'title' => lq('Цвет фона виджета отзывов о работе сервиса'),
-                        'description' => lq('Цвет фона виджета отзывов о работе сервиса'),
-                    ));
-                } else {
-                    $this->Settings->update(array('value' => $post['bg-color']),
-                        array('name' => 'widget-order-feedback-color'));
-                }
-            } else {
-                $this->Settings->deleteAll(array('name' => 'widget-order-feedback-color'));
-            }
             $value = isset($post['bg-color']) ? $post['bg-color'] : array();
             $this->saveSetting('widget-order-feedback-bg-color', $value, 'Цвет фона виджета отзывов о работе сервиса',
                 'Цвет фона виджета отзывов о работе сервиса');
@@ -218,7 +200,10 @@ class widgets extends Controller
      */
     private function saveSetting($name, $value, $title, $description)
     {
-        if (isset($value)) {
+        if(empty($name)) {
+            return;
+        }
+        if (!empty($value)) {
             $config = db()->query("SELECT count(*) FROM {settings} WHERE name=?", array($name))->el();
             if (empty($config)) {
                 $this->Settings->insert(array(
