@@ -118,30 +118,27 @@ $(document).ready(function () {
     $('.fullscreen-container').prepend(btn);
   });
 
-  /*$('.tags-input').live('focusin', '.tags-input', function(e) {
-   tags_input();
-   });*/
 
   $('.cloneAndClear').live('click', function () {
-    var $this = $(this);
+    var $this = $(this), input, $el;
     if ($this.data('addon')) {
-      var $el = $this.parent().prev();
+      $el = $this.parent().prev();
     } else if ($this.data('clone_siblings')) {
-      var $el = $this.siblings($this.data('clone_siblings')).eq(0);
+      $el = $this.siblings($this.data('clone_siblings')).last();
     } else {
-      var $el = $this.prev();
+      $el = $this.prev();
     }
     var clone = $el.clone();
     if (clone.hasClass('clone_clear_val')) {
       input = clone;
     } else {
-      var input = clone.find('.clone_clear_val');
+      input = clone.find('.clone_clear_val').last();
     }
     input.val('');
     if (input.hasClass('global-typeahead')) {
       var num = 1 * input.attr('data-select');
       var next = 1 + num;
-      clone.find('.typeahead-value-serials' + num).attr('class', 'typeahead-value-serials' + next);
+      clone.find('input[name="serials[]"]').attr('class', '').addClass('typeahead-value-serials' + next);
       input.attr('data-select', next);
       input.attr('data-input', 'serials' + next);
     }
@@ -150,29 +147,6 @@ $(document).ready(function () {
     init_input_masks();
   });
 
-  /*//form change
-   $("input:not([type]), select, input[type=text], textarea, input[type='password'], " +
-   "input[type='radio'], input[type='checkbox'], input[type='file']").ElementNavigate({
-
-   message: "Вы сделали изменение и не сохранили. Выйти без сохранения?"
-   });*/
-
-  /*$('.copy-btn').live('click', function() {
-   var el = $(this);
-
-   el.clipboard({
-   path: prefix + 'jquery.clipboard.swf',
-   clickAfter: false,
-   copy: $('#' + el.data('element') + ' option:selected').text(),
-   afterCopy: function() {
-   alert('Скопировано!');
-   el.show();
-   },
-   beforeCopy: function() {
-   el.hide();
-   }
-   });
-   });*/
 
   $('.datetimepicker').live('click', function () {
     var format = $(this).data('format') || 'DD.MM.YYYY';

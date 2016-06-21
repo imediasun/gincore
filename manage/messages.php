@@ -3,6 +3,8 @@
 include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
+require_once __DIR__.'/Core/Log.php';
+require_once __DIR__.'/Core/Response.php';
 
 global $all_configs;
 
@@ -105,10 +107,6 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 $query = $all_configs['db']->makeQuery('RIGHT JOIN {category_goods} as cg ON
                         cg.category_id IN (?li) AND g.id=cg.goods_id',
                     array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
-                /*$query = $all_configs['db']->makeQuery('RIGHT JOIN {category_goods} as cg
-                        ON cg.category_id IN (SELECT id FROM {categories}
-                            JOIN (SELECT @pv:=?i)tmp WHERE parent_id=@pv OR id=@pv) AND g.id=cg.goods_id',
-                    array($_POST['fix']));*/
             }
 
             $query_title = 'g.title';
@@ -184,18 +182,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     WHERE w.id=l.wh_id GROUP BY l.id HAVING title LIKE "%?e%" LIMIT ?i',
                 array($s, $limit))->assoc();
         }
-        /*if ($_POST['table'] == 'orders') {
-            $data = $all_configs['db']->query('SELECT o.id, GROUP_CONCAT(o.id, c.fio)
-                    FROM {orders} as o WHERE title LIKE "%?e%" LIMIT ?i',
-                array($s, $limit))->assoc();
-        }*/
     }
-
-    /*if ($data) {
-        foreach ($data as $k=>$v) {
-            $data[$k]['title'] = str_replace("\u00a0", ' ', trim($v['title']));
-        }
-    }*/
 
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($data);
@@ -244,49 +231,6 @@ if ($act == 'remove-message') {
     exit;
 }
 
-/*// теги
-if ($act == 'tags') {
-    $return = array();
-    if (isset($_POST['table'])) {
-        // склады
-        if ($_POST['table'] == 'warehouses') {
-            // запросы для касс для разных привилегий
-            $q = $all_configs['chains']->query_warehouses();
-            $query_for_noadmin_w = $q['query_for_noadmin_w'];
-            // списсок складов с общим количеством товаров
-            $warehouses = $all_configs['chains']->warehouses($query_for_noadmin_w);
-            if ($warehouses) {
-                foreach ($warehouses as $warehouse) {
-                    $return[] = array('value' => $warehouse['id'], 'text' => htmlspecialchars($warehouse['title']));
-                }
-            }
-        }
-        if ($_POST['table'] == 'warehouses-locations') {
-            // запросы для касс для разных привилегий
-            $q = $all_configs['chains']->query_warehouses();
-            $query_for_noadmin_w = $q['query_for_noadmin_w'];
-            // списсок складов с общим количеством товаров
-            $warehouses = $all_configs['chains']->warehouses($query_for_noadmin_w);
-
-            if ($warehouses) {
-                foreach ($warehouses as $warehouse) {
-                    if (isset($warehouse['locations'])) {
-                        foreach ($warehouse['locations'] as $location_id=>$location) {
-                            $return[] = array(
-                                'value' => $location_id,
-                                'text' => htmlspecialchars($warehouse['title']) . ' (' . htmlspecialchars($location) . ')',
-                            );
-                        }
-                    }
-                }
-            }
-        }
-    }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($return);
-    exit;
-}*/
-
 // удаление напоминания
 if ($act == 'remove-alarm') {
     if (isset($_POST['id']) && $all_configs['oRole']->hasPrivilege('alarm')) {
@@ -310,10 +254,6 @@ if ($act == 'add-alarm') {
     $text = isset($_POST['text']) ? trim($_POST['text']) : '';
     $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
-//    if (!$all_configs['oRole']->hasPrivilege('alarm')) {
-//        $data['state'] = false;
-//        $data['msg'] = 'Нет прав';
-//    }
     if ($data['state'] == true && strtotime($date) < time()) {
         $data['state'] = false;
         $data['msg'] = l('Укажите дату (в будущем)');
@@ -404,7 +344,6 @@ if ($act == 'edit-supplier-order-comment') {
 if ($act == 'move-order') {
     $data['message'] = '';
     $data['state'] = true;
-
     $serials = isset($_POST['serials']) && is_array($_POST['serials']) ? array_filter(array_unique($_POST['serials'])) : array();
 
     if (count($serials) > 0) {
@@ -414,17 +353,13 @@ if ($act == 'move-order') {
                     $response = $all_configs['chains']->move_item_request(array('item_id' => $item_id) + $_POST);
                     $serial = $response && isset($response['serial']) ? $response['serial'] . ' - ' : '';
                     if (is_array($response) && isset($response['state']) && $response['state'] == true) {
-                        //$data['message'] .= "Изделие " . $serial . "успешно перемещено\r\n";
                     } else {
                         $data['state'] = false;
                         $data['message'] .= $serial . ($response && isset($response['message']) ? $response['message'] : 'Изделие не перемещено') . "\r\n";
-                        //break;
                     }
                 }
             }
-        }/* else {
-            $data['message'] = "Нет прав для перемещения\r\n";
-        }*/
+        }
     }
 
     $order_id = isset($_POST['order_id']) && intval($_POST['order_id']) > 0 ? intval($_POST['order_id']) : null;
@@ -479,9 +414,7 @@ if ($act == 'move-order') {
     }
     $data['message'] = empty($data['message']) ? l('Укажите номер ремонта или серийный номер изделия') : $data['message'];
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // название товара по серийнику
