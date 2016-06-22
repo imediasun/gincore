@@ -1476,7 +1476,7 @@ class orders extends Controller
                             }
                             $colors_count[$color] = isset($colors_count[$color]) ? $colors_count[$color] + 1 : 1;
                         }
-                        $manager_block .= '<div data-o_id="' . $order['id'] . '" onclick="alert_box(this, null, \'display-order\')" class="order-manager ' . $class . '" ' . $style . '>';
+                        $manager_block .= '<div data-o_id="' . $order['id'] . '" onclick="edit_order_dialog(this, \'display-order\')" class="order-manager ' . $class . '" ' . $style . '>';
                         $manager_block .= '<b>' . $order['id'] . '</b>';
                         $manager_block .= '<br /><span title="' . do_nice_date($order['date_add'],
                                 false) . '">' . do_nice_date($order['date_add']) . '</span></div>';
@@ -1510,6 +1510,13 @@ class orders extends Controller
                 </div>
             ';
         }
+        $orders_html .= '
+            <script>
+            jQuery(document).ready(function(){
+                reset_multiselect();
+            });
+            </script>
+        ';
 
         return array(
             'html' => $orders_html,
@@ -1597,10 +1604,12 @@ class orders extends Controller
 
     /**
      * @param null $order_id
+     * @param bool $modal
      * @return string
      * @throws Exception
+     * @internal param bool $withFilters
      */
-    public function genorder($order_id = null)
+    public function genorder($order_id = null, $modal = false)
     {
         $show_btn = true;
         $order_id = ($order_id == 0) ? intval($this->all_configs['arrequest'][2]) : $order_id;
@@ -1689,7 +1698,7 @@ class orders extends Controller
                 $template = 'orders/eshoporder/genorder';
                 break;
             default:
-                $template = 'orders/genorder/genorder';
+                $template = $modal ? 'orders/genorder/genorder-modal' : 'orders/genorder/genorder';
                 $showUsersFields = $this->checkShowUsersFields($usersFields, $hide);
         }
         return $this->view->renderFile($template, array(
@@ -1720,7 +1729,7 @@ class orders extends Controller
             'repairOrdersFilters' => $this->repair_orders_filters(true),
             'saleOrdersFilters' => $this->sale_orders_filters(true),
             'users_fields' => $usersFields,
-            'showUsersFields' => $showUsersFields
+            'showUsersFields' => $showUsersFields,
         ));
     }
 
@@ -1885,7 +1894,7 @@ class orders extends Controller
         if ($act == 'display-order') {
             $data['state'] = true;
             $data['width'] = true;
-            $data['content'] = '<br />' . $this->genorder($_POST['object_id']);
+            $data['content'] = '<br />' . $this->genorder($_POST['object_id'], true);
         }
 
         // история статусов заказа

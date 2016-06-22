@@ -359,7 +359,7 @@ function create_new_users_fields(_this) {
           $div.show();
           $('input[name="users_field_name"]').val('')
           $toggle.attr('id', '');
-          $toggle.find('input').attr('name', 'config['+msg.name+']').addClass('test-toggle');
+          $toggle.find('input').attr('name', 'config[' + msg.name + ']').addClass('test-toggle');
           $toggle.show();
           $toggle.insertBefore('#toggle-for-new-field');
           $(".test-toggle").bootstrapSwitch();
@@ -566,7 +566,8 @@ function add_new_order(_this, next, from) {
 function order_products(_this, product_id, order_product_id, cfm, remove, show_confirm_for_remove) {
 
   var close_supplier_order = '', url;
-  var order_id = arrequest()[2] || $('#update-order').data('order_id');
+  var order_id = arrequest()[2] || $('#update-order').data('order_id') || $('input[name="order_id"]').val();
+  var is_modal = $('input[name="is_modal"]').val();
 
   if (remove && show_confirm_for_remove) {
     if (confirm(L['cancel-order-this-spare-part-supplier'] + '?')) {
@@ -608,7 +609,18 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
           $(_this).parents('tr').remove();
         }
         if (msg.reload) {
-          window.location.reload(true);
+          console.log(is_modal);
+          if(is_modal) {
+              edit_order_dialog_by_order_id(order_id, 'display-order');
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            $('body').append($div);
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            window.location.reload(true);
+          }
         }
         if ($('#goods-table').find('tr').length) {
           $('#goods-table').closest('table').removeClass('hidden');
@@ -1202,3 +1214,31 @@ function toggle_items(hash) {
   $('.' + hash + '_item').toggle();
 }
 
+function edit_order_dialog(_this, tab) {
+  var id = $(_this).data('o_id');
+  if (id) {
+    edit_order_dialog_by_order_id(id, tab);
+  }
+}
+
+function edit_order_dialog_by_order_id(order_id, tab) {
+    $.ajax({
+      url: prefix + module + '/ajax?act=' + tab + '&show=modal',
+      type: 'POST',
+      data: {object_id: order_id},
+      success: function (msg) {
+        if (msg.content) {
+          $('#modal-dialog').html(msg.content).modal('show');
+          $('#modal-dialog').on('hidden.bs.modal', function (e) {
+            $('.modal-backdrop').remove();
+          })
+        } else {
+          alert(msg.msg);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.responseText);
+      }
+    });
+
+}

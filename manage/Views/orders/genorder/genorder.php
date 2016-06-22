@@ -1,5 +1,4 @@
 <div class="row-fluid">
-
     <div class="order-form-edit-nav toggle-hidden-box">
         <?= $navigation ?>
         <script type="text/javascript">
@@ -9,7 +8,6 @@
         </script>
         <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
     </div>
-
     <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg">
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
@@ -396,7 +394,10 @@
                         ?>
                         <?php if ($showButtons): ?>
                             <input id="close-order" <?= $hide ?> class="btn btn-success"
-                                   onclick="issue_order(this, 'repair', <?= $order['id'] ?>)" data-status="<?= $status ?>"  data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>" type="button"
+                                   onclick="issue_order(this, 'repair', <?= $order['id'] ?>)"
+                                   data-status="<?= $status ?>"
+                                   data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>"
+                                   type="button"
                                    value="<?= l('Выдать') ?>"/>
                             <input id="update-order" class="btn btn-info" onclick="update_order(this)"
                                    data-o_id="<?= $order['id'] ?>" data-alert_box_not_disabled="true"
@@ -448,7 +449,7 @@
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
                                     <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
                                     <?php if ($order['discount'] > 0): ?>
-                                        <?= l('Скидка') . ': ' . $order['discount']/100 ?> <?= viewCurrency() ?>
+                                        <?= l('Скидка') . ': ' . $order['discount'] / 100 ?> <?= viewCurrency() ?>
                                     <?php endif; ?>
                             </span>
                             </div>

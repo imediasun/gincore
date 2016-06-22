@@ -1331,9 +1331,18 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
 
         if (msg) {
           if (msg['state'] == true && msg['content']) {
-            bootbox.alert(msg['content']);
+            bootbox.alert(msg['content'], function () {
+              if ($('#modal-dialog').is(':visible')) {
+                var $div = $('<div class="modal-backdrop fade in"></div>');
+                $('body').append($div);
+                setTimeout(function () {
+                  $('#modal-dialog').css('overflow', 'auto');
+                  $('#modal-dialog').css('display', 'block');
+                }, 10);
+              }
+            });
 
-            if(msg['no-cancel-button']) {
+            if (msg['no-cancel-button']) {
               $('.bootbox-alert .modal-footer').html('');
             }
             if (msg['btns']) {
@@ -1835,19 +1844,18 @@ $(function () {
   if ($.cookie('show_intro')) {
     $('#show_glossary').click();
   }
-  
-  
+
+
   var zadarma_button_call_consultant = $('#zadarma_button_call_consultant');
-  zadarma_button_call_consultant.mouseenter(function(){
+  zadarma_button_call_consultant.mouseenter(function () {
     $(this).css('width', '194px');
   });
- zadarma_button_call_consultant.mouseout(function(){
+  zadarma_button_call_consultant.mouseout(function () {
     $(this).css('width', '57px');
-  
+
   });
-  
-  
-  
+
+
   $(document).on('click', function (e) {
     if (!$glossary.is(':visible')) return;
     var $this = $(e.target);
@@ -2127,8 +2135,8 @@ function recalculate_amount_pay(_this) {
     result;
 
   console.log('test');
-  if(discount_type == 1) {
-    result = amount * (1 - discount/100);
+  if (discount_type == 1) {
+    result = amount * (1 - discount / 100);
   } else {
     result = amount - discount;
   }

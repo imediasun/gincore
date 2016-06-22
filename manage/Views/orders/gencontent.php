@@ -55,4 +55,5 @@
         <?php endif; ?>
     </div>
 </div>
+<div class='modal fade' id="modal-dialog" tabindex="-2" role="dialog" aria-labelledby="modalDialog"></div>
 <?= $this->all_configs['suppliers_orders']->append_js(); ?>
