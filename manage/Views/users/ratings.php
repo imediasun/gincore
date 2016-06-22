@@ -18,7 +18,7 @@
                         <?= $rating['rating'] ?>
                     </td>
                     <td>
-                        <?= h($rating['comment']) ?>
+                        <textarea rows="4" style="min-width: 100%; max-width: 250px;"><?= h($rating['comment']) ?></textarea>
                     </td>
                 </tr>
             <?php endforeach; ?>
