@@ -1,4 +1,4 @@
-<?php if (!empty($users_fields)): ?>
+<?php if (!empty($users_fields) && $showUsersFields): ?>
     <div class="row-fluid bordered">
         <?php $count = ceil(count($users_fields) / 2); ?>
         <?php $i = 0; ?>

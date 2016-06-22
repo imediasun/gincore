@@ -379,7 +379,8 @@
             <?= $this->renderFile('orders/genorder/_users_fields', array(
                 'order' => $order,
                 'users_fields' => $users_fields,
-                'hide' => $hide
+                'hide' => $hide,
+                'showUsersFields' => $showUsersFields
             )); ?>
             <?php if ($hasEditorPrivilege): ?>
                 <div class="row-fluid">

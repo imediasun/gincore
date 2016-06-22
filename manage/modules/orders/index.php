@@ -270,7 +270,7 @@ class orders extends Controller
         if (isset($_POST['hide-fields'])) {
             $config = empty($_POST['config']) ? array() : $_POST['config'];
             $this->order_fields_setup($config);
-            if(!empty($_POST['name'])) {
+            if (!empty($_POST['name'])) {
                 $data = array(
                     'state' => false,
                     'msg' => l('Проблемы при добавлении пользовательского поля в заказ')
@@ -1678,6 +1678,9 @@ class orders extends Controller
             )
         )->assoc();
         $hasEditorPrivilege = $this->all_configs['oRole']->hasPrivilege('edit-clients-orders');
+        $showUsersFields = false;
+        $usersFields = $this->getUsersFieldsValues($order_id);
+        $hide = $this->getHideFieldsConfig();
         switch ($order['sale_type']) {
             case 1:
                 $template = 'orders/quicksaleorder/genorder';
@@ -1687,6 +1690,7 @@ class orders extends Controller
                 break;
             default:
                 $template = 'orders/genorder/genorder';
+                $showUsersFields = $this->checkShowUsersFields($usersFields, $hide);
         }
         return $this->view->renderFile($template, array(
             'order' => $order,
@@ -1709,13 +1713,14 @@ class orders extends Controller
             'comments_private' => $comments_private,
             'productTotal' => $productTotal,
             'parts' => $parts,
-            'hide' => $this->getHideFieldsConfig(),
+            'hide' => $hide,
             'tags' => $this->getTags(),
             'returns' => $returns,
             'deliveryByList' => $this->Orders->getDeliveryByList(),
             'repairOrdersFilters' => $this->repair_orders_filters(true),
             'saleOrdersFilters' => $this->sale_orders_filters(true),
-            'users_fields' => $this->getUsersFieldsValues($order_id)
+            'users_fields' => $usersFields,
+            'showUsersFields' => $showUsersFields
         ));
     }
 
@@ -3355,5 +3360,23 @@ class orders extends Controller
         }
 
         return $order;
+    }
+
+    /**
+     * @param $usersFields
+     * @param $hide
+     * @return bool
+     */
+    private function checkShowUsersFields($usersFields, $hide)
+    {
+        $result = false;
+        if (!empty($usersFields) && !empty($hide)) {
+            foreach ($usersFields as $field) {
+                if (isset($hide[$field['name']])) {
+                    $result = true;
+                }
+            }
+        }
+        return $result;
     }
 }
