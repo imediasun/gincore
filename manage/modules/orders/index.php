@@ -2561,10 +2561,6 @@ class orders extends Controller
         $order = $_order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?',
             array($order_id))->row();
 
-        // комментарии к заказам
-        if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
-            return $this->updateOrderComments($order_id, $data);
-        }
         try {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order) {
                 throw new ExceptionWithMsg(l('У Вас нет прав'));
@@ -2606,6 +2602,10 @@ class orders extends Controller
             $order = $this->changeWarranty($order, $mod_id);
             $order = $this->changeDevice($order, $mod_id);
             $order = $this->changeReturnId($order, $mod_id);
+            // комментарии к заказам
+            if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
+                $data = $this->updateOrderComments($order, $data);
+            }
 
             unset($order['return_id']);
             if (isset($_POST['color']) && array_key_exists($_POST['color'],
@@ -2772,19 +2772,19 @@ class orders extends Controller
     }
 
     /**
-     * @param $order_id
+     * @param $order
      * @param $data
      * @return mixed
      */
-    protected function updateOrderComments($order_id, $data)
+    protected function updateOrderComments($order, $data)
     {
         if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
             $private = !empty($_POST['private_comment']) ? trim($_POST['private_comment']) : '';
             $public = !empty($_POST['public_comment']) ? trim($_POST['public_comment']) : '';
             $type = $private ? 1 : 0;
             $text = $private ?: $public;
-            $this->all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, $type);
-            $data['reload'] = true;
+            $this->all_configs['suppliers_orders']->add_client_order_comment($order['id'], $text, $type);
+//            $data['reload'] = true;
         }
         return $data;
     }

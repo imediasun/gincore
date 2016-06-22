@@ -807,7 +807,6 @@ function endcountdown() {
     sound('alarm.mp3', 2);
     $("html, body").animate({scrollTop: 0}, "quick");
     var $alerts = $('#wrapper>.content').find('.alerts');
-    console.log($alerts.length);
     if ($alerts.length == 0) {
       $('#wrapper>.content').prepend('<div class="alerts col-sm-12"></div>');
     }
@@ -1887,18 +1886,17 @@ $(function () {
   $(window).load(hide_flashmessages);
 
   init_input_masks();
-  $('#print_now').on('click', function () {
-    var $checks = $(this).closest('ul').find(':checked');
-    $checks.each(function () {
-      window_open($(this).val());
-    });
+  $('#print_now').on('click', function(){
+    return print_now(this);
   });
 });
+
 function print_now(_this) {
   var $checks = $(_this).closest('ul').find(':checked');
   $checks.each(function () {
     window_open($(this).val());
   });
+  return false;
 }
 
 function init_input_masks() {
@@ -2048,6 +2046,9 @@ function show_infopopover_modal(modal_html) {
 })(jQuery, document);
 
 function create_transaction_for(type, _this, conf) {
+  var is_modal = $('#order-form input[name="is_modal"]').val();
+  var order_id = $('#order-form input[name="order_id"]').val();
+
   $(_this).button('loading');
 
   $.ajax({
@@ -2059,7 +2060,17 @@ function create_transaction_for(type, _this, conf) {
       open_print_forms();
       if (data) {
         if (data['state'] == true) {
-          location.reload();
+          if (is_modal) {
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            $('body').append($div);
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            location.reload();
+          }
         } else {
           if (data['msg']) {
             if (data['confirm']) {
@@ -2099,6 +2110,9 @@ function open_print_forms() {
 }
 
 function create_transaction(_this, conf) {
+  var is_modal = $('#order-form input[name="is_modal"]').val();
+  var order_id = $('#order-form input[name="order_id"]').val();
+
   $(_this).button('loading');
   $.ajax({
     url: prefix + 'accountings/ajax/?act=create-transaction',
@@ -2108,7 +2122,17 @@ function create_transaction(_this, conf) {
     success: function (data) {
       if (data) {
         if (data['state'] == true) {
-          location.reload();
+          if (is_modal) {
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            $('body').append($div);
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            location.reload();
+          }
         } else {
           if (data['msg']) {
             if (data['confirm']) {
@@ -2134,7 +2158,6 @@ function recalculate_amount_pay(_this) {
     amount = $parent.find('input#amount_without_discount').first().val(),
     result;
 
-  console.log('test');
   if (discount_type == 1) {
     result = amount * (1 - discount / 100);
   } else {
@@ -2145,6 +2168,8 @@ function recalculate_amount_pay(_this) {
 
 
 function give_without_pay(type, _this, order_id) {
+  var is_modal = $('#order-form input[name="is_modal"]').val();
+  var $div = $('<div class="modal-backdrop fade in"></div>');
   $(_this).button('loading');
 
   $.ajax({
@@ -2156,9 +2181,25 @@ function give_without_pay(type, _this, order_id) {
       open_print_forms();
       if (data) {
         if (data['state'] == true) {
-          location.reload();
+          if (is_modal) {
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            $('body').append($div);
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            location.reload();
+          }
         } else {
           alert(data['msg']);
+          if (is_modal) {
+            $('body').append($div);
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          }
         }
       }
       $(_this).button('reset');
@@ -2169,4 +2210,26 @@ function give_without_pay(type, _this, order_id) {
   });
 
   return false;
+}
+
+function edit_order_dialog_by_order_id(order_id, tab) {
+  $.ajax({
+    url: prefix + module + '/ajax?act=' + tab + '&show=modal',
+    type: 'POST',
+    data: {object_id: order_id},
+    success: function (msg) {
+      if (msg.content) {
+        $('#modal-dialog').html(msg.content).modal('show');
+        $('#modal-dialog').on('hidden.bs.modal', function (e) {
+          $('.modal-backdrop').remove();
+        })
+      } else {
+        alert(msg.msg);
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
 }

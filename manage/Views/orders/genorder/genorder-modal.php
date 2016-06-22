@@ -493,11 +493,13 @@
                             'comments_public' => $comments_public,
                             'comments_private' => $comments_private,
                             'onlyEngineer' => $onlyEngineer,
+                            'modal' => true
                         )); ?>
                         <?= $this->renderFile('orders/genorder/_private_comments', array(
                             'comments_public' => $comments_public,
                             'comments_private' => $comments_private,
                             'onlyEngineer' => $onlyEngineer,
+                            'modal' => true
                         )); ?>
                     </div>
                     <?= $this->renderFile('orders/genorder/_spares', array(
@@ -519,3 +521,10 @@
         <?= $this->all_configs['suppliers_orders']->append_js(); ?>
     </div>
 </div>
+<script>
+    jQuery(document).ready(function(){
+        $('#print_now').on('click', function(){
+            return print_now(this);
+        });
+    });
+</script>

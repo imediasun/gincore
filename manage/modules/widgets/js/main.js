@@ -92,7 +92,6 @@ var master = (function($){
                     currency_2 = $curr_selects.filter('[name='+(name == 'orders_currency' ? 'contractors_currency' : 'orders_currency')+']').val();
                 if(currency_1 && currency_2){
                    $('#course_input').removeClass('hidden');
-                   console.log(currency_1, currency_2);
                    if(currency_1 == currency_2){
                        count_course(1);
                        $('#course').val(1).attr('disabled', true);

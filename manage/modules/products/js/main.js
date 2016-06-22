@@ -286,7 +286,6 @@ $(function () {
                 data: 'act=goods_add_size_group&group_id='+group_id,
                 dataType: 'json',
                 success: function (data) {
-                    console.log(data);
                     var product = data.product;
                     if(data.state){
                         $title.val(product.title);

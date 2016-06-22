@@ -10,7 +10,6 @@ function orders_quick_search(_this, param) {
   } else {
     hash += 'show_orders-orders';
   }
-  console.log(hash);
   if (query) {
     window.location = prefix + 'orders?' + param + '=' + encodeURI(query) + '&qsq=' + encodeURI(query) + '&hash=' + encodeURI(hash);
   }
@@ -434,10 +433,11 @@ function send_sms(_this) {
 }
 
 function order_item(_this) {
+  var order_id = arrequest()[2] || $('#update-order').data('o_id') || $('input[name="order_id"]').val();
   $(_this).button('loading');
 
   $.ajax({
-    url: prefix + module + '/ajax/' + arrequest()[2] + '?act=order-item',
+    url: prefix + module + '/ajax/' + order_id + '?act=order-item',
     type: 'POST',
     data: 'order_product_id=' + $(_this).data('order_product_id'),
     success: function (msg) {
@@ -446,7 +446,18 @@ function order_item(_this) {
           alert(msg['msg']);
         }
         if (msg['state'] == true || msg['reload'] == true) {
+          if ($('#modal-dialog').is(':visible')) {
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            var order_id = $('input[name="order_id"]').val();
+            $('body').append($div);
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
           click_tab_hash();
+          }
           close_alert_box();
         }
       }
@@ -461,7 +472,7 @@ function order_item(_this) {
 }
 
 function update_order(_this) {
-  var order_id = arrequest()[2] || $('#update-order').data('o_id');
+  var order_id = arrequest()[2] || $('#update-order').data('o_id') || $('input[name="order_id"]').val();
   var modal = $(_this).parents('.modal-dialog').length > 0 ? 'modal' : '';
 
   $(_this).button('loading');
@@ -490,7 +501,17 @@ function update_order(_this) {
           return;
         }
         if (msg['location']) {
-          window.location.href = msg['location'];
+          if (modal) {
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            $('body').append($div);
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            window.location.href = msg['location'];
+          }
         }
         if (msg['state'] == true || msg['reload'] == true) {
           close_alert_box();
@@ -609,9 +630,8 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
           $(_this).parents('tr').remove();
         }
         if (msg.reload) {
-          console.log(is_modal);
-          if(is_modal) {
-              edit_order_dialog_by_order_id(order_id, 'display-order');
+          if (is_modal) {
+            edit_order_dialog_by_order_id(order_id, 'display-order');
             var $div = $('<div class="modal-backdrop fade in"></div>');
             $('body').append($div);
             setTimeout(function () {
@@ -741,6 +761,8 @@ $(function () {
 
 // редактируем заказ поставщику
 function show_suppliers_order(_this, id) {
+  var is_modal = $('#order-form input[name="is_modal"]').val();
+  var $div = $('<div class="modal-backdrop fade in"></div>');
   $.ajax({
     url: prefix + module + '/ajax/?act=supplier-order-form',
     type: 'POST',
@@ -751,6 +773,13 @@ function show_suppliers_order(_this, id) {
       }
       if (msg['state'] == true && msg['html']) {
         alert_box(_this, msg.html);
+      }
+      if (is_modal) {
+        $('body').append($div);
+        setTimeout(function () {
+          $('#modal-dialog').css('overflow', 'auto');
+          $('#modal-dialog').css('display', 'block');
+        }, 10);
       }
     },
     error: function (xhr, ajaxOptions, thrownError) {
@@ -1221,24 +1250,3 @@ function edit_order_dialog(_this, tab) {
   }
 }
 
-function edit_order_dialog_by_order_id(order_id, tab) {
-    $.ajax({
-      url: prefix + module + '/ajax?act=' + tab + '&show=modal',
-      type: 'POST',
-      data: {object_id: order_id},
-      success: function (msg) {
-        if (msg.content) {
-          $('#modal-dialog').html(msg.content).modal('show');
-          $('#modal-dialog').on('hidden.bs.modal', function (e) {
-            $('.modal-backdrop').remove();
-          })
-        } else {
-          alert(msg.msg);
-        }
-      },
-      error: function (xhr, ajaxOptions, thrownError) {
-        alert(xhr.responseText);
-      }
-    });
-
-}
