@@ -41,7 +41,6 @@ var gcw_feedback_widget = (function ($) {
       dataType: "json",
       contentType: contentType,
       success: function (data) {
-        console.log(data);
         if (data.state) {
           callbacks[method]($this, data);
         } else {
