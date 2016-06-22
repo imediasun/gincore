@@ -35,6 +35,7 @@ class check extends AbstractOrdersTemplate
                 'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
                 'prepay' => array('value' => $order['prepay'] / 100, 'name' => l('Предоплата')),
                 'sum' => array('value' => $order['sum'] / 100, 'name' => l('Сумма за ремонт')),
+                'sum_paid' => array('value' => $order['sum_paid'] / 100, 'name' => l('Оплачено')),
                 'discount' => array(
                     'value' => $order['discount'] .  viewCurrency(),
                     'name' => l('Скидка на заказ')
