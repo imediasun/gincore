@@ -11,15 +11,19 @@
             <label class="control-label"><?= l('Текст') ?>: </label>
             <div class="form-group">
                 <?= $this->renderFile('services/crm/sms/templates_list', array(
-                    'templates' => $templates
+                    'templates' => $templates,
+                    'default' => array(
+                        l('Базовый') => l('Ваш заказ') . ' №' . $order['id'] . ' ' . l('готов').'. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) .' '. viewCurrency()
+                    )
                 )) ?>
-                <textarea id='sms_body' class="form-control show-length" maxlength="69" name="text" style="text-align:left"><?= l('Ваш заказ')?> №<?= $order['id'] ?> <?= l('готов') ?>. <?= l('Стоимость ремонта') ?>: <?= ($order['sum'] / 100) ?> <?= viewCurrency() ?></textarea>
+                <textarea id='sms_body' class="form-control show-length" maxlength="69" name="text"
+                          style="text-align:left"><?= l('Ваш заказ') ?> №<?= $order['id'] ?> <?= l('готов') ?>. <?= l('Стоимость ремонта') ?>: <?= ($order['sum'] / 100) ?> <?= viewCurrency() ?></textarea>
             </div>
         </div>
         <input type="hidden" name="order_id" value="<?= $order_id ?>"/>
     </form>
     <script>
-        $(document).on('change', '#sms_template_select', function(){
+        $(document).on('change', '#sms_template_select', function () {
             var body = $(this).find('option:selected').data('body');
             $('#sms_body').text(body);
         });
