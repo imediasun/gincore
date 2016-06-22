@@ -564,8 +564,8 @@ class ChartUtils
                 array());
         }
 
-        $typeQuery = empty($options['types']) ? $this->db->makeQuery("AND {$prefix}type = 0", array())
-            : $this->db->makeQuery("AND {$prefix}type in (?li)", array($options['types']));
+        $typeQuery = empty($options['types']) ? $this->db->makeQuery(" AND {$prefix}type = 0", array())
+            : $this->db->makeQuery(" AND {$prefix}type in (?li)", array($options['types']));
         return array(
             $warrantyQuery,
             $typeQuery
@@ -603,30 +603,29 @@ class ChartUtils
     {
         if (!empty($_POST) && empty($_POST['types'])) {
             return Session::getInstance()->get('dashboard.order.types');
-        } else {
-            if (!empty($_POST['types'])) {
-                if (in_array('repair', $_POST['types'])) {
-                    $options['types'][] = ORDER_REPAIR;
-                }
-                if (in_array('sale', $_POST['types'])) {
-                    $options['types'][] = ORDER_SELL;
-                }
-                if (in_array('warranty', $_POST['types'])) {
-                    $options['warranty'][] = 1;
-                }
-                if (in_array('not-warranty', $_POST['types'])) {
-                    $options['not-warranty'][] = 1;
-                }
-            }
-            if (empty($options)) {
-                $options = array(
-                    'types' => array(ORDER_REPAIR, ORDER_SELL),
-                    'warranty' => array(),
-                );
-            }
-
-            Session::getInstance()->set('dashboard.order.types', $options);
         }
+        $options = array(
+            'warranty' => array()
+        );
+        if (!empty($_POST['types'])) {
+            if (in_array('repair', $_POST['types'])) {
+                $options['types'][] = ORDER_REPAIR;
+            }
+            if (in_array('sale', $_POST['types'])) {
+                $options['types'][] = ORDER_SELL;
+            }
+            if (in_array('warranty', $_POST['types'])) {
+                $options['warranty'][] = 1;
+            }
+            if (in_array('not-warranty', $_POST['types'])) {
+                $options['not-warranty'][] = 1;
+            }
+        }
+        if (empty($options['types'])) {
+            $options['types'] = array(ORDER_REPAIR, ORDER_SELL);
+        }
+
+        Session::getInstance()->set('dashboard.order.types', $options);
         return $options;
     }
 
@@ -677,7 +676,7 @@ class ChartUtils
 
     /**
      * @todo надо что то с этими свичами делать. фабрику?
-     *     
+     *
      * @return int
      */
     public function tickSize()
