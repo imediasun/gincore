@@ -6,7 +6,7 @@ require_once $all_configs['path'] . 'modules/translates/index.php';
 $modulename[210] = 'sms_templates';
 $modulemenu[210] = l('Шаблоны для sms');  //карта сайта
 
-$moduleactive[210] = true;
+$moduleactive[210] = false;
 
 class sms_templates extends translates
 {
@@ -207,6 +207,17 @@ class sms_templates extends translates
             'textarea' => false,
             'manage_lang' => $this->lang,
             'types' => array_flip($this->all_configs['configs']['sms-types'])
+        ));
+    }
+
+    /**
+     * @return string
+     */
+    protected function genmenu()
+    {
+        $sqls = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE `ro` = 0 ORDER BY `title`")->assoc();
+        return $this->view->renderFile('settings/genmenu', array(
+            'sqls' => $sqls
         ));
     }
 }
