@@ -247,7 +247,7 @@ try {
         require_once __DIR__ . '/modules/orders/index.php';
         $orders_module = new orders($all_configs, false);
         $orders_fail_percent = $orders_module->get_orders_manager_fail_percent();
-        if ($orders_fail_percent < 100) {
+        if ($orders_fail_percent <= 100) {
             if ($orders_fail_percent >= 30) {
                 $profile_color = '#FF5757';
             }
