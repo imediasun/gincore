@@ -349,14 +349,20 @@ function create_new_users_fields(_this) {
       type: 'POST',
       success: function (msg) {
         if (msg['state']) {
-          var $div = $('.js-new_field').clone();
+          var $div = $('.js-new_field').clone(),
+            $toggle = $('#toggle-for-new-field').clone();
+
+          $div.removeClass('js-new_field');
           $div.children('label').html(msg['title']);
           $div.children('textarea').attr('name', 'users_fields[' + msg.name + ']');
           $('div.new_fields').append($div);
           $div.show();
-          var height = $('.js-new_field_height').height();
-          $('.js-new_field_height').css('height', height + 78 + 15 + 'px');
           $('input[name="users_field_name"]').val('')
+          $toggle.attr('id', '');
+          $toggle.find('input').attr('name', 'config['+msg.name+']').addClass('test-toggle');
+          $toggle.show();
+          $toggle.insertBefore('#toggle-for-new-field');
+          $(".test-toggle").bootstrapSwitch();
         } else {
           alert(msg['msg']);
         }

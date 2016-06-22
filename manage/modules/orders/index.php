@@ -270,6 +270,13 @@ class orders extends Controller
         if (isset($_POST['hide-fields'])) {
             $config = empty($_POST['config']) ? array() : $_POST['config'];
             $this->order_fields_setup($config);
+            if(!empty($_POST['name'])) {
+                $data = array(
+                    'state' => false,
+                    'msg' => l('Проблемы при добавлении пользовательского поля в заказ')
+                );
+                $this->addUsersField($_POST, $data);
+            }
         }
 
         Response::redirect($_SERVER['REQUEST_URI']);

@@ -124,6 +124,12 @@
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+        <div class="form-group" id="toggle-for-new-field" style="height: 78px; display:none">
+            <label>&nbsp;</label>
+            <div class="input-group">
+                <input type="checkbox" name="" checked />
+            </div>
+        </div>
         <div class="form-group js-new_field_height" style="height: 50px"></div>
         <div class="form-group" style="margin-top: 0px;">
             <button id='apply-hide' type="submit" class="btn btn-primary"
