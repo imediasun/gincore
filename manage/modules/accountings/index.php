@@ -425,6 +425,9 @@ class accountings extends Controller
             if ($parent_id > 0) {
                 $this->addContractorCategoryForUsers($parent_id, $contractor_category);
             }
+            if(!empty($post['contractors'])) {
+                $this->addCategoryToContractors($contractor_category, $post['contractors']);
+            }
 
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование категории
@@ -455,6 +458,10 @@ class accountings extends Controller
             if ($ar) {
                 $this->History->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
             }
+            if(!empty($post['contractors'])) {
+                $this->updateCategoryToContractors($post['contractor_category-id'], $post['contractors']);
+            }
+
         } elseif (isset($post['cashboxes-currencies-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование валюты
             $courses = isset($post['cashbox_course']) ? $post['cashbox_course'] : '';
@@ -892,11 +899,18 @@ class accountings extends Controller
     function form_contractor_category($type, $contractor_category = null)
     {
         $categories = $this->get_contractors_categories($type);
-
+        $contractors = db()->query('SELECT id, title FROM {contractors}')->assoc('id');
+        if($contractor_category) {
+            $contractors_category_links = db()->query("SELECT contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id=?i", array($contractor_category['id']))->col();
+        } else {
+            $contractors_category_links = array();
+        }
         return $this->view->renderFile('accountings/form_contractor_category', array(
             'categories' => $categories,
             'contractor_category' => $contractor_category,
-            'type' => $type
+            'type' => $type,
+            'contractors' => $contractors,
+            'contractors_category_links' => $contractors_category_links
         ));
     }
 
@@ -3636,5 +3650,26 @@ class accountings extends Controller
             $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
         }
         return $data;
+    }
+
+    /**
+     * @param $contractor_category
+     * @param $contractors
+     */
+    private function addCategoryToContractors($contractor_category, $contractors)
+    {
+        foreach ($contractors as $contractor) {
+            db()->query('INSERT {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)', array($contractor_category, $contractor));
+        }
+    }
+
+    /**
+     * @param $contractor_category
+     * @param $contractors
+     */
+    private function updateCategoryToContractors($contractor_category, $contractors)
+    {
+        db()->query('DELETE FROM {contractors_categories_links} WHERE contractors_categories_id=?i', array($contractor_category));
+        $this->addCategoryToContractors($contractor_category, $contractors);
     }
 }

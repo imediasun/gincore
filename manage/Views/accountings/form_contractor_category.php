@@ -12,42 +12,74 @@
         <input type='hidden' name='contractor_category-add' value='1'/>
     <?php endif; ?>
 
-    <div class='form-group'>
-        <label><?= l('Статья') ?>: </label>
-        <input class='form-control' placeholder='<?= l(' введите название статьи') ?>' name='title'
-               value='<?= $contractor_category ? htmlspecialchars($contractor_category['name']) : '' ?>'/>
-    </div>
-    <div class='form-group'>
-        <label><?= l('Родительская статья') ?>: </label>
+    <table class="table table-borderless">
+        <tr>
+            <td width="40%">
+                <label><?= l('Статья') ?>: </label>
+            </td>
+            <td>
+                <input class='form-control' placeholder='<?= l(' введите название статьи') ?>' name='title'
+                       value='<?= $contractor_category ? htmlspecialchars($contractor_category['name']) : '' ?>'/>
 
-        <?php if ($contractor_category): ?>
-            <select class='multiselect' name='parent_id'>
-                <option value=''><?= l('Высшая') ?></option>
-                <?= build_array_tree($categories, $contractor_category['parent_id']) ?>
-            </select>
-        <?php else: ?>
-            <select class='multiselect' name='parent_id'>
-                <option value=''><?= l('Высшая') ?></option>
-                <?= build_array_tree($categories) ?>
-            </select>
-        <?php endif; ?>
-    </div>
-    <div class='form-group'>
-        <label><?= l('Комментарий') ?>: </label>
-        <div class='controls'>
+            </td>
+        </tr>
+        <tr>
+            <td width="40%">
+                <label><?= l('Родительская статья') ?>: </label>
+            </td>
+            <td>
+                <?php if ($contractor_category): ?>
+                    <select class='multiselect' name='parent_id'>
+                        <option value=''><?= l('Высшая') ?></option>
+                        <?= build_array_tree($categories, $contractor_category['parent_id']) ?>
+                    </select>
+                <?php else: ?>
+                    <select class='multiselect' name='parent_id'>
+                        <option value=''><?= l('Высшая') ?></option>
+                        <?= build_array_tree($categories) ?>
+                    </select>
+                <?php endif; ?>
+            </td>
+        </tr>
+        <tr>
+            <td width="40%">
+                <label><?= l('Комментарий') ?>: </label>
+            </td>
+            <td>
             <textarea class='form-control' name='comment'
                       placeholder='<?= l(' введите комментарий к статье') ?>'><?= $contractor_category ? htmlspecialchars($contractor_category['comment']) : '' ?></textarea>
-        </div>
-    </div>
-    <div class='form-group'>
-        <div class='checkbox'>
-            <label>
-                <input
-                    type='checkbox' <?= $contractor_category ? ($contractor_category['avail'] == 1 ? 'checked' : '') : 'checked' ?>
-                    class='btn' name='avail' value='1'/>
-                <?= l('Отображать') ?>
-            </label>
-        </div>
-    </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class='checkbox'>
+                    <label>
+                        <input
+                            type='checkbox' <?= $contractor_category ? ($contractor_category['avail'] == 1 ? 'checked' : '') : 'checked' ?>
+                            class='btn' name='avail' value='1'/>
+                        <?= l('Отображать') ?>
+                    </label>
+                </div>
+            </td>
+        </tr>
+        <?php if (!empty($contractors)): ?>
+            <tr>
+                <td width="40%">
+                    <label>
+                        <?= l('Статья доступна следующим контрагентам') ?>:
+                    </label>
+                </td>
+                <td>
+                    <select class='multiselect' name='contractors[]' multiple="multiple">
+                        <?php foreach ($contractors as $contractor): ?>
+                            <option value="<?= $contractor['id'] ?>" <?= in_array($contractor['id'], $contractors_category_links)? 'selected': '' ?>><?= $contractor['title'] ?> </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                </td>
+            </tr>
+        <?php endif; ?>
+    </table>
+
 </form>
 
