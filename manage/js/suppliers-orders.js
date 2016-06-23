@@ -85,6 +85,7 @@ function edit_supplier_order(_this) {
             click_tab_hash();
           }
         }
+        close_alert_box();
       }
       $(_this).button('reset');
     },
