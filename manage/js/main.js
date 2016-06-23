@@ -1886,7 +1886,7 @@ $(function () {
   $(window).load(hide_flashmessages);
 
   init_input_masks();
-  $('#print_now').on('click', function(){
+  $('#print_now').on('click', function () {
     return print_now(this);
   });
 });
@@ -2222,8 +2222,8 @@ function edit_order_dialog_by_order_id(order_id, tab) {
       if (msg.content) {
         $('#modal-dialog').html(msg.content).modal('show');
         $('#modal-dialog').on('hidden.bs.modal', function (e) {
-          $('.modal-backdrop').remove();
-        })
+          location.reload();
+        });
       } else {
         alert(msg.msg);
       }
