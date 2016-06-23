@@ -4,7 +4,7 @@
                 aria-expanded="false">
             <i class="fa fa-print"></i> <span class="caret"></span>
         </button>
-        <ul class="keep-open dropdown-menu print_menu">
+        <ul class="keep-open dropdown-menu print_menu" style="overflow: visible;">
             <li>
                 <div class="checkbox">
                     <label>
