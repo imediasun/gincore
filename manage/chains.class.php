@@ -3181,7 +3181,7 @@ class Chains extends Object
             $this->all_configs['suppliers_orders']->add_client_order_comment($data['id'], $private_comment, 1);
         }
         // прикрепляем заявку к заказу
-        if (isset($post['crm_request'])) {
+        if (!empty($crm_request)) {
             get_service('crm/requests')->attach_to_order($data['id'], $crm_request);
         }
         // предоплата
