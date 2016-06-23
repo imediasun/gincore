@@ -1074,3 +1074,31 @@ table.table-borderless tr td
 .infopopover.popover .infopopover-close:hover{
     color: #000;
 }
+.as_link {
+    border: none;
+    border-bottom: 1px dashed;
+    color: #5b5b5b;
+    cursor: pointer;
+    display: inline-block;
+    background-color: white;
+}
+.as_item_list {
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    background-color: transparent;
+}
+.as_button {
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 10px 0 10px;
+    width: 115px;
+    text-align: center;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 0.8em;
+}

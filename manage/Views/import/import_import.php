@@ -4,7 +4,7 @@
             <form id="import_form" method="post">
                 <div class="form-group">
                     <label><?= l('Тип импорта') ?></label>
-                    <select class="form-control" name="import_type" id="import_type">
+                    <select class="form-control" name="import_type" id="import_type" style="width:50%">
                         <?= $this->renderFile('import/gen_types_select_options', array(
                             'selected' => $selected,
                             'options' => $options

@@ -3441,7 +3441,8 @@ class accountings extends Controller
             $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
             $data['content'] .= '<td><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id">' . $select_contractors . '</select>';
             $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
-            $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a>';
+            $data['content'] .= '</td></tr>';
         }
         // только обычные транзакции
         if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {

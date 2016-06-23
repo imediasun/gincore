@@ -59,8 +59,8 @@
     <?php endforeach; ?>
 
     <tr>
-        <td colspan="7"></td>
-        <td colspan="2">
+        <td colspan="6"></td>
+        <td colspan="3">
             <?php $addition = ''; ?>
             <?php if (isset($_GET['whs'])): ?>
                 <?php $addition .= '&whs=' . $_GET['whs'] ?>
