@@ -236,7 +236,7 @@ class requests extends \service
      * @param bool   $disabled
      * @return string
      */
-    private function get_statuses_list($active = 0, $multi = '', $multiselect = false, $disabled = false)
+    public function get_statuses_list($active = 0, $multi = '', $multiselect = false, $disabled = false)
     {
         $statuses_opts = '';
         foreach ($this->statuses as $s_id => $s) {
@@ -345,7 +345,7 @@ class requests extends \service
     /**
      * @return string
      */
-    private function all_requests_list_filters_block()
+    public function all_requests_list_filters_block()
     {
         // операторы
         $operators = $this->get_operators();
@@ -439,7 +439,7 @@ class requests extends \service
     /**
      * @return string
      */
-    private function request_to_order_form()
+    public function request_to_order_form()
     {
         return $this->view->renderFile('services/crm/requests/request_to_order_form', array()). $this->assets();
     }
