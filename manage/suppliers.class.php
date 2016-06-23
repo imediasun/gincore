@@ -154,7 +154,7 @@ class Suppliers extends Object
             }
 
             // сообщение что типа сохранено
-            $_SESSION['suppliers_edit_order_msg'] = l('Сохранено успешно');
+            FlashMessage::set(l('Сохранено успешно'), FlashMessage::SUCCESS);
             $data = array(
                 'state' => true
             );
@@ -705,16 +705,6 @@ class Suppliers extends Object
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
         $goods_html = '';
-        if (isset($_SESSION['suppliers_edit_order_msg'])) {
-            $goods_html .=
-                '<div class="alert alert-success alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    ' . $_SESSION['suppliers_edit_order_msg'] . '
-                </div>
-            ';
-            unset($_SESSION['suppliers_edit_order_msg']);
-        }
         if ($order_id) {
             $goods_html .= '<h3>' . l('Редактирование заказа поставщику') . ' №' . $order_id . '</h3>';
         } else {
