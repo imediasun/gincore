@@ -3434,9 +3434,9 @@ class accountings extends Controller
             //* Статья 2
             $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
             $data['content'] .= '<td style="width:150px"><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
-            $data['content'] .= $select_contractors_categories_from . '</select>';
+            $data['content'] .= $select_contractors_categories_from . '</select></td>';
             $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
-            $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '<td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             //* Контрагент 1 2
             $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
             $data['content'] .= '<td style="width:150px"><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id" style="width: 100%;">' . $select_contractors . '</select></td>';
