@@ -1,4 +1,8 @@
-<?php namespace services\crm;
+<?php
+
+namespace services\crm;
+
+require_once __DIR__.'/../../../Core/View.php';
 
 class requests extends \service
 {
@@ -7,6 +11,7 @@ class requests extends \service
     // установить этот статус если заявка привязывается к ремонту
     const request_in_order_status = 2;
     private $statuses;
+    protected $view;
 
     /**
      *
@@ -349,45 +354,11 @@ class requests extends \service
         $operators = $this->get_operators();
         // дата
         $date = (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '');
-        return '
-            <style>
-                .filter_block > input{
-                    max-width: 100% !important;
-                }
-            </style>
-            <form class="filter_block" method="get" action="' . $this->all_configs['prefix'] . 'clients">
-                <input type="hidden" name="tab" value="requests">
-                <div class="form-group">
-                    <label>' . l('Оператор') . ':</label><br>
-                    ' . $operators . '
-                </div>
-                <div class="form-group">
-                    <label>' . l('Статус') . ':</label><br>
-                    ' . $this->get_statuses_list(!empty($_GET['status_id']) ? $_GET['status_id'] : null, '', true) . '
-                </div>
-                <div class="form-group">
-                    <label>' . l('Дата') . ':</label>
-                    <input type="text" placeholder="' . l('Дата') . '" name="date" class="form-control daterangepicker" value="' . $date . '" />
-                </div>
-                <div class="form-group">
-                    <label>' . l('Клиент') . ':</label>
-                    ' . typeahead($this->all_configs['db'], 'clients', false,
-            (!empty($_GET['clients']) ? $_GET['clients'] : 0), 2, 'input-xlarge', 'input-medium', '', false, false,
-            '') . '
-                </div>
-                <div class="form-group">
-                    <label>' . l('номер заявки') . ':</label>
-                    <input type="text" name="request_id" class="form-control" placeholder="' . l('номер заявки') . '" value="' . (!empty($_GET['request_id']) ? (int)$_GET['request_id'] : '') . '">
-                </div>
-                <div class="form-group">
-                    <label>' . l('Устройство') . ':</label>
-                    ' . typeahead($this->all_configs['db'], 'categories-goods', false,
-            isset($_GET['categories-goods']) ? (int)$_GET['categories-goods'] : 0, '', 'input-xlarge', '', '', false,
-            false, '') . '
-                </div>
-                <input type="submit" class="btn btn-primary" value="' . l('Фильтровать') . '">
-            </form>
-        ';
+        return $this->view->renderFile('services/crm/requests/all_requests_list_filters_block', array(
+           'operators' => $operators,
+            'date' => $date,
+            'controller' => $this
+        ));
     }
 
     // список всех заявок с фильтрами
@@ -404,43 +375,13 @@ class requests extends \service
         }
         $count_on_page = count_on_page();
         $count_pages = ceil($req_data[1] / $count_on_page);
-        return '
-            <div class="row-fluid">
-                <div class="span2">
-                    ' . $this->all_requests_list_filters_block() . '
-                </div>
-                <div class="span10">
-                    <form method="post" class="ajax_form" action="' . $this->all_configs['prefix'] . 'services/ajax.php">
-                        <input type="hidden" name="service" value="crm/requests">
-                        <input type="hidden" name="action" value="save_requests">
-                        <input type="hidden" name="requests_ids" value="' . implode(',', array_keys($req_data[0])) . '">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>id</th>
-                                    <th>' . l('оператор') . '</th>
-                                    <th>' . l('клиент') . '</th>
-                                    <th>' . l('Дата') . '</th>
-                                    <th>' . l('Статус') . '</th>
-                                    <th>' . l('ссылка') . '</th>
-                                    <th>' . l('устройство') . '</th>
-                                    <th>' . l('комментарий') . '</th>
-                                    <th>' . l('номер ремонта') . '</th>
-                                    <th style="text-align:center">SMS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ' . $list . '
-                            </tbody>
-                        </table>
-                        <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '">
-                    </form>
-                    ' . $this->request_to_order_form() . '
-                    ' . page_block($count_pages, $req_data[1]) . '
-                    ' . get_service('crm/sms')->get_form('requests') . '
-                </div>
-            </div>
-        ';
+        return $this->view->renderFile('services/crm/requests/get_all_requests_list', array(
+            'count_pages' => $count_pages,
+            'count_on_page' => $count_on_page,
+            'req_data' => $req_data,
+            'controller' => $this,
+            'list' => $list
+        ));
     }
 
     /**
@@ -503,31 +444,7 @@ class requests extends \service
      */
     private function request_to_order_form()
     {
-        return '
-            <div id="add_order_to_request" class="modal fade">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form method="post" class="ajax_form" action="' . $this->all_configs['prefix'] . 'services/ajax.php">
-                            <input type="hidden" name="service" value="crm/requests">
-                            <input type="hidden" name="action" value="requests_to_order">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title">' . l('Привязать заявку к заказу') . '</h4>
-                            </div>
-                            <div class="modal-body">
-                                ' . l('Введите номер заказа') . ': <br>
-                                <input type="hidden" name="request_id" id="order_to_request_id" value="">
-                                <input type="text" name="order_id" class="form-control">
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">' . l('Привязать') . '</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            ' . $this->assets() . '
-        ';
+        return $this->view->renderFile('services/crm/requests/request_to_order_form', array()). $this->assets();
     }
 
     // генерит форму (строку) добавления заявки на странице нового звонка
@@ -606,7 +523,6 @@ class requests extends \service
      */
     public function get_new_request_form($client_id, $call_id = null)
     {
-
         return '';
     }
 
@@ -991,6 +907,8 @@ class requests extends \service
      */
     private function __construct()
     {
+        global $all_configs;
         $this->set_statuses();
+        $this->view = new \View($all_configs);
     }
 }
