@@ -6,7 +6,8 @@ require_once __DIR__ . '/../../Core/Controller.php';
 $modulename[110] = 'settings';
 $modulemenu[110] = l('sets_modulemenu');  //карта сайта
 
-$moduleactive[110] = !$ifauth['is_2'];
+global $all_configs;
+$moduleactive[110] = $all_configs['oRole']->hasPrivilege('edit-users');
 
 class settings extends Controller
 {
@@ -346,11 +347,11 @@ class settings extends Controller
     }
 
     /**
-     * @inheritdoc
+     * @return mixed
      */
-    public function can_show_module()
+    function can_show_module()
     {
-        return true;
+        return ($this->all_configs['oRole']->hasPrivilege('edit-users'));
     }
 
     /**

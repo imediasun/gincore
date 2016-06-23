@@ -5,7 +5,8 @@ require_once __DIR__ . '/../../Core/Response.php';
 
 $modulename[100] = 'statistics';
 $modulemenu[100] = l('Статистика');
-$moduleactive[100] = !$ifauth['is_1'];
+global $all_configs;
+$moduleactive[100] = $all_configs['oRole']->hasPrivilege('edit-users');
 
 class statistics extends Object
 {
@@ -26,14 +27,26 @@ class statistics extends Object
         }
         $this->view = new View($all_configs);
 
-        if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
-            $this->ajax();
+        if ($this->can_show_module() == false) {
+            $input_html['mcontent'] = '<div class="span3"></div>
+                <div class="span9"><p  class="text-error">' . l('У Вас не достаточно прав') . '</p></div>';
+        } else {
+
+            if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
+                $this->ajax();
+            }
+
+            $input_html['mcontent'] = $this->gencontent();
         }
-
-
         $input_html['mmenu'] = $this->genmenu();
+    }
 
-        $input_html['mcontent'] = $this->gencontent();
+    /**
+     * @return mixed
+     */
+    function can_show_module()
+    {
+        return ($this->all_configs['oRole']->hasPrivilege('edit-users'));
     }
 
     /**
