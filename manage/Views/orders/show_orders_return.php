@@ -1,7 +1,7 @@
 <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
 <?php if (!empty($orders)): ?>
     <div id="show_orders">
-        <table class="table">
+        <table class="table" >
             <thead>
             <tr>
                 <td></td>

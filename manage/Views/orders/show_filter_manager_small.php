@@ -1,8 +1,6 @@
-<div class="span1">
-    <p class="form-control-static"><?= l('manager') ?>:</p>
-</div>
-<div class="span2">
-    <span class="input-group-btn">
+<div class="input-group">
+    <p class="form-control-static" style="display: inline-block; margin-right: 10px; white-space: nowrap"><?= l('manager') ?>:</p>
+    <span class="input-group-btn" style="margin-left: 10px">
     <select <?= ($compact ? ' data-numberDisplayed="0"' : '') ?>
         class="multiselect <?= ($showWrapper ? ' btn-sm ' : '') ?>" name="managers[]" multiple="multiple">
         <?php foreach ($managers as $manager): ?>

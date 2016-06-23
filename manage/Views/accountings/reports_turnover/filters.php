@@ -1,8 +1,9 @@
 <form method="post" style="max-width: 400px">
     <table class="table borderless">
         <tr>
-            <td>
-                <input type="text" name="date" value="<?= $date ?>" class="btn btn-info daterangepicker"/><?php //=  InfoPopover::getInstance()->createQuestion('l_accountings_report_period_info')?>
+            <td style="padding: 0 5px 0 0">
+                <input type="text" name="date" value="<?= $date ?>"
+                       class="btn btn-info daterangepicker"/><?php //=  InfoPopover::getInstance()->createQuestion('l_accountings_report_period_info')?>
             </td>
             <td style="padding: 0 5px 0 0 ">
                 <div class="btn-group">
@@ -107,3 +108,12 @@
         </tr>
     </table>
 </form>
+<style>
+    .multiselect-btn-group {
+        width: 105px !important;
+    }
+
+    button.multiselect {
+        width: 105px !important;
+    }
+</style>

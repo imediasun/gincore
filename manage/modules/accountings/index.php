@@ -3427,22 +3427,22 @@ class accountings extends Controller
         if ($co_id == 0) {
             //* Статья 1
             $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
-            $data['content'] .= '<td><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
+            $data['content'] .= '<td style="width:150px"><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
             $data['content'] .= $select_contractors_categories_to . '</select>';
             $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
-            $data['content'] .= '</select><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '</select></td><td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             //* Статья 2
             $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
-            $data['content'] .= '<td><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
+            $data['content'] .= '<td style="width:150px"><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
             $data['content'] .= $select_contractors_categories_from . '</select>';
             $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
             $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             //* Контрагент 1 2
             $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
-            $data['content'] .= '<td><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id">' . $select_contractors . '</select>';
+            $data['content'] .= '<td style="width:150px"><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id" style="width: 100%;">' . $select_contractors . '</select></td>';
             $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
-            $data['content'] .= '<a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a>';
-            $data['content'] .= '</td></tr>';
+            $data['content'] .= '<td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td>';
+            $data['content'] .= '</tr>';
         }
         // только обычные транзакции
         if ($act == 'begin-transaction-1' || $act == 'begin-transaction-2' || $act == 'begin-transaction-3') {
@@ -3494,6 +3494,17 @@ class accountings extends Controller
             $data['content'] .= '</tr>';
         }
         $data['content'] .= '</tbody></table></div></fieldset></form>';
+        $data['content'] .= '
+            <style>
+                .multiselect-btn-group {
+                    width: 150px !important;
+                }
+
+                button.multiselect {
+                    width: 150px !important;
+                }
+            </style>
+        ';
 
         $data['btns'] = '<button type="button" onclick="create_transaction(this)" class="btn btn-success">' . $btn . '</button>';
 

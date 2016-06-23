@@ -8,7 +8,7 @@ var multiselect_options = {
   //dropRight: true,
   selectAllText: L['checkAll'],
   //dataprovider: [{label:1, value: 1}],
-  buttonWidth: '105px',
+  buttonWidth: '150px',
   maxHeight: 200,
   maxWidth: 330/*,
    label: function(element) {
