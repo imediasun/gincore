@@ -1,8 +1,9 @@
 <?php
 
+require_once __DIR__.'/../Core/View.php';
+
 class service
 {
-
     protected $all_configs = null;
 
     /**

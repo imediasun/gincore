@@ -2,11 +2,8 @@
 
 namespace services\crm;
 
-require_once __DIR__.'/../../../Core/View.php';
-
 class requests extends \service
 {
-
     private static $instance = null;
     // установить этот статус если заявка привязывается к ремонту
     const request_in_order_status = 2;

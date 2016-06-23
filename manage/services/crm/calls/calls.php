@@ -1,8 +1,5 @@
 <?php namespace services\crm;
 
-require_once __DIR__.'/../../../Core/View.php';
-
-
 class calls extends \service{
     /** @var \View  */
     protected $view;
@@ -46,28 +43,10 @@ class calls extends \service{
                 'referrers_list' => $this->get_referers_list($call['referer_id'], $call['id'])
             ));
         });
-        return '
-            <form method="post" class="ajax_form" action="'.$this->all_configs['prefix'].'services/ajax.php">
-                <input type="hidden" name="service" value="crm/calls">
-                <input type="hidden" name="action" value="save_calls">
-                <input type="hidden" name="client_id" value="'.$client_id.'">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>id</th>
-                            <th>'.l('Оператор').'</th>
-                            <th>'.l('Статус').'</th>
-                            <th>'.l('Канал').'</th>
-                            <th>'.l('Код').'</th>
-                            <th>'.l('Дата').'</th>
-                            <th>'.l('Создать заявку').'</th>
-                        </tr>
-                    </thead>
-                    <tbody>'.$list_items.'</tbody>
-                </table>
-                <input id="save_all_fixed" class="btn btn-primary" type="submit" value="' . l('Сохранить изменения') . '">
-            </form>
-        ';
+        return $this->view->renderFile('services/crm/calls/calls_list_table', array(
+            'list_items' => $list_items,
+            'client_id' => $client_id
+        ));
     }
 
     /**
