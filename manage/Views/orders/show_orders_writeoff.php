@@ -1,5 +1,5 @@
 <?php if (!empty($orders)): ?>
-    <table class="table">
+    <table class="table table-fs-12">
         <thead>
         <tr>
             <td></td>

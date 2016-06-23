@@ -1102,3 +1102,24 @@ table.table-borderless tr td
     font-weight: bold;
     font-size: 0.8em;
 }
+.table-fs-12 >thead >tr{
+    text-align: center;
+}
+.table-fs-12 >tbody >tr{
+    font-size: 12px !important;
+    max-height: 45px;
+    text-overflow: ellipsis;
+}
+
+.table-fs-12 >tbody >tr >td{
+    font-size: 12px;
+    height: 30px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+div.overflow-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    word-wrap: normal; /* для IE */
+    text-overflow: ellipsis;
+}
