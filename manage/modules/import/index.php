@@ -2,9 +2,10 @@
 
 require_once __DIR__ . '/../../Core/View.php';
 
+global $all_configs;
 $modulename[133] = 'import';
 $modulemenu[133] = l('Импорт');
-$moduleactive[133] = !$ifauth['is_2'];
+$moduleactive[133] = $all_configs['oRole']->hasPrivilege('edit-users');
 
 class import
 {
@@ -72,7 +73,7 @@ class import
      */
     function can_show_module()
     {
-        return ($this->all_configs['oRole']->hasPrivilege('site-administration'));
+        return ($this->all_configs['oRole']->hasPrivilege('edit-users'));
     }
 
     /**

@@ -5,7 +5,8 @@ require_once __DIR__ . '/../../Core/Controller.php';
 $modulename[132] = 'widgets';
 $modulemenu[132] = l('Виджеты');  //карта сайта
 
-$moduleactive[132] = !$ifauth['is_2'];
+global $all_configs;
+$moduleactive[132] = $all_configs['oRole']->hasPrivilege('edit-users');
 
 /**
  * @property  MSettings Settings
@@ -189,7 +190,7 @@ class widgets extends Controller
      */
     public function can_show_module()
     {
-        return true;
+        return ($this->all_configs['oRole']->hasPrivilege('edit-users'));
     }
 
     /**
