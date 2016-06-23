@@ -1065,20 +1065,6 @@ function recalculate_amount_eshop() {
     $('.js-eshop-pay-button').addClass('disabled');
   }
 }
-
-function sum_calculate() {
-  var
-    price = parseInt($('#eshop_sale_poduct_cost').val()) || 0,
-    discount = parseInt($('#eshop_sale_poduct_discount').val()) || 0,
-    quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0;
-
-  if ($('input[name="discount_type"]').val() == 1) {
-    $('#eshop_sale_poduct_sum').val(price * (1 - discount / 100) * quantity);
-  } else {
-    $('#eshop_sale_poduct_sum').val((price - discount) * quantity);
-  }
-}
-
 function remove_row_eshop(_this) {
   $(_this).parent().parent().remove();
   recalculate_amount_eshop();
@@ -1166,13 +1152,6 @@ function select_cashbox(_this) {
   var cashbox = parseInt($(_this).attr('data-cashbox'));
   $('input[name="cashbox"]').val(cashbox);
   $('.btn-title').html($(_this).html());
-  return false;
-}
-function select_discount_type(_this) {
-  var cashbox = parseInt($(_this).attr('data-discount_type'));
-  $('input[name="discount_type"]').val(cashbox);
-  $('.btn-title-discount_type').html($(_this).html());
-  sum_calculate();
   return false;
 }
 function select_price_type(_this) {

@@ -1,6 +1,6 @@
 <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
 <?php if ($orders && count($orders) > 0): ?>
-    <table class="table table-striped">
+    <table class="table table-striped table-fs-12">
         <thead>
         <tr>
             <td><?= l('номер заказа') ?></td>

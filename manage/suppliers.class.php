@@ -298,16 +298,9 @@ class Suppliers extends Object
     {
         $wh_groups = $this->all_configs['db']->query('SELECT id, name FROM {warehouses_groups} ORDER BY id',
             array())->assoc();
-        $orders_html = '<div class="input-group"><p class="form-control-static">' . l('Сервисный Центр') . ':</p> ';
-        $orders_html .= '<span class="input-group-btn"><select class="multiselect form-control" multiple="multiple" name="wh_groups[]">';
-        $wg_get = isset($_GET['wg']) ? explode(',', $_GET['wg']) :
-            (isset($_GET['wh_groups']) ? $_GET['wh_groups'] : array());
-        foreach ($wh_groups as $wh_group) {
-            $orders_html .= '<option ' . ($wg_get && in_array($wh_group['id'], $wg_get) ? 'selected' : '');
-            $orders_html .= ' value="' . $wh_group['id'] . '">' . $wh_group['name'] . '</option>';
-        }
-        $orders_html .= '</select></span></div>';
-        return $orders_html;
+        return $this->view->renderFile('suppliers.class/show_filter_service_center', array(
+            'wh_groups' => $wh_groups
+        ));
     }
 
     /**

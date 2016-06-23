@@ -66,7 +66,7 @@
                     <td width="20%">
                         * <?= l('В кассу') ?>
                     </td>
-                    <td width="40%">
+                    <td width="35%">
                         <select onchange="select_cashbox(this, 2)" name="cashbox_to"
                                 class="form-control input-sm cashbox-2"><?= $select_cashbox ?></select>
                     </td>
@@ -80,7 +80,7 @@
                             />
                         </span>
                     </td>
-                    <td width="10%">
+                    <td width="15%">
                         <span>
                             <input type="text" class="form-control js-repair-discount input-sm"
                                    onkeyup="recalculate_amount_pay();" value="0" name='discount'/>

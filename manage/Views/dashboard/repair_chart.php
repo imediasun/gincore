@@ -46,7 +46,7 @@
                 <div class="col-md-12 text-center">
                     <form method="POST" id="repair-chart-form">
                         <fieldset>
-                            <label class="col-sm-3">
+                            <label class="col-sm-4">
                                 <?= l('Категории'); ?>:
 
                                 <select class="multiselect input-small" data-type="categories" multiple="multiple"
@@ -69,7 +69,7 @@
                                     <?= build_array_tree($items, $selectedItems) ?>
                                 </select>
                             </label>
-                            <div class="col-sm-3">
+                            <div class="col-sm-2">
                                 <button type="submit" class="btn btn-primary" onclick="return load_repair_chart(this);"> <?= l('Применить') ?></button>
                             </div>
                         </fieldset>

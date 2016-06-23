@@ -7,7 +7,7 @@
             <tr>
                 <td></td>
                 <td><?= l('Название') ?></td>
-                <td><?= l('Сумма') ?></td>
+                <td><?= l('Сумма') ?>, <?= viewCurrencySuppliers() ?></td>
                 <td></td>
             </tr>
             </thead>

@@ -1,6 +1,6 @@
 <div class="hidden js-filters"><?= $saleOrdersFilters ?></div>
 <?php if (!empty($orders)): ?>
-    <table class="table table-striped">
+    <table class="table table-striped table-fs-12">
         <thead>
         <tr>
             <td><?= l('номер заказа') ?></td>

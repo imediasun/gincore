@@ -62,7 +62,7 @@
     <?php if ($order['sale_type'] == SALE_TYPE_ESHOP): ?>
         <td style="word-wrap:break-word; max-width: 150px"
             title="<?= $helper->getCommentsTooltip($order['order_id']) ?>">
-            <?= h($helper->getLastComment($order['order_id'])) ?>
+            <div class="overflow-ellipsis"> <?= h($helper->getLastComment($order['order_id'])) ?> </div>
         </td>
     <?php else: ?>
         <td></td>

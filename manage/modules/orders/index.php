@@ -1489,22 +1489,14 @@ class orders extends Controller
             }
             // -- фильтры
 
-            $orders_html = '
-                <div>
-                    <form class="form-inline well">
-                        ' . $this->all_configs['suppliers_orders']->show_filter_service_center() . '
-                        ' . $this->show_filter_manager_small() . '
-                        <input type="text" placeholder="' . l('Дата') . '" name="date" class="daterangepicker form-control " value="' . $get_date . '" />
-                        <input type="submit" class="btn btn-primary" value="' . l('Фильтровать') . '">
-                        <button type="button" class="btn fullscreen"><i class="fa fa-arrows-alt"></i></button>
-                        <button type="button" class="btn btn-primary  pull-right " onclick="return manager_setup(this);">' . l('Настройки') . '</button>
-                    </form>
-                </div>
-            ';
+            $orders_html = $this->view->renderFile('orders/order_manager_filters',array(
+                'service_filter' =>    $this->all_configs['suppliers_orders']->show_filter_service_center(),
+                'manager_filter' => $this->show_filter_manager_small(),
+                'get_date' => $get_date,
+                'filter_stats' => $filter_stats
+            ));
 
             $orders_html .= '
-                ' . $filter_stats . '
-                <br>
                 <div id="orders-manager-block">
                     ' . $manager_block . '
                 </div>

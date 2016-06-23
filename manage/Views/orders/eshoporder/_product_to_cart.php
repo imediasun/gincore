@@ -11,7 +11,7 @@
     <tr>
         <td class="col-sm-3">
             <label class="control-label">
-                <?= l('Устройство') ?>:
+                <?= l('Наименование') ?>:
             </label>
         </td>
         <td>

@@ -1074,3 +1074,52 @@ table.table-borderless tr td
 .infopopover.popover .infopopover-close:hover{
     color: #000;
 }
+.as_link {
+    border: none;
+    border-bottom: 1px dashed;
+    color: #5b5b5b;
+    cursor: pointer;
+    display: inline-block;
+    background-color: white;
+}
+.as_item_list {
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    background-color: transparent;
+}
+.as_button {
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 10px 0 10px;
+    width: 115px;
+    text-align: center;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 0.8em;
+}
+.table-fs-12 >thead >tr{
+    text-align: center;
+}
+.table-fs-12 >tbody >tr{
+    font-size: 12px !important;
+    max-height: 45px;
+    text-overflow: ellipsis;
+}
+
+.table-fs-12 >tbody >tr >td{
+    font-size: 12px;
+    height: 30px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+div.overflow-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    word-wrap: normal; /* для IE */
+    text-overflow: ellipsis;
+}
