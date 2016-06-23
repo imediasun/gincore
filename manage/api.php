@@ -61,6 +61,7 @@ if ($data->act == 'getSystemInfo') {
     $info['users']['count'] = $all_configs['db']->query("SELECT count(*) FROM {users}")->el();
     $info['warehouses_goods_items']['count_all'] = $all_configs['db']->query("SELECT count(*) FROM {warehouses_goods_items}")->el();
     $info['cashboxes']['count'] = $all_configs['db']->query("SELECT count(*) FROM {cashboxes}")->el();
+    $info['users']['date_last'] = date("Y-m-d H:i:s", $all_configs['db']->query("SELECT uxt FROM {users} ORDER BY uxt DESC LIMIT 1")->el());
 
     $data = array(
         'act' => 'getSystemInfo',
