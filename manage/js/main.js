@@ -1985,6 +1985,7 @@ function show_infopopover_modal(modal_html) {
   $(function () {
 
     $(document).on('click', '.infopopover_onclick', function (e) {
+      console.log('test');
       e.stopPropagation();
       var $this = $(this);
       if (!$this.hasClass('hasPopover')) {

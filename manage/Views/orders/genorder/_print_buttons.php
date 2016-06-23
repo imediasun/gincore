@@ -49,6 +49,15 @@
                     </label>
                 </div>
             </li>
+            <li>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="print[]"
+                               value="<?= print_link($order['id'], 'order_barcode', '', true) ?>">
+                        <?= l('Штрих-код') ?>
+                    </label><?= InfoPopover::getInstance()->createQuestion('l_it_order-barcode_print_form') ?>
+                </div>
+            </li>
             <li role="separator" class="divider"></li>
             <li class="text-center">
                 <button class="btn btn-sm btn-info" type="button" id="print_now"><?= l('Распечатать') ?></button>
@@ -56,3 +65,17 @@
         </ul>
     </div>
 <?php endif; ?>
+<script>
+    jQuery(document).ready(function(){
+        $('.infopopover_onclick').on('click', function (e) {
+            console.log('test');
+            e.stopPropagation();
+            var $this = $(this);
+            if (!$this.hasClass('hasPopover')) {
+                init_popover($this);
+                $this.addClass('hasPopover');
+            }
+            $this.popover('toggle');
+        });
+    });
+</script>
