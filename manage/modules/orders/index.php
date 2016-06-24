@@ -2022,6 +2022,7 @@ class orders extends Controller
         // изменяем видимую стоимость предмета или услуги в заказе
         if ($act == 'change-visible-prices') {
             $data = $this->changeVisiblePrices($data, $user_id, $mod_id);
+            Response::json($data);
         }
 
         // создаем заказ поставщику

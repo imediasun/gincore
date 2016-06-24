@@ -6,14 +6,13 @@
     </td>
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="col-sm-2">
-            <form method="POST">
+            <form method="POST" onsubmit="return false;">
                 <div class="input-group floating-width">
                     <input class="form-control global-typeahead input-medium popover-info visible-price"
                            type="text" onkeypress="change_input_width(this, this.value.length);"
                            value="<?= ($product['price'] / 100) ?>"/>
                     <div class="input-group-btn" style="display:none">
-                        <button class="btn btn-info" type="submit"
-                                onclick="change_visible_prices(this, <?= $product['id'] ?>)">
+                        <button class="btn btn-info" onclick="return change_visible_prices(this, <?= $product['id'] ?>)">
                             <span class="glyphicon glyphicon-ok"></span>&nbsp;
                         </button>
                     </div>

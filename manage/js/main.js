@@ -2222,6 +2222,7 @@ function edit_order_dialog_by_order_id(order_id, tab) {
       if (msg.content) {
         $('#modal-dialog').html(msg.content).modal('show');
         $('#modal-dialog').on('hidden.bs.modal', function (e) {
+          location.href = prefix + module + '#orders_manager';
           location.reload();
         });
       } else {

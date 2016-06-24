@@ -860,7 +860,7 @@ function change_visible_prices(_this, id) {
       recalculate_total_sum();
     },
     error: function (xhr, ajaxOptions, thrownError) {
-      alert(xhr.responseText);
+      console.log(xhr.responseText);
     }
   });
   return false;
