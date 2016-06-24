@@ -102,19 +102,17 @@ class sms extends \service
     /**
      * @param $phone
      * @param $body
-     * @param $sender_id
      * @param $type
      * @param $object_id
      * @return array
      */
-    private function send_sms($phone, $body, $sender_id, $type, $object_id)
+    private function send_sms($phone, $body, $type, $object_id)
     {
         if ($this->already_sent($type, $object_id)) {
             return array('state' => false, 'msg' => l('Данное сообщение уже отправлено'));
         }
-        $sender = $this->all_configs['db']->query("SELECT sender FROM {sms_senders} "
-            . "WHERE id = ?i", array($sender_id), 'el');
-        $send = send_sms($phone, $body, $sender);
+        $sender_id = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
+        $send = send_sms($phone, $body, $sender_id);
         $this->log($phone, $body, $sender_id, $type, $object_id, $send['state'], $send['msg']);
         return $send;
     }
@@ -155,13 +153,11 @@ class sms extends \service
      */
     public function ajax($data)
     {
-        $operator_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $response = array();
         switch ($data['action']) {
             // отправить смс
             case 'send_sms':
                 $phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';
-                $sender_id = isset($_POST['sender_id']) ? (int)$_POST['sender_id'] : '';
                 $body = isset($_POST['body']) ? trim($_POST['body']) : '';
                 $object_id = isset($_POST['object_id']) ? (int)$_POST['object_id'] : '';
                 $type = isset($_POST['type']) ? (int)$_POST['type'] : '';
@@ -170,16 +166,12 @@ class sms extends \service
                     $response['state'] = false;
                     $response['msg'] = l('Введите телефон');
                 }
-                if (!$sender_id) {
-                    $response['state'] = false;
-                    $response['msg'] = l('Выберите отправителя');
-                }
                 if (!$body) {
                     $response['state'] = false;
                     $response['msg'] = l('Укажите текст смс');
                 }
                 if ($response['state']) {
-                    $send = $this->send_sms($phone, $body, $sender_id, $type, $object_id);
+                    $send = $this->send_sms($phone, $body, $type, $object_id);
                     if ($send['state']) {
                         $response['msg'] = l('Отправлено успешно');
                     } else {

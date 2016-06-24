@@ -1,7 +1,6 @@
 var crm_sms = (function($){
     
     function reset_form(){
-        $('#sms_template_select,#sms_sender_select').find('option:eq(0)').attr('selected', true);
         $('#sms_body').val('');
     }
     
@@ -14,6 +13,7 @@ var crm_sms = (function($){
                     object = $this.data('object');
                 $('#sms_phone').val(phone);
                 $('#sms_object').val(object);
+                return false;
             });
             $(document).on('change', '#sms_template_select', function(){
                 var body = $(this).find('option:selected').data('body');

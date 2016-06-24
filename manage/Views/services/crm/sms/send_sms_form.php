@@ -13,19 +13,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label><?= l('Отправитель') ?></label>
-                        <?= $this->renderFile('services/crm/sms/senders_list', array(
-                            'senders' => $senders
-                        )) ?>
-                    </div>
-                    <div class="form-group">
                         <label><?= l('Телефон') ?></label>
                         <input id="sms_phone" type="text" class="form-control" name="phone">
                     </div>
                     <div class="form-group">
                         <label><?= l('Шаблон') ?></label>
                         <?= $this->renderFile('services/crm/sms/templates_list', array(
-                            'templates' => $templates
+                            'templates' => $templates,
+                            'default' => empty($templates) ? array(
+                                l('Скидка') => l('Персональная скидка 5% на все услуги Сервисного Центра')
+                            ) : array()
                         )) ?>
                         <textarea id="sms_body" name="body" style="min-width:80%" class="form-control"
                                   rows="5"></textarea>
