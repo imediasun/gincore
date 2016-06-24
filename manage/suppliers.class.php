@@ -685,6 +685,130 @@ class Suppliers extends Object
         return $out;
     }
 
+    public function edit_order_form($goods = null, $order_id, $all = true, $typeahead = 0, $is_modal = false)
+    {
+        $suppliers = null;
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        }
+        $disabled = '';
+        $has_orders = false;
+        $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} as w WHERE consider_store=1 ORDER BY title',
+            array())->assoc();
+        $info_html = '';
+        $order = null;
+        $so_co = '';
+
+        if ($suppliers) {
+            $order = $this->all_configs['db']->query('SELECT o.id, o.price, o.`count`, o.date_wait, o.supplier, o.location_id,
+                      o.goods_id, o.comment, o.user_id, o.sum_paid, o.count_come, o.count_debit, u.email, u.fio, o.avail,
+                      u.login, o.wh_id, w.title as wh_title, o.confirm, o.sum_paid, o.unavailable, l.location, o.num,
+                      GROUP_CONCAT(i.id) as items, o.warehouse_type
+                    FROM {contractors_suppliers_orders} as o
+                    LEFT JOIN {users} as u ON o.user_id=u.id
+                    LEFT JOIN {warehouses} as w ON o.wh_id=w.id
+                    LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
+                    LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
+                    WHERE o.id=?i GROUP BY o.id', array($order_id))->row();
+            if (empty($order)) {
+                return $this->create_order_form($goods, $order_id, $all, $typeahead, $is_modal);
+            }
+            $cos = (array)$this->all_configs['db']->query('SELECT id, client_order_id FROM {orders_suppliers_clients}
+                        WHERE supplier_order_id=?i', array($order_id))->vars();
+            if ($cos) {
+                $has_orders = true;
+            }
+            for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
+                $co = current($cos);
+                $so_co .= '<input type="text" name="so_co[]" readonly class="form-control" value="' . $co . '" />';
+                next($cos);
+            }
+            $order['title'] = l('Редактировать заказ');
+            $order['date_wait'] = date("d.m.Y", strtotime($order['date_wait']));
+            $order['price'] /= 100;
+            if ($order['confirm'] == 0 && $order['avail'] == 1 && (($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))
+            ) {
+                $order['btn'] = '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="' . l('Сохранить') . '" />';
+                $order['btn'] .= ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="' . l('Отменить') . '" />';
+                $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="' . l('Запчасть не доступна к заказу') . '" />';
+            } else {
+                $order['btn'] = '';
+                $disabled = 'disabled';
+            }
+            list($order, $info_html) = $this->get_info_for_edit_form($order);
+
+            $Transactions = new Transactions($this->all_configs);
+            $info_html .= $Transactions->get_transactions($this->currencies, false, null, true,
+                array('supplier_order_id' => $order_id), false);
+        }
+
+        return $this->view->renderFile('suppliers.class/edit_order_form', array(
+            'is_modal' => $is_modal,
+            'order' => $order,
+            'warehouses' => $warehouses,
+            'controller' => $this,
+            'disabled' => $disabled,
+            'info_html' => $info_html,
+            'has_orders' => $has_orders,
+            'so_co' => $so_co,
+            'all' => $all,
+            'suppliers' => $suppliers,
+            'order_id' => $order_id,
+            'goods' => $goods,
+            'typeahead' => $typeahead
+        )) . $this->append_js();
+    }
+
+    /**
+     * @param null $goods
+     * @param null $order_id
+     * @param bool $all
+     * @param int  $typeahead
+     * @param bool $is_modal
+     * @return string
+     */
+    public function create_order_form($goods = null, $order_id = null, $all = true, $typeahead = 0, $is_modal = false)
+    {
+        $suppliers = null;
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        }
+        $order = array(
+            'order_id' => $order_id,
+            'price' => '',
+            'count' => '',
+            'date_wait' => '',//date("d.m.Y"),
+            'supplier' => '',
+            'goods_id' => '',
+            'title' => l('Создать заказ'),
+            'product' => '',
+            'comment' => '',
+            'unavailable' => 0,
+            'location' => '',
+            'id' => '',
+            'num' => '',
+            'avail' => 1,
+            'warehouse_type' => 0,
+        );
+
+        return $this->view->renderFile('suppliers.class/create_order_form', array(
+            'is_modal' => $is_modal,
+            'suppliers' => $suppliers,
+            'all' => $all,
+            'order' => $order,
+            'order_id' => $order_id,
+            'goods' => $goods,
+            'typeahead' => $typeahead
+        )) . $this->append_js();
+    }
+
+
     /**
      * @param null $goods
      * @param null $order_id
@@ -695,6 +819,12 @@ class Suppliers extends Object
      */
     function create_order_block($goods = null, $order_id = null, $all = true, $typeahead = 0, $is_modal = false)
     {
+        if (empty($order_id)) {
+            return $this->create_order_form($goods, $order_id, $all, $typeahead, $is_modal);
+        } else {
+            return $this->edit_order_form($goods, $order_id, $all, $typeahead, $is_modal);
+        }
+
         $new_device_form = '<div id="new_device_form" class="typeahead_add_form_box theme_bg new_device_form p-md"></div>';
         $new_supplier_form = '<div id="new_supplier_form" class="typeahead_add_form_box theme_bg new_supplier_form p-md"></div>';
         $suppliers = null;
@@ -1829,28 +1959,29 @@ class Suppliers extends Object
                 WHERE contractors_categories_id=?i AND contractors_id=?i',
                 array($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']))->el();
 
-            $cashboxes_currency_id = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE currency=? LIMIT 1', array(
-                $this->currency_suppliers_orders
-            ))->el();
+            $cashboxes_currency_id = $this->all_configs['db']->query('SELECT id FROM {cashboxes_currencies} WHERE currency=? LIMIT 1',
+                array(
+                    $this->currency_suppliers_orders
+                ))->el();
             // транзакция контрагенту и зачисление ему сумы
             $Transactions = new Transactions($this->all_configs);
-            $Transactions->add_contractors_transaction( array(
-                    'transaction_type' => 2,
-                    'cashboxes_currency_id_to' => $cashboxes_currency_id,
-                    'value_to' => ($order['price'] / 100),
-                    'comment' => 'Товар ' . $order['g_title'] . ' приходован на склад ' . $order['wh_title'] . '. Заказ поставщика ' .
-                        $this->supplier_order_number($order) . ', серийник ' . suppliers_order_generate_serial(array(
-                            'serial' => $serial,
-                            'item_id' => $item_id
-                        )) .
-                        ', сумма ' . ($order['price'] / 100) . '$, ' . date("Y-m-d H:i:s", time()),
-                    'contractor_category_link' => $contractor_category_link,
-                    'supplier_order_id' => $order['id'],
-                    'item_id' => $item_id,
-                    'goods_id' => $order['goods_id'],
+            $Transactions->add_contractors_transaction(array(
+                'transaction_type' => 2,
+                'cashboxes_currency_id_to' => $cashboxes_currency_id,
+                'value_to' => ($order['price'] / 100),
+                'comment' => 'Товар ' . $order['g_title'] . ' приходован на склад ' . $order['wh_title'] . '. Заказ поставщика ' .
+                    $this->supplier_order_number($order) . ', серийник ' . suppliers_order_generate_serial(array(
+                        'serial' => $serial,
+                        'item_id' => $item_id
+                    )) .
+                    ', сумма ' . ($order['price'] / 100) . '$, ' . date("Y-m-d H:i:s", time()),
+                'contractor_category_link' => $contractor_category_link,
+                'supplier_order_id' => $order['id'],
+                'item_id' => $item_id,
+                'goods_id' => $order['goods_id'],
 
-                    'contractors_id' => $order['supplier'],
-                ) );
+                'contractors_id' => $order['supplier'],
+            ));
 
             // история
             $this->History->save('debit-supplier-order', $mod_id, intval($order['id']));
@@ -1913,5 +2044,22 @@ class Suppliers extends Object
             }
         }
         return $icon;
+    }
+
+    /**
+     * @param $order
+     * @return array
+     */
+    private function get_info_for_edit_form($order)
+    {
+        $order['product'] = $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i',
+            array($order['goods_id']))->el();
+
+        return array(
+            $order,
+            $this->view->renderFile('suppliers.class/get_info_for_edit_form', array(
+                'order' => $order
+            ))
+        );
     }
 }
