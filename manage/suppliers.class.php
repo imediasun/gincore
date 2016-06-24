@@ -1081,18 +1081,18 @@ class Suppliers extends Object
     {
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            Response::json(array('message' => 'У Вас недостаточно прав', 'error' => true));
+            Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
         }
         // заказ ид
         if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
-            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
+            Response::json(array('message' => l('Не существующий заказ'), 'error' => true));
         }
         // достаем заказ
         $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
             array($_POST['order_id']))->row();
         // если уже принят то удалить нельзя
         if (!$order) {
-            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
+            Response::json(array('message' => l('Не существующий заказ'), 'error' => true));
         }
         // права
         if ((/*$order['user_id'] == $_SESSION['id'] && */
@@ -1100,11 +1100,11 @@ class Suppliers extends Object
                 && $order['count_come'] == 0) || ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] == 0)
         ) {
         } else {
-            Response::json(array('message' => 'Заказ отменить нельзя', 'error' => true));
+            Response::json(array('message' => l('Заказ отменить нельзя'), 'error' => true));
         }
         // если уже принят то удалить нельзя
         if ($order['count_come'] > 0) {
-            Response::json(array('message' => 'Заказ отменить уже нельзя', 'error' => true));
+            Response::json(array('message' => l('Заказ отменить уже нельзя'), 'error' => true));
         }
 
         // заявки
@@ -1114,7 +1114,7 @@ class Suppliers extends Object
 
         if ($items) {
             Response::json(array(
-                'message' => 'Отвяжите серийный номер в заказах: ' . implode(' ,', $items),
+                'message' => l('Отвяжите серийный номер в заказах: ') . implode(' ,', $items),
                 'error' => true
             ));
         }
@@ -1141,7 +1141,7 @@ class Suppliers extends Object
         $this->all_configs['db']->query('DELETE FROM {orders_suppliers_clients} WHERE supplier_order_id=?i',
             array(intval($_POST['order_id'])));
 
-        Response::json(array('message' => 'Заказ успешно удален'));
+        Response::json(array('message' => l('Заказ успешно удален')));
     }
 
     /**
@@ -1151,18 +1151,18 @@ class Suppliers extends Object
     {
         // права
         if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
-            Response::json(array('message' => 'У Вас недостаточно прав', 'error' => true));
+            Response::json(array('message' => l('У Вас недостаточно прав'), 'error' => true));
         }
         // заказ ид
         if (!isset($_POST['order_id']) || $_POST['order_id'] == 0) {
-            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
+            Response::json(array('message' => l('Не существующий заказ'), 'error' => true));
         }
         // достаем заказ
         $order = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
             array($_POST['order_id']))->row();
         // если уже принят то удалить нельзя
         if (!$order) {
-            Response::json(array('message' => 'Не существующий заказ', 'error' => true));
+            Response::json(array('message' => l('Не существующий заказ'), 'error' => true));
         }
         // права
         if ((
@@ -1170,11 +1170,11 @@ class Suppliers extends Object
                 && $order['count_come'] == 0) || ($this->all_configs['oRole']->hasPrivilege('site-administration') && $order['confirm'] == 0)
         ) {
         } else {
-            Response::json(array('message' => 'Заказ удалить нельзя', 'error' => true));
+            Response::json(array('message' => l('Заказ удалить нельзя'), 'error' => true));
         }
         // если уже принят то удалить нельзя
         if ($order['count_come'] > 0) {
-            Response::json(array('message' => 'Заказ уже нельзя удалить', 'error' => true));
+            Response::json(array('message' => l('Заказ уже нельзя удалить'), 'error' => true));
         }
 
         // заявки
@@ -1184,7 +1184,7 @@ class Suppliers extends Object
 
         if ($items) {
             Response::json(array(
-                'message' => 'Отвяжите серийный номер в заказах: ' . implode(' ,', $items),
+                'message' => l('Отвяжите серийный номер в заказах: ') . implode(' ,', $items),
                 'error' => true
             ));
         }
@@ -1215,7 +1215,7 @@ class Suppliers extends Object
 
         $this->History->save('remove-supplier-order', $mod_id, intval($_POST['order_id']));
 
-        Response::json(array('message' => 'Заказ успешно удален'));
+        Response::json(array('message' => l('Заказ успешно удален')));
     }
 
     /**
