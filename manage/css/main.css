@@ -1123,3 +1123,9 @@ div.overflow-ellipsis {
     word-wrap: normal; /* для IE */
     text-overflow: ellipsis;
 }
+.template-remove {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    cursor: pointer;
+}

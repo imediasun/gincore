@@ -53,6 +53,8 @@ class translates
             $this->ajax();
         }
 
+        $this->check_get($_GET);
+            
         $input_html['mmenu'] = $this->genmenu();
 
         $input_html['mcontent'] = $this->gencontent();
@@ -454,5 +456,14 @@ class translates
     {
         $config = $this->config[$this->all_configs['arrequest'][1]];
         return $config['table'];
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    public function check_get($get)
+    {
+        return '';
     }
 }

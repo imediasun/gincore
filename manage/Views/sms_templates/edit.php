@@ -1,15 +1,16 @@
 <h3>
     <?= $config['name'] ?>
-    <a href="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add">+</a>
+    <a href="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add" class="btn btn-primary"><?= l('Добавить шаблон') ?></a>
 </h3>
 <form action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/save" method="post">
     <fieldset class="main">
         <?php foreach ($translates as $id => $langs): ?>
-            <div>
+            <div style="position: relative;">
                 <?php $field = 'body' ?>
                 <?php $field_name = l('Значение'); ?>
                 <?php foreach ($langs as $lng => $translate): ?>
                     <?php if ($lng == $manage_lang): ?>
+                        <a class="template-remove" onclick="return confirm('<?= l('Вы уверены, что хотите удалить этот шаблон?') ?>')" href="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/delete/<?= $translate['sms_templates_id'] ?>"><i class="fa fa-remove"></i></a>
                         <legend><?= $translate['var'] ?> (<?= l($types[$translate['type']]) ?>)</legend>
                         <?php if($types[$translate['type']] == 'orders'): ?>
                             <?= l('В шаблоне возможно использование следующих переменных:') ?>

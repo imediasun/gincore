@@ -169,7 +169,7 @@ class sms_templates extends translates
             if (!empty($id)) {
                 throw new ExceptionWithMsg(l('Переменная уже существует'));
             }
-            
+
             $f = implode(',', array_keys($post['data']));
             $v = array();
             foreach ($post['data'] as $fld => $d) {
@@ -219,5 +219,30 @@ class sms_templates extends translates
         return $this->view->renderFile('settings/genmenu', array(
             'sqls' => $sqls
         ));
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    public function check_get($get)
+    {
+        $result = parent::check_get($get);
+        if ($this->all_configs['arrequest'][2] == 'delete' && !empty($this->all_configs['arrequest'][3])) {
+            $this->deleteTemplate($this->all_configs['arrequest'][3]);
+            Response::redirect(Response::referrer());
+        }
+        return $result;
+    }
+
+    /**
+     * @param $id
+     */
+    private function deleteTemplate($id)
+    {
+        if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
+            db()->query('DELETE FROM {sms_templates_strings} WHERE sms_templates_id=?i', array($id));
+            db()->query('DELETE FROM {sms_templates} WHERE id=?i', array($id));
+        }
     }
 }
