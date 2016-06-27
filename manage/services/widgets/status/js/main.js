@@ -33,10 +33,6 @@ var gcw_status_widget = (function($){
                 $('#'+id).show();
                 resize();
             });
-            // $(document).on('click', '.gcw_modal_close', function(){
-            //     $(this).parents('.gcw_modal_box').hide();
-            //     modal_on_close();
-            // });
             $(window).resize(resize).resize();
             
             var form_msg_timeout;
@@ -77,8 +73,8 @@ var gcw_status_widget = (function($){
     
 })(jQuery);
 function close_gcw(_this) {
-        $(_this).parents('.gcw_modal_box').hide();
-        modal_on_close();
+      $(_this).parents('.gcw_modal_box').hide();
+    $('#gcw_form_html').empty().siblings('.gcw_form').show();
 }
 jQuery(function(){
     gcw_status_widget.init();
