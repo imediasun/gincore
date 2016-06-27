@@ -62,10 +62,10 @@ var gcw_feedback_widget = (function ($) {
         $('#' + id).show();
         resize();
       });
-      $(document).on('click', '.gcw_modal_close', function () {
-        $(this).parents('.gcw_modal_box').hide();
-        modal_on_close();
-      });
+      // $(document).on('click', '.gcw_modal_close', function () {
+      //   $(this).parents('.gcw_modal_box').hide();
+      //   modal_on_close();
+      // });
       $(window).resize(resize).resize();
 
       $(document).on('submit', '.js-feedback-form', function (e) {
@@ -100,6 +100,10 @@ var gcw_feedback_widget = (function ($) {
   };
 
 })(jQuery);
+function close_gcw(_this) {
+  $(_this).parents('.gcw_modal_box').hide();
+  modal_on_close();
+}
 jQuery(function () {
   gcw_feedback_widget.init();
 });

@@ -9,7 +9,7 @@
     <div class="gcw_modal">
         <div class="gcw_modal_title">
             <?= l('Узнать статус ремонта') ?>
-            <span class="gcw_modal_close"></span>
+            <span class="gcw_modal_close" onclick="return close_gcw(this);"></span>
         </div>
         <div class="gcw_modal_body">
             <form class="gcw_form js-status-form" action="<?= $widgets->get_requests_url('status') ?>" method="post">
