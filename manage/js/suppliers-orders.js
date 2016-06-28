@@ -152,7 +152,9 @@ function accept_supplier_order(_this, callback) {
 }
 
 function create_supplier_order(_this) {
-  if (false === $('#suppliers-order-form').parsley().validate())
+
+  $('#suppliers-order-form-cart').parsley().reset();
+  if (false === $('#suppliers-order-form-header').parsley().validate() || false === $('#suppliers-order-form-cart').parsley().validate())
     return;
 
   $(_this).button('loading');

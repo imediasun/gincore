@@ -2255,4 +2255,67 @@ function sum_calculate() {
     $('#eshop_sale_poduct_sum').val((price - discount) * quantity);
   }
 }
+function add_supplier_item_to_table() {
+  var $row = $('tr.js-supplier-row-cloning'),
+    cost = $('#supplier_product_cost').val() || 0,
+    quantity = $('#supplier_product_quantity').val() || 0,
+    title = $('input[name="goods-goods-value"]').val(),
+    id = $('input[name="goods-goods"]').val(),
+    rnd = parseInt(Math.random() * 1000);
 
+  if (false === $('#js-add-product-form').parsley().validate()) {
+    return;
+  }
+
+  if (cost > 0 && title.length > 0 && id.length > 0 && quantity > 0) {
+    $clone = $row.clone().removeClass('js-supplier-row-cloning');
+    $clone.addClass('row-item');
+    $clone.find('.js-supplier-item-name').first().val(title).attr('title', title).attr('data-required', true);
+    $clone.find('input.js-supplier-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
+    $clone.find('.js-supplier-price').first().val(cost).attr('name', 'amount[' + rnd + ']').attr('data-required', true);
+    $clone.find('.js-supplier-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']').attr('data-required', true);
+    $('#supplier_product_cost').val('');
+    $('#supplier_product_quantity').val('');
+    $('input[name="goods-goods-value"]').val('');
+    $('input[name="goods-goods"]').val('');
+    $clone.show();
+    $row.parent().append($clone);
+    $('table.supplier-table-items').show();
+    recalculate_amount_supplier();
+  }
+  return false;
+}
+
+function recalculate_amount_supplier() {
+  var total = 0,
+    $body = $('.supplier-table-items > tbody');
+
+  $body.children('tr.row-item').each(function () {
+    var $row = $(this),
+      quantity = parseInt($row.find('.js-supplier-quantity').first().val()) || 0,
+      price = parseInt($row.find('.js-supplier-price').first().val()) || 0;
+
+    $row.find('.js-supplier-sum').first().val(price * quantity);
+    total += parseFloat($row.find('.js-supplier-sum').first().val());
+  });
+  if (total == 0) {
+    if ($body.find('tr').length <= 1) {
+      $body.parent().hide();
+    }
+    $('input[name="serials-value"]').attr('data-required', 'true');
+  }
+  $('.js-supplier-total').val(total);
+}
+
+function remove_supplier_row(_this) {
+  $(_this).parent().parent().remove();
+  recalculate_amount_supplier();
+  return false;
+}
+
+function recalculate_product_sum(_this) {
+  var price = parseInt($('input[name="warehouse-order-price"]').val()) || 0,
+    quantity = parseInt($('input[name="warehouse-order-count"]').val()) || 0;
+  console.log($('input[name="warehouse-order-count"]').val());
+  $('input.js-sum').val(price * quantity);
+}
