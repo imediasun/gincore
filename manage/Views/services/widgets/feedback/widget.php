@@ -15,7 +15,7 @@
     <div class="gcw_modal">
         <div class="gcw_modal_title">
             <?= l('Оставить отзывы') ?>
-            <span class="gcw_modal_close"></span>
+            <span class="gcw_modal_close" onclick="return close_gcw(this);"></span>
         </div>
         <div class="gcw_modal_body js-feedback-body" style="background-color: #f1f1f1">
             <form class="gcw_form js-feedback-form" data-action="<?= $widgets->get_requests_url('feedback') ?>" method="post">
