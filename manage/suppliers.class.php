@@ -50,7 +50,6 @@ class Suppliers extends Object
      */
     function edit_order($mod_id, $post)
     {
-
         $count = isset($post['warehouse-order-count']) && $post['warehouse-order-count'] > 0 ? $post['warehouse-order-count'] : 1;
         $supplier = isset($post['warehouse-supplier']) && $post['warehouse-supplier'] > 0 ? $post['warehouse-supplier'] : null;
         $date = 86399 + strtotime(isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y"));
@@ -178,70 +177,111 @@ class Suppliers extends Object
     {
         $data = array('state' => true, 'id' => 0);
 
-        $count = isset($post['warehouse-order-count']) && $post['warehouse-order-count'] > 0 ? $post['warehouse-order-count'] : 1;
         $supplier = isset($post['warehouse-supplier']) && $post['warehouse-supplier'] > 0 ? $post['warehouse-supplier'] : null;
         $user_id = $supplier ? $_SESSION['id'] : null;
         $date = isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y");
-        $price = isset($post['warehouse-order-price']) ? intval($post['warehouse-order-price'] * 100) : 0;
         $comment = isset($post['comment-supplier']) ? $post['comment-supplier'] : '';
         $warehouse_type = isset($post['warehouse_type']) ? intval($post['warehouse_type']) : 0;
         $orders = isset($post['so_co']) && is_array($post['so_co']) ? array_filter(array_unique($post['so_co'])) : array();
-        $product_id = isset($post['goods-goods']) ? $post['goods-goods'] : 0;
         $its_warehouse = $group_parent_id = null;
         $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']),
             'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
 
-        // достаем товар
-        $product = $this->Goods->getByPk($product_id);
 
+        /**
+         * [item_ids] => Array([727] => 10)
+         * [amount] => Array([727] => 12)
+         * [quantity] => Array([727] => 12)  )
+         **/
         try {
-            if (!$product) {
-                throw new ExceptionWithMsg(l('Укажите деталь'));
-            }
-            if ($product['type'] == 1) {
-                throw new ExceptionWithMsg(l('На услугу заказ создать нельзя'));
-            }
-            if (count($orders) > $count) {
-                throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
-            }
+            /**
+             * @param array $ids
+             * @param array $values
+             * @return bool
+             */
+            $isEmpty = function (array $ids, array $values) {
+                if (empty($values)) {
+                    return true;
+                }
+                foreach ($ids as $key => $id) {
+                    if (empty($value[$key])) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
             // проверка на создание заказа с ценой 0
-            if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
+            if (!$isEmpty($post['item_ids'],
+                    $post['amount']) && $this->all_configs['configs']['suppliers-orders-zero'] == false
+            ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
+            // проверка на создание заказа с количеством 0
+            if (!$isEmpty($post['item_ids'], $post['quantity'])) {
+                throw new ExceptionWithMsg(l('Количество не может быть равно 0'));
+            }
 
-            if ($product) {
-                // создаем заказ
-                try {
-                    $id = $this->ContractorsSuppliersOrders->insert(array(
-                        'price' => $price,
-                        'date_wait' => date("Y-m-d H:i:s", 86399 + strtotime($date)),
-                        'supplier' => $supplier,
-                        'its_warehouse' => $its_warehouse,
-                        'goods_id' => $product_id,
-                        'user_id' => $user_id,
-                        '`count`' => $count,
-                        'comment' => $comment,
-                        'group_parent_id' => $group_parent_id,
-                        'num' => $num,
-                        'warehouse_type' => $warehouse_type
-                    ));
-                    FlashMessage::set(l('Заказ успешно создан'));
-                } catch (Exception $e) {
-                    throw new ExceptionWithMsg(l('Неизвестная ошибка при создании заказа'));
+            $parent_order_id = 0;
+            $part = 0;
+            foreach ($post['item_ids'] as $key => $product_id) {
+                $count = $post['quantity'][$key];
+                $price = intval($post['amount'][$key]) * 100;
+
+                // достаем товар
+                $product = $this->Goods->getByPk($product_id);
+                if (!$product) {
+                    throw new ExceptionWithMsg(l('Укажите деталь'));
                 }
-                if ($id > 0) {
-                    $data['id'] = $id;
-                    $data['state'] = true;
+                if ($product['type'] == 1) {
+                    throw new ExceptionWithMsg(l('На услугу заказ создать нельзя'));
+                }
+                if (count($orders) > $count) {
+                    throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
+                }
 
-                    // обновляем дату поставки товара
-                    $this->all_configs['manageModel']->update_product_wait($product_id);
+                if ($product) {
+                    // создаем заказ
+                    try {
+                        $id = $this->ContractorsSuppliersOrders->insert(array(
+                            'price' => $price,
+                            'date_wait' => date("Y-m-d H:i:s", 86399 + strtotime($date)),
+                            'supplier' => $supplier,
+                            'its_warehouse' => $its_warehouse,
+                            'goods_id' => $product_id,
+                            'user_id' => $user_id,
+                            '`count`' => $count,
+                            'comment' => $comment,
+                            'group_parent_id' => $group_parent_id,
+                            'num' => $num,
+                            'warehouse_type' => $warehouse_type,
+                            'parent_id' => $parent_order_id,
+                            'number' => $part
+                        ));
+                        if (empty($parent_order_id)) {
+                            $parent_order_id = $id;
+                        }
+                        $part += 1;
+                        FlashMessage::set(l('Заказ успешно создан'));
+                    } catch (Exception $e) {
+                        throw new ExceptionWithMsg($e->getMessage());
 
-                    // связь между заказами
-                    $this->orders_link($id, $orders);
+                        throw new ExceptionWithMsg(l('Неизвестная ошибка при создании заказа'));
+                    }
+                    if ($id > 0) {
+                        $data['id'] = $id;
+                        $data['state'] = true;
 
-                    $this->History->save('add-warehouse-order', $mod_id, intval($id));
+                        // обновляем дату поставки товара
+                        $this->all_configs['manageModel']->update_product_wait($product_id);
 
-                    $this->buildESO($id);
+                        // связь между заказами
+                        $this->orders_link($id, $orders);
+
+                        $this->History->save('add-warehouse-order', $mod_id, intval($id));
+
+                        $this->buildESO($id);
+                    }
                 }
             }
         } catch (ExceptionWithMsg $e) {

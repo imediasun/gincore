@@ -1,6 +1,6 @@
 <h3><?= l('Создание нового заказа поставщику') ?></h3>
 <br>
-<form method="post" >
+<form method="post" id="suppliers-order-form" >
     <?php if (empty($suppliers)): ?>
         <p class="text-danger"><?= l('Нет поставщиков') ?></p>
     <?php else: ?>
@@ -95,7 +95,11 @@
         </div>
 
 
-        <?= $this->renderFile('suppliers.class/_add_product_form', array()); ?>
+        <?= $this->renderFile('suppliers.class/_add_product_form', array(
+            'order' => $order,
+            'goods' => $goods,
+            'is_modal' => $is_modal
+        )); ?>
         <?= $this->renderFile('suppliers.class/_cart_items_table', array()); ?>
 
 
