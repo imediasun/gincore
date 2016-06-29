@@ -2275,7 +2275,7 @@ function add_supplier_item_to_table() {
     $clone.find('input.js-supplier-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
     $clone.find('.js-supplier-price').first().val(cost).attr('name', 'amount[' + rnd + ']').attr('data-required', true);
     $clone.find('.js-supplier-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']').attr('data-required', true);
-    $clone.find('.js-supplier-order_numbers').first().val(so_co).attr('name', 'so_co[' + rnd + ']').attr('data-required', true);
+    $clone.find('.js-supplier-order_numbers').first().val(so_co).attr('name', 'so_co[' + rnd + ']');
 
     $('#supplier_product_cost').val('');
     $('#supplier_product_quantity').val('');
