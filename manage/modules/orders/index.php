@@ -1995,14 +1995,7 @@ class orders extends Controller
 
         // редактируем заказ поставщику
         if ($act == 'edit-supplier-order') {
-            // проверка на создание заказа с ценой 0
-            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
-            if ($price == 0) {
-                $data['state'] = false;
-                $data['msg'] = 'Укажите цену больше 0';
-            } else {
-                $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
-            }
+            $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
         }
 
         // редактируем дату проверки заказа поставщику

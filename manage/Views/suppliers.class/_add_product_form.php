@@ -26,7 +26,7 @@
             <tr>
                 <td>
                     <?php if (!empty($goods)): ?>
-                        <?= typeahead($this->all_configs['db'], 'goods-goods', false, $order['goods_id'],
+                        <?= typeahead($this->all_configs['db'], 'goods-goods', false, null,
                             (15 + $typeahead), 'input-xlarge exclude-form-validate', 'input-medium exclude-form-validate', '', false, false, '', false,
                             l('Введите'),
                             array(
@@ -60,7 +60,7 @@
                 </td>
                 <td>
                     <div class="input-group">
-                        <input type="text" name="so_co[]" class="form-control clone_clear_val"
+                        <input type="text" name="new_so_co" class="form-control clone_clear_val js-so_co"
                                aria-describedby="basic-addon1"/>
                                     <span class="input-group-addon" id="basic-addon1">
                                         <i class="glyphicon glyphicon-plus"></i>

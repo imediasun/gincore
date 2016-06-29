@@ -150,7 +150,7 @@
                 'is_modal' => $is_modal
             )); ?>
             <?= $this->renderFile('suppliers.class/_cart_items_table', array(
-                'items' => $order['items']
+                'orders' => $order['all']
             )); ?>
 
             <div id="for-new-supplier-order"></div>

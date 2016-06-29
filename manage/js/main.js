@@ -2261,7 +2261,8 @@ function add_supplier_item_to_table() {
     quantity = $('#supplier_product_quantity').val() || 0,
     title = $('input[name="goods-goods-value"]').val(),
     id = $('input[name="goods-goods"]').val(),
-    rnd = parseInt(Math.random() * 1000);
+    rnd = parseInt(Math.random() * 1000),
+    so_co = $('input[name="new_so_co"]').val()|| '' ;
 
   if (false === $('#js-add-product-form').parsley().validate()) {
     return;
@@ -2274,6 +2275,8 @@ function add_supplier_item_to_table() {
     $clone.find('input.js-supplier-item-id').first().val(id).attr('name', 'item_ids[' + rnd + ']');
     $clone.find('.js-supplier-price').first().val(cost).attr('name', 'amount[' + rnd + ']').attr('data-required', true);
     $clone.find('.js-supplier-quantity').first().val(quantity).attr('name', 'quantity[' + rnd + ']').attr('data-required', true);
+    $clone.find('.js-so_co').first().val().attr('name', 'so_co[' + rnd + ']').attr('data-required', true);
+
     $('#supplier_product_cost').val('');
     $('#supplier_product_quantity').val('');
     $('input[name="goods-goods-value"]').val('');
@@ -2287,6 +2290,7 @@ function add_supplier_item_to_table() {
 }
 
 function recalculate_amount_supplier() {
+  console.log('test');
   var total = 0,
     $body = $('.supplier-table-items > tbody');
 

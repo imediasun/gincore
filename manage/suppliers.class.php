@@ -50,6 +50,10 @@ class Suppliers extends Object
      */
     function edit_order($mod_id, $post)
     {
+        if ($price == 0) {
+            $data['state'] = false;
+            $data['msg'] = 'Укажите цену больше 0';
+        }
         $count = isset($post['warehouse-order-count']) && $post['warehouse-order-count'] > 0 ? $post['warehouse-order-count'] : 1;
         $supplier = isset($post['warehouse-supplier']) && $post['warehouse-supplier'] > 0 ? $post['warehouse-supplier'] : null;
         $date = 86399 + strtotime(isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y"));
@@ -169,6 +173,24 @@ class Suppliers extends Object
     }
 
     /**
+     * @param array $ids
+     * @param array $values
+     * @return bool
+     */
+    protected function isEmpty(array $ids, array $values)
+    {
+        if (empty($values)) {
+            return true;
+        }
+        foreach ($ids as $key => $id) {
+            if (empty($value[$key])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @param $mod_id
      * @param $post
      * @return array
@@ -187,38 +209,21 @@ class Suppliers extends Object
         $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']),
             'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
 
-
         /**
          * [item_ids] => Array([727] => 10)
          * [amount] => Array([727] => 12)
          * [quantity] => Array([727] => 12)  )
          **/
         try {
-            /**
-             * @param array $ids
-             * @param array $values
-             * @return bool
-             */
-            $isEmpty = function (array $ids, array $values) {
-                if (empty($values)) {
-                    return true;
-                }
-                foreach ($ids as $key => $id) {
-                    if (empty($value[$key])) {
-                        return true;
-                    }
-                }
-                return false;
-            };
 
             // проверка на создание заказа с ценой 0
-            if (!$isEmpty($post['item_ids'],
+            if ($this->isEmpty($post['item_ids'],
                     $post['amount']) && $this->all_configs['configs']['suppliers-orders-zero'] == false
             ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
             // проверка на создание заказа с количеством 0
-            if (!$isEmpty($post['item_ids'], $post['quantity'])) {
+            if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
                 throw new ExceptionWithMsg(l('Количество не может быть равно 0'));
             }
 
@@ -725,6 +730,14 @@ class Suppliers extends Object
         return $out;
     }
 
+    /**
+     * @param null $goods
+     * @param      $order_id
+     * @param bool $all
+     * @param int  $typeahead
+     * @param bool $is_modal
+     * @return string
+     */
     public function edit_order_form($goods = null, $order_id, $all = true, $typeahead = 0, $is_modal = false)
     {
         $suppliers = null;
@@ -735,54 +748,51 @@ class Suppliers extends Object
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
         $disabled = '';
-        $has_orders = false;
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses} as w WHERE consider_store=1 ORDER BY title',
             array())->assoc();
         $info_html = '';
         $order = null;
-        $so_co = '';
 
         if ($suppliers) {
-            $order = $this->all_configs['db']->query('SELECT o.id, o.price, o.`count`, o.date_wait, o.supplier, o.location_id,
-                      o.goods_id, o.comment, o.user_id, o.sum_paid, o.count_come, o.count_debit, u.email, u.fio, o.avail,
-                      u.login, o.wh_id, w.title as wh_title, o.confirm, o.sum_paid, o.unavailable, l.location, o.num,
-                      GROUP_CONCAT(i.id) as items, o.warehouse_type
-                    FROM {contractors_suppliers_orders} as o
-                    LEFT JOIN {users} as u ON o.user_id=u.id
-                    LEFT JOIN {warehouses} as w ON o.wh_id=w.id
-                    LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
-                    LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
-                    WHERE o.id=?i GROUP BY o.id', array($order_id))->row();
+            $order = $this->getOrdersForEdit($order_id);
             if (empty($order)) {
                 return $this->create_order_form($goods, $order_id, $all, $typeahead, $is_modal);
             }
-            $cos = (array)$this->all_configs['db']->query('SELECT id, client_order_id FROM {orders_suppliers_clients}
-                        WHERE supplier_order_id=?i', array($order_id))->vars();
-            if ($cos) {
-                $has_orders = true;
+
+            if (!empty($order['parent_id'])) {
+                $order = $this->getOrdersForEdit($order['parent_id']);
             }
-            for ($i = 0; $i < ($order['count_come'] > 0 ? $order['count_come'] : $order['count']); $i++) {
-                $co = current($cos);
-                $so_co .= '<input type="text" name="so_co[]" readonly class="form-control" value="' . $co . '" />';
-                next($cos);
+
+            $order['all'] = array(
+                $order['id'] => $order
+            );
+            $order['all'] += $this->getChildrenOrdersForEdit($order['id']);
+
+            foreach ($order['all'] as $id => $item) {
+                $order['all'][$id]['cos'] = (array)$this->all_configs['db']->query('SELECT id, client_order_id FROM {orders_suppliers_clients}
+                        WHERE supplier_order_id=?i', array($id))->vars();
+                $order['all'][$id]['product'] = $this->get_goods_for_edit_order($item);
             }
             $order['title'] = l('Редактировать заказ');
             $order['date_wait'] = date("d.m.Y", strtotime($order['date_wait']));
-            $order['price'] /= 100;
+
             if ($order['confirm'] == 0 && $order['avail'] == 1 && (($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))
             ) {
                 $order['btn'] = '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="' . l('Сохранить') . '" />';
                 $order['btn'] .= ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="' . l('Отменить') . '" />';
-                $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="' . l('Запчасть не доступна к заказу') . '" />';
+//                $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="' . l('Запчасть не доступна к заказу') . '" />';
             } else {
                 $order['btn'] = '';
                 $disabled = 'disabled';
             }
-            list($order, $info_html) = $this->get_info_for_edit_form($order);
 
             $Transactions = new Transactions($this->all_configs);
-            $info_html .= $Transactions->get_transactions($this->currencies, false, null, true,
-                array('supplier_order_id' => $order_id), false);
+
+            $info_html .= "<h4>". l('Операции'). "</h4>";
+            foreach ($order['all'] as $id => $item) {
+                $info_html .= $Transactions->get_transactions($this->currencies, false, null, true,
+                    array('supplier_order_id' => $id), false);
+            }
         }
 
         return $this->view->renderFile('suppliers.class/edit_order_form', array(
@@ -792,8 +802,6 @@ class Suppliers extends Object
             'controller' => $this,
             'disabled' => $disabled,
             'info_html' => $info_html,
-            'has_orders' => $has_orders,
-            'so_co' => $so_co,
             'all' => $all,
             'suppliers' => $suppliers,
             'order_id' => $order_id,
@@ -1867,16 +1875,49 @@ class Suppliers extends Object
      * @param $order
      * @return array
      */
-    private function get_info_for_edit_form($order)
+    private function get_goods_for_edit_order($order)
     {
-        $order['product'] = $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i',
-            array($order['goods_id']))->el();
+        return $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i',
+                array($order['goods_id']))->el();
+    }
 
-        return array(
-            $order,
-            $this->view->renderFile('suppliers.class/get_info_for_edit_form', array(
-                'order' => $order
-            ))
-        );
+    /**
+     * @param        $order_ids
+     * @param string $in
+     * @return mixed
+     */
+    private function getOrdersForEdit($order_ids, $in = 'row')
+    {
+        if (!is_array($order_ids)) {
+            $order_ids = array($order_ids);
+        }
+        return $this->all_configs['db']->query('SELECT o.id, o.price/100 as price, o.`count`, o.date_wait, o.supplier, o.location_id,
+                      o.goods_id, o.comment, o.user_id, o.sum_paid/100 as sum_paid, o.count_come, o.count_debit, u.email, u.fio, o.avail,
+                      u.login, o.wh_id, w.title as wh_title, o.confirm, o.unavailable, l.location, o.num, o.parent_id, o.number,
+                      GROUP_CONCAT(i.id) as items, o.warehouse_type
+                    FROM {contractors_suppliers_orders} as o
+                    LEFT JOIN {users} as u ON o.user_id=u.id
+                    LEFT JOIN {warehouses} as w ON o.wh_id=w.id
+                    LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
+                    LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
+                    WHERE o.id IN (?li) GROUP BY o.id', array($order_ids), $in);
+    }
+
+    /**
+     * @param        $parent_id
+     * @return mixed
+     */
+    private function getChildrenOrdersForEdit($parent_id)
+    {
+        return $this->all_configs['db']->query('SELECT o.id, o.price/100 as price, o.`count`, o.date_wait, o.supplier, o.location_id,
+                      o.goods_id, o.comment, o.user_id, o.sum_paid/100 as sum_paid, o.count_come, o.count_debit, u.email, u.fio, o.avail,
+                      u.login, o.wh_id, w.title as wh_title, o.confirm, o.unavailable, l.location, o.num, o.parent_id, o.number,
+                      GROUP_CONCAT(i.id) as items, o.warehouse_type 
+                    FROM {contractors_suppliers_orders} as o
+                    LEFT JOIN {users} as u ON o.user_id=u.id
+                    LEFT JOIN {warehouses} as w ON o.wh_id=w.id
+                    LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
+                    LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
+                    WHERE o.parent_id=? GROUP BY o.id ORDER BY o.number ASC', array($parent_id))->assoc('id');
     }
 }
