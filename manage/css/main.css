@@ -1129,3 +1129,6 @@ div.overflow-ellipsis {
     top: 10px;
     cursor: pointer;
 }
+.table-fs-12 >tbody >tr >td.order-status-col{
+    overflow: auto !important;
+}
