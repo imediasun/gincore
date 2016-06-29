@@ -24,7 +24,7 @@
         <?php endif; ?>
     </td>
     <td style="color:green" class="center"><?= $order['cashless'] ? l('Безнал') : l('Нал') ?></td>
-    <td class="center">
+    <td class="center order-status-col">
         <?= $this->renderFile('orders/_sale_order_status', array(
             'active' => $order['status'],
             'orderId' => $order['order_id'],
