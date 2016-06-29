@@ -1750,11 +1750,22 @@ class Chains extends Object
                     } else {
                         // создаем заказ поставщику
                         $arr = array(
-                            'goods-goods' => $product['goods_id'],
-                            'so_co' => array($order_id),
+                            'item_ids' => array(
+                                'client' => $product['goods_id']
+                            ),
+                            'so_co' => array(
+                                'client' => $order_id
+                            ),
                             'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
                             'warehouse_type' => $product['warehouse_type'],
-                            'warehouse-order-count' => isset($post['count']) ? $post['count'] : 1
+                            'warehouse-order-count' => isset($post['count']) ? $post['count'] : 1,
+                            'from_client_order' => true,
+                            'quantity' => array(
+                                'client' => 1
+                            ),
+                            'amount' => array(
+                                'client' => 0
+                            )
                         );
                         $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $arr);
                         if ($data['id'] > 0) {

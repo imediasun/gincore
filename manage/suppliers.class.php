@@ -236,8 +236,9 @@ class Suppliers extends Object
         try {
 
             // проверка на создание заказа с ценой 0
-            if ($this->isEmpty($post['item_ids'],
-                    $post['amount']) && $this->all_configs['configs']['suppliers-orders-zero'] == false
+            if ($this->isEmpty($post['item_ids'], $post['amount']) 
+                && $this->all_configs['configs']['suppliers-orders-zero'] == false
+                && empty($post['from_client_orders']) 
             ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
@@ -282,7 +283,7 @@ class Suppliers extends Object
                 'msg' => $e->getMessage(),
             );
 
-        }
+        } 
 
         return $data;
     }
