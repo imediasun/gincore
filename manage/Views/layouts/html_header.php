@@ -182,5 +182,5 @@ use Assetic\AssetWriter;
 
     {-css-module}
 
-    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?23"></script>
+    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?24"></script>
 </head>
