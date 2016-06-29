@@ -50,108 +50,121 @@ class Suppliers extends Object
      */
     function edit_order($mod_id, $post)
     {
-        if ($price == 0) {
-            $data['state'] = false;
-            $data['msg'] = 'Укажите цену больше 0';
-        }
-        $count = isset($post['warehouse-order-count']) && $post['warehouse-order-count'] > 0 ? $post['warehouse-order-count'] : 1;
         $supplier = isset($post['warehouse-supplier']) && $post['warehouse-supplier'] > 0 ? $post['warehouse-supplier'] : null;
         $date = 86399 + strtotime(isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y"));
-        $price = isset($post['warehouse-order-price']) ? intval($post['warehouse-order-price'] * 100) : 0;
         $comment = isset($post['comment-supplier']) ? $post['comment-supplier'] : '';
-        $orders = isset($post['so_co']) && is_array($post['so_co']) ? array_filter(array_unique($post['so_co'])) : array();
-        $product_id = isset($post['goods-goods']) ? $post['goods-goods'] : 0;
-        $order_id = isset($post['order_id']) ? $post['order_id'] : 0;
-        //$order['sum_paid'] == 0 && $order['count_debit'] != $order['count_come']
         $warehouse = isset($post['warehouse']) && $post['warehouse'] > 0 ? $post['warehouse'] : null;
         $location = isset($post['location']) && $post['location'] > 0 ? $post['location'] : null;
         $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']),
             'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
         $warehouse_type = isset($post['warehouse_type']) ? intval($post['warehouse_type']) : 0;
         $its_warehouse = null;
-        $links = array();
 
-        // достаем заказ
-        // достаем заказ поставщику
-        $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
-        $user_id = $supplier && $order && $order['user_id'] == 0 ? $_SESSION['id'] : ($order['user_id'] > 0 ? $order['user_id'] : null);
-        // достаем товар
-        $product = $this->Goods->getByPk($product_id);
 
         try {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
                 throw new ExceptionWithMsg(l('У Вас нет прав'));
             }
-            if (!$product) {
-                throw new ExceptionWithMsg(l('Укажите деталь'));
-            }
-            if (!$order) {
-                throw new ExceptionWithMsg(l('Заказ не найден'));
-            }
-            if ($order['confirm'] == 1) {
-                throw new ExceptionWithMsg(l('Заказ закрыт'));
-            }
-            if ($order['avail'] == 0) {
-                throw new ExceptionWithMsg(l('Заказ отменен'));
-            }
-            if ($product['type'] == 1) {
-                throw new ExceptionWithMsg(l('На услугу заказ создать нельзя'));
-            }
-            if (count($orders) > $count) {
-                throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
-            }
-            // проверка на создание заказа с ценой 0
-            if ($price == 0 && $this->all_configs['configs']['suppliers-orders-zero'] == false) {
+
+            if ($this->isEmpty($post['item_ids'],
+                    $post['amount']) && $this->all_configs['configs']['suppliers-orders-zero'] == false
+            ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
-
-            // редактируем заказ
-            try {
-                $data = array(
-                    'price' => $price,
-                    'date_wait' => date("Y-m-d H:i:s", $date),
-                    'supplier' => $supplier,
-                    'its_warehouse' => $its_warehouse,
-                    'goods_id' => $product_id,
-                    'user_id' => $user_id,
-                    '`count`' => $count,
-                    'comment' => $comment,
-                    'num' => $num,
-                    'warehouse_type' => $warehouse_type,
-                );
-                if (!empty($warehouse)) {
-                    $data['wh_id'] = $warehouse;
-                }
-                if (!empty($location)) {
-                    $data['location_id'] = $location;
-                }
-                $this->ContractorsSuppliersOrders->update($data, array('id' => $order_id));
-            } catch (Exception $e) {
-                throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
+            if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
+                throw new ExceptionWithMsg(l('Количество не может быть равно 0'));
             }
-            $this->exportSupplierOrder($order_id, 3);
+            foreach ($post['item_ids'] as $order_id => $product_id) {
+                $product = $this->Goods->getByPk($product_id);
+                if (!$product) {
+                    throw new ExceptionWithMsg(l('Укажите деталь'));
+                }
+                if ($product['type'] == 1) {
+                    throw new ExceptionWithMsg(l('На услугу заказ создать нельзя'));
+                }
+                $orders = empty($post['so_co'][$order_id]) ? array() : array_filter(array_unique(explode(',',
+                    $post['so_co'][$order_id])));
+                $count = $post['quantity'][$order_id];
+                $price = $post['amount'][$order_id] * 100;
+                if (empty($post['edited'][$order_id])) {
+                    $parent = $this->all_configs['db']->query('SELECT * FROM {contractors_suppliers_orders} WHERE id=?i',
+                        array($post['order_id']))->row();
+                    $user_id = $supplier && $parent && $parent['user_id'] == 0 ? $_SESSION['id'] : ($parent['user_id'] > 0 ? $parent['user_id'] : null);
+                    $parent_order_id = empty($parent) ? 0 : $parent['id'];
+                    $group_parent_id = empty($parent) ? 0 : $parent['group_parent_id'];
+                    $part = 1 + (int)$this->all_configs['db']->query('SELECT number FROM {contractors_suppliers_orders} WHERE parent_id=?i ORDER BY  DESC LIMIT 1',
+                            array($parent_order_id))->el();
+                    $this->addContractorOrder($mod_id, $price, $date, $supplier, $its_warehouse,
+                        $product_id, $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
+                        $parent_order_id,
+                        $part, array(), $orders);
 
-            // обновляем дату поставки товара
-            $this->all_configs['manageModel']->update_product_wait($product);
-            $this->History->save('edit-warehouse-order', $mod_id, $order_id);
+                } else {
+                    $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
+                    if (!$order) {
+                        throw new ExceptionWithMsg(l('Заказ не найден'));
+                    }
+                    if ($order['confirm'] == 1) {
+                        throw new ExceptionWithMsg(l('Заказ закрыт'));
+                    }
+                    if ($order['avail'] == 0) {
+                        throw new ExceptionWithMsg(l('Заказ отменен'));
+                    }
+                    if (count($orders) > $count) {
+                        throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
+                    }
+                    $user_id = $supplier && $order && $order['user_id'] == 0 ? $_SESSION['id'] : ($order['user_id'] > 0 ? $order['user_id'] : null);
 
-            // связь между заказами
-            $result = $this->orders_link($order_id, $orders, intval($order['supplier']));
+                    // редактируем заказ
+                    try {
+                        $data = array(
+                            'price' => $price,
+                            'date_wait' => date("Y-m-d H:i:s", $date),
+                            'supplier' => $supplier,
+                            'its_warehouse' => $its_warehouse,
+                            'goods_id' => $product_id,
+                            'user_id' => $user_id,
+                            '`count`' => $count,
+                            'comment' => $comment,
+                            'num' => $num,
+                            'warehouse_type' => $warehouse_type,
+                        );
+                        if (!empty($warehouse)) {
+                            $data['wh_id'] = $warehouse;
+                        }
+                        if (!empty($location)) {
+                            $data['location_id'] = $location;
+                        }
+                        $this->ContractorsSuppliersOrders->update($data, array('id' => $order_id));
+                    } catch (Exception $e) {
+                        throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
+                    }
+                    $this->exportSupplierOrder($order_id, 3);
 
-            if (!isset($result['state']) || $result['state'] == false) {
-                throw new ExceptionWithMsg(isset($result['msg']) ? $result['msg'] : l('Заявка уже создан'));
-            }
+                    // обновляем дату поставки товара
+                    $this->all_configs['manageModel']->update_product_wait($product);
+                    $this->History->save('edit-warehouse-order', $mod_id, $order_id);
 
-            // Уведомлять менеджера, который ответственный за ремонт о том что сроки поставки запчасти изменились
-            if (strtotime($order['date_wait']) != $date && isset($result['links']) && count($result['links']) > 0) {
-                include_once $this->all_configs['sitepath'] . 'mail.php';
-                $messages = new Mailer($this->all_configs);
+                    // связь между заказами
+                    $result = $this->orders_link($order_id, $orders, intval($order['supplier']));
 
-                foreach ($result['links'] as $link) {
-                    if (isset($link['id']) && $link['id'] > 0 && isset($link['manager']) && $link['manager'] > 0) {
-                        $href = $this->all_configs['prefix'] . 'orders/create/' . $link['id'];
-                        $content = l('Сроки поставки запчасти') . ' "' . htmlspecialchars($link['title']) . '" ' . l('заказа') . ' <a href="' . $href . '">№' . $link['id'] . '</a> ' . l('изменились');
-                        $messages->send_message($content, l('Сроки поставки запчасти изменились'), $link['manager'], 1);
+                    if (!isset($result['state']) || $result['state'] == false) {
+                        throw new ExceptionWithMsg(isset($result['msg']) ? $result['msg'] : l('Заявка уже создан'));
+                    }
+
+                    // Уведомлять менеджера, который ответственный за ремонт о том что сроки поставки запчасти изменились
+                    if (strtotime($order['date_wait']) != $date && isset($result['links']) && count($result['links']) > 0) {
+                        include_once $this->all_configs['sitepath'] . 'mail.php';
+                        $messages = new Mailer($this->all_configs);
+
+                        foreach ($result['links'] as $link) {
+                            if (isset($link['id']) && $link['id'] > 0 && isset($link['manager']) && $link['manager'] > 0) {
+                                $href = $this->all_configs['prefix'] . 'orders/create/' . $link['id'];
+                                $content = l('Сроки поставки запчасти') . ' "' . htmlspecialchars($link['title']) . '" ' . l('заказа') . ' <a href="' . $href . '">№' . $link['id'] . '</a> ' . l('изменились');
+                                $messages->send_message($content, l('Сроки поставки запчасти изменились'),
+                                    $link['manager'], 1);
+                            }
+                        }
                     }
                 }
             }
@@ -162,6 +175,13 @@ class Suppliers extends Object
                 'state' => true
             );
         } catch (ExceptionWithMsg $e) {
+            $data = array(
+                'state' => false,
+                'message' => $e->getMessage(),
+                'msg' => $e->getMessage(),
+            );
+        } catch (Exception $e) {
+
             $data = array(
                 'state' => false,
                 'message' => $e->getMessage(),
@@ -183,7 +203,7 @@ class Suppliers extends Object
             return true;
         }
         foreach ($ids as $key => $id) {
-            if (empty($value[$key])) {
+            if (empty($values[$key]) || 0 == (int)$values[$key]) {
                 return true;
             }
         }
@@ -204,7 +224,6 @@ class Suppliers extends Object
         $date = isset($post['warehouse-order-date']) ? $post['warehouse-order-date'] : date("d.m.Y");
         $comment = isset($post['comment-supplier']) ? $post['comment-supplier'] : '';
         $warehouse_type = isset($post['warehouse_type']) ? intval($post['warehouse_type']) : 0;
-        $orders = isset($post['so_co']) && is_array($post['so_co']) ? array_filter(array_unique($post['so_co'])) : array();
         $its_warehouse = $group_parent_id = null;
         $num = isset($post['warehouse-order-num']) && mb_strlen(trim($post['warehouse-order-num']),
             'UTF-8') > 0 ? trim($post['warehouse-order-num']) : null;
@@ -232,6 +251,8 @@ class Suppliers extends Object
             foreach ($post['item_ids'] as $key => $product_id) {
                 $count = $post['quantity'][$key];
                 $price = intval($post['amount'][$key]) * 100;
+                $orders = empty($post['so_co'][$key]) ? array() : array_filter(array_unique(explode(',',
+                    $post['so_co'][$key])));
 
                 // достаем товар
                 $product = $this->Goods->getByPk($product_id);
@@ -244,51 +265,16 @@ class Suppliers extends Object
                 if (count($orders) > $count) {
                     throw new ExceptionWithMsg(l('Ремонтов не может быть больше чем количество в заказе'));
                 }
+                $data = $this->addContractorOrder($mod_id, $price, $date, $supplier, $its_warehouse,
+                    $product_id, $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type, $parent_order_id,
+                    $part, $data, $orders);
 
-                if ($product) {
-                    // создаем заказ
-                    try {
-                        $id = $this->ContractorsSuppliersOrders->insert(array(
-                            'price' => $price,
-                            'date_wait' => date("Y-m-d H:i:s", 86399 + strtotime($date)),
-                            'supplier' => $supplier,
-                            'its_warehouse' => $its_warehouse,
-                            'goods_id' => $product_id,
-                            'user_id' => $user_id,
-                            '`count`' => $count,
-                            'comment' => $comment,
-                            'group_parent_id' => $group_parent_id,
-                            'num' => $num,
-                            'warehouse_type' => $warehouse_type,
-                            'parent_id' => $parent_order_id,
-                            'number' => $part
-                        ));
-                        if (empty($parent_order_id)) {
-                            $parent_order_id = $id;
-                        }
-                        $part += 1;
-                        FlashMessage::set(l('Заказ успешно создан'));
-                    } catch (Exception $e) {
-                        throw new ExceptionWithMsg($e->getMessage());
-
-                        throw new ExceptionWithMsg(l('Неизвестная ошибка при создании заказа'));
-                    }
-                    if ($id > 0) {
-                        $data['id'] = $id;
-                        $data['state'] = true;
-
-                        // обновляем дату поставки товара
-                        $this->all_configs['manageModel']->update_product_wait($product_id);
-
-                        // связь между заказами
-                        $this->orders_link($id, $orders);
-
-                        $this->History->save('add-warehouse-order', $mod_id, intval($id));
-
-                        $this->buildESO($id);
-                    }
+                if (empty($parent_order_id) && !empty($data['id'])) {
+                    $parent_order_id = $data['id'];
                 }
+                $part += 1;
             }
+            FlashMessage::set(l('Заказ успешно создан'));
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
@@ -788,7 +774,7 @@ class Suppliers extends Object
 
             $Transactions = new Transactions($this->all_configs);
 
-            $info_html .= "<h4>". l('Операции'). "</h4>";
+            $info_html .= "<h4>" . l('Операции') . "</h4>";
             foreach ($order['all'] as $id => $item) {
                 $info_html .= $Transactions->get_transactions($this->currencies, false, null, true,
                     array('supplier_order_id' => $id), false);
@@ -1878,7 +1864,7 @@ class Suppliers extends Object
     private function get_goods_for_edit_order($order)
     {
         return $this->all_configs['db']->query('SELECT title FROM {goods} WHERE id=?i',
-                array($order['goods_id']))->el();
+            array($order['goods_id']))->el();
     }
 
     /**
@@ -1919,5 +1905,80 @@ class Suppliers extends Object
                     LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
                     LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
                     WHERE o.parent_id=? GROUP BY o.id ORDER BY o.number ASC', array($parent_id))->assoc('id');
+    }
+
+    /**
+     * @param $mod_id
+     * @param $price
+     * @param $date
+     * @param $supplier
+     * @param $its_warehouse
+     * @param $product_id
+     * @param $user_id
+     * @param $count
+     * @param $comment
+     * @param $group_parent_id
+     * @param $num
+     * @param $warehouse_type
+     * @param $parent_order_id
+     * @param $part
+     * @param $data
+     * @param $orders
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    private function addContractorOrder(
+        $mod_id,
+        $price,
+        $date,
+        $supplier,
+        $its_warehouse,
+        $product_id,
+        $user_id,
+        $count,
+        $comment,
+        $group_parent_id,
+        $num,
+        $warehouse_type,
+        $parent_order_id,
+        $part,
+        $data,
+        $orders
+    ) {
+// создаем заказ
+        try {
+            $id = $this->ContractorsSuppliersOrders->insert(array(
+                'price' => $price,
+                'date_wait' => date("Y-m-d H:i:s", 86399 + strtotime($date)),
+                'supplier' => $supplier,
+                'its_warehouse' => $its_warehouse,
+                'goods_id' => $product_id,
+                'user_id' => $user_id,
+                '`count`' => $count,
+                'comment' => $comment,
+                'group_parent_id' => $group_parent_id,
+                'num' => $num,
+                'warehouse_type' => $warehouse_type,
+                'parent_id' => $parent_order_id,
+                'number' => $part
+            ));
+        } catch (Exception $e) {
+            throw new ExceptionWithMsg(l('Неизвестная ошибка при создании заказа'));
+        }
+        if ($id > 0) {
+            $data['id'] = $id;
+            $data['state'] = true;
+
+            // обновляем дату поставки товара
+            $this->all_configs['manageModel']->update_product_wait($product_id);
+
+            // связь между заказами
+            $this->orders_link($id, $orders);
+
+            $this->History->save('add-warehouse-order', $mod_id, intval($id));
+
+            $this->buildESO($id);
+        }
+        return $data;
     }
 }

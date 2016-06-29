@@ -51,7 +51,7 @@
                 </div>
             <?php endif; ?>
 
-            <input type="hidden" name="order_id" value="<?= $order_id ?>"/>
+            <input type="hidden" name="order_id" value="<?= $order['id'] ?>"/>
 
             <?php if ($all): ?>
                 <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-header">

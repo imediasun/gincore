@@ -37,10 +37,11 @@
                     <?php $readonly = ($order['count'] == $order['count_come'])? 'readonly': ''; ?>
                     <tr class="row-item">
                         <td class="col-sm-3">
-                            <input type="hidden" class="form-control js-supplier-item-id" name="items_id[<?= $id ?>]"
+                            <input type="hidden" class="form-control js-supplier-item-id" name="item_ids[<?= $id ?>]"
                                    value="<?= $order['goods_id'] ?>">
                             <input type="text" readonly class="form-control js-supplier-item-name"
                                    value="<?= $order['product'] ?>"/>
+                            <input type="hidden" readonly name="edited[<?= $id ?>]" value="<?= $id ?>"/>
                         </td>
                         <td class="col-sm-2">
                             <input type="text" class="form-control js-supplier-price"

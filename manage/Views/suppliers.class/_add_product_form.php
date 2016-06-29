@@ -62,7 +62,7 @@
                     <div class="input-group">
                         <input type="text" name="new_so_co" class="form-control clone_clear_val js-so_co"
                                aria-describedby="basic-addon1"/>
-                                    <span class="input-group-addon" id="basic-addon1">
+                                    <span class="input-group-addon" id="basic-addon1" style="cursor: pointer" onclick="return add_comma(this);">
                                         <i class="glyphicon glyphicon-plus"></i>
                                     </span>
                     </div>
