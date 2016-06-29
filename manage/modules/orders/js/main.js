@@ -585,9 +585,8 @@ function add_new_order(_this, next, from) {
 }
 
 function order_products(_this, product_id, order_product_id, cfm, remove, show_confirm_for_remove) {
-
   var close_supplier_order = '', url;
-  var order_id = arrequest()[2] || $('#update-order').data('order_id') || $('#order-form').find('input[name="order_id"]').first().val();
+  var order_id = $('#update-order').data('order_id') || $('#order-form').find('input[name="order_id"]').first().val() || arrequest()[2] ;
   var is_modal = $('input[name="is_modal"]').val();
 
   if (remove && show_confirm_for_remove) {
