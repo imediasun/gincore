@@ -1,4 +1,4 @@
-<div class="row-fluid" data-validate="parsley" id="suppliers-order-form-cart">
+<div class="row-fluid" data-validate="parsley" id="suppliers-order-form-cart" style="margin-bottom: 20px">
     <div class="col-sm-12">
         <table class="table supplier-table-items" style="<?= empty($orders) ? 'display:none' : '' ?>">
             <tbody>

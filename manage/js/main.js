@@ -346,6 +346,7 @@ $(document).ready(function () {
         success: function (msg) {
           $form.addClass('loaded').append('<form>' + msg.html + '</form>');
           $form.show();
+          $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
           reset_multiselect();
           $this.button('reset');
         }
@@ -2259,8 +2260,8 @@ function add_supplier_item_to_table() {
   var $row = $('tr.js-supplier-row-cloning'),
     cost = $('#supplier_product_cost').val() || 0,
     quantity = $('#supplier_product_quantity').val() || 0,
-    title = $('input[name="goods-goods-value"]').val(),
-    id = $('input[name="goods-goods"]').val(),
+    title = $('#suppliers-order-form input[name="goods-goods-value"]').val(),
+    id = $('#suppliers-order-form input[name="goods-goods"]').val(),
     rnd = parseInt(Math.random() * 1000),
     so_co = $('input[name="new_so_co"]').val() || '';
 
@@ -2291,7 +2292,6 @@ function add_supplier_item_to_table() {
 }
 
 function recalculate_amount_supplier() {
-  console.log('test');
   var total = 0,
     $body = $('.supplier-table-items > tbody');
 

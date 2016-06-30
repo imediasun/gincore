@@ -1,14 +1,16 @@
 <h3><?= l('Редактирование заказа поставщику') ?> №<?= $order_id ?></h3>
 <br>
 <div class="row row-15">
-    <form data-validate="parsley" id="suppliers-order-form" method="post">
+    <form data-validate="parsley" id="suppliers-order-form" method="post" style="position: relative">
         <?php if (empty($suppliers)): ?>
             <p class="text-danger"><?= l('Нет поставщиков') ?></p>
         <?php else: ?>
             <?php if ($order['sum_paid'] == 0 && $order['count_debit'] != $order['count_come']): ?>
                 <div class="row-fluid">
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         <table class="table table-borderless">
+                            <thead>
+
                             <tr>
                                 <td class="col-sm-5">
                                     <label><?= l('Склад') ?>
@@ -20,6 +22,8 @@
                                 <td>
                                 </td>
                             </tr>
+                            </thead>
+                            <tbody>
                             <tr>
                                 <td class="col-sm-5">
                                     <div class="form-group">
@@ -46,6 +50,7 @@
                                 <td>
                                 </td>
                             </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -55,8 +60,10 @@
 
             <?php if ($all): ?>
                 <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-header">
-                    <div class="form-group relative col-sm-6">
+                    <div class="form-group relative col-sm-8">
                         <table class="table table-borderless">
+                            <thead>
+
                             <tr>
                                 <td class="col-sm-5">
                                     <label><?= l('Поставщик') ?><b class="text-danger">*</b>: </label>
@@ -72,6 +79,8 @@
                                     </label>
                                 </td>
                             </tr>
+                            </thead>
+                            <tbody>
                             <tr>
                                 <td class="col-sm-5">
                                     <div class="input-group">
@@ -110,13 +119,15 @@
                                     </select>
                                 </td>
                             </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             <?php endif; ?>
             <div class="row-fluid">
-                <div class="form-group relative col-sm-6">
+                <div class="form-group relative col-sm-8">
                     <table class="table table-borderless">
+                        <thead>
                         <tr>
                             <td class="col-sm-5">
                                 <label><?= l('Примечание') ?>: </label>
@@ -128,6 +139,8 @@
                             <td>
                             </td>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr>
                             <td class="col-sm-5">
                                 <textarea <?= $disabled ?> name="comment-supplier" class="form-control" rows="1"
@@ -140,10 +153,11 @@
                             <td>
                             </td>
                         </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
-
+            <hr>
             <?= $this->renderFile('suppliers.class/_add_product_form', array(
                 'order' => $order,
                 'goods' => $goods,

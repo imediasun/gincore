@@ -1,6 +1,7 @@
 <div class="row-fluid" data-validate="parsley" id="js-add-product-form">
     <div class="form-group relative col-sm-12">
         <table class="table table-borderless">
+            <thead>
             <tr>
                 <td class="col-sm-3">
                     <label><?= l('Запчасть') ?><b class="text-danger">*</b>: </label>
@@ -23,11 +24,15 @@
 
                 </td>
             </tr>
+            </thead>
+            <tbody>
+
             <tr>
                 <td>
                     <?php if (!empty($goods)): ?>
                         <?= typeahead($this->all_configs['db'], 'goods-goods', false, null,
-                            (15 + $typeahead), 'input-xlarge exclude-form-validate', 'input-medium exclude-form-validate', '', false, false, '', false,
+                            (15 + $typeahead), 'input-xlarge exclude-form-validate',
+                            'input-medium exclude-form-validate', '', false, false, '', false,
                             l('Введите'),
                             array(
                                 'name' => l('Добавить'),
@@ -42,14 +47,16 @@
                 </td>
                 <td>
                     <input type="text" data-required="true" onkeydown="return isNumberKey(event, this)"
-                           name="warehouse-order-price" id="supplier_product_cost" class="form-control exclude-form-validate"
+                           name="warehouse-order-price" id="supplier_product_cost"
+                           class="form-control exclude-form-validate"
                            onkeyup="return recalculate_product_sum(this);"
                            value=""/>
 
                 </td>
                 <td>
                     <input type="text" data-required="true" onkeydown="return isNumberKey(event)"
-                           name="warehouse-order-count" class="form-control exclude-form-validate" id="supplier_product_quantity"
+                           name="warehouse-order-count" class="form-control exclude-form-validate"
+                           id="supplier_product_quantity"
                            onkeyup="return recalculate_product_sum(this);"
                            value=""/>
                 </td>
@@ -62,7 +69,8 @@
                     <div class="input-group">
                         <input type="text" name="new_so_co" class="form-control clone_clear_val js-so_co"
                                aria-describedby="basic-addon1"/>
-                                    <span class="input-group-addon" id="basic-addon1" style="cursor: pointer" onclick="return add_comma(this);">
+                                    <span class="input-group-addon" id="basic-addon1" style="cursor: pointer"
+                                          onclick="return add_comma(this);">
                                         <i class="glyphicon glyphicon-plus"></i>
                                     </span>
                     </div>
@@ -77,6 +85,7 @@
                             </span>
                 </td>
             </tr>
+            </tbody>
         </table>
     </div>
 </div>

@@ -772,6 +772,7 @@ function show_suppliers_order(_this, id) {
       }
       if (msg['state'] == true && msg['html']) {
         alert_box(_this, msg.html);
+        $('.modal-dialog').css('width', '1000px');
       }
       if (is_modal) {
         $('body').append($div);

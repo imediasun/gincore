@@ -1132,3 +1132,13 @@ div.overflow-ellipsis {
 .table-fs-12 >tbody >tr >td.order-status-col{
     overflow: auto !important;
 }
+#suppliers-order-form table,
+#suppliers-order-form table thead > tr >td >label,
+#suppliers-order-form .form-group{
+    margin-bottom: 0;
+}
+
+#suppliers-order-form table thead > tr >td {
+    padding-bottom: 0;
+    padding-top: 0;
+}

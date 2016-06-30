@@ -1,6 +1,6 @@
 <h3><?= l('Создание нового заказа поставщику') ?></h3>
 <br>
-<form method="post" id="suppliers-order-form" >
+<form method="post" id="suppliers-order-form"  style="position: relative">
     <?php if (empty($suppliers)): ?>
         <p class="text-danger"><?= l('Нет поставщиков') ?></p>
     <?php else: ?>
@@ -10,7 +10,7 @@
 
         <?php if ($all): ?>
             <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-header" >
-                <div class="form-group relative col-sm-6">
+                <div class="form-group relative col-sm-8">
                     <table class="table table-borderless">
                         <tr>
                             <td class="col-sm-5">
@@ -66,7 +66,7 @@
             </div>
         <?php endif; ?>
         <div class="row-fluid">
-            <div class="form-group relative col-sm-6">
+            <div class="form-group relative col-sm-8">
                 <table class="table table-borderless">
                     <tr>
                         <td class="col-sm-5">
@@ -93,7 +93,7 @@
                 </table>
             </div>
         </div>
-
+        <hr>
 
         <?= $this->renderFile('suppliers.class/_add_product_form', array(
             'order' => $order,
