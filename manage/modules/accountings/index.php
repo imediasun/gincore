@@ -325,7 +325,7 @@ class accountings extends Controller
             Response::redirect($url);
         } elseif (isset($post['cashbox-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создание кассы
-            $cashboxes_type = 1;
+            $cashboxes_type = CASHBOX_NOT_SYSTEM;
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
@@ -351,6 +351,20 @@ class accountings extends Controller
                 }
             }
             $this->History->save('add-cashbox', $mod_id, $cashbox_id);
+        } elseif (isset($post['cashbox-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            // удаление кассы
+            if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            if($this->cashboxHaveTransaction(array('id' => $post['cashbox-id']))) {
+                FlashMessage::set(l('По кассе имеются транзакции'), FlashMessage::WARNING);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+
+            $this->Cashboxes->delete($post['cashbox-id']);
+            $this->all_configs['db']->query('DELETE FROM {cashboxes_currencies} WHERE cashbox_id=?i',
+                array($post['cashbox-id']));
+
         } elseif (isset($post['cashbox-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // редактирование кассы
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
@@ -361,13 +375,11 @@ class accountings extends Controller
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
-            $cashboxes_type = 1;
             $avail = 1;
             $avail_in_balance = 1;
             $avail_in_orders = 1;
 
             $ar = $this->Cashboxes->update(array(
-                'cashboxes_type' => $cashboxes_type,
                 'avail' => $avail,
                 'avail_in_balance' => $avail_in_balance,
                 'avail_in_orders' => $avail_in_orders,
@@ -425,7 +437,7 @@ class accountings extends Controller
             if ($parent_id > 0) {
                 $this->addContractorCategoryForUsers($parent_id, $contractor_category);
             }
-            if(!empty($post['contractors'])) {
+            if (!empty($post['contractors'])) {
                 $this->addCategoryToContractors($contractor_category, $post['contractors']);
             }
 
@@ -458,7 +470,7 @@ class accountings extends Controller
             if ($ar) {
                 $this->History->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
             }
-            if(!empty($post['contractors'])) {
+            if (!empty($post['contractors'])) {
                 $this->updateCategoryToContractors($post['contractor_category-id'], $post['contractors']);
             }
 
@@ -660,7 +672,19 @@ class accountings extends Controller
     {
         $currencies_html = '';
         if ($cashbox) {
-            $btn = "<input type='hidden' name='cashbox-id' value='{$cashbox['id']}' /><input type='submit' class='btn' name='cashbox-edit' value='" . l('Редактировать') . "' />";
+            if (!in_array($cashbox['name'], array(
+                    lq('Основная'),
+                    lq('Транзитная'),
+                    lq('Терминал'),
+                )) || $cashbox['cashboxes_type'] == CASHBOX_NOT_SYSTEM
+            ) {
+                $btn = "<input type='hidden' name='cashbox-id' value='{$cashbox['id']}' /><input type='submit' class='btn' name='cashbox-edit' value='" . l('Редактировать') . "' />";
+                if (!$this->cashboxHaveTransaction($cashbox)) {
+                    $btn .= "&nbsp;<input type='submit' class='btn' name='cashbox-delete' value='" . l('Удалить') . "' />";
+                }
+            } else {
+                $btn = l('Системная касса не подлежит редактированию');
+            }
             $title = htmlspecialchars($cashbox['name']);
 
             foreach ($cashboxes_currencies as $currency) {
@@ -693,7 +717,6 @@ class accountings extends Controller
 
             }
         } else {
-
             foreach ($cashboxes_currencies as $currency) {
                 if (array_key_exists($currency['id'],
                         $this->all_configs['suppliers_orders']->currencies) && $this->all_configs['suppliers_orders']->currencies[$currency['id']]['currency-name'] == $this->all_configs['configs']['default-currency']
@@ -900,8 +923,9 @@ class accountings extends Controller
     {
         $categories = $this->get_contractors_categories($type);
         $contractors = db()->query('SELECT id, title FROM {contractors}')->assoc('id');
-        if($contractor_category) {
-            $contractors_category_links = db()->query("SELECT contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id=?i", array($contractor_category['id']))->col();
+        if ($contractor_category) {
+            $contractors_category_links = db()->query("SELECT contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id=?i",
+                array($contractor_category['id']))->col();
         } else {
             $contractors_category_links = array();
         }
@@ -3181,7 +3205,7 @@ class accountings extends Controller
 
         list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
 
-        if(!empty($_POST['transaction_extra']) && $amount_to == 0) {
+        if (!empty($_POST['transaction_extra']) && $amount_to == 0) {
             $_POST['transaction_extra'] = '';
             list($co_id, $b_id, $t_extra, $amount_to, $order) = $this->getInfoForPayForm();
         }
@@ -3671,7 +3695,8 @@ class accountings extends Controller
     private function addCategoryToContractors($contractor_category, $contractors)
     {
         foreach ($contractors as $contractor) {
-            db()->query('INSERT {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)', array($contractor_category, $contractor));
+            db()->query('INSERT {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
+                array($contractor_category, $contractor));
         }
     }
 
@@ -3681,7 +3706,22 @@ class accountings extends Controller
      */
     private function updateCategoryToContractors($contractor_category, $contractors)
     {
-        db()->query('DELETE FROM {contractors_categories_links} WHERE contractors_categories_id=?i', array($contractor_category));
+        db()->query('DELETE FROM {contractors_categories_links} WHERE contractors_categories_id=?i',
+            array($contractor_category));
         $this->addCategoryToContractors($contractor_category, $contractors);
+    }
+
+    /**
+     * @param $cashbox
+     * @return mixed
+     */
+    private function cashboxHaveTransaction($cashbox)
+    {
+        return $this->all_configs['db']->query('
+        SELECT count(*) 
+        FROM {cashboxes_transactions} as ct
+        WHERE ct.cashboxes_currency_id_from in (select id FROM {cashboxes_currencies} WHERE cashbox_id=?i) 
+        OR ct.cashboxes_currency_id_to in (select id FROM {cashboxes_currencies} WHERE cashbox_id=?i)
+        ', array($cashbox['id'], $cashbox['id']))->el();
     }
 }
