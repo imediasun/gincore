@@ -35,6 +35,8 @@ define('GOODS_TYPE_SERVICE_DELETED', 0b110);
 
 define('CATEGORIES_TYPE_ACTIVE', 0b001);
 define('CATEGORIES_TYPE_DELETED', 0b101);
+define('CASHBOX_SYSTEM', 1);
+define('CASHBOX_NOT_SYSTEM', 2);
 
 
 include_once 'suppliers.class.php';

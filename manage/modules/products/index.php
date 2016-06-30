@@ -1581,10 +1581,11 @@ class products extends Controller
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
             $counts = $this->all_configs['db']->query('SELECT w.title, i.wh_id, COUNT(DISTINCT i.id) as qty_wh,
                       SUM(IF (w.consider_store=1 AND i.order_id IS NULL, 1, 0)) - COUNT(DISTINCT l.id) as qty_store
-                    FROM {warehouses} as w, {warehouses_goods_items} as i
+                    FROM {warehouses_goods_items} as i
+                    LEFT JOIN {warehouses} as w ON w.id=i.wh_id
                     LEFT JOIN {orders_suppliers_clients} AS l ON i.supplier_order_id = l.supplier_order_id
                       AND l.order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL)
-                    WHERE i.goods_id=?i AND w.id=i.wh_id AND w.consider_all=1 GROUP BY i.wh_id',
+                    WHERE i.goods_id=?i AND w.consider_all=1 GROUP BY i.wh_id',
                 array($this->all_configs['arrequest'][2]))->assoc();
 
             $goods_html = $this->view->renderFile('products/products_financestock_stock', array(
