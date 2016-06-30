@@ -1,7 +1,7 @@
-<select class="form-control" name="data[type]">
+<select required class="form-control" name="data[type]" onchange="return show_variables(this);">
     <option disabled selected><?= l('Выберите тип шаблона') ?></option>
     <?php foreach ($types as $type => $id): ?>
-        <option value="<?= $id ?>" data-type='<?= $type ?>' onclick="show_variables(this);"> <?= l($type) ?></option>
+        <option value="<?= $id ?>" <?= $current == $id? 'selected': ''?> data-type='<?= $type ?>' > <?= l($type) ?></option>
     <?php endforeach; ?>
 </select>
 
@@ -45,9 +45,9 @@
 
 <script>
     function show_variables(_this) {
-        var type = $(_this).data('type');
-        console.log(type);
+        var type = $(_this).find("option:selected").first().data('type');
         $('.js-variables').hide();
         $('.js-' + type + '_variables').show();
+        return true;
     }
 </script>
