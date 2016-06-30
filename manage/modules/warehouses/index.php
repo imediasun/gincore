@@ -185,12 +185,12 @@ class warehouses extends Controller
 
             //заблокировал обновления типа (4 - Клиент), при сохраниении сбрасывался в "1". 16.06.16
             $this->all_configs['db']->query('UPDATE {warehouses} '
-                    . 'SET consider_all=?i, consider_store=?i, code_1c=?, title=?, '
-                    . 'print_address = ?, print_phone = ?, '
-                    //. 'type=?i, '
-                    . 'group_id=?n, '
-                    . 'type_id=?n '
-                    . 'WHERE id=?i',
+                . 'SET consider_all=?i, consider_store=?i, code_1c=?, title=?, '
+                . 'print_address = ?, print_phone = ?, '
+                //. 'type=?i, '
+                . 'group_id=?n, '
+                . 'type_id=?n '
+                . 'WHERE id=?i',
                 array(
                     $consider_all,
                     $consider_store,
@@ -1095,6 +1095,14 @@ class warehouses extends Controller
         $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
         $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
 
+        if (!empty($warehouse)) {
+            try {
+                $warehouse['can_deleted'] = $this->checkWarehouseForDelete($warehouse['id']);
+            } catch (ExceptionWithMsg $e) {
+                $warehouse['can_deleted'] = false;
+            }
+        }
+
         return $this->view->renderFile('warehouses/form_warehouse', array(
             'i' => $i,
             'warehouse' => $warehouse,
@@ -1417,11 +1425,11 @@ class warehouses extends Controller
         $data['state'] = true;
         $data['btns'] = '<input class="btn" onclick="debit_supplier_order(this)" type="button" value="' . l('Приходовать') . '" />';
         $data['content'] = $this->view->renderFile('warehouses/form_debit_so', array(
-                'order' => $order,
-                'order_id' => $order_id,
-                // необходимое количество приходования
-                'count' => $order ? $order['count_come'] - $order['count_debit'] : 0
-            ));
+            'order' => $order,
+            'order_id' => $order_id,
+            // необходимое количество приходования
+            'count' => $order ? $order['count_come'] - $order['count_debit'] : 0
+        ));
         return $data;
     }
 
@@ -2033,45 +2041,68 @@ class warehouses extends Controller
     }
 
     /**
+     * @param $warehouseId
+     * @return bool
+     * @throws ExceptionWithMsg
+     */
+    private function checkWarehouseForDelete($warehouseId)
+    {
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE wh_id=?i OR accept_wh_id=?i',
+            array($warehouseId, $warehouseId))->el();
+        if ($count > 0) {
+            throw new ExceptionWithMsg(l('Не возможно удалить склад, привязаны заказы'));
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE wh_id=?i',
+            array($warehouseId))->el();
+        if ($count > 0) {
+            throw new ExceptionWithMsg(l('Не возможно удалить склад, имеются товары'));
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_users} WHERE wh_id=?i',
+            array($warehouseId))->el();
+        if ($count > 0) {
+            throw new ExceptionWithMsg(l('Не возможно удалить склад, привязаны пользователи'));
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE wh_id=?i',
+            array($warehouseId))->el();
+        if ($count > 0) {
+            throw new ExceptionWithMsg(l('Не возможно удалить склад, привязаны заказы поставщикам'));
+        }
+        $count = $this->all_configs['db']->query('SELECT count(*) FROM {chains} WHERE from_wh_id=?i OR to_wh_id=?i',
+            array($warehouseId, $warehouseId))->el();
+        if ($count > 0) {
+            throw new ExceptionWithMsg(l('Не возможно удалить склад, привязаны транзакции'));
+        }
+        return true;
+    }
+
+    /**
      * @param $post
      * @return bool
      */
     private function warehouseDelete($post)
     {
         $warehouseId = $post['warehouse-id'];
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE wh_id=?i OR accept_wh_id=?i',
-            array($warehouseId, $warehouseId))->el();
-        if ($count > 0) {
-            FlashMessage::set(l('Не возможно удалить склад, привязаны заказы'), FlashMessage::DANGER);
+        try {
+            $warehouse = $this->all_configs['db']->query('SELECT * FROM {warehouses} WHERE id=?i',
+                array($warehouseId))->row();
+            if ($warehouse['is_system'] || in_array($warehouse['title'], array(
+                    lq('Брак'),
+                    lq('Клиент'),
+                    lq('Логистика'),
+                    lq('Недостача'),
+                ))
+            ) {
+                throw new ExceptionWithMsg(l('Не возможно удалить системный склад'));
+            }
+            $this->checkWarehouseForDelete($warehouseId);
+            $this->all_configs['db']->query('DELETE FROM {warehouses_locations} WHERE wh_id=?i', array($warehouseId));
+            $this->all_configs['db']->query('DELETE FROM {warehouses} WHERE id=?i', array($warehouseId));
+            FlashMessage::set(l('Склад удален'), FlashMessage::SUCCESS);
+
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
             return false;
         }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE wh_id=?i',
-            array($warehouseId))->el();
-        if ($count > 0) {
-            FlashMessage::set(l('Не возможно удалить склад, имеются товары'), FlashMessage::DANGER);
-            return false;
-        }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_users} WHERE wh_id=?i',
-            array($warehouseId))->el();
-        if ($count > 0) {
-            FlashMessage::set(l('Не возможно удалить склад, привязаны пользователи'), FlashMessage::DANGER);
-            return false;
-        }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE wh_id=?i',
-            array($warehouseId))->el();
-        if ($count > 0) {
-            FlashMessage::set(l('Не возможно удалить склад, привязаны заказы поставщикам'), FlashMessage::DANGER);
-            return false;
-        }
-        $count = $this->all_configs['db']->query('SELECT count(*) FROM {chains} WHERE from_wh_id=?i OR to_wh_id=?i',
-            array($warehouseId, $warehouseId))->el();
-        if ($count > 0) {
-            FlashMessage::set(l('Не возможно удалить склад, привязаны транзакции'), FlashMessage::DANGER);
-            return false;
-        }
-        $this->all_configs['db']->query('DELETE FROM {warehouses_locations} WHERE wh_id=?i', array($warehouseId));
-        $this->all_configs['db']->query('DELETE FROM {warehouses} WHERE id=?i', array($warehouseId));
-        FlashMessage::set(l('Склад удален'), FlashMessage::SUCCESS);
         return true;
     }
 }
