@@ -37,6 +37,7 @@ class Infoblock
                 </div>
                 <div id="glossary_alpha" class="glossary_alpha"></div>
                 
+                <!--
                 <div class="zadarma_button_call_consultant" id="zadarma_button_call_consultant">
                     <script type="text/javascript" src="https://zadarma.com/swfobject.js"></script>
                     <script type="text/javascript">
@@ -57,6 +58,7 @@ class Infoblock
                     </a>
                     </div>
                 </div>
+                -->
             ';
         }else{
             $info = $this->getinfo($this->all_configs['curmod'] . (isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : ''));
