@@ -81,7 +81,7 @@ class sms_templates extends translates
                     foreach ($translates as $id => $t) {
                         if (!isset($translates[$id][$l])) {
                             $translates[$id][$l] = array_map('clear_values_in_array',
-                                isset($translates[$id][$def_lang]) ? $translates[$id][$def_lang] : array_shift($translates[$id]));
+                                isset($translates[$id][$def_lang]) ? $translates[$id][$def_lang] : current($translates[$id]));
                         }
                     }
                 }
