@@ -32,7 +32,8 @@ if (isset($_POST['vpbx_api_key']) && isset($_POST['json'])) {
     $arr = json_decode($_POST['json'], true);
     if ($arr['call_state'] == 'Appeared' 
             && isset($arr['from']['number']) 
-            && isset($arr['from']['taken_from_call_id'])) {
+            //&& isset($arr['from']['taken_from_call_id'])
+            ) {
         $phone = $arr['from']['number'];
         $log = 'mangosip.ru phone: ' . $phone;
 
