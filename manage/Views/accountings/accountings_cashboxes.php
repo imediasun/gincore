@@ -25,74 +25,75 @@
 <div class="clearfix">
     <div class="cashbox-tables">
         <?php if (count($cashboxes) > 0): ?>
-        <?php foreach ($cashboxes as $cashbox): ?>
-            <table class="cashboxes-table m-b-md m-t-md">
-                <tbody>
-                <tr>
-                    <?php if ($controller->cashboxAvailable($cashbox)): ?>
-                        <td><h4 class="center" style="max-width:150px"><?= $cashbox['name'] ?></h4></td>
-                    <?php endif; ?>
-                </tr>
+            <?php foreach ($cashboxes as $cashbox): ?>
+                <?php if ($controller->cashboxAvailable($cashbox)): ?>
+                    <table class="cashboxes-table m-b-md m-t-md" style ='float: left;'>
+                        <tbody>
+                        <tr>
+                            <td><h4 class="center" style="max-width:150px"><?= $cashbox['name'] ?></h4></td>
+                        </tr>
 
-                <?php foreach ($currencies as $cur_id => $currency): ?>
-                    <?php if ($cashboxes_cur[$cashbox['id']]): ?>
-                        <tr>
-                            <?php $cashbox_cur = $cashboxes_cur[$cashbox['id']] ?>
-                            <?php if (array_key_exists($cur_id, $cashbox_cur)): ?>
-                                <td class="text-success center cashbox-currency-value">
-                                    <div><?= $cashbox_cur[$cur_id] ?></div>
-                                </td>
-                            <?php else: ?>
-                                <td></td>
+                        <?php foreach ($currencies as $cur_id => $currency): ?>
+                            <?php if(!in_array($cur_id, $used_currencies)): ?>
+                                <?php continue; ?>
                             <?php endif; ?>
-                        </tr>
-                    <?php else: ?>
+                            <?php if ($cashboxes_cur[$cashbox['id']]): ?>
+                                <tr>
+                                    <?php $cashbox_cur = $cashboxes_cur[$cashbox['id']] ?>
+                                    <?php if (array_key_exists($cur_id, $cashbox_cur)): ?>
+                                        <td class="text-success center cashbox-currency-value">
+                                            <div><?= $cashbox_cur[$cur_id] ?></div>
+                                        </td>
+                                    <?php else: ?>
+                                        <td>&nbsp;</td>
+                                    <?php endif; ?>
+                                </tr>
+                            <?php else: ?>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                         <tr>
-                            <td>&nbsp;</td>
-                        </tr>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-                <tr>
-                    <?php if ($controller->cashboxAvailable($cashbox)): ?>
-                        <td>
-                            <div class="btns-cashbox">
-                                <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+                            <td>
+                                <div class="btns-cashbox">
+                                    <?php if ($this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+                                        <div>
+                                            <button data-o_id="<?= $cashbox['id'] ?>"
+                                                    onclick="alert_box(this, false, 'begin-transaction-1')"
+                                                    class="btn btn-default btn-cashboxes"><?= l('Выдача') ?></button>
+                                        </div>
+                                    <?php endif; ?>
                                     <div>
                                         <button data-o_id="<?= $cashbox['id'] ?>"
-                                                onclick="alert_box(this, false, 'begin-transaction-1')"
-                                                class="btn btn-default btn-cashboxes"><?= l('Выдача') ?></button>
+                                                onclick="alert_box(this, false, 'begin-transaction-2')"
+                                                class="btn btn-default btn-cashboxes"><?= l('Внесение') ?></button>
                                     </div>
-                                <?php endif; ?>
-                                <div>
-                                    <button data-o_id="<?= $cashbox['id'] ?>"
-                                            onclick="alert_box(this, false, 'begin-transaction-2')"
-                                            class="btn btn-default btn-cashboxes"><?= l('Внесение') ?></button>
+                                    <div>
+                                        <button data-o_id="<?= $cashbox['id'] ?>"
+                                                onclick="alert_box(this, false, 'begin-transaction-3')"
+                                                class="btn btn-default btn-cashboxes"><?= l('Перемещение') ?></button>
+                                    </div>
+                                    <div>
+                                        <button
+                                            onclick="javascript:window.location.href='<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0]; ?>?cb=<?= $cashbox['id'] ?>#transactions'"
+                                            class="btn btn-default btn-cashboxes"><?= l('Отчеты') ?></button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <button data-o_id="<?= $cashbox['id'] ?>"
-                                            onclick="alert_box(this, false, 'begin-transaction-3')"
-                                            class="btn btn-default btn-cashboxes"><?= l('Перемещение') ?></button>
-                                </div>
-                                <div>
-                                    <button
-                                        onclick="javascript:window.location.href='<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0]; ?>?cb=<?= $cashbox['id'] ?>#transactions'"
-                                        class="btn btn-default btn-cashboxes"><?= l('Отчеты') ?></button>
-                                </div>
-                            </div>
-                        </td>
-                    <?php endif; ?>
-                </tr>
-                </tbody>
-            </table>
-        <?php endforeach; ?>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-error"><?= l('Нет касс') ?></p>
+        <?php endif; ?>
     </div>
     <div class="add-cashbox-table" onclick="alert_box(this, false, 'create-cashbox')" data-toggle="tooltip"
          data-placement="top" title="<?= l('Добавить кассу') ?>">
         <img src="<?= $prefix ?>img/add_new_cashbox.png">
     </div>
 </div>
-<?php else: ?>
-    <p class="text-error"><?= l('Нет касс') ?></p>
-<?php endif; ?>
 
 <?= $controller->Transactions->get_transactions($currencies, true, 30); ?>
