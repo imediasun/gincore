@@ -1132,3 +1132,11 @@ div.overflow-ellipsis {
 .table-fs-12 >tbody >tr >td.order-status-col{
     overflow: auto !important;
 }
+button.multiselect {
+    position: relative;
+}
+button.multiselect > .caret {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+}
