@@ -1974,7 +1974,7 @@ class orders extends Controller
                 'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
                     '{{order_id}}' => $order_id,
                     '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount']) / 100) . ' ' . viewCurrency(),
-                    '{{order_sum}}' => $order['sum'] . ' ' . viewCurrency(),
+                    '{{order_sum}}' => ($order['sum']/100) . ' ' . viewCurrency(),
                     '{{client}}' => $order['fio'],
                     '{{warehouse}}' => $order['title'],
                     '{{warehouse_address}}' => $order['print_address'],
