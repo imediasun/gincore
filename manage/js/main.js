@@ -2281,6 +2281,7 @@ function add_supplier_item_to_table() {
     $('#supplier_product_quantity').val('');
     $('input[name="goods-goods-value"]').val('');
     $('input[name="goods-goods"]').val('');
+    $('input[name="new_so_co"]').val('');
     $clone.show();
     $row.parent().append($clone);
     $('table.supplier-table-items').show();
