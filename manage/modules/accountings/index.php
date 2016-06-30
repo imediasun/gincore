@@ -3506,7 +3506,7 @@ class accountings extends Controller
             </style>
         ';
 
-        $data['btns'] = '<button type="button" onclick="create_transaction(this)" class="btn btn-success">' . $btn . '</button>';
+        $data['btns'] = '<button type="button" onclick="return create_transaction(this, 0, event)" class="btn btn-success">' . $btn . '</button>';
 
         $data['functions'] = array('reset_multiselect()');
         $data['state'] = true;
