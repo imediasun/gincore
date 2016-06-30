@@ -89,10 +89,10 @@
         <?php else: ?>
             <p class="text-error"><?= l('Нет касс') ?></p>
         <?php endif; ?>
-    </div>
     <div class="add-cashbox-table" onclick="alert_box(this, false, 'create-cashbox')" data-toggle="tooltip"
          data-placement="top" title="<?= l('Добавить кассу') ?>">
         <img src="<?= $prefix ?>img/add_new_cashbox.png">
+    </div>
     </div>
 </div>
 
