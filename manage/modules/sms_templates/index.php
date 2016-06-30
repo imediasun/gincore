@@ -117,29 +117,33 @@ class sms_templates extends translates
     {
         $tableName = $this->getTableName();
         if (isset($this->all_configs['arrequest'][3]) && $this->all_configs['arrequest'][3] == 'save') {
-            $id = $this->saveTemplateVars($tableName, $post);
-            $all_fields = array();
-            $values = array();
-            foreach ($post['translates'] as $lng => $fields) {
-                if (!$all_fields) {
-                    $all_fields[] = implode(',', array_keys($fields));
+            try {
+                $id = $this->saveTemplateVars($tableName, $post);
+                $all_fields = array();
+                $values = array();
+                foreach ($post['translates'] as $lng => $fields) {
+                    if (!$all_fields) {
+                        $all_fields[] = implode(',', array_keys($fields));
+                    }
+                    $vals = array();
+                    foreach ($fields as $field => $translate) {
+                        $vals[] = $this->all_configs['db']->makeQuery('?', array($translate));
+                    }
+                    $values[] = $this->all_configs['db']->makeQuery('(?, ?q, ?)',
+                        array($id, implode(',', $vals), $lng));
                 }
-                $vals = array();
-                foreach ($fields as $field => $translate) {
-                    $vals[] = $this->all_configs['db']->makeQuery('?', array($translate));
-                }
-                $values[] = $this->all_configs['db']->makeQuery('(?, ?q, ?)',
-                    array($id, implode(',', $vals), $lng));
-            }
 
-            $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q",
-                array(
-                    $tableName,
-                    $config['key'],
-                    implode(',', $all_fields),
-                    implode(',', $values)
-                ));
-            Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
+                $this->all_configs['db']->query("INSERT INTO ?q_strings(?q, ?q, lang) VALUES ?q",
+                    array(
+                        $tableName,
+                        $config['key'],
+                        implode(',', $all_fields),
+                        implode(',', $values)
+                    ));
+                Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
+            } catch (ExceptionWithMsg $e) {
+                FlashMessage::set($e->getMessage(), FlashMessage::INFO);
+            }
         }
         $columns = $this->all_configs['db']->query("SHOW COLUMNS FROM ?q",
             array($tableName), 'assoc');
@@ -156,35 +160,31 @@ class sms_templates extends translates
      * @param $tableName
      * @param $post
      * @return null
+     * @throws ExceptionWithMsg
      */
     private function saveTemplateVars($tableName, $post)
     {
         $id = null;
-        try {
-            if (empty($post['data']) || empty($post['data']['var']) || empty($post['data']['type'])) {
-                throw new ExceptionWithMsg(l('Заполните все поля'));
-            }
-            $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?',
-                array($tableName, $post['data']['var']))->el();
-            if (!empty($id)) {
-                throw new ExceptionWithMsg(l('Переменная уже существует'));
-            }
-
-            $f = implode(',', array_keys($post['data']));
-            $v = array();
-            foreach ($post['data'] as $fld => $d) {
-                $v[] = $this->all_configs['db']->makeQuery("?", array($d));
-            }
-            $id = $this->all_configs['db']->query("INSERT INTO ?q(?q) VALUES (?q)",
-                array($tableName, $f, implode(',', $v)), 'id');
-            if (empty($id)) {
-                throw new ExceptionWithMsg(l('Проблемы при создании переменной'));
-            }
-
-        } catch (ExceptionWithMsg $e) {
-            FlashMessage::set($e->getMessage(), FlashMessage::INFO);
-            Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
+        if (empty($post['data']) || empty($post['data']['var']) || empty($post['data']['type'])) {
+            throw new ExceptionWithMsg(l('Заполните все поля'));
         }
+        $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?',
+            array($tableName, $post['data']['var']))->el();
+        if (!empty($id)) {
+            throw new ExceptionWithMsg(l('Переменная уже существует'));
+        }
+
+        $f = implode(',', array_keys($post['data']));
+        $v = array();
+        foreach ($post['data'] as $fld => $d) {
+            $v[] = $this->all_configs['db']->makeQuery("?", array($d));
+        }
+        $id = $this->all_configs['db']->query("INSERT INTO ?q(?q) VALUES (?q)",
+            array($tableName, $f, implode(',', $v)), 'id');
+        if (empty($id)) {
+            throw new ExceptionWithMsg(l('Проблемы при создании переменной'));
+        }
+
         return $id;
     }
 

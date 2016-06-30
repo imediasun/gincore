@@ -1,11 +1,13 @@
+<?php echo print_r($_POST, true) ?>
 <h3><?= $config['name'] ?></h3>
-<form action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add/save"
+<form data-='' action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add/save"
       method="post">
     <fieldset>
         <legend><?= l('Тип') ?></legend>
         <div class="from-control">
             <?= $this->renderFile('sms_templates/types_list', array(
-                'types' => $types
+                'types' => $types,
+                'current' => isset($_POST['data']['type'])?$_POST['data']['type']:0
             )) ?>
         </div>
     </fieldset>
@@ -17,7 +19,7 @@
             <?php if (!in_array($column['Field'], array('id', 'type'))): ?>
                 <div class="from-control">
                     <label><?= $column['Field'] ?></label>
-                    <input class="form-control" name="data[<?= $column['Field'] ?>]" type="text">
+                    <input required class="form-control" name="data[<?= $column['Field'] ?>]" type="text" value="<?= isset($_POST['data']['var'])?$_POST['data']['var']:'' ?>">
                 </div>
             <?php endif; ?>
         <?php endforeach; ?>
@@ -29,7 +31,7 @@
         <?php foreach ($config['fields'] as $field => $field_name): ?>
             <div class="from-control">
                 <label><?= $field_name ?>, <?= $manage_lang ?></label>
-                <input class="form-control" name="translates[<?= $manage_lang ?>][<?= $field ?>]" type="text">
+                <input required class="form-control" name="translates[<?= $manage_lang ?>][<?= $field ?>]" type="text">
             </div>
         <?php endforeach; ?>
     </fieldset>
