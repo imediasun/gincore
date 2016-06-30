@@ -92,7 +92,7 @@ class Suppliers extends Object
                     $user_id = $supplier && $parent && $parent['user_id'] == 0 ? $_SESSION['id'] : ($parent['user_id'] > 0 ? $parent['user_id'] : null);
                     $parent_order_id = empty($parent) ? 0 : $parent['id'];
                     $group_parent_id = empty($parent) ? 0 : $parent['group_parent_id'];
-                    $part = 1 + (int)$this->all_configs['db']->query('SELECT number FROM {contractors_suppliers_orders} WHERE parent_id=?i ORDER BY  DESC LIMIT 1',
+                    $part = 1 + (int)$this->all_configs['db']->query('SELECT number FROM {contractors_suppliers_orders} WHERE parent_id=?i ORDER BY number DESC LIMIT 1',
                             array($parent_order_id))->el();
                     $this->addContractorOrder($mod_id, $price, $date, $supplier, $its_warehouse,
                         $product_id, $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
