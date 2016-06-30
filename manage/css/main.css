@@ -1142,3 +1142,11 @@ div.overflow-ellipsis {
     padding-bottom: 0;
     padding-top: 0;
 }
+button.multiselect {
+    position: relative;
+}
+button.multiselect > .caret {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+}
