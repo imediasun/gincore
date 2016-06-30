@@ -102,8 +102,8 @@ function add_currency(_this) {
   return false;
 }
 
-function create_transaction(_this, conf) {
-
+function create_transaction(_this, conf, event) {
+  event.stopPropagation();
   $(_this).button('loading');
 
   $.ajax({
