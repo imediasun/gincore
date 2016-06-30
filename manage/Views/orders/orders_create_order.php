@@ -273,11 +273,11 @@
                                                         onclick="if ($(this).prop('checked')){$('.courier_address').show();}else{$('.courier_address').hide();}"
                                                         type="checkbox" value="1" name="is_courier"/>
                                                     <?= l('Курьер забрал устройство у клиента') ?>
+                                                </label>
                                                     <input type="text" style="display:none;"
                                                            placeholder="<?= l('по адресу') ?>"
                                                            class="form-control courier_address" value=""
                                                            name="courier"/>
-                                                </label>
                                             </div>
                                             <div class="checkbox">
                                                 <label>
