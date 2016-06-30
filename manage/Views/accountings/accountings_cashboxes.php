@@ -25,20 +25,19 @@
 <div class="clearfix">
     <div class="cashbox-tables">
         <?php if (count($cashboxes) > 0): ?>
-        <table class="cashboxes-table m-b-md m-t-md">
-            <tbody>
-            <tr>
-                <?php foreach ($cashboxes as $cashbox): ?>
+        <?php foreach ($cashboxes as $cashbox): ?>
+            <table class="cashboxes-table m-b-md m-t-md">
+                <tbody>
+                <tr>
                     <?php if ($controller->cashboxAvailable($cashbox)): ?>
                         <td><h4 class="center" style="max-width:150px"><?= $cashbox['name'] ?></h4></td>
                     <?php endif; ?>
-                <?php endforeach; ?>
-            </tr>
+                </tr>
 
-            <?php foreach ($currencies as $cur_id => $currency): ?>
-                <tr>
-                    <?php if ($cashboxes_cur): ?>
-                        <?php foreach ($cashboxes_cur as $cashbox_cur): ?>
+                <?php foreach ($currencies as $cur_id => $currency): ?>
+                    <?php if ($cashboxes_cur[$cashbox['id']]): ?>
+                        <tr>
+                            <?php $cashbox_cur = $cashboxes_cur[$cashbox['id']] ?>
                             <?php if (array_key_exists($cur_id, $cashbox_cur)): ?>
                                 <td class="text-success center cashbox-currency-value">
                                     <div><?= $cashbox_cur[$cur_id] ?></div>
@@ -46,14 +45,14 @@
                             <?php else: ?>
                                 <td></td>
                             <?php endif; ?>
-                        <?php endforeach; ?>
+                        </tr>
                     <?php else: ?>
-                        <td></td>
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
                     <?php endif; ?>
-                </tr>
-            <?php endforeach; ?>
-            <tr>
-                <?php foreach ($cashboxes as $cashbox): ?>
+                <?php endforeach; ?>
+                <tr>
                     <?php if ($controller->cashboxAvailable($cashbox)): ?>
                         <td>
                             <div class="btns-cashbox">
@@ -82,10 +81,10 @@
                             </div>
                         </td>
                     <?php endif; ?>
-                <?php endforeach; ?>
-            </tr>
-            </tbody>
-        </table>
+                </tr>
+                </tbody>
+            </table>
+        <?php endforeach; ?>
     </div>
     <div class="add-cashbox-table" onclick="alert_box(this, false, 'create-cashbox')" data-toggle="tooltip"
          data-placement="top" title="<?= l('Добавить кассу') ?>">
