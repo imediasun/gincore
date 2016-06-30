@@ -100,14 +100,14 @@ class import
                 return false;
             } else {
                 if (!is_dir($this->upload_path)) {
-                    mkdir($this->upload_path, 0777);
+                    mkdir($this->upload_path, 0770);
                 }
                 $file_info = pathinfo($_FILES['file']['name']);
                 $filename = $type . '.' . strtolower($file_info['extension']);
                 $target = $this->upload_path . $filename;
                 if (file_exists($this->upload_path . $type . '.csv')) {
                     if (!is_dir($this->copy_upload_path)) {
-                        mkdir($this->copy_upload_path, 0777);
+                        mkdir($this->copy_upload_path, 0770);
                     }
                     if (copy($this->upload_path . $type . '.csv',
                         $this->copy_upload_path . date('Y-m-d_H-i-s') . '_' . $type . '.csv')) {
