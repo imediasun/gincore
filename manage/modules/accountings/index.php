@@ -356,7 +356,7 @@ class accountings extends Controller
             if (!isset($post['cashbox-id']) || $post['cashbox-id'] == 0) {
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
-            if($this->cashboxHaveTransaction(array('id' => $post['cashbox-id']))) {
+            if ($this->cashboxHaveTransaction(array('id' => $post['cashbox-id']))) {
                 FlashMessage::set(l('По кассе имеются транзакции'), FlashMessage::WARNING);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
@@ -672,19 +672,28 @@ class accountings extends Controller
     {
         $currencies_html = '';
         if ($cashbox) {
-            if (!in_array($cashbox['name'], array(
+            $btn = "<input type='hidden' name='cashbox-id' value='{$cashbox['id']}' />";
+            $btn .= "<input type='submit' class='btn' name='cashbox-edit' value='" . l('Редактировать') . "'";
+            $readonly = '';
+            if (in_array($cashbox['name'], array(
+                lq('Транзитная'),
+                lq('Терминал'),
+            ))) {
+                $btn .= ' onclick="alert(\'' . l('Системная касса не подлежит редактированию') . '\'); return false"';
+                $readonly = 'disabled';
+            }
+            $btn .= "/>";
+            $btn .= "&nbsp;<input type='submit' class='btn' name='cashbox-delete' value='" . l('Удалить') . "'";
+            if ($this->cashboxHaveTransaction($cashbox)
+                || in_array($cashbox['name'], array(
                     lq('Основная'),
                     lq('Транзитная'),
                     lq('Терминал'),
-                )) || $cashbox['cashboxes_type'] == CASHBOX_NOT_SYSTEM
+                ))
             ) {
-                $btn = "<input type='hidden' name='cashbox-id' value='{$cashbox['id']}' /><input type='submit' class='btn' name='cashbox-edit' value='" . l('Редактировать') . "' />";
-                if (!$this->cashboxHaveTransaction($cashbox)) {
-                    $btn .= "&nbsp;<input type='submit' class='btn' name='cashbox-delete' value='" . l('Удалить') . "' />";
-                }
-            } else {
-                $btn = l('Системная касса не подлежит редактированию');
+                $btn .= ' onclick="alert(\'' . l('Касса задействована в транзакциях') . '\'); return false"';
             }
+            $btn .= " />";
             $title = htmlspecialchars($cashbox['name']);
 
             foreach ($cashboxes_currencies as $currency) {
@@ -713,7 +722,7 @@ class accountings extends Controller
 
                 }
 
-                $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' {$checked} type='checkbox' /> {$currency['name']}</label></div>";
+                $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' {$readonly} value='{$currency['currency']}' name='cashbox_currency[]' {$checked} type='checkbox' /> {$currency['name']}</label></div>";
 
             }
         } else {
@@ -738,10 +747,18 @@ class accountings extends Controller
             $accordion_title = l('Редактировать кассу') . " '{$title}'";
         }
 
+        if (in_array($cashbox['name'], array(
+                lq('Основная'),
+                lq('Транзитная'),
+                lq('Терминал'),
+            ))
+        ) {
+            $readonly = 'readonly';
+        }
         $cashbox_form = "
             <form method='POST' style='max-width:300px'>
                 <div class='form-group'><label>" . l('Название') . ": </label>
-                    <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' />
+                    <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' {$readonly} />
                 </div>
                 <div class='form-group'>
                     <label>" . l('Используемые валюты') . ": " . InfoPopover::getInstance()->createQuestion('l_cashbox_currencies_info') . "</label>
