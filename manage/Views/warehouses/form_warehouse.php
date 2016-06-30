@@ -80,20 +80,19 @@
                             <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
                             <input type='submit' class='btn' name='warehouse-edit'
                                    value='<?= l('Редактировать') ?>'/>
-                            <?php if (!$warehouse['is_system'] && !in_array($warehouse['title'], array(
-                                    lq('Брак'),
-                                    lq('Клиент'),
-                                    lq('Логистика'),
-                                    lq('Недостача'),
-                                ))
-                            ): ?>
-                                <?php if ($warehouse['can_deleted']): ?>
-                                    <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
-                                           value='<?= l('Удалить') ?>'/>
-                                <?php else: ?>
-                                    <?= l('Касса не подлежит удалению, так как задействована в складских операциях') ?>
+                            <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
+                                <?php if (!$warehouse['can_deleted'] || $warehouse['is_system'] || in_array($warehouse['title'],
+                                        array(
+                                            lq('Брак'),
+                                            lq('Клиент'),
+                                            lq('Логистика'),
+                                            lq('Недостача'),
+                                        ))
+                                ): ?>
+
+                                    onclick="alert('<?= l('Касса не подлежит удалению, так как задействована в складских операциях') ?>'); return false"
                                 <?php endif; ?>
-                            <?php endif; ?>
+                                   value='<?= l('Удалить') ?>'/>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
