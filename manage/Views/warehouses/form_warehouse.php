@@ -78,9 +78,24 @@
                             <input type='submit' class='btn' name='warehouse-add' value='<?= l('Создать') ?>'/>
                         <?php else: ?>
                             <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
-                            <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Редактировать') ?>'/>
-                            <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
-                                   value='<?= l('Удалить') ?>'/>
+                            <?php if (!$warehouse['is_system'] && !in_array($warehouse['title'], array(
+                                    lq('Брак'),
+                                    lq('Клиент'),
+                                    lq('Логистика'),
+                                    lq('Недостача'),
+                                ))
+                            ): ?>
+                                <input type='submit' class='btn' name='warehouse-edit'
+                                       value='<?= l('Редактировать') ?>'/>
+                                <?php if ($warehouse['can_deleted']): ?>
+                                    <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
+                                           value='<?= l('Удалить') ?>'/>
+                                <?php else: ?>
+                                    <?= l('Касса не подлежит удалению, так как задействована в складских операциях') ?>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <?= l('Касса не подлежит редактированию') ?>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

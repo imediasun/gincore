@@ -149,3 +149,7 @@ PRIMARY KEY (`id`),
 INDEX(`order_id`),
 INDEX(`users_field_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_06_30_061857_add_system_to_warehouses.php
+ */
+ALTER TABLE `restore4_warehouses` ADD COLUMN is_system tinyint(4) UNSIGNED DEFAULT 0;

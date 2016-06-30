@@ -362,7 +362,7 @@ class master
         // создаем склад
         $warehouse_id = $this->db->query('INSERT IGNORE INTO {warehouses}
             (consider_all, consider_store, code_1c, title, print_address,
-             print_phone, type, group_id, type_id) VALUES (?i, ?i, null, ?, ?, ?, ?i, ?n, ?n)',
+             print_phone, type, group_id, type_id, is_system) VALUES (?i, ?i, null, ?, ?, ?, ?i, ?n, ?n, 1)',
             array($consider_all, $consider_store, $name, $address, $phone, $type, $group_id, 1), 'id');
         // и локацию
         $location_id = $this->db->query("INSERT IGNORE INTO {warehouses_locations} (wh_id,location)"
