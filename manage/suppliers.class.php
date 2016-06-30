@@ -1436,6 +1436,7 @@ class Suppliers extends Object
         $data['content'] = $this->view->renderFile('suppliers.class/accept_form', array(
             'warehouses' => $warehouses,
             'order' => $order,
+            'product' => $this->get_goods_for_edit_order($order),
             'controller' => $this
         ));
         $callback = '';
