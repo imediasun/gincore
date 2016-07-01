@@ -1155,3 +1155,12 @@ table.table-vpaddingless tr td.arrow{
     text-align: center;
     vertical-align: middle;
 }
+
+    #show_orders-orders{
+        overflow: scroll;
+    }
+@media all and (min-width:1360px) {
+    #show_orders-orders{
+        overflow: auto;
+    }
+}
