@@ -320,7 +320,7 @@
                         </div>
                         <div class="span6">
                             <?php if ($notSale): ?>
-                                <?php if ($order['return_id'] > 0 || $this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
+                                <?php if (false && ($order['return_id'] > 0 || $this->all_configs['oRole']->hasPrivilege('edit_return_id'))): ?>
                                     <div class="form-group clearfix">
                                         <label><?= l('Номер возврата') ?>: </label>
                                         <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id')): ?>
