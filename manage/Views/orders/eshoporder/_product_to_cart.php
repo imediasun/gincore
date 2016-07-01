@@ -9,7 +9,7 @@
 <table class="product_to_cart">
     <thead>
     <tr>
-        <td class="col-sm-3">
+        <td class="col-sm-3" style="padding-left: 0">
             <label class="control-label">
                 <?= l('Наименование') ?>:
             </label>

@@ -60,14 +60,12 @@ class Suppliers extends Object
         $warehouse_type = isset($post['warehouse_type']) ? intval($post['warehouse_type']) : 0;
         $its_warehouse = null;
 
-
         try {
             if (!$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
                 throw new ExceptionWithMsg(l('У Вас нет прав'));
             }
 
-            if ($this->isEmpty($post['item_ids'],
-                    $post['amount']) && $this->all_configs['configs']['suppliers-orders-zero'] == false
+            if ($this->isEmpty($post['item_ids'], $post['amount'])
             ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
@@ -94,10 +92,14 @@ class Suppliers extends Object
                     $group_parent_id = empty($parent) ? 0 : $parent['group_parent_id'];
                     $part = 1 + (int)$this->all_configs['db']->query('SELECT number FROM {contractors_suppliers_orders} WHERE parent_id=?i ORDER BY number DESC LIMIT 1',
                             array($parent_order_id))->el();
-                    $this->addContractorOrder($mod_id, $price, $date, $supplier, $its_warehouse,
-                        $product_id, $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
+
+                    $result = $this->addContractorOrder($mod_id, $price, date('Y-m-d', strtotime($parent['date_wait'])-86399), $supplier, $its_warehouse,
+                        $product['id'], $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
                         $parent_order_id,
                         $part, array(), $orders);
+                    $update['wh_id'] = $parent['wh_id'];
+                    $update['location_id'] = $parent['location_id'];
+                    $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
 
                 } else {
                     $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
