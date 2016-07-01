@@ -1,6 +1,7 @@
 <?php if ($contractors): ?>
 <div class="col-sm-7">
         <label class="control-label"><?= l('Контрагент') ?>: </label>
+        <?= !empty($infopopover) ? $infopopover : '' ?>
     </div>
     <div class="col-sm-5">
             <select name="contractor_id" class="multiselect form-control">
@@ -12,6 +13,5 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-        <?= !empty($infopopover) ? $infopopover : '' ?>
         </div>
 <?php endif; ?>

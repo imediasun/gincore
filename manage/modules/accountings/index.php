@@ -2827,7 +2827,7 @@ class accountings extends Controller
             // валюты
             $cashboxes_currencies = $this->cashboxes_courses();
 
-            $out .= "<div class='panel-group' id='accordion_cashboxes'>" . $this->form_cashbox($cashboxes_currencies);
+            $out .= "<div class='panel-group row-fluid' id='accordion_cashboxes'><div class='col-sm-6'>" . $this->form_cashbox($cashboxes_currencies);
 
             // список форм для редактирования касс
             if (count($this->cashboxes) > 0) {
@@ -2840,7 +2840,7 @@ class accountings extends Controller
                 }
             }
 
-            $out .= '</div>';
+            $out .= '</div></div>';
         }
 
         return array(

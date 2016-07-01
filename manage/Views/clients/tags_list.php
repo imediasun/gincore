@@ -1,6 +1,7 @@
 <?php if ($tags): ?>
         <div class="col-sm-7">
             <label class="control-label"><?= l('Статус клиента(метка)') ?>: </label>
+            <?= !empty($infopopover) ? $infopopover : '' ?>
         </div>
         <div class="col-sm-5">
             <select name="tag_id" class="form-control multiselect">
@@ -11,6 +12,5 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-            <?= !empty($infopopover) ? $infopopover : '' ?>
         </div>
 <?php endif; ?>

@@ -686,7 +686,7 @@ class warehouses extends Controller
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // склады
-            $admin_out .= "<div class='panel-group' id='accordion_warehouses'>";
+            $admin_out .= "<div class='panel-group row-fluid' id='accordion_warehouses'><div class='col-sm-6'>";
             // форма для создания склада
             $admin_out .= $this->form_warehouse();
             if ($this->warehouses && count($this->warehouses) > 0) {
@@ -696,7 +696,7 @@ class warehouses extends Controller
                     $admin_out .= $this->form_warehouse($warehouse, $i);
                 }
             }
-            $admin_out .= '</div><!--#accordion_warehouses-->';
+            $admin_out .= '</div></div><!--#accordion_warehouses-->';
         }
 
         return array(
@@ -724,13 +724,13 @@ class warehouses extends Controller
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $admin_out .= "<div class='panel-group' id='accordion_warehouses_types'>";
+            $admin_out .= "<div class='panel-group row-fluid' id='accordion_warehouses_types'><div class='col-sm-6'>";
             $admin_out .= $this->warehouses_settings_warehouses_types_form();
             $types = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_types}')->assoc();
             foreach ($types as $type) {
                 $admin_out .= $this->warehouses_settings_warehouses_types_form($type);
             }
-            $admin_out .= '</div>';
+            $admin_out .= '</div></div>';
         }
 
         return array(
@@ -758,13 +758,13 @@ class warehouses extends Controller
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $admin_out .= "<div class='panel-group' id='accordion_warehouses_groups'>";
+            $admin_out .= "<div class='panel-group row-fluid' id='accordion_warehouses_groups'><div class='col-sm-6'>";
             $admin_out .= $this->warehouses_settings_warehouses_groups_form();
             $groups = (array)$this->all_configs['db']->query('SELECT * FROM {warehouses_groups}')->assoc();
             foreach ($groups as $group) {
                 $admin_out .= $this->warehouses_settings_warehouses_groups_form($group);
             }
-            $admin_out .= '</div><!--#accordion_warehouses_groups-->';
+            $admin_out .= '</div></div><!--#accordion_warehouses_groups-->';
         }
         return array(
             'html' => $admin_out,

@@ -1,10 +1,14 @@
-<form method="POST" class="form-horizontal" id="group_clients_form">
-    <p><?= l('К клиенту 1 будут перенесены данные (телефоны, звонки, заказы и т.д.) клиента 2.') ?> <br>
-       <?= l('Эл. адрес, фио и контрагент переносятся от клиента 2 в том случае, если у клиента 1 эти поля пустые.') ?> <br>
-       <?= l('После этого клиент 2 будет удален.') ?>
-    </p><br>
+<p><?= l('К клиенту 1 будут перенесены данные (телефоны, звонки, заказы и т.д.) клиента 2.') ?> <br>
+    <?= l('Эл. адрес, фио и контрагент переносятся от клиента 2 в том случае, если у клиента 1 эти поля пустые.') ?>
+    <br>
+    <?= l('После этого клиент 2 будет удален.') ?>
+</p><br>
+<div class="row-fluid">
+
+<form method="POST" class="form-horizontal col-sm-3" id="group_clients_form">
     <div class="control-group">
-        <label class="control-label"><?= l('Клиент') ?> 1: <?= InfoPopover::getInstance()->createQuestion('l_clients_merge_info') ?></label>
+        <label class="control-label"><?= l('Клиент') ?>
+            1: <?= InfoPopover::getInstance()->createQuestion('l_clients_merge_info') ?></label>
         <div class="controls">
             <?= typeahead($this->all_configs['db'], 'clients', false, isset($_GET['client_1']) ?
                 $_GET['client_1'] : 0, 1, 'input-medium', 'input-small', '', true, false, '1') ?>
@@ -25,3 +29,4 @@
         </div>
     </div>
 </form>
+</div>

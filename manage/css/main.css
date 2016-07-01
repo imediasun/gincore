@@ -1150,3 +1150,12 @@ button.multiselect > .caret {
     top: 15px;
     right: 10px;
 }
+table.table-vpaddingless tr td{
+    padding-top: 0;
+    padding-bottom: 0;
+}
+table.table-vpaddingless tr td.arrow{
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+}

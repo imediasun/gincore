@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__.'/../../Core/View.php';
 
 $modulename[50] = 'logistics';
 $modulemenu[50] = l('Логистика');
@@ -8,10 +9,11 @@ $moduleactive[50] = !$ifauth['is_2'];
 
 class logistics
 {
-
     private $mod_submenu;
     protected $all_configs;
     protected $db;
+    /** @var View  */
+    protected $view;
 
     public $count_on_page;
 
@@ -25,6 +27,7 @@ class logistics
         $this->all_configs = $all_configs;
         $this->db = $all_configs['db'];
         $this->count_on_page = count_on_page();
+        $this->view = new View($all_configs);
 
         global $input_html;
 
@@ -48,11 +51,7 @@ class logistics
      */
     function can_show_module()
     {
-        if ($this->all_configs['configs']['erp-use'] && ($this->all_configs['oRole']->hasPrivilege('logistics'))) {
-            return true;
-        } else {
-            return false;
-        }
+        return ($this->all_configs['configs']['erp-use'] && ($this->all_configs['oRole']->hasPrivilege('logistics')));
     }
 
     /**
@@ -327,95 +326,13 @@ class logistics
     function logistics_settings()
     {
         $out = '';
-
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
-
-            $warehouses = get_service('wh_helper')->get_warehouses();
-
             // вывод существующих
-
             $chains = $this->db->query("SELECT * FROM {chains} ORDER BY avail DESC", array())->assoc();
-
-            $out .= '<table class="table chains table-compact"><tbody>';
-            foreach ($chains as $chain) {
-                $out .= '
-                    <tr' . (!$chain['avail'] ? ' class="danger"' : '') . '>
-                        <td>' . $warehouses[$chain['from_wh_id']]['title'] . ' (' . $warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'] . ')' . '</td>
-                        <td class="chain-body-arrow"></td>
-                        <td>' . $warehouses[$chain['logistic_wh_id']]['title'] . ($chain['logistic_wh_location_id'] ? ' (' . $warehouses[$chain['logistic_wh_id']]['locations'][$chain['logistic_wh_location_id']]['name'] . ')' : '') . '</td>
-                        <td class="chain-body-arrow"></td>
-                        <td>' . $warehouses[$chain['to_wh_id']]['title'] . ' (' . $warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'] . ')' . '</td>
-                        <td class="chain-body-arrow"></td>
-                        <td>' . ($chain['avail'] ? '<i class="glyphicon glyphicon-remove cursor-pointer" title="' . l('Удалить цепочку') . '" onclick="remove_chain(this, ' . $chain['id'] . ')"></i>' : '') . '</td>
-                    </tr>
-                    <tr><td colspan="7"></td></tr>
-                ';
-            }
-            $out .= '</tbody></table>';
-
-            // форма добавления 
-
-            $warehouses_select = '<option value=""> -- ' . l('выбирите') . ' -- </option>';
-            foreach ($warehouses as $wh) {
-                $warehouses_select .= '<option value="' . $wh['id'] . '">' . $wh['title'] . '</option>';
-            }
-
-            $out .=
-                '<div class="panel-group" id="accordion-logistics">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-logistics" href="#collapseLogistics-0">' . l('Добавить логистическую цепочку') . '</a>
-                        </div>
-                        <div id="collapseLogistics-0" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <form class="container-fluid">
-                                    <div class="row">
-                                        <div class="col-sm-4">
-                                            <p>' . l('Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка') . '</p>
-                                            <div class="form-group">
-                                                <label>' . l('Склад') . ':</label>
-                                                <select data-multi="0" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[0]">
-                                                    ' . $warehouses_select . '
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>' . l('Локация') . ':</label>
-                                                <select class="multiselect form-control select-location0" name="location[0]"></select>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <p>' . l('Укажите склад логистики') . '</p>
-                                            <div class="form-group">
-                                                <label>' . l('Склад') . ':</label>
-                                                <select data-multi="1" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[1]">
-                                                    ' . $warehouses_select . '
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <p>' . l('Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка') . '</p>
-                                            <div class="form-group">
-                                                <label>' . l('Склад') . ':</label>
-                                                <select data-multi="2" onchange="change_warehouse(this)" class="form-control select-warehouses-item-move" name="wh_id_destination[2]">
-                                                    ' . $warehouses_select . '
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">' . l('Локация') . ':</label>
-                                                <select class="multiselect form-control select-location2" name="location[2]"></select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <input class="btn btn-primary" type="button" value="' . l('Сохранить') . '" onclick="create_chain(this)" />
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>';
+            $out = $this->view->renderFile('logistics/logistics_settings', array(
+                'chains' => $chains,
+                'warehouses' => get_service('wh_helper')->get_warehouses()
+            ));
         }
 
         return array(
