@@ -1614,6 +1614,7 @@ class accountings extends Controller
             }
 
             $cashboxes_cur = array();
+            $used_currencies = array();
             if (count($cashboxes) > 0) {
                 foreach ($cashboxes as $cashbox) {
                     if ($this->cashboxAvailable($cashbox)) {
@@ -1621,6 +1622,7 @@ class accountings extends Controller
                         if (array_key_exists('currencies', $cashbox)) {
                             ksort($cashbox['currencies']);
                             foreach ($cashbox['currencies'] as $cur_id => $currency) {
+                                $used_currencies[] = $cur_id;
                                 $name = show_price($currency['amount']) . ' <span>' . htmlspecialchars(l($currency['short_name'])) . '</span>';
                                 $cashboxes_cur[$cashbox['id']][$cur_id] = $name;
                             }
@@ -1638,7 +1640,8 @@ class accountings extends Controller
                 'all_amount' => $all_amount,
                 'controller' => $this,
                 'cashboxes_cur' => $cashboxes_cur,
-                'prefix' => $this->all_configs['prefix']
+                'prefix' => $this->all_configs['prefix'],
+                'used_currencies' => array_unique($used_currencies)
             ));
         }
 

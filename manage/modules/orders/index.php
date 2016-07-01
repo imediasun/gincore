@@ -1489,8 +1489,8 @@ class orders extends Controller
             }
             // -- фильтры
 
-            $orders_html = $this->view->renderFile('orders/order_manager_filters',array(
-                'service_filter' =>    $this->all_configs['suppliers_orders']->show_filter_service_center(),
+            $orders_html = $this->view->renderFile('orders/order_manager_filters', array(
+                'service_filter' => $this->all_configs['suppliers_orders']->show_filter_service_center(),
                 'manager_filter' => $this->show_filter_manager_small(),
                 'get_date' => $get_date,
                 'filter_stats' => $filter_stats
@@ -1974,7 +1974,7 @@ class orders extends Controller
                 'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
                     '{{order_id}}' => $order_id,
                     '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount']) / 100) . ' ' . viewCurrency(),
-                    '{{order_sum}}' => $order['sum'] . ' ' . viewCurrency(),
+                    '{{order_sum}}' => ($order['sum']/100) . ' ' . viewCurrency(),
                     '{{client}}' => $order['fio'],
                     '{{warehouse}}' => $order['title'],
                     '{{warehouse_address}}' => $order['print_address'],
@@ -1995,14 +1995,7 @@ class orders extends Controller
 
         // редактируем заказ поставщику
         if ($act == 'edit-supplier-order') {
-            // проверка на создание заказа с ценой 0
-            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
-            if ($price == 0) {
-                $data['state'] = false;
-                $data['msg'] = 'Укажите цену больше 0';
-            } else {
-                $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
-            }
+            $data = $this->all_configs['suppliers_orders']->edit_order($mod_id, $_POST);
         }
 
         // редактируем дату проверки заказа поставщику
@@ -2027,16 +2020,9 @@ class orders extends Controller
 
         // создаем заказ поставщику
         if ($act == 'create-supplier-order') {
-            // проверка на создание заказа с ценой 0
-            $price = isset($_POST['warehouse-order-price']) ? intval($_POST['warehouse-order-price'] * 100) : 0;
-            if ($price == 0) {
-                $data['state'] = false;
-                $data['msg'] = 'Укажите цену больше 0';
-            } else {
-                $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
-                if ($data['state'] == true && $data['id'] > 0) {
-                    $data['hash'] = '#show_suppliers_orders';
-                }
+            $data = $this->all_configs['suppliers_orders']->create_order($mod_id, $_POST);
+            if ($data['state'] == true && $data['id'] > 0) {
+                $data['hash'] = '#show_suppliers_orders';
             }
         }
 

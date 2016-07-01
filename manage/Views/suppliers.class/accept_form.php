@@ -1,3 +1,7 @@
+    <div>
+        <label><?= l('Заказ') ?>: N<?= $order['id'] ?></label>
+        <p><?= $product ?> - <?= $order['count'] ?> <?= l('шт.') ?></p>
+    </div>
 <form id="form-accept-so" method="post">
 
     <div class="form-group"><label"><?= l('Количество') ?>: </label>
