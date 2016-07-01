@@ -680,7 +680,7 @@ class accountings extends Controller
                 lq('Терминал'),
             ))) {
                 $btn .= ' onclick="alert(\'' . l('Системная касса не подлежит редактированию') . '\'); return false"';
-                $readonly = 'disabled';
+                $readonly = 'disabled="disabled"';
             }
             $btn .= "/>";
             $btn .= "&nbsp;<input type='submit' class='btn' name='cashbox-delete' value='" . l('Удалить') . "'";
@@ -715,7 +715,7 @@ class accountings extends Controller
                         ', array($currency['currency'], $cashbox['id']))->el();
 
                     if ($c_t && $c_t > 0) {
-                        $checked = "checked readonly";
+                        $checked = "checked disabled='disabled'";
                     } else {
                         $checked = "checked";
                     }
