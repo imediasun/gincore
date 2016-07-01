@@ -229,7 +229,16 @@ class orders extends Controller
                 }
             }
 
-            $hash = isset($post['sale-order']) ? '#show_orders-sold' : '#show_orders-orders';
+            switch (true) {
+                case isset($post['sale-order']):
+                    $hash = '#show_orders-sold';
+                    break;
+                case isset($post['supplier_order_id']):
+                    $hash = '#show_suppliers_orders-all';
+                    break;
+                default:
+                    $hash = '#show_orders-orders';
+            }
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&',
                         $url)) . $hash);
         }
@@ -1974,7 +1983,7 @@ class orders extends Controller
                 'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
                     '{{order_id}}' => $order_id,
                     '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount']) / 100) . ' ' . viewCurrency(),
-                    '{{order_sum}}' => ($order['sum']/100) . ' ' . viewCurrency(),
+                    '{{order_sum}}' => ($order['sum'] / 100) . ' ' . viewCurrency(),
                     '{{client}}' => $order['fio'],
                     '{{warehouse}}' => $order['title'],
                     '{{warehouse_address}}' => $order['print_address'],
