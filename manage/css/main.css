@@ -1115,7 +1115,6 @@ table.table-borderless tr td
     font-size: 12px;
     height: 30px;
     text-overflow: ellipsis;
-    overflow: hidden;
 }
 div.overflow-ellipsis {
     overflow: hidden;
@@ -1128,9 +1127,6 @@ div.overflow-ellipsis {
     right: 20px;
     top: 10px;
     cursor: pointer;
-}
-.table-fs-12 >tbody >tr >td.order-status-col{
-    overflow: auto !important;
 }
 #suppliers-order-form table,
 #suppliers-order-form table thead > tr >td >label,
