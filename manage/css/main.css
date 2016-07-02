@@ -1156,11 +1156,11 @@ table.table-vpaddingless tr td.arrow{
     vertical-align: middle;
 }
 
-    #show_orders-orders, #show_orders-sold, #show_orders{
-        overflow: scroll;
-    }
-@media all and (min-width:1360px) {
-    #show_orders-orders, #show_orders-sold, #show_orders{
-        overflow: auto;
-    }
-}
+    /*#show_orders-orders, #show_orders-sold, #show_orders{*/
+        /*overflow: scroll;*/
+    /*}*/
+/*@media all and (min-width:1360px) {*/
+    /*#show_orders-orders, #show_orders-sold, #show_orders{*/
+        /*overflow: auto;*/
+    /*}*/
+/*}*/
