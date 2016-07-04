@@ -123,7 +123,6 @@ class flayers
                 $filename = $file_hash . '.' . $ext;
                 $path_to_directory = $this->all_configs['sitepath'] . "flayers/";
                 $source = $_FILES['image']['tmp_name'];
-//                $source = str_replace('\\', '/', $source);
                 $target = $path_to_directory . $filename;
                 if (move_uploaded_file($source, $target)) {
                     chmod($target, 0777);

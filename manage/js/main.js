@@ -2265,6 +2265,12 @@ function add_supplier_item_to_table() {
     rnd = parseInt(Math.random() * 1000),
     so_co = $('input[name="new_so_co"]').val() || '';
 
+  if (cost <= 0) {
+    $('#supplier_product_cost').val('');
+  }
+  if (quantity <= 0) {
+    $('#supplier_product_quantity').val('');
+  }
   if (false === $('#js-add-product-form').parsley().validate()) {
     return;
   }

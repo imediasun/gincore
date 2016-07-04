@@ -788,10 +788,6 @@ class manageModel
                             'serial' => $o['serial']
                         );
                     }
-                    /*if ($o['client_order_id'] > 0) {
-                        $url = $this->all_configs['prefix'] . 'orders/create/' . $o['client_order_id'];
-                        $orders[$o['id']]['orders'][$o['client_order_id']] = '<a href="' . $url . '">' . $o['client_order_id'] . '</a>';
-                    }*/
                 }
             }
         }
@@ -923,20 +919,6 @@ class manageModel
             array(array($c['order-status-returned'], $c['order-status-client-failure']), $p_id))->vars();
     }
 
-    /*function free_balance($product_id, $wh_id = null)
-    {
-        $query = '';
-        if ($wh_id > 0) {
-            $query = $this->all_configs['db']->makeQuery('AND w.id=?i', array($wh_id));
-        }
-
-        return (int)$this->all_configs['db']->query('SELECT COUNT(i.id)
-                FROM {warehouses} as w, {warehouses_goods_items} as i
-
-                WHERE i.goods_id=?i AND i.order_id IS NULL AND w.id=i.wh_id AND w.consider_store=1 ?query',
-            array($product_id, $query))->el();
-    }*/
-
     /**
      * вызываем при любом движении изделия
      * */
@@ -1010,7 +992,6 @@ class manageModel
                     array($location_id, $wh_id, $order_id));
             }
 
-//            echo 'order_id: '.$order_id.', item_id: '.$item_id;
             // смотрим привязку к цепочке перемещений - новая логистика
             // инициируем item_move только когда операция "Перемещен на склад"
             if ($move_type == 2) {
@@ -1047,7 +1028,6 @@ class manageModel
             WHERE g.id IS NOT NULL ?query',
             array($query_product));
 
-        //$this->update_product_wait($goods_id);
     }
 
     /**

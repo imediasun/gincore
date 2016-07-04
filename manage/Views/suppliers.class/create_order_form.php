@@ -1,6 +1,6 @@
 <h3><?= l('Создание нового заказа поставщику') ?></h3>
 <br>
-<form method="post" id="suppliers-order-form"  style="position: relative">
+<form method="post" id="suppliers-order-form" style="position: relative">
     <?php if (empty($suppliers)): ?>
         <p class="text-danger"><?= l('Нет поставщиков') ?></p>
     <?php else: ?>
@@ -9,9 +9,10 @@
         <?php endif; ?>
 
         <?php if ($all): ?>
-            <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-header" >
+            <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-header">
                 <div class="form-group relative col-sm-8">
                     <table class="table table-borderless">
+                        <thead>
                         <tr>
                             <td class="col-sm-5">
                                 <label><?= l('Поставщик') ?><b class="text-danger">*</b>: </label>
@@ -27,6 +28,8 @@
                                 </label>
                             </td>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr>
                             <td class="col-sm-5">
                                 <div class="input-group">
@@ -55,12 +58,13 @@
                                        name="warehouse-order-date" data-required="true" value=""/>
                             </td>
                             <td>
-                                <select class="form-control" data-required="true" >
+                                <select class="form-control" data-required="true">
                                     <option value="1" name="warehouse_type"><?= l('Локально') ?> </option>
                                     <option value="2" name="warehouse_type"><?= l('Заграница') ?> </option>
                                 </select>
                             </td>
                         </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -68,6 +72,7 @@
         <div class="row-fluid">
             <div class="form-group relative col-sm-8">
                 <table class="table table-borderless">
+                    <thead>
                     <tr>
                         <td class="col-sm-5">
                             <label><?= l('Примечание') ?>: </label>
@@ -79,6 +84,8 @@
                         <td>
                         </td>
                     </tr>
+                    </thead>
+                    <tbody>
                     <tr>
                         <td class="col-sm-5">
                                 <textarea name="comment-supplier" class="form-control" rows="1"
@@ -90,6 +97,7 @@
                         <td>
                         </td>
                     </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
