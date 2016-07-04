@@ -264,6 +264,7 @@ class Configs
 //            'admin_translates',
 //                'debug',
             'sms_templates',
+                'stocktaking',
                 'import'
             ),
             //'wrapper', 'debug', 'admin_translates'
