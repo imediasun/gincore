@@ -153,3 +153,7 @@ INDEX(`users_field_id`)
 2016_06_30_061857_add_system_to_warehouses.php
  */
 ALTER TABLE `restore4_warehouses` ADD COLUMN is_system tinyint(4) UNSIGNED DEFAULT 0;
+/*
+2016_06_20_123041_add_title_to_sms_templates.php
+ */
+ALTER TABLE `restore4_sms_templates` ADD COLUMN var varchar(255) DEFAULT '';
