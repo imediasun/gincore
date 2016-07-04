@@ -8,14 +8,16 @@ $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
 
 /**
- * @property  MOrders      Orders
- * @property  MOrdersGoods OrdersGoods
+ * @property  MOrders         Orders
+ * @property  MOrdersGoods    OrdersGoods
+ * @property  MOrdersComments OrdersComments
  */
 class orders extends Controller
 {
     public $uses = array(
         'Orders',
-        'OrdersGoods'
+        'OrdersGoods',
+        'OrdersComments'
     );
 
     /**
@@ -2603,10 +2605,10 @@ class orders extends Controller
             } else {
                 unset($order['color']);
             }
-            $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
-            $order['replacement_fund'] = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
+            $order = $this->changeReplacement($order, $mod_id);
+            $order = $this->changeClientTook($order, $mod_id);
+
             $order['notify'] = isset($_POST['notify']) ? 1 : 0;
-            $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
             $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
             $order['is_waiting'] = isset($_POST['is_waiting']) ? 1 : 0;
             $order['engineer'] = isset($_POST['engineer']) ? $_POST['engineer'] : $order['engineer'];
@@ -2791,6 +2793,16 @@ class orders extends Controller
             $data['state'] = false;
             $_POST['status'] = $order['status'];
             $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
+        } else {
+            $value = '';
+            if (empty($this->all_configs['configs']['sale-order-status'][$_POST['status']])) {
+                if (empty($this->all_configs['configs']['order-status'][$_POST['status']])) {
+                    $value = $this->all_configs['configs']['order-status'][$_POST['status']];
+                }
+            } else {
+                $value = $this->all_configs['configs']['sale-order-status'][$_POST['status']];
+            }
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'status', $value);
         }
         return $data;
     }
@@ -2829,6 +2841,7 @@ class orders extends Controller
             } else {
                 $this->History->save('update-order-manager', $mod_id, $this->all_configs['arrequest'][2],
                     get_user_name($user), $_POST['manager']);
+                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'manager', $user['fio']);
                 $order['manager'] = intval($_POST['manager']);
                 if ($user['send_over_sms']) {
                     $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
@@ -2869,6 +2882,7 @@ class orders extends Controller
                     get_user_name($user),
                     $_POST['engineer']
                 );
+                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer', $user['fio']);
                 if ($user['send_over_sms']) {
                     $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
                     $orderId = $this->all_configs['arrequest'][2];
@@ -2932,6 +2946,7 @@ class orders extends Controller
                     $this->all_configs['arrequest'][2],
                     $phone
                 );
+                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_phone', $phone);
                 $order['phone'] = $phone;
             }
         }
@@ -2953,6 +2968,7 @@ class orders extends Controller
                 $this->all_configs['arrequest'][2],
                 trim($_POST['warranty'])
             );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'warranty', $_POST['warranty']);
             $order['warranty'] = intval($_POST['warranty']);
         }
         return $order;
@@ -2979,6 +2995,7 @@ class orders extends Controller
                     $category,
                     intval($_POST['categories-goods'])
                 );
+                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'device', $category);
             }
         }
         return $order;
@@ -2999,6 +3016,7 @@ class orders extends Controller
                 $this->all_configs['arrequest'][2],
                 trim($_POST['defect'])
             );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'defect', trim($_POST['defect']));
             $order['defect'] = trim($_POST['defect']);
         }
         return $order;
@@ -3018,6 +3036,7 @@ class orders extends Controller
                 $this->all_configs['arrequest'][2],
                 trim($_POST['serial'])
             );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'serial', trim($_POST['serial']));
             $order['serial'] = trim($_POST['serial']);
         }
         return $order;
@@ -3038,6 +3057,7 @@ class orders extends Controller
                 $this->all_configs['arrequest'][2],
                 trim($_POST['comment'])
             );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'comment', trim($_POST['comment']));
             $order['comment'] = trim($_POST['comment']);
         }
         return $order;
@@ -3102,12 +3122,12 @@ class orders extends Controller
     {
 // смена источника
         if (isset($_POST['referer_id']) && $_POST['referer_id'] != $order['referer_id']) {
-            $referers = get_service("crm/calls")->get_referers();
+            $referrers = get_service("crm/calls")->get_referers();
             $this->History->save(
                 'update-order-referer_id',
                 $mod_id,
                 $this->all_configs['arrequest'][2],
-                $referers[$order['referer_id']] . ' ==> ' . $referers[$_POST['referer_id']]
+                $referrers[$order['referer_id']] . ' ==> ' . $referrers[$_POST['referer_id']]
             );
             $order['referer_id'] = $_POST['referer_id'];
         }
@@ -3130,6 +3150,7 @@ class orders extends Controller
                 $this->all_configs['arrequest'][2],
                 $deliveryByList[$order['delivery_by']] . ' ==> ' . $deliveryByList[$_POST['delivery_by']]
             );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'delivery_by', $_POST['delivery_by']);
             $order['delivery_by'] = $_POST['delivery_by'];
         }
         return $order;
@@ -3150,6 +3171,7 @@ class orders extends Controller
                 $this->all_configs['arrequest'][2],
                 $order['delivery_to'] . ' ==> ' . $_POST['delivery_to']
             );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'delivery_to', $_POST['delivery_to']);
             $order['delivery_to'] = $_POST['delivery_to'];
         }
         return $order;
@@ -3350,7 +3372,10 @@ class orders extends Controller
                             $order['id'],
                             $usersFieldsValues[$name]['value']
                         );
-
+                    }
+                    if ($usersFieldsValues[$name]['value'] != $value) {
+                        $this->OrdersComments->addPublic($order['id'], $this->getUserId(), $usersFieldsValues[$name]['title'],
+                            $value);
                     }
                 }
             }
@@ -3375,5 +3400,47 @@ class orders extends Controller
             }
         }
         return $result;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    private function changeReplacement($order, $mod_id)
+    {
+        $order['is_replacement_fund'] = isset($_POST['is_replacement_fund']) ? 1 : 0;
+        if (isset($_POST['replacement_fund']) && $_POST['replacement_fund'] != $order['replacement_fund']) {
+            $fund = $order['is_replacement_fund'] == 1 ? (isset($_POST['replacement_fund']) ? $_POST['replacement_fund'] : $order['replacement_fund']) : '';
+            $this->History->save(
+                'update-order-replacement_fund',
+                $mod_id,
+                $order['id'],
+                $_POST['replacement_fund']
+            );
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'replacement_fund', $_POST['replacement_fund']);
+            $order['replacement_fund'] = $fund;
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    private function changeClientTook($order, $mod_id)
+    {
+        if (isset($_POST['client_took']) && $_POST['client_took'] != $order['client_took']) {
+            $this->History->save(
+                'update-order-client_took',
+                $mod_id,
+                $order['id'],
+                isset($_POST['client_took']) ? 1 : 0
+            );
+            $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_took', $order['client_took']);
+        }
+        return $order;
     }
 }
