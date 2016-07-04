@@ -1,5 +1,6 @@
 <div class="row row-15">
     <form method="post">
+        <input type="hidden" name="stocktaking" value="<?= $stocktaking_id ?>" />
         <table class="table table-borderless stocktaking-filters">
             <tbody>
             <tr>
@@ -7,12 +8,10 @@
                     <label><?= l('Склад') ?></label>
                 </td>
                 <td>
-
-                    <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]"
-                            multiple="multiple">
+                    <select class="form-control" readonly disabled="disabled" name="warehouse">
                         <?php if (!empty($warehouses)): ?>
                             <?php foreach ($warehouses as $warehouse): ?>
-                                <option <?= in_array($warehouse['id'], $warehouses_selected) ? 'selected' : '' ?>
+                                <option <?= $warehouse['id'] == $current_warehouse ? 'selected' : '' ?>
                                     value="<?= $warehouse['id'] ?>"><?= $warehouse['title'] ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -22,7 +21,7 @@
                 <td></td>
                 <td>
                     <label><?= l('Недостача') ?>:</label>
-                    <span class="js-deficit">0</span><?= l('шт.') ?>
+                    <span class="js-deficit"><?= max(0, count($stocktaking['checked_serials']['deficit'])) ?></span><?= l('шт.') ?>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary" name="export-deficit"><?= l('Экспорт') ?></button>
@@ -33,8 +32,13 @@
                     <label><?= l('Локация') ?></label>
                 </td>
                 <td>
-                    <select class="multiselect form-control select-location" name="locations[]" multiple="multiple">
-                        <?= $whSelect ?>
+                    <select class="form-control" readonly disabled="disabled" name="location">
+                        <?php if (!empty($locations)): ?>
+                            <?php foreach ($locations as $location): ?>
+                                <option <?= $location['id'] == $current_location ? 'selected' : '' ?>
+                                    value="<?= $location['id'] ?>"><?= $location['name'] ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
 
                 </td>
@@ -42,7 +46,7 @@
                 <td></td>
                 <td>
                     <label><?= l('Излишек') ?>:</label>
-                    <span class="js-surplus">0</span><?= l('шт.') ?>
+                    <span class="js-surplus"><?= max(0, $count - count($stocktaking['checked_serials']['both'])) ?></span><?= l('шт.') ?>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary" name="export-surplus"><?= l('Экспорт') ?></button>
@@ -59,7 +63,7 @@
                     <div class="input-group col-sm-6">
                         <input class="form-control" name="serial" placeholder="<?= l('серийный номер') ?>" value="<?= ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') ?>" />
                         <div class="input-group-btn">
-                            <input class="btn" type="submit" name="filter-warehouses" value="<?= l('Поиск') ?>" />
+                            <input class="btn" type="submit" name="filter-serial" value="<?= l('Поиск') ?>" />
                         </div>
                     </div>
                 </td>
@@ -71,8 +75,3 @@
         </table>
     </form>
 </div>
-<script>
-    jQuery(document).ready(function () {
-        init_multiselect();
-    });
-</script>

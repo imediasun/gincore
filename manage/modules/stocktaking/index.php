@@ -51,11 +51,18 @@ class stocktaking extends Controller
                                 'UTF-8')) > 0) ? trim($_POST['hashs']) : null
                     )
                 );
-                $data = array(
-                    'html' => $function['html'],
-                    'state' => true,
-                    'functions' => $function['functions']
-                );
+                if ($function['reload']) {
+                    $data = array(
+                        'state' => true,
+                        'reload' => $function['reload']
+                    );
+                } else {
+                    $data = array(
+                        'html' => $function['html'],
+                        'state' => true,
+                        'functions' => $function['functions']
+                    );
+                }
                 if (isset($function['menu'])) {
                     $data['menu'] = $function['menu'];
                 }
@@ -68,6 +75,13 @@ class stocktaking extends Controller
 
     public function check_post(Array $post)
     {
+        if (isset($post['new-stocktaking'])) {
+            $this->createStocktaking($post);
+            Response::redirect(Response::referrer());
+        }
+        if (isset($post['filter-serial'])) {
+            $this->checkSerial($post);
+        }
         return '';
     }
 
@@ -114,6 +128,13 @@ class stocktaking extends Controller
             return $this->select_or_new();
         }
 
+        if ($stocktaking['history'] == MStocktaking::BACKUP) {
+            $stocktaking = $this->Stocktaking->restore($stocktaking['id']);
+            return array(
+                'state' => true,
+                'reload' => $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?stocktaking=' . $stocktaking['id'],
+            );
+        }
         return $this->stocktaking($stocktaking);
     }
 
@@ -140,38 +161,41 @@ class stocktaking extends Controller
         );
     }
 
+    /**
+     * @param $stocktaking
+     * @return array
+     * @throws Exception
+     */
     public function stocktaking($stocktaking)
     {
-        $warehouses = $this->all_configs['chains']->warehouses();
-        $query = '';
-        $query_for_noadmin = '';
+        $warehouses = get_service('wh_helper')->get_warehouses();
+        $locations = isset($warehouses[$stocktaking['warehouse_id']]['locations']) ? $warehouses[$stocktaking['warehouse_id']]['locations'] : array();
+
         $count_on_page = $this->count_on_page;//30;
-        $count_page = 1;
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
-        $warehouses_selected = (isset($_GET['whs']) && !empty($_GET['whs'])) ? explode(',', $_GET['whs']) : array();
 
-        if (isset($_GET['lcs']) && array_filter(explode(',', $_GET['lcs'])) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND l.id IN (?li)',
-                array($query, explode(',', $_GET['lcs'])));
-        }
 
-        if (count($warehouses_selected) > 0) {
-            $goods = $this->getItems($_GET, $count_on_page, $skip);
+        $goods = $this->getItems($stocktaking, $count_on_page, $skip);
 
-            $count_page = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id)
+        $query = $this->all_configs['db']->makeQuery(' AND l.id = ?i',
+            array($stocktaking['location_id']));
+        $query = $this->all_configs['db']->makeQuery('?query AND w.id = ?i',
+            array($query, $stocktaking['warehouse_id']));
+
+        $count = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id)
                             FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
-                            WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query',
-                    array($query, $query_for_noadmin))->el() / $count_on_page;
-        }
+                            WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query',
+            array($query))->el();
+        $count_page = $count / $count_on_page;
 
 
         $this->view->load('Numbers');
         return array(
             'html' => $this->view->renderFile('stocktaking/stocktaking', array(
-                'filters' => $this->filter_block($warehouses, $warehouses_selected),
+                'filters' => $this->filter_block($warehouses, $locations, $stocktaking, $count),
                 'count_page' => $count_page,
-                'wh_selected' => $warehouses_selected,
-                'goods' => $goods
+                'goods' => $goods,
+                'stocktaking' => $stocktaking
             )),
             'functions' => array('multiselect()'),
         );
@@ -179,76 +203,105 @@ class stocktaking extends Controller
 
     /**
      * @param     $warehouses
-     * @param     $warehouses_selected
-     * @param int $i
+     * @param     $locations
+     * @param     $stocktaking
+     * @param     $count
      * @return string
      */
-    public function filter_block($warehouses, $warehouses_selected, $i = 1)
+    public function filter_block($warehouses, $locations, $stocktaking, $count)
     {
-        $wh_select = '';
-        if (isset($_GET['whs'])) {
-            $wh_select = $this->all_configs['suppliers_orders']->gen_locations($_GET['whs'],
-                isset($_GET['lcs']) ? $_GET['lcs'] : null);
-        }
-        // фильтр по серийнику
         return $this->view->renderFile('stocktaking/filter_block', array(
             'warehouses' => $warehouses,
-            'warehouses_selected' => $warehouses_selected,
-            'i' => $i,
-            'whSelect' => $wh_select
+            'current_warehouse' => $stocktaking['warehouse_id'],
+            'locations' => $locations,
+            'current_location' => $stocktaking['location_id'],
+            'stocktaking_id' => $stocktaking['id'],
+            'count' => $count
         ));
     }
 
     /**
-     * @param array $filters
+     * @param array $stocktaking
      * @param null  $count_on_page
      * @param null  $skip
-     * @param bool  $select_name
-     * @return null
+     * @return array
      */
-    private function getItems($filters = array(), $count_on_page = null, $skip = null, $select_name = false)
+    private function getItems($stocktaking, $count_on_page = null, $skip = null)
     {
-        // фильтрация
-        $warehouses_selected = (isset($filters['whs']) && !empty($filters['whs'])) ? explode(',',
-            $filters['whs']) : array();
-        // запросы для касс для разных привилегий
-        $q = $this->all_configs['chains']->query_warehouses();
-        $query_for_noadmin = $q['query_for_noadmin'];
-
-        $goods = null;
-        $show_item_type = null;
-
-        $query = '';
-        // товар ид
-        if (isset($filters['pid']) && $filters['pid'] > 0) {
-            $query = $this->all_configs['db']->makeQuery('AND g.id=?i', array($filters['pid']));
-        }
-
-        if (isset($filters['lcs']) && array_filter(explode(',', $filters['lcs'])) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND l.id IN (?li)',
-                array($query, explode(',', $filters['lcs'])));
-        }
+        $query = $this->all_configs['db']->makeQuery(' AND l.id = ?i',
+            array($stocktaking['location_id']));
+        $query = $this->all_configs['db']->makeQuery('?query AND w.id = ?i',
+            array($query, $stocktaking['warehouse_id']));
 
         $limit = '';
         if ($count_on_page || $skip) {
             $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(intval($skip), intval($count_on_page)));
         }
-        if (count($warehouses_selected) > 0) {
-            if (count($warehouses_selected) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
-                    array($query, array_values($warehouses_selected)));
-            }
 
-            $select = $this->all_configs['db']->makeQuery('w.id, w.title, w.code_1c, w.consider_all,
+        $select = $this->all_configs['db']->makeQuery('w.id, w.title, w.code_1c, w.consider_all,
                     w.consider_store, g.title as product_title, i.id as item_id, i.date_add, i.goods_id,
                     i.order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id,
                     u.title as contractor_title, i.supplier_order_id, l.location, i.location_id', array());
-            $goods = $this->all_configs['db']->query('SELECT ?query
+        return $this->all_configs['db']->query('SELECT ?query
                     FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
-                    WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query ?query',
-                array($select, $query, $query_for_noadmin, $limit))->assoc();
-        }
-
-        return $goods;
+                    WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query',
+            array($select, $query, $limit))->assoc('item_id');
     }
+
+    /**
+     * @param $post
+     * @return bool
+     */
+    protected function createStocktaking($post)
+    {
+        try {
+
+            if (empty($post['warehouses']) || empty($post['locations'])) {
+                throw new ExceptionWithMsg(l('Склад или локация не заданы'));
+            }
+            $warehouse = $this->all_configs['db']->query('SELECT id FROM {warehouses} WHERE id =?i',
+                array(current($post['warehouses'])))->el();
+            $location = $this->all_configs['db']->query('SELECT id FROM {warehouses_locations} WHERE id =?i',
+                array(current($post['locations'])))->el();
+            if (empty($warehouse) || empty($location)) {
+                throw new ExceptionWithMsg(l('Склад или локация не найдены'));
+            }
+            $id = $this->Stocktaking->newStocktaking($warehouse, $location);
+
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?stocktaking=' . $id);
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set(l('Склад или локация не найдены'), FlashMessage::DANGER);
+        }
+        return false;
+    }
+
+    protected function checkSerial($post)
+    {
+        $stocktaking = isset($post['stocktaking']) && is_numeric($post['stocktaking']) ? $this->Stocktaking->load($post['stocktaking']) : array();
+        if(empty($stocktaking)) {
+            FlashMessage::set(l('Инвентаризация не найдена'), FlashMessage::INFO);
+            return  false;
+        }
+        
+    }
+
+    protected function searchBySerial($serial)
+    {
+
+        if ($_POST['table'] == 'serials') {
+            if (preg_match("/{$this->all_configs['configs']['erp-serial-prefix']}0*/", $serial)) {
+                list($prefix, $length) = prepare_for_serial_search($this->all_configs['configs']['erp-serial-prefix'], $serial,
+                    $this->all_configs['configs']['erp-serial-count-num']);
+                $query = $this->all_configs['db']->makeQuery('id REGEXP "^?e[0-9]?e$"', array($prefix, "{0,{$length}}"));
+            } else {
+                $query = $this->all_configs['db']->makeQuery('id LIKE "%?e%"',
+                    array(intval(preg_replace('/[^0-9]/', '', $serial))));
+            }
+
+            $data = $this->all_configs['db']->query('SELECT id as item_id, serial FROM {warehouses_goods_items}
+                    WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL) AND order_id IS NULL)',
+                array($serial, $query))->assoc();
+        }
+    }
+
 }

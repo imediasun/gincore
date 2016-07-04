@@ -1161,6 +1161,10 @@ function click_tab(_this, e, hashs) {
         $('div.pill-content > div.active').removeClass('active');
         $('div.pill-content > div' + $(_this).attr('href')).addClass('active');
       }
+      if(msg['state'] == true && msg['reload']) {
+        console.log(msg);
+        window.location = msg['reload'];
+      }
     }
     $(_this).button('reset');
     $('a.click_tab').parent('li.disabled').removeClass('disabled');

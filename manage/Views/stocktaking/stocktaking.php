@@ -67,7 +67,13 @@
                     </td>
                     <td><?= $this->Numbers->price($product['price']) ?></td>
                     <td><?= h($product['contractor_title']) ?></td>
-                    <td></td>
+                    <td>
+                        <?php if (in_array($product['id'], $stocktaking['checked_serials']['both'])): ?>
+                            <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
+                        <?php else: ?>
+                            <i class="fa fa-times" aria-hidden="true" style="color: red"></i>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
 
@@ -108,7 +114,9 @@
                         <input type="submit" value="<?= l('Выгрузить данные') ?>" class="btn btn-small btn-primary">
                     </form>
                 </td>
-                <td></td>
+                <td>
+
+                </td>
             </tr>
             </tbody>
         </table>

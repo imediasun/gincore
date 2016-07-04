@@ -46,17 +46,19 @@ class MStocktaking extends AModel
 
     /**
      * @param $id
+     * @return array
      */
     public function restore($id)
     {
-        $stocktaking = $this->getByPk($id);
+        $stocktaking = $this->load($id);
         if (!empty($stocktaking) && $stocktaking['history'] == self::BACKUP) {
             $current = $this->query('SELECT id FROM ?t WHERE history=? AND location_id=?i AND warehouse_id=?i ORDER BY id DESC LIMIT 1',
                 array(
+                    $this->table,
                     self::ACTIVE,
                     $stocktaking['location_id'],
                     $stocktaking['warehouse_id']
-                ));
+                ))->el();
             if (!empty($current)) {
                 $this->update(array(
                     'history' => self::BACKUP,
@@ -68,8 +70,10 @@ class MStocktaking extends AModel
             $stocktaking['history'] = self::ACTIVE;
             unset($stocktaking['id']);
             unset($stocktaking['saved_at']);
-            $this->insert($stocktaking);
+            $id = $this->insert($stocktaking);
+            $stocktaking = $this->load($id);
         }
+        return $stocktaking;
     }
 
     /**

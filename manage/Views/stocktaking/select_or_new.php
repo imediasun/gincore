@@ -91,8 +91,11 @@
                             <?= $stocktaking['location'] ?>
                         </td>
                         <td>
-                            <a href="?stocktaking=<?= $stocktaking['id'] ?>"
-                               onclick="return confirm('<?= l('При выборе станет текущей!') ?>')"><?= l('Выбрать') ?></a>
+                            <a class="btn btn-default" href="?stocktaking=<?= $stocktaking['id'] ?>"
+                            <?php if($stocktaking['history']): ?>
+                               onclick="return confirm('<?= l('При выборе станет текущей!') ?>')"
+                            <?php endif; ?>
+                            ><?= l('Выбрать') ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
