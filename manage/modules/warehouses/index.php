@@ -1379,6 +1379,7 @@ class warehouses extends Controller
      */
     public static function get_submenu($oRole = null)
     {
+        global $all_configs;
         return array(
             array(
                 'click_tab' => true,
@@ -1404,6 +1405,12 @@ class warehouses extends Controller
                 'click_tab' => true,
                 'url' => '#settings',
                 'name' => l('Настройки')
+            ),
+            array(
+                'click_tab' => true,
+                'another_module' => true, 
+                'url' => $all_configs['prefix'] . 'stocktaking',
+                'name' => l('Инвентаризации')
             ),
         );
     }
