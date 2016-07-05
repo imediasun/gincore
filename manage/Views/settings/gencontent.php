@@ -11,7 +11,10 @@
         <div class="form-group">
             <label><?= l('sets_param') ?></label>: <?= $pp['name'] ?>
         </div>
-        <?php if ($pp['name'] == 'default_order_warranty'): ?>
+        <?php 
+        switch ($pp['name']): 
+            case 'default_order_warranty': 
+        ?>
             <div class="form-group">
                 <label><?= l('sets_value') ?>:</label>
                 <div class="input-group">
@@ -25,13 +28,42 @@
                     <div class="input-group-addon"><?= l('мес') ?></div>
                 </div>
             </div>
-        <?php else: ?>
+        <?php break; ?>
+        
+        <?php case 'time_zone': ?>
+            <div class="form-group">
+                <label><?= l('Континент') ?>:</label>
+                <select id="tz_continents" class="form-control" name="continent">
+                    <option value="all"><?= l('Все') ?></option>
+                    <?php foreach ($timeZones as $cont => $zones): ?>
+                        <option <?= (in_array($pp['value'], $zones) ? 'selected' : '') ?>
+                            value="<?= $cont ?>"><?= $cont ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><?= l('Временная зона') ?>:</label>
+                <select id="tz_zones" class="form-control" name="time_zone">
+                    <?php foreach ($timeZones as $cont => $zones): ?>
+                        <?php foreach ($zones as $zone): ?>
+                            <option data-continent="<?= $cont ?>" <?= ($pp['value'] == $zone ? 'selected' : '') ?>
+                                value="<?= $zone ?>"><?= $zone ?></option>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php break; ?>
+        
+        <?php default: ?>
             <div class="form-group">
                 <label><?= l('sets_value') ?>:</label>
             <input type="text" class="form-control" id="inputParam" <?= ($pp['ro'] == '1' ? 'disabled="disabled"' : '') ?>
                       name="value" value="<?= $pp['value'] ?>" />
             </div>
-        <?php endif; ?>
+        <?php break; ?>
+        
+        <?php endswitch; ?>
+        
         <div class="form-group">
             <input type="submit" value="<?= l('save') ?>" class="btn btn-primary">
         </div>
