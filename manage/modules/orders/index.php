@@ -2046,7 +2046,7 @@ class orders extends Controller
         if ($act == 'update-order') {
             if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
                 $data = $this->updateOrder($data, $user_id, $mod_id);
-            } elseif ($this->all_configs['oRole']->hasPrivilege('engineer')) {
+            } elseif ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
                 $data = $this->updateComments($data);
             }
             if (empty($data['location'])) {
