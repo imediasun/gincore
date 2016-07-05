@@ -68,7 +68,7 @@
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="input-group" style="width: 150px">
+                    <div class="input-group" style="width: 150px; position: relative">
                         <input class="datetimepicker form-control input-xs" placeholder="<?= l('Дата проверки') ?>"
                                data-format="yyyy-MM-dd hh:mm:ss" type="text" name="date_check"
                                value="<?= $order['date_check'] ?>"/>
