@@ -70,7 +70,8 @@ class orders extends Controller
             || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
             || $this->all_configs['oRole']->hasPrivilege('edit-tradein-orders')
             || $this->all_configs['oRole']->hasPrivilege('show-clients-orders')
-            || $this->all_configs['oRole']->hasPrivilege('orders-manager'));
+            || $this->all_configs['oRole']->hasPrivilege('orders-manager'))
+        || $this->all_configs['oRole']->hasPrivilege('engineer');
     }
 
     /**
@@ -2043,7 +2044,11 @@ class orders extends Controller
 
         // редактировать заказ
         if ($act == 'update-order') {
-            $data = $this->updateOrder($data, $user_id, $mod_id);
+            if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+                $data = $this->updateOrder($data, $user_id, $mod_id);
+            } elseif ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders')) {
+                $data = $this->updateComments($data);
+            }
             if (empty($data['location'])) {
                 $order_id = isset($this->all_configs['arrequest'][2]) ? $this->all_configs['arrequest'][2] : null;
                 $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $order_id;
@@ -2536,6 +2541,25 @@ class orders extends Controller
 
     /**
      * @param $data
+     * @return mixed
+     */
+    protected function updateComments($data)
+    {
+        $data['state'] = true;
+        $data['reload'] = true;
+        $order_id = isset($this->all_configs['arrequest'][2]) ? $this->all_configs['arrequest'][2] : null;
+
+        // достаем заказ
+        $order = $_order = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?',
+            array($order_id))->row();
+        if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
+            $data = $this->updateOrderComments($order, $data);
+        }
+        return $data;
+    }
+
+    /**
+     * @param $data
      * @param $user_id
      * @param $mod_id
      * @return array
@@ -2552,9 +2576,6 @@ class orders extends Controller
             array($order_id))->row();
 
         try {
-            if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders') || !$order) {
-                throw new ExceptionWithMsg(l('У Вас нет прав'));
-            }
             if (!$order) {
                 throw new ExceptionWithMsg(l('Заказ не найден'));
             }
@@ -2567,7 +2588,7 @@ class orders extends Controller
                 throw new ExceptionWithMsg(l('Укажите устройство'));
             }
             // принимаем заказ
-            if (!empty($_POST['accept-manager']) && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+            if (!empty($_POST['accept-manager'])) {
                 $order['manager'] = $user_id;
                 $this->History->save('manager-accepted-order', $mod_id, $order_id);
             }
