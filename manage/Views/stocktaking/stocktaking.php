@@ -80,38 +80,15 @@
 
             <tr>
                 <td colspan="6"></td>
-                <td colspan="3" style="text-align: right; padding-right: 0; display: none">
-                    <?php $addition = ''; ?>
-                    <?php if (isset($_GET['whs'])): ?>
-                        <?php $addition .= '&whs=' . $_GET['whs'] ?>
-                    <?php endif; ?>
-                    <?php if (isset($_GET['lcs'])): ?>
-                        <?php $addition .= '&lcs=' . $_GET['lcs'] ?>
-                    <?php endif; ?>
-                    <?php if (isset($_GET['pid'])): ?>
-                        <?php $addition .= '&pid=' . $_GET['pid'] ?>
-                    <?php endif; ?>
-                    <?= $this->renderFile('warehouses/print_buttons', array(
-                        'prefix' => '_filtered',
-                        'objectId' => 'none',
-                        'addition' => $addition
-                    )) ?>
-                    <?php $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') . 'ajax'; ?>
+                <td colspan="3" style="text-align: right; padding-right: 0;">
+                    <form method="post" class="form-horizontal" style="display: inline-block">
+                        <input name="stocktaking-id" value="<?= $stocktaking['id'] ?>" type="hidden"/>
+                        <input type="submit" name='save-stocktaking' value="<?= l('Сохранить') ?>" class="btn btn-small btn-default">
+                    </form>
                     <form target="_blank" method="get" action="<?= $url ?>" class="form-horizontal"
                           style="display: inline-block">
-                        <input name="act" value="exports-items" type="hidden"/>
-                        <?php if (isset($_GET['whs'])): ?>
-                            <input name="whs" value="<?= $_GET['whs'] ?>" type="hidden"/>
-                        <?php endif; ?>
-                        <?php if (isset($_GET['lcs'])): ?>
-                            <input name="lcs" value="<?= $_GET['lcs'] ?>" type="hidden"/>
-                        <?php endif; ?>
-                        <?php if (isset($_GET['pid'])): ?>
-                            <input name="pid" value="<?= $_GET['pid'] ?>" type="hidden"/>
-                        <?php endif; ?>
-                        <?php if (isset($_GET['d'])): ?>
-                            <input name="d" value="<?= $_GET['d'] ?>" type="hidden"/>
-                        <?php endif; ?>
+                        <input name="stocktaking-id" value="<?= $stocktaking['id'] ?>" type="hidden"/>
+                        <input name="act" value="exports-stocktaking" type="hidden"/>
                         <input type="submit" value="<?= l('Выгрузить данные') ?>" class="btn btn-small btn-primary">
                     </form>
                 </td>

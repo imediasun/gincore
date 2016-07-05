@@ -102,6 +102,7 @@ class MStocktaking extends AModel
             $stocktaking['history'] = self::ACTIVE;
             unset($stocktaking['id']);
             unset($stocktaking['saved_at']);
+            $stocktaking['checked_serials'] = json_encode($stocktaking['checked_serials']);
             $id = $this->insert($stocktaking);
             $stocktaking = $this->load($id);
         }

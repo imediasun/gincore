@@ -75,16 +75,26 @@ class stocktaking extends Controller
                 $data = array('message' => l('Не найдено'), 'state' => false);
             }
         }
+        if ($act == 'exports-stocktaking') {
+            $this->exportStocktaking($_POST);
+        }
         Response::json($data);
     }
 
+    /**
+     * @param array $post
+     * @return string
+     */
     public function check_post(Array $post)
     {
         if (isset($post['new-stocktaking'])) {
             $this->createStocktaking($post);
         }
+        if (isset($post['save-stocktaking'])) {
+            $this->saveStocktaking($post);
+        }
         if (isset($post['filter-serial'])) {
-                $lastCheck = $this->checkSerial($post);
+            $lastCheck = $this->checkSerial($post);
             Session::getInstance()->set('last_check', $lastCheck);
         }
         return '';
@@ -154,7 +164,7 @@ class stocktaking extends Controller
             FROM {stocktaking} as s 
             JOIN {warehouses} as w ON w.id = s.warehouse_id
              JOIN {warehouses_locations} as l ON l.id = s.location_id
-            ORDER BY history ASC, created_at DESC
+            ORDER BY history ASC, created_at DESC, saved_at DESC
         ', array())->assoc();
         return array(
             'html' =>
@@ -276,7 +286,6 @@ class stocktaking extends Controller
     protected function createStocktaking($post)
     {
         try {
-
             if (empty($post['warehouses']) || empty($post['locations'])) {
                 throw new ExceptionWithMsg(l('Склад или локация не заданы'));
             }
@@ -291,7 +300,7 @@ class stocktaking extends Controller
 
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?stocktaking=' . $id);
         } catch (ExceptionWithMsg $e) {
-            FlashMessage::set(l('Склад или локация не найдены'), FlashMessage::DANGER);
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
         }
         return false;
     }
@@ -300,10 +309,28 @@ class stocktaking extends Controller
      * @param $post
      * @return bool
      */
+    protected function saveStocktaking($post)
+    {
+        try {
+            if (empty($post['stocktaking-id'])) {
+                throw new ExceptionWithMsg(l('Номер инвентаризации не задан'));
+            }
+            $this->Stocktaking->backup($post['stocktaking-id']);
+            FlashMessage::set(l('Резервная копия успешно создана'), FlashMessage::SUCCESS);
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
+        }
+        return false;
+
+    }
+
+    /**
+     * @param $post
+     * @return bool
+     */
     protected function checkSerial($post)
     {
-        $result = array(
-        );
+        $result = array();
         try {
             $stocktaking = isset($post['stocktaking']) && is_numeric($post['stocktaking']) ? $this->Stocktaking->load($post['stocktaking']) : array();
             if (empty($stocktaking)) {
@@ -323,12 +350,12 @@ class stocktaking extends Controller
                     $result['message'] = "<span style='color: yellow'>{$post['serial']}</span>";
                 }
             }
-            if(in_array($post['serial'], $stocktaking['checked_serials']['both'])) {
-               $result['result'] = CHECK_BOTH; 
+            if (in_array($post['serial'], $stocktaking['checked_serials']['both'])) {
+                $result['result'] = CHECK_BOTH;
                 $result['message'] = "<span style='color: green'>{$post['serial']}</span>";
             }
-            if(in_array($post['serial'], $stocktaking['checked_serials']['deficit'])) {
-                $result['result'] = CHECK_DEFICIT; 
+            if (in_array($post['serial'], $stocktaking['checked_serials']['deficit'])) {
+                $result['result'] = CHECK_DEFICIT;
                 $result['message'] = "<span style='color: red'>{$post['serial']}</span>";
             }
         } catch (ExceptionWithMsg $e) {
@@ -367,4 +394,29 @@ class stocktaking extends Controller
             array($serial, $query, $whereWhAndLocation))->el();
     }
 
+    protected function exportStocktaking($post)
+    {
+        try {
+            if (empty($post['stocktaking-id'])) {
+                throw new ExceptionWithMsg(l('Номер инвентаризации не задан'));
+            }
+            $stocktaking = $this->Stocktaking->load($post['stocktaking-id']);
+            if (empty($stocktaking)) {
+                throw new ExceptionWithMsg(l('Инвентаризация не найдена'));
+            }
+            $goods = $this->getItems($stocktaking);
+            $this->makeXLS(array(
+                lq('Серийный номер'),
+                lq('Наименование'),
+                lq('Склад'),
+                lq('Локация'),
+                lq('Заказ клиента'),
+                lq('Заказ поставщику'),
+                lq('Результат')
+            ), $goods, $stocktaking);
+
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
+        }
+    }
 }
