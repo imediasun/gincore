@@ -80,7 +80,7 @@
 
             <tr>
                 <td colspan="6"></td>
-                <td colspan="3" style="text-align: right; padding-right: 0">
+                <td colspan="3" style="text-align: right; padding-right: 0; display: none">
                     <?php $addition = ''; ?>
                     <?php if (isset($_GET['whs'])): ?>
                         <?php $addition .= '&whs=' . $_GET['whs'] ?>
