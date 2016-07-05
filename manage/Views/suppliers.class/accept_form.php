@@ -33,7 +33,7 @@
             </select></div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" style="position: relative">
         <label><?= l('Дата проверки') ?>: <?= InfoPopover::getInstance()->createQuestion('l_debit_order_date_info') ?></label>
         <div class="controls">
             <input class="form-control datetimepicker" placeholder="<?= l('Дата проверки') ?>"
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <div id="order_supplier_date_wait" style="display:none;" class="form-group">
+    <div id="order_supplier_date_wait" style="display:none; position: relative" class="form-group">
         <label class="control-label"><?= l('Дата поставки оставшегося в заказе товара') ?>: </label>
         <div class="controls">
             <input class="form-control datetimepicker" placeholder="<?= l('дата') ?>" data-format="yyyy-MM-dd" type="text"
