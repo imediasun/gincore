@@ -2795,12 +2795,11 @@ class orders extends Controller
             $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
         } else {
             $value = '';
-            if (empty($this->all_configs['configs']['sale-order-status'][$_POST['status']])) {
-                if (empty($this->all_configs['configs']['order-status'][$_POST['status']])) {
-                    $value = $this->all_configs['configs']['order-status'][$_POST['status']];
-                }
-            } else {
-                $value = $this->all_configs['configs']['sale-order-status'][$_POST['status']];
+            if (!empty($this->all_configs['configs']['sale-order-status'][$_POST['status']])) {
+                $value = $this->all_configs['configs']['sale-order-status'][$_POST['status']]['name'];
+            }
+            if (!empty($this->all_configs['configs']['order-status'][$_POST['status']])) {
+                $value = $this->all_configs['configs']['order-status'][$_POST['status']]['name'];
             }
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'status', $value);
         }
@@ -3374,7 +3373,8 @@ class orders extends Controller
                         );
                     }
                     if ($usersFieldsValues[$name]['value'] != $value) {
-                        $this->OrdersComments->addPublic($order['id'], $this->getUserId(), $usersFieldsValues[$name]['title'],
+                        $this->OrdersComments->addPublic($order['id'], $this->getUserId(),
+                            $usersFieldsValues[$name]['title'],
                             $value);
                     }
                 }
@@ -3418,7 +3418,8 @@ class orders extends Controller
                 $order['id'],
                 $_POST['replacement_fund']
             );
-            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'replacement_fund', $_POST['replacement_fund']);
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'replacement_fund',
+                $_POST['replacement_fund']);
             $order['replacement_fund'] = $fund;
         }
         return $order;
