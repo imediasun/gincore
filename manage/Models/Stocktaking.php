@@ -26,9 +26,9 @@ class MStocktaking extends AModel
      * @param $stocktaking
      * @return bool|int
      */
-    public function appendSerialToDeficit($serial, $stocktaking)
+    public function appendSerialToSurplus($serial, $stocktaking)
     {
-        return $this->appendSerialTo('deficit', $serial, $stocktaking);
+        return $this->appendSerialTo('surplus', $serial, $stocktaking);
     }
 
     /**
@@ -115,7 +115,12 @@ class MStocktaking extends AModel
      */
     public function load($id)
     {
-        $stocktaking = $this->getByPk($id);
+        $stocktaking = $this->query('
+            SELECT s.*, w.title as warehouse, l.location 
+            FROM ?t as s 
+            JOIN {warehouses} as w ON w.id=s.warehouse_id
+             JOIN {warehouses_locations} as l ON l.id=s.location_id
+            WHERE s.id=?i', array($this->table, $id))->row();
         $stocktaking['checked_serials'] = json_decode($stocktaking['checked_serials'], true);
         return $stocktaking;
     }

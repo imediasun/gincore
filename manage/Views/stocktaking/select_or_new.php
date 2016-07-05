@@ -48,7 +48,7 @@
     <?php if (!empty($stocktakings)): ?>
         <div class="col-sm-12">
             <h2><?= l('Выбрать из существующих') ?></h2>
-            <table class="table table-borderless stocktaking-filters">
+            <table class="table  table-striped stocktaking-filters">
                 <thead>
                 <tr>
                     <td>
@@ -63,9 +63,6 @@
                     </td>
                     <td>
                         <?= l('Склад') ?>
-                    </td>
-                    <td>
-                        <?= l('Локация') ?>
                     </td>
                     <td>
 
@@ -85,10 +82,7 @@
                             <?= $stocktaking['history'] ? $stocktaking['saved_at'] : $stocktaking['created_at'] ?>
                         </td>
                         <td>
-                            <?= $stocktaking['warehouse'] ?>
-                        </td>
-                        <td>
-                            <?= $stocktaking['location'] ?>
+                            <?= "{$stocktaking['warehouse']}({$stocktaking['location']})" ?>
                         </td>
                         <td>
                             <a class="btn btn-default" href="?stocktaking=<?= $stocktaking['id'] ?>"

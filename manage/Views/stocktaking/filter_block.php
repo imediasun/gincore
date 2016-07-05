@@ -1,6 +1,7 @@
+<?php $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') . 'export'; ?>
 <div class="row row-15">
     <form method="post">
-        <input type="hidden" name="stocktaking" value="<?= $stocktaking['id'] ?>" />
+        <input type="hidden" name="stocktaking" value="<?= $stocktaking['id'] ?>"/>
         <table class="table table-borderless stocktaking-filters">
             <tbody>
             <tr>
@@ -21,10 +22,12 @@
                 <td></td>
                 <td>
                     <label><?= l('Недостача') ?>:</label>
-                    <span class="js-deficit"><?= max(0, count($stocktaking['checked_serials']['deficit'])) ?></span><?= l('шт.') ?>
+                    <span class="js-deficit"><?= max(0,
+                            $count - count($stocktaking['checked_serials']['both'])) ?></span><?= l('шт.') ?>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-primary" name="export-deficit"><?= l('Экспорт') ?></button>
+                    <a target='_blank' href='<?= $url . '?act=export-deficit&stocktaking-id=' . $stocktaking['id'] ?>'
+                       class="btn btn-primary"><?= l('Экспорт') ?></a>
                 </td>
             </tr>
             <tr>
@@ -46,10 +49,12 @@
                 <td></td>
                 <td>
                     <label><?= l('Излишек') ?>:</label>
-                    <span class="js-surplus"><?= max(0, $count - count($stocktaking['checked_serials']['both'])) ?></span><?= l('шт.') ?>
+                    <span class="js-surplus"><?= max(0,
+                            count($stocktaking['checked_serials']['surplus'])) ?></span><?= l('шт.') ?>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-primary" name="export-surplus"><?= l('Экспорт') ?></button>
+                    <a target='_blank' href='<?= $url . '?act=export-surplus&stocktaking-id=' . $stocktaking['id'] ?>'
+                       class="btn btn-primary"><?= l('Экспорт') ?></a>
                 </td>
             </tr>
             <tr>
@@ -61,17 +66,25 @@
                 <td>
 
                     <div class="input-group col-sm-6">
-                        <input class="form-control" name="serial" placeholder="<?= l('серийный номер') ?>" value="<?= ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') ?>" />
+                        <input class="form-control" name="serial" placeholder="<?= l('серийный номер') ?>"
+                               value="<?= ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') ?>"/>
                         <div class="input-group-btn">
-                            <input class="btn" type="submit" name="filter-serial" value="<?= l('Поиск') ?>" />
+                            <input class="btn" type="submit" name="filter-serial" value="<?= l('Поиск') ?>"/>
                         </div>
                     </div>
-                    <?= $last['message'] ?>
-                    <?php if($last['result'] == CHECK_BOTH): ?>
-                        <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
-                    <?php else: ?>
-                        <span class="color:red"><?= l('Излишек') ?><i class="fa fa-times" aria-hidden="true" style="color: red"></i></span>
-                    <?php endif; ?>
+                    <?php switch ($last['result']): ?>
+<?php case CHECK_BOTH: ?>
+                            <span style='color: green'><?= $last['message'] ?></span>
+                            <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
+                            <?php break; ?>
+                        <?php case CHECK_SURPLUS: ?>
+                            <span style='color: yellow'><?= $last['message'] ?></span>
+                            <span class="color: yellow"><?= l('Излишек') ?><i class="fa fa-times" aria-hidden="true"
+                                                                              style="color: yellow"></i></span>
+                            <?php break; ?>
+                        <?php default: ?>
+                            <span style='color: red'><?= $last['message'] ?></span>
+                        <?php endswitch; ?>
                 </td>
                 <td></td>
                 <td></td>

@@ -85,10 +85,11 @@
                         <input name="stocktaking-id" value="<?= $stocktaking['id'] ?>" type="hidden"/>
                         <input type="submit" name='save-stocktaking' value="<?= l('Сохранить') ?>" class="btn btn-small btn-default">
                     </form>
+                    <?php $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') . 'export'; ?>
                     <form target="_blank" method="get" action="<?= $url ?>" class="form-horizontal"
                           style="display: inline-block">
                         <input name="stocktaking-id" value="<?= $stocktaking['id'] ?>" type="hidden"/>
-                        <input name="act" value="exports-stocktaking" type="hidden"/>
+                        <input name="act" value="export-stocktaking" type="hidden"/>
                         <input type="submit" value="<?= l('Выгрузить данные') ?>" class="btn btn-small btn-primary">
                     </form>
                 </td>

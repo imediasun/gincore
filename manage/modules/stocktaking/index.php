@@ -9,6 +9,7 @@ $moduleactive[220] = !$ifauth['is_2'];
 define('CHECK_ERROR', 0);
 define('CHECK_BOTH', 1);
 define('CHECK_DEFICIT', 2);
+define('CHECK_SURPLUS', 3);
 
 /**
  * Class stocktaking
@@ -75,9 +76,6 @@ class stocktaking extends Controller
                 $data = array('message' => l('Не найдено'), 'state' => false);
             }
         }
-        if ($act == 'exports-stocktaking') {
-            $this->exportStocktaking($_POST);
-        }
         Response::json($data);
     }
 
@@ -96,6 +94,25 @@ class stocktaking extends Controller
         if (isset($post['filter-serial'])) {
             $lastCheck = $this->checkSerial($post);
             Session::getInstance()->set('last_check', $lastCheck);
+        }
+        return '';
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    public function check_get($get)
+    {
+        $act = isset($get['act']) ? $get['act'] : '';
+        if ($act == 'export-stocktaking') {
+            $this->exportStocktaking($get);
+        }
+        if ($act == 'export-deficit') {
+            $this->exportStocktakingDeficit($get);
+        }
+        if ($act == 'export-surplus') {
+            $this->exportStocktakingSurplus($get);
         }
         return '';
     }
@@ -339,24 +356,23 @@ class stocktaking extends Controller
             if (empty($post['serial'])) {
                 throw new ExceptionWithMsg(l('Серийный номер не задан'));
             }
+            $result['message'] = $post['serial'];
             if (!in_array($post['serial'], $stocktaking['checked_serials']['both']) && !in_array($post['serial'],
-                    $stocktaking['checked_serials']['deficit'])
+                    $stocktaking['checked_serials']['surplus'])
             ) {
                 if ($this->searchBySerial($post['serial'], $stocktaking)) {
                     $this->Stocktaking->appendSerialToBoth($post['serial'], $stocktaking);
-                    $result['message'] = "<span style='color: green'>{$post['serial']}</span>";
+                    $result['result'] = CHECK_BOTH;
                 } else {
-                    $this->Stocktaking->appendSerialToDeficit($post['serial'], $stocktaking);
-                    $result['message'] = "<span style='color: yellow'>{$post['serial']}</span>";
+                    $this->Stocktaking->appendSerialToSurplus($post['serial'], $stocktaking);
+                    $result['result'] = CHECK_SURPLUS;
                 }
             }
             if (in_array($post['serial'], $stocktaking['checked_serials']['both'])) {
                 $result['result'] = CHECK_BOTH;
-                $result['message'] = "<span style='color: green'>{$post['serial']}</span>";
             }
-            if (in_array($post['serial'], $stocktaking['checked_serials']['deficit'])) {
-                $result['result'] = CHECK_DEFICIT;
-                $result['message'] = "<span style='color: red'>{$post['serial']}</span>";
+            if (in_array($post['serial'], $stocktaking['checked_serials']['surplus'])) {
+                $result['result'] = CHECK_SURPLUS;
             }
         } catch (ExceptionWithMsg $e) {
             return array(
@@ -374,15 +390,8 @@ class stocktaking extends Controller
      */
     protected function searchBySerial($serial, $stocktaking)
     {
-        if (preg_match("/{$this->all_configs['configs']['erp-serial-prefix']}0*/", $serial)) {
-            list($prefix, $length) = prepare_for_serial_search($this->all_configs['configs']['erp-serial-prefix'],
-                $serial,
-                $this->all_configs['configs']['erp-serial-count-num']);
-            $query = $this->all_configs['db']->makeQuery('i.id REGEXP "^?e[0-9]?e$"', array($prefix, "{0,{$length}}"));
-        } else {
-            $query = $this->all_configs['db']->makeQuery('i.id LIKE "%?e%"',
-                array(intval(preg_replace('/[^0-9]/', '', $serial))));
-        }
+        $query = $this->all_configs['db']->makeQuery('i.id=?i',
+            array(intval(preg_replace('/[^0-9]/', '', $serial))));
         $whereWhAndLocation = $this->createQueryByStocktaking($stocktaking);
 
         return (bool)$this->all_configs['db']->query('
@@ -390,33 +399,262 @@ class stocktaking extends Controller
                     FROM {warehouses_goods_items} as i
                     JOIN {warehouses} as w ON i.wh_id=w.id 
                     JOIN {warehouses_locations} as l ON l.id=i.location_id 
-                    WHERE ((serial LIKE "%?e%" OR (?query AND serial IS NULL) AND order_id IS NULL)) AND ?query',
+                    WHERE ((serial =? OR (?query AND serial IS NULL) AND order_id IS NULL)) AND ?query',
             array($serial, $query, $whereWhAndLocation))->el();
     }
 
-    protected function exportStocktaking($post)
+    /**
+     * @param $stocktaking
+     * @return array
+     */
+    protected function getSurplusItems($stocktaking)
+    {
+        $goods = array();
+        if (!empty($stocktaking['checked_serials']['surplus'])) {
+            foreach ($stocktaking['checked_serials']['surplus'] as $serial) {
+
+                $query = $this->all_configs['db']->makeQuery('i.id=?i',
+                    array(intval(preg_replace('/[^0-9]/', '', $serial))));
+
+                $goods[$serial] = $this->all_configs['db']->query('
+                    SELECT i.*, g.title as product_title, w.title, l.location
+                    FROM {warehouses_goods_items} as i
+                    JOIN {warehouses} as w ON i.wh_id=w.id 
+                    JOIN {warehouses_locations} as l ON l.id=i.location_id 
+                    JOIN {goods} as g ON g.id=i.goods_id
+                    WHERE serial = ? OR (?query AND serial IS NULL)',
+                    array($serial, $query))->row();
+            }
+        }
+        return $goods;
+    }
+
+    /**
+     * @param $get
+     */
+    protected function exportStocktaking($get)
     {
         try {
-            if (empty($post['stocktaking-id'])) {
-                throw new ExceptionWithMsg(l('Номер инвентаризации не задан'));
-            }
-            $stocktaking = $this->Stocktaking->load($post['stocktaking-id']);
-            if (empty($stocktaking)) {
-                throw new ExceptionWithMsg(l('Инвентаризация не найдена'));
-            }
+            $stocktaking = $this->getStocktakingForExport($get);
             $goods = $this->getItems($stocktaking);
-            $this->makeXLS(array(
+
+            $xls = $this->getXLS(lq('Инвентаризация'));
+
+            $this->makeXLSTitle($xls, lq('Инвентаризация'), array(
+                lq('N'),
                 lq('Серийный номер'),
                 lq('Наименование'),
                 lq('Склад'),
                 lq('Локация'),
-                lq('Заказ клиента'),
                 lq('Заказ поставщику'),
                 lq('Результат')
-            ), $goods, $stocktaking);
+            ));
 
+            $this->makeXLSBodyAll($xls, $goods, $stocktaking);
+            $this->outputXLS($xls);
         } catch (ExceptionWithMsg $e) {
             FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
         }
+    }
+
+    /**
+     * @param $get
+     */
+    protected function exportStocktakingDeficit($get)
+    {
+        try {
+            $stocktaking = $this->getStocktakingForExport($get);
+            $goods = $this->getItems($stocktaking);
+
+            $xls = $this->getXLS(lq('Недостача'));
+            $this->makeXLSTitle($xls, lq('Недостача'), array(
+                lq('N'),
+                lq('Серийный номер'),
+                lq('Наименование'),
+                lq('Склад'),
+                lq('Локация'),
+                lq('Заказ поставщику'),
+            ));
+
+            $this->makeXLSBodyDeficit($xls, $goods, $stocktaking);
+            $this->outputXLS($xls);
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
+        }
+    }
+
+    /**
+     * @param $get
+     */
+    protected function exportStocktakingSurplus($get)
+    {
+        try {
+            $stocktaking = $this->getStocktakingForExport($get);
+            $goods = $this->getSurplusItems($stocktaking);
+
+            $xls = $this->getXLS(lq('Избыток'));
+            $this->makeXLSTitle($xls, lq('Избыток'), array(
+                lq('N'),
+                lq('Серийный номер'),
+                lq('Наименование'),
+                lq('Склад по базе'),
+                lq('Склад по факту'),
+                lq('Заказ поставщику'),
+            ));
+
+            $this->makeXLSBodySurplus($xls, $goods, $stocktaking);
+            $this->outputXLS($xls);
+        } catch (ExceptionWithMsg $e) {
+            FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
+        }
+    }
+
+    /**
+     * @param $xls
+     * @param $goods
+     * @param $stocktaking
+     * @return mixed
+     */
+    protected function makeXLSBodyDeficit($xls, $goods, $stocktaking)
+    {
+        $sheet = $xls->getActiveSheet();
+        $id = 1;
+        foreach ($goods as $good) {
+            $serial = suppliers_order_generate_serial($good, true, false);
+            if (!in_array($serial, $stocktaking['checked_serials']['both'])) {
+                $sheet->setCellValueByColumnAndRow(0, (int)$id + 1, $id);
+                $sheet->setCellValueByColumnAndRow(1, (int)$id + 1, $serial);
+                $sheet->setCellValueByColumnAndRow(2, (int)$id + 1, $good['product_title']);
+                $sheet->setCellValueByColumnAndRow(3, (int)$id + 1, $good['title']);
+                $sheet->setCellValueByColumnAndRow(4, (int)$id + 1, $good['location']);
+                $sheet->setCellValueByColumnAndRow(5, (int)$id + 1, $good['supplier_order_id']);
+                $id++;
+            }
+        }
+
+        return $xls;
+    }
+
+    /**
+     * @param $xls
+     * @param $goods
+     * @param $stocktaking
+     * @return mixed
+     */
+    protected function makeXLSBodySurplus($xls, $goods, $stocktaking)
+    {
+        $sheet = $xls->getActiveSheet();
+        $id = 1;
+        foreach ($goods as $serial => $good) {
+            $sheet->setCellValueByColumnAndRow(0, (int)$id + 1, $id);
+            $sheet->setCellValueByColumnAndRow(1, (int)$id + 1, $serial);
+            if (empty($good)) {
+                $sheet->setCellValueByColumnAndRow(2, (int)$id + 1, lq('Серийный номер в базе не найден'));
+            } else {
+                $sheet->setCellValueByColumnAndRow(2, (int)$id + 1, $good['product_title']);
+                $sheet->setCellValueByColumnAndRow(3, (int)$id + 1,
+                    "{$stocktaking['warehouse']}({$stocktaking['location']})");
+                $sheet->setCellValueByColumnAndRow(4, (int)$id + 1, "{$good['title']}({$good['location']})");
+                $sheet->setCellValueByColumnAndRow(5, (int)$id + 1, $good['supplier_order_id']);
+            }
+            $id++;
+        }
+
+        return $xls;
+    }
+
+    /**
+     * @param $xls
+     * @param $goods
+     * @param $stocktaking
+     * @return mixed
+     */
+    protected function makeXLSBodyAll($xls, $goods, $stocktaking)
+    {
+        $sheet = $xls->getActiveSheet();
+        $id = 1;
+        foreach ($goods as $good) {
+            $serial = suppliers_order_generate_serial($good, true, false);
+            $sheet->setCellValueByColumnAndRow(0, (int)$id + 1, $id);
+            $sheet->setCellValueByColumnAndRow(1, (int)$id + 1, $serial);
+            $sheet->setCellValueByColumnAndRow(2, (int)$id + 1, $good['product_title']);
+            $sheet->setCellValueByColumnAndRow(3, (int)$id + 1, $good['title']);
+            $sheet->setCellValueByColumnAndRow(4, (int)$id + 1, $good['location']);
+            $sheet->setCellValueByColumnAndRow(5, (int)$id + 1, $good['order_id']);
+            $sheet->setCellValueByColumnAndRow(6, (int)$id + 1, $good['supplier_order_id']);
+            $sheet->setCellValueByColumnAndRow(7, (int)$id + 1,
+                in_array($serial, $stocktaking['checked_serials']['both']) ? lq('Есть') : lq('Недостача'));
+            $id++;
+        }
+
+        return $xls;
+    }
+
+    /**
+     * @param $name
+     * @return PHPExcel
+     */
+    protected function getXLS($name)
+    {
+        require_once(__DIR__ . '/../../classes/PHPExcel.php');
+        require_once(__DIR__ . '/../../classes/PHPExcel/Writer/Excel5.php');
+        $xls = new PHPExcel();
+        $xls->createSheet($name);
+        $xls->setActiveSheetIndex(0);
+        return $xls;
+    }
+
+    /**
+     * @param $xls
+     * @param $sheetName
+     * @param $title
+     */
+    protected function makeXLSTitle($xls, $sheetName, $title)
+    {
+        $sheet = $xls->getActiveSheet();
+        $sheet->setTitle($sheetName);
+        $sheet->getColumnDimensionByColumn(0)->setAutoSize(true);
+
+        foreach ($title as $id => $name) {
+            $cell = $sheet->setCellValueByColumnAndRow($id, 1, $name, true);
+            $sheet->getColumnDimensionByColumn($id)->setAutoSize(true);
+            $sheet->getStyle($cell->getCoordinate())->getFill()
+                ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+            $sheet->getStyle($cell->getCoordinate())->getFill()
+                ->getStartColor()->setRGB('EEEEEE');
+            $sheet->getStyle($cell->getCoordinate())->getAlignment()
+                ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle($cell->getCoordinate())->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+        }
+        return $xls;
+    }
+
+    /**
+     * @param $xls
+     */
+    protected function outputXLS($xls)
+    {
+        $out = new PHPExcel_Writer_Excel5($xls);
+        header('Content-type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="report.xls"');
+        $out->save('php://output');
+        exit();
+    }
+
+    /**
+     * @param $get
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    protected function getStocktakingForExport($get)
+    {
+        if (empty($get['stocktaking-id'])) {
+            throw new ExceptionWithMsg(l('Номер инвентаризации не задан'));
+        }
+        $stocktaking = $this->Stocktaking->load($get['stocktaking-id']);
+        if (empty($stocktaking)) {
+            throw new ExceptionWithMsg(l('Инвентаризация не найдена'));
+        }
+        return $stocktaking;
     }
 }
