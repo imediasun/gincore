@@ -63,11 +63,23 @@ class settings extends Controller
             $pp = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE id = ?i AND `ro` = 0",
                 array($this->all_configs['arrequest'][1]), 'row');
 
-            $out = $this->view->renderFile('settings/gencontent', array(
+            $tpl_vars = array(
                 'pp' => $pp,
                 'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
                     $this->all_configs['settings']['order_warranties']) : array(),
-            ));
+            );
+            
+            if(strcmp($pp['name'], 'time_zone') === 0){
+                $list = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+                $continents_zones = array();
+                foreach($list as $zone){
+                    list($continent, ) = explode('/', $zone);
+                    $continents_zones[$continent][] = $zone;
+                }
+                $tpl_vars['timeZones'] = $continents_zones;
+            }
+            
+            $out = $this->view->renderFile('settings/gencontent', $tpl_vars);
         }
 
 
@@ -286,7 +298,7 @@ class settings extends Controller
             } catch (Exception $e) {
                 FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
             }
-
+            
             Response::redirect($this->all_configs['prefix'] . 'settings/' . $this->all_configs['arrequest'][1]);
         }
 
@@ -336,7 +348,16 @@ class settings extends Controller
         if (isset($this->all_configs['arrequest'][1]) && is_numeric($this->all_configs['arrequest'][1])) {
             $value = isset($post['value']) ? $post['value'] : '';
             if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'update') {
-
+                
+                // save time_zone settings
+                if(isset($post['time_zone'])){
+                    if(in_array($post['time_zone'], DateTimeZone::listIdentifiers(DateTimeZone::ALL))){
+                        $value = $post['time_zone'];
+                    }else{
+                        FlashMessage::set(l('Указана несуществующая временная зона'), FlashMessage::DANGER);
+                        Response::redirect($this->all_configs['prefix'].'settings/'.$this->all_configs['arrequest'][1]);
+                    }
+                }
                 $this->all_configs['db']->query("UPDATE {settings} SET value=?
                              WHERE id=?i AND ro=0 LIMIT 1", array($value, $this->all_configs['arrequest'][1]), 'ar');
 
