@@ -1,6 +1,6 @@
 <div class="row row-15">
     <form method="post">
-        <input type="hidden" name="stocktaking" value="<?= $stocktaking_id ?>" />
+        <input type="hidden" name="stocktaking" value="<?= $stocktaking['id'] ?>" />
         <table class="table table-borderless stocktaking-filters">
             <tbody>
             <tr>
@@ -66,6 +66,12 @@
                             <input class="btn" type="submit" name="filter-serial" value="<?= l('Поиск') ?>" />
                         </div>
                     </div>
+                    <?= $last['message'] ?>
+                    <?php if($last['result'] == CHECK_BOTH): ?>
+                        <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
+                    <?php else: ?>
+                        <span class="color:red"><?= l('Излишек') ?><i class="fa fa-times" aria-hidden="true" style="color: red"></i></span>
+                    <?php endif; ?>
                 </td>
                 <td></td>
                 <td></td>

@@ -28,7 +28,8 @@
 
             <?php foreach ($goods as $product): ?>
                 <tr>
-                    <td><?= suppliers_order_generate_serial($product, true, true) ?></td>
+                    <?php $serial = suppliers_order_generate_serial($product, true, false) ?>
+                    <td><?= $serial ?></td>
                     <td>
                         <a class="hash_link"
                            href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>'#financestock-stock">
@@ -68,7 +69,7 @@
                     <td><?= $this->Numbers->price($product['price']) ?></td>
                     <td><?= h($product['contractor_title']) ?></td>
                     <td>
-                        <?php if (in_array($product['id'], $stocktaking['checked_serials']['both'])): ?>
+                        <?php if (in_array($serial, $stocktaking['checked_serials']['both'])): ?>
                             <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
                         <?php else: ?>
                             <i class="fa fa-times" aria-hidden="true" style="color: red"></i>

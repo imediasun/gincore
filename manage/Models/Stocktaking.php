@@ -11,8 +11,40 @@ class MStocktaking extends AModel
     const BACKUP = 1;
     public $table = 'stocktaking';
 
-    public function appendSerial($orderId, $commenterId, $field, $value)
+    /**
+     * @param $serial
+     * @param $stocktaking
+     * @return bool|int
+     */
+    public function appendSerialToBoth($serial, $stocktaking)
     {
+        return $this->appendSerialTo('both', $serial, $stocktaking);
+    }
+
+    /**
+     * @param $serial
+     * @param $stocktaking
+     * @return bool|int
+     */
+    public function appendSerialToDeficit($serial, $stocktaking)
+    {
+        return $this->appendSerialTo('deficit', $serial, $stocktaking);
+    }
+
+    /**
+     * @param $to
+     * @param $serial
+     * @param $stocktaking
+     * @return bool|int
+     */
+    protected function appendSerialTo($to, $serial, $stocktaking)
+    {
+        $stocktaking['checked_serials'][$to][] = $serial;
+        return $this->update(array(
+            'checked_serials' => json_encode($stocktaking['checked_serials'])
+        ), array(
+            'id' => $stocktaking['id']
+        ));
     }
 
     /**
@@ -82,7 +114,9 @@ class MStocktaking extends AModel
      */
     public function load($id)
     {
-        return $this->getByPk($id);
+        $stocktaking = $this->getByPk($id);
+        $stocktaking['checked_serials'] = json_decode($stocktaking['checked_serials'], true);
+        return $stocktaking;
     }
 
     /**
