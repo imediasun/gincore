@@ -2650,6 +2650,7 @@ class orders extends Controller
             if ($order['status'] != $this->all_configs['configs']['order-status-issued'] && $_POST['status'] == $this->all_configs['configs']['order-status-issued'] && $order['sum'] > ($order['sum_paid'] + $order['discount'])) {
                 $data['paid'] = true;
             }
+            $oldStatus = $order['status'];
             $data = $this->changeStatus($order, $data);
             // устройство у клиента
             if ((isset($_POST['client_took']) && $order['client_took'] != 1) || (!isset($_POST['client_took']) && $order['client_took'] == 1)) {
@@ -2738,7 +2739,7 @@ class orders extends Controller
                 $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . $get . '#show_orders';
                 $data['reload'] = true;
             }
-            if ($order['type'] != ORDER_SELL && $_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
+            if ($oldStatus != $_POST['status'] && $order['type'] != ORDER_SELL && $_POST['status'] == $this->all_configs['configs']['order-status-ready']) {
                 $data['sms'] = true;
             }
         } catch (ExceptionWithMsg $e) {
@@ -2864,6 +2865,9 @@ class orders extends Controller
     protected function changeStatus($order, $data, $defaultMessage = '')
     {
 // меняем статус
+        if($_POST['status'] == $order['status']) {
+            return $data;
+        }
         $response = update_order_status($order, $_POST['status']);
         if (!isset($response['state']) || $response['state'] == false) {
             $data['state'] = false;
