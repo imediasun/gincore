@@ -2420,9 +2420,9 @@ a:hover, a:focus {
     padding: 0
 }
 
-.form-control, .form-control:focus, .has-error .form-control:focus, .has-success .form-control:focus, .has-warning .form-control:focus, .navbar-collapse, .navbar-form, .navbar-form-custom .form-control:focus, .navbar-form-custom .form-control:hover, .open .btn.dropdown-toggle, .panel, .popover, .progress, .progress-bar {
-    box-shadow: none
-}
+/*.form-control, .form-control:focus, .has-error .form-control:focus, .has-success .form-control:focus, .has-warning .form-control:focus, .navbar-collapse, .navbar-form, .navbar-form-custom .form-control:focus, .navbar-form-custom .form-control:hover, .open .btn.dropdown-toggle, .panel, .popover, .progress, .progress-bar {*/
+    /*box-shadow: none*/
+/*}*/
 
 .vertical-mid {
     display: table
@@ -2775,9 +2775,9 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
     color: #9d9fa2
 }
 
-.form-control {
-    border-color: #e4e5e7 !important
-}
+/*.form-control {*/
+    /*border-color: #e4e5e7 !important*/
+/*}*/
 
 .input-group-addon {
     background: #f7f8fa;
