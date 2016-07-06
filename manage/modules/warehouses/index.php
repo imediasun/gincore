@@ -799,10 +799,10 @@ class warehouses extends Controller
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $query = '';
+            $query = 'WHERE u.deleted = 0';
             if (count($this->all_configs['configs']['erp-warehouses-permiss']) > 0) {
                 $query = $this->all_configs['db']->makeQuery(
-                    ', {users_role_permission} as p WHERE p.permission_id IN (?li) AND u.role=p.role_id GROUP BY u.id',
+                    ', {users_role_permission} as p WHERE p.permission_id IN (?li) AND u.role=p.role_id AND u.deleted=0 GROUP BY u.id',
                     array($this->all_configs['configs']['erp-warehouses-permiss']));
             }
             // достаем всех пользователей
