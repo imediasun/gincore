@@ -93,12 +93,13 @@ class Suppliers extends Object
                     $part = 1 + (int)$this->all_configs['db']->query('SELECT number FROM {contractors_suppliers_orders} WHERE parent_id=?i ORDER BY number DESC LIMIT 1',
                             array($parent_order_id))->el();
 
-                    $result = $this->addContractorOrder($mod_id, $price, date('Y-m-d', strtotime($parent['date_wait'])-86399), $supplier, $its_warehouse,
+                    $result = $this->addContractorOrder($mod_id, $price,
+                        date('Y-m-d', strtotime($parent['date_wait']) - 86399), $supplier, $its_warehouse,
                         $product['id'], $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
                         $parent_order_id,
                         $part, array(), $orders);
-                    $update['wh_id'] = $parent['wh_id'];
-                    $update['location_id'] = $parent['location_id'];
+                    $update['wh_id'] = empty($parent['wh_id']) ? null : $parent['wh_id'];
+                    $update['location_id'] = empty($parent['location_id']) ? null : $parent['location_id'];
                     $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
 
                 } else {
@@ -131,10 +132,10 @@ class Suppliers extends Object
                             'num' => $num,
                             'warehouse_type' => $warehouse_type,
                         );
-                        if (!empty($warehouse)) {
+                        if (!empty($warehouse) && is_numeric($warehouse)) {
                             $data['wh_id'] = $warehouse;
                         }
-                        if (!empty($location)) {
+                        if (!empty($location) && is_numeric($location)) {
                             $data['location_id'] = $location;
                         }
                         $this->ContractorsSuppliersOrders->update($data, array('id' => $order_id));
@@ -238,9 +239,9 @@ class Suppliers extends Object
         try {
 
             // проверка на создание заказа с ценой 0
-            if ($this->isEmpty($post['item_ids'], $post['amount']) 
+            if ($this->isEmpty($post['item_ids'], $post['amount'])
                 && $this->all_configs['configs']['suppliers-orders-zero'] == false
-                && empty($post['from_client_orders']) 
+                && empty($post['from_client_orders'])
             ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
@@ -285,7 +286,7 @@ class Suppliers extends Object
                 'msg' => $e->getMessage(),
             );
 
-        } 
+        }
 
         return $data;
     }
