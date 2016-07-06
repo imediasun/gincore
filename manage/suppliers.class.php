@@ -100,7 +100,11 @@ class Suppliers extends Object
                         $part, array(), $orders);
                     $update['wh_id'] = empty($parent['wh_id']) ? null : $parent['wh_id'];
                     $update['location_id'] = empty($parent['location_id']) ? null : $parent['location_id'];
-                    $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
+                    try {
+                        $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
+                    } catch (Exception $e) {
+                        throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
+                    }
 
                 } else {
                     $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
