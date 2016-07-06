@@ -103,6 +103,27 @@ class prints extends Controller
                     array($this->templateTable, $var_id, $value, $this->cur_lang));
             }
         }
+        if ($_GET['ajax'] == 'restore') {
+            $save_act = trim($_GET['act']);
+            if (in_array($save_act, array(
+                    'check',
+                    'warranty',
+                    'invoice',
+                    'act',
+                    'invoicing',
+                    'waybill',
+                    'sale_warranty',
+                    'price_list'
+                )) && isset($_POST['html'])
+            ) {
+                $var_id = $this->all_configs['db']->query("SELECT id FROM {?q} WHERE var = 'print_template_" . $save_act . "'",
+                    array($this->templateTable))->el();
+                $this->all_configs['db']->query('DELETE FROM {?q} WHERE id =?', array($this->templateTable, $var_id));
+                $this->all_configs['db']->query('DELETE FROM {?q_strings} WHERE var_id=?',
+                    array($this->templateTable, $var_id));
+                $return = array('state' => true);
+            }
+        }
         // загрузка картинки
         if ($_GET['ajax'] == 'upload') {
             $return = array(
