@@ -182,6 +182,34 @@
                     }
                 });
             });
+            $('#restore').click(function () {
+                var _this = this;
+                if(confirm('<?= l('Вы уверены? Все внесенные изменения будут сброшены.') ?>')) {
+                $(_this).prop('disabled', true);
+                // save content if you need
+                $.ajax({
+                    type: 'POST',
+                    url: window.location.search + '&ajax=restore',
+                    data: {html: $('#print_tempalte').code()},
+                    cache: false,
+                    success: function (msg) {
+                        if (msg) {
+                            if (msg['state'] == false && msg['msg']) {
+                                alert(msg['msg']);
+                            }
+                            if (msg['state'] == true) {
+                                window.location.reload();
+                            }
+                        }
+                        $(_this).prop('disabled', false);
+                        $('#print').prop('disabled', false);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.responseText, 1);
+                    }
+                });
+                }
+            });
 
             $('#print').click(function () {
                 window.print();
