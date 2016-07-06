@@ -125,33 +125,40 @@ class warehouses extends Controller
                     }, 0);
                 };
                 if (!empty($post['title']) && !$empty($_POST['location'])) {
-                    $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
+                    $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses} WHERE title=?',
+                        array($post['title']))->el();
+                    if (empty($checkByTitle)) {
+                        $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
                 (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n)',
-                        array(
-                            $consider_all,
-                            $consider_store,
-                            trim($post['code_1c']),
-                            trim($post['title']),
-                            trim($post['print_address']),
-                            trim($post['print_phone']),
-                            $post['type'],
-                            $group_id,
-                            $type_id
-                        ), 'id');
+                            array(
+                                $consider_all,
+                                $consider_store,
+                                trim($post['code_1c']),
+                                trim($post['title']),
+                                trim($post['print_address']),
+                                trim($post['print_phone']),
+                                $post['type'],
+                                $group_id,
+                                $type_id
+                            ), 'id');
 
 
-                    if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
-                        foreach ($_POST['location'] as $location) {
-                            if (mb_strlen(trim($location), 'UTF-8') > 0) {
-                                $this->all_configs['db']->query(
-                                    'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
-                                    array($warehouse_id, trim($location)));
+                        if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                                array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
+                            foreach ($_POST['location'] as $location) {
+                                if (mb_strlen(trim($location), 'UTF-8') > 0) {
+                                    $this->all_configs['db']->query(
+                                        'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
+                                        array($warehouse_id, trim($location)));
+                                }
                             }
                         }
+                        FlashMessage::set(l('Склад успешно добавлен'), FlashMessage::SUCCESS);
+
+                    } else {
+                        FlashMessage::set(l('Склад с таким названием уже существует'), FlashMessage::DANGER);
                     }
-                    FlashMessage::set(l('Склад успешно добавлен'), FlashMessage::SUCCESS);
                     if (isset($post['modal'])) {
                         Response::json(array(
                             'state' => true,
@@ -189,7 +196,12 @@ class warehouses extends Controller
             }
             $group_id = isset($post['group_id']) && intval($post['group_id']) > 0 ? intval($post['group_id']) : null;
             $type_id = isset($post['type_id']) && intval($post['type_id']) > 0 ? intval($post['type_id']) : null;
-
+            $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses} WHERE title=? AND NOT id=?i',
+                array($post['title'], $post['warehouse-id']))->el();
+            if (!empty($checkByTitle)) {
+                FlashMessage::set(l('Склад с таким названием уже существует'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
             //заблокировал обновления типа (4 - Клиент), при сохраниении сбрасывался в "1". 16.06.16
             $this->all_configs['db']->query('UPDATE {warehouses} '
                 . 'SET consider_all=?i, consider_store=?i, code_1c=?, title=?, '
