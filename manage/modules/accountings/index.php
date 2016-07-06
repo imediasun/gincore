@@ -334,6 +334,11 @@ class accountings extends Controller
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
+            $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes} WHERE name=?', array($title))->el();
+            if (!empty($checkByTitle)) {
+                FlashMessage::set(l('Касса с таким названием уже существует'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
             $cashbox_id = $this->Cashboxes->insert(array(
                 'cashboxes_type' => $cashboxes_type,
                 'avail' => $avail,
@@ -373,6 +378,11 @@ class accountings extends Controller
             $title = trim($post['title']);
             if (empty($title)) {
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes} WHERE name=? AND NOT id=?i', array($title, $post['cashbox-id']))->el();
+            if (!empty($checkByTitle)) {
+                FlashMessage::set(l('Касса с таким названием уже существует'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
             $avail = 1;
