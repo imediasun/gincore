@@ -22,6 +22,7 @@
                 </div>
                 <br><br>
                 <input type="submit" name="filter-orders" class="btn btn-primary" value="<?= l('Фильтровать') ?>">
+                <?= $this->LockButton->show($_GET['lock-button']) ?>
             </div>
             <?php if ($show_nav): ?>
                 <div class="col-sm-2 b-r">
@@ -61,16 +62,16 @@
                                     style="width: 98px" name="so-status">
                                 <option value="0"><?= l('Выбрать') ?></option>
                                 <option <?= (isset($_GET['sst']) && $_GET['sst'] == 1 ? 'selected' : '') ?> value="1">
-                                    Не принятые
+                                    <?=  l('Не принятые') ?>
                                 </option>
                                 <option <?= (isset($_GET['sst']) && $_GET['sst'] == 2 ? 'selected' : '') ?> value="2">
-                                    Удаленные
+                                    <?= l('Удаленные') ?>
                                 </option>
                                 <option <?= (isset($_GET['sst']) && $_GET['sst'] == 3 ? 'selected' : '') ?> value="3">
-                                    Просроченные
+                                    <?= l('Просроченные') ?>
                                 </option>
                                 <option <?= (isset($_GET['sst']) && $_GET['sst'] == 4 ? 'selected' : '') ?> value="4">
-                                    Ожидаем поступления
+                                    <?= l('Ожидаем поступления') ?>
                                 </option>
                             </select>
                         </span>

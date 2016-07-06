@@ -18,5 +18,6 @@
                             value="<?= $date ?>"/>
         </div>
         <input type="submit" class="btn btn-primary" value="<?= l('Применить') ?>" name="procurement-filter"/>
+        <?= $this->LockButton->show($_GET['lock-button']) ?>
     </div>
 </form>

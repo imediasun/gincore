@@ -28,6 +28,7 @@
                 </div>
                 <br><br>
                 <input type="submit" name="filter-orders" class="btn btn-primary" value="<?= l('Фильтровать') ?>">
+                <?= $this->LockButton->show($_GET['lock-button']) ?>
             </div>
             <div class="col-sm-2 b-r">
                 <div class="form-group">

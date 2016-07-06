@@ -21,8 +21,9 @@
                         </label>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-12">
                         <button type="submit" class="btn btn-primary"> <?= l('Применить')?> </button>
+                        <?= $this->LockButton->show($current['lock-button']); ?>
                     </div>
                 </fieldset>
             </form>

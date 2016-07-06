@@ -11,13 +11,15 @@ $modulemenu[10] = l('orders');
  * @property  MOrders         Orders
  * @property  MOrdersGoods    OrdersGoods
  * @property  MOrdersComments OrdersComments
+ * @property  MLockFilters    LockFilters
  */
 class orders extends Controller
 {
     public $uses = array(
         'Orders',
         'OrdersGoods',
-        'OrdersComments'
+        'OrdersComments',
+        'LockFilters'
     );
 
     /**
@@ -90,160 +92,166 @@ class orders extends Controller
             // фильтр по дате
             if (isset($post['date']) && !empty($post['date'])) {
                 list($df, $dt) = explode('-', $post['date']);
-                $url[] = 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
+                $url['df'] = urlencode(trim($df));
+                $url['dt'] = urlencode(trim($dt));
             }
 
             if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям товаров
-                $url[] = 'g_cg=' . intval($post['categories']);
+                $url['g_cg'] = intval($post['categories']);
             }
 
             if (isset($post['np'])) {
                 // фильтр принято через нп
-                $url[] = 'np=1';
+                $url['np'] = 1;
             }
 
             if (isset($post['wh-kiev'])) {
                 // фильтр киев
-                $url[] = 'whk=1';
+                $url['whk'] = 1;
             }
 
             if (isset($post['wh-abroad'])) {
                 // фильтр заграница
-                $url[] = 'wha=1';
+                $url['wha'] = 1;
             }
 
             if (isset($post['noavail'])) {
                 // фильтр не активные
-                $url[] = 'avail=0';
+                $url['avail'] = 0;
             }
 
             if (isset($post['rf'])) {
                 // фильтр выдан подменный фонд
-                $url[] = 'rf=1';
+                $url['rf'] = 1;
             }
 
             if (isset($post['nm'])) {
                 // не оплаченные
-                $url[] = 'nm=1';
+                $url['nm'] = 1;
             }
 
             if (isset($post['ar'])) {
                 // принимались на доработку
-                $url[] = 'ar=1';
+                $url['ar'] = 1;
             }
 
             if (isset($post['order_id']) && $post['order_id'] > 0) {
                 // фильтр по id
-                $url[] = 'co_id=' . intval($post['order_id']);
+                $url['co_id'] = intval($post['order_id']);
             }
 
             if (isset($post['categories-last']) && $post['categories-last'] > 0) {
                 // фильтр по категориям (устройство)
-                $url[] = 'dev=' . intval($post['categories-last']);
+                $url['dev'] = intval($post['categories-last']);
             }
 
             if (isset($post['so-status']) && $post['so-status'] > 0) {
                 // фильтр по статусу
-                $url[] = 'sst=' . intval($post['so-status']);
+                $url['sst'] = intval($post['so-status']);
             }
 
             if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
                 // фильтр по товару
-                $url[] = 'by_gid=' . intval($post['goods-goods']);
+                $url['by_gid'] = intval($post['goods-goods']);
             }
 
             if (isset($post['warehouse']) && !empty($post['warehouse'])) {
                 // фильтр по инженерам
-                $url[] = 'wh=' . implode(',', $post['warehouse']);
+                $url['wh'] = implode(',', $post['warehouse']);
             }
 
             if (isset($post['engineers']) && !empty($post['engineers'])) {
                 // фильтр по инженерам
-                $url[] = 'eng=' . implode(',', $post['engineers']);
+                $url['eng'] = implode(',', $post['engineers']);
             }
 
             if (isset($post['managers']) && !empty($post['managers'])) {
                 // фильтр по менеджерам
-                $url[] = 'mg=' . implode(',', $post['managers']);
+                $url['mg'] = implode(',', $post['managers']);
             }
 
             if (isset($post['accepter']) && !empty($post['accepter'])) {
                 // фильтр по приемщикам
-                $url[] = 'acp=' . implode(',', $post['accepter']);
+                $url['acp'] = implode(',', $post['accepter']);
             }
 
             if (isset($post['wh_groups']) && !empty($post['wh_groups'])) {
                 // фильтр по поставщикам
-                $url[] = 'wg=' . implode(',', $post['wh_groups']);
+                $url['wg'] = implode(',', $post['wh_groups']);
             }
 
             if (isset($post['suppliers']) && !empty($post['suppliers'])) {
                 // фильтр по поставщикам
-                $url[] = 'sp=' . implode(',', $post['suppliers']);
+                $url['sp'] = implode(',', $post['suppliers']);
             }
 
             if (isset($post['status']) && !empty($post['status'])) {
                 // фильтр по статусу
-                $url[] = 'st=' . implode(',', $post['status']);
+                $url['st'] = implode(',', $post['status']);
             }
 
             if (isset($post['client']) && !empty($post['client'])) {
                 // фильтр клиенту/заказу
-                $url[] = 'cl=' . urlencode(trim($post['client']));
+                $url['cl'] = urlencode(trim($post['client']));
             }
 
             if (isset($post['client-order']) && !empty($post['client-order'])) {
                 // фильтр клиенту/заказу
-                $url[] = 'co=' . urlencode(trim($post['client-order']));
+                $url['co'] = urlencode(trim($post['client-order']));
             }
 
             if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
                 // фильтр по заказу частичный
-                $url[] = 'pso_id=' . $post['supplier_order_id_part'];
+                $url['pso_id'] = $post['supplier_order_id_part'];
             }
 
             if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
                 // фильтр по заказу
-                $url[] = 'so_id=' . $post['supplier_order_id'];
+                $url['so_id'] = $post['supplier_order_id'];
             }
 
             if (isset($post['my']) && !empty($post['my'])) {
                 // фильтр по
-                $url[] = 'my=1';
+                $url['my'] = 1;
             }
 
             if (isset($post['serial']) && !empty($post['serial'])) {
                 // фильтр серийнику
-                $url[] = 'serial=' . trim($post['serial']);
+                $url['serial'] = trim($post['serial']);
+            }
+            if (isset($post['lock-button'])) {
+                $url['lock-button'] = trim($post['lock-button']);
             }
             if (isset($post['sale-order'])) {
                 if (isset($post['cashless']) && !empty($post['cashless'])) {
                     //только безнал
-                    $url[] = 'cashless=1';
+                    $url['cashless'] = 1;
                 }
                 if (isset($post['selfdelivery']) && !empty($post['selfdelivery'])) {
                     // самовывоз
-                    $url[] = 'selfdelivery=1';
+                    $url['selfdelivery'] = 1;
                 }
                 if (isset($post['courier']) && !empty($post['courier'])) {
                     // доставка курьером
-                    $url[] = 'courier=1';
+                    $url['courier'] = 1;
                 }
             }
 
             switch (true) {
                 case isset($post['sale-order']):
                     $hash = '#show_orders-sold';
+                    $this->LockFilters->toggle('sale-orders', $url);
                     break;
                 case isset($post['supplier_order_id']):
+                    $this->LockFilters->toggle('supplier-orders', $url);
                     $hash = '#show_suppliers_orders-all';
                     break;
                 default:
+                    $this->LockFilters->toggle('repair-orders', $url);
                     $hash = '#show_orders-orders';
             }
-            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&',
-                        $url)) . $hash);
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)) . $hash);
         }
 
         // принимаем заказ
@@ -260,23 +268,22 @@ class orders extends Controller
             // фильтр по дате
             if (isset($post['date']) && !empty($post['date'])) {
                 list($df, $dt) = explode('-', $post['date']);
-                $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
+                $url ['df'] = urlencode(trim($df));
+                $url['dt'] = urlencode(trim($dt));
             }
 
             if (isset($post['ctg']) && is_array($post['ctg']) && count($post['ctg']) > 0) {
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'ctg=' . implode(',', $post['ctg']);
+                $url['ctg'] = implode(',', $post['ctg']);
             }
             if (isset($post['tso']) && intval($post['tso']) > 0) {
-                if (!empty($url)) {
-                    $url .= '&';
-                }
-                $url .= 'tso=' . intval($post['tso']);
+                $url ['tso']= intval($post['tso']);
             }
+            if (isset($post['lock-button'])) {
+                $url ['lock-button']= intval($post['lock-button']);
+            }
+            $this->LockFilters->toggle('recommendation-procurement', $url);
 
-            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url));
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)));
         }
 
         if (isset($_POST['hide-fields'])) {
@@ -293,6 +300,7 @@ class orders extends Controller
 
         Response::redirect($_SERVER['REQUEST_URI']);
     }
+
 
     /**
      * @param bool $compact
@@ -343,6 +351,10 @@ class orders extends Controller
         } else {
             $link = '';
         }
+        $saved = $this->LockFilters->load('sale-orders');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
@@ -385,6 +397,7 @@ class orders extends Controller
             }
         }
 
+        $this->view->load('LockButton');
         return $this->view->renderFile('orders/sale_orders_filters', array(
             'accepters' => $accepters,
             'engineers' => $engineers,
@@ -408,6 +421,10 @@ class orders extends Controller
             $link = $this->all_configs['prefix'] . 'orders';
         } else {
             $link = '';
+        }
+        $saved = $this->LockFilters->load('repair-orders');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET = $saved;
         }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
@@ -452,6 +469,7 @@ class orders extends Controller
             }
         }
 
+        $this->view->load('LockButton');
         return $this->view->renderFile('orders/repair_orders_filters', array(
             'accepters' => $accepters,
             'engineers' => $engineers,
@@ -558,6 +576,11 @@ class orders extends Controller
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
         }
+        $saved = $this->LockFilters->load('repair-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
+
         if (isset($_GET['simple'])) {
             $search = $_GET['simple'];
             unset($_GET['simple']);
@@ -591,6 +614,10 @@ class orders extends Controller
     public function show_orders_sold()
     {
         $filters = array('type' => ORDER_SELL);
+        $saved = $this->LockFilters->load('sale-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         if (isset($_GET['simple'])) {
             $search = $_GET['simple'];
             unset($_GET['simple']);
@@ -620,6 +647,10 @@ class orders extends Controller
      */
     public function show_orders_return()
     {
+        $saved = $this->LockFilters->load('supplier-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_RETURN) + $_GET);
         $query = $queries['query'];
 
@@ -644,6 +675,10 @@ class orders extends Controller
      */
     public function show_orders_writeoff()
     {
+        $saved = $this->LockFilters->load('repair-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_WRITE_OFF) + $_GET);
         $query = $queries['query'];
 
@@ -757,6 +792,10 @@ class orders extends Controller
      */
     public function orders_show_suppliers_orders($hash = '#show_suppliers_orders')
     {
+        $saved = $this->LockFilters->load('supplier-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         if (trim($hash) == '#show_suppliers_orders' || (trim($hash) != '#show_suppliers_orders-all'
                 && trim($hash) != '#show_suppliers_orders-wait' && trim($hash) != '#show_suppliers_orders-procurement'
                 && trim($hash) != '#show_suppliers_orders-return')
@@ -776,7 +815,10 @@ class orders extends Controller
     public function orders_show_suppliers_orders_all()
     {
         $orders_html = '';
-
+        $saved = $this->LockFilters->load('supplier-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
             $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('read-other-suppliers-orders') ? false : true;
             $_GET['my'] = $my || (isset($_GET['my']) && $_GET['my'] == 1) ? true : false;
@@ -809,6 +851,10 @@ class orders extends Controller
     public function orders_show_suppliers_orders_wait()
     {
         $orders_html = '';
+        $saved = $this->LockFilters->load('supplier-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
             $my = $this->all_configs['oRole']->hasPrivilege('site-administration') || $this->all_configs['oRole']->hasPrivilege('read-other-suppliers-orders') ? false : true;
@@ -857,10 +903,15 @@ class orders extends Controller
      */
     public function menu_recommendations_procurement()
     {
+        $saved = $this->LockFilters->load('recommendation-procurement');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
+        $this->view->load('LockButton');
         return $this->view->renderFile('orders/menu_recommendations_procurement', array(
             'date' => $date,
             'categories' => $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc(),
@@ -905,6 +956,10 @@ class orders extends Controller
         $orders_html = '';
         $debug = '';
 
+        $saved = $this->LockFilters->load('recommendation-procurement');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
             $cfg = &$this->all_configs;
             $query = '';
