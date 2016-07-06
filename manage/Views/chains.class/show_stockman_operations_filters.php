@@ -30,6 +30,7 @@
         </div>
         <div class="form-group">
             <input type="submit" name="filters" class="btn" value="<?= l('Фильтровать') ?>">
+            <?= $this->LockButton->show($_GET['lock-button']) ?>
         </div>
     </div>
 </form>
