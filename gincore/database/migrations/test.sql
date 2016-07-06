@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `restore4_stocktaking` (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     saved_at TIMESTAMP,
     history tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
-    checked_serials JSON NOT NULL,
+    checked_serials TEXT NOT NULL,
 PRIMARY KEY (`id`),
 INDEX(`warehouse_id`),
 INDEX(`location_id`),
