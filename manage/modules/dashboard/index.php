@@ -3,8 +3,9 @@
 require_once __DIR__ . '/../../Core/View.php';
 require_once __DIR__ . '/../../Core/Session.php';
 require_once __DIR__ . '/../../Models/CategoriesTree.php';
+require_once __DIR__ . '/../../Core/Object.php';
 
-class dashboard
+class dashboard extends Object
 {
     const PREPAYMENT_TRANSACTION_TYPE = 10;
     /** @var View */
@@ -80,6 +81,7 @@ class dashboard
 
         $input_html['branch_chart'] = $this->get_branch_chart();
 //        $input_html['repair_chart'] = $this->get_repair_chart();
+        $this->view->load('LockButton');
         $input_html['order_types_filter'] = $this->view->renderFile('dashboard/order_types_filter', array(
             'current' => $this->utils->getOrderOptions()
         ));
@@ -523,7 +525,10 @@ class dashboard
     }
 }
 
-class ChartUtils
+/**
+ * @property  MLockFilters LockFilters
+ */
+class ChartUtils extends Object
 {
     protected $all_configs;
     protected $db;
@@ -533,6 +538,9 @@ class ChartUtils
     protected $end;
     /** @var  DateInterval */
     protected $diff;
+    public $uses = array(
+        'LockFilters'
+    );
 
     /**
      * ChartUtils constructor.
@@ -542,6 +550,7 @@ class ChartUtils
     {
         $this->all_configs = $all_configs;
         $this->db = $this->all_configs['db'];
+        $this->applyUses();
         $this->prepareDate();
     }
 
@@ -601,12 +610,20 @@ class ChartUtils
      */
     public function getOrderOptions()
     {
-        if (!empty($_POST) && empty($_POST['types'])) {
-            return Session::getInstance()->get('dashboard.order.types');
-        }
         $options = array(
             'warranty' => array()
         );
+        $saved = $this->LockFilters->load('dashboard');
+        if (empty($_POST) && !empty($saved)) {
+            $_POST = $saved;
+        }
+        $this->LockFilters->toggle('dashboard', $_POST);
+        if (!empty($_POST) && empty($_POST['types'])) {
+            return Session::getInstance()->get('dashboard.order.types');
+        }
+        if (isset($_POST['lock-button'])) {
+            $options['lock-button'] = $_POST['lock-button'];
+        }
         if (!empty($_POST['types'])) {
             if (in_array('repair', $_POST['types'])) {
                 $options['types'][] = ORDER_REPAIR;

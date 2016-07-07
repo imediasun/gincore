@@ -8,12 +8,19 @@ $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
+/**
+ * @property  MLockFilters LockFilters
+ */
 class warehouses extends Controller
 {
     protected $warehouses;
     protected $errors;
 
     public $count_on_page;
+
+    public $uses = array(
+        'LockFilters'
+    );
 
     /**
      * warehouses constructor.
@@ -587,6 +594,10 @@ class warehouses extends Controller
     public function warehouses_orders_suppliers()
     {
         $out = '';
+        $saved = $this->LockFilters->load('warehouse-orders-filters');
+        if(count($_GET) <= 2 && $saved) {
+            $_GET += $saved;
+        }
 
         if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
             $_GET['type'] = 'debit';
@@ -620,6 +631,10 @@ class warehouses extends Controller
      */
     public function warehouses_orders_clients_bind()
     {
+        $saved = $this->LockFilters->load('warehouse-filters');
+        if(count($_GET) <= 2 && $saved) {
+            $_GET += $saved;
+        }
         $out = $this->all_configs['chains']->show_stockman_operations();
 
         return array(
@@ -662,6 +677,10 @@ class warehouses extends Controller
      */
     public function warehouses_orders_clients_unbind()
     {
+        $saved = $this->LockFilters->load('warehouse-filters');
+        if(count($_GET) <= 2 && $saved) {
+            $_GET += $saved;
+        }
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
 
         return array(
@@ -1457,87 +1476,66 @@ class warehouses extends Controller
      */
     private function createUrlForFilterOrders(array $post)
     {
-        $url = '';
-
+        $url = array();
         // фильтр по дате
         if (isset($post['date']) && !empty($post['date'])) {
             list($df, $dt) = explode('-', $post['date']);
-            $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
+            $url['df'] = urlencode(trim($df));
+            $url['dt'] = urlencode(trim($dt));
         }
 
         if (isset($post['categories']) && $post['categories'] > 0) {
             // фильтр по категориям товаров
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'g_cg=' . intval($post['categories']);
+            $url['g_cg'] = intval($post['categories']);
         }
 
         if (isset($post['goods']) && $post['goods'] > 0) {
             // фильтр по товару
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'by_gid=' . intval($post['goods']);
+            $url['by_gid'] = intval($post['goods']);
         }
 
         if (isset($post['managers']) && !empty($post['managers'])) {
             // фильтр по менеджерам
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'mg=' . implode(',', $post['managers']);
+            $url['mg'] = implode(',', $post['managers']);
         }
 
         if (isset($post['suppliers']) && !empty($post['suppliers'])) {
             // фильтр по поставщикам
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'sp=' . implode(',', $post['suppliers']);
+            $url ['sp'] = implode(',', $post['suppliers']);
         }
 
         if (isset($post['client-order']) && !empty($post['client-order'])) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'co=' . urlencode(trim($post['client-order']));
+            $url ['co'] = urlencode(trim($post['client-order']));
         }
 
         if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
             // фильтр по заказу частичный
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'pso_id=' . $post['supplier_order_id_part'];
+            $url['pso_id'] = $post['supplier_order_id_part'];
         }
 
         if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
             // фильтр по заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'so_id=' . $post['supplier_order_id'];
+            $url['so_id'] = $post['supplier_order_id'];
         }
 
         if (isset($post['so_st']) && $post['so_st'] > 0) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'so_st=' . $post['so_st'];
+            $url['so_st'] = $post['so_st'];
         }
 
         if (isset($post['my']) && !empty($post['my'])) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'my=1';
+            $url['my'] = 1;
+        }
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
         }
 
-        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
+        $this->LockFilters->toggle('warehouse-orders-filters', $url);
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
         Response::redirect($url);
     }
 
@@ -1546,49 +1544,40 @@ class warehouses extends Controller
      */
     private function createUrlForFilters(array $post)
     {
-        $url = '';
+        $url = array();
 
         if (isset($post['noitems'])) {
             // фильтр по без "изделий нет"
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'noi=1';
+            $url['noi'] = 1;
         }
 
         if (isset($post['goods']) && $post['goods'] > 0) {
             // фильтр по товару
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'by_gid=' . intval($post['goods']);
+            $url['by_gid'] = intval($post['goods']);
         }
 
         if (isset($post['clients']) && $post['clients'] > 0) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'c_id=' . intval($post['clients']);
+            $url['c_id'] = intval($post['clients']);
         }
 
         if (isset($post['client-order-number']) && $post['client-order-number'] > 0) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'con=' . intval($post['client-order-number']);
+            $url['con'] = intval($post['client-order-number']);
         }
 
         if (isset($post['serial']) && !empty($post['serial'])) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'serial=' . urlencode(trim($post['serial']));
+            $url['serial'] = urlencode(trim($post['serial']));
+        }
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
         }
 
-        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
+        $this->LockFilters->toggle('warehouse-filters', $url);
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
         Response::redirect($url);
     }
 
@@ -1598,46 +1587,39 @@ class warehouses extends Controller
     private function createUrlForFilterWarehouses(array $post)
     {
 // фильтруем
-        $url = '';
+        $url = array();
 
         if (isset($post['warehouses']) && is_array($post['warehouses']) && count($post['warehouses']) > 0) {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'whs=' . implode(',', $post['warehouses']);
+            $url['whs'] = implode(',', $post['warehouses']);
         }
 
         if (isset($post['locations']) && is_array($post['locations']) && count($post['locations']) > 0) {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'lcs=' . implode(',', $post['locations']);
+            $url['lcs'] = implode(',', $post['locations']);
         }
 
         if (isset($post['goods']) && $post['goods'] > 0) {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'pid=' . intval($post['goods']);
+            $url['pid'] = intval($post['goods']);
         }
 
         if (isset($post['display']) && $post['display'] == 'amount') {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'd=a';
+            $url ['d'] = 'a';
         }
 
         // первычные ключи
         if (isset($post['serial']) && !empty($post['serial'])) {
-            $url = 'serial=' . urlencode($post['serial']);
+            $url['serial'] = urlencode($post['serial']);
         }
 
         if (isset($post['so_id']) && $post['so_id'] > 0) {
-            $url = 'so_id=' . intval($post['so_id']);
+            $url ['so_id'] = intval($post['so_id']);
         }
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
+        }
+        $this->LockFilters->toggle('warehouse-warehouse-filters', $url);
 
-        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url) . '#show_items';
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)) . '#show_items';
 
         Response::redirect($url);
     }
@@ -1669,7 +1651,6 @@ class warehouses extends Controller
 
             if (!$item || $date_stop > 0) {
                 if ($date_stop > 0) {
-                    //$data['message'] = '<div class="alert alert-error fade in"><button class="close" type="button" data-dismiss="alert">×</button>Инвентаризация закрыта</div>';
                     $data['state'] = true;
                 }
                 if (!$item) {

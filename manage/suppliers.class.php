@@ -8,6 +8,7 @@ require_once __DIR__ . '/Core/Response.php';
  * @property MGoods                      Goods
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MHistory                    History
+ * @property  MLockFilters LockFilters
  */
 class Suppliers extends Object
 {
@@ -22,7 +23,8 @@ class Suppliers extends Object
     public $uses = array(
         'Goods',
         'ContractorsSuppliersOrders',
-        'History'
+        'History',
+        'LockFilters'
     );
 
     /**
@@ -355,6 +357,10 @@ class Suppliers extends Object
         $inner_wrapper = true,
         $hash = 'show_suppliers_orders'
     ) {
+        $saved = $this->LockFilters->load('supplier-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : '')
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : '');
@@ -369,6 +375,7 @@ class Suppliers extends Object
         $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
             array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
 
+        $this->view->load('LockButton');
         return $this->view->renderFile('suppliers.class/show_filters_suppliers_orders', array(
             'show_my' => $show_my,
             'inner_wrapper' => $inner_wrapper,

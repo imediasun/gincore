@@ -692,6 +692,7 @@ class Chains extends Object
             return false;
         }
 
+        $this->view->load('LockButton');
         $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
 
         return array(
