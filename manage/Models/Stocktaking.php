@@ -4,12 +4,16 @@ require_once __DIR__ . '/../Core/AModel.php';
 /**
  * Class MStocktaking
  *
+ * @property  MStocktakingLocations StocktakingLocations
  */
 class MStocktaking extends AModel
 {
     const ACTIVE = 0;
     const BACKUP = 1;
     public $table = 'stocktaking';
+    public $uses = array(
+        'StocktakingLocations'
+    );
 
     /**
      * @param $serial
@@ -49,17 +53,23 @@ class MStocktaking extends AModel
 
     /**
      * @param $warehouseId
-     * @param $locationId
+     * @param $locationIds
      * @return bool|int
      */
-    public function newStocktaking($warehouseId, $locationId)
+    public function newStocktaking($warehouseId, $locationIds)
     {
-        return $this->insert(array(
+        $id = $this->insert(array(
             'created_at' => date('Y-d-m H:i'),
             'warehouse_id' => $warehouseId,
-            'location_id' => $locationId,
             'checked_serials' => json_encode(array())
         ));
+        foreach ($locationIds as $locationId) {
+            $this->StocktakingLocations->insert(array(
+                'location_id' => $locationId,
+                'stocktaking_id' => $id
+            ));
+        }
+        return $id;
     }
 
     /**
@@ -72,7 +82,8 @@ class MStocktaking extends AModel
             unset($stocktaking['id']);
             $stocktaking['saved_at'] = date('Y-d-m H:i');
             $stocktaking['history'] = self::BACKUP;
-            $this->insert($stocktaking);
+            $backupId = $this->insert($stocktaking);
+            $this->StocktakingLocations->copyFromTo($id, $backupId);
         }
     }
 
@@ -84,27 +95,15 @@ class MStocktaking extends AModel
     {
         $stocktaking = $this->load($id);
         if (!empty($stocktaking) && $stocktaking['history'] == self::BACKUP) {
-            $current = $this->query('SELECT id FROM ?t WHERE history=? AND location_id=?i AND warehouse_id=?i ORDER BY id DESC LIMIT 1',
-                array(
-                    $this->table,
-                    self::ACTIVE,
-                    $stocktaking['location_id'],
-                    $stocktaking['warehouse_id']
-                ))->el();
-            if (!empty($current)) {
-                $this->update(array(
-                    'history' => self::BACKUP,
-                    'saved_at' => date('Y-d-m H:i')
-                ), array(
-                    'id' => $current
-                ));
-            }
+            $this->setBackupCurrents($stocktaking);
+
             $stocktaking['history'] = self::ACTIVE;
             unset($stocktaking['id']);
             unset($stocktaking['saved_at']);
             $stocktaking['checked_serials'] = json_encode($stocktaking['checked_serials']);
-            $id = $this->insert($stocktaking);
-            $stocktaking = $this->load($id);
+            $backupId = $this->insert($stocktaking);
+            $this->StocktakingLocations->copyFromTo($id, $backupId);
+            $stocktaking = $this->load($backupId);
         }
         return $stocktaking;
     }
@@ -116,11 +115,11 @@ class MStocktaking extends AModel
     public function load($id)
     {
         $stocktaking = $this->query('
-            SELECT s.*, w.title as warehouse, l.location 
+            SELECT s.*, w.title as warehouse
             FROM ?t as s 
             JOIN {warehouses} as w ON w.id=s.warehouse_id
-             JOIN {warehouses_locations} as l ON l.id=s.location_id
             WHERE s.id=?i', array($this->table, $id))->row();
+        $stocktaking['locations'] = $this->StocktakingLocations->getByStocktakingId($id);
         $stocktaking['checked_serials'] = json_decode($stocktaking['checked_serials'], true);
         return $stocktaking;
     }
@@ -133,11 +132,45 @@ class MStocktaking extends AModel
         return array(
             'id',
             'warehouse_id',
-            'location_id',
             'checked_serials',
             'created_at',
             'saved_at',
             'history',
         );
+    }
+
+    /**
+     * @param $warehouseId
+     * @param $locationIds
+     * @return array
+     */
+    protected function getByWarehouseAndLocations($warehouseId, $locationIds)
+    {
+        return $this->query('
+            SELECT t.* 
+            FROM ?t as t 
+            JOIN {stocktaking_locations} as l ON t.id=l.stocktaking_id
+            WHERE history=? AND l.location_id in (?li) AND warehouse_id=?i ORDER BY id DESC LIMIT 1',
+            array(
+                $this->table,
+                self::ACTIVE,
+                $locationIds,
+                $warehouseId
+            ))->row();
+
+    }
+
+    /**
+     * @param $stocktaking
+     */
+    protected function setBackupCurrents($stocktaking)
+    {
+        $this->update(array(
+            'history' => self::BACKUP,
+            'saved_at' => date('Y-d-m H:i')
+        ), array(
+            'warehouse_id' => $stocktaking['warehouse_id'],
+            'history' => self::ACTIVE
+        ));
     }
 }

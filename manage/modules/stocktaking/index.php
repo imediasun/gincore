@@ -15,12 +15,14 @@ define('CHECK_SURPLUS', 3);
  * Class stocktaking
  *
  * @property MStocktaking Stocktaking
+ * @property MStocktakingLocations StocktakingLocations
  */
 class stocktaking extends Controller
 {
     protected $lastCheck = array();
     public $uses = array(
-        'Stocktaking'
+        'Stocktaking',
+        'StocktakingLocations'
     );
 
     /**
@@ -177,12 +179,16 @@ class stocktaking extends Controller
     {
         $warehouses = $this->all_configs['chains']->warehouses();
         $stocktakings = $this->Stocktaking->query('
-            SELECT s.id, s.history, s.created_at, s.saved_at, w.title as warehouse, l.location as location 
+            SELECT s.id, s.history, s.created_at, s.saved_at, w.title as warehouse 
             FROM {stocktaking} as s 
             JOIN {warehouses} as w ON w.id = s.warehouse_id
-             JOIN {warehouses_locations} as l ON l.id = s.location_id
             ORDER BY history ASC, created_at DESC, saved_at DESC
         ', array())->assoc();
+        if(!empty($stocktakings)) {
+            foreach ($stocktakings as &$stocktaking) {
+                $stocktaking['locations'] = $this->StocktakingLocations->getByStocktakingId($stocktaking['id']);
+            }
+        }
         return array(
             'html' =>
                 $this->view->renderFile('stocktaking/select_or_new', array(
@@ -199,8 +205,8 @@ class stocktaking extends Controller
      */
     protected function createQueryByStocktaking($stocktaking)
     {
-        $query = $this->all_configs['db']->makeQuery('l.id = ?i',
-            array($stocktaking['location_id']));
+        $query = $this->all_configs['db']->makeQuery('l.id in (?li)',
+            array(array_keys($stocktaking['locations'])));
         $query = $this->all_configs['db']->makeQuery('?query AND w.id = ?i',
             array($query, $stocktaking['warehouse_id']));
         return $query;
@@ -261,7 +267,7 @@ class stocktaking extends Controller
             'warehouses' => $warehouses,
             'current_warehouse' => $stocktaking['warehouse_id'],
             'locations' => $locations,
-            'current_location' => $stocktaking['location_id'],
+            'current_locations' => array_keys($stocktaking['locations']),
             'stocktaking' => $stocktaking,
             'count' => $count,
             'last' => $last
@@ -309,8 +315,8 @@ class stocktaking extends Controller
             }
             $warehouse = $this->all_configs['db']->query('SELECT id FROM {warehouses} WHERE id =?i',
                 array(current($post['warehouses'])))->el();
-            $location = $this->all_configs['db']->query('SELECT id FROM {warehouses_locations} WHERE id =?i',
-                array(current($post['locations'])))->el();
+            $location = $this->all_configs['db']->query('SELECT id FROM {warehouses_locations} WHERE id in (?li)',
+                array($post['locations']))->col();
             if (empty($warehouse) || empty($location)) {
                 throw new ExceptionWithMsg(l('Склад или локация не найдены'));
             }

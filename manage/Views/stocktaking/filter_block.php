@@ -18,10 +18,10 @@
                         <?php endif; ?>
                     </select>
                 </td>
-                <td style="width: 5%"></td>
+                <td style="width: 3%"></td>
                 <td></td>
                 <td></td>
-                <td style="width: 5%"></td>
+                <td style="width: 3%"></td>
                 <td style="width: 15%">
                     <label><?= l('Недостача') ?>:
                     <?= max(0, $count - count($stocktaking['checked_serials']['both'])) ?>&nbsp;<?= l('шт.') ?>
@@ -37,10 +37,10 @@
                     <label><?= l('Локация') ?></label>
                 </td>
                 <td>
-                    <select class="form-control" readonly disabled="disabled" name="location">
+                    <select class="form-control multiselect" readonly disabled="disabled" name="location" multiple="multiple">
                         <?php if (!empty($locations)): ?>
                             <?php foreach ($locations as $location): ?>
-                                <option <?= $location['id'] == $current_location ? 'selected' : '' ?>
+                                <option <?= in_array($location['id'], $current_locations) ? 'selected' : '' ?>
                                     value="<?= $location['id'] ?>"><?= $location['name'] ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -101,3 +101,18 @@
         </table>
     </form>
 </div>
+<style>
+    .multiselect-btn-group{
+        width: 200px !important;
+    }
+
+    .multiselect-btn-group > button{
+        width: 200px !important;
+        text-align: left;
+    }
+</style>
+<script>
+    jQuery(document).ready(function () {
+        init_multiselect();
+    });
+</script>

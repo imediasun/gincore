@@ -17,13 +17,11 @@ class Stocktaking extends Migration
                 $table->engine = 'InnoDB';
                 $table->increments('id');
                 $table->integer('warehouse_id')->integer(10)->unsigned();
-                $table->integer('location_id')->integer(10)->unsigned();
                 $table->text('checked_serials');
                 $table->timestamp('created_at');
                 $table->timestamp('saved_at')->nullable();
                 $table->tinyInteger('history')->unsigned()->default(0);
                 $table->index('warehouse_id');
-                $table->index('location_id');
                 $table->index('created_at');
                 $table->index('saved_at');
             });

@@ -87,7 +87,7 @@
                             <?= $stocktaking['history'] ? $stocktaking['saved_at'] : $stocktaking['created_at'] ?>
                         </td>
                         <td>
-                            <?= "{$stocktaking['warehouse']}({$stocktaking['location']})" ?>
+                            <?= "{$stocktaking['warehouse']}(" . implode(',', $stocktaking['locations']) . ")" ?>
                         </td>
                         <td>
                             <a class="btn btn-default" href="?stocktaking=<?= $stocktaking['id'] ?>"
@@ -113,7 +113,6 @@
     button.select-location {
         text-align: left;
     }
-
 </style>
 <script>
     jQuery(document).ready(function () {
