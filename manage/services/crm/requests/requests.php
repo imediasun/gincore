@@ -625,6 +625,7 @@ class requests extends \service
                                         data-product_id="' . $req['product_id'] . '" 
                                         data-referer_id="' . $req['referer_id'] . '" 
                                         data-code="' . $req['code'] . '" 
+                                        data-product_name="' . $product . '" 
                                         value="' . $req['id'] . '">
                                     №' . $req['id'] . ' от ' . do_nice_date($req['date'], true, true, 0, true) . '        
                                 </label>
