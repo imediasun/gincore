@@ -1879,6 +1879,7 @@ $(function () {
   $(document).on('click', '.toggle_btn', function () {
     var id = $(this).data('id'),
       $id = $('#' + id);
+    $('.js-dummy_user_more_data').toggle();
     $id.stop(true).slideToggle(200, function () {
       if ($id.is(':visible')) {
         $.cookie(id, 1, {expires: 365, path: prefix});
