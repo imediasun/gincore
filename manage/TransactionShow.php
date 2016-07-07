@@ -218,7 +218,11 @@ class TransactionShow
             $this->total_tr_exp[$this->currency_suppliers_orders] += $transaction['value_from'] + $transaction['value_from_sc'];
             $this->total[$this->currency_suppliers_orders] += $transaction['value_from'] + $transaction['value_from_sc'];
         }
-        $inc = show_price($transaction['value_to']);
+        if ($this->useSuppliersValue($transaction, $this->contractors, 'to')) {
+            $inc = show_price($transaction['value_to_sc']);
+        } else {
+            $inc = show_price($transaction['value_to']);
+        }
         if (array_key_exists('cashboxes',
                 $transaction) && array_key_exists($transaction['cashboxes_currency_id_to'],
                 $transaction['cashboxes']) &&
