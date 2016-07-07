@@ -14,6 +14,10 @@
         <span class="toggle_btn">
             &nbsp;
         </span>
+        <div class="js-dummy_specify_order_id" style="height:40px; display: none">
+        </div>
+        <div class="js-dummy_user_more_data" style="height:75px; display: none">
+        </div>
         <div class="form-group">
             <label>&nbsp; <b class="text-danger">&nbsp;</b></label>
             <div class="row row-15">

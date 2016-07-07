@@ -298,6 +298,7 @@ $(function () {
 
   $(document).on('click', '.specify_order_id', function () {
     var $input = $('.order_id_input').first();
+    $('.js-dummy_specify_order_id').toggle();
     $input.stop(true).slideToggle(200, function () {
       if (!$input.is(':visible')) {
         $input.find('input').val('');
