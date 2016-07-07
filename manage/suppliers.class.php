@@ -98,10 +98,16 @@ class Suppliers extends Object
                         $product['id'], $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
                         $parent_order_id,
                         $part, array(), $orders);
-                    $update['wh_id'] = empty($parent['wh_id']) ? null : $parent['wh_id'];
-                    $update['location_id'] = empty($parent['location_id']) ? null : $parent['location_id'];
+                    if (!empty($parent['wh_id'])) {
+                        $update['wh_id'] = $parent['wh_id'];
+                    }
+                    if (!empty($parent['location_id'])) {
+                        $update['location_id'] = $parent['location_id'];
+                    }
                     try {
-                        $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
+                        if (!empty($update)) {
+                            $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
+                        }
                     } catch (Exception $e) {
                         throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
                     }
