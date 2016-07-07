@@ -473,6 +473,13 @@ class warehouses extends Controller
             } else {
                 if (count($warehouses_selected) > 0 || (isset($_GET['so_id']) && $_GET['so_id'] > 0)) {
                     $goods = $this->getItems($_GET, $count_on_page, $skip);
+                    if (isset($filters['so_id']) && $filters['so_id'] > 0) {
+                        $query = $this->all_configs['db']->makeQuery('?query AND i.supplier_order_id=?i',
+                            array($query, intval($filters['so_id'])));
+                    } elseif (count($warehouses_selected) > 0) {
+                        $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
+                            array($query, array_values($warehouses_selected)));
+                    }
 
                     $count_page = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id)
                             FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
