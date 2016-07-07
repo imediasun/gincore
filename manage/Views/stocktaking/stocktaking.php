@@ -80,7 +80,7 @@
 
             <tr>
                 <td colspan="6"></td>
-                <td colspan="3" style="text-align: right; padding-right: 0;">
+                <td colspan="4" style="text-align: right; padding-right: 0;">
                     <form method="post" class="form-horizontal" style="display: inline-block">
                         <input name="stocktaking-id" value="<?= $stocktaking['id'] ?>" type="hidden"/>
                         <input type="submit" name='save-stocktaking' value="<?= l('Сохранить') ?>" class="btn btn-small btn-default">
@@ -93,12 +93,9 @@
                         <input type="submit" value="<?= l('Выгрузить данные') ?>" class="btn btn-small btn-primary">
                     </form>
                 </td>
-                <td>
-
-                </td>
             </tr>
             </tbody>
         </table>
-        <?= page_block($count_page, count($goods), '#show_items'); ?>
+        <?= page_block($count_page, count($goods), '#warehouses_stocktaking'); ?>
     <?php endif; ?>
 </div>

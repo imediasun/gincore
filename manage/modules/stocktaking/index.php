@@ -219,7 +219,6 @@ class stocktaking extends Controller
         $count_on_page = $this->count_on_page;//30;
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
 
-
         $goods = $this->getItems($stocktaking, $count_on_page, $skip);
 
         $query = $this->createQueryByStocktaking($stocktaking);
@@ -256,6 +255,8 @@ class stocktaking extends Controller
      */
     public function filter_block($warehouses, $locations, $stocktaking, $count)
     {
+        $last = Session::getInstance()->get('last_check');
+        Session::getInstance()->clear('last_check');
         return $this->view->renderFile('stocktaking/filter_block', array(
             'warehouses' => $warehouses,
             'current_warehouse' => $stocktaking['warehouse_id'],
@@ -263,7 +264,7 @@ class stocktaking extends Controller
             'current_location' => $stocktaking['location_id'],
             'stocktaking' => $stocktaking,
             'count' => $count,
-            'last' => Session::getInstance()->get('last_check')
+            'last' => $last
         ));
     }
 
@@ -278,7 +279,7 @@ class stocktaking extends Controller
         $query = $this->createQueryByStocktaking($stocktaking);
 
         $limit = '';
-        if ($count_on_page || $skip) {
+        if ($count_on_page && $skip) {
             $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(intval($skip), intval($count_on_page)));
         }
 
