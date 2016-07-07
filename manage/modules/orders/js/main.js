@@ -724,12 +724,14 @@ function base_get_requests(_this, item_id, response, id) {
 
 function change_crm_request($this) {
   var product_id = $this.data('product_id'),
+    product_name = $this.data('product_name'),
     client_id = $this.data('client_id'),
     referer_id = $this.data('referer_id'),
     code = $this.data('code');
   if (product_id && client_id) {
     $('input[name="clients"]').val(client_id);
     $('input[name="categories-last"]').val(product_id);
+    $('input[name="categories-last-value"]').val(product_name);
     $('#crm_order_code').attr('disabled', true).val(code);
     $('#crm_order_referer').find('select').attr('disabled', true).val(referer_id);
   } else {
