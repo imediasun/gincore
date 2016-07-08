@@ -5,7 +5,7 @@
         <table class="table table-borderless stocktaking-filters">
             <tbody>
             <tr>
-                <td style="width: 12%">
+                <td style="width: 7%; text-align: right">
                     <label><?= l('Склад') ?></label>
                 </td>
                 <td style="width: 12%">
@@ -22,7 +22,7 @@
                 <td></td>
                 <td></td>
                 <td style="width: 3%"></td>
-                <td style="width: 15%">
+                <td style="width: 15%; text-align: right">
                     <label><?= l('Недостача') ?>:
                     <?= max(0, $count - count($stocktaking['checked_serials']['both'])) ?>&nbsp;<?= l('шт.') ?>
                     </label>
@@ -33,7 +33,7 @@
                 </td>
             </tr>
             <tr>
-                <td>
+                <td style="text-align: right">
                     <label><?= l('Локация') ?></label>
                 </td>
                 <td>
@@ -51,7 +51,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>
+                <td style="text-align: right;">
                     <label><?= l('Излишек') ?>:
                     <?= max(0, count($stocktaking['checked_serials']['surplus'])) ?>&nbsp;<?= l('шт.') ?>
                     </label>
@@ -65,7 +65,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>
+                <td style="text-align: right; white-space: nowrap">
                     <label><?= l('Серийный N') ?></label>
                 </td>
                 <td>
@@ -76,26 +76,29 @@
                             <input class="btn" type="submit" name="filter-serial" value="<?= l('Поиск') ?>"/>
                         </div>
                     </div>
-                    <div class="input-group col-sm-10" style="text-align: center">
-                    <?php switch ($last['result']): ?>
-<?php case CHECK_BOTH: ?>
-                            <span style='color: green'><?= $last['message'] ?></span>
-                            <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
-                            <?php break; ?>
-                        <?php case CHECK_SURPLUS: ?>
-                            <span style='color: #FF7F27'><?= $last['message'] ?></span>
-                            <span class="color: #FF7F27"><?= l('Излишек') ?><i class="fa fa-times" aria-hidden="true"
-                                                                              style="color: #FF7F27"></i></span>
-                            <?php break; ?>
-                        <?php default: ?>
-                            <span style='color: red'><?= $last['message'] ?></span>
-                        <?php endswitch; ?>
-                    </div>
                 </td>
                 <td></td>
                 <td></td>
                 <td></td>
-
+            </tr>
+            <tr>
+                <td colspan="8" style="padding-top: 0">
+                    <div class="input-group col-sm-12" style="text-align: center">
+                        <?php switch ($last['result']): ?>
+<?php case CHECK_BOTH: ?>
+                                <span style='color: green'><?= $last['message'] ?></span>
+                                <i class="fa fa-check" aria-hidden="true" style="color: green"></i>
+                                <?php break; ?>
+                            <?php case CHECK_SURPLUS: ?>
+                                <span style='color: #FF7F27'><?= $last['message'] ?></span>
+                                <span class="color: #FF7F27"><?= l('Излишек') ?><i class="fa fa-times" aria-hidden="true"
+                                                                                   style="color: #FF7F27"></i></span>
+                                <?php break; ?>
+                            <?php default: ?>
+                                <span style='color: red'><?= $last['message'] ?></span>
+                            <?php endswitch; ?>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>

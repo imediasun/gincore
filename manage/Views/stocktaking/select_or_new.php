@@ -38,7 +38,7 @@
                         <td>
                         </td>
                         <td>
-                            <button class='btn btn-primary' type="submit"><?= l('Новая инвентаризация') ?></button>
+                            <button class='btn btn-primary' type="submit" style="width: 100%"><?= l('Новая инвентаризация') ?></button>
                         </td>
                     </tr>
                     </tbody>
@@ -101,7 +101,7 @@
                 </tbody>
             </table>
         <?php else: ?>
-            <p><?= l('Нет сохраненных инвентаризаций') ?></p>
+            <center><p><?= l('Нет сохраненных инвентаризаций') ?></p></center>
         <?php endif; ?>
     </div>
 </div>
