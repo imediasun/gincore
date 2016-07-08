@@ -21,7 +21,7 @@
                         </label>
                     </div>
 
-                    <div class="col-sm-12">
+                    <div class="col-sm-12" style="white-space: nowrap">
                         <button type="submit" class="btn btn-primary"> <?= l('Применить')?> </button>
                         <?= $this->LockButton->show($current['lock-button']); ?>
                     </div>

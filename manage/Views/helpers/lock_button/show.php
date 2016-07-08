@@ -17,7 +17,7 @@
         font-weight: 400;
         line-height: 1.42857;
         margin-bottom: 0;
-        padding: 6px 12px;
+        padding: 6px 10px;
         text-align: center;
         vertical-align: middle;
         white-space: nowrap;

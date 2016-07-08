@@ -4,7 +4,8 @@
             <select class="multiselect form-control" multiple="multiple" name="ctg[]">
                 <?= build_array_tree($categories, isset($_GET['ctg']) ? explode(',', $_GET['ctg']) : null); ?>
             </select> <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_info') ?></div>
-        <div class="form-group"><label><?= l('Сроки доставки') ?> <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_terms_info') ?></label>
+        <div class="form-group">
+            <label><?= l('Сроки доставки') ?> <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_terms_info') ?></label>
             <?php $s = isset($_GET['tso']) ? intval($_GET['tso']) : 0; ?>
             <select class="form-control" name="tso">
                 <option <?= ($s == 4 ? 'selected' : '') ?> value="4">4</option>
@@ -13,11 +14,14 @@
                 <option <?= ($s == 1 ? 'selected' : '') ?> value="1">1</option>
             </select>
         </div>
-        <div class="form-group"><label><?= l('Дата от') ?>: <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_date_info') ?></label>
+        <div class="form-group"><label><?= l('Дата от') ?>
+                : <?= InfoPopover::getInstance()->createQuestion('l_order_recomendations_procurement_date_info') ?></label>
             <input type="text" placeholder="<?= l('Дата') ?>" name="date" class="daterangepicker form-control"
-                            value="<?= $date ?>"/>
+                   value="<?= $date ?>"/>
         </div>
-        <input type="submit" class="btn btn-primary" value="<?= l('Применить') ?>" name="procurement-filter"/>
-        <?= $this->LockButton->show($_GET['lock-button']) ?>
+        <div class="form-group" style="white-space: nowrap">
+            <input type="submit" class="btn btn-primary" value="<?= l('Применить') ?>" name="procurement-filter"/>
+            <?= $this->LockButton->show($_GET['lock-button']) ?>
+        </div>
     </div>
 </form>
