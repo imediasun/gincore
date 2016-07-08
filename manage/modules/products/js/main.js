@@ -95,7 +95,7 @@ $(document).ready(function () {
         window.location = $(this).data('url');
     });
     $('.js-delete-product').on('click', function () {
-          var id = $(this).data('id');
+          var id = $(this).data('id'), $parent = $(this).parents('tr').first();
         if (confirm("Вы действительно хотите удалить товар?")) {
             $.ajax({
                 url: prefix + module + '/ajax/?act=delete-product',
@@ -108,7 +108,9 @@ $(document).ready(function () {
                             alert(msg['message']);
                         }
                         if (msg['state'] && msg['state'] == true) {
-                            window.location.reload();
+                            $parent.css('opacity', '0.2');
+                            $parent.find('.js-item-title').append('<span class="deleted">Удалено</span>');
+                            $(this).hide();
                         }
                     }
                 },

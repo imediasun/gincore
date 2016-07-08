@@ -177,7 +177,7 @@
                                 <?php endif; ?>
 
                             </td>
-                            <td>
+                            <td class="js-item-title">
                                 <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create/<?= $good['id'] ?>/">
                                     <?= htmlspecialchars($good['title']) . (isset($add_name)?$add_name:'') ?>
                                 </a>

@@ -125,10 +125,13 @@ class products extends Controller
         }
 
         if (isset($post['delete-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            $this->deleteProduct($post, $mod_id);
+            $data = $this->deleteProduct($post, $mod_id);
+            if (!$data['state']) {
+                FlashMessage::set($data['message'], FlashMessage::DANGER);
+            }
         }
         if (isset($post['restore-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            $this->restoreProduct($post, $mod_id);
+            $this->Goods->restoreProduct($post, $mod_id);
         }
 
         // редактирование товара
@@ -378,8 +381,9 @@ class products extends Controller
     {
         $deletedCategories = 0;
         $recycleBin = $this->Categories->getRecycleBin();
-        if(!empty($categories)) {
-            $deletedCategories = $this->Categories->query('SELECT count(*) FROM {categories} WHERE deleted=1 AND id in (?li)', array($categories));
+        if (!empty($categories)) {
+            $deletedCategories = $this->Categories->query('SELECT count(*) FROM {categories} WHERE deleted=1 AND id in (?li)',
+                array($categories));
         }
 
         return !empty($categories) && (in_array($recycleBin['id'], $categories) || $deletedCategories > 0);
@@ -404,7 +408,7 @@ class products extends Controller
         }
 
         // выводим удаленные только если выбрана категория Корзина
-        if(! $this->showDeleted($categories)) {
+        if (!$this->showDeleted($categories)) {
             $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, 0));
         }
 
@@ -1263,10 +1267,8 @@ class products extends Controller
         }
 
         if ($act == 'delete-product' && $this->all_configs['oRole']->hasPrivilege('parsing')) {
-            $this->deleteProduct($_POST, $mod_id);
-            Response::json(array(
-                'state' => true
-            ));
+            $data = $this->deleteProduct($_POST, $mod_id);
+            Response::json($data);
         }
 
         if (isset($_POST['act']) && $_POST['act'] == 'export_product' && $this->all_configs['configs']['onec-use'] == true) {
@@ -1937,41 +1939,35 @@ class products extends Controller
     }
 
     /**
-     * @param $post
-     * @param $mod_id
+     * @param $goodId
+     * @return bool
      */
-    public function deleteProduct($post, $mod_id)
+    public function isUsedGood($goodId)
     {
-        $product = $this->Goods->getByPk(intval($post['id']));
-        if (!empty($product)) {
-            $this->Goods->update(array(
-                'deleted' => 1,
-                'avail' => 0
-            ), array('id' => $product['id']));
-            $recycleBin = $this->Categories->getRecycleBin();
-            if (!empty($recycleBin)) {
-                $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i',
-                    array(intval($post['id'])));
-                $this->all_configs['db']->query('INSERT INTO {category_goods} (goods_id, category_id) VALUES (?i, ?i)',
-                    array(intval($post['id']), $recycleBin['id']));
-            }
-
-            $this->History->save('delete-product', $mod_id, $product['id']);
-        }
+        $onWarehouses = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE goods_id=?i',
+            array($goodId));
+        $inOrders = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
+            array($goodId));
+        return $onWarehouses && $inOrders;
     }
 
     /**
      * @param $post
      * @param $mod_id
+     * @return array
      */
-    public function restoreProduct($post, $mod_id)
+    public function deleteProduct($post, $mod_id)
     {
-        $this->Goods->update(array(
-            'deleted' => 0,
-            'avail' => 1
-        ), array('id' => intval($post['id'])));
-        $this->History->save('restore-product', $mod_id, intval($post['id']));
-        $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i', array(intval($post['id'])));
+        if (!$this->isUsedGood(intval($post['id']))) {
+            $this->Goods->deleteProduct($post, $mod_id);
+            return array(
+                'state' => true
+            );
+        }
+        return array(
+            'state' => false,
+            'message' => l('Товар используется в логистических операциях или заказах')
+        );
     }
 
     /**
@@ -2231,11 +2227,14 @@ class products extends Controller
             }
         }
         if (!isset($post['deleted']) && $good['deleted']) {
-            $this->restoreProduct(array('id' => $product_id), $mod_id);
+            $this->Goods->restoreProduct(array('id' => $product_id), $mod_id);
         }
 
         if (isset($post['deleted']) && !$good['deleted']) {
-            $this->deleteProduct(array('id' => $product_id), $mod_id);
+            $data = $this->deleteProduct(array('id' => $product_id), $mod_id);
+            if (!$data['state']) {
+                FlashMessage::set($data['message'], FlashMessage::DANGER);
+            }
         }
         return $post;
     }

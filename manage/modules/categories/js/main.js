@@ -179,7 +179,10 @@ function delete_category($parent) {
             alert(msg['message']);
           }
           if (msg['state'] && msg['state'] == true) {
-            window.location.reload();
+            $parent.css('opacity', '0.2');
+            $parent.find('.js-delete-category').hide();
+            $parent.find('.dd-handle').remove();
+            $parent.find('.category-title').append('<span class="deleted">Удалено</span>');
           }
         }
       },
