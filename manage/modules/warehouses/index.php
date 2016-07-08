@@ -1448,7 +1448,7 @@ class warehouses extends Controller
                 'click_tab' => true,
                 'another_module' => true, 
                 'url' => $all_configs['prefix'] . 'stocktaking',
-                'name' => l('Инвентаризации')
+                'name' => l('Инвентаризация')
             ),
         );
     }
