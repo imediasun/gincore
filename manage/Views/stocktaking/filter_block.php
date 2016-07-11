@@ -70,7 +70,7 @@
                 </td>
                 <td>
                     <div class="input-group col-sm-10">
-                        <input class="form-control" name="serial" placeholder="<?= l('серийный номер') ?>"
+                        <input autofocus class="form-control" name="serial" placeholder="<?= l('серийный номер') ?>"
                                value="<?= ((isset($_GET['serial']) && !empty($_GET['serial'])) ? htmlspecialchars(urldecode($_GET['serial'])) : '') ?>"/>
                         <div class="input-group-btn">
                             <input class="btn" type="submit" name="filter-serial" value="<?= l('Поиск') ?>"/>
