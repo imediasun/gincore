@@ -1,9 +1,9 @@
 <div class="btn-lock">
     <input type="hidden" name="lock-button" value="<?= (int)$locked ?>"/>
     <i class="fa fa-lock" aria-hidden="true" style="<?= $locked ? '' : 'display:none' ?>"
-       onclick="return lock(this, 0);" title="<?= l('Отменить сохраненные настройки фильтра') ?>"></i>
+       onclick="return lock(this, 0, event);" title="<?= l('Отменить сохраненные настройки фильтра') ?>"></i>
     <i class="fa fa-unlock" aria-hidden="true" style="<?= $locked ? 'display:none' : '' ?>"
-       onclick="return lock(this, 1);" title="<?= l('Сохранить настройки фильтра') ?>"></i>
+       onclick="return lock(this, 1, event);" title="<?= l('Сохранить настройки фильтра') ?>"></i>
 </div>
 <style>
     .btn-lock {
@@ -24,8 +24,9 @@
     }
 </style>
 <script>
-    function lock(_this, lock) {
+    function lock(_this, lock, event) {
         var $parent = $(_this).parents('.btn-lock').first();
+        event.stopPropagation();
         $parent.find('input').first().val(parseInt(lock));
         $parent.find('.fa').toggle();
     }

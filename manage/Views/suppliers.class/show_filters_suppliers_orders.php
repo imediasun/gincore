@@ -21,8 +21,10 @@
                     </a>
                 </div>
                 <br><br>
+                <div class="col-sm-12" style="white-space: nowrap; padding-left: 0">
                 <input type="submit" name="filter-orders" class="btn btn-primary" value="<?= l('Фильтровать') ?>">
                 <?= $this->LockButton->show($_GET['lock-button']) ?>
+                </div>
             </div>
             <?php if ($show_nav): ?>
                 <div class="col-sm-2 b-r">
