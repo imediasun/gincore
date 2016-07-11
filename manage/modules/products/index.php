@@ -1945,9 +1945,9 @@ class products extends Controller
     public function isUsedGood($goodId)
     {
         $onWarehouses = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE goods_id=?i',
-            array($goodId));
+            array($goodId))->el();
         $inOrders = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
-            array($goodId));
+            array($goodId))->el();
         return $onWarehouses && $inOrders;
     }
 
