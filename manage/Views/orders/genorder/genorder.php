@@ -81,10 +81,14 @@
                                   onclick="alert_box(this, false, 'changes:update-order-category')"></span>
                                 <i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="<?= $order['id'] ?>"
                                    onclick="alert_box(this, null, 'order-gallery')"></i>
+                                <i class="fa fa-exclamation" aria-hidden="true" data-o_id="<?= $order['id'] ?>"
+                                   onclick="return show_category_addition_info(this);"
+                                   title="<?= l('Важная информация') ?>"
+                                   style="cursor:pointer; padding: 0 3px 0 3px"></i>
                                 <?= l('Устройство') ?>:
                             </label>
                             <?= typeahead($this->all_configs['db'], 'categories-goods', false, $order['category_id'], 4,
-                                'input-medium') ?>
+                                'input-medium', '', 'display_category_information,get_requests') ?>
                         </div>
                         <div class="form-group clearfix <?= !isset($hide['color']) ? 'hide-field' : '' ?>">
                             <label class="control-label lh30"><?= l('Цвет') ?>: </label>
@@ -493,6 +497,9 @@
         </div>
     </form>
 </div>
+<script>
+    popover_with_footer('<?= l('Добавить "Важную информацию" можно в карточке Устройства, зайдя в раздел Категории') ?>');
+</script>
 
 <?= $this->all_configs['chains']->append_js(); ?>
 <?= $this->all_configs['suppliers_orders']->append_js(); ?>
