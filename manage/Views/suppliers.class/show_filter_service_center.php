@@ -1,5 +1,5 @@
 <div class="input-group">
-    <p class="form-control-static" style="display: inline-block; margin-right: 10px; white-space: nowrap"><?= l('Сервисный Центр') ?>:</p>
+    <p class="form-control-static" style="display: inline-block; margin-right: 10px;"><?= l('Сервисный Центр') ?>:</p>
     <span class="input-group-btn">
             <select class="multiselect form-control" multiple="multiple" name="wh_groups[]">
                 <?php $wg_get = isset($_GET['wg']) ? explode(',',
