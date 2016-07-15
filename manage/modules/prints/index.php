@@ -126,10 +126,8 @@ class prints extends Controller
         }
         // загрузка картинки
         if ($_GET['ajax'] == 'upload') {
-            $return = array(
-                'file' => upload()
-            );
-
+            $location = $this->all_configs['prefix'] . $this->upload();
+            Response::html("<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('{$location}').closest('.mce-window').find('.mce-primary').click();</script>");
         }
         Response::json($return);
     }
@@ -232,18 +230,18 @@ class prints extends Controller
     public function upload()
     {
         $filename = '';
-        if (isset($_FILES['file']) && trim($_FILES['file']['name'])) {
-            $filename = pathinfo($_FILES['file']['name']);
+        if (isset($_FILES['image']) && trim($_FILES['image']['name'])) {
+            $filename = pathinfo($_FILES['image']['name']);
             $ext = $filename['extension'];
             if (in_array($filename['extension'], array('JPG', 'jpg', 'GIF', 'gif', 'PNG', 'png', 'JPEG', 'jpeg'))) {
                 $file_hash = substr(md5(microtime()), 0, 15);
                 $filename = $file_hash . '.' . $ext;
                 $path_to_directory = __DIR__ . "/../../img/upload/";
-                $source = $_FILES['file']['tmp_name'];
+                $source = $_FILES['image']['tmp_name'];
                 $destination = $path_to_directory . $filename;
                 if (move_uploaded_file($source, $destination)) {
                     chmod($destination, 0777);
-                    $filename = '/img/upload/' . $filename;
+                    $filename = 'img/upload/' . $filename;
                 }
             }
         }

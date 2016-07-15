@@ -114,24 +114,6 @@
     </style>
 
     <script type="text/javascript">
-        function sendFile(file, editor, welEditable) {
-            var data = new FormData();
-            data.append("file", file);
-            $.ajax({
-                data: data,
-                type: "POST",
-                url: '<?= $this->all_configs['prefix'] ?>print.php?ajax=upload',
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (objFile) {
-                    fileName = '<?= $this->all_configs['prefix'] ?>' + objFile.file;
-                    editor.insertImage(welEditable, fileName);
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                }
-            });
-        }
         $(function () {
             $('#lang_change').change(function () {
                 window.location = $(this).parent().attr('action') + '?' + $(this).parent().serialize();
@@ -141,27 +123,21 @@
             $('#editRedactor').click(function () {
                 $(this).prop('disabled', true);
                 $('#redactor').hide();
-                $('#print_tempalte').show().summernote({
-                    focus: true,
-                    lang: 'ru-RU',
-                    oninit: function (a) {
-                        $('#saveRedactor').prop('disabled', false);
-                        $('#print').prop('disabled', true);
-                    },
-                    onImageUpload: function (files, editor, $editable) {
-                        sendFile(files[0], editor, $editable);
-                    }
-                });
+                $('#print_template').show();
+                $('#saveRedactor').prop('disabled', false);
+                $('#print').prop('disabled', true);
             });
 
             $('#saveRedactor').click(function () {
-                var _this = this;
+                var _this = this,
+                    content = tinyMCE.activeEditor.getContent({format : 'raw'});
                 $(_this).prop('disabled', true);
                 // save content if you need
+
                 $.ajax({
                     type: 'POST',
                     url: window.location.search + '&ajax=editor',
-                    data: {html: $('#print_tempalte').code()},
+                    data: {html: content},
                     cache: false,
                     success: function (msg) {
                         if (msg) {
@@ -190,7 +166,7 @@
                 $.ajax({
                     type: 'POST',
                     url: window.location.search + '&ajax=restore',
-                    data: {html: $('#print_tempalte').code()},
+                    data: {html: $('#print_template').code()},
                     cache: false,
                     success: function (msg) {
                         if (msg) {
@@ -216,6 +192,29 @@
             });
         });
 
+    </script>
+    <script type="text/javascript" src="<?= $this->all_configs['prefix']; ?>js/tinymce/tinymce.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            tinymce.init({
+                width: '99%',
+                height: 400,
+                selector: '.tinymce',
+                theme: 'modern',
+                file_browser_callback: function(field_name, url, type, win) {
+                    if(type=='image') $('#my_form input').click();
+                },
+                plugins: [
+                    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                    'searchreplace wordcount visualblocks visualchars code fullscreen',
+                    'insertdatetime nonbreaking save table contextmenu directionality',
+                    'template paste textcolor colorpicker textpattern imagetools'
+                ],
+                toolbar1: 'insertfile undo redo | styleselect | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+                toolbar2: "bold italic | forecolor backcolor |  fontselect |  fontsizeselect",
+                fontsize_formats: "4pt 6pt 8pt 10pt 12pt 14pt 18pt 24pt 36pt"
+            });
+        });
     </script>
 
 </head>
