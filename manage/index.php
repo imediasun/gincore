@@ -324,7 +324,11 @@ try {
                             $name = mb_strtolower($sm['name'], 'UTF-8');
                             $name = mb_strtoupper(mb_substr($name, 0, 1, 'UTF-8'), 'UTF-8') .
                                 mb_substr($name, 1, mb_strlen($name, 'UTF-8'), 'UTF-8');
-                            $submenu .= '<li><a' . $data . ' href="' . $all_configs['prefix'] . $v . $sm['url'] . '">' . $name . '</a></li>';
+                            if (isset($sm['another_module'])) {
+                                $submenu .= '<li><a href="' . $sm['url'] . '">' . $name . '</a></li>';
+                            } else {
+                                $submenu .= '<li><a' . $data . ' href="' . $all_configs['prefix'] . $v . $sm['url'] . '">' . $name . '</a></li>';
+                            }
                         }
                         $submenu .= '</ul>';
                     } else {

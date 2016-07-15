@@ -1,0 +1,7 @@
+.multiselect-btn-group, button.select-location {
+    width: 200px !important;
+}
+
+button.select-location {
+    text-align: left;
+}

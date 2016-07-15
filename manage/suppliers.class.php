@@ -8,6 +8,7 @@ require_once __DIR__ . '/Core/Response.php';
  * @property MGoods                      Goods
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MHistory                    History
+ * @property  MLockFilters LockFilters
  */
 class Suppliers extends Object
 {
@@ -22,7 +23,8 @@ class Suppliers extends Object
     public $uses = array(
         'Goods',
         'ContractorsSuppliersOrders',
-        'History'
+        'History',
+        'LockFilters'
     );
 
     /**
@@ -93,13 +95,24 @@ class Suppliers extends Object
                     $part = 1 + (int)$this->all_configs['db']->query('SELECT number FROM {contractors_suppliers_orders} WHERE parent_id=?i ORDER BY number DESC LIMIT 1',
                             array($parent_order_id))->el();
 
-                    $result = $this->addContractorOrder($mod_id, $price, date('Y-m-d', strtotime($parent['date_wait'])-86399), $supplier, $its_warehouse,
+                    $result = $this->addContractorOrder($mod_id, $price,
+                        date('Y-m-d', strtotime($parent['date_wait']) - 86399), $supplier, $its_warehouse,
                         $product['id'], $user_id, $count, $comment, $group_parent_id, $num, $warehouse_type,
                         $parent_order_id,
                         $part, array(), $orders);
-                    $update['wh_id'] = $parent['wh_id'];
-                    $update['location_id'] = $parent['location_id'];
-                    $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
+                    if (!empty($parent['wh_id'])) {
+                        $update['wh_id'] = $parent['wh_id'];
+                    }
+                    if (!empty($parent['location_id'])) {
+                        $update['location_id'] = $parent['location_id'];
+                    }
+                    try {
+                        if (!empty($update)) {
+                            $this->ContractorsSuppliersOrders->update($update, array('id' => $result['id']));
+                        }
+                    } catch (Exception $e) {
+                        throw new ExceptionWithMsg(l('Неизвестная ошибка при изменении заказа'));
+                    }
 
                 } else {
                     $order = $this->ContractorsSuppliersOrders->getByPk($order_id);
@@ -131,10 +144,10 @@ class Suppliers extends Object
                             'num' => $num,
                             'warehouse_type' => $warehouse_type,
                         );
-                        if (!empty($warehouse)) {
+                        if (!empty($warehouse) && is_numeric($warehouse)) {
                             $data['wh_id'] = $warehouse;
                         }
-                        if (!empty($location)) {
+                        if (!empty($location) && is_numeric($location)) {
                             $data['location_id'] = $location;
                         }
                         $this->ContractorsSuppliersOrders->update($data, array('id' => $order_id));
@@ -238,9 +251,9 @@ class Suppliers extends Object
         try {
 
             // проверка на создание заказа с ценой 0
-            if ($this->isEmpty($post['item_ids'], $post['amount']) 
+            if ($this->isEmpty($post['item_ids'], $post['amount'])
                 && $this->all_configs['configs']['suppliers-orders-zero'] == false
-                && empty($post['from_client_orders']) 
+                && empty($post['from_client_orders'])
             ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
@@ -253,7 +266,7 @@ class Suppliers extends Object
             $part = 0;
             foreach ($post['item_ids'] as $key => $product_id) {
                 $count = $post['quantity'][$key];
-                $price = intval($post['amount'][$key]) * 100;
+                $price = floatval($post['amount'][$key]) * 100;
                 $orders = empty($post['so_co'][$key]) ? array() : array_filter(array_unique(explode(',',
                     $post['so_co'][$key])));
 
@@ -285,7 +298,7 @@ class Suppliers extends Object
                 'msg' => $e->getMessage(),
             );
 
-        } 
+        }
 
         return $data;
     }
@@ -350,6 +363,10 @@ class Suppliers extends Object
         $inner_wrapper = true,
         $hash = 'show_suppliers_orders'
     ) {
+        $saved = $this->LockFilters->load('supplier-orders');
+        if(count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : '')
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
             . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : '');
@@ -364,6 +381,7 @@ class Suppliers extends Object
         $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li)',
             array($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']))->assoc();
 
+        $this->view->load('LockButton');
         return $this->view->renderFile('suppliers.class/show_filters_suppliers_orders', array(
             'show_my' => $show_my,
             'inner_wrapper' => $inner_wrapper,

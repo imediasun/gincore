@@ -28,8 +28,9 @@
                        type="checkbox"/> <?= l('Без изделий') ?>
             </label>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="white-space: nowrap">
             <input type="submit" name="filters" class="btn" value="<?= l('Фильтровать') ?>">
+            <?= $this->LockButton->show($_GET['lock-button']) ?>
         </div>
     </div>
 </form>

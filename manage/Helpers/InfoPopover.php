@@ -14,6 +14,32 @@ class InfoPopover
      * @param string $class
      * @return mixed
      */
+    public function createAlert($text_var, $class = '')
+    {
+        return $this->view->renderFile('helpers/InfoPopover/alert', array(
+            'content' => $this->getText($text_var),
+            'class' => $class
+        ));
+    }
+    
+    /**
+     * @param        $text_var
+     * @param string $class
+     * @return mixed
+     */
+    public function createAlertBox($text_var, $class = '')
+    {
+        return $this->view->renderFile('helpers/InfoPopover/alertBox', array(
+            'content' => $this->getText($text_var),
+            'class' => $class
+        ));
+    }
+
+    /**
+     * @param        $text_var
+     * @param string $class
+     * @return mixed
+     */
     public function createQuestion($text_var, $class = '')
     {
         return $this->view->renderFile('helpers/InfoPopover/question', array(

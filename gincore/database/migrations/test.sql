@@ -157,3 +157,30 @@ ALTER TABLE `restore4_warehouses` ADD COLUMN is_system tinyint(4) UNSIGNED DEFAU
 2016_06_20_123041_add_title_to_sms_templates.php
  */
 ALTER TABLE `restore4_sms_templates` ADD COLUMN var varchar(255) DEFAULT '';
+/*
+2016_07_04_091714_stocktaking.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_stocktaking` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `warehouse_id` int(10) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    saved_at TIMESTAMP,
+    history tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+    checked_serials TEXT NOT NULL,
+PRIMARY KEY (`id`),
+INDEX(`warehouse_id`),
+INDEX(`location_id`),
+INDEX(`created_at`),
+INDEX(`saved_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_07_07_064255_stocktaking_locations.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_stocktaking_locations` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `stocktaking_id` int(10) UNSIGNED NOT NULL,
+    `location_id` int(10) UNSIGNED NOT NULL,
+PRIMARY KEY (`id`),
+INDEX(`stocktaking_id`),
+INDEX(`location_id`),
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;

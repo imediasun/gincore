@@ -1,6 +1,6 @@
 <div class="well"><h4><?= l('Списание изделия') ?></h4>
     <?php if (empty($item_id)): ?>
-        <p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>
+        <p><?= l('Всего выбрано изделий') ?>: <span class="count-selected-items">0</span></p>
     <?php endif; ?>
     <form class="form-horizontal" method="post">
         <?php if ($can): ?>

@@ -1161,6 +1161,10 @@ function click_tab(_this, e, hashs) {
         $('div.pill-content > div.active').removeClass('active');
         $('div.pill-content > div' + $(_this).attr('href')).addClass('active');
       }
+      if(msg['state'] == true && msg['reload']) {
+        console.log(msg);
+        window.location = msg['reload'];
+      }
     }
     $(_this).button('reset');
     $('a.click_tab').parent('li.disabled').removeClass('disabled');
@@ -1875,6 +1879,7 @@ $(function () {
   $(document).on('click', '.toggle_btn', function () {
     var id = $(this).data('id'),
       $id = $('#' + id);
+    $('.js-dummy_user_more_data').toggle();
     $id.stop(true).slideToggle(200, function () {
       if ($id.is(':visible')) {
         $.cookie(id, 1, {expires: 365, path: prefix});
@@ -2246,7 +2251,7 @@ function select_discount_type(_this) {
 
 function sum_calculate() {
   var
-    price = parseInt($('#eshop_sale_poduct_cost').val()) || 0,
+    price = parseFloat($('#eshop_sale_poduct_cost').val()).toFixed(2) || 0,
     discount = parseInt($('#eshop_sale_poduct_discount').val()) || 0,
     quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0;
 
@@ -2289,6 +2294,7 @@ function add_supplier_item_to_table() {
     $('input[name="goods-goods-value"]').val('');
     $('input[name="goods-goods"]').val('');
     $('input[name="new_so_co"]').val('');
+    $('input.js-sum').val('');
     $clone.show();
     $row.parent().append($clone);
     $('table.supplier-table-items').show();
@@ -2304,7 +2310,7 @@ function recalculate_amount_supplier() {
   $body.children('tr.row-item').each(function () {
     var $row = $(this),
       quantity = parseInt($row.find('.js-supplier-quantity').first().val()) || 0,
-      price = parseInt($row.find('.js-supplier-price').first().val()) || 0;
+      price = parseFloat($row.find('.js-supplier-price').first().val()).toFixed(2) || 0;
 
     $row.find('.js-supplier-sum').first().val(price * quantity);
     total += parseFloat($row.find('.js-supplier-sum').first().val());
@@ -2325,7 +2331,7 @@ function remove_supplier_row(_this) {
 }
 
 function recalculate_product_sum(_this) {
-  var price = parseInt($('input[name="warehouse-order-price"]').val()) || 0,
+  var price = parseFloat($('input[name="warehouse-order-price"]').val()).toFixed(2) || 0,
     quantity = parseInt($('input[name="warehouse-order-count"]').val()) || 0;
   console.log($('input[name="warehouse-order-count"]').val());
   $('input.js-sum').val(price * quantity);

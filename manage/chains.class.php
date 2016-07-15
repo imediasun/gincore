@@ -692,6 +692,7 @@ class Chains extends Object
             return false;
         }
 
+        $this->view->load('LockButton');
         $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
 
         return array(
@@ -1121,7 +1122,7 @@ class Chains extends Object
                 $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $order['id'];
             }
 
-            if (!$category && !$order) {
+            if (!$category) {
                 throw new ExceptionWithMsg(l('Выберите устройство'));
             }
             if (isset($post['is_replacement_fund']) && (!isset($post['replacement_fund']) || mb_strlen(trim($post['replacement_fund']),

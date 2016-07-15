@@ -8,12 +8,19 @@ $modulename[40] = 'warehouses';
 $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
+/**
+ * @property  MLockFilters LockFilters
+ */
 class warehouses extends Controller
 {
     protected $warehouses;
     protected $errors;
 
     public $count_on_page;
+
+    public $uses = array(
+        'LockFilters'
+    );
 
     /**
      * warehouses constructor.
@@ -118,33 +125,40 @@ class warehouses extends Controller
                     }, 0);
                 };
                 if (!empty($post['title']) && !$empty($_POST['location'])) {
-                    $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
+                    $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses} WHERE title=?',
+                        array($post['title']))->el();
+                    if (empty($checkByTitle)) {
+                        $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
                 (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n)',
-                        array(
-                            $consider_all,
-                            $consider_store,
-                            trim($post['code_1c']),
-                            trim($post['title']),
-                            trim($post['print_address']),
-                            trim($post['print_phone']),
-                            $post['type'],
-                            $group_id,
-                            $type_id
-                        ), 'id');
+                            array(
+                                $consider_all,
+                                $consider_store,
+                                trim($post['code_1c']),
+                                trim($post['title']),
+                                trim($post['print_address']),
+                                trim($post['print_phone']),
+                                $post['type'],
+                                $group_id,
+                                $type_id
+                            ), 'id');
 
 
-                    if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
-                        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-                            array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
-                        foreach ($_POST['location'] as $location) {
-                            if (mb_strlen(trim($location), 'UTF-8') > 0) {
-                                $this->all_configs['db']->query(
-                                    'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
-                                    array($warehouse_id, trim($location)));
+                        if ($warehouse_id && isset($_POST['location']) && is_array($_POST['location'])) {
+                            $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+                                array($user_id, 'add-warehouse', $mod_id, $warehouse_id), 'id');
+                            foreach ($_POST['location'] as $location) {
+                                if (mb_strlen(trim($location), 'UTF-8') > 0) {
+                                    $this->all_configs['db']->query(
+                                        'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
+                                        array($warehouse_id, trim($location)));
+                                }
                             }
                         }
+                        FlashMessage::set(l('Склад успешно добавлен'), FlashMessage::SUCCESS);
+
+                    } else {
+                        FlashMessage::set(l('Склад с таким названием уже существует'), FlashMessage::DANGER);
                     }
-                    FlashMessage::set(l('Склад успешно добавлен'), FlashMessage::SUCCESS);
                     if (isset($post['modal'])) {
                         Response::json(array(
                             'state' => true,
@@ -182,7 +196,12 @@ class warehouses extends Controller
             }
             $group_id = isset($post['group_id']) && intval($post['group_id']) > 0 ? intval($post['group_id']) : null;
             $type_id = isset($post['type_id']) && intval($post['type_id']) > 0 ? intval($post['type_id']) : null;
-
+            $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses} WHERE title=? AND NOT id=?i',
+                array($post['title'], $post['warehouse-id']))->el();
+            if (!empty($checkByTitle)) {
+                FlashMessage::set(l('Склад с таким названием уже существует'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
             //заблокировал обновления типа (4 - Клиент), при сохраниении сбрасывался в "1". 16.06.16
             $this->all_configs['db']->query('UPDATE {warehouses} '
                 . 'SET consider_all=?i, consider_store=?i, code_1c=?, title=?, '
@@ -454,6 +473,13 @@ class warehouses extends Controller
             } else {
                 if (count($warehouses_selected) > 0 || (isset($_GET['so_id']) && $_GET['so_id'] > 0)) {
                     $goods = $this->getItems($_GET, $count_on_page, $skip);
+                    if (isset($filters['so_id']) && $filters['so_id'] > 0) {
+                        $query = $this->all_configs['db']->makeQuery('?query AND i.supplier_order_id=?i',
+                            array($query, intval($filters['so_id'])));
+                    } elseif (count($warehouses_selected) > 0) {
+                        $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
+                            array($query, array_values($warehouses_selected)));
+                    }
 
                     $count_page = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id)
                             FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
@@ -575,6 +601,10 @@ class warehouses extends Controller
     public function warehouses_orders_suppliers()
     {
         $out = '';
+        $saved = $this->LockFilters->load('warehouse-orders-filters');
+        if(count($_GET) <= 2 && $saved) {
+            $_GET += $saved;
+        }
 
         if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
             $_GET['type'] = 'debit';
@@ -608,6 +638,10 @@ class warehouses extends Controller
      */
     public function warehouses_orders_clients_bind()
     {
+        $saved = $this->LockFilters->load('warehouse-filters');
+        if(count($_GET) <= 2 && $saved) {
+            $_GET += $saved;
+        }
         $out = $this->all_configs['chains']->show_stockman_operations();
 
         return array(
@@ -650,6 +684,10 @@ class warehouses extends Controller
      */
     public function warehouses_orders_clients_unbind()
     {
+        $saved = $this->LockFilters->load('warehouse-filters');
+        if(count($_GET) <= 2 && $saved) {
+            $_GET += $saved;
+        }
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
 
         return array(
@@ -780,10 +818,10 @@ class warehouses extends Controller
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $query = '';
+            $query = 'WHERE u.deleted = 0';
             if (count($this->all_configs['configs']['erp-warehouses-permiss']) > 0) {
                 $query = $this->all_configs['db']->makeQuery(
-                    ', {users_role_permission} as p WHERE p.permission_id IN (?li) AND u.role=p.role_id GROUP BY u.id',
+                    ', {users_role_permission} as p WHERE p.permission_id IN (?li) AND u.role=p.role_id AND u.deleted=0 GROUP BY u.id',
                     array($this->all_configs['configs']['erp-warehouses-permiss']));
             }
             // достаем всех пользователей
@@ -1379,6 +1417,7 @@ class warehouses extends Controller
      */
     public static function get_submenu($oRole = null)
     {
+        global $all_configs;
         return array(
             array(
                 'click_tab' => true,
@@ -1404,6 +1443,12 @@ class warehouses extends Controller
                 'click_tab' => true,
                 'url' => '#settings',
                 'name' => l('Настройки')
+            ),
+            array(
+                'click_tab' => true,
+                'another_module' => true, 
+                'url' => $all_configs['prefix'] . 'stocktaking',
+                'name' => l('Инвентаризация')
             ),
         );
     }
@@ -1438,87 +1483,66 @@ class warehouses extends Controller
      */
     private function createUrlForFilterOrders(array $post)
     {
-        $url = '';
-
+        $url = array();
         // фильтр по дате
         if (isset($post['date']) && !empty($post['date'])) {
             list($df, $dt) = explode('-', $post['date']);
-            $url .= 'df=' . urlencode(trim($df)) . '&dt=' . urlencode(trim($dt));
+            $url['df'] = urlencode(trim($df));
+            $url['dt'] = urlencode(trim($dt));
         }
 
         if (isset($post['categories']) && $post['categories'] > 0) {
             // фильтр по категориям товаров
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'g_cg=' . intval($post['categories']);
+            $url['g_cg'] = intval($post['categories']);
         }
 
         if (isset($post['goods']) && $post['goods'] > 0) {
             // фильтр по товару
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'by_gid=' . intval($post['goods']);
+            $url['by_gid'] = intval($post['goods']);
         }
 
         if (isset($post['managers']) && !empty($post['managers'])) {
             // фильтр по менеджерам
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'mg=' . implode(',', $post['managers']);
+            $url['mg'] = implode(',', $post['managers']);
         }
 
         if (isset($post['suppliers']) && !empty($post['suppliers'])) {
             // фильтр по поставщикам
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'sp=' . implode(',', $post['suppliers']);
+            $url ['sp'] = implode(',', $post['suppliers']);
         }
 
         if (isset($post['client-order']) && !empty($post['client-order'])) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'co=' . urlencode(trim($post['client-order']));
+            $url ['co'] = urlencode(trim($post['client-order']));
         }
 
         if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
             // фильтр по заказу частичный
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'pso_id=' . $post['supplier_order_id_part'];
+            $url['pso_id'] = $post['supplier_order_id_part'];
         }
 
         if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
             // фильтр по заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'so_id=' . $post['supplier_order_id'];
+            $url['so_id'] = $post['supplier_order_id'];
         }
 
         if (isset($post['so_st']) && $post['so_st'] > 0) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'so_st=' . $post['so_st'];
+            $url['so_st'] = $post['so_st'];
         }
 
         if (isset($post['my']) && !empty($post['my'])) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'my=1';
+            $url['my'] = 1;
+        }
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
         }
 
-        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
+        $this->LockFilters->toggle('warehouse-orders-filters', $url);
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
         Response::redirect($url);
     }
 
@@ -1527,49 +1551,40 @@ class warehouses extends Controller
      */
     private function createUrlForFilters(array $post)
     {
-        $url = '';
+        $url = array();
 
         if (isset($post['noitems'])) {
             // фильтр по без "изделий нет"
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'noi=1';
+            $url['noi'] = 1;
         }
 
         if (isset($post['goods']) && $post['goods'] > 0) {
             // фильтр по товару
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'by_gid=' . intval($post['goods']);
+            $url['by_gid'] = intval($post['goods']);
         }
 
         if (isset($post['clients']) && $post['clients'] > 0) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'c_id=' . intval($post['clients']);
+            $url['c_id'] = intval($post['clients']);
         }
 
         if (isset($post['client-order-number']) && $post['client-order-number'] > 0) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'con=' . intval($post['client-order-number']);
+            $url['con'] = intval($post['client-order-number']);
         }
 
         if (isset($post['serial']) && !empty($post['serial'])) {
             // фильтр клиенту/заказу
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'serial=' . urlencode(trim($post['serial']));
+            $url['serial'] = urlencode(trim($post['serial']));
+        }
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
         }
 
-        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url);
+        $this->LockFilters->toggle('warehouse-filters', $url);
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
         Response::redirect($url);
     }
 
@@ -1579,46 +1594,39 @@ class warehouses extends Controller
     private function createUrlForFilterWarehouses(array $post)
     {
 // фильтруем
-        $url = '';
+        $url = array();
 
         if (isset($post['warehouses']) && is_array($post['warehouses']) && count($post['warehouses']) > 0) {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'whs=' . implode(',', $post['warehouses']);
+            $url['whs'] = implode(',', $post['warehouses']);
         }
 
         if (isset($post['locations']) && is_array($post['locations']) && count($post['locations']) > 0) {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'lcs=' . implode(',', $post['locations']);
+            $url['lcs'] = implode(',', $post['locations']);
         }
 
         if (isset($post['goods']) && $post['goods'] > 0) {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'pid=' . intval($post['goods']);
+            $url['pid'] = intval($post['goods']);
         }
 
         if (isset($post['display']) && $post['display'] == 'amount') {
-            if (!empty($url)) {
-                $url .= '&';
-            }
-            $url .= 'd=a';
+            $url ['d'] = 'a';
         }
 
         // первычные ключи
         if (isset($post['serial']) && !empty($post['serial'])) {
-            $url = 'serial=' . urlencode($post['serial']);
+            $url['serial'] = urlencode($post['serial']);
         }
 
         if (isset($post['so_id']) && $post['so_id'] > 0) {
-            $url = 'so_id=' . intval($post['so_id']);
+            $url ['so_id'] = intval($post['so_id']);
         }
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
+        }
+        $this->LockFilters->toggle('warehouse-warehouse-filters', $url);
 
-        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . $url) . '#show_items';
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)) . '#show_items';
 
         Response::redirect($url);
     }
@@ -1650,7 +1658,6 @@ class warehouses extends Controller
 
             if (!$item || $date_stop > 0) {
                 if ($date_stop > 0) {
-                    //$data['message'] = '<div class="alert alert-error fade in"><button class="close" type="button" data-dismiss="alert">×</button>Инвентаризация закрыта</div>';
                     $data['state'] = true;
                 }
                 if (!$item) {

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../manage/Core/FlashMessage.php';
+require_once __DIR__ . '/../manage/Core/FlashMessage.php';
 
 class access
 {
@@ -33,11 +33,13 @@ class access
         $this->all_configs = &$all_configs;
         $this->standart = $standart;
 
-        if (!isset($_SESSION))
+        if (!isset($_SESSION)) {
             session_start();
+        }
 
-        if ($this->standart == true)
+        if ($this->standart == true) {
             return $this->gen_user();
+        }
 
         return null;
     }
@@ -246,7 +248,8 @@ class access
     function check($user_id = '', $table, $id, $sid = '')
     {
         if ($user_id > 0) {
-            $user = $this->all_configs['db']->query('SELECT id, confirm, pass FROM {clients} WHERE id=?i', array($user_id))->row();
+            $user = $this->all_configs['db']->query('SELECT id, confirm, pass FROM {clients} WHERE id=?i',
+                array($user_id))->row();
             if (!$user) {
                 unset($_SESSION['user_id']);
                 $this->clearcookie($this->uid);
@@ -291,8 +294,10 @@ class access
 
         if ($user_id > 0) {
 
-            if (isset($_COOKIE[$this->gid]))
-                $this->all_configs['db']->query("DELETE FROM {" . $this->guests_table . "} WHERE id=?i", array($_COOKIE[$this->gid]));
+            if (isset($_COOKIE[$this->gid])) {
+                $this->all_configs['db']->query("DELETE FROM {" . $this->guests_table . "} WHERE id=?i",
+                    array($_COOKIE[$this->gid]));
+            }
 
             $this->setcookie($this->sid, $new_id);
             $this->setcookie($this->salt, $browser_salt);
@@ -325,11 +330,15 @@ class access
     function find($table, $id, $user_id, $sid)
     {
         if ($user_id > 0 && $sid > 0) {
-            $result = $this->all_configs['db']->query("SELECT * FROM {" . $this->users_table . "} WHERE id=?i", array($sid))->row();
+            $result = $this->all_configs['db']->query("SELECT * FROM {" . $this->users_table . "} WHERE id=?i",
+                array($sid))->row();
 
-            if (!$result || $user_id != $result['user_id'] || $result['hash'] != $this->myhash($result['salt'] . $user_id, $_COOKIE[$this->salt] . $user_id)) {
-                if (isset($_COOKIE[$sid]))
+            if (!$result || $user_id != $result['user_id'] || $result['hash'] != $this->myhash($result['salt'] . $user_id,
+                    $_COOKIE[$this->salt] . $user_id)
+            ) {
+                if (isset($_COOKIE[$sid])) {
                     $this->all_configs['db']->query("DELETE FROM {" . $table . "} WHERE id=?i", array($_COOKIE[$sid]));
+                }
                 $this->clearcookie($this->gid);
                 $this->clearcookie($this->salt);
                 $this->clearcookie($this->sid);
@@ -349,11 +358,15 @@ class access
             }
         } else {
             unset($_SESSION['user_id']);
-            $result = $this->all_configs['db']->query("SELECT * FROM {" . $this->guests_table . "} WHERE id=?i", array($_COOKIE[$id]))->row();
+            $result = $this->all_configs['db']->query("SELECT * FROM {" . $this->guests_table . "} WHERE id=?i",
+                array($_COOKIE[$id]))->row();
 
-            if (!$result || $result['hash'] != $this->myhash($result['salt'] . $user_id, $_COOKIE[$this->salt] . $user_id)) {
-                if (isset($_COOKIE[$id]))
+            if (!$result || $result['hash'] != $this->myhash($result['salt'] . $user_id,
+                    $_COOKIE[$this->salt] . $user_id)
+            ) {
+                if (isset($_COOKIE[$id])) {
                     $this->all_configs['db']->query("DELETE FROM {" . $table . "} WHERE id=?i", array($_COOKIE[$id]));
+                }
                 $this->clearcookie($this->gid);
                 $this->clearcookie($this->salt);
                 $this->clearcookie($this->sid);
@@ -457,7 +470,9 @@ class access
             }
         }
 
-        if ($result['state'] == true && isset($data['password_1']) && mb_strlen(trim($data['password_1']), 'UTF-8') > 0) {
+        if ($result['state'] == true && isset($data['password_1']) && mb_strlen(trim($data['password_1']),
+                'UTF-8') > 0
+        ) {
             if ($result['state'] == true && (!isset($data['password_old']) || $this->wrap_pass($data['password_old']) !== $this->user_pass())) {
                 $result['state'] = false;
                 $result['msg'] = 'Старый пароль неверный';
@@ -496,8 +511,9 @@ class access
     {
         $result = array('state' => true, 'msg' => '');
 
-        if ($this->is_logged_in())
+        if ($this->is_logged_in()) {
             return $result;
+        }
 
         if (empty($pass) && $without_pass === false) {
             $result = array('state' => false, 'msg' => "Пароль не может быть пустым.");
@@ -511,9 +527,14 @@ class access
         }
 
         if ($result['state'] == true) {
-            $user = $this->all_configs['db']->query('SELECT id, confirm, pass FROM {clients} WHERE email=?', array($email))->row();
+            $user = $this->all_configs['db']->query('SELECT id, confirm, pass FROM {clients} WHERE email=?',
+                array($email))->row();
             if (!$user) {
-                $result = array('state' => false, 'msg' => "Нет такой электронной почте в нашей системе.", 'type' => "email_wrong");
+                $result = array(
+                    'state' => false,
+                    'msg' => "Нет такой электронной почте в нашей системе.",
+                    'type' => "email_wrong"
+                );
             } else {
                 if ($this->wrap_pass($pass) != trim($user['pass']) && $without_pass === false) {
                     $result = array('state' => false, 'msg' => "Неверный пароль.");
@@ -547,7 +568,7 @@ class access
      */
     function move_shopping_cart($user_id, $guest_id)
     {
-        if (intval($user_id) > 0 &&  intval($guest_id) > 0) {
+        if (intval($user_id) > 0 && intval($guest_id) > 0) {
             $this->all_configs['db']->query('UPDATE {shopping_cart} SET user_id=?i WHERE guest_id=?i',
                 array(intval($user_id), intval($guest_id)));
         }
@@ -569,7 +590,7 @@ class access
     function urlsafe_b64encode($string)
     {
         $data = base64_encode($string);
-        $data = str_replace(array('+','/','='),array('-','_','.'),$data);
+        $data = str_replace(array('+', '/', '='), array('-', '_', '.'), $data);
         return $data;
     }
 
@@ -579,7 +600,7 @@ class access
      */
     private function urlsafe_b64decode($string)
     {
-        $data = str_replace(array('-','_','.'),array('+','/','='),$string);
+        $data = str_replace(array('-', '_', '.'), array('+', '/', '='), $string);
         $mod4 = strlen($data) % 4;
         if ($mod4) {
             $data .= substr('====', $mod4);
@@ -595,7 +616,8 @@ class access
     {
         $result = array('state' => true, 'msg' => '');
 
-        $email = isset($post['email']) && mb_strlen(trim($post['email']), 'UTF-8') > 0 ? $this->is_email($post['email']) : null;
+        $email = isset($post['email']) && mb_strlen(trim($post['email']),
+            'UTF-8') > 0 ? $this->is_email($post['email']) : null;
         $phone = isset($post['phone']) && count(array_filter($post['phone'])) > 0 ? $this->is_phone($post['phone']) : null;
 
         if (!isset($post['id']) || intval($post['id']) == 0) {
@@ -640,16 +662,19 @@ class access
     }
 
     /**
-     * @param $post
+     * @param      $post
+     * @param bool $manual
      * @return array
      */
-    function registration($post)
+    function registration($post, $manual = true)
     {
         $mailer = new Mailer($this->all_configs);
         $result = array('state' => true, 'id' => 0, 'new' => false);
 
-        $email = isset($post['email']) && mb_strlen(trim($post['email']), 'UTF-8') > 0 ? $this->is_email($post['email']) : null;
-        $phone = isset($post['phone']) && mb_strlen(trim($post['phone']), 'UTF-8') > 0 ? $this->is_phone($post['phone']) : null;
+        $email = isset($post['email']) && mb_strlen(trim($post['email']),
+            'UTF-8') > 0 ? $this->is_email($post['email']) : null;
+        $phone = isset($post['phone']) && mb_strlen(trim($post['phone']),
+            'UTF-8') > 0 ? $this->is_phone($post['phone']) : null;
 
         if ($result['state'] == true && $email === false) {
             $result['state'] = false;
@@ -677,8 +702,9 @@ class access
             $result['state'] = false;
             $result['msg'] = 'Пароли не совпадают.';
         }
-        if (!$pass)
+        if (!$pass) {
             $pass = $this->rand_str(10);
+        }
 
         $confirm = $this->standart == true ? $this->rand_str(20) : null;
 
@@ -741,14 +767,17 @@ class access
                 $result['id'] = $this->all_configs['db']->query('INSERT INTO {clients}
                     (`email`, legal_address, `confirm`, `pass`, `fio`, `person`, tag_id, contractor_id)
                     VALUES (?n, ?n, ?n, ?, ?, ?, ?i, ?i)',
-                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tag_id, $contractor_id), 'id');
+                    array($email, $address, $confirm, $this->wrap_pass($pass), $fio, $person, $tag_id, $contractor_id),
+                    'id');
 
 
-                $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
-                $sendSms = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
-                if ($sendSms) {
-                    send_sms($phone,
-                        l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $host . '. ' . l('Vash kod clienta: ') . $result['id']);
+                if ($manual) {
+                    $host = db()->query("SELECT value FROM {settings} WHERE name='site-for-add-rating'")->el();
+                    $sendSms = db()->query("SELECT value FROM {settings} WHERE name='order-send-sms-with-client-code'")->el();
+                    if ($sendSms) {
+                        send_sms($phone,
+                            l('Prosim vas ostavit` otziv o rabote mastera na sayte: ') . $host . '. ' . l('Vash kod clienta: ') . $result['id']);
+                    }
                 }
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';
@@ -763,8 +792,9 @@ class access
             $this->update_phones($phone, $result['id']);
             $this->update_email($email, $result['id']);
 
-            if ($this->standart == false)
+            if ($this->standart == false) {
                 return $result;
+            }
         }
 
         return $result;
@@ -787,9 +817,9 @@ class access
 
         if ($email && is_string($email)) {
             $email_query = $this->all_configs['db']->makeQuery('cl.email=?', array($email));
-            if($or && $query){
-                $query .= ' OR '.$email_query;
-            }else{
+            if ($or && $query) {
+                $query .= ' OR ' . $email_query;
+            } else {
                 $query = $email_query;
             }
         }
@@ -801,7 +831,7 @@ class access
 
         if ($user) {
             $user['phones'] = $this->all_configs['db']->query('SELECT client_id, phone '
-                    .'FROM {clients_phones} WHERE client_id = ?i', array($user['id']))->vars();
+                . 'FROM {clients_phones} WHERE client_id = ?i', array($user['id']))->vars();
         }
 
         return $user;
@@ -872,7 +902,7 @@ class access
         if ($this->is_phone($client_phone)) {
             $n = mb_strlen($client_phone, 'UTF-8');
             $out = mb_substr($client_phone, 0, 5, 'UTF-8');
-            $out .= str_repeat ('*', $n - 6);
+            $out .= str_repeat('*', $n - 6);
             $out .= mb_substr($client_phone, -1, 1, 'UTF-8');
         }
 
@@ -896,18 +926,18 @@ class access
             $out = mb_substr($reg[1], 0, 1, 'UTF-8');
             $n = mb_strlen($reg[1], 'UTF-8');
             if ($n <= 4) {
-                $out .= str_repeat ('*', $n - 1);
+                $out .= str_repeat('*', $n - 1);
             } else {
-                $out .= str_repeat ('*', $n - 2);
+                $out .= str_repeat('*', $n - 2);
                 $out .= mb_substr($reg[1], -1, 1, 'UTF-8');
             }
             $out .= '@' . mb_substr($reg[2], 0, 1, 'UTF-8');
 
             $n = mb_strlen($reg[2], 'UTF-8');
             if ($n <= 4) {
-                $out .= str_repeat ('*', $n - 1);
+                $out .= str_repeat('*', $n - 1);
             } else {
-                $out .= str_repeat ('*', $n - 2);
+                $out .= str_repeat('*', $n - 2);
                 $out .= mb_substr($reg[2], -1, 1, 'UTF-8');
             }
             $out .= '.' . $reg[3];
@@ -917,7 +947,7 @@ class access
     }
 
     /**
-     * @param int    $length
+     * @param int $length
      * @param string $chars
      * @return string
      */
@@ -927,7 +957,9 @@ class access
         $string = $chars{rand(0, $chars_length)};
         for ($i = 1; $i < $length; $i = strlen($string)) {
             $r = $chars{rand(0, $chars_length)};
-            if ($r != $string{$i - 1}) $string .= $r;
+            if ($r != $string{$i - 1}) {
+                $string .= $r;
+            }
         }
         // Return the string
         return $string;
@@ -951,7 +983,7 @@ class access
         foreach ($phones as $phone) {
             $phone = preg_replace("/[^0-9]/", "", $phone);
             $length = mb_strlen('' . $phone, 'UTF-8');
-            if ($length  == $phone_length) {
+            if ($length == $phone_length) {
                 // без кода
                 $return[] = $code . $phone;
             } elseif ($length == $phone_length + $short_code_length && strpos('' . $phone, '' . $short_code) === 0) {
@@ -963,7 +995,7 @@ class access
                 $return[] = $phone;
             } else {
                 $diff = $fullLength - $length;
-                $return[] = substr($code, 0, $diff) .$phone;
+                $return[] = substr($code, 0, $diff) . $phone;
             }
         }
         $return = array_filter($return);

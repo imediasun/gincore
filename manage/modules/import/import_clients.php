@@ -129,7 +129,7 @@ class import_clients extends abstract_import_handler
                 'fio' => $client_fio,
                 'legal_address' => $client_address,
                 'contractor_id' => $contractor_id
-            ));
+            ), false);
             if ($data['id'] > 0) {
                 $client_id = $data['id'];
             } else {

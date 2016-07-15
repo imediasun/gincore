@@ -1164,3 +1164,7 @@ table.table-vpaddingless tr td.arrow{
         /*overflow: auto;*/
     /*}*/
 /*}*/
+.deleted {
+    color: red;
+    padding-left: 10px;
+}

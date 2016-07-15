@@ -334,6 +334,11 @@ class accountings extends Controller
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
+            $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes} WHERE name=?', array($title))->el();
+            if (!empty($checkByTitle)) {
+                FlashMessage::set(l('Касса с таким названием уже существует'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
             $cashbox_id = $this->Cashboxes->insert(array(
                 'cashboxes_type' => $cashboxes_type,
                 'avail' => $avail,
@@ -373,6 +378,11 @@ class accountings extends Controller
             $title = trim($post['title']);
             if (empty($title)) {
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes} WHERE name=? AND NOT id=?i', array($title, $post['cashbox-id']))->el();
+            if (!empty($checkByTitle)) {
+                FlashMessage::set(l('Касса с таким названием уже существует'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
             $avail = 1;
@@ -417,8 +427,18 @@ class accountings extends Controller
             $parent_id = (isset($post['parent_id']) && $post['parent_id'] > 0) ? $post['parent_id'] : 0;
 
             $title = trim($post['title']);
+            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?', array(
+              $title
+            ))->el();
             if (empty($title)) {
                 FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?', array(
+                $title
+            ))->el();
+            if ($exist) {
+                FlashMessage::set(l('Статья с таким названием уже существует'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
 
@@ -449,6 +469,14 @@ class accountings extends Controller
             $title = trim($post['title']);
             if (empty($title)) {
                 FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
+            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=? AND NOT id=?i', array(
+                $title,
+                $post['contractor_category-id']
+            ))->el();
+            if ($exist) {
+                FlashMessage::set(l('Статья с таким названием уже существует'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
 
