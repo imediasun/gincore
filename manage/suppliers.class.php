@@ -266,7 +266,7 @@ class Suppliers extends Object
             $part = 0;
             foreach ($post['item_ids'] as $key => $product_id) {
                 $count = $post['quantity'][$key];
-                $price = intval($post['amount'][$key]) * 100;
+                $price = floatval($post['amount'][$key]) * 100;
                 $orders = empty($post['so_co'][$key]) ? array() : array_filter(array_unique(explode(',',
                     $post['so_co'][$key])));
 

@@ -202,7 +202,7 @@ function display_service_information(_this) {
 }
 
 function issue_order(_this, type, order_id) {
-  if (parseInt($(_this).data('debt')) > 0) {
+  if (parseFloat($(_this).data('debt')) > 0) {
     pay_client_order(_this, type, order_id, null, null, true);
   } else {
     give_without_pay(type, _this, order_id);
@@ -872,7 +872,7 @@ function change_visible_prices(_this, id) {
 function recalculate_total_sum() {
   var total = 0;
   $('input.visible-price').each(function () {
-    total += parseInt($(this).val());
+    total += parseFloat($(this).val()).toFixed(2);
   });
   $('span.total-sum').html(total);
   $('input.total-sum').val(total);
@@ -947,7 +947,7 @@ function recalculate_amount_quick() {
     var $row = $(this),
       discount = parseInt($row.find('.js-quick-discount').first().val()) || 0,
       amount = 0,
-      price = parseInt($row.find('.js-quick-price').first().val());
+      price = parseFloat($row.find('.js-quick-price').first().val()).toFixed(2);
 
     if (parseInt($row.find('.js-quick-discount_type').first().val()) == 1) {
       amount = price * (1 - discount / 100);
@@ -955,7 +955,7 @@ function recalculate_amount_quick() {
       amount = price - discount;
     }
     $row.find('.js-quick-sum').first().val(amount);
-    total += parseFloat($row.find('.js-quick-sum').first().val());
+    total += parseFloat($row.find('.js-quick-sum').first().val()).toFixed(2);
   });
   if (total == 0) {
     if ($body.find('tr').length <= 1) {
@@ -1044,7 +1044,7 @@ function recalculate_amount_eshop() {
     var $row = $(this),
       discount = parseInt($row.find('.js-eshop-discount').first().val()) || 0,
       amount = 0,
-      price = parseInt($row.find('.js-eshop-price').first().val()),
+      price = parseFloat($row.find('.js-eshop-price').first().val()).toFixed(2),
       count = parseInt($row.find('.js-eshop-quantity').first().val());
 
     if (parseInt($row.find('.js-eshop-discount_type').first().val()) == 1) {
@@ -1053,7 +1053,7 @@ function recalculate_amount_eshop() {
       amount = price - discount;
     }
     $row.find('.js-eshop-sum').first().val(amount * count);
-    total += parseFloat($row.find('.js-eshop-sum').first().val());
+    total += parseFloat($row.find('.js-eshop-sum').first().val()).toFixed(2);
   });
   if (total == 0) {
     if ($body.find('tr').length <= 1) {
@@ -1132,7 +1132,7 @@ function set_total_as_sum(_this, orderId, total) {
           alert(msg.message);
         }
         if (msg.state == true) {
-          sum = parseInt($('input.total-sum').val());
+          sum = parseFloat($('input.total-sum').val()).toFixed(2);
           if (msg.set == true) {
             $('#order-total').attr('readonly', 'readonly').val(sum);
           } else {
@@ -1167,9 +1167,9 @@ function select_price_type(_this) {
 function set_price(name) {
   var $source = $('input[name="prices"]');
   if ($('input[name="price_type"]').val() == 1) {
-    $('input[name="price"]').val(parseInt($source.attr('data-price')));
+    $('input[name="price"]').val(parseFloat($source.attr('data-price')).toFixed(2));
   } else {
-    $('input[name="price"]').val(parseInt($source.attr('data-price_wholesale')));
+    $('input[name="price"]').val(parseFloat($source.attr('data-price_wholesale')).toFixed(2));
   }
   sum_calculate();
 }
