@@ -937,7 +937,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 if ($tmp['id'] != $recycledBin['id']) {
                     $tree .= '<i class="js-delete-category fa fa-times" aria-hidden="true"></i>';
                 } else {
-                    $tree .= InfoPopover::getInstance()->createQuestion('l_recycled_bin_info', 'js-recycle-bin');
+                    $tree .= InfoPopover::getInstance()->createAlertBox('l_recycled_bin_info', 'js-recycle-bin');
                 }
                 $tree .= '</a>';
             }
