@@ -866,16 +866,19 @@ function change_visible_prices(_this, id) {
 }
 
 function recalculate_total_sum() {
-  var total = 0;
+  var total = parseFloat(0);
   $('input.visible-price').each(function () {
-    total += parseFloat($(this).val()).toFixed(2);
+    n = parseFloat($(this).val());
+    total = n + total;
   });
+  total = total.toFixed(2);
   $('span.total-sum').html(total);
   $('input.total-sum').val(total);
   if ($('input#total-sum-checkbox').prop("checked")) {
     $('#order-total').val(total);
   }
 }
+
 
 var max_width = 0;
 function change_input_width(_this, length, not_show_button) {
