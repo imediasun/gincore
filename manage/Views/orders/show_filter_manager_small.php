@@ -9,4 +9,5 @@
             </option>
         <?php endforeach; ?>
     </select>
+    </span>
 </div>
