@@ -2304,7 +2304,7 @@ function add_supplier_item_to_table() {
 }
 
 function recalculate_amount_supplier() {
-  var total = 0,
+  var total = parseFloat(0),
     $body = $('.supplier-table-items > tbody');
 
   $body.children('tr.row-item').each(function () {
@@ -2313,8 +2313,10 @@ function recalculate_amount_supplier() {
       price = parseFloat($row.find('.js-supplier-price').first().val()).toFixed(2) || 0;
 
     $row.find('.js-supplier-sum').first().val(price * quantity);
-    total += parseFloat($row.find('.js-supplier-sum').first().val()).toFixed(2);
+    n = parseFloat($row.find('.js-supplier-sum').first().val());
+    total = total + n;
   });
+  total = total.toFixed(2);
   if (total == 0) {
     if ($body.find('tr').length <= 1) {
       $body.parent().hide();
@@ -2323,6 +2325,7 @@ function recalculate_amount_supplier() {
   }
   $('.js-supplier-total').val(total);
 }
+
 
 function remove_supplier_row(_this) {
   $(_this).parent().parent().remove();
