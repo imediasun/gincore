@@ -2313,7 +2313,7 @@ function recalculate_amount_supplier() {
       price = parseFloat($row.find('.js-supplier-price').first().val()).toFixed(2) || 0;
 
     $row.find('.js-supplier-sum').first().val(price * quantity);
-    total += parseFloat($row.find('.js-supplier-sum').first().val());
+    total += parseFloat($row.find('.js-supplier-sum').first().val()).toFixed(2);
   });
   if (total == 0) {
     if ($body.find('tr').length <= 1) {

@@ -65,10 +65,6 @@ function quick_sale(_this, next, from) {
   });
 }
 function eshop_sale(_this, next, from) {
-  if (false === $('#eshop-sale-form').parsley().validate())
-    return;
-
-
   $(_this).button('loading');
   var data = $(_this).parents('form').serializeArray();
   if (next) {
@@ -955,7 +951,7 @@ function recalculate_amount_quick() {
       amount = price - discount;
     }
     $row.find('.js-quick-sum').first().val(amount);
-    total += parseFloat($row.find('.js-quick-sum').first().val()).toFixed(2);
+    total += amount;
   });
   if (total == 0) {
     if ($body.find('tr').length <= 1) {
@@ -1028,6 +1024,8 @@ function add_eshop_item_to_table() {
     $('#eshop_sale_poduct_sum').val('');
     $('#eshop_sale_poduct_discount').val('');
     $('#eshop_sale_poduct_quantity').val('');
+    $('input[name="new-goods-value"]').val('');
+    $('input[name="new-goods"]').val('');
     $clone.show();
     $row.parent().append($clone);
     recalculate_amount_eshop();
@@ -1053,7 +1051,7 @@ function recalculate_amount_eshop() {
       amount = price - discount;
     }
     $row.find('.js-eshop-sum').first().val(amount * count);
-    total += parseFloat($row.find('.js-eshop-sum').first().val()).toFixed(2);
+    total += (amount * count);
   });
   if (total == 0) {
     if ($body.find('tr').length <= 1) {
