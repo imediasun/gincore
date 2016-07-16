@@ -285,7 +285,7 @@ class stocktaking extends Controller
         $query = $this->createQueryByStocktaking($stocktaking);
 
         $limit = '';
-        if ($count_on_page && $skip) {
+        if ($count_on_page) {
             $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(intval($skip), intval($count_on_page)));
         }
 
