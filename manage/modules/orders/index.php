@@ -1579,7 +1579,7 @@ class orders extends Controller
 
         return array(
             'html' => $orders_html,
-            'functions' => array('reset_multiselect()'),
+            //'functions' => array('reset_multiselect()'), //функция повторно вызывается и не работает фильтр
         );
     }
 
