@@ -264,6 +264,10 @@ class accountings extends Controller
                 // фильтр по доставке
                 $url[] = 'repair=1';
             }
+            if (isset($post['clients'])) {
+                // фильтр по доставке
+                $url[] = 'by_cid=' . intval($post['clients']);
+            }
 
             $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&',
                         $url));

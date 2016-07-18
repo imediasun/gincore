@@ -72,5 +72,6 @@
     </li>
     <?php if ($hasPrivilege): ?>
         <li class="pull-right"><a href="<?= $prefix ?>orders/#create_order" class="btn btn-success hash_link"><?= l('Создать заказ') ?></a></li>
+        <li class="pull-right"><a href="<?= $prefix ?>orders/ajax?act=export" target='_blank' class="btn btn-default"><?= l('Выгрузить') ?></a></li>
     <?php endif; ?>
 </ul>

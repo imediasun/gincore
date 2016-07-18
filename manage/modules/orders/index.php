@@ -276,10 +276,10 @@ class orders extends Controller
                 $url['ctg'] = implode(',', $post['ctg']);
             }
             if (isset($post['tso']) && intval($post['tso']) > 0) {
-                $url ['tso']= intval($post['tso']);
+                $url ['tso'] = intval($post['tso']);
             }
             if (isset($post['lock-button'])) {
-                $url ['lock-button']= intval($post['lock-button']);
+                $url ['lock-button'] = intval($post['lock-button']);
             }
             $this->LockFilters->toggle('recommendation-procurement', $url);
 
@@ -300,6 +300,7 @@ class orders extends Controller
 
         Response::redirect($_SERVER['REQUEST_URI']);
     }
+
     /**
      * @return string
      */
@@ -576,7 +577,7 @@ class orders extends Controller
      * @param $count_on_page
      * @return mixed
      */
-    public function getOrders($query, $skip, $count_on_page)
+    public function getOrders($query, $skip = 0, $count_on_page = 0)
     {
         return $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
     }
@@ -586,13 +587,14 @@ class orders extends Controller
      */
     function show_orders_orders()
     {
+        Session::getInstance()->set('current_order_show', ORDER_REPAIR);
         $user_id = $this->getUserId();
         $filters = array('type' => ORDER_REPAIR);
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
         }
         $saved = $this->LockFilters->load('repair-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
 
@@ -628,9 +630,10 @@ class orders extends Controller
      */
     public function show_orders_sold()
     {
+        Session::getInstance()->set('current_order_show', ORDER_SELL);
         $filters = array('type' => ORDER_SELL);
         $saved = $this->LockFilters->load('sale-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if (isset($_GET['simple'])) {
@@ -662,8 +665,9 @@ class orders extends Controller
      */
     public function show_orders_return()
     {
+        Session::getInstance()->set('current_order_show', ORDER_RETURN);
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_RETURN) + $_GET);
@@ -690,8 +694,9 @@ class orders extends Controller
      */
     public function show_orders_writeoff()
     {
+        Session::getInstance()->set('current_order_show', ORDER_WRITE_OFF);
         $saved = $this->LockFilters->load('repair-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_WRITE_OFF) + $_GET);
@@ -808,7 +813,7 @@ class orders extends Controller
     public function orders_show_suppliers_orders($hash = '#show_suppliers_orders')
     {
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if (trim($hash) == '#show_suppliers_orders' || (trim($hash) != '#show_suppliers_orders-all'
@@ -831,7 +836,7 @@ class orders extends Controller
     {
         $orders_html = '';
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
@@ -867,7 +872,7 @@ class orders extends Controller
     {
         $orders_html = '';
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
 
@@ -919,7 +924,7 @@ class orders extends Controller
     public function menu_recommendations_procurement()
     {
         $saved = $this->LockFilters->load('recommendation-procurement');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
@@ -972,7 +977,7 @@ class orders extends Controller
         $debug = '';
 
         $saved = $this->LockFilters->load('recommendation-procurement');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
@@ -1971,6 +1976,11 @@ class orders extends Controller
             $data['content'] = '<br />' . $this->genorder($_POST['object_id'], true);
         }
 
+        // вывод заказа
+        if ($act == 'export') {
+            return $this->exportOrders();
+        }
+
         // история статусов заказа
         if ($act == 'order-statuses') {
             $data = $this->orderStatuses($data);
@@ -2894,7 +2904,7 @@ class orders extends Controller
     protected function changeStatus($order, $data, $defaultMessage = '')
     {
 // меняем статус
-        if($_POST['status'] == $order['status']) {
+        if ($_POST['status'] == $order['status']) {
             return $data;
         }
         $response = update_order_status($order, $_POST['status']);
@@ -3552,5 +3562,77 @@ class orders extends Controller
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_took', $order['client_took']);
         }
         return $order;
+    }
+
+    /**
+     *
+     */
+    private function exportOrders()
+    {
+        $session = Session::getInstance();
+        $currentOrderType = $session->check('current_order_show') ? $session->get('current_order_show') : ORDER_REPAIR;
+        $user_id = $this->getUserId();
+        $filters = array('type' => $currentOrderType);
+        if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $filters['acp'] = $user_id;
+        }
+        $saved = $this->LockFilters->load('repair-orders');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
+
+        if (isset($_GET['simple'])) {
+            $search = $_GET['simple'];
+            unset($_GET['simple']);
+            list($query, $orders) = $this->simpleSearch($search, $filters + $_GET);
+        } else {
+            $queries = $this->all_configs['manageModel']->clients_orders_query($filters + $_GET);
+            $query = $queries['query'];
+            // достаем заказы
+            $orders = $this->getOrders($query);
+        }
+
+        require_once __DIR__ . '/exports.php';
+        $export = new ExportOrdersToXLS();
+        $xls = $export->getXLS(l('Заказы'));
+
+        if (in_array($currentOrderType, array(ORDER_REPAIR, ORDER_WRITE_OFF, ORDER_RETURN))) {
+            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
+                lq('N'),
+                lq('Дата'),
+                lq('Приемщик'),
+                lq('Менеджер'),
+                lq('Статус'),
+                lq('Запчасти'),
+                lq('Устройство'),
+                lq('Стоимость'),
+                lq('Оплачено'),
+                lq('Клиент'),
+                lq('Контактный телефон'),
+                lq('Сроки'),
+                lq('Склад'),
+            ));
+        } else {
+            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
+                lq('N'),
+                lq('Дата'),
+                lq('Приемщик'),
+                lq('Менеджер'),
+                lq('Способ оплаты'),
+                lq('Статус'),
+                lq('Способ доставки'),
+                lq('Товары'),
+                lq('Стоимость'),
+                lq('Оплачено'),
+                lq('Клиент'),
+                lq('Контактный телефон'),
+                lq('Примечание'),
+            ));
+        }
+        if (!empty($orders)) {
+            $export->makeXLSBody($xls, array('orders' => $orders, 'type' => $currentOrderType));
+        }
+        $export->outputXLS($xls);
+
     }
 }

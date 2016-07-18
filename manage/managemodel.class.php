@@ -382,10 +382,16 @@ class manageModel
      * @param string $icon_type
      * @return array
      */
-    public function get_clients_orders($query, $skip, $count_on_page, $icon_type = 'co')
+    public function get_clients_orders($query, $skip = 0, $count_on_page = 0, $icon_type = 'co')
     {
         $orders = array();
         $orders_goods = null;
+        $limit = '';
+        if(!empty($count_on_page)) {
+            $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(
+                $skip, $count_on_page
+            ));
+        }
 
         $ids = $this->all_configs['db']->query('SELECT DISTINCT o.id
                 FROM {orders} AS o
@@ -395,8 +401,8 @@ class manageModel
                 LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
                 LEFT JOIN {category_goods} as cg ON cg.goods_id=og.goods_id
-                ?query ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.status, o.date_add DESC
-            array($icon_type, $_SESSION['id'], $query, $skip, $count_on_page))->vars();
+                ?query ORDER BY o.date_add DESC ?query',
+            array($icon_type, $_SESSION['id'], $query, $limit))->vars();
 
         if ($ids) {
             $orders_goods = $this->all_configs['db']->query('SELECT o.id as order_id, o.status, o.sale_type, o.title as product,
@@ -1206,6 +1212,10 @@ class manageModel
         if (array_key_exists('repair', $filters) && intval($filters['repair']) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
                 array($query, ORDER_REPAIR));
+        }
+        if (array_key_exists('by_cid', $filters) && intval($filters['by_cid']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.user_id=?i',
+                array($query, $filters['by_cid']));
         }
         return $query;
     }
