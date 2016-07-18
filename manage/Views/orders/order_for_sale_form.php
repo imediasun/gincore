@@ -33,10 +33,10 @@
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
                                             <li><a href="#" data-price_type="1"
-                                                   onclick="return select_price_type(this)"><?= l('Цена, р') ?></a>
+                                                   onclick="return select_price_type(this)" data-title="<?= l('Цена, р') ?>"><?= l('Цена розничная') ?></a>
                                             </li>
                                             <li><a href="#" data-price_type="2"
-                                                   onclick="return select_price_type(this)"><?= l('Цена, о') ?></a>
+                                                   onclick="return select_price_type(this)" data-title="<?= l('Цена, о') ?>"><?= l('Цена оптовая') ?></a>
                                             </li>
                                         </ul>
                                     </div>

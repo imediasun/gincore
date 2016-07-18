@@ -73,7 +73,7 @@ class check extends AbstractOrdersTemplate
                     'name' => l('Название компании')
                 ),
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
-                'domain' => array('value' => $_SERVER['HTTP_HOST'], 'name' => l('Домен сайта')),
+                'domain' => array('value' => $this->all_configs['settings']['site_name'], 'name' => l('Домен сайта')),
                 'order' => array('value' => $order['id'], 'name' => l('Номер заказа')),
                 'order_data' => array(
                     'value' => date('d/m/Y', strtotime($order['date_add'])),

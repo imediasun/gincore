@@ -2424,3 +2424,8 @@ function show_category_addition_info(_this) {
   });
   return false;
 }
+function toggle_on_click(_this, event) {
+  $('.print_menu').toggle();
+  $(_this).dropdown('toggle');
+  event.stopPropagation();
+}

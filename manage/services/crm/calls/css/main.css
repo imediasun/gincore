@@ -3,7 +3,9 @@
 }
 .create_call_btn{
     position: fixed;
-    top: 130px;
+    top: 132px;
     right: 0;
     z-index: 1000;
+    width: 35px;
+    height: 35px;
 }

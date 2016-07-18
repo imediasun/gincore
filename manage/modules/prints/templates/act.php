@@ -103,6 +103,7 @@ class act extends AbstractOrdersTemplate
                     'value' => $products_html,
                     'name' => l('Товары и услуги (вставляется внутрь таблицы)')
                 ),
+                'domain' => $this->all_configs['settings']['site_name']
 
             );
             

@@ -1193,7 +1193,7 @@ function select_cashbox(_this) {
 function select_price_type(_this) {
   var type = parseInt($(_this).attr('data-price_type'));
   $('input[name="price_type"]').val(type);
-  $('.btn-title-price_type').html($(_this).html());
+  $('.btn-title-price_type').html($(_this).data('title'));
   set_price();
   return false;
 }
