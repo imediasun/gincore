@@ -701,6 +701,13 @@ class categories extends Controller
             $data = $this->updateCategories($data);
         }
 
+        if ($act == 'change-info-form') {
+            $data = $this->changeInfoForm();
+        }
+        if ($act == 'change-info') {
+            $data = $this->changeInformation($_POST);
+        }
+
         if ($act == 'delete-categories' && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
             $data = $this->deleteCategories($mod_id);
         }
@@ -844,6 +851,65 @@ class categories extends Controller
             );
         }
         return $data;
+    }
+
+    /**
+     * @return array
+     */
+    private function changeInfoForm()
+    {
+        if (empty($_GET['category_id'])) {
+            return array(
+                'state' => false,
+                'msg' => l('Категория не найдена')
+            );
+        }
+        $category = $this->Categories->getByPk($_GET['category_id']);
+        if (empty($category)) {
+            return array(
+                'state' => false,
+                'msg' => l('Категория не найдена')
+            );
+        }
+        return array(
+            'state' => true,
+            'title' => l('Редактирование категории') . '&nbsp;' . $category['title'],
+            'content' => $this->view->renderFile('categories/change_info_form', array(
+                'category' => $category
+            ))
+        );
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    private function changeInformation($post)
+    {
+        if (empty($post['category_id'])) {
+            return array(
+                'state' => false,
+                'message' => l('Категория не найдена')
+            );
+        }
+        $category = $this->Categories->getByPk($post['category_id']);
+        if (empty($category)) {
+            return array(
+                'state' => false,
+                'message' => l('Категория не найдена')
+            );
+        }
+        if (strcmp($post['information'], $category['information']) !== 0) {
+            $this->Categories->update(array(
+                'information' => $post['information']
+            ), array('id' => $category['id']));
+            $this->History->save('change-category-info', $category['id'], $category['information']);
+        }
+
+        return array(
+            'state' => true,
+            'message' => l('Информация успешно изменена')
+        );
     }
 }
 

@@ -197,6 +197,38 @@ function display_service_information(_this) {
   });
 }
 
+function display_category_information(_this) {
+  $.ajax({
+    url: prefix + module + '/ajax/?act=category-information',
+    type: 'POST',
+    data: '&category_id=' + $('input[name="categories-goods"]').val(),
+    success: function (msg) {
+      if (msg['state'] == true) {
+        $(_this).attr('data-placement', 'right');
+        $(_this).attr('data-trigger', 'focus');
+        if (msg['title'] ) {
+          $(_this).attr('data-original-title', msg['title']);
+        }
+        if (msg['price']) {
+          $(_this).attr('data-original-price', msg['price']);
+        }
+        if (msg['price_wholesale']) {
+          $(_this).attr('data-original-price_wholesale', msg['price_wholesale']);
+        }
+        if (msg['content']&& msg['content'].length > 0) {
+          $(_this).attr('data-content', msg['content']);
+          $(_this).addClass('popover-info-with-footer');
+        } else {
+          $(_this).attr('data-content', '');
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+}
+
 function issue_order(_this, type, order_id) {
   if (parseFloat($(_this).data('debt')) > 0) {
     pay_client_order(_this, type, order_id, null, null, true);

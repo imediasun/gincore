@@ -730,12 +730,37 @@ $(document).on('mouseenter', '.popover-info', function () {
 
     $(_this).popover({
       html: true,
+      container: 'body',
       trigger: trigger,
       placement: placement,
       boxLRMargin: -10
     }).popover('show');
   }
 });
+
+function popover_with_footer(footer) {
+  $(document).on('mouseenter', '.popover-info-with-footer', function () {
+    clearTimeout(popover_timer);
+    var _this = this;
+    var placement = $(this).attr('data-placement') ? $(this).attr('data-placement') : 'left';
+    var trigger = $(this).attr('data-trigger') ? $(this).attr('data-trigger') : 'mouseenter';
+
+    if (popover_target !== _this) {
+      $(popover_target).popover("hide");
+      popover_target = _this;
+
+      $(_this).popover({
+        html: true,
+        container: 'body',
+        trigger: trigger,
+        placement: placement,
+        boxLRMargin: -10,
+        template: '<div class="popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div><div class="popover-footer">' + footer + '</div></div>'
+      }).popover('show');
+    }
+  });
+}
+
 /**
  * add symbol counter before DOM object,
  * counts symbols in object & output result
@@ -1161,7 +1186,7 @@ function click_tab(_this, e, hashs) {
         $('div.pill-content > div.active').removeClass('active');
         $('div.pill-content > div' + $(_this).attr('href')).addClass('active');
       }
-      if(msg['state'] == true && msg['reload']) {
+      if (msg['state'] == true && msg['reload']) {
         console.log(msg);
         window.location = msg['reload'];
       }
@@ -2346,5 +2371,56 @@ function add_comma(_this) {
   if (val.length > 0 && val.slice(-1) != ',') {
     $field.val(val + ',');
   }
+  return false;
+}
+function show_category_addition_info(_this) {
+  var id = $('input[name="categories-goods"]').val(),
+    buttons = {
+      success: {
+        label: "Сохранить",
+        className: "btn-success",
+        callback: function () {
+          $.ajax({
+            url: prefix + 'categories/ajax?act=change-info',
+            dataType: "json",
+            type: 'POST',
+            data: $('form#category-addition-info').serialize(),
+            success: function (data) {
+              alert(data['message']);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              alert(xhr.responseText);
+            }
+          });
+
+          $(this).button('reset');
+        }
+      },
+      main: {
+        label: "Отменить",
+        className: "btn-primary",
+        callback: function () {
+          $(this).button('reset');
+        }
+      }
+    };
+  $.ajax({
+    url: prefix + 'categories/ajax?act=change-info-form&category_id=' + id,
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
   return false;
 }

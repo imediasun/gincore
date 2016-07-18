@@ -2234,6 +2234,20 @@ class orders extends Controller
                 }
             }
         }
+        if ($act == 'category-information') {
+            $data['state'] = true;
+            $data['title'] = l('Важная информация');
+            $data['content'] = l('Информация отсутствует');
+
+            if (isset($_POST['category_id'])) {
+                // достаем категорию
+                $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
+                    array(intval($_POST['category_id'])))->row();
+                if ($category && $category['information'] && mb_strlen(trim($category['information']), 'utf-8') > 0) {
+                    $data['content'] = h(trim($category['information']));
+                }
+            }
+        }
 
         // изделие проверенно
         if ($act == 'check-item') {
