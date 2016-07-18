@@ -80,11 +80,12 @@
                 </div>
             </div>
             <div class="col-sm-3 b-r">
-                <div>
-                    <div class="span5">
-                        <p class="form-control-static"><?= l('Инженер') ?>:</p>
-                    </div>
-                    <div class="span6">
+                <table class="table table-borderless table-for-filters">
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Инженер') ?>:</p>
+                        </td>
+                        <td class="span6">
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]"
                                         multiple="multiple">
@@ -97,14 +98,15 @@
                                     <?php endforeach; ?>
                                 </select>
                             </span>
-                    </div>
-                </div>
-                <?= $filter_manager ?>
-                <div>
-                    <div class="span5">
-                        <p class="form-control-static"><?= l('Приемщик') ?>:</p>
-                    </div>
-                    <div class="span6">
+
+                        </td>
+                    </tr>
+                    <?= $filter_manager ?>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Приемщик') ?>:</p>
+                        </td>
+                        <td class="span6">
                             <span class="input-group-btn">
                                 <select
                                     data-numberDisplayed="0" <?= ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
@@ -119,13 +121,14 @@
                                     <?php endforeach; ?>
                                 </select>
                             </span>
-                    </div>
-                </div>
-                <div>
-                    <div class="span5">
-                        <p class="form-control-static"><?= l('Статус') ?>:</p>
-                    </div>
-                    <div class="span6">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Статус') ?>:</p>
+                        </td>
+                        <td class="span6">
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]"
                                         multiple="multiple">
@@ -138,8 +141,10 @@
                                     <?php endforeach; ?>
                                 </select>
                             </span>
-                    </div>
-                </div>
+                        </td>
+                    </tr>
+                </table>
+
             </div>
             <div class="col-sm-2" style="overflow:hidden">
                 <?php if (!empty($wfs)): ?>

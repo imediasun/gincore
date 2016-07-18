@@ -665,3 +665,9 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 .btn-add-good {
     white-space: nowrap;
 }
+.table.table-for-filters td {
+    border: medium none !important;
+    font-size: 1em !important;
+    padding-bottom: 0;
+    padding-top: 0;
+}

@@ -300,7 +300,22 @@ class orders extends Controller
 
         Response::redirect($_SERVER['REQUEST_URI']);
     }
-
+    /**
+     * @return string
+     */
+    function show_filter_manager_as_row()
+    {
+        $managers = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
+            array('edit-clients-orders', 'site-administration'))->assoc();
+        $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
+            (isset($_GET['managers']) ? $_GET['managers'] : array());
+        return $this->view->renderFile('orders/show_filter_manager_as_row', array(
+            'mg_get' => $mg_get,
+            'managers' => $managers
+        ));
+    }
 
     /**
      * @param bool $compact
@@ -473,7 +488,7 @@ class orders extends Controller
         return $this->view->renderFile('orders/repair_orders_filters', array(
             'accepters' => $accepters,
             'engineers' => $engineers,
-            'filter_manager' => $this->show_filter_manager(true),
+            'filter_manager' => $this->show_filter_manager_as_row(),
             'count' => $count,
             'count_marked' => $count_marked,
             'count_unworked' => $count_unworked,
