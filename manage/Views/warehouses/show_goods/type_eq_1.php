@@ -19,7 +19,7 @@
             <td><?= suppliers_order_generate_serial($product, true, true) ?></td>
             <td>
                 <a class="hash_link"
-                   href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>'#financestock-stock">
+                   href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock">
                     <?= h($product['product_title']) ?>
                 </a>
             </td>
