@@ -44,7 +44,7 @@
             <?php endif; ?>
             <div class="col-sm-3 b-r">
                 <?= $controller->show_filter_service_center(); ?>
-                <div class="input-group">
+                <div class="input-group" style="margin-bottom: 10px">
                     <p class="form-control-static"><?= l('Поставщик') ?>:</p>
                     <span class="input-group-btn">
                         <select class="multiselect form-control" multiple="multiple" name="suppliers[]">
