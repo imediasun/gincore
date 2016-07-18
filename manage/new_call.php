@@ -35,6 +35,9 @@ if (isset($_POST['vpbx_api_key']) && isset($_POST['json'])) {
             //&& isset($arr['from']['taken_from_call_id'])
             ) {
         $phone = $arr['from']['number'];
+        if(preg_match('#sip:(.*?)@#', $phone, $id)){
+            $phone = $id[1];
+        }
         $log = 'mangosip.ru phone: ' . $phone;
 
     }
