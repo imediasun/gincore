@@ -560,7 +560,7 @@ class Clients extends Object
 
         $new_call_id = isset($_GET['new_call']) ? $_GET['new_call'] : 0;
 
-        return $this->view->renderFile('clients/create_client', array(
+        return $this->view->renderFile('clients/edit_client', array(
             'ordersList' => $this->getOrdersList($client),
             'newCallForm' => $new_call_id ? $this->newCallForm($new_call_id, $client) : '',
             'contractorsList' => $this->getContractorsList($client),

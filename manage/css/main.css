@@ -673,12 +673,6 @@ input.row-input {
     text-align: center;
 }
 
-#save_all_fixed{
-    position: fixed;
-    right: 0;
-    top: 60px;
-}
-
 .input-min {
     width: 30px;
 }
@@ -690,7 +684,7 @@ input.row-input {
 .cloneAndClear {
     cursor: pointer;
     display: block !important;
-    margin: -20px 10px !important;
+    margin: 10px -25px !important;
     position: absolute;
     right: 0;
 }
