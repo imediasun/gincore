@@ -92,7 +92,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 ),
                 'products_and_services' => array('value' => $products_html, 'name' => l('Товары и услуги')),
                 'color' => array(
-                    'value' => $order['color'] ? h($this->all_configs['configs']['devices-colors'][$order['color']]) : '',
+                    'value' => h($this->all_configs['configs']['devices-colors'][$order['color']]),
                     'name' => l('Цвет')
                 ),
                 'serial' => array('value' => h($order['serial']), 'name' => l('Серийный номер')),
