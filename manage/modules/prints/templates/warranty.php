@@ -9,14 +9,16 @@ class warranty extends AbstractOrdersTemplate
     {
         $print_html = '';
 
-        $order = $this->all_configs['db']->query('SELECT o.*, e.fio as engineer, w.title as wh_title, aw.title as aw_title,
-                                                aw.print_address,aw.print_phone 
-                                                FROM {orders} as o
-                                                LEFT JOIN {users} as e ON e.id=o.engineer 
-                                                LEFT JOIN {warehouses} as w ON w.id=o.wh_id 
-                                                LEFT JOIN {warehouses} as aw ON aw.id=o.accept_wh_id 
-                                                WHERE o.id=?i',
-            array($object))->row();
+        $order = $this->all_configs['db']->query(
+            'SELECT o.*, a.fio as a_fio, e.fio as engineer, w.title as wh_title, wa.print_address, wa.title as wa_title,
+                        wa.print_phone, wa.title as wa_title, wag.address as accept_address
+                FROM {orders} as o
+                LEFT JOIN {users} as a ON a.id=o.accepter
+                LEFT JOIN {users} as e ON e.id=o.engineer 
+                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                LEFT JOIN {warehouses} as wa ON wa.id=o.accept_wh_id
+                LEFT JOIN {warehouses_groups} as wag ON wa.group_id=wa.id
+                WHERE o.id=?i', array($object))->row();
 
         if ($order) {
             $this->editor = true;
