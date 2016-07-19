@@ -73,10 +73,10 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'value' => $sum_for_paid > 0 ? $this->amountAsWord($sum_for_paid / 100) : '',
                     'name' => l('К оплате прописью')
                 ),
-                'address' => array('value' => htmlspecialchars($order['accept_address']), 'name' => l('Адрес')),
+                'address' => array('value' => h($order['accept_address']), 'name' => l('Адрес')),
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
-                'phone' => array('value' => htmlspecialchars($order['phone']), 'name' => l('Телефон клиента')),
-                'fio' => array('value' => htmlspecialchars($order['fio']), 'name' => l('ФИО клиента')),
+                'phone' => array('value' => h($order['phone']), 'name' => l('Телефон клиента')),
+                'fio' => array('value' => h($order['fio']), 'name' => l('ФИО клиента')),
                 'order_data' => array(
                     'value' => date('d/m/Y', strtotime($order['date_add'])),
                     'name' => l('Дата создания заказа')
@@ -87,35 +87,35 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'name' => l('Гарантия')
                 ),
                 'product' => array(
-                    'value' => htmlspecialchars($order['title']) . ' ' . htmlspecialchars($order['note']),
+                    'value' => h($order['title']) . ' ' . h($order['note']),
                     'name' => l('Устройство')
                 ),
                 'products_and_services' => array('value' => $products_html, 'name' => l('Товары и услуги')),
                 'color' => array(
-                    'value' => $order['color'] ? htmlspecialchars($this->all_configs['configs']['devices-colors'][$order['color']]) : '',
-                    'name' => l('Устройство')
+                    'value' => $order['color'] ? h($this->all_configs['configs']['devices-colors'][$order['color']]) : '',
+                    'name' => l('Цвет')
                 ),
-                'serial' => array('value' => htmlspecialchars($order['serial']), 'name' => l('Серийный номер')),
+                'serial' => array('value' => h($order['serial']), 'name' => l('Серийный номер')),
                 'company' => array(
-                    'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                    'value' => h($this->all_configs['settings']['site_name']),
                     'name' => l('Название компании')
                 ),
                 'order' => array('value' => $order['id'], 'name' => l('Номер заказа')),
-                'defect' => array('value' => htmlspecialchars($order['defect']), 'name' => l('Неисправность')),
-                'engineer' => array('value' => htmlspecialchars($order['engineer']), 'name' => l('Инженер')),
-                'accepter' => array('value' => htmlspecialchars($order['a_fio']), 'name' => l('Приемщик')),
-                'comment' => array('value' => htmlspecialchars($order['comment']), 'name' => l('Внешний вид')),
-                'warehouse' => array('value' => htmlspecialchars($order['wh_title']), 'name' => l('Название склада')),
+                'defect' => array('value' => h($order['defect']), 'name' => l('Неисправность')),
+                'engineer' => array('value' => h($order['engineer']), 'name' => l('Инженер')),
+                'accepter' => array('value' => h($order['a_fio']), 'name' => l('Приемщик')),
+                'comment' => array('value' => h($order['comment']), 'name' => l('Внешний вид')),
+                'warehouse' => array('value' => h($order['wh_title']), 'name' => l('Название склада')),
                 'warehouse_accept' => array(
-                    'value' => htmlspecialchars($order['aw_title']),
+                    'value' => h($order['wa_title']),
                     'name' => l('Название склада приема')
                 ),
                 'wh_address' => array(
-                    'value' => htmlspecialchars($order['print_address']),
+                    'value' => h($order['print_address']),
                     'name' => l('Адрес склада')
                 ),
                 'wh_phone' => array(
-                    'value' => htmlspecialchars($order['print_phone']),
+                    'value' => h($order['print_phone']),
                     'name' => l('Телефон склада')
                 ),
                 'products' => array('value' => $products, 'name' => l('Установленные запчасти')),
@@ -155,7 +155,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
                 'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
                 'product' => array(
-                    'value' => htmlspecialchars($order['g_title']) . ' ' . htmlspecialchars($order['note']),
+                    'value' => h($order['g_title']) . ' ' . h($order['note']),
                     'name' => 'Устройство'
                 ),
                 'serial' => array(
@@ -163,12 +163,12 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'name' => 'Серийный номер'
                 ),
                 'company' => array(
-                    'value' => htmlspecialchars($this->all_configs['settings']['site_name']),
+                    'value' => h($this->all_configs['settings']['site_name']),
                     'name' => 'Название компании'
                 ),
-                'address' => array('value' => htmlspecialchars($order['accept_address']), 'name' => 'Адрес'),
+                'address' => array('value' => h($order['accept_address']), 'name' => 'Адрес'),
                 'wh_phone' => array(
-                    'value' => htmlspecialchars($order['print_phone']),
+                    'value' => h($order['print_phone']),
                     'name' => 'Телефон склада'
                 ),
                 'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
