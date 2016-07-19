@@ -39,7 +39,7 @@ define('CASHBOX_SYSTEM', 1);
 define('CASHBOX_NOT_SYSTEM', 2);
 
 define('CLIENT_IS_PERSONAL', 1);
-define('CLIENT_IS_LEGAL', 0);
+define('CLIENT_IS_LEGAL', 2);
 
 
 include_once 'suppliers.class.php';

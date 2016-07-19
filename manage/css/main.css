@@ -1203,3 +1203,7 @@ table.table-vpaddingless tr td.arrow{
 .btn-accept:hover {
     color: #333333;
 }
+.js-personal {
+    cursor: pointer;
+    border-radius: 0 4px 4px 0 !important;
+}

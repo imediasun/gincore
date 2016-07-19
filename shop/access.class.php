@@ -717,7 +717,7 @@ class access extends Object
         $rpass = isset($post['rpass']) ? trim($post['rpassword']) : $pass;
         $tag_id = isset($post['tag_id']) ? (int)$post['tag_id'] : 0;
 
-        $person = (!isset($post['person']) || $post['person'] == 'true') ? 1 : 2;
+        $person = isset($post['person']) && $post['person'] == 2 ? CLIENT_IS_LEGAL :CLIENT_IS_PERSONAL;
         $fio = isset($post['fio']) ? trim($post['fio']) : null;
         $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
 

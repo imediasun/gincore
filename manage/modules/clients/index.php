@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../Core/Object.php';
+require_once __DIR__ . '/../../Core/Response.php';
 require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[20] = 'clients';
@@ -799,6 +800,27 @@ class Clients extends Object
                 'response' => '<a href="' . $this->all_configs['prefix'] . 'clients/goods-reviews/create/' . $id . '">' . l('Редактировать') . '</a>'
             ));
             exit;
+        }
+        if ($act == 'get_person_of') {
+            try {
+                if (empty($_GET['client_id'])) {
+                    throw  new ExceptionWithMsg(l('Клиент не найден'));
+                }
+                $client = $this->Clients->getByPk($_GET['client_id']);
+                if (empty($client)) {
+                    throw  new ExceptionWithMsg(l('Клиент не найден'));
+                }
+                $result = array(
+                    'state' => true,
+                    'person' => $client['person']
+                );
+            } catch (ExceptionWithMsg $e) {
+                $result = array(
+                    'state' => false,
+                    'msg' => $e->getMessage()
+                );
+            }
+            Response::json($result);
         }
 
         // соединение клиентов
