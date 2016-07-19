@@ -65,14 +65,16 @@
             </div>
         <?php endif; ?>
         <?php if ($show_btn || $this->all_configs['configs']['erp-move-item-logistics'] == true): ?>
-            <div class="control-group"><label class="control-label">
+            <div class="control-group">
+                <label class="control-label">
                     <?php if ($show_btn): ?>
                         <?php $attr = $controller->can_use_item($item_id) ? 'onclick="move_item(this, ' . $rand . ')"' : 'disabled'; ?>
                         <input <?= $attr ?> type="button" value="<?= l('Создать') ?>" class="btn"/>
                     <?php endif; ?>
                 </label>
-                <div class="controls"><label class="checkbox">
-                        <?php if ($this->all_configs['configs']['erp-move-item-logistics'] == true): ?>
+                <?php if ($this->all_configs['configs']['erp-move-item-logistics'] == true): ?>
+                    <div class="controls">
+                        <label class="checkbox">
                             <?php if ($with_logistic): ?>
                                 <input type="hidden" name="logistic" value="1"/>
                                 <input checked disabled type="checkbox" value="1"/>
@@ -80,8 +82,8 @@
                                 <input onchange="item_move_logistic(this)" type="checkbox" name="logistic" value="1"/>
                             <?php endif; ?>
                             С участием логистики
-                        <?php endif; ?>
-                    </label></div>
+                        </label></div>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </form>

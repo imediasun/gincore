@@ -62,7 +62,7 @@ class purchase_invoice extends AbstractTemplate
                 'products' => array('value' => $products, 'name' => l('Товары')),
                 'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
                 'amount_in_words' => array(
-                    'value' => $this->amountAsWord(max(0, $amount)),
+                    'value' => $this->amountAsWord(max(0, $amount), $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_suppliers_orders']]['rutils']),
                     'name' => l('Полная стоимость прописью')
                 ),
                 'qty_all' => array('value' => count($orders), 'name' => l('Количество товаров')),

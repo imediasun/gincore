@@ -1,9 +1,10 @@
 <?php if ($this->all_configs['configs']['erp-use'] && $this->all_configs['oRole']->hasPrivilege('write-off-items')): ?>
-    <div class="well"><h4><?= l('Продажа изделия') ?></h4>
+    <div class="well">
+        <h4><?= l('Продажа изделия') ?></h4>
         <?php if ($item_id === 0): ?>
             <p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>
         <?php endif; ?>
-        <form method="post" id="sold-item-form">
+        <form method="post" id="sold-item-form" style="padding-bottom: 5px">
             <div class="form-group"><label><?= l('Клиент') ?>:</label>
                 <?= typeahead($db, 'clients', false, 0, 2, 'fonm-control') ?>
             </div>

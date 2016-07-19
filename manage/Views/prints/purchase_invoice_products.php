@@ -12,11 +12,11 @@
         </td>
         <td style="border: 1px solid grey; text-align: center">
             <?= l('Цена') ?><br>
-            <?= viewCurrency() ?>
+            <?= viewCurrencySuppliers() ?>
         </td>
         <td style="border: 1px solid grey; text-align: center">
             <?= l('Сумма') ?><br>
-            <?= viewCurrency() ?>
+            <?= viewCurrencySuppliers() ?>
         </td>
     </tr>
     </thead>

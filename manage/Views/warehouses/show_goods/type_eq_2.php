@@ -102,9 +102,11 @@
     </table>
 
     <div class="span12">
-        <div class="span4 well">
-            <h4><?= l('Запрос на перемещение') ?></h4>
-            <?= $this->all_configs['chains']->moving_item_form($product['item_id']/*, null, $product['id']*/); ?>
+        <div class="span4">
+            <div class="well">
+                <h4><?= l('Запрос на перемещение') ?></h4>
+                <?= $this->all_configs['chains']->moving_item_form($product['item_id']/*, null, $product['id']*/); ?>
+            </div>
         </div>
         <div class="span4">
             <?= $this->all_configs['chains']->form_sold_items($product['item_id'], $this->errors); ?>
