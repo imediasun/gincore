@@ -7,6 +7,11 @@
             <?= $controller->supplier_order_number($order,
                 '<i class="glyphicon glyphicon-pencil"></i>&nbsp;' . l('Редактировать')) ?>
         </li>
+        <li>
+            <a href="<?= $this->all_configs['prefix']?>print.php?act=purchase_invoice&object_id=<?= $order['id'] ?>" target="_blank">
+                <i class="fa fa-print" aria-hidden="true"></i> &nbsp; <?= l('Распечатать накладную') ?>
+            </a>
+        </li>
         <?php if ($order['avail'] == 1): ?>
             <li>
                 <a onclick="return alert_box(this, false, 'so-operations')" data-o_id="<?= $order['id'] ?>" href="">
