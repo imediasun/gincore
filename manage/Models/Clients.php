@@ -143,7 +143,10 @@ class MClients extends AModel
             'tags_id',
             'tag_id',
             'sms_code',
-            'client_code'
+            'client_code',
+            'note',
+            'reg_data_1',
+            'reg_data_2'
         );
     }
 }

@@ -1,12 +1,16 @@
 <?php
 
+require_once __DIR__ . '/../../Core/Object.php';
 require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');
 $moduleactive[20] = !$ifauth['is_2'];
 
-class Clients
+/**
+ * @property  MClients Clients
+ */
+class Clients extends Object
 {
     /** @var View */
     protected $view;
@@ -14,6 +18,9 @@ class Clients
     public $error;
     public $all_configs;
     public $count_on_page;
+    public $uses = array(
+        'Clients'
+    );
 
     /**
      * clients constructor.
@@ -25,6 +32,7 @@ class Clients
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
         $this->view = new View($all_configs);
+        $this->applyUses();
         global $input_html;
 
         require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
@@ -72,60 +80,50 @@ class Clients
                 exit;
             }
         }
+        if (isset($post['create-personal'])) {
+            $result = $this->createNew($post);
+            if (empty($result)) {
+                return false;
+            }
+            Response::redirect(Url::create(array(
+                'controller' => $this->all_configs['arrequest'][0],
+                'action' => 'create',
+                $result['id']
+            )));
+        }
+        if (isset($post['create-legal'])) {
+            $result = $this->createNew($post);
+            if (empty($result)) {
+                return false;
+            }
+            $this->Clients->update(array(
+                'company_name' => $post['fio'],
+                'reg_data_1' => isset($post['reg_data_1']) ? $post['reg_data_1'] : '',
+                'reg_data_2' => isset($post['reg_data_2']) ? $post['reg_data_2'] : '',
+                'residential_address' => isset($post['residential_address']) ? $post['residential_address'] : '',
+                'note' => isset($post['note']) ? $post['note'] : '',
+                'person' => CLIENT_IS_LEGAL
+            ), array('id' => $result['id']));
+            Response::redirect(Url::create(array(
+                'controller' => $this->all_configs['arrequest'][0],
+                'action' => 'create',
+                $result['id']
+            )));
+        }
 
         if (isset($post['edit-client'])) {
             // редактируем клиента
 
-            if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
+            require_once($this->all_configs['sitepath'] . 'mail.php');
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
+            $access = new access($this->all_configs, false);
+            $post['id'] = $this->all_configs['arrequest'][2];
+            $result = $access->edit($post);
 
-                $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(htmlspecialchars($post['email'])) : null;
-                $post['phone'] = trim(preg_replace('/[^0-9]/', '', $post['phone']));
-                $id = '';
-
-                if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $this->error = l('Электронная почта указана неверно.');
-                    return false;
-                }
-
-                if (empty($email) && empty($post['phone'])) {
-                    $this->error = l('Укажите телефон или почту.');
-                    return false;
-                }
-
-                if (!empty($email)) {
-                    $id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE email=?', array($email),
-                        'el');
-                    if ($id) {
-                        $this->error = l('Такой e-mail уже зарегистрирован.');
-                        return false;
-                    }
-                }
-
-                require_once($this->all_configs['sitepath'] . 'mail.php');
-                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
-                $access = new access($this->all_configs, false);
-                $result = $access->registration($post);
-
-                if ($result['new'] == false) {
-                    $this->error = $result['msg'];
-                    return false;
-                }
-                return header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $result['id']);
-                exit;
-            } else {
-
-                require_once($this->all_configs['sitepath'] . 'mail.php');
-                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
-                $access = new access($this->all_configs, false);
-                $post['id'] = $this->all_configs['arrequest'][2];
-                $result = $access->edit($post);
-
-                if ($result['state'] == false) {
-                    $this->error = $result['msg'];
-                    return false;
-                }
+            if ($result['state'] == false) {
+                $this->error = $result['msg'];
+                return false;
             }
 
         } elseif (isset($post['edit-goods-reviews'])) {
@@ -429,9 +427,10 @@ class Clients
         foreach ($clients as $client) {
             $client_data = array();
             $client_data[] = $client['id'];
-            $client_data[] =  't. '.$client['phones'];
+            $client_data[] = 't. ' . $client['phones'];
             foreach ($export_fields as $exf) {
-                $client_data[] = in_array($exf, array('fio', 'legal_address')) ? iconv('UTF-8', 'CP1251', $client[$exf]) : $client[$exf];
+                $client_data[] = in_array($exf, array('fio', 'legal_address')) ? iconv('UTF-8', 'CP1251',
+                    $client[$exf]) : $client[$exf];
             }
             $data[] = $client_data;
         }
@@ -1058,6 +1057,46 @@ class Clients
     {
         return $this->all_configs['db']->query('SELECT color, title, id FROM {tags} ORDER BY title',
             array())->assoc('id');
+    }
+
+    /**
+     * @param $post
+     * @return array|bool
+     */
+    private function createNew($post)
+    {
+        $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(htmlspecialchars($post['email'])) : null;
+        $post['phone'] = trim(preg_replace('/[^0-9]/', '', $post['phone']));
+
+        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error = l('Электронная почта указана неверно.');
+            return false;
+        }
+
+        if (empty($email) && empty($post['phone'])) {
+            $this->error = l('Укажите телефон или почту.');
+            return false;
+        }
+
+        if (!empty($email)) {
+            $id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE email=?', array($email),
+                'el');
+            if ($id) {
+                $this->error = l('Такой e-mail уже зарегистрирован.');
+                return false;
+            }
+        }
+
+        require_once($this->all_configs['sitepath'] . 'mail.php');
+        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
+        $access = new access($this->all_configs, false);
+        $result = $access->registration($post);
+        if ($result['new'] == false) {
+            $this->error = $result['msg'];
+            return false;
+        }
+        return $result;
     }
 }
 

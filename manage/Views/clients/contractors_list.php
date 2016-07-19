@@ -14,4 +14,5 @@
             <?php endforeach; ?>
         </select>
     </div>
+    <div class="clearfix"></div>
 <?php endif; ?>
