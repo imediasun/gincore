@@ -42,6 +42,7 @@ class purchase_invoice extends AbstractTemplate
                     'name' => l('Дата создания заказа поставщику')
                 ),
                 'now' => array('value' => date("d/m/Y", time()), 'name' => l('Текущая дата')),
+                'supplier' => array('value' => h($parent['supplier']), 'name' => l('Поставщик')),
                 'warehouse' => array('value' => h($parent['wh_title']), 'name' => l('Название склада')),
                 'location' => array('value' => h($parent['wh_location']), 'name' => l('Название локации')),
                 'warehouse_accept' => array(
