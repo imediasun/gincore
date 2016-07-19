@@ -23,6 +23,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
         $sum_for_paid = $sum_with_discount - $order['sum_paid'];
 
         if ($order['type'] == 0) {
+            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHRE id=?i', array($order['user_id']))->row();
             $services_cost = array();
             $products = $products_cost = $services = '';
             $sum_by_products_and_services = $sum_by_products = $sum_by_services = 0;
@@ -76,7 +77,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 'address' => array('value' => h($order['accept_address']), 'name' => l('Адрес')),
                 'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
                 'phone' => array('value' => h($order['phone']), 'name' => l('Телефон клиента')),
-                'fio' => array('value' => h($order['fio']), 'name' => l('ФИО клиента')),
+                'fio' => array('value' => h($order['fio']), 'name' => l('ФИО или название клиента')),
                 'order_data' => array(
                     'value' => date('d/m/Y', strtotime($order['date_add'])),
                     'name' => l('Дата создания заказа')
@@ -135,6 +136,11 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 ),
                 'sum_by_products' => array('value' => $sum_by_products / 100, 'name' => l('Сумма за запчасти')),
                 'sum_by_services' => array('value' => $sum_by_services / 100, 'name' => l('Сумма за услуги')),
+                'client_reg_data_1' => array('value' => isset($client['reg_data_1'])? $client['reg_data_1']: '', 'name' => l('Клиент (Регистрационные данные 1)')),
+                'client_reg_data_2' => array('value' => isset($client['reg_data_2'])? $client['reg_data_2']: '', 'name' => l('Клиент (Регистрационные данные 2)')),
+                'client_legal_address' => array('value' => isset($client['legal_address'])? $client['legal_address']: '', 'name' => l('Клиент (Юридический адрес)')),
+                'client_residential_address' => array('value' => isset($client['residential_address'])? $client['residential_address']: '', 'name' => l('Клиент (Фактический адрес)')),
+                'client_note' => array('value' => isset($client['note'])? $client['note']: '', 'name' => l('Клиент (примечания)')),
             );
             $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
             $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];

@@ -740,7 +740,7 @@ class orders extends Controller
             }
             //вывод списска клиентов для создания нового заказа
             $orders_html = $this->view->renderFile('orders/orders_create_order', array(
-                'client' => client_double_typeahead($client_id, 'get_requests'),
+                'client' => client_double_typeahead($client_id, 'change_personal,get_requests'),
                 'colorsSelect' => $this->view->renderFile('orders/_colors-select', array(
                     'colors' => $this->all_configs['configs']['devices-colors']
                 )),

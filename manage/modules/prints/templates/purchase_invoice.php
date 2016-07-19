@@ -58,7 +58,7 @@ class purchase_invoice extends AbstractTemplate
                     'value' => h($this->all_configs['settings']['site_name']),
                     'name' => l('Название компании')
                 ),
-                'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
+                'currency' => array('value' => viewCurrencySuppliers(), 'name' => l('Валюта')),
                 'products' => array('value' => $products, 'name' => l('Товары')),
                 'amount' => array('value' => $amount, 'name' => l('Полная стоимость')),
                 'amount_in_words' => array(

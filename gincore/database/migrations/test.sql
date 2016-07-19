@@ -184,3 +184,9 @@ PRIMARY KEY (`id`),
 INDEX(`stocktaking_id`),
 INDEX(`location_id`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_07_19_074755_add_individual_field_to_clients.php
+ */
+ALTER TABLE `restore4_clients` ADD COLUMN note VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_clients` ADD COLUMN reg_data_1 VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_clients` ADD COLUMN reg_data_2 VARCHAR (255) DEFAULT '';

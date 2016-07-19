@@ -80,6 +80,9 @@ class MClients extends AModel
         if (!empty($_POST['email'])) {
             $info['email'] = $_POST['email'];
         }
+        if (!empty($_POST['person'])) {
+            $info['person'] = intval($_POST['person']);
+        }
         $u = $access->registration($info);
         if ($u['id'] <= 0) {
             throw new ExceptionWithMsg(isset($u['msg']) ? $u['msg'] : l('Ошибка создания клиента'));
@@ -143,7 +146,10 @@ class MClients extends AModel
             'tags_id',
             'tag_id',
             'sms_code',
-            'client_code'
+            'client_code',
+            'note',
+            'reg_data_1',
+            'reg_data_2'
         );
     }
 }

@@ -55,6 +55,13 @@
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-fio')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                <a href="<?= Url::create(array(
+                                    'controller' => 'clients',
+                                    'action' => 'create',
+                                    $order['user_id']
+                                )) ?>" title="<?= l('Карточка клиента') ?>">
+                                    <i class="fa fa-exclamation" aria-hidden="true" style="padding: 0 3px 0 3px"></i>
+                                </a>
                                 <?= l('Заказчик') ?>:
                             </label>
                             <div class="tw100">

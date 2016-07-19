@@ -1,8 +1,13 @@
 <?php
 
 require_once __DIR__ . '/../manage/Core/FlashMessage.php';
+require_once __DIR__ . '/../manage/Core/Exceptions.php';
+require_once __DIR__ . '/../manage/Core/Object.php';
 
-class access
+/**
+ * @property  MClients Clients
+ */
+class access extends Object
 {
     public $remTime = 7776000; // 90 days
 
@@ -20,6 +25,9 @@ class access
     protected $guests_table = 'guests';
 
     protected $all_configs;
+    public $uses = array(
+        'Clients'
+    );
 
     /**
      * access constructor.
@@ -32,6 +40,7 @@ class access
 
         $this->all_configs = &$all_configs;
         $this->standart = $standart;
+        $this->applyUses();
 
         if (!isset($_SESSION)) {
             session_start();
@@ -616,46 +625,62 @@ class access
     {
         $result = array('state' => true, 'msg' => '');
 
-        $email = isset($post['email']) && mb_strlen(trim($post['email']),
-            'UTF-8') > 0 ? $this->is_email($post['email']) : null;
-        $phone = isset($post['phone']) && count(array_filter($post['phone'])) > 0 ? $this->is_phone($post['phone']) : null;
+        try {
 
-        if (!isset($post['id']) || intval($post['id']) == 0) {
-            $result['state'] = false;
-            $result['msg'] = 'Клиент не найден.';
-        }
-        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id = ?i', array($post['id']))->assoc();
-        if (empty($client)) {
-            $result['state'] = false;
-            $result['msg'] = 'Клиент не найден.';
-        }
-        if ($result['state'] == true && $email === false) {
-            $result['state'] = false;
-            $result['msg'] = 'Электронная почта указана неверно.';
-        }
-        if ($result['state'] == true && $phone === false) {
-            $result['state'] = false;
-            $result['msg'] = 'Неправильный формат номера телефона.';
-        }
-        if ($result['state'] == true && !$email && !$phone) {
-            $result['state'] = false;
-            $result['msg'] = 'Укажите телефон или эл.почту.';
-        }
-        $fio = isset($post['fio']) ? trim($post['fio']) : $client[0]['fio'];
-        $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : $client[0]['legal_address'];
-        $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : $client[0]['contractor_id'];
-        $tag_id = isset($post['tag_id']) ? $post['tag_id'] : $client[0]['tag_id'];
-        $tagQuery = $this->all_configs['db']->makeQuery('tag_id = ?i,', array($tag_id));
-        if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
-            $tagQuery = '';
-            FlashMessage::set(l('У вас нет прав на добавление клиента в черный список'), FlashMessage::DANGER);
-        }
-        if ($result['state'] == true) {
+            $email = isset($post['email']) && mb_strlen(trim($post['email']),
+                'UTF-8') > 0 ? $this->is_email($post['email']) : null;
+            $phone = isset($post['phone']) && count(array_filter($post['phone'])) > 0 ? $this->is_phone($post['phone']) : null;
+
+            if (!isset($post['id']) || intval($post['id']) == 0) {
+                throw new ExceptionWithMsg(l('Клиент не найден.'));
+            }
+            $client = $this->Clients->getByPk($post['id']);
+            if (empty($client)) {
+                throw new ExceptionWithMsg(l('Клиент не найден.'));
+            }
+            if ($email === false) {
+                throw new ExceptionWithMsg(l('Электронная почта указана неверно.'));
+            }
+            if ($phone === false) {
+                throw new ExceptionWithMsg(l('Неправильный формат номера телефона.'));
+            }
+            if (!$email && !$phone) {
+                throw new ExceptionWithMsg(l('Укажите телефон или эл.почту.'));
+            }
+            $fio = isset($post['fio']) ? trim($post['fio']) : $client['fio'];
+            $company = $fio;
+            $legal_address = isset($post['legal_address']) ? trim($post['legal_address']) : $client['legal_address'];
+            $note = isset($post['note']) ? trim($post['note']) : $client['note'];
+            $residental_address = isset($post['residential_address']) ? trim($post['residential_address']) : $client['residential_address'];
+            $regData1 = isset($post['reg_data_1']) ? trim($post['reg_data_1']) : $client['reg_data_1'];
+            $regData2 = isset($post['reg_data_2']) ? trim($post['reg_data_2']) : $client['reg_data_2'];
+            $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : $client['contractor_id'];
+            $tag_id = isset($post['tag_id']) ? $post['tag_id'] : $client['tag_id'];
+            if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
+                $tag_id = $client['tag_id'];
+                FlashMessage::set(l('У вас нет прав на добавление клиента в черный список'), FlashMessage::DANGER);
+            }
             $this->update_phones($post['phone'], $post['id']);
             $this->update_email($post['email'], $post['id']);
 
-            $this->all_configs['db']->query('UPDATE {clients} SET fio=?, legal_address=?, ?q contractor_id=?i WHERE id=?i',
-                array($fio, $legal_address, $tagQuery, $contractor_id, $post['id']));
+            $this->Clients->update(array(
+                'fio' => $fio,
+                'company_name' => $company,
+                'legal_address' => $legal_address,
+                'tag_id' => $tag_id,
+                'contractor_id' => $contractor_id,
+                'reg_data_1' => $regData1,
+                'reg_data_2' => $regData2,
+                'note' => $note,
+                'residential_address' => $residental_address
+            ), array(
+                'id' => $post['id']
+            ));
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
         }
 
         return $result;
@@ -692,7 +717,7 @@ class access
         $rpass = isset($post['rpass']) ? trim($post['rpassword']) : $pass;
         $tag_id = isset($post['tag_id']) ? (int)$post['tag_id'] : 0;
 
-        $person = (!isset($post['person']) || $post['person'] == 'true') ? 1 : 2;
+        $person = isset($post['person']) && $post['person'] == 2 ? CLIENT_IS_LEGAL :CLIENT_IS_PERSONAL;
         $fio = isset($post['fio']) ? trim($post['fio']) : null;
         $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
 
@@ -947,7 +972,7 @@ class access
     }
 
     /**
-     * @param int $length
+     * @param int    $length
      * @param string $chars
      * @return string
      */
