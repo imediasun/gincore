@@ -81,8 +81,8 @@ class master
         foreach ($this->all_configs['configs']['countries'] as $id => $country) {
             $countryIds[$country['name']] = $id;
         }
-        ksort($countryIds, SORT_LOCALE_STRING );
-        foreach ($countryIds  as $title => $id) {
+        ksort($countryIds, SORT_LOCALE_STRING);
+        foreach ($countryIds as $title => $id) {
             $input_html['country_select'] .= '<option value="' . $id . '">' . $title . '</option>';
         }
     }
@@ -292,16 +292,17 @@ class master
                             $main_wh['loc_id'],
                             $_SESSION['id']
                         ));
-                    // брак
-                    $this->create_warehouse(lq('Брак') . ' ' . $service['name'], '', '', 1, $id, 1, 0);
-                    // клиент
-                    $this->create_warehouse(lq('Клиент'), '', '', 4, $id, 0, 0);
                     $added_services[$i] = array(
                             'id' => $id
                         ) + $main_wh;
                 }
             }
         }
+        // склады брак и клиент присутствуют в системе в единственном числе без групп
+        // брак
+        $this->create_warehouse(lq('Брак'), '', '', 1, 0, 1, 0);
+        // клиент
+        $this->create_warehouse(lq('Клиент'), '', '', 4, 0, 0, 0);
         // склад логистика без группы
         $this->create_warehouse(lq('Логистика'), '', '', 3, 0, 1, 1);
         // недостача без группы
