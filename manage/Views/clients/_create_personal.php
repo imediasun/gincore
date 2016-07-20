@@ -1,6 +1,6 @@
 <form class="form-horizontal" method="post">
     <fieldset>
-        <div class="col-sm-7">
+        <div class="col-sm-8">
             <div class="control-group">
                 <div>
                     <label class="control-label"><?= l('Ф.И.О.') ?>: <b class="text-danger">*</b></label>
