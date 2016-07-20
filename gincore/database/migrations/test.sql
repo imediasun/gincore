@@ -169,7 +169,6 @@ CREATE TABLE IF NOT EXISTS `restore4_stocktaking` (
     checked_serials TEXT NOT NULL,
 PRIMARY KEY (`id`),
 INDEX(`warehouse_id`),
-INDEX(`location_id`),
 INDEX(`created_at`),
 INDEX(`saved_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
@@ -182,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `restore4_stocktaking_locations` (
     `location_id` int(10) UNSIGNED NOT NULL,
 PRIMARY KEY (`id`),
 INDEX(`stocktaking_id`),
-INDEX(`location_id`),
+INDEX(`location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 /*
 2016_07_19_074755_add_individual_field_to_clients.php
@@ -190,3 +189,17 @@ INDEX(`location_id`),
 ALTER TABLE `restore4_clients` ADD COLUMN note VARCHAR (255) DEFAULT '';
 ALTER TABLE `restore4_clients` ADD COLUMN reg_data_1 VARCHAR (255) DEFAULT '';
 ALTER TABLE `restore4_clients` ADD COLUMN reg_data_2 VARCHAR (255) DEFAULT '';
+
+/*
+2016_07_06_090712_lock_filters
+*/
+CREATE TABLE IF NOT EXISTS `restore4_lock_filters` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `value` text COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `lock_filters_user_id_index` (`user_id`),
+  KEY `lock_filters_name_index` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
