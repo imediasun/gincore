@@ -23,7 +23,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
         $sum_for_paid = $sum_with_discount - $order['sum_paid'];
 
         if ($order['type'] == 0) {
-            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHRE id=?i', array($order['user_id']))->row();
+            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i', array($order['user_id']))->row();
             $services_cost = array();
             $products = $products_cost = $services = '';
             $sum_by_products_and_services = $sum_by_products = $sum_by_services = 0;
