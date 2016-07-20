@@ -3,7 +3,7 @@
         <label class="control-label"><?= l('Контрагент') ?>: </label>
         <?= !empty($infopopover) ? $infopopover : '' ?>
     </div>
-    <div class="<?= !empty($new_client) ? 'span5' : 'col-sm-5' ?>" style="text-align: right">
+    <div class="<?= !empty($new_client) ? 'span5' : 'col-sm-5' ?>" style="text-align: right; min-width: 150px">
         <select name="contractor_id" class="multiselect form-control">
             <option value=""><?= l('Не выбран') ?></option>
             <?php foreach ($contractors as $contractor): ?>
