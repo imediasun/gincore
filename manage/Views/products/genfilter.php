@@ -15,12 +15,6 @@
         </li>
         <li>
             <label class="checkbox">
-                <input type="checkbox" <?= $controller->click_filters('show', 'noimage'); ?>>
-                <?= l('Без картинок') ?>
-            </label>
-        </li>
-        <li>
-            <label class="checkbox">
                 <input type="checkbox" <?= $controller->click_filters('show', 'services'); ?>>
                 <?= l('Услуги') ?>
             </label>
