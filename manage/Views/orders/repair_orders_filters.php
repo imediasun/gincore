@@ -39,7 +39,7 @@
                 </div>
                 <div class="form-group">
                     <input name="client"
-                           value="<?= (isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '') ?>"
+                           value="<?= (isset($_GET['cl']) && !empty($_GET['cl']) ? trim(h($_GET['cl'])) : '') ?>"
                            type="text" class="form-control" placeholder="<?= l('телефон') ?>/<?= l('ФИО клиента') ?>">
                 </div>
                 <div class="form-group">
@@ -93,7 +93,7 @@
                                         <option <?= ((isset($_GET['eng']) && in_array($engineer['id'],
                                                 explode(',', $_GET['eng']))) ? 'selected' : ''); ?>
                                             value="<?= $engineer['id'] ?>">
-                                            <?= htmlspecialchars($engineer['name']) ?>
+                                            <?= h($engineer['name']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -116,7 +116,7 @@
                                         <?php $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'],
                                                     explode(',', $_GET['acp'])))) ? 'selected' : ''; ?>
                                         <option <?= $selected ?> value="<?= $accepter['id'] ?>">
-                                            <?= htmlspecialchars($accepter['name']) ?>
+                                            <?= h($accepter['name']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -136,7 +136,29 @@
                                         <option <?= ((isset($_GET['st']) && in_array($os_id,
                                                 explode(',', $_GET['st']))) ? 'selected' : ''); ?>
                                             value="<?= $os_id ?>">
-                                            <?= htmlspecialchars($os_v['name']) ?>
+                                            <?= h($os_v['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Вид ремонта') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="repair[]"
+                                        multiple="multiple">
+                                    <?php foreach (array(
+                                        l('Платный'),
+                                        l('Гарантийный'),
+                                    ) as $rep_id => $rep_title): ?>
+                                        <option <?= ((isset($_GET['rep']) && in_array($rep_id,
+                                                explode(',', $_GET['rep']))) ? 'selected' : ''); ?>
+                                            value="<?= $rep_id ?>">
+                                            <?= h($rep_title) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

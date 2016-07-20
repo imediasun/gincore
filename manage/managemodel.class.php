@@ -600,6 +600,10 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
                 array($query, explode(',', $filters['st'])));
         }
+        if (isset($filters['rep']) && count(explode(',', $filters['rep'])) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.repair IN (?li)',
+                array($query, explode(',', $filters['rep'])));
+        }
 
         if (isset($filters['wh']) && count(explode(',', $filters['wh'])) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.accept_wh_id IN (?li)',
