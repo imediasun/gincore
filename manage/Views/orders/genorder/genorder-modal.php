@@ -60,6 +60,13 @@
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-fio')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                                        <a href="<?= Url::create(array(
+                                            'controller' => 'clients',
+                                            'action' => 'create',
+                                            $order['user_id']
+                                        )) ?>" title="<?= l('Карточка клиента') ?>">
+                                            <i class="fa fa-info" aria-hidden="true" style="padding: 0 3px 0 3px"></i>
+                                        </a>
                                         <?= l('Заказчик') ?>:
                                     </label>
                                     <div class="tw100">
@@ -87,11 +94,15 @@
                                         <i class="glyphicon glyphicon-picture cursor-pointer"
                                            data-o_id="<?= $order['id'] ?>"
                                            onclick="alert_box(this, null, 'order-gallery')"></i>
+                                        <i class="fa fa-exclamation" aria-hidden="true" data-o_id="<?= $order['id'] ?>"
+                                           onclick="return show_category_addition_info(this);"
+                                           title="<?= l('Важная информация') ?>"
+                                           style="cursor:pointer; padding: 0 3px 0 3px"></i>
                                         <?= l('Устройство') ?>:
                                     </label>
                                     <?= typeahead($this->all_configs['db'], 'categories-goods', false,
                                         $order['category_id'], 4,
-                                        'input-medium') ?>
+                                        'input-medium', '', 'display_category_information,get_requests') ?>
                                 </div>
                                 <div class="form-group clearfix <?= !isset($hide['color']) ? 'hide-field' : '' ?>">
                                     <label class="control-label lh30"><?= l('Цвет') ?>: </label>

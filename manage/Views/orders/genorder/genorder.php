@@ -60,7 +60,7 @@
                                     'action' => 'create',
                                     $order['user_id']
                                 )) ?>" title="<?= l('Карточка клиента') ?>">
-                                    <i class="fa fa-exclamation" aria-hidden="true" style="padding: 0 3px 0 3px"></i>
+                                    <i class="fa fa-info" aria-hidden="true" style="padding: 0 3px 0 3px"></i>
                                 </a>
                                 <?= l('Заказчик') ?>:
                             </label>
