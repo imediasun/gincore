@@ -2032,7 +2032,8 @@ class Chains extends Object
                 $post['amount_from'] = intval($order['price']) * intval($order['count_come']) / 100;
                 $supplier_order_id = $order['id'];
                 $post['date_transaction'] = date("Y-m-d H:i:s", time());
-                $post['comment'] = "Выплата за заказ поставщика {$this->all_configs['suppliers_orders']->supplier_order_number($order)}, сумма {$post['amount_from']}$, склад {$order['wh_title']}, {$post['date_transaction']}";
+                $supplierOrderCurrency = viewCurrencySuppliers();
+                $post['comment'] = "Выплата за заказ поставщика {$this->all_configs['suppliers_orders']->supplier_order_number($order)}, сумма {$post['amount_from']}{$supplierOrderCurrency}, склад {$order['wh_title']}, {$post['date_transaction']}";
                 $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-so-contractor_category_id_from'];
                 $post['contractors_id'] = $order['supplier'];
                 $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
