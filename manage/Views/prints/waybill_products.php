@@ -57,7 +57,8 @@
     </tbody>
     <tfoot>
     <tr>
-        <td style="border: 1px solid grey; text-align: left; font-weight: bold" colspan="5">
+        <td style="border: 1px solid grey; text-align: left; font-weight: bold"
+            colspan="<?= (empty($order) || $order['type'] != 0) ? 5 : 4 ?>">
             <?= l('Итого') ?>
         </td>
         <td style="border: 1px solid grey; text-align: right; padding-right: 30px !important;">
