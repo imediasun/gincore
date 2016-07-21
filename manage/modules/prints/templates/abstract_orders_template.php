@@ -10,6 +10,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
         $view = new View($this->all_configs);
         $summ = $order['sum'];
         $products_html = $view->renderFile('prints/waybill_products', array(
+            'order' => $order,
             'goods' => $goods,
             'amount' => $summ / 100
         ));

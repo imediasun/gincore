@@ -14,12 +14,14 @@
             <?= l('Цена') ?><br>
             <?= viewCurrency() ?>
         </td>
-        <td style="border: 1px solid grey; text-align: center">
-            <?= l('Скидка') ?>
-        </td>
+        <?php if (empty($order) || $order['type'] != 0): ?>
+            <td style="border: 1px solid grey; text-align: center">
+                <?= l('Скидка') ?>
+            </td>
+        <?php endif; ?>
         <td style="border: 1px solid grey; text-align: center">
             <?= l('Сумма') ?><br>
-            <?= viewCurrency() ?>            
+            <?= viewCurrency() ?>
         </td>
     </tr>
     </thead>
@@ -41,9 +43,11 @@
                 <td style="border: 1px solid grey; text-align: right; padding-right: 30px !important;">
                     <?= h($good['price']) / 100 ?>
                 </td>
-                <td style="border: 1px solid grey; text-align: right; padding-right: 30px !important;">
-                    <?= h($good['discount']) ?> <?= $good['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
-                </td>
+                <?php if (empty($order) || $order['type'] != 0): ?>
+                    <td style="border: 1px solid grey; text-align: right; padding-right: 30px !important;">
+                        <?= h($good['discount']) ?> <?= $good['discount_type'] == DISCOUNT_TYPE_PERCENT ? '%' : viewCurrency() ?>
+                    </td>
+                <?php endif; ?>
                 <td style="border: 1px solid grey; text-align: right; padding-right: 30px !important;">
                     <?= sum_with_discount($good) ?>
                 </td>
