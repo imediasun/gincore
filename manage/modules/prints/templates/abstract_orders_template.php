@@ -161,6 +161,14 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 'sum' => array('value' => $summ / 100, 'name' => 'Сумма за ремонт'),
                 'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
                 'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
+                'discount' => array(
+                    'value' => $order['discount'] > 0 ? ($order['discount'] / 100) . viewCurrency() : '',
+                    'name' => l('Скидка на заказ')
+                ),
+                'sum_with_discount' => array(
+                    'value' => $sum_with_discount / 100,
+                    'name' => l('Сумма заказа с учетом скидки')
+                ),
                 'product' => array(
                     'value' => h($order['g_title']) . ' ' . h($order['note']),
                     'name' => 'Устройство'
