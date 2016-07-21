@@ -64,7 +64,7 @@
                                             'controller' => 'clients',
                                             'action' => 'create',
                                             $order['user_id']
-                                        )) ?>" title="<?= l('Карточка клиента') ?>">
+                                        )) ?>" title="<?= l('Карточка клиента') ?>" target="_blank">
                                             <i class="fa fa-info" aria-hidden="true" style="padding: 0 3px 0 3px"></i>
                                         </a>
                                         <?= l('Заказчик') ?>:

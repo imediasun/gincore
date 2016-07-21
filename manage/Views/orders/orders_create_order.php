@@ -60,8 +60,12 @@
                                         </div>
                                         <div class="col-sm-6 input-group">
                                             <?= $client['fio'] ?>
-                                            <span class="input-group-addon js-personal" id="personal" onclick="return change_personal_to(2);"> <?= l('Физ') ?></span>
-                                            <span class="input-group-addon js-personal" id="legal"  onclick="return change_personal_to(1);" style="display: none"><?= l('Юр') ?></span>
+                                            <span class="input-group-addon js-personal" id="personal" onclick="return change_personal_to(2);"> <?= l('Физ') ?>
+                                                <i class="fa fa-exchange" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="input-group-addon js-personal" id="legal"  onclick="return change_personal_to(1);" style="display: none"><?= l('Юр') ?>
+                                                <i class="fa fa-exchange" aria-hidden="true"></i>
+                                            </span>
                                             <input type="hidden" name="person" value="1" />
                                         </div>
                                     </div>

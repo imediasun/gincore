@@ -1,7 +1,7 @@
 <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
 <?php if (!empty($orders)): ?>
     <div id="show_orders">
-        <table class="table table-fs-12" >
+        <table class="table table-fs-12">
             <thead>
             <tr>
                 <td></td>
@@ -30,13 +30,16 @@
         </table>
     </div>
 
-    <?= page_block(ceil($count / $count_on_page), $count, '#show_orders'); ?>
+    <?= page_block(ceil($count / $count_on_page), $count, '#show_orders', null,
+        $this->renderFile('orders/_export_button', array(
+            'prefix' => $prefix
+        ))); ?>
 
 <?php else: ?>
     <div class="span9"><p class="text-danger"><?= l('Заказов не найдено') ?></p></div>
 <?php endif; ?>
 <script>
-    jQuery(document).ready(function(){
+    jQuery(document).ready(function () {
         $('.multiselect').multiselect({
             buttonWidth: '150px'
         });

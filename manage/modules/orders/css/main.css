@@ -650,3 +650,6 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
     padding-bottom: 0;
     padding-top: 0;
 }
+.fa-exchange {
+    transform: rotate(90deg);
+}

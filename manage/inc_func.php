@@ -715,9 +715,10 @@ function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 
  * @param        $count
  * @param string $hash
  * @param null   $a_url
+ * @param string $after
  * @return string
  */
-function page_block($count_page, $count, $hash = '', $a_url = null)
+function page_block($count_page, $count, $hash = '', $a_url = null, $after = '')
 {
     $count_page = ceil($count_page);
 
@@ -727,7 +728,8 @@ function page_block($count_page, $count, $hash = '', $a_url = null)
         'count_page' => $count_page,
         'count' => $count,
         'hash' => $hash,
-        'a_url' => $a_url
+        'a_url' => $a_url,
+        'after' => $after
     ));
 }
 
