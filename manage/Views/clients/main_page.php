@@ -35,6 +35,12 @@
             <input type="submit" class="btn btn-info" value="<?= l('Экспорт') ?>">
         </form>
     </div>
+    <div class="pull-right" style="margin-right: 10px">
+        <button type="button" class="btn btn-default js-show-filters">
+            <i class="fa fa-filter"></i> <?= l('Фильтровать') ?>
+            <i class="fa fa-caret-down"></i>
+        </button>
+    </div>
 </div>
 <div class="tab-content">
     <div class="tab-pane active">

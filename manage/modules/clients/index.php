@@ -1,8 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../../Core/Object.php';
-require_once __DIR__ . '/../../Core/Response.php';
-require_once __DIR__ . '/../../Core/View.php';
 
 $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');
@@ -10,6 +8,9 @@ $moduleactive[20] = !$ifauth['is_2'];
 
 /**
  * @property  MClients Clients
+ * @property  MLockFilters LockFilters
+ * @property  MUsers Users
+ * @property  MUsersMarked UsersMarked
  */
 class Clients extends Object
 {
@@ -20,7 +21,10 @@ class Clients extends Object
     public $all_configs;
     public $count_on_page;
     public $uses = array(
-        'Clients'
+        'Clients',
+        'LockFilters',
+        'Users',
+        'UsersMarked'
     );
 
     /**
@@ -66,6 +70,66 @@ class Clients extends Object
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $mod_id = $this->all_configs['configs']['clients-manage-page'];
 
+        // фильтруем заказы клиентов
+        if (isset($post['filter-clients'])) {
+            $url = array();
+
+            // фильтр по дате
+            if (isset($post['date']) && !empty($post['date'])) {
+                list($df, $dt) = explode('-', $post['date']);
+                $url['df'] = urlencode(trim($df));
+                $url['dt'] = urlencode(trim($dt));
+            }
+
+            if (isset($post['client']) && !empty($post['client'])) {
+                $url['cl'] = trim($post['client']);
+            }
+
+            if (isset($post['client_id'])) {
+                $url['cl_id'] = intval($post['client_id']);
+            }
+
+            if (isset($post['order_id'])) {
+                $url['co_id'] = intval($post['order_id']);
+            }
+
+            if (isset($post['acts']) && !empty($post['acts'])) {
+                $url['acts'] = implode(',', $post['acts']);
+            }
+
+            if (isset($post['operators']) && !empty($post['operators'])) {
+                $url['ops'] = implode(',', $post['operators']);
+            }
+
+            if (isset($post['tags']) && !empty($post['tags'])) {
+                $url['tags'] = implode(',', $post['tags']);
+            }
+
+            if (isset($post['referrers']) && !empty($post['referrers'])) {
+                $url['refs'] = implode(',', $post['referrers']);
+            }
+
+            if (isset($post['persons']) && !empty($post['persons'])) {
+                $url['persons'] = implode(',', $post['persons']);
+            }
+
+            if (isset($post['categories-last']) && $post['categories-last'] > 0) {
+                // фильтр по категориям (устройство)
+                $url['dev'] = intval($post['categories-last']);
+            }
+
+            if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
+                // фильтр по товару
+                $url['by_gid'] = intval($post['goods-goods']);
+            }
+
+            $url['tab'] = 'clients';
+            $this->LockFilters->toggle('filter-clients', $url);
+            Response::redirect(Url::create(array(
+                'controller' => $this->all_configs['arrequest'][0],
+                'options' => $url
+            )));
+        }
         // поиск товаров
         if (isset($_POST['search'])) {
             $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0]
@@ -463,19 +527,14 @@ class Clients extends Object
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
 
         // активен/неактивен
-        $query = '';
-        // поиск
-        if (isset($_GET['s']) && !empty($_GET['s'])) {
-            // 0xA0 deleted because search not work  if search string contain russian letter 'P'
-            $s = str_replace(array('&nbsp;', ' '), '%', trim($_GET['s']));
-            $query = $this->all_configs['db']->makeQuery('?query AND (cl.fio LIKE "%?e%" OR cl.email LIKE "%?e%"
-                    OR cl.phone LIKE "%?e%" OR p.phone LIKE "%?e%")',
-                array($query, $s, $s, $s, $s));
-        }
-        $clients = $this->all_configs['db']->query('SELECT cl.* FROM {clients} as cl
+        $query = $this->getFilters($_GET);
+        $clients = $this->all_configs['db']->query('
+                SELECT cl.*, m.id as m_id 
+                FROM {clients} as cl
                 LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
+                LEFT JOIN {users_marked} as m ON m.object_id=cl.id AND m.type=? AND m.user_id=?i
                 WHERE 1=1 ?query GROUP BY cl.id ORDER BY cl.date_add DESC LIMIT ?i, ?i',
-            array($query, $skip, $count_on_page))->assoc();
+            array('cl', $this->getUserId(), $query, $skip, $count_on_page))->assoc();
         $count = $this->all_configs['db']->query('SELECT COUNT(DISTINCT cl.id) FROM {clients} as cl
                 LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
                 WHERE 1=1 ?query',
@@ -486,7 +545,8 @@ class Clients extends Object
             'count_page' => ceil($count / $count_on_page),
             'clients' => $clients,
             'arrequest' => $this->all_configs['arrequest'],
-            'tags' => $this->getTags()
+            'tags' => $this->getTags(),
+            'clients_filters' => $this->clientsFilters()
         ));
     }
 
@@ -1087,7 +1147,7 @@ class Clients extends Object
      */
     private function createNew($post)
     {
-        $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(htmlspecialchars($post['email'])) : null;
+        $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(h($post['email'])) : null;
         $post['phone'] = trim(preg_replace('/[^0-9]/', '', $post['phone']));
 
         if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -1119,6 +1179,68 @@ class Clients extends Object
             return false;
         }
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    private function clientsFilters()
+    {
+        $saved = $this->LockFilters->load('filter-clients');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET = $saved;
+        }
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : '')
+            . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : '');
+
+        $count = $this->Clients->query('SELECT COUNT(id) FROM {clients}', array())->el();
+        $count_marked = $this->UsersMarked->countMarkedAs('cl');
+        $this->view->load('LockButton');
+        return $this->view->renderFile('clients/clients_filters', array(
+            'operators' => $this->getOperators(),
+            'tags' => $this->getTags(),
+            'referrers' => $this->getReferrers(),
+            'date' => $date,
+            'count' => $count,
+            'count_marked' => $count_marked
+            
+        ));
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    private function getFilters($get)
+    {
+        $query = '' ;
+        // поиск
+        if (isset($get['s']) && !empty($get['s'])) {
+            // 0xA0 deleted because search not work  if search string contain russian letter 'P'
+            $s = str_replace(array('&nbsp;', ' '), '%', trim($_GET['s']));
+            $query = $this->Clients->makeQuery('?query AND (cl.fio LIKE "%?e%" OR cl.email LIKE "%?e%"
+                    OR cl.phone LIKE "%?e%" OR p.phone LIKE "%?e%")',
+                array($query, $s, $s, $s, $s));
+        }
+        return $query;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOperators()
+    {
+        return $this->Users->getWithPermission();
+    }
+    
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    private function getReferrers()
+    {
+        return get_service("crm/calls")->get_referers();
     }
 }
 

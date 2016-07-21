@@ -41,6 +41,10 @@ define('CASHBOX_NOT_SYSTEM', 2);
 define('CLIENT_IS_PERSONAL', 1);
 define('CLIENT_IS_LEGAL', 2);
 
+define('CLIENT_ACT_CALL', 1);
+define('CLIENT_ACT_REQUEST', 2);
+define('CLIENT_ACT_ORDER', 3);
+
 
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
