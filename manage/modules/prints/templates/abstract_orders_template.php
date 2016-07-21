@@ -155,14 +155,19 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
         }
 
         if ($order['type'] == 3) {
-
+            $discount = 0;
+            if (!empty($goods)) {
+                foreach ($goods as $good) {
+                    $discount += discount($good);
+                }
+            }
             $arr = array(
                 'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
                 'sum' => array('value' => $summ / 100, 'name' => 'Сумма за ремонт'),
                 'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
                 'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
                 'discount' => array(
-                    'value' => $order['discount'] > 0 ? ($order['discount'] / 100) . viewCurrency() : '',
+                    'value' => ($discount > 0 ? $discount . viewCurrency() : ''),
                     'name' => l('Скидка на заказ')
                 ),
                 'sum_with_discount' => array(

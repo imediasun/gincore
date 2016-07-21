@@ -1747,6 +1747,15 @@ function h($string)
     return htmlspecialchars($string);
 }
 
+function discount($product) {
+    if ($product['discount_type'] == DISCOUNT_TYPE_PERCENT) {
+        $discount = $product['price'] / 100 * ($product['discount'] / 100);
+    } else {
+        $discount = $product['discount'];
+    }
+    return $discount; 
+}
+
 function price_with_discount($product)
 {
     if ($product['discount_type'] == DISCOUNT_TYPE_PERCENT) {
