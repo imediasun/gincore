@@ -653,3 +653,7 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 .fa-exchange {
     transform: rotate(90deg);
 }
+.table.table-borderless.table-for-filters > tbody > tr > td {
+    margin: 0;
+    padding: 0;
+}
