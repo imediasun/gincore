@@ -13,9 +13,9 @@
                        href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>">
                         <?= l('Всего') ?>: <span id="count-clients-orders"><?= $count ?></span>
                     </a>
-                    <a class="btn btn-default <?= (isset($_GET['marked']) && $_GET['marked'] == 'co' ? 'disabled' : '') ?> text-left"
+                    <a class="btn btn-default <?= (isset($_GET['marked']) && $_GET['marked'] == 'cl' ? 'disabled' : '') ?> text-left"
                        href="
-                            <?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?marked=co#show_orders">
+                            <?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?tab=clients&marked=cl#show_orders">
                         <?= l('Отмеченные') ?>: <span class="icons-marked star-marked-active"> </span> <span
                             id="count-marked-co"><?= $count_marked ?></span>
                     </a>
@@ -29,7 +29,7 @@
             <div class="col-sm-2 b-r">
                 <div class="form-group">
                     <input name="client"
-                           value="<?= (isset($_GET['cl']) && !empty($_GET['cl']) ? trim(h($_GET['cl'])) : '') ?>"
+                           value="<?= (isset($_GET['s']) && !empty($_GET['s']) ? trim(h($_GET['s'])) : '') ?>"
                            type="text" class="form-control" placeholder="<?= l('телефон') ?>/<?= l('ФИО клиента') ?>">
                 </div>
                 <div class="form-group">
@@ -63,6 +63,29 @@
                                 </select>
                             </span>
 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Тип клиента') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="persons[]"
+                                        multiple="multiple">
+                                    <option <?= ((isset($_GET['persons']) && in_array(1,
+                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
+                                        value="1">
+                                        <?= l('Физ. лицо') ?>
+                                    </option>
+                                    <option <?= ((isset($_GET['persons']) && in_array(2,
+                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
+                                        value="2">
+                                        <?= l('Юр. лицо') ?>
+                                    </option>
+
+                                </select>
+                            </span>
                         </td>
                     </tr>
                     <tr>
@@ -103,41 +126,18 @@
                             </span>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Тип клиента') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="persons[]"
-                                        multiple="multiple">
-                                    <option <?= ((isset($_GET['persons']) && in_array(1,
-                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
-                                        value="1">
-                                        <?= l('Физ. лицо') ?>
-                                    </option>
-                                    <option <?= ((isset($_GET['persons']) && in_array(2,
-                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
-                                        value="2">
-                                        <?= l('Юр. лицо') ?>
-                                    </option>
-
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Количество обращений') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="calls[]"
-                                        multiple="multiple">
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
+<!--                    <tr>-->
+<!--                        <td class="span5">-->
+<!--                            <p class="form-control-static">--><?//= l('Количество обращений') ?><!--:</p>-->
+<!--                        </td>-->
+<!--                        <td class="span6">-->
+<!--                            <span class="input-group-btn">-->
+<!--                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="calls[]"-->
+<!--                                        multiple="multiple">-->
+<!--                                </select>-->
+<!--                            </span>-->
+<!--                        </td>-->
+<!--                    </tr>-->
                 </table>
             </div>
             <div class="col-sm-4">
@@ -146,7 +146,7 @@
                         <td class="span5">
                             <p class="form-control-static"><?= l('За период') ?>:</p>
                         </td>
-                        <td class="span6" style="max-width: 160px">
+                        <td class="span6" style="max-width: 165px">
                             <div class="form-group">
                                 <input type="text" placeholder="<?= l('Дата') ?>" name="date"
                                        class="daterangepicker form-control"
@@ -161,7 +161,7 @@
                                 <?= l('Сдавали в ремонт') ?>:
                             </p>
                         </td>
-                        <td class="span6" style="max-width: 160px">
+                        <td class="span6" style="max-width: 165px">
                             <div class="form-group">
                                 <?= typeahead($this->all_configs['db'], 'categories-last', false,
                                     isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small',
@@ -178,7 +178,7 @@
                                 <?= l('Приобретали') ?>:
                             </p>
                         </td>
-                        <td class="span6" style="max-width: 160px">
+                        <td class="span6" style="max-width: 165px">
                             <div class="form-group">
                                 <?= typeahead($this->all_configs['db'], 'goods-goods', false,
                                     isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small',
@@ -199,7 +199,7 @@
                                     <?php foreach (array(
                                         CLIENT_ACT_CALL => l('Были входящие звонки'),
                                         CLIENT_ACT_REQUEST => l('Создавались заявки'),
-                                        CLIENT_ACT_ORDER => l('Создавались звонки'),
+                                        CLIENT_ACT_ORDER => l('Создавались заказы'),
                                     ) as $act_id => $act): ?>
                                         <option <?= ((isset($_GET['acts']) && in_array($act_id,
                                                 explode(',', $_GET['acts']))) ? 'selected' : ''); ?>

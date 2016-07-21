@@ -69,3 +69,10 @@ select.tags-list {
     color: grey;
     text-align: center;
 }
+table.table-for-filters tr > td {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+.js-filters .form-group{
+    margin-bottom: 3px;
+}

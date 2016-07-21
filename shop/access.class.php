@@ -6,6 +6,7 @@ require_once __DIR__ . '/../manage/Core/Object.php';
 
 /**
  * @property  MClients Clients
+ * @property  MHistory History
  */
 class access extends Object
 {
@@ -26,7 +27,8 @@ class access extends Object
 
     protected $all_configs;
     public $uses = array(
-        'Clients'
+        'Clients',
+        'History'
     );
 
     /**
@@ -717,7 +719,7 @@ class access extends Object
         $rpass = isset($post['rpass']) ? trim($post['rpassword']) : $pass;
         $tag_id = isset($post['tag_id']) ? (int)$post['tag_id'] : 0;
 
-        $person = isset($post['person']) && $post['person'] == 2 ? CLIENT_IS_LEGAL :CLIENT_IS_PERSONAL;
+        $person = isset($post['person']) && $post['person'] == 2 ? CLIENT_IS_LEGAL : CLIENT_IS_PERSONAL;
         $fio = isset($post['fio']) ? trim($post['fio']) : null;
         $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : '';
 
@@ -806,6 +808,8 @@ class access extends Object
                 }
                 $result['new'] = true;
                 $result['msg'] = 'Успешно зарегестирован.';
+                $mod_id = $this->all_configs['configs']['client-manage-page'];
+                $this->History->save('create-client', $mod_id, $result['id']);
             } catch (go\DB\Exceptions\Exception $e) {
                 $result['new'] = false;
                 $result['msg'] = 'Указанные Вами электронная почта или номер телефона уже зарегистрированны в нашей системе.';

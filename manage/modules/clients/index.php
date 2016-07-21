@@ -7,9 +7,9 @@ $modulemenu[20] = l('Клиенты');
 $moduleactive[20] = !$ifauth['is_2'];
 
 /**
- * @property  MClients Clients
+ * @property  MClients     Clients
  * @property  MLockFilters LockFilters
- * @property  MUsers Users
+ * @property  MUsers       Users
  * @property  MUsersMarked UsersMarked
  */
 class Clients extends Object
@@ -82,14 +82,14 @@ class Clients extends Object
             }
 
             if (isset($post['client']) && !empty($post['client'])) {
-                $url['cl'] = trim($post['client']);
+                $url['s'] = trim($post['client']);
             }
 
-            if (isset($post['client_id'])) {
+            if (isset($post['client_id']) && !empty($post['client_id'])) {
                 $url['cl_id'] = intval($post['client_id']);
             }
 
-            if (isset($post['order_id'])) {
+            if (isset($post['order_id']) && !empty($post['order_id'])) {
                 $url['co_id'] = intval($post['order_id']);
             }
 
@@ -526,19 +526,30 @@ class Clients extends Object
         $count_on_page = $this->count_on_page;//50;
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
 
+        $saved = $this->LockFilters->load('filter-clients');
+        Log::dump($_GET);
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
+
         // активен/неактивен
         $query = $this->getFilters($_GET);
+        Log::error($query);
+
         $clients = $this->all_configs['db']->query('
                 SELECT cl.*, m.id as m_id 
                 FROM {clients} as cl
                 LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
                 LEFT JOIN {users_marked} as m ON m.object_id=cl.id AND m.type=? AND m.user_id=?i
-                WHERE 1=1 ?query GROUP BY cl.id ORDER BY cl.date_add DESC LIMIT ?i, ?i',
+                LEFT JOIN {orders} as o ON o.user_id=cl.id
+                WHERE ?query GROUP BY cl.id ORDER BY cl.id DESC LIMIT ?i, ?i',
             array('cl', $this->getUserId(), $query, $skip, $count_on_page))->assoc();
         $count = $this->all_configs['db']->query('SELECT COUNT(DISTINCT cl.id) FROM {clients} as cl
                 LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
-                WHERE 1=1 ?query',
-            array($query))->el();
+                LEFT JOIN {users_marked} as m ON m.object_id=cl.id AND m.type=? AND m.user_id=?i
+                LEFT JOIN {orders} as o ON o.user_id=cl.id
+                WHERE ?query',
+            array('cl', $this->getUserId(), $query))->el();
 
         return $this->view->renderFile('clients/clients_list', array(
             'count' => $count,
@@ -1204,25 +1215,138 @@ class Clients extends Object
             'date' => $date,
             'count' => $count,
             'count_marked' => $count_marked
-            
+
         ));
     }
 
     /**
-     * @param $get
+     * @param $filters
+     * @param $field
      * @return string
      */
-    private function getFilters($get)
+    protected function getDateFilter($filters, $field)
     {
-        $query = '' ;
+        // фильтр по дате
+        $day_from = null;
+        $day_to = null;
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
+            $day_from = $filters['df'] . ' 00:00:00';
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
+            $day_to = $filters['dt'] . ' 23:59:59';
+        }
+        $date_query = '1=1';
+        if ($day_from && $day_to) {
+            $date_query = $this->all_configs['db']->makeQuery('DATE(?q) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($field, $day_from, $day_to));
+        } elseif ($day_from) {
+            $date_query = $this->all_configs['db']->makeQuery('DATE(?q)>=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
+                array($field, $day_from));
+        } elseif ($day_to) {
+            $date_query = $this->all_configs['db']->makeQuery('DATE(?q)<=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
+                array($field, $day_to));
+        }
+        return $date_query;
+    }
+
+    /**
+     * @param $filters
+     * @return string
+     */
+    private function getFilters($filters)
+    {
+        $query = '1=1';
         // поиск
-        if (isset($get['s']) && !empty($get['s'])) {
+        if (isset($filters['s']) && !empty($filters['s'])) {
             // 0xA0 deleted because search not work  if search string contain russian letter 'P'
-            $s = str_replace(array('&nbsp;', ' '), '%', trim($_GET['s']));
+            $s = str_replace(array('&nbsp;', ' '), '%', trim($filters['s']));
             $query = $this->Clients->makeQuery('?query AND (cl.fio LIKE "%?e%" OR cl.email LIKE "%?e%"
                     OR cl.phone LIKE "%?e%" OR p.phone LIKE "%?e%")',
                 array($query, $s, $s, $s, $s));
         }
+
+        if (isset($filters['marked'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND m.user_id=?i AND m.type=?',
+                array($query, $_SESSION['id'], trim($filters['marked'])));
+        }
+        if (isset($filters['tags']) && count(array_filter(explode(',', $filters['tags']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.tag_id IN (?li)',
+                array($query, array_filter(explode(',', $filters['tags']))));
+        }
+        if (isset($filters['persons']) && count(array_filter(explode(',', $filters['persons']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.person IN (?li)',
+                array($query, array_filter(explode(',', $filters['persons']))));
+        }
+        if (isset($filters['ops']) && count(array_filter(explode(',', $filters['ops']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.id in (SELECT object_id FROM {changes} ch WHERE ch.user_id IN (?li) AND work=?)',
+                array($query, array_filter(explode(',', $filters['ops'])), 'create-client'));
+        }
+        if (isset($filters['co_id']) && count(array_filter(explode(',', $filters['co_id']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
+                array($query, array_filter(explode(',', $filters['co_id']))));
+        }
+        $additionIds = array();
+        if (isset($filters['dev']) && $filters['dev'] > 0) {
+            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT user_id as cl_id 
+                FROM {orders} 
+                WHERE category_id=?i AND ?query GROUP by cl_id',
+                array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col());
+        }
+        if (isset($filters['by_gid']) && $filters['by_gid'] > 0) {
+            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT o.user_id as cl_id
+                FROM {orders} o
+                JOIN {orders_goods} og ON o.id=og.order_id
+                WHERE og.goods_id=?i AND ?query GROUP by cl_id',
+                array($filters['by_gid'], $this->getDateFilter($filters, 'o.date_add')))->col());
+        }
+        if (isset($filters['refs']) && count(array_filter(explode(',', $filters['refs']))) > 0) {
+            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT c.client_id as cl_id
+                FROM {crm_calls} c
+                WHERE c.referer_id in (?li) GROUP by cl_id',
+                array( array_filter(explode(',', $filters['refs']))))->col());
+        }
+        if (isset($filters['acts'])) {
+            $acts = explode(',', $filters['acts']);
+            if (in_array(CLIENT_ACT_ORDER, $acts)) {
+                $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT user_id as cl_id 
+                FROM {orders} 
+                WHERE ?query GROUP by cl_id',
+                    array($this->getDateFilter($filters, 'date_add')))->col());
+            }
+            if (in_array(CLIENT_ACT_REQUEST, $acts)) {
+                $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT c.client_id as cl_id
+                FROM {crm_requests} cr
+                 JOIN {crm_calls} c ON cr.call_id=c.id
+                WHERE ?query GROUP by cl_id',
+                    array($this->getDateFilter($filters, 'c.date')))->col());
+            }
+            if (in_array(CLIENT_ACT_CALL, $acts)) {
+                $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT client_id as cl_id
+                FROM {crm_calls} 
+                WHERE ?query GROUP by cl_id',
+                    array($this->getDateFilter($filters, 'date')))->col());
+            }
+        }
+
+        if (!empty($additionIds)) {
+            if (isset($filters['cl_id']) && $filters['cl_id'] > 0) {
+                $filters['cl_id'] .= ',' . implode(',', $additionIds);
+            } else {
+                $filters['cl_id'] = implode(',', $additionIds);
+            }
+        }
+
+        if (isset($filters['cl_id']) && count(array_filter(explode(',', $filters['cl_id']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.id IN (?li)',
+                array($query, array_filter(explode(',', $filters['cl_id']))));
+        }
+
         return $query;
     }
 
@@ -1233,7 +1357,7 @@ class Clients extends Object
     {
         return $this->Users->getWithPermission();
     }
-    
+
     /**
      * @return mixed
      * @throws Exception
