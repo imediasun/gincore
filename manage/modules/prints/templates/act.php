@@ -25,39 +25,9 @@ class act extends AbstractOrdersTemplate
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
 
-            // товары и услуги
-            $products_rows = array();
-
-            if ($goods) {
-                foreach ($goods as $product) {
-                    $products_rows[] = array(
-                        'title' => htmlspecialchars($product['title']),
-                        'price_view' => ($product['price'] / 100) . ' ' . viewCurrency()
-                    );
-                }
-            }
-
-            $products_html_parts = array();
-            $num = 1;
-            foreach ($products_rows as $prod) {
-                $products_html_parts[] = '
-                        ' . $num . '</td>
-                        <td>' . $prod['title'] . '</td>
-                        <td>1</td>
-                        <td>' . $prod['price_view'] . '</td>
-                        <td>' . $prod['price_view'] . '
-                    ';
-                $num++;
-            }
-            $products_html = implode('</td></tr><tr><td>', $products_html_parts);
-
 
             $arr = $this->getVariables($order, $goods);
-            $arr ['products_and_services'] = array(
-                    'value' => $products_html,
-                    'name' => l('Товары и услуги (вставляется внутрь таблицы)')
-            );
-            
+
             $print_html = $this->generate_template($this->addUsersFieldsValues($order, $arr), 'act');
         }
         return $print_html;
