@@ -33,6 +33,10 @@
                                 <?= l('Принят') ?>: <?= do_nice_date($order['date_add']) ?>
                             </small>
                             &nbsp;
+                            <?php if (!empty($homeMasterRequest)): ?>
+                                <i style="color:<?= $color ?>; font-size: 10px" title="<?= $homeMasterRequest['address'] ?>, <?= $homeMasterRequest['date']?>"
+                                   class="fa fa-car"></i>
+                            <?php endif; ?>
                             <?php if (mb_strlen($order['courier'], 'UTF-8') > 0): ?>
                                 <i style="color:<?= $color ?>;" title="<?= l('Курьер забрал устройство у клиента') ?>"
                                    class="fa fa-truck"></i>

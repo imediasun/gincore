@@ -101,9 +101,13 @@ class orders extends Controller
                 $url['g_cg'] = intval($post['categories']);
             }
 
-            if (isset($post['np'])) {
+            if (isset($post['other']) && in_array('np', $post['other'])) {
                 // фильтр принято через нп
                 $url['np'] = 1;
+            }
+
+            if (isset($post['other']) && !empty($post['other'])) {
+                $url['other'] = implode(',', $post['other']);
             }
 
             if (isset($post['wh-kiev'])) {
@@ -1717,12 +1721,11 @@ class orders extends Controller
             return $this->view->renderFile('orders/genorder/_empty_orders');
         }
         // достаем комментарии к заказу
-        $comments_public = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
-                FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
-                WHERE oc.order_id=?i AND oc.private=0 ORDER BY oc.date_add DESC', array($order['id']))->assoc();
-        $comments_private = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
-                FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
-                WHERE oc.order_id=?i AND oc.private=1 ORDER BY oc.date_add DESC', array($order['id']))->assoc();
+        $comments_public = $this->OrdersComments->getPublic($order['id']);
+        $comments_private = $this->OrdersComments->getPrivate($order['id']);
+        $home_master_request = $this->all_configs['db']->query('SELECT  hmr.*
+                FROM {home_master_requests} hmr
+                WHERE hmr.order_id=?i ORDER by `date` DESC LIMIT 1', array($order['id']))->row();
 
         $notSale = $order['type'] != 3;
         $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
@@ -1813,6 +1816,7 @@ class orders extends Controller
             'saleOrdersFilters' => $this->sale_orders_filters(true),
             'users_fields' => $usersFields,
             'showUsersFields' => $showUsersFields,
+            'homeMasterRequest' => $home_master_request
         ));
     }
 

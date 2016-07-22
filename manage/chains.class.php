@@ -15,6 +15,7 @@ require_once __DIR__ . '/Core/Log.php';
  * @property MCashboxesTransactions      CashboxesTransactions
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MOrdersSuppliersClients     OrdersSuppliersClients
+ * @property MHomeMasterRequests HomeMasterRequests
  */
 class Chains extends Object
 {
@@ -30,7 +31,8 @@ class Chains extends Object
         'OrdersGoods',
         'ContractorsSuppliersOrders',
         'OrdersSuppliersClients',
-        'CashboxesTransactions'
+        'CashboxesTransactions',
+        'HomeMasterRequests'
     );
 
     //////* типы перемещений *//////
@@ -3133,6 +3135,7 @@ class Chains extends Object
             'delivery_to' => isset($post['delivery_to']) ? $post['delivery_to'] : '',
             'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
             'total_as_sum' => isset($post['total_as_sum']) ? intval($post['total_as_sum']) : 0,
+            'home_master_request' => isset($post['home_master_request']) ? intval($post['home_master_request']) : 0,
         );
 
         // создаем заказ
@@ -3141,6 +3144,7 @@ class Chains extends Object
             if (!empty($_POST['users_fields'])) {
                 $this->saveUsersFields($params, $_POST['users_fields']);
             }
+            $this->HomeMasterRequests->add($params['id'], $_POST);
 
             $config = $this->Settings->getByName('order-send-sms-with-client-code');
             $host = $this->Settings->getByName('site-for-add-rating');

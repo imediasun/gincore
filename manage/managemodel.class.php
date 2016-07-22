@@ -407,11 +407,11 @@ class manageModel
         if ($ids) {
             $orders_goods = $this->all_configs['db']->query('SELECT o.id as order_id, o.status, o.sale_type, o.title as product,
                   o.date_add, o.user_id, m.id as m_id, mi.id as mi_id, o.date_add as date, o.manager, o.sum_paid, o.sum, o.comment,
-                  o.np_accept, og.goods_id, og.title, og.id as order_goods_id, og.count, o.note, l.location, o.courier,
+                  o.np_accept, og.goods_id, og.title, og.id as order_goods_id, og.count, o.note, l.location, o.courier, o.home_master_request,
                   o.discount, u.fio as h_fio, u.login as h_login, o.urgent, o.wh_id, w.title as wh_title, aw.title as aw_wh_title, og.type,
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
-                  gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type
+                  gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date
                 FROM {orders} AS o
                 LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
@@ -425,6 +425,7 @@ class manageModel
                 LEFT JOIN {warehouses} as aw ON aw.id=o.accept_wh_id
                 LEFT JOIN {warehouses_groups} as gr ON gr.id=aw.group_id
                 LEFT JOIN {warehouses_types} as tp ON tp.id=aw.type_id
+                LEFT JOIN {home_master_requests} as hmr ON hmr.order_id=o.id
                 WHERE o.id IN (?li) ORDER BY o.date_add DESC',//o.status, o.date_add DESC
                 array($icon_type, $_SESSION['id'], array_keys($ids)))->assoc();
 
@@ -644,6 +645,18 @@ class manageModel
         if (isset($filters['np']) && $filters['np'] > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.np_accept=?i',
                 array($query, 1));
+        }
+
+        if(isset($filters['other']) && count(explode(',', $filters['other'])) > 0) {
+            $other = explode(',', $filters['other']);
+            if(in_array('hmr', $other)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.home_master_request=?i',
+                    array($query, 1));
+            }
+            if(in_array('cgd', $other)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.courier NOT NULL',
+                    array($query));
+            }
         }
 
         if (isset($filters['rf']) && $filters['rf'] > 0) {

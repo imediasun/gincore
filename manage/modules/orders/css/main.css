@@ -657,3 +657,6 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
     margin: 0;
     padding: 0;
 }
+.filters-box .form-group {
+    margin-bottom: 5px;
+}

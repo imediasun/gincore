@@ -203,3 +203,16 @@ CREATE TABLE IF NOT EXISTS `restore4_lock_filters` (
   KEY `lock_filters_user_id_index` (`user_id`),
   KEY `lock_filters_name_index` (`name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_07_22_061024_home_master_request.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_home_master_requests` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` int(10) unsigned NOT NULL,
+  `address` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `date` TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `home_master_request_order_id_index` (`order_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+ALTER TABLE `restore4_orders` ADD COLUMN home_master_request int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_orders` ADD INDEX orders_home_master_request(home_master_request);
