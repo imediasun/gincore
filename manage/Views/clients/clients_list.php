@@ -5,11 +5,11 @@
         <tr>
             <td>ID</td>
             <td></td>
-            <td><?= l('Эл.почта') ?></td>
-            <td><?= l('Адрес') ?></td>
-            <td><?= l('Ф.И.О.') ?></td>
             <td><?= l('Метка') ?></td>
+            <td><?= l('Ф.И.О.') ?></td>
             <td><?= l('Телефон') ?></td>
+            <td><?= l('Адрес') ?></td>
+            <td><?= l('Эл.почта') ?></td>
             <td><?= l('Дата регистрации') ?></td>
         </tr>
         <tbody>
@@ -31,21 +31,6 @@
                     <?= show_marked($client['id'], 'cl', $client['m_id']) ?>
                 </td>
                 <td>
-                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
-                        <?= h($client['email']) ?>
-                    </a>
-                </td>
-                <td>
-                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
-                        <?= h($client['legal_address']) ?>
-                    </a>
-                </td>
-                <td>
-                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
-                        <?= h($client['fio']) ?>
-                    </a>
-                </td>
-                <td>
                     <?php if ($client['tag_id'] != 0): ?>
                         <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
                             <span class="tag" style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">
@@ -56,7 +41,22 @@
                 </td>
                 <td>
                     <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                        <?= h($client['fio']) ?>
+                    </a>
+                </td>
+                <td>
+                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
                         <?= h($client['phone']) ?>
+                    </a>
+                </td>
+                <td>
+                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                        <?= h($client['legal_address']) ?>
+                    </a>
+                </td>
+                <td>
+                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                        <?= h($client['email']) ?>
                     </a>
                 </td>
                 <td>

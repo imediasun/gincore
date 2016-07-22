@@ -43,7 +43,7 @@
                            type="text" class="form-control" placeholder="<?= l('номер заказа') ?>">
                 </div>
             </div>
-            <div class="col-sm-3 b-r">
+            <div class="col-sm-4 b-r">
                 <table class="table table-borderless table-for-filters">
                     <tr>
                         <td class="span5">
@@ -54,11 +54,7 @@
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="operators[]"
                                         multiple="multiple">
                                     <?php foreach ($operators as $operator): ?>
-                                        <option <?= ((isset($_GET['ops']) && in_array($operator['id'],
-                                                explode(',', $_GET['ops']))) ? 'selected' : ''); ?>
-                                            value="<?= $operator['id'] ?>">
-                                            <?= h($operator['fio']) ?>
-                                        </option>
+                                        <option <?= ((isset($_GET['ops']) && in_array($operator['id'], explode(',', $_GET['ops']))) ? 'selected' : ''); ?> value="<?= $operator['id'] ?>"> <?= h($operator['fio']) ?> </option>
                                     <?php endforeach; ?>
                                 </select>
                             </span>
@@ -73,16 +69,8 @@
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="persons[]"
                                         multiple="multiple">
-                                    <option <?= ((isset($_GET['persons']) && in_array(1,
-                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
-                                        value="1">
-                                        <?= l('Физ. лицо') ?>
-                                    </option>
-                                    <option <?= ((isset($_GET['persons']) && in_array(2,
-                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
-                                        value="2">
-                                        <?= l('Юр. лицо') ?>
-                                    </option>
+                                    <option <?= ((isset($_GET['persons']) && in_array(1, explode(',', $_GET['persons']))) ? 'selected' : ''); ?> value="1"> <?= l('Физ. лицо') ?> </option>
+                                    <option <?= ((isset($_GET['persons']) && in_array(2, explode(',', $_GET['persons']))) ? 'selected' : ''); ?> value="2"> <?= l('Юр. лицо') ?> </option>
 
                                 </select>
                             </span>
@@ -97,11 +85,7 @@
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="tags[]"
                                         multiple="multiple">
                                     <?php foreach ($tags as $tag): ?>
-                                        <option <?= ((isset($_GET['tags']) && in_array($tag['id'],
-                                                explode(',', $_GET['tags']))) ? 'selected' : ''); ?>
-                                            value="<?= $tag['id'] ?>">
-                                            <?= h($tag['title']) ?>
-                                        </option>
+                                        <option <?= ((isset($_GET['tags']) && in_array($tag['id'], explode(',', $_GET['tags']))) ? 'selected' : ''); ?> value="<?= $tag['id'] ?>"> <?= h($tag['title']) ?> </option>
                                     <?php endforeach; ?>
                                 </select>
                             </span>
@@ -116,11 +100,7 @@
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="referrers[]"
                                         multiple="multiple">
                                     <?php foreach ($referrers as $ref_id => $ref_name): ?>
-                                        <option <?= ((isset($_GET['refs']) && in_array($ref_id,
-                                                explode(',', $_GET['refs']))) ? 'selected' : ''); ?>
-                                            value="<?= $ref_id ?>">
-                                            <?= h($ref_name) ?>
-                                        </option>
+                                        <option <?= ((isset($_GET['refs']) && in_array($ref_id, explode(',', $_GET['refs']))) ? 'selected' : ''); ?> value="<?= $ref_id ?>"> <?= h($ref_name) ?> </option>
                                     <?php endforeach; ?>
                                 </select>
                             </span>
