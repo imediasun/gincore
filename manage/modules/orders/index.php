@@ -2175,29 +2175,7 @@ class orders extends Controller
         preg_match('/changes:(.+)/', $act, $arr);
         // история изменений инженера
         if (count($arr) == 2 && isset($arr[1])) {
-            $data['state'] = true;
-            $data['content'] = l('История изменений не найдена');
-
-            if (!empty($_POST['object_id'])) {
-                $object_id = $_POST['object_id'];
-            }
-            if (!isset($object_id) && !empty($this->all_configs['arrequest'][2])) {
-                $object_id = $this->all_configs['arrequest'][2];
-            }
-            if (!empty($object_id)) {
-                $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $object_id);
-                if ($changes) {
-                    $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>' . l('Дата') . '</td><td>' . l('Изменение') . '</td></tr></thead><tbody>';
-                    foreach ($changes as $change) {
-                        $data['content'] .= '<tr><td>' . get_user_name($change) . '</td>';
-                        $data['content'] .= '<td><span title="' . do_nice_date($change['date_add'],
-                                false) . '">' . do_nice_date($change['date_add']) . '</span></td>';
-                        $data['content'] .= '<td>' . htmlspecialchars($change['change']) . '</td></tr>';
-                    }
-                    $data['content'] .= '</tbody></table>';
-                }
-            }
-
+            $data = $this->getChanges($act, $_POST, $mod_id);
         }
 
         // история перемещений заказа

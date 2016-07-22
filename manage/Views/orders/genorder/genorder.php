@@ -88,7 +88,7 @@
                                   onclick="alert_box(this, false, 'changes:update-order-category')"></span>
                                 <i class="glyphicon glyphicon-picture cursor-pointer" data-o_id="<?= $order['id'] ?>"
                                    onclick="alert_box(this, null, 'order-gallery')"></i>
-                                <i class="fa fa-exclamation" aria-hidden="true" data-o_id="<?= $order['id'] ?>"
+                                <i class="fa fa-info" aria-hidden="true" data-o_id="<?= $order['id'] ?>"
                                    onclick="return show_category_addition_info(this);"
                                    title="<?= l('Важная информация') ?>"
                                    style="cursor:pointer; padding: 0 3px 0 3px"></i>

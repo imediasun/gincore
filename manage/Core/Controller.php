@@ -128,4 +128,38 @@ abstract class Controller extends Object
     {
         return '';
     }
+
+    /**
+     * @param $act
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    public function getChanges($act, $post, $mod_id)
+    {
+        $data = array('state' => false);
+        preg_match('/changes:(.+)/', $act, $arr);
+        // история изменений инженера
+        if (count($arr) == 2 && isset($arr[1])) {
+            $data['state'] = true;
+            $data['content'] = l('История изменений не найдена');
+
+            if (!empty($post['object_id'])) {
+                $object_id = $post['object_id'];
+            }
+            if (!isset($object_id) && !empty($this->all_configs['arrequest'][2])) {
+                $object_id = $this->all_configs['arrequest'][2];
+            }
+            if (!empty($object_id)) {
+                $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $object_id);
+                if ($changes) {
+                    $data['content'] = $this->view->renderFile('inc_func/get_changes', array(
+                        'changes' => $changes
+                    ));
+                }
+            }
+
+        }
+        return $data;
+    }
 }

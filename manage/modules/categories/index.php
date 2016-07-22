@@ -129,7 +129,7 @@ class categories extends Controller
             if (intval($post['id']) < 1) {
                 return false;
             }
-
+            $category = $this->Categories->getByPk(intval($post['id']));
             $recycleBin = $this->Categories->getRecycleBin();
             if (intval($post['id']) == $recycleBin['id']) {
                 FlashMessage::set(l('Редактирование системной категории "Корзина" запрещено'), FlashMessage::DANGER);
@@ -214,6 +214,9 @@ class categories extends Controller
             ), array(
                 'id' => intval($post['id'])
             ));
+            if (!empty($post['information']) && trim($post['information']) != $category['information']) {
+                $this->History->save('change-category-info', $mod_id, $category['id'], $category['information']);
+            }
             if (intval($ar) > 0) {
                 $this->all_configs['db']->query('UPDATE {orders} SET title=? WHERE category_id=?i',
                     array($title, intval($post['id'])));
@@ -711,6 +714,12 @@ class categories extends Controller
         if ($act == 'delete-categories' && $this->all_configs['oRole']->hasPrivilege('edit-filters-categories')) {
             $data = $this->deleteCategories($mod_id);
         }
+
+        preg_match('/changes:(.+)/', $act, $arr);
+        // история изменений инженера
+        if (count($arr) == 2 && isset($arr[1])) {
+            $data = $this->getChanges($act, $_POST, $mod_id);
+        }
         Response::json($data);
     }
 
@@ -903,7 +912,8 @@ class categories extends Controller
             $this->Categories->update(array(
                 'information' => $post['information']
             ), array('id' => $category['id']));
-            $this->History->save('change-category-info', $category['id'], $category['information']);
+            $mod_id = $this->all_configs['configs']['categories-manage-page'];
+            $this->History->save('change-category-info', $mod_id, $category['id'], $category['information']);
         }
 
         return array(
