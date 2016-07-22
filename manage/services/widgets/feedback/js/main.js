@@ -1,7 +1,7 @@
 var gcw_feedback_widget = (function ($) {
 
   function resize() {
-    var $modal = $('#gcw_feedback_modal .gcw_modal');
+    var $modal = jQuery('#gcw_feedback_modal .gcw_modal');
     if ($modal.is(':visible')) {
       var w = $modal.width(),
         h = $modal.height();
@@ -13,13 +13,13 @@ var gcw_feedback_widget = (function ($) {
   }
 
   function modal_on_close() {
-    $('#gcw_form_html').empty().siblings('.gcw_form').show();
+    jQuery('#gcw_form_html').empty().siblings('.gcw_form').show();
   }
 
   var callbacks = {
     add: function ($form, data) {
       $form.hide();
-      $('#gcw_feedback_modal .js-feedback-body').html(data.html);
+      jQuery('#gcw_feedback_modal .js-feedback-body').html(data.html);
       resize();
     },
     send_sms: function ($form, data) {
@@ -56,21 +56,21 @@ var gcw_feedback_widget = (function ($) {
 
   return {
     init: function () {
-      $(document).on('click', '.gcw_show_modal', function () {
-        var $this = $(this),
+      jQuery(document).on('click', '.gcw_show_modal', function () {
+        var $this = jQuery(this),
           id = $this.data('id');
-        $('#' + id).show();
+        jQuery('#' + id).show();
         resize();
       });
-      $(window).resize(resize).resize();
+      jQuery(window).resize(resize).resize();
 
-      $(document).on('submit', '.js-feedback-form', function (e) {
-        var $this = $(this),
+      jQuery(document).on('submit', '.js-feedback-form', function (e) {
+        var $this = jQuery(this),
           method = $this.find('input[name=action]').val(),
           data,
-          phone = $('#gcw_feedback_modal input[name=phone]').val(),
-          sms = $('#gcw_feedback_modal input[name=sms]').val(),
-          code = $('#gcw_feedback_modal input[name=code]').val();
+          phone = jQuery('#gcw_feedback_modal input[name=phone]').val(),
+          sms = jQuery('#gcw_feedback_modal input[name=sms]').val(),
+          code = jQuery('#gcw_feedback_modal input[name=code]').val();
 
         if ((typeof code != 'undefined' && code.length > 0) || (typeof sms != 'undefined' && sms.length > 0)) {
           send($this, $this.serialize(), method);
@@ -97,8 +97,8 @@ var gcw_feedback_widget = (function ($) {
 
 })(jQuery);
 function close_gcw(_this) {
-  $(_this).parents('.gcw_modal_box').hide();
-  $('#gcw_form_html').empty().siblings('.gcw_form').show();
+  jQuery(_this).parents('.gcw_modal_box').hide();
+  jQuery('#gcw_form_html').empty().siblings('.gcw_form').show();
 }
 jQuery(function () {
   gcw_feedback_widget.init();
