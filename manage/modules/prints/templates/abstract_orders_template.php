@@ -15,6 +15,8 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
             'amount' => $summ / 100
         ));
         $qty_all = count($goods);
+        $qty_products = 0;
+        $qty_services = 0;
 
         $sum_in_words = $this->amountAsWord($summ / 100);
         $str_date = $this->dateAsWord();
@@ -35,11 +37,13 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                         $products .= h($product['title']) . '<br/>';
                         $products_cost .= ($product['price'] / 100) . ' ' . viewCurrency() . '<br />';
                         $sum_by_products += $product['price'];
+                        $qty_products += 1;
                     }
                     if ($product['type'] == 1) {
                         $services .= h($product['title']) . '<br/>';
                         $services_cost[] = ($product['price'] / 100) . ' ' . viewCurrency();;
                         $sum_by_services += $product['price'];
+                        $qty_services += 1;
                     }
                 }
             }
@@ -58,6 +62,8 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'name' => l('Сумма за ремонт с учетом скидки')
                 ),
                 'qty_all' => array('value' => $qty_all, 'name' => l('Количество наименований')),
+                'qty_products' => array('value' => $qty_products, 'name' => l('Количество запчастей')),
+                'qty_services' => array('value' => $qty_services, 'name' => l('Количество услуг')),
                 'sum_in_words' => array('value' => $sum_in_words, 'name' => l('Сумма за ремонт прописью')),
                 'sum_paid' => array(
                     'value' => $order['sum_paid'] > 0 ? $order['sum_paid'] / 100 : '',
