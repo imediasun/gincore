@@ -2232,7 +2232,7 @@ class orders extends Controller
                 $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
                     array(intval($_POST['category_id'])))->row();
                 if ($category && $category['information'] && mb_strlen(trim($category['information']), 'utf-8') > 0) {
-                    $data['content'] = trim($category['information']);
+                    $data['content'] =  nl2br(h($category['information']));
                 }
             }
             if (isset($_POST['goods_id'])) {

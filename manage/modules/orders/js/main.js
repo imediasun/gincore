@@ -169,6 +169,7 @@ function display_goods_information(_this) {
 }
 
 function display_service_information(_this) {
+  $(_this).removeAttr('data-content');
   $.ajax({
     url: prefix + module + '/ajax/?act=service-information',
     type: 'POST',
@@ -187,6 +188,9 @@ function display_service_information(_this) {
           $(_this).attr('data-original-price_wholesale', msg['price_wholesale']);
         }
         if (msg['content']) {
+          setTimeout(function () {
+            alert_box(this, '<h3>' + msg['title'] + '</h3>' + msg['content']);
+          }, 0);
           $(_this).attr('data-content', msg['content']);
         }
       }
