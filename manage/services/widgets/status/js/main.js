@@ -1,7 +1,7 @@
 var gcw_status_widget = (function($){
 
     function resize(){
-        var $modal = $('#gcw_status_modal .gcw_modal');
+        var $modal = jQuery('#gcw_status_modal .gcw_modal');
         if($modal.is(':visible')){
             var w = $modal.width(),
                 h = $modal.height();
@@ -13,13 +13,13 @@ var gcw_status_widget = (function($){
     }
     
     function modal_on_close(){
-        $('#gcw_form_html').empty().siblings('.gcw_form').show();
+        jQuery('#gcw_form_html').empty().siblings('.gcw_form').show();
     }
     
     var callbacks = {
         status_by_phone: function($form, data){
             $form.hide();
-            $('#gcw_form_html').html(data.html);
+            jQuery('#gcw_form_html').html(data.html);
             resize();
         }
     };
@@ -27,17 +27,17 @@ var gcw_status_widget = (function($){
     return {
         init: function(){
             
-            $(document).on('click', '.gcw_show_modal', function(){
-                var $this = $(this),
+            jQuery(document).on('click', '.gcw_show_modal', function(){
+                var $this = jQuery(this),
                     id = $this.data('id');
-                $('#'+id).show();
+                jQuery('#'+id).show();
                 resize();
             });
-            $(window).resize(resize).resize();
+            jQuery(window).resize(resize).resize();
             
             var form_msg_timeout;
-            $(document).on('submit', '.js-status-form', function(e){
-                var $this = $(this),
+            jQuery(document).on('submit', '.js-status-form', function(e){
+                var $this = jQuery(this),
                     $error_msg = $this.find('.gcw_form_error'),
                     method = $this.find('input[name=action]').val(),
                     action = $this.attr('action');
@@ -56,7 +56,7 @@ var gcw_status_widget = (function($){
                             callbacks[method]($this, data);
                         }else{
                             clearTimeout(form_msg_timeout);
-                            $('.gcw_form_error').text(data.msg);
+                            jQuery('.gcw_form_error').text(data.msg);
                             form_msg_timeout = setTimeout(function(){
                                 $error_msg.empty();
                             }, 7000);
@@ -73,8 +73,8 @@ var gcw_status_widget = (function($){
     
 })(jQuery);
 function close_gcw(_this) {
-      $(_this).parents('.gcw_modal_box').hide();
-    $('#gcw_form_html').empty().siblings('.gcw_form').show();
+      jQuery(_this).parents('.gcw_modal_box').hide();
+    jQuery('#gcw_form_html').empty().siblings('.gcw_form').show();
 }
 jQuery(function(){
     gcw_status_widget.init();
