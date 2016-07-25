@@ -255,8 +255,7 @@ if ($act == 'add-alarm') {
     $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
     if ($data['state'] == true && strtotime($date) < time()) {
-        $data['state'] = false;
-        $data['msg'] = l('Укажите дату (в будущем)');
+        $date = date('Y-m-d H:i:s', strtotime('+ 1 minutes'));
     }
 
     if ($data['state'] == true) {
