@@ -611,7 +611,7 @@ function typeahead(
                 $tbl_where = ' AND avail = 1';
                 $tbl = 'goods';
             }
-            if ($table == 'categories-last' || $table == 'categories-goods') {
+            if ($table == 'categories-last' || $table == 'categories-goods' || $table == 'categories-parent') {
                 $tbl_where = ' AND (avail = 1 OR deleted=1)';
                 $tbl = 'categories';
             }

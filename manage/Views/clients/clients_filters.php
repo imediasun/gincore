@@ -144,7 +144,7 @@
                         </td>
                         <td class="span6" style="max-width: 165px">
                             <div class="form-group">
-                                <?= typeahead($this->all_configs['db'], 'categories', false,
+                                <?= typeahead($this->all_configs['db'], 'categories-parent', false,
                                     isset($_GET['cat']) && $_GET['cat'] ? $_GET['cat'] : '', 5, 'input-small',
                                     'input-mini',
                                     '',

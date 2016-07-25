@@ -115,9 +115,9 @@ class Clients extends Object
                 $url['persons'] = implode(',', $post['persons']);
             }
 
-            if (isset($post['categories']) && $post['categories'] > 0) {
+            if (isset($post['categories-parent']) && $post['categories-parent'] > 0) {
                 // фильтр по категориям (устройство)
-                $url['cat'] = intval($post['categories']);
+                $url['cat'] = intval($post['categories-parent']);
             }
 
             if (isset($post['categories-last']) && $post['categories-last'] > 0) {
@@ -1311,60 +1311,98 @@ class Clients extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND NOT 1=1 ',
                 array($query));
         }
+
         $additionIds = array();
         if (isset($filters['dev']) && $filters['dev'] > 0) {
-            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+            $ids = $this->all_configs['db']->query('
                 SELECT user_id as cl_id 
                 FROM {orders} 
                 WHERE category_id=?i AND ?query GROUP by cl_id',
-                array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col());
+                array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col();
+            if (!empty($ids)) {
+                $additionIds = array_merge($additionIds, $ids);
+            } else {
+                $query = 'NOT 1=1';
+            }
         }
         if (isset($filters['cat']) && $filters['cat'] > 0) {
-            $children = $this->Categories->getChildIds($filters['cat']);
-            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+            $children = $this->Categories->getParents($filters['cat']);
+            if (!empty($children)) {
+                $ids = $this->all_configs['db']->query('
                 SELECT user_id as cl_id 
                 FROM {orders} 
                 WHERE category_id in (SELECT c.id FROM {categories} c WHERE c.parent_id in (?li) AND c.avail = 1) AND ?query GROUP by cl_id',
-                array($children, $this->getDateFilter($filters, 'date_add')))->col());
+                    array($children, $this->getDateFilter($filters, 'date_add')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
+            }
         }
         if (isset($filters['by_gid']) && $filters['by_gid'] > 0) {
-            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+            $ids = $this->all_configs['db']->query('
                 SELECT o.user_id as cl_id
                 FROM {orders} o
                 JOIN {orders_goods} og ON o.id=og.order_id
                 WHERE og.goods_id=?i AND ?query GROUP by cl_id',
-                array($filters['by_gid'], $this->getDateFilter($filters, 'o.date_add')))->col());
+                array($filters['by_gid'], $this->getDateFilter($filters, 'o.date_add')))->col();
+            if (!empty($ids)) {
+                $additionIds = array_merge($additionIds, $ids);
+            } else {
+                $query = 'NOT 1=1';
+            }
         }
         if (isset($filters['refs']) && count(array_filter(explode(',', $filters['refs']))) > 0) {
-            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+            $ids = $this->all_configs['db']->query('
                 SELECT c.client_id as cl_id
                 FROM {crm_calls} c
                 WHERE c.referer_id in (?li) GROUP by cl_id',
-                array(array_filter(explode(',', $filters['refs']))))->col());
+                array(array_filter(explode(',', $filters['refs']))))->col();
+            if (!empty($ids)) {
+                $additionIds = array_merge($additionIds, $ids);
+            } else {
+                $query = 'NOT 1=1';
+            }
         }
         if (isset($filters['acts'])) {
             $acts = explode(',', $filters['acts']);
             if (in_array(CLIENT_ACT_ORDER, $acts)) {
-                $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                $ids = $this->all_configs['db']->query('
                 SELECT user_id as cl_id 
                 FROM {orders} 
                 WHERE ?query GROUP by cl_id',
-                    array($this->getDateFilter($filters, 'date_add')))->col());
+                    array($this->getDateFilter($filters, 'date_add')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
             }
             if (in_array(CLIENT_ACT_REQUEST, $acts)) {
-                $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                $ids = $this->all_configs['db']->query('
                 SELECT c.client_id as cl_id
                 FROM {crm_requests} cr
                  JOIN {crm_calls} c ON cr.call_id=c.id
                 WHERE ?query GROUP by cl_id',
-                    array($this->getDateFilter($filters, 'c.date')))->col());
+                    array($this->getDateFilter($filters, 'c.date')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
             }
             if (in_array(CLIENT_ACT_CALL, $acts)) {
-                $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                $ids = $this->all_configs['db']->query('
                 SELECT client_id as cl_id
                 FROM {crm_calls} 
                 WHERE ?query GROUP by cl_id',
-                    array($this->getDateFilter($filters, 'date')))->col());
+                    array($this->getDateFilter($filters, 'date')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
             }
         }
 
