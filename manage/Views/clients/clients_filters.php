@@ -106,18 +106,19 @@
                             </span>
                         </td>
                     </tr>
-<!--                    <tr>-->
-<!--                        <td class="span5">-->
-<!--                            <p class="form-control-static">--><?//= l('Количество обращений') ?><!--:</p>-->
-<!--                        </td>-->
-<!--                        <td class="span6">-->
-<!--                            <span class="input-group-btn">-->
-<!--                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="calls[]"-->
-<!--                                        multiple="multiple">-->
-<!--                                </select>-->
-<!--                            </span>-->
-<!--                        </td>-->
-<!--                    </tr>-->
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Количество обращений') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <div class="form-group" style="white-space: nowrap; text-align: right">
+                                <?= l('от') ?> <input type="text" class="form-control" value="<?= isset($_GET['cqf'])? $_GET['cqf']: 0 ?>" name="cq_from" style="width: 75%; display:inline-block "/>
+                            </div>
+                            <div class="form-group" style="white-space: nowrap; text-align: right">
+                                <?= l('до') ?> <input type="text" class="form-control" value="<?= isset($_GET['cqt'])? $_GET['cqt']: 0 ?>" name="cq_to" style="width: 75%; display: inline-block"/>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
             <div class="col-sm-4">

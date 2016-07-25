@@ -11,7 +11,7 @@ $moduleactive[20] = !$ifauth['is_2'];
  * @property  MLockFilters LockFilters
  * @property  MUsers       Users
  * @property  MUsersMarked UsersMarked
- * @property  MCategoriesTree CategoriesTree
+ * @property  MCategories  Categories
  */
 class Clients extends Object
 {
@@ -26,7 +26,7 @@ class Clients extends Object
         'LockFilters',
         'Users',
         'UsersMarked',
-        'CategoriesTree'
+        'Categories'
     );
 
     /**
@@ -119,7 +119,7 @@ class Clients extends Object
                 // фильтр по категориям (устройство)
                 $url['cat'] = intval($post['categories']);
             }
-            
+
             if (isset($post['categories-last']) && $post['categories-last'] > 0) {
                 // фильтр по категориям (устройство)
                 $url['dev'] = intval($post['categories-last']);
@@ -128,6 +128,12 @@ class Clients extends Object
             if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
                 // фильтр по товару
                 $url['by_gid'] = intval($post['goods-goods']);
+            }
+            if (isset($post['cq_from']) && $post['cq_from'] > 0) {
+                $url['cqf'] = intval($post['cq_from']);
+            }
+            if (isset($post['cq_to']) && $post['cq_to'] > 0) {
+                $url['cqt'] = intval($post['cq_to']);
             }
 
             $url['tab'] = 'clients';
@@ -479,41 +485,33 @@ class Clients extends Object
      */
     private function export()
     {
-        $export_fields = array(
-            // id and phones exports by default
-            'email',
-            'fio',
-            'legal_address',
-            'date_add'
-        );
-        $clients = db()->query("SELECT id," . implode(',', $export_fields) . ", "
+        $clients = db()->query("SELECT c.*, t.title, "
             . "(SELECT GROUP_CONCAT(phone) "
             . "FROM {clients_phones} WHERE client_id = c.id) as phones "
             . "FROM {clients} as c "
-            . "WHERE id > 1 ORDER BY c.id")->assoc();
-        $data = array();
-        $data[] = array_merge(array(
-            'id',
-            'phones'
-        ), $export_fields);
-        foreach ($clients as $client) {
-            $client_data = array();
-            $client_data[] = $client['id'];
-            $client_data[] = 't. ' . $client['phones'];
-            foreach ($export_fields as $exf) {
-                $client_data[] = in_array($exf, array('fio', 'legal_address')) ? iconv('UTF-8', 'CP1251',
-                    $client[$exf]) : $client[$exf];
-            }
-            $data[] = $client_data;
+            . "LEFT JOIN {tags} as t ON t.id = c.tag_id "
+            . "WHERE c.id > 1 ORDER BY c.id")->assoc();
+
+        require_once __DIR__ . '/exports.php';
+        $export = new ExportClientsToXLS();
+        $xls = $export->getXLS(l('Клиенты'));
+
+        $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
+            lq('N'),
+            lq('Метка'),
+            lq('ФИО'),
+            lq('Тип'),
+            lq('Юр. адрес'),
+            lq('Физ. адрес'),
+            lq('Дата регистрации'),
+            lq('Регистрационные данные 1'),
+            lq('Регистрационные данные 2'),
+            lq('Примечание'),
+        ));
+        if (!empty($clients)) {
+            $export->makeXLSBody($xls, $clients);
         }
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename=clients.csv');
-        $out = fopen('php://output', 'w');
-        foreach ($data as $row) {
-            fputcsv($out, $row, ';', '"');
-        }
-        fclose($out);
-        exit;
+        $export->outputXLS($xls);
     }
 
     /**
@@ -534,15 +532,12 @@ class Clients extends Object
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
 
         $saved = $this->LockFilters->load('filter-clients');
-        Log::dump($_GET);
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
 
         // активен/неактивен
         $query = $this->getFilters($_GET);
-        Log::error($query);
-
         $clients = $this->all_configs['db']->query('
                 SELECT cl.*, m.id as m_id 
                 FROM {clients} as cl
@@ -1292,6 +1287,30 @@ class Clients extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
                 array($query, array_filter(explode(',', $filters['co_id']))));
         }
+        if (isset($filters['cqt']) && $filters['cqt'] > 0 && isset($filters['cqf']) && $filters['cqf'] > 0) {
+            $ids = $this->all_configs['db']->query("
+                SELECT user_id FROM {orders} GROUP by user_id HAVING count(*) BETWEEN ?i AND ?i
+            ", array(min($filters['cqt'], $filters['cqf']), max($filters['cqt'], $filters['cqf'])))->col();
+        } else {
+            if (isset($filters['cqt']) && $filters['cqt'] > 0) {
+                $ids = $this->all_configs['db']->query("
+                    SELECT user_id FROM {orders} GROUP by user_id HAVING count(*) <= ?i
+                ", array($filters['cqt']))->col();
+            }
+            if (isset($filters['cqf']) && $filters['cqf'] > 0) {
+                $ids = $this->all_configs['db']->query("
+                    SELECT user_id FROM {orders} GROUP by user_id HAVING count(*) >= ?i
+                ", array($filters['cqf']))->col();
+            }
+        }
+        if (!empty($ids)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.id IN (?li)',
+                array($query, $ids));
+        } elseif ((isset($filters['cqt']) && $filters['cqt'] > 0) || (isset($filters['cqf']) && $filters['cqf'] > 0)) {
+            // нет подходящих по фильтру - не показываем ни кого, поскольку связка частей фильтра по AND
+            $query = $this->all_configs['db']->makeQuery('?query AND NOT 1=1 ',
+                array($query));
+        }
         $additionIds = array();
         if (isset($filters['dev']) && $filters['dev'] > 0) {
             $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
@@ -1301,11 +1320,11 @@ class Clients extends Object
                 array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col());
         }
         if (isset($filters['cat']) && $filters['cat'] > 0) {
-            $children = $this->CategoriesTree->getChildren($filters['cat'], array());
+            $children = $this->Categories->getChildIds($filters['cat']);
             $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
                 SELECT user_id as cl_id 
                 FROM {orders} 
-                WHERE category_id in (?li) AND ?query GROUP by cl_id',
+                WHERE category_id in (SELECT c.id FROM {categories} c WHERE c.parent_id in (?li) AND c.avail = 1) AND ?query GROUP by cl_id',
                 array($children, $this->getDateFilter($filters, 'date_add')))->col());
         }
         if (isset($filters['by_gid']) && $filters['by_gid'] > 0) {
@@ -1321,7 +1340,7 @@ class Clients extends Object
                 SELECT c.client_id as cl_id
                 FROM {crm_calls} c
                 WHERE c.referer_id in (?li) GROUP by cl_id',
-                array( array_filter(explode(',', $filters['refs']))))->col());
+                array(array_filter(explode(',', $filters['refs']))))->col());
         }
         if (isset($filters['acts'])) {
             $acts = explode(',', $filters['acts']);
