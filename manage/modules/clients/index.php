@@ -11,6 +11,7 @@ $moduleactive[20] = !$ifauth['is_2'];
  * @property  MLockFilters LockFilters
  * @property  MUsers       Users
  * @property  MUsersMarked UsersMarked
+ * @property  MCategoriesTree CategoriesTree
  */
 class Clients extends Object
 {
@@ -24,7 +25,8 @@ class Clients extends Object
         'Clients',
         'LockFilters',
         'Users',
-        'UsersMarked'
+        'UsersMarked',
+        'CategoriesTree'
     );
 
     /**
@@ -113,6 +115,11 @@ class Clients extends Object
                 $url['persons'] = implode(',', $post['persons']);
             }
 
+            if (isset($post['categories']) && $post['categories'] > 0) {
+                // фильтр по категориям (устройство)
+                $url['cat'] = intval($post['categories']);
+            }
+            
             if (isset($post['categories-last']) && $post['categories-last'] > 0) {
                 // фильтр по категориям (устройство)
                 $url['dev'] = intval($post['categories-last']);
@@ -1292,6 +1299,14 @@ class Clients extends Object
                 FROM {orders} 
                 WHERE category_id=?i AND ?query GROUP by cl_id',
                 array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col());
+        }
+        if (isset($filters['cat']) && $filters['cat'] > 0) {
+            $children = $this->CategoriesTree->getChildren($filters['cat'], array());
+            $additionIds = array_merge($additionIds, $this->all_configs['db']->query('
+                SELECT user_id as cl_id 
+                FROM {orders} 
+                WHERE category_id in (?li) AND ?query GROUP by cl_id',
+                array($children, $this->getDateFilter($filters, 'date_add')))->col());
         }
         if (isset($filters['by_gid']) && $filters['by_gid'] > 0) {
             $additionIds = array_merge($additionIds, $this->all_configs['db']->query('

@@ -143,6 +143,19 @@
                         </td>
                         <td class="span6" style="max-width: 165px">
                             <div class="form-group">
+                                <?= typeahead($this->all_configs['db'], 'categories', false,
+                                    isset($_GET['cat']) && $_GET['cat'] ? $_GET['cat'] : '', 5, 'input-small',
+                                    'input-mini',
+                                    '',
+                                    false,
+                                    false, '', false, l('Категория')) ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5"></td>
+                        <td class="span6" style="max-width: 165px">
+                            <div class="form-group">
                                 <?= typeahead($this->all_configs['db'], 'categories-last', false,
                                     isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small',
                                     'input-mini',
