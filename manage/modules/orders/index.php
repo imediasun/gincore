@@ -2224,7 +2224,7 @@ class orders extends Controller
         // важная информация при добавлении устройства в новый заказ на ремонт
         if ($act == 'service-information') {
             $data['state'] = true;
-            $data['title'] = l('Важная информация');
+            $data['title'] = l('Важная информация по') . '  ';
             $data['content'] = '';
 
             if (isset($_POST['category_id'])) {
@@ -2232,7 +2232,8 @@ class orders extends Controller
                 $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
                     array(intval($_POST['category_id'])))->row();
                 if ($category && $category['information'] && mb_strlen(trim($category['information']), 'utf-8') > 0) {
-                    $data['content'] =  nl2br(h($category['information']));
+                    $data['content'] = nl2br(h($category['information']));
+                    $data['title'] .= $category['title'] . InfoPopover::getInstance()->createQuestion('l_category_information');
                 }
             }
             if (isset($_POST['goods_id'])) {

@@ -1280,7 +1280,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
     $(_this).addClass('disabled');
 
   bootbox.addLocale('ru', {
-    OK: L['cansel'],
+    OK: L['ok'],
     CANCEL: L['cansel'],
     CONFIRM: L['confirm']
   });

@@ -117,7 +117,7 @@
                                             class="text-danger">*</b>: </label>
                                     <?= typeahead($this->all_configs['db'], 'categories-last', false,
                                         (!empty($order_data) ?
-                                            $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
+                                            $order_data['product_id'] : 0), 3, 'input-medium', '',
                                         'display_service_information,get_requests', false, false, '', false,
                                         l('Введите'),
                                         array(
