@@ -261,7 +261,7 @@ class Configs
                 'users',
                 'warehouses',
                 'widgets',
-            'admin_translates',
+//            'admin_translates',
 //                'debug',
             'sms_templates',
                 'stocktaking',
