@@ -1,18 +1,61 @@
 <body>
-    {-txt-flash}
-    <div class="row login_form">
-        <div class="span4">
-          <div class="well">
-            <legend>{-txt-sign_in}</legend>
-            <form method="POST" action="{-txt-prefix}login_form" accept-charset="UTF-8">
-                {-txt-error_message}
-                <input class="span3" placeholder="{-txt-txtlogin}" type="text" name="email" value="">
-                <input class="span3" placeholder="{-txt-password}" type="password" name="pass"> 
-                <button class="btn-primary btn" type="submit">{-txt-sign_in}</button>
-                <a href="{-txt-prefix}forgot_password_form" style="margin-left: 20px;">{-txt-forgot_password}</a>
-            </form>    
-          </div>
-        </div>
+  {-txt-flash}
+  <div class="row login_form">
+    <div class="span4">
+      <div class="well">
+        <legend>{-txt-sign_in}</legend>
+        <form method="POST" action="{-txt-prefix}login_form" accept-charset="UTF-8">
+          {-txt-error_message}
+          <input class="span3" placeholder="{-txt-txtlogin}" type="text" name="email" value="" autofocus>
+          <input class="span3" placeholder="{-txt-password}" type="password" name="pass"> 
+          <button class="btn-primary btn" type="submit">{-txt-sign_in}</button>
+          <a href="{-txt-prefix}forgot_password_form" style="margin-left: 20px;">{-txt-forgot_password}</a>
+        </form>    
+      </div>
     </div>
+  </div>
+
+
+  <!-- Chatra {literal} -->
+  <script>
+
+    window.ChatraIntegration = {
+      //name: 'Иванушка',
+      gincore: location.hostname
+
+    };
+
+    ChatraID = 'rZGKw5wCFCxyJaeoo';
+    (function (d, w, c) {
+      var n = d.getElementsByTagName('script')[0],
+              s = d.createElement('script');
+      w[c] = w[c] || function () {
+        (w[c].q = w[c].q || []).push(arguments);
+      };
+      s.async = true;
+      s.src = (d.location.protocol === 'https:' ? 'https:' : 'http:')
+              + '//call.chatra.io/chatra.js';
+      n.parentNode.insertBefore(s, n);
+    })(document, window, 'Chatra');
+  </script>
+  <!-- /Chatra {/literal} -->
+
+  <!-- Chatra {literal} -->
+  <script>
+    ChatraID = 'rZGKw5wCFCxyJaeoo';
+    (function (d, w, c) {
+      var n = d.getElementsByTagName('script')[0],
+              s = d.createElement('script');
+      w[c] = w[c] || function () {
+        (w[c].q = w[c].q || []).push(arguments);
+      };
+      s.async = true;
+      s.src = (d.location.protocol === 'https:' ? 'https:' : 'http:')
+              + '//call.chatra.io/chatra.js';
+      n.parentNode.insertBefore(s, n);
+    })(document, window, 'Chatra');
+  </script>
+  <!-- /Chatra {/literal} -->
+
 </body>
 </html>
