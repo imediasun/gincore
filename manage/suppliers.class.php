@@ -8,7 +8,7 @@ require_once __DIR__ . '/Core/Response.php';
  * @property MGoods                      Goods
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MHistory                    History
- * @property  MLockFilters LockFilters
+ * @property  MLockFilters               LockFilters
  */
 class Suppliers extends Object
 {
@@ -364,7 +364,7 @@ class Suppliers extends Object
         $hash = 'show_suppliers_orders'
     ) {
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : '')
@@ -1644,10 +1644,11 @@ class Suppliers extends Object
 
         $clear_serials = array_filter($serials);
         if (isset($post['serial']) && count($clear_serials) > 0) {
+            // объединил $clear_serial через implode поскольку через ?li вставлялся 0. В чем причина не понятно
             $s = $this->all_configs['db']->query(
-                'SELECT GROUP_CONCAT(serial) FROM {warehouses_goods_items} WHERE serial IN (?li)',
-                array($clear_serials))->el();
-            if ($s) {
+                'SELECT GROUP_CONCAT(serial) FROM {warehouses_goods_items} WHERE serial IN (?q)',
+                array("'" . implode("','", $clear_serials) . "'"))->el();
+            if ($s && $s !== null) {
                 Response::json(array('msg' => l('Серийники уже используются: ') . $s, 'state' => false));
             }
         }
