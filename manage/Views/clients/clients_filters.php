@@ -43,84 +43,6 @@
                            type="text" class="form-control" placeholder="<?= l('номер заказа') ?>">
                 </div>
             </div>
-            <div class="col-sm-4 b-r">
-                <table class="table table-borderless table-for-filters">
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Оператор') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="operators[]"
-                                        multiple="multiple">
-                                    <?php foreach ($operators as $operator): ?>
-                                        <option <?= ((isset($_GET['ops']) && in_array($operator['id'], explode(',', $_GET['ops']))) ? 'selected' : ''); ?> value="<?= $operator['id'] ?>"> <?= h($operator['fio']) ?> </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </span>
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Тип клиента') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="persons[]"
-                                        multiple="multiple">
-                                    <option <?= ((isset($_GET['persons']) && in_array(1, explode(',', $_GET['persons']))) ? 'selected' : ''); ?> value="1"> <?= l('Физ. лицо') ?> </option>
-                                    <option <?= ((isset($_GET['persons']) && in_array(2, explode(',', $_GET['persons']))) ? 'selected' : ''); ?> value="2"> <?= l('Юр. лицо') ?> </option>
-
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Метка') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="tags[]"
-                                        multiple="multiple">
-                                    <?php foreach ($tags as $tag): ?>
-                                        <option <?= ((isset($_GET['tags']) && in_array($tag['id'], explode(',', $_GET['tags']))) ? 'selected' : ''); ?> value="<?= $tag['id'] ?>"> <?= h($tag['title']) ?> </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Рекламный канал') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <span class="input-group-btn">
-                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="referrers[]"
-                                        multiple="multiple">
-                                    <?php foreach ($referrers as $ref_id => $ref_name): ?>
-                                        <option <?= ((isset($_GET['refs']) && in_array($ref_id, explode(',', $_GET['refs']))) ? 'selected' : ''); ?> value="<?= $ref_id ?>"> <?= h($ref_name) ?> </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="span5">
-                            <p class="form-control-static"><?= l('Количество обращений') ?>:</p>
-                        </td>
-                        <td class="span6">
-                            <div class="form-group" style="white-space: nowrap; text-align: right">
-                                <?= l('от') ?> <input type="text" class="form-control" value="<?= isset($_GET['cqf'])? $_GET['cqf']: 0 ?>" name="cq_from" style="width: 75%; display:inline-block "/>
-                            </div>
-                            <div class="form-group" style="white-space: nowrap; text-align: right">
-                                <?= l('до') ?> <input type="text" class="form-control" value="<?= isset($_GET['cqt'])? $_GET['cqt']: 0 ?>" name="cq_to" style="width: 75%; display: inline-block"/>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
             <div class="col-sm-4">
                 <table class="table table-borderless table-for-filters">
                     <tr>
@@ -139,30 +61,18 @@
                     <tr>
                         <td class="span5">
                             <p class="form-control-static">
-                                <?= l('Сдавали в ремонт') ?>:
+                                <?= l('Ремонтировали') ?>:
                             </p>
                         </td>
                         <td class="span6" style="max-width: 165px">
                             <div class="form-group">
-                                <?= typeahead($this->all_configs['db'], 'categories-parent', false,
-                                    isset($_GET['cat']) && $_GET['cat'] ? $_GET['cat'] : '', 5, 'input-small',
+                                <?php $device = isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : ''; ?>
+                                <?= typeahead($this->all_configs['db'], 'categories', false,
+                                    isset($_GET['cat']) && $_GET['cat'] ? $_GET['cat'] : $device, 5, 'input-small',
                                     'input-mini',
                                     '',
                                     false,
-                                    false, '', false, l('Категория')) ?>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="span5"></td>
-                        <td class="span6" style="max-width: 165px">
-                            <div class="form-group">
-                                <?= typeahead($this->all_configs['db'], 'categories-last', false,
-                                    isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small',
-                                    'input-mini',
-                                    '',
-                                    false,
-                                    false, '', false, l('Модель')) ?>
+                                    false, '', false, l('Категория') . ',' . l('Модель')) ?>
                             </div>
                         </td>
                     </tr>
@@ -178,7 +88,98 @@
                                     isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small',
                                     'input-mini',
                                     '',
-                                    false, false, '', false, l('Товар')) ?>
+                                    false, false, '', false, l('Товар') . ',' . l('Запчасть')) ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Количество обращений') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <div class="form-group" style="white-space: nowrap; text-align: right">
+                                <?= l('от') ?> <input type="text" class="form-control"
+                                                      value="<?= isset($_GET['cqf']) ? $_GET['cqf'] : 0 ?>"
+                                                      name="cq_from" style="width: 75%; display:inline-block "/>
+                            </div>
+                            <div class="form-group" style="white-space: nowrap; text-align: right">
+                                <?= l('до') ?> <input type="text" class="form-control"
+                                                      value="<?= isset($_GET['cqt']) ? $_GET['cqt'] : 0 ?>" name="cq_to"
+                                                      style="width: 75%; display: inline-block"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-sm-4 b-r">
+                <table class="table table-borderless table-for-filters">
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Оператор') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <div class="form-group">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="operators[]"
+                                        multiple="multiple">
+                                    <?php foreach ($operators as $operator): ?>
+                                        <option <?= ((isset($_GET['ops']) && in_array($operator['id'],
+                                                explode(',', $_GET['ops']))) ? 'selected' : ''); ?>
+                                            value="<?= $operator['id'] ?>"> <?= h($operator['fio']) ?> </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Тип клиента') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <div class="form-group">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="persons[]"
+                                        multiple="multiple">
+                                    <option <?= ((isset($_GET['persons']) && in_array(1,
+                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
+                                        value="1"> <?= l('Физ. лицо') ?> </option>
+                                    <option <?= ((isset($_GET['persons']) && in_array(2,
+                                            explode(',', $_GET['persons']))) ? 'selected' : ''); ?>
+                                        value="2"> <?= l('Юр. лицо') ?> </option>
+
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Метка') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <div class="form-group">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="tags[]"
+                                        multiple="multiple">
+                                    <?php foreach ($tags as $tag): ?>
+                                        <option <?= ((isset($_GET['tags']) && in_array($tag['id'],
+                                                explode(',', $_GET['tags']))) ? 'selected' : ''); ?>
+                                            value="<?= $tag['id'] ?>"> <?= h($tag['title']) ?> </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Рекламный канал') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <div class="form-group">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="referrers[]"
+                                        multiple="multiple">
+                                    <?php foreach ($referrers as $ref_id => $ref_name): ?>
+                                        <option <?= ((isset($_GET['refs']) && in_array($ref_id,
+                                                explode(',', $_GET['refs']))) ? 'selected' : ''); ?>
+                                            value="<?= $ref_id ?>"> <?= h($ref_name) ?> </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                         </td>
                     </tr>
@@ -187,7 +188,7 @@
                             <p class="form-control-static"><?= l('Действия') ?>:</p>
                         </td>
                         <td class="span6">
-                            <span class="input-group-btn">
+                            <div class="form-group">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="acts[]"
                                         multiple="multiple">
                                     <?php foreach (array(
@@ -202,7 +203,7 @@
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                            </span>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -210,3 +211,8 @@
         </div>
     </div>
 </form>
+<style>
+    .multiselect.dropdown-toggle {
+        height: 34px;
+    }
+</style>

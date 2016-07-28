@@ -115,15 +115,17 @@ class Clients extends Object
                 $url['persons'] = implode(',', $post['persons']);
             }
 
-            if (isset($post['categories-parent']) && $post['categories-parent'] > 0) {
+            if (isset($post['categories']) && $post['categories'] > 0) {
                 // фильтр по категориям (устройство)
-                $url['cat'] = intval($post['categories-parent']);
+                $count = $this->Categories->query('SELECT COUNT(*) FROM {categories} WHERE parent_id=?i',
+                    array($post['categories']))->el();
+                if ($count) {
+                    $url['cat'] = intval($post['categories']);
+                } else {
+                    $url['dev'] = intval($post['categories']);
+                }
             }
 
-            if (isset($post['categories-last']) && $post['categories-last'] > 0) {
-                // фильтр по категориям (устройство)
-                $url['dev'] = intval($post['categories-last']);
-            }
 
             if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
                 // фильтр по товару
