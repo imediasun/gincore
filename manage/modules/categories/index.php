@@ -882,7 +882,7 @@ class categories extends Controller
         }
         return array(
             'state' => true,
-            'title' => l('Редактирование категории') . '&nbsp;' . $category['title'],
+            'title' => l('Редактирование категории') . '&nbsp;' . $category['title'] . InfoPopover::getInstance()->createQuestion('l_category_information'),
             'content' => $this->view->renderFile('categories/change_info_form', array(
                 'category' => $category
             ))
