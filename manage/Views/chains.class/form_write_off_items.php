@@ -1,4 +1,5 @@
-<div class="well"><h4><?= l('Списание изделия') ?></h4>
+<div class="well" style="min-height: 115px">
+    <h4><?= l('Списание изделия') ?></h4>
     <?php if (empty($item_id)): ?>
         <p><?= l('Всего выбрано изделий') ?>: <span class="count-selected-items">0</span></p>
     <?php endif; ?>

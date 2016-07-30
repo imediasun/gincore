@@ -116,9 +116,4 @@
         </div>
     </fieldset>
 </form>
-<hr>
 
-<?= $this->renderFile('accountings/repair_print_buttons', array(
-    'order' => $order
-));
-?>

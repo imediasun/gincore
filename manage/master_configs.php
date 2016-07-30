@@ -277,6 +277,7 @@ class Configs
             'currencies' => array(
                 1 => array(
                     'rutils' => array(
+                        'remaind' => array(l('цент'), l('цента'), l('центов')),
                         'words' => array(l('доллар'), l('доллара'), l('долларов')),
                         'gender' => 'male'
                     ),
@@ -295,7 +296,9 @@ class Configs
                     'currency-name' => ''
                 ),
                 4 => array(
-                    'rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'),
+                    'rutils' => array(
+                        'remaind' => array(l('копейка'), l('копейки'), l('копеек')),
+                        'words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'),
                     'name' => l('Российский рубль'),
                     'shortName' => 'RUB',
                     'viewName' => l('руб.'),
@@ -304,6 +307,7 @@ class Configs
                 ),
                 3 => array(
                     'rutils' => array(
+                        'remaind' => array(l('копейка'), l('копейки'), l('копеек')),
                         'words' => array(l('гривна'), l('гривны'), l('гривен')),
                         'gender' => 'female'
                     ),
@@ -314,7 +318,9 @@ class Configs
                     'currency-name' => 'grn-cash'
                 ),
                 5 => array(
-                    'rutils' => array('words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'),
+                    'rutils' => array(
+                        'remaind' => array(l('копейка'), l('копейки'), l('копеек')),
+                        'words' => array(l('рубль'), l('рубля'), l('рублей')), 'gender' => 'male'),
                     'name' => l('Белорусский рубль'),
                     'shortName' => 'BYR',
                     'viewName' => l('бр.'),

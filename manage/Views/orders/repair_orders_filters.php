@@ -39,7 +39,7 @@
                 </div>
                 <div class="form-group">
                     <input name="client"
-                           value="<?= (isset($_GET['cl']) && !empty($_GET['cl']) ? trim(htmlspecialchars($_GET['cl'])) : '') ?>"
+                           value="<?= (isset($_GET['cl']) && !empty($_GET['cl']) ? trim(h($_GET['cl'])) : '') ?>"
                            type="text" class="form-control" placeholder="<?= l('телефон') ?>/<?= l('ФИО клиента') ?>">
                 </div>
                 <div class="form-group">
@@ -52,17 +52,14 @@
                        placeholder="<?= l('Серийный номер') ?>">
             </div>
             <div class="col-sm-3 b-r">
+                <div style="margin-bottom: 5px">
                 <?= typeahead($this->all_configs['db'], 'categories-last', true,
                     isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini', '', false,
                     false, '', false, l('Модель')) ?>
+                </div>
                 <?= typeahead($this->all_configs['db'], 'goods-goods', true,
                     isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini', '',
                     false, false, '', false, l('Запчасть')) ?>
-                <div class="checkbox">
-                    <label><input type="checkbox"
-                                  name="np" <?= (isset($_GET['np']) ? 'checked' : '') ?> /><?= l('Принято через почту') ?>
-                    </label>
-                </div>
                 <div class="checkbox">
                     <label><input type="checkbox"
                                   name="rf" <?= (isset($_GET['rf']) ? 'checked' : '') ?> /><?= l('Выдан подменный фонд') ?>
@@ -80,11 +77,12 @@
                 </div>
             </div>
             <div class="col-sm-3 b-r">
-                <div>
-                    <div class="span5">
-                        <p class="form-control-static"><?= l('Инженер') ?>:</p>
-                    </div>
-                    <div class="span6">
+                <table class="table table-borderless table-for-filters">
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Инженер') ?>:</p>
+                        </td>
+                        <td class="span6">
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]"
                                         multiple="multiple">
@@ -92,19 +90,20 @@
                                         <option <?= ((isset($_GET['eng']) && in_array($engineer['id'],
                                                 explode(',', $_GET['eng']))) ? 'selected' : ''); ?>
                                             value="<?= $engineer['id'] ?>">
-                                            <?= htmlspecialchars($engineer['name']) ?>
+                                            <?= h($engineer['name']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </span>
-                    </div>
-                </div>
-                <?= $filter_manager ?>
-                <div>
-                    <div class="span5">
-                        <p class="form-control-static"><?= l('Приемщик') ?>:</p>
-                    </div>
-                    <div class="span6">
+
+                        </td>
+                    </tr>
+                    <?= $filter_manager ?>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Приемщик') ?>:</p>
+                        </td>
+                        <td class="span6">
                             <span class="input-group-btn">
                                 <select
                                     data-numberDisplayed="0" <?= ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
@@ -114,18 +113,19 @@
                                         <?php $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'],
                                                     explode(',', $_GET['acp'])))) ? 'selected' : ''; ?>
                                         <option <?= $selected ?> value="<?= $accepter['id'] ?>">
-                                            <?= htmlspecialchars($accepter['name']) ?>
+                                            <?= h($accepter['name']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </span>
-                    </div>
-                </div>
-                <div>
-                    <div class="span5">
-                        <p class="form-control-static"><?= l('Статус') ?>:</p>
-                    </div>
-                    <div class="span6">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Статус') ?>:</p>
+                        </td>
+                        <td class="span6">
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="status[]"
                                         multiple="multiple">
@@ -133,13 +133,60 @@
                                         <option <?= ((isset($_GET['st']) && in_array($os_id,
                                                 explode(',', $_GET['st']))) ? 'selected' : ''); ?>
                                             value="<?= $os_id ?>">
-                                            <?= htmlspecialchars($os_v['name']) ?>
+                                            <?= h($os_v['name']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </span>
-                    </div>
-                </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Вид ремонта') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="repair[]"
+                                        multiple="multiple">
+                                    <?php foreach (array(
+                                        l('Платный'),
+                                        l('Гарантийный'),
+                                    ) as $rep_id => $rep_title): ?>
+                                        <option <?= ((isset($_GET['rep']) && in_array($rep_id,
+                                                explode(',', $_GET['rep']))) ? 'selected' : ''); ?>
+                                            value="<?= $rep_id ?>">
+                                            <?= h($rep_title) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Прочее') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="other[]"
+                                        multiple="multiple">
+                                    <?php foreach (array(
+                                        'hmr' => l('Вызов мастера на дом'),
+                                        'cgd' => l('Устройство забрал курьер'),
+                                        'np' => l('Принято через почту')
+                                    ) as $other_id => $other_title): ?>
+                                        <option <?= ((isset($_GET['other']) && in_array($other_id,
+                                                explode(',', $_GET['other']))) ? 'selected' : ''); ?>
+                                            value="<?= $other_id ?>">
+                                            <?= h($other_title) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+
             </div>
             <div class="col-sm-2" style="overflow:hidden">
                 <?php if (!empty($wfs)): ?>

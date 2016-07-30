@@ -169,6 +169,7 @@ function display_goods_information(_this) {
 }
 
 function display_service_information(_this) {
+  $(_this).removeAttr('data-content');
   $.ajax({
     url: prefix + module + '/ajax/?act=service-information',
     type: 'POST',
@@ -187,6 +188,9 @@ function display_service_information(_this) {
           $(_this).attr('data-original-price_wholesale', msg['price_wholesale']);
         }
         if (msg['content']) {
+          setTimeout(function () {
+            alert_box(this, '<h3>' + msg['title'] + '</h3>' + msg['content']);
+          }, 0);
           $(_this).attr('data-content', msg['content']);
         }
       }
@@ -206,7 +210,7 @@ function display_category_information(_this) {
       if (msg['state'] == true) {
         $(_this).attr('data-placement', 'right');
         $(_this).attr('data-trigger', 'focus');
-        if (msg['title'] ) {
+        if (msg['title']) {
           $(_this).attr('data-original-title', msg['title']);
         }
         if (msg['price']) {
@@ -215,7 +219,7 @@ function display_category_information(_this) {
         if (msg['price_wholesale']) {
           $(_this).attr('data-original-price_wholesale', msg['price_wholesale']);
         }
-        if (msg['content']&& msg['content'].length > 0) {
+        if (msg['content'] && msg['content'].length > 0) {
           $(_this).attr('data-content', msg['content']);
           $(_this).addClass('popover-info-with-footer');
         } else {
@@ -485,7 +489,7 @@ function order_item(_this) {
               $('#modal-dialog').css('display', 'block');
             }, 10);
           } else {
-          click_tab_hash();
+            click_tab_hash();
           }
           close_alert_box();
         }
@@ -615,7 +619,7 @@ function add_new_order(_this, next, from) {
 
 function order_products(_this, product_id, order_product_id, cfm, remove, show_confirm_for_remove) {
   var close_supplier_order = '', url;
-  var order_id = $('#update-order').data('order_id') || $('#order-form').find('input[name="order_id"]').first().val() || arrequest()[2] ;
+  var order_id = $('#update-order').data('order_id') || $('#order-form').find('input[name="order_id"]').first().val() || arrequest()[2];
   var is_modal = $('input[name="is_modal"]').val();
 
   if (remove && show_confirm_for_remove) {
@@ -1193,7 +1197,7 @@ function select_cashbox(_this) {
 function select_price_type(_this) {
   var type = parseInt($(_this).attr('data-price_type'));
   $('input[name="price_type"]').val(type);
-  $('.btn-title-price_type').html($(_this).html());
+  $('.btn-title-price_type').html($(_this).data('title'));
   set_price();
   return false;
 }
@@ -1264,4 +1268,39 @@ function edit_order_dialog(_this, tab) {
     edit_order_dialog_by_order_id(id, tab);
   }
 }
+
+function change_personal_to(to) {
+  $('.js-personal').toggle();
+  $('input[name="person"]').val(to);
+  return false;
+}
+function change_personal(_this, item_id, response, id) {
+  if ($(_this).data('table') == 'clients') {
+    get_requests_client_id = item_id;
+  }
+  if (get_requests_client_id) {
+    // достаем
+    $.ajax({
+      url: prefix + 'clients/ajax',
+      type: 'GET',
+      data: 'act=get_person_of&' +
+      'client_id=' + get_requests_client_id,
+      dataType: 'json',
+      success: function (data) {
+        if (data.state) {
+          $('input[name="person"]').val(parseInt(data.person));
+          if (data.person == 1) {
+            $('#personal').show();
+            $('#legal').hide();
+          } else {
+            $('#personal').hide();
+            $('#legal').show();
+          }
+          $('.js-personal').attr('onclick', 'return false;');
+        }
+      }
+    });
+  }
+}
+
 

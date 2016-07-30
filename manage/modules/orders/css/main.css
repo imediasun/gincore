@@ -632,27 +632,6 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 #sale .nav-tabs {
     border: 0;
 }
-.btn-accept {
-    background-color: #f5f5f5;
-    background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
-    background-repeat: repeat-x;
-    border: 1px solid #e2e2e2;
-    border-radius: 3px;
-    color: #333333;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 10px;
-    margin-bottom: 0;
-    padding: 3px 15px;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 0 1px 1px #fff;
-    vertical-align: middle;
-    font-weight: bold;
-}
-.btn-accept:hover {
-    color: #333333;
-}
 .items-show, .items-hide {
     cursor: pointer;
 }
@@ -664,4 +643,20 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 }
 .btn-add-good {
     white-space: nowrap;
+}
+.table.table-for-filters td {
+    border: medium none !important;
+    font-size: 1em !important;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+.fa-exchange {
+    transform: rotate(90deg);
+}
+.table.table-borderless.table-for-filters > tbody > tr > td {
+    margin: 0;
+    padding: 0;
+}
+.filters-box .form-group {
+    margin-bottom: 5px;
 }

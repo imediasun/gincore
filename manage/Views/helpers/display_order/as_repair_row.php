@@ -1,5 +1,9 @@
 <tr class="remove-marked-object">
     <td class="floatleft">
+        <?php if ($order['home_master_request'] == 1): ?>
+            <i style="color:<?= $color ?>; font-size: 10px" title="<?= $order['hmr_address'] ?>, <?= $order['hmr_date']?>"
+               class="fa fa-car"></i>
+        <?php endif; ?>
         <?= $accepted ?>
         <?= show_marked($order['order_id'], 'co', $order['m_id']) ?>
         <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders') ||

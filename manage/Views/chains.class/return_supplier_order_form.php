@@ -1,5 +1,6 @@
 <?php if ($this->all_configs['configs']['erp-use'] && $this->all_configs['oRole']->hasPrivilege('return-items-suppliers')): ?>
-    <div class="well"><h4><?= l('Возврат поставщику') ?></h4>
+    <div class="well" style="min-height: 118px">
+        <h4><?= l('Возврат поставщику') ?></h4>
         <form class="form-horizontal" method="post">
             <?php if ($item_id === 0): ?>
                 <p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>

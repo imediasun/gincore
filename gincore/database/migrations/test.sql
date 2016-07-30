@@ -183,7 +183,12 @@ PRIMARY KEY (`id`),
 INDEX(`stocktaking_id`),
 INDEX(`location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
+/*
+2016_07_19_074755_add_individual_field_to_clients.php
+ */
+ALTER TABLE `restore4_clients` ADD COLUMN note VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_clients` ADD COLUMN reg_data_1 VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_clients` ADD COLUMN reg_data_2 VARCHAR (255) DEFAULT '';
 
 /*
 2016_07_06_090712_lock_filters
@@ -198,3 +203,16 @@ CREATE TABLE IF NOT EXISTS `restore4_lock_filters` (
   KEY `lock_filters_user_id_index` (`user_id`),
   KEY `lock_filters_name_index` (`name`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_07_22_061024_home_master_request.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_home_master_requests` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` int(10) unsigned NOT NULL,
+  `address` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `date` TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `home_master_request_order_id_index` (`order_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+ALTER TABLE `restore4_orders` ADD COLUMN home_master_request int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_orders` ADD INDEX orders_home_master_request(home_master_request);

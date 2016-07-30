@@ -53,15 +53,18 @@
                                    onkeyup="recalculate_amount_supplier();" <?= $readonly ?> value="<?= $order['count'] ?>"/>
                         </td>
                         <td class="col-sm-2">
-                            <input type="text" class="form-control js-supplier-sum dasabled" readonly
+                            <input type="text" class="form-control js-supplier-sum disabled" readonly
                                    onkeyup="recalculate_amount_supplier(this);"
                                    value="<?= $order['price'] * $order['count'] ?>"/>
                             <?php $total += $order['price'] * $order['count'] ?>
                         </td>
                         <td>
-                            <input type="text" class="form-control js-supplier-order_numbers dasabled" readonly
+                            <input type="hidden" class="form-control js-supplier-order_numbers disabled"
                                    value="<?= implode(',', $order['cos']) ?>"
                                    name="so_co[<?= $id ?>]"/>
+                            <input type="text" class="form-control js-supplier-order_numbers" style="background-color: #eeeeee"
+                                   value="<?= implode(',', $order['cos']) ?>"
+                                   />
                         </td>
                         <td class="col-sm-2">
                             <?php if ($order['count_come'] > 0): ?>

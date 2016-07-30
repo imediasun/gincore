@@ -382,10 +382,16 @@ class manageModel
      * @param string $icon_type
      * @return array
      */
-    public function get_clients_orders($query, $skip, $count_on_page, $icon_type = 'co')
+    public function get_clients_orders($query, $skip = 0, $count_on_page = 0, $icon_type = 'co')
     {
         $orders = array();
         $orders_goods = null;
+        $limit = '';
+        if(!empty($count_on_page)) {
+            $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(
+                $skip, $count_on_page
+            ));
+        }
 
         $ids = $this->all_configs['db']->query('SELECT DISTINCT o.id
                 FROM {orders} AS o
@@ -395,17 +401,17 @@ class manageModel
                 LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
                 LEFT JOIN {category_goods} as cg ON cg.goods_id=og.goods_id
-                ?query ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.status, o.date_add DESC
-            array($icon_type, $_SESSION['id'], $query, $skip, $count_on_page))->vars();
+                ?query ORDER BY o.date_add DESC ?query',
+            array($icon_type, $_SESSION['id'], $query, $limit))->vars();
 
         if ($ids) {
             $orders_goods = $this->all_configs['db']->query('SELECT o.id as order_id, o.status, o.sale_type, o.title as product,
                   o.date_add, o.user_id, m.id as m_id, mi.id as mi_id, o.date_add as date, o.manager, o.sum_paid, o.sum, o.comment,
-                  o.np_accept, og.goods_id, og.title, og.id as order_goods_id, og.count, o.note, l.location, o.courier,
+                  o.np_accept, og.goods_id, og.title, og.id as order_goods_id, og.count, o.note, l.location, o.courier, o.home_master_request,
                   o.discount, u.fio as h_fio, u.login as h_login, o.urgent, o.wh_id, w.title as wh_title, aw.title as aw_wh_title, og.type,
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
-                  gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type
+                  gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date
                 FROM {orders} AS o
                 LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
@@ -419,6 +425,7 @@ class manageModel
                 LEFT JOIN {warehouses} as aw ON aw.id=o.accept_wh_id
                 LEFT JOIN {warehouses_groups} as gr ON gr.id=aw.group_id
                 LEFT JOIN {warehouses_types} as tp ON tp.id=aw.type_id
+                LEFT JOIN {home_master_requests} as hmr ON hmr.order_id=o.id
                 WHERE o.id IN (?li) ORDER BY o.date_add DESC',//o.status, o.date_add DESC
                 array($icon_type, $_SESSION['id'], array_keys($ids)))->assoc();
 
@@ -594,6 +601,10 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
                 array($query, explode(',', $filters['st'])));
         }
+        if (isset($filters['rep']) && count(explode(',', $filters['rep'])) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.repair IN (?li)',
+                array($query, explode(',', $filters['rep'])));
+        }
 
         if (isset($filters['wh']) && count(explode(',', $filters['wh'])) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.accept_wh_id IN (?li)',
@@ -634,6 +645,18 @@ class manageModel
         if (isset($filters['np']) && $filters['np'] > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.np_accept=?i',
                 array($query, 1));
+        }
+
+        if(isset($filters['other']) && count(explode(',', $filters['other'])) > 0) {
+            $other = explode(',', $filters['other']);
+            if(in_array('hmr', $other)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.home_master_request=?i',
+                    array($query, 1));
+            }
+            if(in_array('cgd', $other)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND NOT o.courier IS NULL',
+                    array($query));
+            }
         }
 
         if (isset($filters['rf']) && $filters['rf'] > 0) {
@@ -1206,6 +1229,10 @@ class manageModel
         if (array_key_exists('repair', $filters) && intval($filters['repair']) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
                 array($query, ORDER_REPAIR));
+        }
+        if (array_key_exists('by_cid', $filters) && intval($filters['by_cid']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.user_id=?i',
+                array($query, $filters['by_cid']));
         }
         return $query;
     }

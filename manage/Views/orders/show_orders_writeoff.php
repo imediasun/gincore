@@ -27,7 +27,10 @@
         </tbody>
     </table>
 
-    <?= page_block(ceil($count / $count_on_page), $count, '#show_orders'); ?>
+    <?= page_block(ceil($count / $count_on_page), $count, '#show_orders', null,
+        $this->renderFile('orders/_export_button', array(
+            'prefix' => $prefix
+        ))); ?>
 
 <?php else: ?>
     <div class="span9"><p class="text-danger"><?= l('Заказов не найдено') ?></p></div>

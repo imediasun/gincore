@@ -93,6 +93,14 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     WHERE cg.title LIKE "%?e%" ?query LIMIT ?i',
                 array($join, $s, $query, $limit))->assoc();
         }
+        if($_POST['table'] == 'categories-parent') {
+            $data = $all_configs['db']->query('
+            SELECT cg.id, cg.title 
+            FROM {categories} as cg
+            LEFT JOIN (SELECT DISTINCT parent_id FROM {categories}) AS sub ON cg.id = sub.parent_id
+            WHERE  cg.title LIKE "%?e%" AND cg.avail=1 AND NOT (sub.parent_id IS NULL OR sub.parent_id = 0) LIMIT ?i
+            ', array($s, $limit))->assoc();
+        }
         if ($_POST['table'] == 'users') {
             $query = '';
             //if (isset($_POST['fix']) && $_POST['fix'] > 0) {}
@@ -255,8 +263,7 @@ if ($act == 'add-alarm') {
     $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
     if ($data['state'] == true && strtotime($date) < time()) {
-        $data['state'] = false;
-        $data['msg'] = l('Укажите дату (в будущем)');
+        $date = date('Y-m-d H:i:s', strtotime('+ 1 minutes'));
     }
 
     if ($data['state'] == true) {

@@ -1,10 +1,12 @@
 <form method="post" style="max-width: 400px">
     <table class="table borderless">
         <tr>
-            <td style="padding: 0 5px 0 0">
+            <td style="padding: 0 5px 10px 0" colspan="<?= $isAdmin? 8: 4 ?>">
                 <input type="text" name="date" value="<?= $date ?>"
                        class="btn btn-info daterangepicker"/><?php //=  InfoPopover::getInstance()->createQuestion('l_accountings_report_period_info')?>
             </td>
+        </tr>
+        <tr>
             <td style="padding: 0 5px 0 0 ">
                 <div class="btn-group">
                     <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
@@ -100,6 +102,12 @@
                         isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-100px', 'input-100px', '',
                         false, false, '', false, l('Категория')); ?>
                     <?php //=  InfoPopover::getInstance()->createQuestion('l_accountings_report_category_info')?>
+                </td>
+                <td style="padding: 0 5px 0 0 ">
+                    <?= typeahead($this->all_configs['db'], 'clients', false,
+                        isset($_GET['by_cid']) && $_GET['by_cid'] ? $_GET['by_cid'] : 0, 4, 'input-100px',
+                        'input-100px', '', false, false, '', false, l('Клиент')); ?>
+                    <?php //=  InfoPopover::getInstance()->createQuestion('l_accountings_report_product_info')?>
                 </td>
             <?php endif; ?>
             <td style="padding: 0 5px 0 0 ">

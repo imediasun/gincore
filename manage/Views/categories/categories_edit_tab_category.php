@@ -41,7 +41,12 @@
                         <input class="form-control" type="text" value="<?= $cur_category['prio'] ?>" name="prio"/>
                     </div>
                     <div class="form-group">
-                        <label><?= l('Важная информация') ?>: </label>
+                        <label>
+                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                  onclick="alert_box(this, false, 'changes:change-category-info')"
+                                  data-o_id="<?= $cur_category['id'] ?>" title="<?= l('История изменений') ?>"></span>
+                        <?= l('Важная информация') ?>:
+                        </label>
                         <textarea name="information" class="form-control"
                                   rows="3"><?= $cur_category['information'] ?></textarea>
                     </div>

@@ -101,9 +101,13 @@ class orders extends Controller
                 $url['g_cg'] = intval($post['categories']);
             }
 
-            if (isset($post['np'])) {
+            if (isset($post['other']) && in_array('np', $post['other'])) {
                 // фильтр принято через нп
                 $url['np'] = 1;
+            }
+
+            if (isset($post['other']) && !empty($post['other'])) {
+                $url['other'] = implode(',', $post['other']);
             }
 
             if (isset($post['wh-kiev'])) {
@@ -189,6 +193,10 @@ class orders extends Controller
             if (isset($post['status']) && !empty($post['status'])) {
                 // фильтр по статусу
                 $url['st'] = implode(',', $post['status']);
+            }
+            if (isset($post['repair']) && !empty($post['repair'])) {
+                // фильтр по статусу
+                $url['rep'] = implode(',', $post['repair']);
             }
 
             if (isset($post['client']) && !empty($post['client'])) {
@@ -276,10 +284,10 @@ class orders extends Controller
                 $url['ctg'] = implode(',', $post['ctg']);
             }
             if (isset($post['tso']) && intval($post['tso']) > 0) {
-                $url ['tso']= intval($post['tso']);
+                $url ['tso'] = intval($post['tso']);
             }
             if (isset($post['lock-button'])) {
-                $url ['lock-button']= intval($post['lock-button']);
+                $url ['lock-button'] = intval($post['lock-button']);
             }
             $this->LockFilters->toggle('recommendation-procurement', $url);
 
@@ -301,6 +309,22 @@ class orders extends Controller
         Response::redirect($_SERVER['REQUEST_URI']);
     }
 
+    /**
+     * @return string
+     */
+    function show_filter_manager_as_row()
+    {
+        $managers = $this->all_configs['db']->query(
+            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
+            array('edit-clients-orders', 'site-administration'))->assoc();
+        $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
+            (isset($_GET['managers']) ? $_GET['managers'] : array());
+        return $this->view->renderFile('orders/show_filter_manager_as_row', array(
+            'mg_get' => $mg_get,
+            'managers' => $managers
+        ));
+    }
 
     /**
      * @param bool $compact
@@ -473,7 +497,7 @@ class orders extends Controller
         return $this->view->renderFile('orders/repair_orders_filters', array(
             'accepters' => $accepters,
             'engineers' => $engineers,
-            'filter_manager' => $this->show_filter_manager(true),
+            'filter_manager' => $this->show_filter_manager_as_row(),
             'count' => $count,
             'count_marked' => $count_marked,
             'count_unworked' => $count_unworked,
@@ -561,7 +585,7 @@ class orders extends Controller
      * @param $count_on_page
      * @return mixed
      */
-    public function getOrders($query, $skip, $count_on_page)
+    public function getOrders($query, $skip = 0, $count_on_page = 0)
     {
         return $this->all_configs['manageModel']->get_clients_orders($query, $skip, $count_on_page, 'co');
     }
@@ -571,13 +595,14 @@ class orders extends Controller
      */
     function show_orders_orders()
     {
+        Session::getInstance()->set('current_order_show', ORDER_REPAIR);
         $user_id = $this->getUserId();
         $filters = array('type' => ORDER_REPAIR);
         if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $filters['acp'] = $user_id;
         }
         $saved = $this->LockFilters->load('repair-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
 
@@ -613,9 +638,10 @@ class orders extends Controller
      */
     public function show_orders_sold()
     {
+        Session::getInstance()->set('current_order_show', ORDER_SELL);
         $filters = array('type' => ORDER_SELL);
         $saved = $this->LockFilters->load('sale-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if (isset($_GET['simple'])) {
@@ -647,8 +673,9 @@ class orders extends Controller
      */
     public function show_orders_return()
     {
+        Session::getInstance()->set('current_order_show', ORDER_RETURN);
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_RETURN) + $_GET);
@@ -675,8 +702,9 @@ class orders extends Controller
      */
     public function show_orders_writeoff()
     {
+        Session::getInstance()->set('current_order_show', ORDER_WRITE_OFF);
         $saved = $this->LockFilters->load('repair-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $queries = $this->all_configs['manageModel']->clients_orders_query(array('type' => ORDER_WRITE_OFF) + $_GET);
@@ -720,7 +748,7 @@ class orders extends Controller
             }
             //вывод списска клиентов для создания нового заказа
             $orders_html = $this->view->renderFile('orders/orders_create_order', array(
-                'client' => client_double_typeahead($client_id, 'get_requests'),
+                'client' => client_double_typeahead($client_id, 'change_personal,get_requests'),
                 'colorsSelect' => $this->view->renderFile('orders/_colors-select', array(
                     'colors' => $this->all_configs['configs']['devices-colors']
                 )),
@@ -793,7 +821,7 @@ class orders extends Controller
     public function orders_show_suppliers_orders($hash = '#show_suppliers_orders')
     {
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if (trim($hash) == '#show_suppliers_orders' || (trim($hash) != '#show_suppliers_orders-all'
@@ -816,7 +844,7 @@ class orders extends Controller
     {
         $orders_html = '';
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
@@ -852,7 +880,7 @@ class orders extends Controller
     {
         $orders_html = '';
         $saved = $this->LockFilters->load('supplier-orders');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
 
@@ -904,7 +932,7 @@ class orders extends Controller
     public function menu_recommendations_procurement()
     {
         $saved = $this->LockFilters->load('recommendation-procurement');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
@@ -957,7 +985,7 @@ class orders extends Controller
         $debug = '';
 
         $saved = $this->LockFilters->load('recommendation-procurement');
-        if(count($_GET) <= 2 && !empty($saved)) {
+        if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
@@ -1693,12 +1721,11 @@ class orders extends Controller
             return $this->view->renderFile('orders/genorder/_empty_orders');
         }
         // достаем комментарии к заказу
-        $comments_public = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
-                FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
-                WHERE oc.order_id=?i AND oc.private=0 ORDER BY oc.date_add DESC', array($order['id']))->assoc();
-        $comments_private = (array)$this->all_configs['db']->query('SELECT oc.date_add, oc.text, u.fio, u.phone, u.login, u.email, oc.id
-                FROM {orders_comments} as oc LEFT JOIN {users} as u ON u.id=oc.user_id
-                WHERE oc.order_id=?i AND oc.private=1 ORDER BY oc.date_add DESC', array($order['id']))->assoc();
+        $comments_public = $this->OrdersComments->getPublic($order['id']);
+        $comments_private = $this->OrdersComments->getPrivate($order['id']);
+        $home_master_request = $this->all_configs['db']->query('SELECT  hmr.*
+                FROM {home_master_requests} hmr
+                WHERE hmr.order_id=?i ORDER by `date` DESC LIMIT 1', array($order['id']))->row();
 
         $notSale = $order['type'] != 3;
         $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
@@ -1789,6 +1816,7 @@ class orders extends Controller
             'saleOrdersFilters' => $this->sale_orders_filters(true),
             'users_fields' => $usersFields,
             'showUsersFields' => $showUsersFields,
+            'homeMasterRequest' => $home_master_request
         ));
     }
 
@@ -1954,6 +1982,11 @@ class orders extends Controller
             $data['state'] = true;
             $data['width'] = true;
             $data['content'] = '<br />' . $this->genorder($_POST['object_id'], true);
+        }
+
+        // вывод заказа
+        if ($act == 'export') {
+            return $this->exportOrders();
         }
 
         // история статусов заказа
@@ -2146,29 +2179,7 @@ class orders extends Controller
         preg_match('/changes:(.+)/', $act, $arr);
         // история изменений инженера
         if (count($arr) == 2 && isset($arr[1])) {
-            $data['state'] = true;
-            $data['content'] = l('История изменений не найдена');
-
-            if (!empty($_POST['object_id'])) {
-                $object_id = $_POST['object_id'];
-            }
-            if (!isset($object_id) && !empty($this->all_configs['arrequest'][2])) {
-                $object_id = $this->all_configs['arrequest'][2];
-            }
-            if (!empty($object_id)) {
-                $changes = $this->History->getChanges(trim($arr[1]), $mod_id, $object_id);
-                if ($changes) {
-                    $data['content'] = '<table class="table"><thead><tr><td>' . l('manager') . '</td><td>' . l('Дата') . '</td><td>' . l('Изменение') . '</td></tr></thead><tbody>';
-                    foreach ($changes as $change) {
-                        $data['content'] .= '<tr><td>' . get_user_name($change) . '</td>';
-                        $data['content'] .= '<td><span title="' . do_nice_date($change['date_add'],
-                                false) . '">' . do_nice_date($change['date_add']) . '</span></td>';
-                        $data['content'] .= '<td>' . htmlspecialchars($change['change']) . '</td></tr>';
-                    }
-                    $data['content'] .= '</tbody></table>';
-                }
-            }
-
+            $data = $this->getChanges($act, $_POST, $mod_id);
         }
 
         // история перемещений заказа
@@ -2213,7 +2224,7 @@ class orders extends Controller
         // важная информация при добавлении устройства в новый заказ на ремонт
         if ($act == 'service-information') {
             $data['state'] = true;
-            $data['title'] = l('Важная информация');
+            $data['title'] = l('Важная информация по') . '  ';
             $data['content'] = '';
 
             if (isset($_POST['category_id'])) {
@@ -2221,7 +2232,8 @@ class orders extends Controller
                 $category = $this->all_configs['db']->query('SELECT * FROM {categories} WHERE id=?i',
                     array(intval($_POST['category_id'])))->row();
                 if ($category && $category['information'] && mb_strlen(trim($category['information']), 'utf-8') > 0) {
-                    $data['content'] = trim($category['information']);
+                    $data['content'] = nl2br(h($category['information']));
+                    $data['title'] .= $category['title'] . InfoPopover::getInstance()->createQuestion('l_category_information');
                 }
             }
             if (isset($_POST['goods_id'])) {
@@ -2879,7 +2891,7 @@ class orders extends Controller
     protected function changeStatus($order, $data, $defaultMessage = '')
     {
 // меняем статус
-        if($_POST['status'] == $order['status']) {
+        if ($_POST['status'] == $order['status']) {
             return $data;
         }
         $response = update_order_status($order, $_POST['status']);
@@ -3537,5 +3549,77 @@ class orders extends Controller
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_took', $order['client_took']);
         }
         return $order;
+    }
+
+    /**
+     *
+     */
+    private function exportOrders()
+    {
+        $session = Session::getInstance();
+        $currentOrderType = $session->check('current_order_show') ? $session->get('current_order_show') : ORDER_REPAIR;
+        $user_id = $this->getUserId();
+        $filters = array('type' => $currentOrderType);
+        if ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $filters['acp'] = $user_id;
+        }
+        $saved = $this->LockFilters->load('repair-orders');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
+        }
+
+        if (isset($_GET['simple'])) {
+            $search = $_GET['simple'];
+            unset($_GET['simple']);
+            list($query, $orders) = $this->simpleSearch($search, $filters + $_GET);
+        } else {
+            $queries = $this->all_configs['manageModel']->clients_orders_query($filters + $_GET);
+            $query = $queries['query'];
+            // достаем заказы
+            $orders = $this->getOrders($query);
+        }
+
+        require_once __DIR__ . '/exports.php';
+        $export = new ExportOrdersToXLS();
+        $xls = $export->getXLS(l('Заказы'));
+
+        if (in_array($currentOrderType, array(ORDER_REPAIR, ORDER_WRITE_OFF, ORDER_RETURN))) {
+            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
+                lq('N'),
+                lq('Дата'),
+                lq('Приемщик'),
+                lq('Менеджер'),
+                lq('Статус'),
+                lq('Запчасти'),
+                lq('Устройство'),
+                lq('Стоимость'),
+                lq('Оплачено'),
+                lq('Клиент'),
+                lq('Контактный телефон'),
+                lq('Сроки'),
+                lq('Склад'),
+            ));
+        } else {
+            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
+                lq('N'),
+                lq('Дата'),
+                lq('Приемщик'),
+                lq('Менеджер'),
+                lq('Способ оплаты'),
+                lq('Статус'),
+                lq('Способ доставки'),
+                lq('Товары'),
+                lq('Стоимость'),
+                lq('Оплачено'),
+                lq('Клиент'),
+                lq('Контактный телефон'),
+                lq('Примечание'),
+            ));
+        }
+        if (!empty($orders)) {
+            $export->makeXLSBody($xls, array('orders' => $orders, 'type' => $currentOrderType));
+        }
+        $export->outputXLS($xls);
+
     }
 }

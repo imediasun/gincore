@@ -304,7 +304,7 @@ class Numeral
      * @throws \InvalidArgumentException
      */
     public function getRubles($amount, $zeroForKopeck = false, 
-                              $gender = 'male', $words_txt = array('рубль', 'рубля', 'рублей')){
+                              $gender = 'male', $words_txt = array('рубль', 'рубля', 'рублей'), $remaind_text = array('копейка', 'копейки', 'копеек')){
         if ($amount < 0) {
             throw new \InvalidArgumentException('Amount must be positive or 0');
         }
@@ -329,7 +329,7 @@ class Numeral
             $words[] = $this->sumString(
                 $remainder,
                 RUtils::FEMALE,
-                array('копейка', 'копейки', 'копеек')
+               $remaind_text
             );
         }
 

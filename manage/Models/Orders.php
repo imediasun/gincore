@@ -222,7 +222,8 @@ class MOrders extends AModel
             'cashless',
             'delivery_by',
             'delivery_to',
-            'sale_type'
+            'sale_type',
+            'home_master_request',
         );
     }
 

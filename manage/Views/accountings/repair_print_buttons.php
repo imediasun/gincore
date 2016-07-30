@@ -1,9 +1,9 @@
 <div class="btn-group select-print-form">
     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-            aria-expanded="false">
-        <i class="fa fa-print"></i><?= l("Печать документов") ?> <span class="caret"></span>
+            aria-expanded="false" onclick="return toggle_on_click(this, event);">
+        <i class="fa fa-print"></i>&nbsp;<span class="caret"></span>
     </button>
-    <input id='order_id' type="hidden" name="order_id" value="<?= $order['id'] ?>" />
+    <input id='order_id' type="hidden" name="order_id" value="<?= $order['id'] ?>"/>
     <ul class="keep-open dropdown-menu print_menu">
         <li>
             <div class="checkbox">
@@ -51,4 +51,3 @@
         </li>
     </ul>
 </div>
-

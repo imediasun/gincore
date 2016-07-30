@@ -48,18 +48,28 @@
                                 <legend><?= l('Клиент') ?></legend>
                                 <div class="form-group">
                                     <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
-                                    <div class="row row-15">
-                                        <div class="col-sm-4" style="padding-right:0px">
+                                    <div class="row-fluid">
+                                        <div class="col-sm-4" style="padding-right:0px; padding-left: 0px">
                                             <?= $client['phone'] ?>
                                         </div>
                                         <div class="col-sm-2" style="line-height: 34px; ">
                                         <span class="tag"
                                               style="background-color: <?= !empty($tag) ? $tag['color'] : (isset($tags[$client['tag_id']]['color']) ? $tags[$client['tag_id']]['color'] : '') ?>">
-                                            <?= htmlspecialchars(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title']) ? $tags[$client['tag_id']]['title'] : '')) ?>
+                                            <?= h(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title']) ? $tags[$client['tag_id']]['title'] : '')) ?>
                                         </span>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-6 input-group">
                                             <?= $client['fio'] ?>
+                                            <span class="input-group-addon js-personal" id="personal"
+                                                  onclick="return change_personal_to(2);"> <?= l('Физ') ?>
+                                                <i class="fa fa-sort" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="input-group-addon js-personal" id="legal"
+                                                  onclick="return change_personal_to(1);"
+                                                  style="display: none"><?= l('Юр') ?>
+                                                <i class="fa fa-sort" aria-hidden="true"></i>
+                                            </span>
+                                            <input type="hidden" name="person" value="1"/>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +117,7 @@
                                             class="text-danger">*</b>: </label>
                                     <?= typeahead($this->all_configs['db'], 'categories-last', false,
                                         (!empty($order_data) ?
-                                            $order_data['product_id'] : 0), 3, 'input-medium popover-info', '',
+                                            $order_data['product_id'] : 0), 3, 'input-medium', '',
                                         'display_service_information,get_requests', false, false, '', false,
                                         l('Введите'),
                                         array(
@@ -274,10 +284,10 @@
                                                         type="checkbox" value="1" name="is_courier"/>
                                                     <?= l('Курьер забрал устройство у клиента') ?>
                                                 </label>
-                                                    <input type="text" style="display:none;"
-                                                           placeholder="<?= l('по адресу') ?>"
-                                                           class="form-control courier_address" value=""
-                                                           name="courier"/>
+                                                <input type="text" style="display:none;"
+                                                       placeholder="<?= l('по адресу') ?>"
+                                                       class="form-control courier_address" value=""
+                                                       name="courier"/>
                                             </div>
                                             <div class="checkbox">
                                                 <label>
@@ -290,6 +300,23 @@
                                                        placeholder="<?= l('Модель, серийный номер') ?>"
                                                        class="form-control replacement_fund" value=""
                                                        name="replacement_fund"/>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input
+                                                        onclick="if ($(this).prop('checked')){$('.home_master').show();}else{$('.home_master').hide();}"
+                                                        type="checkbox" value="1" name="home_master_request"/>
+                                                    <?= l('Вызов мастера на дом') ?>
+                                                </label>
+                                                    <input type="text" style="display:none;"
+                                                           placeholder="<?= l('Укажите время') ?>"
+                                                           class="form-control home_master_date home_master datetimepicker"
+                                                           value=""
+                                                           name="home_master_date"  data-format="YYYY-MM-DD hh:mm:ss"/>
+                                                    <input type="text" style="display:none;"
+                                                           placeholder="<?= l('Адрес') ?>"
+                                                           class="form-control home_master_address home_master" value=""
+                                                           name="home_master_address"/>
                                             </div>
                                         </div>
                                     </div>

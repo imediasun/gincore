@@ -1,12 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Object.php';
 
 $modulename[20] = 'clients';
 $modulemenu[20] = l('Клиенты');
 $moduleactive[20] = !$ifauth['is_2'];
 
-class Clients
+/**
+ * @property  MClients     Clients
+ * @property  MLockFilters LockFilters
+ * @property  MUsers       Users
+ * @property  MUsersMarked UsersMarked
+ * @property  MCategories  Categories
+ */
+class Clients extends Object
 {
     /** @var View */
     protected $view;
@@ -14,6 +21,13 @@ class Clients
     public $error;
     public $all_configs;
     public $count_on_page;
+    public $uses = array(
+        'Clients',
+        'LockFilters',
+        'Users',
+        'UsersMarked',
+        'Categories'
+    );
 
     /**
      * clients constructor.
@@ -25,6 +39,7 @@ class Clients
         $this->all_configs = $all_configs;
         $this->count_on_page = count_on_page();
         $this->view = new View($all_configs);
+        $this->applyUses();
         global $input_html;
 
         require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
@@ -57,6 +72,79 @@ class Clients
         $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
         $mod_id = $this->all_configs['configs']['clients-manage-page'];
 
+        // фильтруем заказы клиентов
+        if (isset($post['filter-clients'])) {
+            $url = array();
+
+            // фильтр по дате
+            if (isset($post['date']) && !empty($post['date'])) {
+                list($df, $dt) = explode('-', $post['date']);
+                $url['df'] = urlencode(trim($df));
+                $url['dt'] = urlencode(trim($dt));
+            }
+
+            if (isset($post['client']) && !empty($post['client'])) {
+                $url['s'] = trim($post['client']);
+            }
+
+            if (isset($post['client_id']) && !empty($post['client_id'])) {
+                $url['cl_id'] = intval($post['client_id']);
+            }
+
+            if (isset($post['order_id']) && !empty($post['order_id'])) {
+                $url['co_id'] = intval($post['order_id']);
+            }
+
+            if (isset($post['acts']) && !empty($post['acts'])) {
+                $url['acts'] = implode(',', $post['acts']);
+            }
+
+            if (isset($post['operators']) && !empty($post['operators'])) {
+                $url['ops'] = implode(',', $post['operators']);
+            }
+
+            if (isset($post['tags']) && !empty($post['tags'])) {
+                $url['tags'] = implode(',', $post['tags']);
+            }
+
+            if (isset($post['referrers']) && !empty($post['referrers'])) {
+                $url['refs'] = implode(',', $post['referrers']);
+            }
+
+            if (isset($post['persons']) && !empty($post['persons'])) {
+                $url['persons'] = implode(',', $post['persons']);
+            }
+
+            if (isset($post['categories']) && $post['categories'] > 0) {
+                // фильтр по категориям (устройство)
+                $count = $this->Categories->query('SELECT COUNT(*) FROM {categories} WHERE parent_id=?i',
+                    array($post['categories']))->el();
+                if ($count) {
+                    $url['cat'] = intval($post['categories']);
+                } else {
+                    $url['dev'] = intval($post['categories']);
+                }
+            }
+
+
+            if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
+                // фильтр по товару
+                $url['by_gid'] = intval($post['goods-goods']);
+            }
+            if (isset($post['cq_from']) && $post['cq_from'] > 0) {
+                $url['cqf'] = intval($post['cq_from']);
+            }
+            if (isset($post['cq_to']) && $post['cq_to'] > 0) {
+                $url['cqt'] = intval($post['cq_to']);
+            }
+
+            $url['tab'] = 'clients';
+            $this->LockFilters->toggle('filter-clients', $url);
+            Response::redirect(Url::create(array(
+                'controller' => $this->all_configs['arrequest'][0],
+                'options' => $url
+            )));
+        }
         // поиск товаров
         if (isset($_POST['search'])) {
             $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0]
@@ -72,60 +160,50 @@ class Clients
                 exit;
             }
         }
+        if (isset($post['create-personal'])) {
+            $result = $this->createNew($post);
+            if (empty($result)) {
+                return false;
+            }
+            Response::redirect(Url::create(array(
+                'controller' => $this->all_configs['arrequest'][0],
+                'action' => 'create',
+                $result['id']
+            )));
+        }
+        if (isset($post['create-legal'])) {
+            $result = $this->createNew($post);
+            if (empty($result)) {
+                return false;
+            }
+            $this->Clients->update(array(
+                'company_name' => $post['fio'],
+                'reg_data_1' => isset($post['reg_data_1']) ? $post['reg_data_1'] : '',
+                'reg_data_2' => isset($post['reg_data_2']) ? $post['reg_data_2'] : '',
+                'residential_address' => isset($post['residential_address']) ? $post['residential_address'] : '',
+                'note' => isset($post['note']) ? $post['note'] : '',
+                'person' => CLIENT_IS_LEGAL
+            ), array('id' => $result['id']));
+            Response::redirect(Url::create(array(
+                'controller' => $this->all_configs['arrequest'][0],
+                'action' => 'create',
+                $result['id']
+            )));
+        }
 
         if (isset($post['edit-client'])) {
             // редактируем клиента
 
-            if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
+            require_once($this->all_configs['sitepath'] . 'mail.php');
+            require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+            require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
+            $access = new access($this->all_configs, false);
+            $post['id'] = $this->all_configs['arrequest'][2];
+            $result = $access->edit($post);
 
-                $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(htmlspecialchars($post['email'])) : null;
-                $post['phone'] = trim(preg_replace('/[^0-9]/', '', $post['phone']));
-                $id = '';
-
-                if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $this->error = l('Электронная почта указана неверно.');
-                    return false;
-                }
-
-                if (empty($email) && empty($post['phone'])) {
-                    $this->error = l('Укажите телефон или почту.');
-                    return false;
-                }
-
-                if (!empty($email)) {
-                    $id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE email=?', array($email),
-                        'el');
-                    if ($id) {
-                        $this->error = l('Такой e-mail уже зарегистрирован.');
-                        return false;
-                    }
-                }
-
-                require_once($this->all_configs['sitepath'] . 'mail.php');
-                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
-                $access = new access($this->all_configs, false);
-                $result = $access->registration($post);
-
-                if ($result['new'] == false) {
-                    $this->error = $result['msg'];
-                    return false;
-                }
-                return header("Location:" . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $result['id']);
-                exit;
-            } else {
-
-                require_once($this->all_configs['sitepath'] . 'mail.php');
-                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
-                $access = new access($this->all_configs, false);
-                $post['id'] = $this->all_configs['arrequest'][2];
-                $result = $access->edit($post);
-
-                if ($result['state'] == false) {
-                    $this->error = $result['msg'];
-                    return false;
-                }
+            if ($result['state'] == false) {
+                $this->error = $result['msg'];
+                return false;
             }
 
         } elseif (isset($post['edit-goods-reviews'])) {
@@ -409,40 +487,34 @@ class Clients
      */
     private function export()
     {
-        $export_fields = array(
-            // id and phones exports by default
-            'email',
-            'fio',
-            'legal_address',
-            'date_add'
-        );
-        $clients = db()->query("SELECT id," . implode(',', $export_fields) . ", "
+        $clients = db()->query("SELECT c.*, t.title, "
             . "(SELECT GROUP_CONCAT(phone) "
             . "FROM {clients_phones} WHERE client_id = c.id) as phones "
             . "FROM {clients} as c "
-            . "WHERE id > 1 ORDER BY c.id")->assoc();
-        $data = array();
-        $data[] = array_merge(array(
-            'id',
-            'phones'
-        ), $export_fields);
-        foreach ($clients as $client) {
-            $client_data = array();
-            $client_data[] = $client['id'];
-            $client_data[] =  't. '.$client['phones'];
-            foreach ($export_fields as $exf) {
-                $client_data[] = in_array($exf, array('fio', 'legal_address')) ? iconv('UTF-8', 'CP1251', $client[$exf]) : $client[$exf];
-            }
-            $data[] = $client_data;
+            . "LEFT JOIN {tags} as t ON t.id = c.tag_id "
+            . "WHERE c.id > 1 ORDER BY c.id")->assoc();
+
+        require_once __DIR__ . '/exports.php';
+        $export = new ExportClientsToXLS();
+        $xls = $export->getXLS(l('Клиенты'));
+
+        $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
+            lq('N'),
+            lq('Метка'),
+            lq('ФИО'),
+            lq('Тип'),
+            lq('Телефоны'),
+            lq('Юр. адрес'),
+            lq('Физ. адрес'),
+            lq('Дата регистрации'),
+            lq('Регистрационные данные 1'),
+            lq('Регистрационные данные 2'),
+            lq('Примечание'),
+        ));
+        if (!empty($clients)) {
+            $export->makeXLSBody($xls, $clients);
         }
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename=clients.csv');
-        $out = fopen('php://output', 'w');
-        foreach ($data as $row) {
-            fputcsv($out, $row, ';', '"');
-        }
-        fclose($out);
-        exit;
+        $export->outputXLS($xls);
     }
 
     /**
@@ -462,31 +534,35 @@ class Clients
         $count_on_page = $this->count_on_page;//50;
         $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
 
-        // активен/неактивен
-        $query = '';
-        // поиск
-        if (isset($_GET['s']) && !empty($_GET['s'])) {
-            // 0xA0 deleted because search not work  if search string contain russian letter 'P'
-            $s = str_replace(array('&nbsp;', ' '), '%', trim($_GET['s']));
-            $query = $this->all_configs['db']->makeQuery('?query AND (cl.fio LIKE "%?e%" OR cl.email LIKE "%?e%"
-                    OR cl.phone LIKE "%?e%" OR p.phone LIKE "%?e%")',
-                array($query, $s, $s, $s, $s));
+        $saved = $this->LockFilters->load('filter-clients');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET += $saved;
         }
-        $clients = $this->all_configs['db']->query('SELECT cl.* FROM {clients} as cl
+
+        // активен/неактивен
+        $query = $this->getFilters($_GET);
+        $clients = $this->all_configs['db']->query('
+                SELECT cl.*, m.id as m_id 
+                FROM {clients} as cl
                 LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
-                WHERE 1=1 ?query GROUP BY cl.id ORDER BY cl.date_add DESC LIMIT ?i, ?i',
-            array($query, $skip, $count_on_page))->assoc();
+                LEFT JOIN {users_marked} as m ON m.object_id=cl.id AND m.type=? AND m.user_id=?i
+                LEFT JOIN {orders} as o ON o.user_id=cl.id
+                WHERE ?query GROUP BY cl.id ORDER BY cl.id DESC LIMIT ?i, ?i',
+            array('cl', $this->getUserId(), $query, $skip, $count_on_page))->assoc();
         $count = $this->all_configs['db']->query('SELECT COUNT(DISTINCT cl.id) FROM {clients} as cl
                 LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
-                WHERE 1=1 ?query',
-            array($query))->el();
+                LEFT JOIN {users_marked} as m ON m.object_id=cl.id AND m.type=? AND m.user_id=?i
+                LEFT JOIN {orders} as o ON o.user_id=cl.id
+                WHERE ?query',
+            array('cl', $this->getUserId(), $query))->el();
 
         return $this->view->renderFile('clients/clients_list', array(
             'count' => $count,
             'count_page' => ceil($count / $count_on_page),
             'clients' => $clients,
             'arrequest' => $this->all_configs['arrequest'],
-            'tags' => $this->getTags()
+            'tags' => $this->getTags(),
+            'clients_filters' => $this->clientsFilters()
         ));
     }
 
@@ -561,7 +637,7 @@ class Clients
 
         $new_call_id = isset($_GET['new_call']) ? $_GET['new_call'] : 0;
 
-        return $this->view->renderFile('clients/create_client', array(
+        return $this->view->renderFile('clients/edit_client', array(
             'ordersList' => $this->getOrdersList($client),
             'newCallForm' => $new_call_id ? $this->newCallForm($new_call_id, $client) : '',
             'contractorsList' => $this->getContractorsList($client),
@@ -800,6 +876,27 @@ class Clients
                 'response' => '<a href="' . $this->all_configs['prefix'] . 'clients/goods-reviews/create/' . $id . '">' . l('Редактировать') . '</a>'
             ));
             exit;
+        }
+        if ($act == 'get_person_of') {
+            try {
+                if (empty($_GET['client_id'])) {
+                    throw  new ExceptionWithMsg(l('Клиент не найден'));
+                }
+                $client = $this->Clients->getByPk($_GET['client_id']);
+                if (empty($client)) {
+                    throw  new ExceptionWithMsg(l('Клиент не найден'));
+                }
+                $result = array(
+                    'state' => true,
+                    'person' => $client['person']
+                );
+            } catch (ExceptionWithMsg $e) {
+                $result = array(
+                    'state' => false,
+                    'msg' => $e->getMessage()
+                );
+            }
+            Response::json($result);
         }
 
         // соединение клиентов
@@ -1058,6 +1155,291 @@ class Clients
     {
         return $this->all_configs['db']->query('SELECT color, title, id FROM {tags} ORDER BY title',
             array())->assoc('id');
+    }
+
+    /**
+     * @param $post
+     * @return array|bool
+     */
+    private function createNew($post)
+    {
+        $email = mb_strlen(trim($post['email']), 'UTF-8') > 0 ? trim(h($post['email'])) : null;
+        $post['phone'] = trim(preg_replace('/[^0-9]/', '', $post['phone']));
+
+        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error = l('Электронная почта указана неверно.');
+            return false;
+        }
+
+        if (empty($email) && empty($post['phone'])) {
+            $this->error = l('Укажите телефон или почту.');
+            return false;
+        }
+
+        if (!empty($email)) {
+            $id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE email=?', array($email),
+                'el');
+            if ($id) {
+                $this->error = l('Такой e-mail уже зарегистрирован.');
+                return false;
+            }
+        }
+
+        require_once($this->all_configs['sitepath'] . 'mail.php');
+        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
+        $access = new access($this->all_configs, false);
+        $result = $access->registration($post);
+        if ($result['new'] == false) {
+            $this->error = $result['msg'];
+            return false;
+        }
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    private function clientsFilters()
+    {
+        $saved = $this->LockFilters->load('filter-clients');
+        if (count($_GET) <= 2 && !empty($saved)) {
+            $_GET = $saved;
+        }
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : '')
+            . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : '');
+
+        $count = $this->Clients->query('SELECT COUNT(id) FROM {clients}', array())->el();
+        $count_marked = $this->UsersMarked->countMarkedAs('cl');
+        $this->view->load('LockButton');
+        return $this->view->renderFile('clients/clients_filters', array(
+            'operators' => $this->getOperators(),
+            'tags' => $this->getTags(),
+            'referrers' => $this->getReferrers(),
+            'date' => $date,
+            'count' => $count,
+            'count_marked' => $count_marked
+
+        ));
+    }
+
+    /**
+     * @param $filters
+     * @param $field
+     * @return string
+     */
+    protected function getDateFilter($filters, $field)
+    {
+        // фильтр по дате
+        $day_from = null;
+        $day_to = null;
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
+            $day_from = $filters['df'] . ' 00:00:00';
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
+            $day_to = $filters['dt'] . ' 23:59:59';
+        }
+        $date_query = '1=1';
+        if ($day_from && $day_to) {
+            $date_query = $this->all_configs['db']->makeQuery('DATE(?q) BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($field, $day_from, $day_to));
+        } elseif ($day_from) {
+            $date_query = $this->all_configs['db']->makeQuery('DATE(?q)>=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
+                array($field, $day_from));
+        } elseif ($day_to) {
+            $date_query = $this->all_configs['db']->makeQuery('DATE(?q)<=STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")',
+                array($field, $day_to));
+        }
+        return $date_query;
+    }
+
+    /**
+     * @param $filters
+     * @return string
+     */
+    private function getFilters($filters)
+    {
+        $query = '1=1';
+        // поиск
+        if (isset($filters['s']) && !empty($filters['s'])) {
+            // 0xA0 deleted because search not work  if search string contain russian letter 'P'
+            $s = str_replace(array('&nbsp;', ' '), '%', trim($filters['s']));
+            $query = $this->Clients->makeQuery('?query AND (cl.fio LIKE "%?e%" OR cl.email LIKE "%?e%"
+                    OR cl.phone LIKE "%?e%" OR p.phone LIKE "%?e%")',
+                array($query, $s, $s, $s, $s));
+        }
+
+        if (isset($filters['marked'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND m.user_id=?i AND m.type=?',
+                array($query, $_SESSION['id'], trim($filters['marked'])));
+        }
+        if (isset($filters['tags']) && count(array_filter(explode(',', $filters['tags']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.tag_id IN (?li)',
+                array($query, array_filter(explode(',', $filters['tags']))));
+        }
+        if (isset($filters['persons']) && count(array_filter(explode(',', $filters['persons']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.person IN (?li)',
+                array($query, array_filter(explode(',', $filters['persons']))));
+        }
+        if (isset($filters['ops']) && count(array_filter(explode(',', $filters['ops']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.id in (SELECT object_id FROM {changes} ch WHERE ch.user_id IN (?li) AND work=?)',
+                array($query, array_filter(explode(',', $filters['ops'])), 'create-client'));
+        }
+        if (isset($filters['co_id']) && count(array_filter(explode(',', $filters['co_id']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
+                array($query, array_filter(explode(',', $filters['co_id']))));
+        }
+        if (isset($filters['cqt']) && $filters['cqt'] > 0 && isset($filters['cqf']) && $filters['cqf'] > 0) {
+            $ids = $this->all_configs['db']->query("
+                SELECT user_id FROM {orders} GROUP by user_id HAVING count(*) BETWEEN ?i AND ?i
+            ", array(min($filters['cqt'], $filters['cqf']), max($filters['cqt'], $filters['cqf'])))->col();
+        } else {
+            if (isset($filters['cqt']) && $filters['cqt'] > 0) {
+                $ids = $this->all_configs['db']->query("
+                    SELECT user_id FROM {orders} GROUP by user_id HAVING count(*) <= ?i
+                ", array($filters['cqt']))->col();
+            }
+            if (isset($filters['cqf']) && $filters['cqf'] > 0) {
+                $ids = $this->all_configs['db']->query("
+                    SELECT user_id FROM {orders} GROUP by user_id HAVING count(*) >= ?i
+                ", array($filters['cqf']))->col();
+            }
+        }
+        if (!empty($ids)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.id IN (?li)',
+                array($query, $ids));
+        } elseif ((isset($filters['cqt']) && $filters['cqt'] > 0) || (isset($filters['cqf']) && $filters['cqf'] > 0)) {
+            // нет подходящих по фильтру - не показываем ни кого, поскольку связка частей фильтра по AND
+            $query = $this->all_configs['db']->makeQuery('?query AND NOT 1=1 ',
+                array($query));
+        }
+
+        $additionIds = array();
+        if (isset($filters['dev']) && $filters['dev'] > 0) {
+            $ids = $this->all_configs['db']->query('
+                SELECT user_id as cl_id 
+                FROM {orders} 
+                WHERE category_id=?i AND ?query GROUP by cl_id',
+                array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col();
+            if (!empty($ids)) {
+                $additionIds = array_merge($additionIds, $ids);
+            } else {
+                $query = 'NOT 1=1';
+            }
+        }
+        if (isset($filters['cat']) && $filters['cat'] > 0) {
+            $children = $this->Categories->getParents($filters['cat']);
+            if (!empty($children)) {
+                $ids = $this->all_configs['db']->query('
+                SELECT user_id as cl_id 
+                FROM {orders} 
+                WHERE category_id in (SELECT c.id FROM {categories} c WHERE c.parent_id in (?li) AND c.avail = 1) AND ?query GROUP by cl_id',
+                    array($children, $this->getDateFilter($filters, 'date_add')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
+            }
+        }
+        if (isset($filters['by_gid']) && $filters['by_gid'] > 0) {
+            $ids = $this->all_configs['db']->query('
+                SELECT o.user_id as cl_id
+                FROM {orders} o
+                JOIN {orders_goods} og ON o.id=og.order_id
+                WHERE og.goods_id=?i AND ?query GROUP by cl_id',
+                array($filters['by_gid'], $this->getDateFilter($filters, 'o.date_add')))->col();
+            if (!empty($ids)) {
+                $additionIds = array_merge($additionIds, $ids);
+            } else {
+                $query = 'NOT 1=1';
+            }
+        }
+        if (isset($filters['refs']) && count(array_filter(explode(',', $filters['refs']))) > 0) {
+            $ids = $this->all_configs['db']->query('
+                SELECT c.client_id as cl_id
+                FROM {crm_calls} c
+                WHERE c.referer_id in (?li) GROUP by cl_id',
+                array(array_filter(explode(',', $filters['refs']))))->col();
+            if (!empty($ids)) {
+                $additionIds = array_merge($additionIds, $ids);
+            } else {
+                $query = 'NOT 1=1';
+            }
+        }
+        if (isset($filters['acts'])) {
+            $acts = explode(',', $filters['acts']);
+            if (in_array(CLIENT_ACT_ORDER, $acts)) {
+                $ids = $this->all_configs['db']->query('
+                SELECT user_id as cl_id 
+                FROM {orders} 
+                WHERE ?query GROUP by cl_id',
+                    array($this->getDateFilter($filters, 'date_add')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
+            }
+            if (in_array(CLIENT_ACT_REQUEST, $acts)) {
+                $ids = $this->all_configs['db']->query('
+                SELECT c.client_id as cl_id
+                FROM {crm_requests} cr
+                 JOIN {crm_calls} c ON cr.call_id=c.id
+                WHERE ?query GROUP by cl_id',
+                    array($this->getDateFilter($filters, 'c.date')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
+            }
+            if (in_array(CLIENT_ACT_CALL, $acts)) {
+                $ids = $this->all_configs['db']->query('
+                SELECT client_id as cl_id
+                FROM {crm_calls} 
+                WHERE ?query GROUP by cl_id',
+                    array($this->getDateFilter($filters, 'date')))->col();
+                if (!empty($ids)) {
+                    $additionIds = array_merge($additionIds, $ids);
+                } else {
+                    $query = 'NOT 1=1';
+                }
+            }
+        }
+
+        if (!empty($additionIds)) {
+            if (isset($filters['cl_id']) && $filters['cl_id'] > 0) {
+                $filters['cl_id'] .= ',' . implode(',', $additionIds);
+            } else {
+                $filters['cl_id'] = implode(',', $additionIds);
+            }
+        }
+
+        if (isset($filters['cl_id']) && count(array_filter(explode(',', $filters['cl_id']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cl.id IN (?li)',
+                array($query, array_filter(explode(',', $filters['cl_id']))));
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOperators()
+    {
+        return $this->Users->getWithPermission();
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    private function getReferrers()
+    {
+        return get_service("crm/calls")->get_referers();
     }
 }
 

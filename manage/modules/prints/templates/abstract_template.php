@@ -164,19 +164,25 @@ abstract class AbstractTemplate
     }
 
     /**
-     * @param $amount
+     * @param      $amount
+     * @param null $currency
      * @return string
      */
-    public function amountAsWord($amount)
+    public function amountAsWord($amount, $currency = null)
     {
+        if(empty($currency)) {
+           $currency =  $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils'];
+        }
         if ($this->all_configs['settings']['lang'] == 'ru') {
             require_once __DIR__ . '/../../../classes/php_rutils/struct/TimeParams.php';
             require_once __DIR__ . '/../../../classes/php_rutils/Dt.php';
             require_once __DIR__ . '/../../../classes/php_rutils/Numeral.php';
             require_once __DIR__ . '/../../../classes/php_rutils/RUtils.php';
             $result = \php_rutils\RUtils::numeral()->getRubles($amount, false,
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['gender'],
-                $this->all_configs['configs']['currencies'][$this->all_configs['settings']['currency_orders']]['rutils']['words']);
+                $currency['gender'],
+                $currency['words'],
+                $currency['remaind']);
+            Log::error($result);
         } else {
             $result = convert_number_to_words($amount);
         }

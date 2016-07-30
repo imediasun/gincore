@@ -611,7 +611,7 @@ function typeahead(
                 $tbl_where = ' AND avail = 1';
                 $tbl = 'goods';
             }
-            if ($table == 'categories-last' || $table == 'categories-goods') {
+            if ($table == 'categories-last' || $table == 'categories-goods' || $table == 'categories-parent') {
                 $tbl_where = ' AND (avail = 1 OR deleted=1)';
                 $tbl = 'categories';
             }
@@ -715,9 +715,10 @@ function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 
  * @param        $count
  * @param string $hash
  * @param null   $a_url
+ * @param string $after
  * @return string
  */
-function page_block($count_page, $count, $hash = '', $a_url = null)
+function page_block($count_page, $count, $hash = '', $a_url = null, $after = '')
 {
     $count_page = ceil($count_page);
 
@@ -727,7 +728,8 @@ function page_block($count_page, $count, $hash = '', $a_url = null)
         'count_page' => $count_page,
         'count' => $count,
         'hash' => $hash,
-        'a_url' => $a_url
+        'a_url' => $a_url,
+        'after' => $after
     ));
 }
 
@@ -1745,6 +1747,15 @@ function generate_xls_with_login_logs()
 function h($string)
 {
     return htmlspecialchars($string);
+}
+
+function discount($product) {
+    if ($product['discount_type'] == DISCOUNT_TYPE_PERCENT) {
+        $discount = $product['price'] / 100 * ($product['discount'] / 100);
+    } else {
+        $discount = $product['discount'];
+    }
+    return $discount; 
 }
 
 function price_with_discount($product)

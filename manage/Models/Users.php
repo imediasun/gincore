@@ -6,6 +6,25 @@ class MUsers extends AModel
     public $table = 'users';
 
     /**
+     * @param string $permission
+     * @return array
+     */
+    public function getWithPermission($permission = '') {
+        $query = '1=1';
+        if(!empty($permission)) {
+            $query = $this->makeQuery('?query AND p.link=?', array($permission));
+        }
+        return $this->query("
+            SELECT  u.*
+            FROM ?t AS u
+            LEFT JOIN {users_roles} r ON u.role=r.id
+            LEFT JOIN {users_role_permission} rp ON rp.role_id=r.id
+            LEFT JOIN {users_permissions} p ON p.id=rp.permission_id
+            WHERE u.deleted=0 AND u.avail=1 AND ?query
+            GROUP by u.id
+            ", array($this->table, $query))->assoc();
+    }
+    /**
      * @param string $sort
      * @return mixed
      */
