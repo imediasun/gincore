@@ -59,9 +59,10 @@
                             <?php $total += $order['price'] * $order['count'] ?>
                         </td>
                         <td>
-                            <input type="text" class="form-control js-supplier-order_numbers dasabled" readonly
+                            <input type="hidden" class="form-control js-supplier-order_numbers dasabled" readonly
                                    value="<?= implode(',', $order['cos']) ?>"
                                    name="so_co[<?= $id ?>]"/>
+                            <?= implode(',', $order['cos']) ?>
                         </td>
                         <td class="col-sm-2">
                             <?php if ($order['count_come'] > 0): ?>
