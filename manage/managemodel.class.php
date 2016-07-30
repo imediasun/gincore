@@ -654,7 +654,7 @@ class manageModel
                     array($query, 1));
             }
             if(in_array('cgd', $other)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.courier NOT NULL',
+                $query = $this->all_configs['db']->makeQuery('?query AND NOT o.courier IS NULL',
                     array($query));
             }
         }
