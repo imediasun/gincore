@@ -1,5 +1,6 @@
 <?php
 
+define('GINCORE_ROOT', __DIR__);
 $dbcfg = array(
     'host' => '192.168.1.2',
     'username' => 'root',
