@@ -92,7 +92,7 @@ class MOrders extends AModel
                 if($product['discount_type'] == 1) {
                     $price = $product['price'] * (1 - $product['discount']/ 100);
                 } else {
-                    $price = $product['price']  - $product['discount'];
+                    $price = $product['price']  - $product['discount']  * 100;
                 }
                 $productTotal += $price * $product['count'];
             }
