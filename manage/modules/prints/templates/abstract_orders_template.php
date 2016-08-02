@@ -180,6 +180,14 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'value' => $sum_with_discount / 100,
                     'name' => l('Сумма заказа с учетом скидки')
                 ),
+                'sum_paid' => array(
+                    'value' => $order['sum_paid'] > 0 ? $order['sum_paid'] / 100 : '',
+                    'name' => l('Оплачено')
+                ),
+                'sum_paid_in_words' => array(
+                    'value' => $order['sum_paid'] > 0 ? $this->amountAsWord($order['sum_paid'] / 100) : '',
+                    'name' => l('Оплачено прописью')
+                ),
                 'product' => array(
                     'value' => h($order['g_title']) . ' ' . h($order['note']),
                     'name' => 'Устройство'
