@@ -43,13 +43,13 @@
                            type="text" class="form-control" placeholder="<?= l('номер заказа') ?>">
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 b-r">
                 <table class="table table-borderless table-for-filters">
                     <tr>
                         <td class="span5">
                             <p class="form-control-static"><?= l('За период') ?>:</p>
                         </td>
-                        <td class="span6" style="max-width: 165px">
+                        <td class="span6" >
                             <div class="form-group">
                                 <input type="text" placeholder="<?= l('Дата') ?>" name="date"
                                        class="daterangepicker form-control"
@@ -64,7 +64,7 @@
                                 <?= l('Ремонтировали') ?>:
                             </p>
                         </td>
-                        <td class="span6" style="max-width: 165px">
+                        <td class="span6">
                             <div class="form-group">
                                 <?php $device = isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : ''; ?>
                                 <?= typeahead($this->all_configs['db'], 'categories', false,
@@ -82,7 +82,7 @@
                                 <?= l('Приобретали') ?>:
                             </p>
                         </td>
-                        <td class="span6" style="max-width: 165px">
+                        <td class="span6" >
                             <div class="form-group">
                                 <?= typeahead($this->all_configs['db'], 'goods-goods', false,
                                     isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small',
@@ -111,7 +111,7 @@
                     </tr>
                 </table>
             </div>
-            <div class="col-sm-4 b-r">
+            <div class="col-sm-4">
                 <table class="table table-borderless table-for-filters">
                     <tr>
                         <td class="span5">
