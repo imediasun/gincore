@@ -21,7 +21,7 @@
                             <option value="0"><?= l('Не выбран') ?></option>
                             <?php if ($groups_size): ?>
                                 <?php foreach ($groups_size as $group): ?>
-                                    <option value="<?= $group['id'] ?>"><?= htmlspecialchars($group['name']) ?></option>
+                                    <option value="<?= $group['id'] ?>"><?= h($group['name']) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -29,11 +29,11 @@
                 </div>
             <?php endif; ?>
 
-            <div class="form-group"><label><?= l('Название') ?>: </label>
+            <div class="form-group"><label><?= l('Название') ?><b class="text-danger">*</b>: </label>
                 <input autocomplete="off" placeholder="<?= l('введите название') ?>"
                        class="form-control global-typeahead" data-anyway="1" data-table="goods" name="title"
                        value="<?= ((array_key_exists('post', $errors) && array_key_exists('title',
-                               $errors['post'])) ? htmlspecialchars($errors['post']['title']) : '') ?>"/>
+                               $errors['post'])) ? h($errors['post']['title']) : '') ?>"/>
             </div>
             <input type="hidden" name="id" value=""/>
 
@@ -44,7 +44,16 @@
                         <input onkeydown="return isNumberKey(event)" placeholder="<?= l('введите цену') ?>"
                                class="form-control" name="price"
                                value="<?= ((array_key_exists('post', $errors) && array_key_exists('price',
-                                       $errors['post'])) ? htmlspecialchars($errors['post']['price']) : '') ?>"/>
+                                       $errors['post'])) ? h($errors['post']['price']) : '') ?>"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"><?= l('Оптовая цена') ?> (<?= viewCurrency('shortName') ?>): </label>
+                    <div class="controls">
+                        <input onkeydown="return isNumberKey(event)" placeholder="<?= l('введите цену') ?>"
+                               class="form-control" name="price_wholesale"
+                               value="<?= ((array_key_exists('post', $errors) && array_key_exists('price_wholesale',
+                                       $errors['post'])) ? h($errors['post']['price_wholesale']) : '') ?>"/>
                     </div>
                 </div>
             <?php endif; ?>
