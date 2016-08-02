@@ -1878,13 +1878,14 @@ class products extends Controller
             return array('error' => l('Заполните название'), 'post' => $post);
         }
         $id = $this->all_configs['db']->query('INSERT INTO {goods}
-                    (title, secret_title, url, avail, price, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i)',
+                    (title, secret_title, url, avail, price, price_wholesale, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?i, ?, ?i, ?i)',
             array(
                 trim($post['title']),
                 '',
                 $url,
                 isset($post['avail']) ? 1 : 0,
-                trim($post['price']) * 100,
+                floatval(trim($post['price'])) * 100,
+                floatval(trim($post['price_wholesale'])) * 100,
                 $user_id,
                 '',
                 isset($_POST['type']) ? 1 : 0
