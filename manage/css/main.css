@@ -891,6 +891,13 @@ input.row-input {
 table.borderless > tbody > tr > td{
     border-style: none;
 }
+table.table-paddingless > tbody > tr > td{
+    padding: 0 !important;
+}
+td.hide-field-td {
+    display: none;
+    padding-right: 10px;
+}
 .count_all_records {
     min-width: 180px;
     min-height: 1px;

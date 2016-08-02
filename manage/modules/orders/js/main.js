@@ -338,23 +338,13 @@ $(function () {
     });
   });
   $(document).on('click', '.hide_order_fields', function () {
-    var $form = $('#hide-orders-fields-form');
-    $form.stop(true).slideToggle(200, function () {
-      $('.js-hide-fields').toggle();
-      if ($form.is(':visible')) {
-        $('.js-fields').removeClass('col-sm-6').addClass('col-sm-5');
-        $('.js-requests').removeClass('col-sm-6').addClass('col-sm-5');
-        $('.hide-field').show();
-
-      } else {
-        $('.js-fields').removeClass('col-sm-5').addClass('col-sm-6');
-        $('.hide-field').hide();
-        $('.js-requests').removeClass('col-sm-5').addClass('col-sm-6');
-      }
-    });
+    $('.js-hide-fields').toggle();
+    $('.hide-field').toggle();
+    $('.hide-field-td').toggle();
   });
 
   $(document).on('submit', '#order-form', function (e) {
+    console.log('test1');
     $(this).find('#update-order').click();
     e.preventDefault();
   });
@@ -565,7 +555,10 @@ function update_order(_this) {
   return false;
 }
 function apply_hide(_this) {
-  $('#hide-orders-fields-form').submit();
+  $('#order-form').find('input').removeAttr('required');
+  $(document).off('submit', '#order-form');
+  $('#order-form').submit();
+  return true;
 }
 
 function add_new_order(_this, next, from) {

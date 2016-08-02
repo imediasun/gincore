@@ -294,7 +294,7 @@ class orders extends Controller
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)));
         }
 
-        if (isset($_POST['hide-fields'])) {
+        if (isset($_POST['save-hide-field-options'])) {
             $config = empty($_POST['config']) ? array() : $_POST['config'];
             $this->order_fields_setup($config);
             if (!empty($_POST['name'])) {
@@ -747,6 +747,7 @@ class orders extends Controller
                 $client_id = isset($_GET['c']) ? (int)$_GET['c'] : 0;
             }
             //вывод списска клиентов для создания нового заказа
+            $this->view->load('HideField');
             $orders_html = $this->view->renderFile('orders/orders_create_order', array(
                 'client' => client_double_typeahead($client_id, 'change_personal,get_requests'),
                 'colorsSelect' => $this->view->renderFile('orders/_colors-select', array(
