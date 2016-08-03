@@ -3543,14 +3543,15 @@ class orders extends Controller
      */
     private function changeClientTook($order, $mod_id)
     {
-        if (isset($_POST['client_took']) && $_POST['client_took'] != $order['client_took']) {
+        $took = isset($_POST['client_took'])? intval($_POST['client_took']): 0;
+        if ($took != $order['client_took']) {
             $this->History->save(
                 'update-order-client_took',
                 $mod_id,
                 $order['id'],
-                isset($_POST['client_took']) ? 1 : 0
+                $took
             );
-            $order['client_took'] = isset($_POST['client_took']) ? 1 : 0;
+            $order['client_took'] = $took;
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_took', $order['client_took']);
         }
         return $order;
