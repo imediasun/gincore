@@ -29,12 +29,14 @@
             <a href="<?= $this->all_configs['prefix'] ?>clients<?= $mod_submenu[4]['url'] ?>"><?= $mod_submenu[4]['name'] ?></a>
         </li>
     </ul>
-    <div class="pull-right">
-        <form style="margin-right:30px" action="<?= $this->all_configs['prefix'] ?>clients" method="get">
-            <input type="hidden" name="export" value="1">
-            <input type="submit" class="btn btn-info" value="<?= l('Экспорт') ?>">
-        </form>
-    </div>
+    <?php if ($this->all_configs['oRole']->hasPrivilege('export-clients-and-orders')): ?>
+        <div class="pull-right">
+            <form style="margin-right:30px" action="<?= $this->all_configs['prefix'] ?>clients" method="get">
+                <input type="hidden" name="export" value="1">
+                <input type="submit" class="btn btn-info" value="<?= l('Экспорт') ?>">
+            </form>
+        </div>
+    <?php endif; ?>
     <div class="pull-right" style="margin-right: 10px">
         <button type="button" class="btn btn-default js-show-filters">
             <i class="fa fa-filter"></i> <?= l('Фильтровать') ?>

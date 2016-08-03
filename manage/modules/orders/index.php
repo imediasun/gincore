@@ -1990,7 +1990,7 @@ class orders extends Controller
         }
 
         // вывод заказа
-        if ($act == 'export') {
+        if ($act == 'export' && $this->all_configs['oRole']->hasPrivilege('export-clients-and-orders')) {
             return $this->exportOrders();
         }
 

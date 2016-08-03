@@ -354,7 +354,7 @@ try {
                             && $all_configs['configs']['manage-show-imports'] == true)
                         || ($v == 'orders' && ($all_configs['oRole']->hasPrivilege('edit-clients-orders') || $all_configs['oRole']->hasPrivilege('show-clients-orders')
                                 || $all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $all_configs['oRole']->hasPrivilege('edit-tradein-orders') || $all_configs['oRole']->hasPrivilege('orders-manager')))
-                        || ($v == 'clients' && $all_configs['oRole']->hasPrivilege('edit-goods'))
+                        || ($v == 'clients' && $all_configs['oRole']->hasPrivilege('show-client-section'))
                         || ($v == 'chat' && $all_configs['oRole']->hasPrivilege('chat'))
                         || ($v == 'accountings' && ($all_configs['oRole']->hasCashierPermission(isset($_SESSION['id']) ? $_SESSION['id'] : null) || $all_configs['oRole']->hasPrivilege('accounting-contractors')
                                 || $all_configs['oRole']->hasPrivilege('accounting-reports-turnover') || $all_configs['oRole']->hasPrivilege('partner') || $all_configs['oRole']->hasPrivilege('accounting-transactions-contractors')))

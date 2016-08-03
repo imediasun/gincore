@@ -44,7 +44,7 @@ class Clients extends Object
 
         require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
 
-        if (!$this->all_configs['oRole']->hasPrivilege('edit-goods')) {
+        if (!$this->all_configs['oRole']->hasPrivilege('show-client-section')) {
             return $input_html['mcontent'] = '<div class="span3"></div>
                 <div class="span9"><p class="alert alert-danger">' . l('У Вас нет прав для просмотра клиентов') . '</p></div>';
         }
@@ -447,7 +447,7 @@ class Clients extends Object
      */
     private function main_page()
     {
-        if (!empty($_GET['export'])) {
+        if (!empty($_GET['export']) && $this->all_configs['oRole']->hasPrivilege('export-clients-and-orders')) {
             $this->export();
         }
         $tab = isset($_GET['tab']) ? $_GET['tab'] : '';
