@@ -533,8 +533,13 @@ class manageModel
         }
 
         if (isset($filters['o_id']) && !empty($filters['o_id'])) {
+            if(preg_match('/^[zZ]-/', trim($filters['o_id'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($filters['o_id']));
+            } else {
+                $orderId = trim($filters['o_id']);
+            }
             $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',
-                array($query, trim($filters['o_id'])));
+                array($query, $orderId));
         }
 
         if (isset($filters['c_phone']) && !empty($filters['c_phone'])) {
