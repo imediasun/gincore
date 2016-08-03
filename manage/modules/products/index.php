@@ -631,7 +631,7 @@ class products extends Controller
      */
     private function get_categories()
     {
-        return $this->all_configs['db']->query("SELECT * FROM {categories}")->assoc();
+        return $this->all_configs['db']->query("SELECT * FROM {categories} WHERE deleted=0")->assoc();
     }
 
     /**
