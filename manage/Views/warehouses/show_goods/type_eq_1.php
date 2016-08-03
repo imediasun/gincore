@@ -49,7 +49,7 @@
             </td>
             <td>
                 <a class="hash_link"
-                   href="<?= $this->all_configs['prefix'] ?>warehouses?so_id=<?= $product['supplier_order_id'] ?>#show_items">
+                   href="<?= $this->all_configs['prefix'] ?>orders/edit/<?= $product['supplier_order_id'] ?>#create_supplier_order">
                     <?= $product['supplier_order_id'] ?>
                 </a>
             </td>
