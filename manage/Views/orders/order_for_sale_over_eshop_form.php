@@ -8,7 +8,7 @@
                     <legend><?= l('Клиент') ?></legend>
                     <div class="form-group">
                         <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
-                        <div class="row row-15">
+                        <div class="row-fluid">
                             <div class="col-sm-4" style="padding-right:0px">
                                 <?= $client['phone'] ?>
                             </div>
@@ -18,7 +18,7 @@
                                         <?= htmlspecialchars(!empty($tag) ? $tag['title'] : (isset($tags[$client['tag_id']]['title']) ? $tags[$client['tag_id']]['title'] : '')) ?>
                                     </span>
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 input-group">
                                 <?= $client['fio'] ?>
                                 <span class="input-group-addon js-personal" id="personal"
                                       onclick="return change_personal_to(2);"> <?= l('Физ') ?>

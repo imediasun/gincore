@@ -1024,12 +1024,19 @@ function add_eshop_item_to_table() {
     $('input[name="new-goods-value"]').removeClass('parsley-error');
     $('#eshop_sale_product_title_error').hide();
   }
-  if (cost == 0) {
+  if (price == 0) {
     $('#eshop_sale_poduct_cost').addClass('parsley-error');
     $('#eshop_sale_product_cost_error').show();
   } else {
     $('#eshop_sale_poduct_cost').removeClass('parsley-error');
     $('#eshop_sale_product_cost_error').hide();
+  }
+  if (quantity == 0) {
+    $('#eshop_sale_poduct_quantity').addClass('parsley-error');
+    $('#eshop_sale_product_quantity_error').show();
+  } else {
+    $('#eshop_sale_poduct_quantity').removeClass('parsley-error');
+    $('#eshop_sale_product_quantity_error').hide();
   }
   if (cost > 0 && title.length > 0 && id.length > 0) {
     $clone = $row.clone().removeClass('js-eshop-row-cloning');

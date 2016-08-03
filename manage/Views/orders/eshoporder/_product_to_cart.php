@@ -102,6 +102,10 @@
         <td>
             <input type="text" id="eshop_sale_poduct_quantity" class="form-control"
                    name="quantity" onkeyup="return sum_calculate();"/>
+            <ul id="eshop_sale_product_quantity_error" class="parsley-errors-list filled"
+                style="display: none">
+                <li class="parsley-required"><?= l('Обязательное поле.') ?></li>
+            </ul>
         </td>
         <td>
             <input type="text" id="eshop_sale_poduct_sum" class="form-control disabled" value=""
