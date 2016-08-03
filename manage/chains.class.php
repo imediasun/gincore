@@ -1437,10 +1437,10 @@ class Chains extends Object
             $post['price'] = $this->priceCalculate($post);
             $cart = $this->prepareCartInfo($post);
             if (empty($cart)) {
-                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину. Нажмите "+" или "Добавить"'));
             }
             if (empty($post['amount']) || ($post['price'] == 0)) {
-                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину'));
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину. Нажмите "+" или "Добавить"'));
             }
             $client = $this->Clients->getClient($post);
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());
