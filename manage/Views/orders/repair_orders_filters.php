@@ -171,8 +171,8 @@
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="person[]"
                                         multiple="multiple">
                                     <?php foreach (array(
-                                        CLIENT_IS_PERSONAL => l('Физ.лицо'),
-                                        CLIENT_IS_LEGAL => l('Юр.лицо'),
+                                        CLIENT_IS_PERSONAL => l('Физ. лицо'),
+                                        CLIENT_IS_LEGAL => l('Юр. лицо'),
                                     ) as $type_id => $type_title): ?>
                                         <option <?= ((isset($_GET['person']) && in_array($type_id,
                                                 explode(',', $_GET['person']))) ? 'selected' : ''); ?>
