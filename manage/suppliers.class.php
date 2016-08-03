@@ -72,7 +72,7 @@ class Suppliers extends Object
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
             if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
-                throw new ExceptionWithMsg(l('Количество не может быть равно 0'));
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в заказ. Возможно вы забыли нажать "+"'));
             }
             foreach ($post['item_ids'] as $order_id => $product_id) {
                 $product = $this->Goods->getByPk($product_id);
@@ -259,7 +259,7 @@ class Suppliers extends Object
             }
             // проверка на создание заказа с количеством 0
             if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
-                throw new ExceptionWithMsg(l('Количество не может быть равно 0'));
+                throw new ExceptionWithMsg(l('Вы не добавили изделие в заказ. Возможно вы забыли нажать "+"'));
             }
 
             $parent_order_id = 0;
