@@ -198,6 +198,10 @@ class orders extends Controller
                 // фильтр по статусу
                 $url['rep'] = implode(',', $post['repair']);
             }
+            if (isset($post['person']) && !empty($post['person'])) {
+                // фильтр по статусу
+                $url['person'] = implode(',', $post['person']);
+            }
 
             if (isset($post['client']) && !empty($post['client'])) {
                 // фильтр клиенту/заказу

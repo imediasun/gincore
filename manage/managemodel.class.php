@@ -571,6 +571,10 @@ class manageModel
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
                 array($query, array_filter(explode(',', $filters['mg']))));
         }
+        if (isset($filters['person']) && count(array_filter(explode(',', $filters['person']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND c.person IN (?li)',
+                array($query, array_filter(explode(',', $filters['person']))));
+        }
         if (!empty($filters['manager'])) {
             $query = $this->all_configs['db']->makeQuery('
                 LEFT JOIN {users} as man ON man.id = o.manager

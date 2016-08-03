@@ -97,6 +97,28 @@
                             </span>
                     </div>
                 </div>
+                <div>
+                    <div class="span5">
+                        <p class="form-control-static"><?= l('Тип клиента') ?>:</p>
+                    </div>
+                    <div class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="person[]"
+                                        multiple="multiple">
+                                    <?php foreach (array(
+                                        CLIENT_IS_PERSONAL => l('Физ.лицо'),
+                                        CLIENT_IS_LEGAL => l('Юр.лицо'),
+                                    ) as $type_id => $type_title): ?>
+                                        <option <?= ((isset($_GET['person']) && in_array($type_id,
+                                                explode(',', $_GET['person']))) ? 'selected' : ''); ?>
+                                            value="<?= $type_id ?>">
+                                            <?= h($type_title) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </span>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-2" style="overflow:hidden">
                 <?php if (!empty($wfs)): ?>
