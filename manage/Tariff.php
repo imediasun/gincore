@@ -348,8 +348,8 @@ class Tariff
             array(USER_ACTIVATED_BY_TARIFF, USER_DEACTIVATED_BY_TARIFF_MANUAL));
 
         /** выбираем активных юзеров которые не будут блокироваться в автоматическом режиме  */
-        $userIds = db()->query('SELECT id FROM {users} WHERE (deleted=0 AND avail=1 AND NOT id=?i) OR blocked_by_tariff=?i LIMIT ?i',
-            array($adminId, USER_DEACTIVATED_BY_TARIFF_MANUAL, $tariff['number_of_users'] - 1))->col();
+        $userIds = db()->query('SELECT id FROM {users} WHERE deleted=0 AND avail=1 AND NOT id=?i AND blocked_by_tariff=?i LIMIT ?i',
+            array($adminId, USER_ACTIVATED_BY_TARIFF, $tariff['number_of_users'] - 1))->col();
 
         $query = '';
         if (!empty($userIds)) {
@@ -357,8 +357,8 @@ class Tariff
         }
 
         /** блокируем оставшихся */
-        db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE ?q NOT id=?i",
-            array(USER_DEACTIVATED_BY_TARIFF_AUTOMATIC, $query, $adminId));
+        db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE ?q NOT id=?i AND NOT blocked_by_tariff=?i",
+            array(USER_DEACTIVATED_BY_TARIFF_AUTOMATIC, $query, $adminId, USER_DEACTIVATED_BY_TARIFF_MANUAL));
     }
 
 }
