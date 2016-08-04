@@ -17,11 +17,12 @@ class gincore_orders extends abstract_import_provider
         8 => "Неисправность со слов клиента",
         9 => "Примечание/Внешний вид",
         10 => "Стоимость ремонта",
-        11 => "Приемщик",
-        12 => "Менеджер",
-        13 => "Инженер",
-        14 => "ФИО Заказчика",
-        15 => "Контактный телефон заказчикa"
+        11 => "Оплачено",
+        12 => "Приемщик",
+        13 => "Менеджер",
+        14 => "Инженер",
+        15 => "ФИО Заказчика",
+        16 => "Контактный телефон заказчикa"
     );
 
     /**
@@ -156,11 +157,20 @@ class gincore_orders extends abstract_import_provider
 
     /**
      * @param $data
+     * @return integer
+     */
+    function get_summ_paid($data)
+    {
+        return (int)$data[11];
+    }
+
+    /**
+     * @param $data
      * @return mixed
      */
     function get_acceptor($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[11] : iconv('cp1251', 'utf8', $data[11]);
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[12] : iconv('cp1251', 'utf8', $data[12]);
     }
 
     /**
@@ -168,7 +178,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_manager($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[12] : iconv('cp1251', 'utf8', $data[12]);
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[13] : iconv('cp1251', 'utf8', $data[13]);
     }
 
     /**
@@ -177,7 +187,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_engineer($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[13] : iconv('cp1251', 'utf8', $data[13]);
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[14] : iconv('cp1251', 'utf8', $data[14]);
     }
 
 
@@ -187,7 +197,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_client_fio($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[14] : iconv('cp1251', 'utf8', $data[14]);
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[15] : iconv('cp1251', 'utf8', $data[15]);
     }
 
     /**
@@ -196,6 +206,6 @@ class gincore_orders extends abstract_import_provider
      */
     function get_client_phone($data)
     {
-        return $data[15];
+        return $data[16];
     }
 }

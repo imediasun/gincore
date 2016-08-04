@@ -65,6 +65,7 @@ class import_orders extends abstract_import_handler
                 $appearance = import_helper::remove_whitespace($this->provider->get_appearance($row));
                 $defect = import_helper::remove_whitespace($this->provider->get_defect($row));
                 $summ = $this->provider->get_summ($row);
+                $summ_paid = $this->provider->get_summ_paid($row);
                 $client_id = $this->getClientId($client_fio, $client_phone);
                 $device = $this->getDevice($row);
                 $device_id = $this->getDeviceId($device);
@@ -93,7 +94,8 @@ class import_orders extends abstract_import_handler
                     $device,
                     $this->acceptors_wh[$acceptor_id]['wh_id'],
                     $this->acceptors_wh[$acceptor_id]['location_id'],
-                    $typeId
+                    $typeId,
+                    $summ_paid * 100
                 );
                 $this->createNewOrder($order);
             } catch (Exception $e) {
@@ -199,11 +201,11 @@ class import_orders extends abstract_import_handler
                 . "(id,date_add,accepter,status,user_id,fio,"
                 . " phone,courier,category_id,serial,equipment,"
                 . " comment, date_readiness, `sum`, "
-                . " prepay, defect, engineer, manager, title, wh_id, location_id, `repair`) "
+                . " prepay, defect, engineer, manager, title, wh_id, location_id, `repair`, `sum_paid`) "
                 . " VALUES "
                 . " (?i, ?, ?i, ?i, ?i, ?,"
                 . "  ?, ?, ?i, ?, ?, "
-                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i, ?i)",
+                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i, ?i, ?i)",
                 $order
             );
         } catch (Exception $e) {
