@@ -2899,6 +2899,14 @@ class orders extends Controller
         if ($_POST['status'] == $order['status']) {
             return $data;
         }
+        if ($_POST['status'] == $this->all_configs['configs']['order-status-issued']) {
+            if ($order['status'] == $this->all_configs['configs']['order-status-refused']) {
+                $_POST['status'] = $this->all_configs['configs']['order-status-nowork'];
+            }
+            if ($order['status'] == $this->all_configs['configs']['order-status-unrepairable']) {
+                $_POST['status'] = $this->all_configs['configs']['order-status-nowork'];
+            }
+        }
         $response = update_order_status($order, $_POST['status']);
         if (!isset($response['state']) || $response['state'] == false) {
             $data['state'] = false;
@@ -3543,7 +3551,7 @@ class orders extends Controller
      */
     private function changeClientTook($order, $mod_id)
     {
-        $took = isset($_POST['client_took'])? intval($_POST['client_took']): 0;
+        $took = isset($_POST['client_took']) ? intval($_POST['client_took']) : 0;
         if ($took != $order['client_took']) {
             $this->History->save(
                 'update-order-client_took',
