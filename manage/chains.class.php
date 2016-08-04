@@ -3507,5 +3507,29 @@ class Chains extends Object
             }
         }
     }
+
+    /**
+     * есть вызовы, но в репе не смог найти сами методы
+     *
+     * @param $array
+     * @param $mod_id
+     * @return array
+     */
+    private function create_chain_header($array, $mod_id)
+    {
+        return array();
+    }
+
+    /**
+     * есть вызовы, но в репе не смог найти сами методы
+     *
+     * @param $array
+     * @param $mod_id
+     * @return array
+     */
+    private function create_chain_body($array, $mod_id)
+    {
+        return array();
+    }
 }
 
