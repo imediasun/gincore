@@ -110,7 +110,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 ),
                 'order' => array('value' => $order['id'], 'name' => l('Номер заказа')),
                 'defect' => array('value' => h($order['defect']), 'name' => l('Неисправность')),
-                'engineer' => array('value' => empty($engineer) ? '' : h($order['engineer']), 'name' => l('Инженер')),
+                'engineer' => array('value' => h($order['engineer']), 'name' => l('Инженер')),
                 'accepter' => array('value' => h($order['a_fio']), 'name' => l('Приемщик')),
                 'comment' => array('value' => h($order['comment']), 'name' => l('Внешний вид')),
                 'warehouse' => array('value' => h($order['wh_title']), 'name' => l('Название склада')),
