@@ -62,7 +62,28 @@
             <tr>
                 <td><?= l('Наименование') ?></td>
                 <?php if ($hasEditorPrivilege): ?>
-                    <td><?= l('Цена') ?>(<?= viewCurrency() ?>)</td>
+                    <td>
+                        <div class="dropdown dropdown-inline">
+                            <button class="as_link" type="button" id="dropdownMenuCashboxes"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="background-color: #F7F9FA">
+                            <span class="btn-title-price_type_of_service">
+                                <?= $price_type_of_service == ORDERS_GOODS_PRICE_TYPE_WHOLESALE ? l('Цена, о') : l('Цена, р') ?>
+                            </span>
+                                <span class="caret"></span>
+                                <input type="hidden" name="price_type_of_service" value="<?= $price_type_of_service ?>"/>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
+                                <li><a href="#" data-price_type="<?= ORDERS_GOODS_PRICE_TYPE_RETAIL ?>"
+                                       onclick="return change_price_type_of_service(this)"
+                                       data-title="<?= l('Цена, р') ?>"><?= l('Цена розничная') ?></a>
+                                </li>
+                                <li><a href="#" data-price_type="<?= ORDERS_GOODS_PRICE_TYPE_WHOLESALE ?>"
+                                       onclick="return change_price_type_of_service(this)"
+                                       data-title="<?= l('Цена, о') ?>"><?= l('Цена оптовая') ?></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
                 <?php endif; ?>
                 <td></td>
                 <td></td>

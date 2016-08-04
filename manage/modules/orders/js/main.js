@@ -615,6 +615,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
   var order_id = $('#update-order').data('order_id') || $('#order-form').find('input[name="order_id"]').first().val() || arrequest()[2];
   var is_modal = $('input[name="is_modal"]').val();
   var price_type = parseInt($('input[name="price_type"]').val()) || 1;
+  var price_type_of_servcie = parseInt($('input[name="price_type_of_service"]').val()) || 1;
 
   if (remove && show_confirm_for_remove) {
     if (confirm(L['cancel-order-this-spare-part-supplier'] + '?')) {
@@ -631,7 +632,7 @@ function order_products(_this, product_id, order_product_id, cfm, remove, show_c
     url: url,
     type: 'POST',
     data: 'order_product_id=' + order_product_id +
-    '&product_id=' + product_id + (typeof cfm === 'undefined' ? '' : '&confirm=' + cfm) + close_supplier_order + '&price_type=' + price_type,
+    '&product_id=' + product_id + (typeof cfm === 'undefined' ? '' : '&confirm=' + cfm) + close_supplier_order + '&price_type=' + price_type + '&price_type_of_service=' + price_type_of_servcie,
     success: function (msg) {
       if (msg) {
         if (msg['confirm']) {
@@ -1208,6 +1209,27 @@ function change_price_type_of_goods(_this) {
   $('.btn-title-price_type').html($(_this).data('title'));
   $.ajax({
     url: prefix + module + '/ajax/?act=change-price-type',
+    type: 'POST',
+    data: '&order_id=' + $('#order_id').val() + '&price_type=' + type,
+    success: function (msg) {
+      if (msg.state) {
+        window.location.reload();
+      } else {
+        alert(msg.msg);
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
+function change_price_type_of_service(_this) {
+  var type = parseInt($(_this).attr('data-price_type'));
+  $('input[name="price_type_of_service"]').val(type);
+  $('.btn-title-price_type_of_service').html($(_this).data('title'));
+  $.ajax({
+    url: prefix + module + '/ajax/?act=change-price-type-service',
     type: 'POST',
     data: '&order_id=' + $('#order_id').val() + '&price_type=' + type,
     success: function (msg) {

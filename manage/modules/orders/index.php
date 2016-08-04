@@ -1737,7 +1737,7 @@ class orders extends Controller
         $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
 
         $productTotal = 0;
-        $price_type = ORDERS_GOODS_PRICE_TYPE_RETAIL;
+        $price_type = $price_type_of_service = ORDERS_GOODS_PRICE_TYPE_RETAIL;
         if (!empty($goods)) {
             foreach ($goods as $product) {
                 $productTotal += $product['price'] * $product['count'];
@@ -1749,6 +1749,9 @@ class orders extends Controller
         if (!empty($services)) {
             foreach ($services as $product) {
                 $productTotal += $product['price'] * $product['count'];
+                if($product['price_type'] == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
+                    $price_type_of_service = ORDERS_GOODS_PRICE_TYPE_WHOLESALE;
+                }
             }
         }
         $parts = array();
@@ -1826,7 +1829,8 @@ class orders extends Controller
             'users_fields' => $usersFields,
             'showUsersFields' => $showUsersFields,
             'homeMasterRequest' => $home_master_request,
-            'price_type' => $price_type
+            'price_type' => $price_type,
+            'price_type_of_service' => $price_type_of_service
         ));
     }
 
@@ -2407,7 +2411,10 @@ class orders extends Controller
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
         }
         if ($act == 'change-price-type') {
-            $data = $this->changePriceType($_POST, $mod_id);
+            $data = $this->changePriceType($_POST, $mod_id, GOODS_TYPE_ITEM);
+        }
+        if ($act == 'change-price-type-service') {
+            $data = $this->changePriceType($_POST, $mod_id, GOODS_TYPE_SERVICE);
         }
         if ($act == 'remove_product') {
             $_POST['remove'] = 1;
@@ -3648,9 +3655,10 @@ class orders extends Controller
     /**
      * @param $post
      * @param $mod_id
+     * @param $type
      * @return array
      */
-    private function changePriceType($post, $mod_id)
+    private function changePriceType($post, $mod_id, $type)
     {
         $result = array(
             'state' => true
@@ -3668,12 +3676,17 @@ class orders extends Controller
                 ORDERS_GOODS_PRICE_TYPE_MANUAL,
                 ORDERS_GOODS_PRICE_TYPE_WHOLESALE
             )) ? $post['price_type'] : ORDERS_GOODS_PRICE_TYPE_RETAIL;
+            if($type == GOODS_TYPE_SERVICE) {
+                $query = $this->OrdersGoods->makeQuery('AND g.type=?i', array(GOODS_TYPE_SERVICE));
+            } else {
+                $query = $this->OrdersGoods->makeQuery('AND g.type is null', array());
+            }
             $goods = $this->OrdersGoods->query('
                 SELECT og.id, g.price, g.price_wholesale 
                 FROM {orders_goods} og 
                 LEFT JOIN {goods} g ON g.id = og.goods_id
-                WHERE og.order_id=?i AND g.type is null AND NOT og.price_type=?i',
-                array($order['id'],  ORDERS_GOODS_PRICE_TYPE_MANUAL))->assoc();
+                WHERE og.order_id=?i AND NOT og.price_type=?i ?query',
+                array($order['id'],  ORDERS_GOODS_PRICE_TYPE_MANUAL, $query))->assoc();
             if (!empty($goods)) {
                 foreach ($goods as $good) {
                     $this->OrdersGoods->update(array(

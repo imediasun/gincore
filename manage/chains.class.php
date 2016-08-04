@@ -3333,14 +3333,10 @@ class Chains extends Object
         $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
         $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
         $price = $product['price'];
-        $price_type = isset($post['price_type']) && in_array($post['price_type'], array(
-            ORDERS_GOODS_PRICE_TYPE_RETAIL,
-            ORDERS_GOODS_PRICE_TYPE_MANUAL,
-            ORDERS_GOODS_PRICE_TYPE_WHOLESALE
-        )) && $product['type'] != GOODS_TYPE_SERVICE? $post['price_type'] : ORDERS_GOODS_PRICE_TYPE_RETAIL;
+        $price_type = $this->getPriceType($post, $product);
         if (isset($post['price'])) {
             $price = $post['price'] * 100;
-        } elseif ($price_type == ORDERS_GOODS_PRICE_TYPE_WHOLESALE && $product['type'] != GOODS_TYPE_SERVICE) {
+        } elseif ($price_type == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
             $price = $product['price_wholesale'];
         }
 
@@ -3543,6 +3539,21 @@ class Chains extends Object
     private function create_chain_body($array, $mod_id)
     {
         return array();
+    }
+
+    /**
+     * @param $post
+     * @param $product
+     * @return int
+     */
+    private function getPriceType($post, $product)
+    {
+        $field = ($product['type'] == GOODS_TYPE_SERVICE)?'price_type_of_service': 'price_type';
+        return isset($post[$field]) && in_array($post[$field], array(
+            ORDERS_GOODS_PRICE_TYPE_RETAIL,
+            ORDERS_GOODS_PRICE_TYPE_MANUAL,
+            ORDERS_GOODS_PRICE_TYPE_WHOLESALE
+        )) && $product['type'] != GOODS_TYPE_SERVICE? $post[$field] : ORDERS_GOODS_PRICE_TYPE_RETAIL;
     }
 }
 
