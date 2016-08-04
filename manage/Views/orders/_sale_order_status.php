@@ -8,7 +8,7 @@
         <?php foreach ($status as $id => $property): ?>
             <?php $style = 'style="color:#' . htmlspecialchars($property['color']) . '"'; ?>
             <li>
-                <?php if ($id == $this->all_configs['configs']['order-status-issued']): ?>
+                <?php if ($id == $this->all_configs['configs']['order-status-issued'] && $this->all_configs['oRole']->hasCashierPermission($this->getUserId())): ?>
                     <a href="#" data-order_id="<?= $orderId ?>" data-status_id="<?= $id ?>"
                        onclick="return pay_client_order(this, '<?= $type ?>', <?= $orderId ?>, null, null, {issued: 1})" <?= $style ?>><?= $property['name'] ?></a>
                 <?php else: ?>
