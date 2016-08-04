@@ -1737,9 +1737,13 @@ class orders extends Controller
         $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
 
         $productTotal = 0;
+        $price_type = ORDERS_GOODS_PRICE_TYPE_RETAIL;
         if (!empty($goods)) {
             foreach ($goods as $product) {
                 $productTotal += $product['price'] * $product['count'];
+                if($product['price_type'] == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
+                    $price_type = ORDERS_GOODS_PRICE_TYPE_WHOLESALE;
+                }
             }
         }
         if (!empty($services)) {
@@ -1821,7 +1825,8 @@ class orders extends Controller
             'saleOrdersFilters' => $this->sale_orders_filters(true),
             'users_fields' => $usersFields,
             'showUsersFields' => $showUsersFields,
-            'homeMasterRequest' => $home_master_request
+            'homeMasterRequest' => $home_master_request,
+            'price_type' => $price_type
         ));
     }
 
@@ -2401,6 +2406,9 @@ class orders extends Controller
         if ($act == 'add_product') {
             $data = $this->all_configs['chains']->add_product_order($_POST, $mod_id, $this);
         }
+        if ($act == 'change-price-type') {
+            $data = $this->changePriceType($_POST, $mod_id);
+        }
         if ($act == 'remove_product') {
             $_POST['remove'] = 1;
             $data = $this->all_configs['chains']->remove_product_order($_POST, $mod_id);
@@ -2824,8 +2832,8 @@ class orders extends Controller
     {
         $data['msg'] = l('Укажите новую цену');
         if (!empty($_POST['id']) && !empty($_POST['price']) && is_numeric($_POST['price'])) {
-            $this->all_configs['db']->query('UPDATE {orders_goods} SET price=? WHERE id=?i',
-                array($_POST['price'] * 100, $_POST['id']));
+            $this->all_configs['db']->query('UPDATE {orders_goods} SET price=?, price_type=?i WHERE id=?i',
+                array($_POST['price'] * 100, ORDERS_GOODS_PRICE_TYPE_MANUAL, $_POST['id']));
             $data['state'] = true;
 
             $order = $this->all_configs['db']->query('SELECT o.* FROM {orders} o, {orders_goods} og WHERE og.order_id=o.id AND og.id=?',
@@ -3635,5 +3643,69 @@ class orders extends Controller
         }
         $export->outputXLS($xls);
 
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    private function changePriceType($post, $mod_id)
+    {
+        $result = array(
+            'state' => true
+        );
+        try {
+            if (!isset($post['order_id'])) {
+                throw new ExceptionWithMsg(l('Номер заказа не задан'));
+            }
+            $order = $this->Orders->getByPk(intval($post['order_id']));
+            if (empty($order)) {
+                throw new ExceptionWithMsg(l('Заказ не найден'));
+            }
+            $price_type = isset($post['price_type']) && in_array($post['price_type'], array(
+                ORDERS_GOODS_PRICE_TYPE_RETAIL,
+                ORDERS_GOODS_PRICE_TYPE_MANUAL,
+                ORDERS_GOODS_PRICE_TYPE_WHOLESALE
+            )) ? $post['price_type'] : ORDERS_GOODS_PRICE_TYPE_RETAIL;
+            $goods = $this->OrdersGoods->query('
+                SELECT og.id, g.price, g.price_wholesale 
+                FROM {orders_goods} og 
+                LEFT JOIN {goods} g ON g.id = og.goods_id
+                WHERE og.order_id=?i AND g.type is null AND NOT og.price_type=?i',
+                array($order['id'],  ORDERS_GOODS_PRICE_TYPE_MANUAL))->assoc();
+            if (!empty($goods)) {
+                foreach ($goods as $good) {
+                    $this->OrdersGoods->update(array(
+                        'price_type' => $price_type,
+                        'price' => $price_type == ORDERS_GOODS_PRICE_TYPE_WHOLESALE ? $good['price_wholesale'] : $good['price']
+                    ), array(
+                        'id' => $good['id']
+                    ));
+                }
+            }
+            if ($order['total_as_sum']) {
+                $sum = $this->Orders->getTotalSum($order);
+                if ($sum != $order['sum']) {
+                    $this->Orders->update(array(
+                        '`sum`' => $sum
+                    ), array(
+                        'id' => $order['id']
+                    ));
+                    $this->History->save(
+                        'update-order-sum',
+                        $mod_id,
+                        $order['id'],
+                        ($sum / 100)
+                    );
+                }
+            }
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
+        }
+        return $result;
     }
 }

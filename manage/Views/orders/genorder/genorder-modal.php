@@ -12,7 +12,7 @@
                     trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
                 <div class="span6">
-                    <input type="hidden" name="order_id" value="<?= $order['id'] ?>" />
+                    <input id='order_id' type="hidden" name="order_id" value="<?= $order['id'] ?>" />
                     <input type="hidden" name="is_modal" value="1" />
                     <div class="bordered">
                         <div class="row-fluid">

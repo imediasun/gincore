@@ -5,7 +5,28 @@
         <tr>
             <td><?= l('Наименование') ?></td>
             <?php if ($hasEditorPrivilege): ?>
-                <td><?= l('Цена') ?>(<?= viewCurrency() ?>)</td>
+                <td>
+                    <div class="dropdown dropdown-inline">
+                        <button class="as_link" type="button" id="dropdownMenuCashboxes"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="background-color: #F7F9FA">
+                            <span class="btn-title-price_type">
+                                <?= $price_type == ORDERS_GOODS_PRICE_TYPE_WHOLESALE ? l('Цена, о') : l('Цена, р') ?>
+                            </span>
+                            <span class="caret"></span>
+                            <input type="hidden" name="price_type" value="<?= $price_type ?>"/>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
+                            <li><a href="#" data-price_type="<?= ORDERS_GOODS_PRICE_TYPE_RETAIL ?>"
+                                   onclick="return change_price_type_of_goods(this)"
+                                   data-title="<?= l('Цена, р') ?>"><?= l('Цена розничная') ?></a>
+                            </li>
+                            <li><a href="#" data-price_type="<?= ORDERS_GOODS_PRICE_TYPE_WHOLESALE ?>"
+                                   onclick="return change_price_type_of_goods(this)"
+                                   data-title="<?= l('Цена, о') ?>"><?= l('Цена оптовая') ?></a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
             <?php endif; ?>
             <td></td>
             <td></td>
@@ -70,13 +91,13 @@
         <hr/>
         <div class="checkbox text-left">
             <span style="display: inline-block"><?= l('Итого') ?>:</span>
-            <span class='total-sum' style="display: inline-block;"> <?= (int) $total/100 ?></span>
+            <span class='total-sum' style="display: inline-block;"> <?= (int)$total / 100 ?></span>
             <span style="display: inline-block; margin-right: 20px"><?= viewCurrency() ?></span>
             <label class="tooltips" data-toggle="tooltip" data-placement="bottom"
-                title="<?= l('Автоматически дублировать Итого в стоимость ремонта') ?>" >
-                <input class='total-sum' type="hidden" value="<?= (int) $total/100 ?>"/>
+                   title="<?= l('Автоматически дублировать Итого в стоимость ремонта') ?>">
+                <input class='total-sum' type="hidden" value="<?= (int)$total / 100 ?>"/>
                 <input id='total-sum-checkbox' type="checkbox" <?= ($totalChecked) ? 'checked' : '' ?>
-                       onclick="set_total_as_sum(this, <?= $orderId ?>);" />
+                       onclick="set_total_as_sum(this, <?= $orderId ?>);"/>
                 <?= l('"Итого" = "стоимость ремонта"') ?>
             </label>
         </div>

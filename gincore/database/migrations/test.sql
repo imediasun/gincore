@@ -216,3 +216,8 @@ CREATE TABLE IF NOT EXISTS `restore4_home_master_requests` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 ALTER TABLE `restore4_orders` ADD COLUMN home_master_request int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_orders` ADD INDEX orders_home_master_request(home_master_request);
+/*
+2016_08_04_123634_add_price_type_to_order_goods.php
+ */
+ALTER TABLE `restore4_orders_goods` ADD COLUMN price_type int(1) UNSIGNED DEFAULT 3;
+ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_price_type(price_type);

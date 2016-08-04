@@ -15,7 +15,7 @@ require_once __DIR__ . '/Core/Log.php';
  * @property MCashboxesTransactions      CashboxesTransactions
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MOrdersSuppliersClients     OrdersSuppliersClients
- * @property MHomeMasterRequests HomeMasterRequests
+ * @property MHomeMasterRequests         HomeMasterRequests
  */
 class Chains extends Object
 {
@@ -1179,14 +1179,14 @@ class Chains extends Object
                 }
 
                 if (!isset($post['id']) || intval($post['id']) == 0) {
-                    $order_first_num = (isset($this->all_configs['settings']['order-first-number']) 
-                            && is_numeric($this->all_configs['settings']['order-first-number']))
-                            ? intval($this->all_configs['settings']['order-first-number'])
-                            : 0;
+                    $order_first_num = (isset($this->all_configs['settings']['order-first-number'])
+                        && is_numeric($this->all_configs['settings']['order-first-number']))
+                        ? intval($this->all_configs['settings']['order-first-number'])
+                        : 0;
                     $post['id'] = $this->all_configs['db']->query('SELECT o.id+1
                     FROM (SELECT ?i as id UNION SELECT id FROM {orders} WHERE id > ?i) o
                     WHERE NOT EXISTS (SELECT 1 FROM {orders} su WHERE su.id=o.id+1) ORDER BY o.id LIMIT 1',
-                    array($order_first_num, $order_first_num))->el();
+                        array($order_first_num, $order_first_num))->el();
                 }
 
                 $post['warranty'] = $warranty;
@@ -3332,6 +3332,18 @@ class Chains extends Object
 
         $count = isset($post['count']) && intval($post['count']) > 0 ? intval($post['count']) : 1;
         $wh_type = isset($post['confirm']) ? intval($post['confirm']) : 0;
+        $price = $product['price'];
+        $price_type = isset($post['price_type']) && in_array($post['price_type'], array(
+            ORDERS_GOODS_PRICE_TYPE_RETAIL,
+            ORDERS_GOODS_PRICE_TYPE_MANUAL,
+            ORDERS_GOODS_PRICE_TYPE_WHOLESALE
+        )) && $product['type'] != GOODS_TYPE_SERVICE? $post['price_type'] : ORDERS_GOODS_PRICE_TYPE_RETAIL;
+        if (isset($post['price'])) {
+            $price = $post['price'] * 100;
+        } elseif ($price_type == ORDERS_GOODS_PRICE_TYPE_WHOLESALE && $product['type'] != GOODS_TYPE_SERVICE) {
+            $price = $product['price_wholesale'];
+        }
+
         $arr = array(
             'warehouse_type' => $wh_type,
             'user_id' => $this->getUserId(),
@@ -3339,7 +3351,7 @@ class Chains extends Object
             'article' => $product['article'],
             'title' => $product['title'],
             'content' => $product['content'],
-            'price' => (isset($post['price']) ? $post['price'] * 100 : $product['price']),
+            'price' => $price,
             '`count`' => $count,
             'order_id' => $order_id,
             'secret_title' => $product['secret_title'],
@@ -3348,7 +3360,8 @@ class Chains extends Object
             '`type`' => (int)$product['type'],
             'warranty' => isset($post['warranty']) ? $post['warranty'] : 0,
             'discount' => isset($post['discount']) ? $post['discount'] : 0,
-            'discount_type' => isset($post['discount_type']) ? $post['discount_type'] : 1
+            'discount_type' => isset($post['discount_type']) ? $post['discount_type'] : 1,
+            'price_type' => $price_type
         );
 
         // пытаемся добавить товар

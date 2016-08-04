@@ -30,10 +30,8 @@ define('CONTRACTOR_TYPE_PROVIDER', 2);
 define('CONTRACTOR_TYPE_BUYER', 3);
 define('CONTRACTOR_TYPE_EMPLOYER', 4);
 
-define('GOODS_TYPE_ITEM', 0b001);
-define('GOODS_TYPE_SERVICE', 0b010);
-define('GOODS_TYPE_ITEM_DELETED', 0b101);
-define('GOODS_TYPE_SERVICE_DELETED', 0b110);
+define('GOODS_TYPE_ITEM', 0);
+define('GOODS_TYPE_SERVICE', 1);
 
 define('CATEGORIES_TYPE_ACTIVE', 0b001);
 define('CATEGORIES_TYPE_DELETED', 0b101);
@@ -47,6 +45,9 @@ define('CLIENT_ACT_CALL', 1);
 define('CLIENT_ACT_REQUEST', 2);
 define('CLIENT_ACT_ORDER', 3);
 
+define('ORDERS_GOODS_PRICE_TYPE_RETAIL',1);
+define('ORDERS_GOODS_PRICE_TYPE_WHOLESALE',2);
+define('ORDERS_GOODS_PRICE_TYPE_MANUAL',3);
 
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';

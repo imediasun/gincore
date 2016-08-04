@@ -133,7 +133,8 @@ class MOrdersGoods extends AModel
             'unbind_request',
             'warehouse_type',
             'warranty',
-            'discount_type'
+            'discount_type',
+            'price_type'
         );
     }
 

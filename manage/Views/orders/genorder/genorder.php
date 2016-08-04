@@ -12,6 +12,7 @@
         <?php $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
         <div class="span6">
+            <input id='order_id' type="hidden" name="order_id" value="<?= $order['id'] ?>" />
             <div class="bordered">
                 <div class="row-fluid">
 
@@ -503,7 +504,8 @@
                 'controller' => $controller,
                 'totalChecked' => $order['total_as_sum'],
                 'total' => $productTotal,
-                'orderId' => $order['id']
+                'orderId' => $order['id'],
+                'price_type' => $price_type
             )); ?>
         </div>
     </form>
