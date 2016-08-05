@@ -3679,7 +3679,7 @@ class orders extends Controller
             if ($type == GOODS_TYPE_SERVICE) {
                 $query = $this->OrdersGoods->makeQuery('AND g.type=?i', array(GOODS_TYPE_SERVICE));
             } else {
-                $query = $this->OrdersGoods->makeQuery('AND (g.type is null OR g.type=?i', array(GOODS_TYPE_ITEM));
+                $query = $this->OrdersGoods->makeQuery('AND (g.type is null OR g.type=?i)', array(GOODS_TYPE_ITEM));
             }
             $goods = $this->OrdersGoods->query('
                 SELECT og.id, g.price, g.price_wholesale 
