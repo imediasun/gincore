@@ -69,7 +69,7 @@
         </tbody>
     </table>
 
-    <?= page_block($count_page, $count); ?>
+    <?= page_block($count_page, $count, '', null, $this->renderFile('clients/_delete_all_button')); ?>
 <?php else: ?>
     <p class="text-error"><?= l('Нет ни одного клиента') ?></p>
 <?php endif; ?>

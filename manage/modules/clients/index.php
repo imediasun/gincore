@@ -12,6 +12,7 @@ $moduleactive[20] = !$ifauth['is_2'];
  * @property  MUsers       Users
  * @property  MUsersMarked UsersMarked
  * @property  MCategories  Categories
+ * @property  MHistory     History
  */
 class Clients extends Object
 {
@@ -26,7 +27,8 @@ class Clients extends Object
         'LockFilters',
         'Users',
         'UsersMarked',
-        'Categories'
+        'Categories',
+        'History'
     );
 
     /**
@@ -389,6 +391,12 @@ class Clients extends Object
     private function gencontent()
     {
         if (!isset($this->all_configs['arrequest'][1])) {
+            if (isset($_GET['delete-all'])) {
+                $this->deleteAll($_GET, $this->all_configs['configs']['clients-manage-page']);
+                unset($_GET['delete-al;']);
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
+                        $_GET));
+            }
             return $this->main_page();
         }
 
@@ -523,6 +531,29 @@ class Clients extends Object
     private function group_clients()
     {
         return $this->view->renderFile('clients/group_clients');
+    }
+
+    /**
+     * @param $get
+     * @return mixed
+     */
+    private function get_client_ids($get)
+    {
+        $saved = $this->LockFilters->load('filter-clients');
+        if (count($get) <= 2 && !empty($saved)) {
+            $get += $saved;
+        }
+
+        // активен/неактивен
+        $query = $this->getFilters($get);
+        return $this->all_configs['db']->query('
+                SELECT cl.id 
+                FROM {clients} as cl
+                LEFT JOIN {clients_phones} as p ON p.client_id=cl.id AND p.phone<>cl.phone
+                LEFT JOIN {users_marked} as m ON m.object_id=cl.id AND m.type=? AND m.user_id=?i
+                LEFT JOIN {orders} as o ON o.user_id=cl.id
+                WHERE ?query GROUP BY cl.id ORDER BY cl.id DESC',
+            array('cl', $this->getUserId(), $query))->col();
     }
 
     /**
@@ -827,6 +858,7 @@ class Clients extends Object
     function ajax()
     {
         $act = isset($_GET['act']) ? $_GET['act'] : '';
+        $mod_id = $this->all_configs['configs']['clients-manage-page'];
         if (!$act) {
             $act = isset($_POST['act']) ? $_POST['act'] : '';
         }
@@ -1038,6 +1070,10 @@ class Clients extends Object
                 $data['state'] = true;
                 $data['msg'] = l('Изменения сохранены');
             }
+        }
+        preg_match('/changes:(.+)/', $act, $arr);
+        if (count($arr) == 2 && isset($arr[1])) {
+            $data = $this->getAllChanges($act, $mod_id);
         }
 
         header("Content-Type: application/json; charset=UTF-8");
@@ -1440,6 +1476,82 @@ class Clients extends Object
     private function getReferrers()
     {
         return get_service("crm/calls")->get_referers();
+    }
+
+    /**
+     * @param $get
+     * @param $mod_id
+     * @return bool
+     */
+    protected function deleteAll($get, $mod_id)
+    {
+        $ids = $this->get_client_ids($get);
+        $used = array();
+        if (!empty($ids)) {
+            foreach ($ids as $id) {
+                $result = $this->deleteClient(array('id' => $id), $mod_id);
+                if ($result['state'] === false) {
+                    $used[] = $id;
+                }
+            }
+        }
+        if (!empty($used)) {
+            FlashMessage::set(l('Список ID клиентов, которые не могут быть удалены, так как привязаны к заказам, транзакциям или заявкам:') . implode(',',
+                    $used), FlashMessage::WARNING);
+        }
+        return true;
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    public function deleteClient($post, $mod_id)
+    {
+        $client = $this->Clients->getByPk($post['id']);
+        if (empty($client)) {
+            return array(
+                'state' => false,
+                'message' => l('Клиент не найден')
+            );
+        }
+        if (!$this->Clients->isUsed(intval($post['id']))) {
+            $this->Clients->delete($post['id']);
+            $this->History->save('delete-client', $mod_id, $post['id'], l('Удален') . ' ' . implode(',',
+                    array($client['fio'], $client['phone'], $client['email'], $client['legal_address'])));
+            return array(
+                'state' => true
+            );
+        }
+        return array(
+            'state' => false,
+            'message' => l('Привязан к заказам, транзакциям или заявкам')
+        );
+    }
+
+    /**
+     * @param $act
+     * @param $mod_id
+     * @return array
+     */
+    public function getAllChanges($act, $mod_id)
+    {
+        $data = array('state' => false);
+        preg_match('/changes:(.+)/', $act, $arr);
+        if (count($arr) == 2 && isset($arr[1])) {
+            $data['state'] = true;
+            $data['content'] = l('История изменений не найдена');
+
+            $changes = $this->History->getChangesByModId(trim($arr[1]), $mod_id);
+            if ($changes) {
+                $data['content'] = $this->view->renderFile('inc_func/get_changes', array(
+                    'changes' => $changes
+                ));
+            }
+
+        }
+        return $data;
     }
 }
 

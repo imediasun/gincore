@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../Core/AModel.php';
 
 /**
- * @property  MHistory History
- * @property  MCategories Categories
+ * @property  MHistory       History
+ * @property  MCategories    Categories
  * @property  MCategoryGoods CategoryGoods
  */
 class MGoods extends AModel
@@ -14,7 +14,7 @@ class MGoods extends AModel
         'Categories',
         'CategoryGoods'
     );
-    
+
     /**
      * @param $good
      * @param $mod_id
@@ -32,7 +32,7 @@ class MGoods extends AModel
                 $this->CategoryGoods->moveGoodTo(intval($good['id']), $recycleBin['id']);
             }
 
-            $this->History->save('delete-product', $mod_id, $product['id']);
+            $this->History->save('delete-product', $mod_id, $product['id'], l('Удален') . ' ' . $product['title']);
         }
     }
 
@@ -50,6 +50,21 @@ class MGoods extends AModel
             'goods_id' => intval($good['id'])
         ));
         $this->History->save('restore-product', $mod_id, intval($good['id']));
+    }
+
+    /**
+     * @param $goodId
+     * @return bool
+     */
+    public function isUsed($goodId)
+    {
+        $onWarehouses = $this->query('SELECT count(*) FROM {warehouses_goods_items} WHERE goods_id=?i',
+            array($goodId))->el();
+        $inOrders = $this->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
+            array($goodId))->el();
+        $inClientOrders = $this->query('SELECT count(*) FROM {orders_goods} WHERE goods_id=?i',
+            array($goodId))->el();
+        return $onWarehouses || $inOrders || $inClientOrders;
     }
 
     /**
@@ -102,4 +117,5 @@ class MGoods extends AModel
             'deleted'
         );
     }
+
 }

@@ -251,7 +251,8 @@
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                <?= page_block($count_page, $count_goods); ?>
+                <?= page_block($count_page, $count_goods, '', null, $this->renderFile('products/_delete_all_button')); ?>
+
 
                 <?php if ($this->all_configs['configs']['no-warranties'] == false): ?>
         </div>

@@ -95,6 +95,19 @@ class MClients extends AModel
     }
 
     /**
+     * @param $id
+     * @return bool
+     */
+    public function isUsed($id)
+    {
+        $inOrders = $this->query('SELECT count(*) FROM {orders} WHERE user_id=?i',
+            array($id))->el();
+        $inCalls = $this->query('SELECT count(*) FROM {crm_calls} WHERE client_id=?i',
+            array($id))->el();
+        return $inCalls || $inOrders;
+    }
+
+    /**
      * @return array
      */
     public function columns()
@@ -152,4 +165,5 @@ class MClients extends AModel
             'reg_data_2'
         );
     }
+
 }

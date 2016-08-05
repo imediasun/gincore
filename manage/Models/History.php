@@ -62,7 +62,22 @@ class MHistory extends AModel
               WHERE c.map_id=?i AND c.object_id=?i 
               ORDER BY c.date_add DESC',
             array($this->table, $mapId, $objectId))->assoc();
+    }
 
+    /**
+     * @param $work
+     * @param $mapId
+     * @return array
+     */
+    public function getChangesByModId($work, $mapId)
+    {
+        return $this->query(
+            'SELECT u.login, u.email, u.fio, u.phone, ch.change, ch.date_add 
+              FROM ?t as ch
+              LEFT JOIN {users} as u ON u.id=ch.user_id 
+              WHERE ch.map_id=?i AND work=? 
+              ORDER BY ch.date_add DESC',
+            array($this->table, $mapId, $work))->assoc();
     }
 
     /**
@@ -82,4 +97,5 @@ class MHistory extends AModel
         );
 
     }
+
 }

@@ -82,7 +82,7 @@ abstract class Controller extends Object
     public function render()
     {
         $result = $this->withoutCheckPermission($this->all_configs['arrequest']);
-        
+
         if (!$this->can_show_module()) {
             if ($this->isAjax($this->all_configs['arrequest'])) {
                 Response::json(array('message' => l('У Вас не достаточно прав'), 'state' => false));
@@ -131,6 +131,30 @@ abstract class Controller extends Object
 
     /**
      * @param $act
+     * @param $mod_id
+     * @return array
+     */
+    public function getAllChanges($act, $mod_id)
+    {
+        $data = array('state' => false);
+        preg_match('/changes:(.+)/', $act, $arr);
+        if (count($arr) == 2 && isset($arr[1])) {
+            $data['state'] = true;
+            $data['content'] = l('История изменений не найдена');
+
+            $changes = $this->History->getChangesByModId(trim($arr[1]), $mod_id);
+            if ($changes) {
+                $data['content'] = $this->view->renderFile('inc_func/get_changes', array(
+                    'changes' => $changes
+                ));
+            }
+
+        }
+        return $data;
+    }
+
+    /**
+     * @param $act
      * @param $post
      * @param $mod_id
      * @return array
@@ -139,7 +163,6 @@ abstract class Controller extends Object
     {
         $data = array('state' => false);
         preg_match('/changes:(.+)/', $act, $arr);
-        // история изменений инженера
         if (count($arr) == 2 && isset($arr[1])) {
             $data['state'] = true;
             $data['content'] = l('История изменений не найдена');

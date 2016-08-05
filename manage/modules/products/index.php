@@ -839,6 +839,14 @@ class products extends Controller
             Response::redirect($_SERVER['REQUEST_URI']);
         }
 
+        if (isset($_GET['delete-all'])) {
+            if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
+                $this->deleteAll($_GET, $mod_id);
+            }
+            unset($_GET['delete-al;']);
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
+                    $_GET));
+        }
         // поиск товаров
         if (isset($_POST['search'])) {
             $_GET['s'] = isset($_POST['text']) ? trim($_POST['text']) : '';
@@ -1320,6 +1328,11 @@ class products extends Controller
                 $data['state'] = false;
                 $data['msg'] = l('Неверный id группы');
             }
+            Response::json($data);
+        }
+        preg_match('/changes:(.+)/', $act, $arr);
+        if (count($arr) == 2 && isset($arr[1])) {
+            $data = $this->getAllChanges($act, $mod_id);
             Response::json($data);
         }
         echo $data;
@@ -1945,11 +1958,7 @@ class products extends Controller
      */
     public function isUsedGood($goodId)
     {
-        $onWarehouses = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE goods_id=?i',
-            array($goodId))->el();
-        $inOrders = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
-            array($goodId))->el();
-        return $onWarehouses && $inOrders;
+        return $this->Goods->isUsed($goodId);
     }
 
     /**
@@ -2371,5 +2380,28 @@ class products extends Controller
             $this->History->save('edit-goods', $mod_id, $product_id);
         }
         return array('state' => true);
+    }
+
+    /**
+     * @param $get
+     * @param $mod_id
+     * @return bool
+     */
+    protected function deleteAll($get, $mod_id)
+    {
+        $ids  = $this->get_goods_ids();
+        $used = array();
+        if(!empty($ids)) {
+            foreach ($ids as $id => $value) {
+                $result = $this->deleteProduct(array('id' => $id), $mod_id);
+                if($result['state'] === false) {
+                    $used[] = $id;
+                }
+            }
+        }
+        if(!empty($used)) {
+            FlashMessage::set(l('Список ID товаров, которые не могут быть удалены, так как используются в логистических операциях или заказах:') . implode(',', $used), FlashMessage::WARNING);
+        }
+        return true;
     }
 }

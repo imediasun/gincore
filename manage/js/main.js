@@ -2429,3 +2429,12 @@ function toggle_on_click(_this, event) {
   $(_this).dropdown('toggle');
   event.stopPropagation();
 }
+function goto_delete_all(_this, confirm_msg) {
+  if(confirm(confirm_msg)) {
+    _url = location.href;
+    _url += (_url.split('?')[1] ? '&':'?') + 'delete-all=';
+    location.href = _url;
+
+  }
+  return false;
+}
