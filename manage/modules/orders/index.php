@@ -1777,7 +1777,7 @@ class orders extends Controller
                 WHERE transaction_type=?i 
                 AND (client_order_id IS NULL OR client_order_id=?i OR client_order_id = 0)
                 AND supplier_order_id IS NULL 
-                AND contractor_category_link IN (SELECT id FROM {contractors_categories_links} WHERE contractors_categories_id = 2)',
+                AND contractor_category_link IN (SELECT id FROM {contractors_categories_links} WHERE contractors_categories_id = 2 AND deleted=0)',
             // возврат средст
             array(
                 TRANSACTION_OUTPUT,

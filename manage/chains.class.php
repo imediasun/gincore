@@ -16,6 +16,7 @@ require_once __DIR__ . '/Core/Log.php';
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MOrdersSuppliersClients     OrdersSuppliersClients
  * @property MHomeMasterRequests         HomeMasterRequests
+ * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
  */
 class Chains extends Object
 {
@@ -32,7 +33,8 @@ class Chains extends Object
         'ContractorsSuppliersOrders',
         'OrdersSuppliersClients',
         'CashboxesTransactions',
-        'HomeMasterRequests'
+        'HomeMasterRequests',
+        'ContractorsCategoriesLinks'
     );
 
     //////* типы перемещений *//////
@@ -2038,8 +2040,7 @@ class Chains extends Object
                 $post['comment'] = "Выплата за заказ поставщика {$this->all_configs['suppliers_orders']->supplier_order_number($order)}, сумма {$post['amount_from']} {$supplierOrderCurrency}, склад {$order['wh_title']}, {$post['date_transaction']}";
                 $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-so-contractor_category_id_from'];
                 $post['contractors_id'] = $order['supplier'];
-                $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                    array($post['contractor_category_id_to'], $post['contractors_id']));
+                $this->ContractorsCategoriesLinks->addCategoryToContractors($post['contractor_category_id_to'], $post['contractors_id']);
             }
             // если транзакция на прием оплаты с заказа клиента
             if (isset($post['client_order_id']) && $post['client_order_id'] > 0) {
@@ -2172,9 +2173,7 @@ class Chains extends Object
                 }
 
                 if ($category_id > 0) {
-                    $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
-                  (contractors_id, contractors_categories_id) VALUES (?i, ?i)',
-                        array(intval($post['contractors_id']), $category_id));
+                    $this->ContractorsCategoriesLinks->addCategoryToContractors($category_id, intval($post['contractors_id']));
 
                     $contractor_category_link = $this->all_configs['db']->query('SELECT id
                       FROM {contractors_categories_links}

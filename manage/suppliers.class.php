@@ -9,6 +9,7 @@ require_once __DIR__ . '/Core/Response.php';
  * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
  * @property MHistory                    History
  * @property  MLockFilters               LockFilters
+ * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
  */
 class Suppliers extends Object
 {
@@ -24,7 +25,8 @@ class Suppliers extends Object
         'Goods',
         'ContractorsSuppliersOrders',
         'History',
-        'LockFilters'
+        'LockFilters',
+        'ContractorsCategoriesLinks'
     );
 
     /**
@@ -1787,8 +1789,7 @@ class Suppliers extends Object
             );
 
             // связка между контрагентом и категорией
-            $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                array($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']));
+            $this->ContractorsCategoriesLinks->addCategoryToContractors($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']);
             $contractor_category_link = $this->all_configs['db']->query('SELECT id FROM {contractors_categories_links}
                 WHERE contractors_categories_id=?i AND contractors_id=?i',
                 array($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']))->el();

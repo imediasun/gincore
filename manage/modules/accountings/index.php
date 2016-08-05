@@ -8,12 +8,13 @@ $modulemenu[30] = l('Бухгалтерия');
 $moduleactive[30] = !$ifauth['is_2'];
 
 /**
- * @property  MUsers                 Users
- * @property  MOrders                Orders
- * @property  MClients               Clients
- * @property  MCashboxesTransactions CashboxesTransactions
- * @property  MCashboxes             Cashboxes
- * @property Transactions            Transactions
+ * @property  MUsers                      Users
+ * @property  MOrders                     Orders
+ * @property  MClients                    Clients
+ * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
+ * @property  MCashboxesTransactions      CashboxesTransactions
+ * @property  MCashboxes                  Cashboxes
+ * @property Transactions                 Transactions
  */
 class accountings extends Controller
 {
@@ -41,7 +42,8 @@ class accountings extends Controller
         'Cashboxes',
         'CashboxesTransactions',
         'Clients',
-        'Orders'
+        'Orders',
+        'ContractorsCategoriesLinks'
     );
 
     public function __construct(&$all_configs)
@@ -466,7 +468,7 @@ class accountings extends Controller
                 $this->addContractorCategoryForUsers($parent_id, $contractor_category);
             }
             if (!empty($post['contractors'])) {
-                $this->addCategoryToContractors($contractor_category, $post['contractors']);
+                $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category, $post['contractors']);
             }
 
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -508,7 +510,7 @@ class accountings extends Controller
                 $this->History->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
             }
             if (!empty($post['contractors'])) {
-                $this->updateCategoryToContractors($post['contractor_category-id'], $post['contractors']);
+                $this->ContractorsCategoriesLinks->updateCategoryToContractors($post['contractor_category-id'], $post['contractors']);
             }
 
         } elseif (isset($post['cashboxes-currencies-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -602,7 +604,7 @@ class accountings extends Controller
         return $this->all_configs['db']->query('SELECT k.id, k.title, l.contractors_categories_id, c.avail,
                   c.transaction_type, c.id as c_id, c.name as contractor_name, k.type, k.comment, k.amount
                 FROM {contractors} as k
-                LEFT JOIN {contractors_categories_links} as l ON l.contractors_id=k.id
+                LEFT JOIN {contractors_categories_links} as l ON l.contractors_id=k.id and l.deleted=0
                 LEFT JOIN {contractors_categories} as c ON c.id=l.contractors_categories_id
                 WHERE 1=1 ?query ORDER BY k.title',
             array($query))->assoc();
@@ -978,7 +980,7 @@ class accountings extends Controller
         $categories = $this->get_contractors_categories($type);
         $contractors = db()->query('SELECT id, title FROM {contractors}')->assoc('id');
         if ($contractor_category) {
-            $contractors_category_links = db()->query("SELECT contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id=?i",
+            $contractors_category_links = db()->query("SELECT contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id=?i and deleted=0",
                 array($contractor_category['id']))->col();
         } else {
             $contractors_category_links = array();
@@ -1120,7 +1122,7 @@ class accountings extends Controller
             if (isset($_POST['contractor_id']) && $_POST['contractor_id'] > 0) {
                 $amount = $this->all_configs['db']->query('SELECT
                         SUM(IF(t.transaction_type=?i, t.value_to, 0)) - SUM(IF(t.transaction_type=?i, t.value_from, 0))
-                      FROM {contractors_transactions} as t, {contractors_categories_links} as l
+                      FROM {contractors_transactions} as t, {contractors_categories_links} as l 
                       WHERE l.contractors_id=?i AND t.contractor_category_link=l.id',
                     array(TRANSACTION_INPUT, TRANSACTION_OUTPUT, $_POST['contractor_id']))->el();
                 $data['message'] = show_price(1 * $amount);
@@ -1794,7 +1796,7 @@ class accountings extends Controller
                 $cn = explode(',', $_GET['ct']);
                 if (count($cn) == 1 && array_key_exists(0, $cn)) {
                     $contractor = $this->all_configs['db']->query('SELECT c.title, c.amount, c.type, cc.name FROM {contractors} as c
-                        LEFT JOIN (SELECT contractors_id, contractors_categories_id FROM {contractors_categories_links})l ON l.contractors_id=c.id
+                        LEFT JOIN (SELECT contractors_id, contractors_categories_id FROM {contractors_categories_links})l ON l.contractors_id=c.id AND l.deleted=0
                         LEFT JOIN (SELECT name, id FROM {contractors_categories})cc ON cc.id=l.contractors_categories_id
                         WHERE c.id=?i', array($cn[0]))->assoc();
                     if ($contractor) {
@@ -3045,7 +3047,7 @@ class accountings extends Controller
     {
         $this->all_configs['db']->query('
             INSERT INTO  restore4_contractors_categories_links (contractors_categories_id, contractors_id)
-            SELECT ?, contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id = ?
+            SELECT ?, contractors_id FROM {contractors_categories_links} WHERE contractors_categories_id = ? and deleted=0
             ', array($contractor_category, $parent_id))->ar();
     }
 
@@ -3095,25 +3097,17 @@ class accountings extends Controller
                 $this->History->save('edit-contractor', $mod_id, $this->all_configs['arrequest'][2]);
             }
 
-            $contractor_categories_id = $this->all_configs['db']->query('SELECT contractors_categories_id
-                        FROM {contractors_categories_links} WHERE contractors_id=?i',
-                array($this->all_configs['arrequest'][2]))->vars();
+            $this->ContractorsCategoriesLinks->update(array(
+                'deleted' => 1
+            ), array(
+                'contractors_id' => $this->all_configs['arrequest'][2]
+            ));
 
-            foreach ($contractor_categories_id as $contractor_category_id) {
-                try {
-                    $this->all_configs['db']->query('UPDATE {contractors_categories_links} SET contractors_categories_id=null WHERE contractors_id=?i
-                                    AND contractors_categories_id=?i',
-                        array($this->all_configs['arrequest'][2], $contractor_category_id))->ar();
-                } catch (Exception $e) {
-                }
-            }
             // категории
             if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
                 foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
                     if ($contractor_category_id > 0) {
-                        $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
-                                    (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                            array($contractor_category_id, $this->all_configs['arrequest'][2]))->ar();
+                        $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category_id, $this->all_configs['arrequest'][2]);
                     }
                 }
             }
@@ -3171,9 +3165,7 @@ class accountings extends Controller
             $data['name'] = htmlspecialchars($_POST['title']);
             foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
                 if ($contractor_category_id > 0) {
-                    $ar = $this->all_configs['db']->query('INSERT IGNORE INTO {contractors_categories_links}
-                                (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                        array($contractor_category_id, $contractor_id))->ar();
+                    $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category_id, $contractor_id);
                 }
             }
             $this->History->save('add-contractor', $mod_id, $contractor_id);
@@ -3750,29 +3742,6 @@ class accountings extends Controller
             $data['msg'] = isset($response['msg']) && !empty($response['msg']) ? $response['msg'] : $defaultMessage;
         }
         return $data;
-    }
-
-    /**
-     * @param $contractor_category
-     * @param $contractors
-     */
-    private function addCategoryToContractors($contractor_category, $contractors)
-    {
-        foreach ($contractors as $contractor) {
-            db()->query('INSERT {contractors_categories_links} (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                array($contractor_category, $contractor));
-        }
-    }
-
-    /**
-     * @param $contractor_category
-     * @param $contractors
-     */
-    private function updateCategoryToContractors($contractor_category, $contractors)
-    {
-        db()->query('DELETE FROM {contractors_categories_links} WHERE contractors_categories_id=?i',
-            array($contractor_category));
-        $this->addCategoryToContractors($contractor_category, $contractors);
     }
 
     /**

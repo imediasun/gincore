@@ -221,3 +221,8 @@ ALTER TABLE `restore4_orders` ADD INDEX orders_home_master_request(home_master_r
  */
 ALTER TABLE `restore4_orders_goods` ADD COLUMN price_type int(1) UNSIGNED DEFAULT 3;
 ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_price_type(price_type);
+/*
+2016_08_05_122639_add_deleted_to_contractors_categories_links.php
+ */
+ALTER TABLE `restore4_contractors_categories_links` ADD COLUMN deleted int(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_contractors_categories_links` ADD INDEX contractors_categories_link_deleted(deleted);
