@@ -128,20 +128,6 @@
                 </div>
             </div>
             <div class="col-sm-6 js-requests relative">
-                <div id="new_device_form"
-                     class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
-                <fieldset>
-                    <legend><?= l('Заявки') ?></legend>
-                    <div id="eshop_client_requests">
-                        <?php if ($order): ?>
-                            <?= get_service('crm/requests')->get_requests_list_by_order_client($order_data['client_id'],
-                                $order_data['product_id'], $_GET['on_request']) ?>
-                        <?php else: ?>
-                            <span
-                                class="muted"><?= l('выберите клиента или устройство чтобы увидеть заявки') ?></span>
-                        <?php endif; ?>
-                    </div>
-                </fieldset>
             </div>
         </form>
     </div>
