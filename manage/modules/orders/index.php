@@ -1741,7 +1741,7 @@ class orders extends Controller
         if (!empty($goods)) {
             foreach ($goods as $product) {
                 $productTotal += $product['price'] * $product['count'];
-                if($product['price_type'] == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
+                if ($product['price_type'] == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
                     $price_type = ORDERS_GOODS_PRICE_TYPE_WHOLESALE;
                 }
             }
@@ -1749,7 +1749,7 @@ class orders extends Controller
         if (!empty($services)) {
             foreach ($services as $product) {
                 $productTotal += $product['price'] * $product['count'];
-                if($product['price_type'] == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
+                if ($product['price_type'] == ORDERS_GOODS_PRICE_TYPE_WHOLESALE) {
                     $price_type_of_service = ORDERS_GOODS_PRICE_TYPE_WHOLESALE;
                 }
             }
@@ -3676,17 +3676,17 @@ class orders extends Controller
                 ORDERS_GOODS_PRICE_TYPE_MANUAL,
                 ORDERS_GOODS_PRICE_TYPE_WHOLESALE
             )) ? $post['price_type'] : ORDERS_GOODS_PRICE_TYPE_RETAIL;
-            if($type == GOODS_TYPE_SERVICE) {
+            if ($type == GOODS_TYPE_SERVICE) {
                 $query = $this->OrdersGoods->makeQuery('AND g.type=?i', array(GOODS_TYPE_SERVICE));
             } else {
-                $query = $this->OrdersGoods->makeQuery('AND g.type is null', array());
+                $query = $this->OrdersGoods->makeQuery('AND (g.type is null OR g.type=?i', array(GOODS_TYPE_ITEM));
             }
             $goods = $this->OrdersGoods->query('
                 SELECT og.id, g.price, g.price_wholesale 
                 FROM {orders_goods} og 
                 LEFT JOIN {goods} g ON g.id = og.goods_id
                 WHERE og.order_id=?i AND NOT og.price_type=?i ?query',
-                array($order['id'],  ORDERS_GOODS_PRICE_TYPE_MANUAL, $query))->assoc();
+                array($order['id'], ORDERS_GOODS_PRICE_TYPE_MANUAL, $query))->assoc();
             if (!empty($goods)) {
                 foreach ($goods as $good) {
                     $this->OrdersGoods->update(array(
