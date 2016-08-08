@@ -35,77 +35,37 @@ class Mailer extends PHPMailer
     function group($subject, $email, $data = array(), $body = 'Новое письмо')
     {
         switch ($subject) {
-            case('remind-pass'):
-                $this->Subject = 'Напоминание пароля';
-                $this->Body = 'simple.html';
-                $link = $this->host . 'signin?user=' . $data['user_id'] . '&reminder=' . $data['reminder'];
-                $data['msg'] =
-                    '<div style="margin: 50px 0; text-align:left;">'
-                    . 'Перейдите по ссылке для восстановления пароля '
-                    . '<a href="' . $link . '" target ="_blank">' . $link . '</a>'
-                    . '</div>';
-//                $data['body_link_2'] = $this->host.'signin?user='.$data['user_id'].'&reminder='.$data['reminder'];
-                break;
-
             case('register'):
-                $this->Subject = 'Подтверждение регистрации';
+                $this->Subject = l('Подтверждение регистрации');
                 $this->Body = 'register.html';
-                $data['msg'] = 'Благодарим Вас за то, что выбрали наш магазин. Ваш аккаунт<br>
-                        успешно создан. Для активации необходимо перейти по ссылке.';
+                $data['msg'] = l('Благодарим Вас за то, что выбрали наш магазин. Ваш аккаунт<br>
+                        успешно создан. Для активации необходимо перейти по ссылке.');
                 $data['body_link_1'] = $this->host . 'signin?confirm=' . $data['confirm'];
                 $data['body_link_1_title'] = $data['body_link_1'];
                 break;
 
-            case('new-pass'):
-                $this->Subject = 'Новый пароль';
-                $this->Body = '<div style="margin: 50px 0 70px;">' . $data['pass'] . '</div>';
-                break;
-
             case('confirm'):
-                $this->Subject = 'Подтверждение';
+                $this->Subject = l('Подтверждение');
                 $this->Body = 'simple.html';
-                $data['msg'] = "Нажмите на ссылку для подтверждения:";
+                $data['msg'] = l("Нажмите на ссылку для подтверждения:");
                 $data['body_link_1'] = $this->host . 'signin?user=' . $data['user_id'] . '&confirm=' . $data['confirm'];
                 $data['body_link_1_title'] = $data['body_link_1'];
                 break;
 
             case('comment-inform'):
-                $this->Subject = 'Ответ на отзыв';
-                $this->Body = 'Новый ответ на отзыв';
+                $this->Subject = l('Ответ на отзыв');
+                $this->Body = l('Новый ответ на отзыв');
                 break;
 
             case('order-inform'):
-                $this->Subject = 'Статус заказа';
+                $this->Subject = l('Статус заказа');
                 $this->Body = "Статус вашего заказа № {$data['order_id']} изменился";
                 unset($data['order_id']);
                 $this->IsHTML(true);
                 break;
 
-            case('order-manager'):
-                $this->Subject = l('Вы назначены ответственным');
-                $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
-                break;
-
-            case('send-new-comment'):
-                $this->Subject = l('Новый отзыв о работе сотрудников');
-                $this->Body = l('Закза N') . $data['order_id'] . "<br><br>";
-                $this->Body .= h($data['manager']) . ': ' . $data['manager_rating'] . "<br>";
-                $this->Body .= h($data['acceptor']) . ': ' . $data['acceptor_rating'] . "<br>";
-                $this->Body .= h($data['engineer']) . ': ' . $data['engineer_rating'] . "<br><br>";
-                $this->Body .= l('Коментарий:') . "<br>";
-                $this->Body .= h($data['comment']) . "<br>";
-                break;
-
-            case('forgot-password'):
-                $this->Subject = l('Изменение пароля');
-                $this->Body = l('Уважаемый') . ' ' . $data['fio'] . "<br>";
-                $this->Body .= l('Вы воспользовались формой для восстановления пароля к аккаунту:') . "<br>";
-                $this->Body .= l('Сайт:') . ' ' . $_SERVER['SERVER_NAME'] . '<br>';
-                $this->Body .= l('Ваш логин:') . ' ' . $data['login'] . '<br>';
-                $this->Body .= l('Ваш новый пароль:') . ' ' . $data['password'];
-                break;
             case('new-order'):
-                $this->Subject = 'Подтверждение заказа';
+                $this->Subject = l('Подтверждение заказа');
                 // for admin note
                 if (empty($data)) {
                     $this->Body = $body;
@@ -114,9 +74,9 @@ class Mailer extends PHPMailer
 
                 $this->Body = 'new_order.html';
                 $data['body_link_1'] = $this->host . 'order?order_id=' . $data['order_id'] . '&amp;order_hash=' . $data['order_hash'];
-                $data['body_link_1_title'] = 'Перейти в личный кабинет.';
+                $data['body_link_1_title'] = l('Перейти в личный кабинет.');
                 $data['body_link_2'] = $this->host . 'coupons';
-                $data['body_link_2_title'] = 'Подробнее';
+                $data['body_link_2_title'] = l('Подробнее');
                 $data['order_id'] = 'Заказ № ' . $data['order_id'];
                 $data['coupons'] = $this->genCoupons();
 
@@ -145,14 +105,63 @@ class Mailer extends PHPMailer
                 $data['body_link_1_title'] = array_key_exists('title', $data) ? $data['title'] : $data['body_link_1'];
                 break;
 
+
+            case('order-manager'):
+                $this->Subject = l('Вы назначены ответственным');
+                $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
+            case('send-new-comment'):
+                $this->Subject = l('Новый отзыв о работе сотрудников');
+                $this->Body = l('Закза N') . $data['order_id'] . "<br><br>";
+                $this->Body .= h($data['manager']) . ': ' . $data['manager_rating'] . "<br>";
+                $this->Body .= h($data['acceptor']) . ': ' . $data['acceptor_rating'] . "<br>";
+                $this->Body .= h($data['engineer']) . ': ' . $data['engineer_rating'] . "<br><br>";
+                $this->Body .= l('Коментарий:') . "<br>";
+                $this->Body .= h($data['comment']) . "<br>";
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
+            case('new-pass'):
+                $this->Subject = l('Новый пароль');
+                $this->Body = '<div style="margin: 50px 0 70px;">' . $data['pass'] . '</div>';
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
+            case('remind-pass'):
+                $this->Subject = l('Напоминание пароля');
+                $this->Body = 'simple.html';
+                $link = $this->host . 'signin?user=' . $data['user_id'] . '&reminder=' . $data['reminder'];
+                $data['msg'] =
+                    '<div style="margin: 50px 0; text-align:left;">'
+                    . l('Перейдите по ссылке для восстановления пароля ')
+                    . '<a href="' . $link . '" target ="_blank">' . $link . '</a>'
+                    . '</div>';
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
+            case('forgot-password'):
+                $this->Subject = l('Изменение пароля');
+                $this->Body = l('Уважаемый') . ' ' . $data['fio'] . "<br>";
+                $this->Body .= l('Вы воспользовались формой для восстановления пароля к аккаунту:') . "<br>";
+                $this->Body .= l('Сайт:') . ' ' . $_SERVER['SERVER_NAME'] . '<br>';
+                $this->Body .= l('Ваш логин:') . ' ' . $data['login'] . '<br>';
+                $this->Body .= l('Ваш новый пароль:') . ' ' . $data['password'];
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
             case('send-excell'):
                 $this->Subject = l('Отчет по входам в систему');
                 $this->Body = l('Отчет по входам в систему');
                 $this->AddAttachment($data['file'], "report.xls");
+                $this->From = $this->all_configs['config']['from-system'];
                 break;
+
             default:
                 $this->Subject = $subject;
                 $this->Body = $body;
+                $this->From = $this->all_configs['config']['from-system'];
                 break;
         }
         $data['email'] = $email;
@@ -168,12 +177,14 @@ class Mailer extends PHPMailer
      */
     function go()
     {
-        $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="content_email"',
-            array())->el();
+        if (empty($this->From)) {
+            $this->From = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="content_email"',
+                array())->el();
+        }
         $this->FromName = $this->all_configs['db']->query('SELECT `value` FROM {settings} WHERE `name`="site_name"',
             array())->el();
-
         $this->SetFrom($this->From, $this->FromName);
+
         $this->Send();
         $this->ClearAddresses();
         $this->ClearAttachments();

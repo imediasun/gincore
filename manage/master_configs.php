@@ -12,6 +12,7 @@ class Configs
         $this->configs = array(
             'host' => 'gincore.net',
             'canonical-host' => 'https://gincore.net',
+            'from-system' => 'gincore@ginсore.net',
             'shop-name' => 'Gincore',
             'api_url' => 'https://gincore.net/manage/modules/gincore/api.php',
 
