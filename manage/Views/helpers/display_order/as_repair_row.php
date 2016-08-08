@@ -33,6 +33,7 @@
             'active' => $order['status'],
             'orderId' => $order['order_id'],
             'status' => $this->all_configs['configs']['order-status'],
+            'showPayForm' => $order['sum'] - $order['sum_paid'] - $order['discount'],
             'type' => 'repair'
         )); ?>
     </td>
