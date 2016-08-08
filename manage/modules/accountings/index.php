@@ -1795,10 +1795,12 @@ class accountings extends Controller
             if (isset($_GET['ct'])) {
                 $cn = explode(',', $_GET['ct']);
                 if (count($cn) == 1 && array_key_exists(0, $cn)) {
-                    $contractor = $this->all_configs['db']->query('SELECT c.title, c.amount, c.type, cc.name FROM {contractors} as c
-                        LEFT JOIN (SELECT contractors_id, contractors_categories_id FROM {contractors_categories_links})l ON l.contractors_id=c.id AND l.deleted=0
+                    $contractor = $this->all_configs['db']->query('
+                        SELECT ct.title, ct.amount, ct.type, cc.name 
+                        FROM {contractors} as ct
+                        LEFT JOIN (SELECT contractors_id, contractors_categories_id FROM {contractors_categories_links})l ON l.contractors_id=ct.id
                         LEFT JOIN (SELECT name, id FROM {contractors_categories})cc ON cc.id=l.contractors_categories_id
-                        WHERE c.id=?i', array($cn[0]))->assoc();
+                        WHERE ct.id=?i', array($cn[0]))->assoc();
                     if ($contractor) {
                         // выводим инфу контрагента
                         $contractor_html = '<h4 class="well">' . $contractor[0]['title'] . ', ' . show_price($contractor[0]['amount']) . '$';
