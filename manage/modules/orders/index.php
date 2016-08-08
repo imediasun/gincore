@@ -2936,6 +2936,9 @@ class orders extends Controller
                 $value = $this->all_configs['configs']['order-status'][$_POST['status']]['name'];
             }
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'status', $value);
+            if(!empty($response['msg'])) {
+                FlashMessage::set($response['msg'], FlashMessage::WARNING);
+            }
         }
         return $data;
     }

@@ -1440,6 +1440,16 @@ function update_order_status($order, $new_status)
                 $return['msg'] = l('Сначала отвяжите все запчасти');
             }
         }
+        if ($order['type'] != ORDER_SELL && in_array($new_status,
+                $all_configs['configs']['order-statuses-closed']) && $return['state']
+        ) {
+            $is_rf = $all_configs['db']->query('SELECT is_replacement_fund FROM {orders} WHERE id=?i',
+                array($order['id']))->el();
+            if ($is_rf > 0) {
+                $return['state'] = false;
+                $return['msg'] = l('Сначала заберите подменный фонд');
+            }
+        }
 
         if ($return['state'] == true) {
             $status_id = $all_configs['db']->query('INSERT INTO {order_status} (`status`, order_id, user_id) VALUES (?i, ?i, ?i)',
