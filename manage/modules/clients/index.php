@@ -392,8 +392,12 @@ class Clients extends Object
     {
         if (!isset($this->all_configs['arrequest'][1])) {
             if (isset($_GET['delete-all'])) {
-                $this->deleteAll($_GET, $this->all_configs['configs']['clients-manage-page']);
-                unset($_GET['delete-al;']);
+                if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
+                    $this->deleteAll($_GET, $this->all_configs['configs']['clients-manage-page']);
+                    unset($_GET['delete-al;']);
+                } else {
+                    FlashMessage::set(l('У вас не хватает прав для этой операции'), FlashMessage::DANGER);
+                }
                 Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
                         $_GET));
             }

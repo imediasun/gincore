@@ -124,10 +124,14 @@ class products extends Controller
             return $this->createProduct($post, $user_id, $mod_id);
         }
 
-        if (isset($post['delete-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            $data = $this->deleteProduct($post, $mod_id);
-            if (!$data['state']) {
-                FlashMessage::set($data['message'], FlashMessage::DANGER);
+        if (isset($post['delete-product'])) {
+            if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
+                $data = $this->deleteProduct($post, $mod_id);
+                if (!$data['state']) {
+                    FlashMessage::set($data['message'], FlashMessage::DANGER);
+                }
+            } else {
+                FlashMessage::set(l('У вас не хватает прав для этой операции'), FlashMessage::DANGER);
             }
         }
         if (isset($post['restore-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
@@ -1274,8 +1278,15 @@ class products extends Controller
             Response::json($data);
         }
 
-        if ($act == 'delete-product' && $this->all_configs['oRole']->hasPrivilege('parsing')) {
-            $data = $this->deleteProduct($_POST, $mod_id);
+        if ($act == 'delete-product') {
+            if ($this->all_configs['oRole']->hasPrivilege('parsing')) {
+                $data = $this->deleteProduct($_POST, $mod_id);
+            } else {
+                $data = array(
+                    'state' => false,
+                    'msg' => l('У вас не хватает прав для этой операции')
+                );
+            }
             Response::json($data);
         }
 
@@ -2389,18 +2400,19 @@ class products extends Controller
      */
     protected function deleteAll($get, $mod_id)
     {
-        $ids  = $this->get_goods_ids();
+        $ids = $this->get_goods_ids();
         $used = array();
-        if(!empty($ids)) {
+        if (!empty($ids)) {
             foreach ($ids as $id => $value) {
                 $result = $this->deleteProduct(array('id' => $id), $mod_id);
-                if($result['state'] === false) {
+                if ($result['state'] === false) {
                     $used[] = $id;
                 }
             }
         }
-        if(!empty($used)) {
-            FlashMessage::set(l('Список ID товаров, которые не могут быть удалены, так как используются в логистических операциях или заказах:') . implode(',', $used), FlashMessage::WARNING);
+        if (!empty($used)) {
+            FlashMessage::set(l('Список ID товаров, которые не могут быть удалены, так как используются в логистических операциях или заказах:') . implode(',',
+                    $used), FlashMessage::WARNING);
         }
         return true;
     }
