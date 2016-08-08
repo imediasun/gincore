@@ -346,7 +346,9 @@ $(document).ready(function () {
         success: function (msg) {
           $form.addClass('loaded').append('<form>' + msg.html + '</form>');
           $form.show();
-          $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
+          if($this.parents(".modal-dialog").length > 0) {
+            $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
+          }
           reset_multiselect();
           $this.button('reset');
         }

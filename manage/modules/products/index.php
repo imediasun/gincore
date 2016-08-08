@@ -947,7 +947,10 @@ class products extends Controller
 
         if ($act == 'create_form') {
             $form = $this->create_product_form(true, isset($_GET['service']) ? true : false);
-            Response::json(array('state' => true, 'html' => $form));
+            Response::json(array(
+                'state' => true,
+                'html' => $form
+            ));
         }
 
         if ($act == 'create_new') {
