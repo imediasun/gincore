@@ -30,13 +30,13 @@
                     <table class="cashboxes-table m-b-md m-t-md" style='float: left;'>
                         <tbody>
                         <tr>
-                            <td><h4 class="center" style="max-width:150px"><?= $cashbox['name'] ?></h4></td>
+                            <td class="js-title"><h4 class="center" style="max-width:150px"><?= $cashbox['name'] ?></h4></td>
                         </tr>
 
                         <?php foreach ($currencies as $cur_id => $currency): ?>
-                            <?php if (!in_array($cur_id, $used_currencies)): ?>
-                                <?php continue; ?>
-                            <?php endif; ?>
+                                    <?php if (!in_array($cur_id, $used_currencies)): ?>
+                                        <?php continue; ?>
+                                    <?php endif; ?>
                             <tr>
                                 <td class="text-success center cashbox-currency-value">
                                     <div>
@@ -98,3 +98,12 @@
 </div>
 
 <?= $controller->Transactions->get_transactions($currencies, true, 30); ?>
+<script>
+    $(document).ready(function(){
+        var max_height = 0;
+        $('.js-title').each(function(){
+            max_height = Math.max(max_height, $(this).height());
+        });
+        $('.js-title').css('height', max_height);
+    });
+</script>
