@@ -6,38 +6,14 @@
                     <div class="text-center small">
                         <i class="fa fa-laptop"></i> <?= l('Сравнительный анализ по категориям/моделям/запчастям') ?>
                     </div>
-                    <div class="flot-chart" style="height: 160px">
-                        <script>
-                            $(function () {
-                                init_chart(
-                                    '#flot-repair-line-chart',
-                                    [
-                                        <?php foreach($byItems as $id => $points): ?>
-                                        {
-                                            points: [<?= implode(',', $points) ?>],
-                                            legend: "<?= htmlspecialchars($items[$id]['title']) ?>"
-                                        },
-                                        <?php endforeach; ?>
-                                        <?php foreach($byModels as $id => $points): ?>
-                                        {
-                                            points: [<?= implode(',', $points) ?>],
-                                            legend: "<?= htmlspecialchars($models[$id]['title']) ?>"
-                                        },
-                                        <?php endforeach; ?>
-                                        <?php foreach($byCategories as $id => $points): ?>
-                                        {
-                                            points: [<?= implode(',', $points) ?>],
-                                            legend: "<?= htmlspecialchars($categories[$id]['title']) ?>"
-                                        },
-                                        <?php endforeach; ?>
-                                    ],
-                                    [],
-                                    [<?= implode(',', $ticks)?>],
-                                    <?= $tickSize ?>
-                                );
-                            });
-                        </script>
-                        <div class="flot-chart-content" id="flot-repair-line-chart"></div>
+                    <div id='js-repair-chart-part' class="flot-chart" style="height: 160px">
+                        <?= $this->renderFile('dashboard/_repair_chart', array(
+                            'byItems' => $byItems,
+                            'byModels' => $byModels,
+                            'byCategories' => $byCategories,
+                            'ticks' => $ticks,
+                            'tickSize' => $tickSize
+                        )) ?>
                     </div>
                 </div>
                 <div class="col-md-12 text-center">
@@ -48,29 +24,31 @@
                         <fieldset>
                             <label class="col-sm-4">
                                 <?= l('Категории'); ?>:
-
-                                <select class="multiselect input-small" data-type="categories" multiple="multiple"
-                                        name="categories_id[]">
-                                    <?= build_array_tree($categories, $selectedCategories) ?>
-                                </select>
+                                <div>
+                                    <a class="btn btn-primary"
+                                       href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=category-select"
+                                       onclick="return load_selects(this);"><?= l('Загрузить') ?></a>
+                                </div>
                             </label>
                             <label class="col-sm-3">
                                 <?= l('Модели'); ?>:
-
-                                <select class="multiselect input-small" data-type="models" multiple="multiple"
-                                        name="models_id[]">
-                                    <?= build_array_tree($models, $selectedModels) ?>
-                                </select>
+                                <div>
+                                    <a class="btn btn-primary"
+                                       href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=models-select"
+                                       onclick="return load_selects(this);"><?= l('Загрузить') ?></a>
+                                </div>
                             </label>
                             <label class="col-sm-3">
                                 <?= l('Запчасти'); ?>:
-                                <select class="multiselect input-small" data-type="goods" multiple="multiple"
-                                        name="goods_id[]">
-                                    <?= build_array_tree($items, $selectedItems) ?>
-                                </select>
+                                <div>
+                                    <a class="btn btn-primary"
+                                       href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=items-select"
+                                       onclick="return load_selects(this);"><?= l('Загрузить') ?></a>
+                                </div>
                             </label>
                             <div class="col-sm-2">
-                                <button type="submit" class="btn btn-primary" onclick="return load_repair_chart(this);"> <?= l('Применить') ?></button>
+                                <button type="submit" class="btn btn-primary" style="margin-top: 19px"
+                                        onclick="return load_repair_chart_part(this);"> <?= l('Применить') ?></button>
                             </div>
                         </fieldset>
                     </form>

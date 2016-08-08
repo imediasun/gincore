@@ -80,7 +80,6 @@ class dashboard extends Object
         $input['init_visitors'] = $conv_chart['init_visitors'] ? 'true' : 'false';
 
         $input_html['branch_chart'] = $this->get_branch_chart();
-//        $input_html['repair_chart'] = $this->get_repair_chart();
         $this->view->load('LockButton');
         $input_html['order_types_filter'] = $this->view->renderFile('dashboard/order_types_filter', array(
             'current' => $this->utils->getOrderOptions()
@@ -212,9 +211,11 @@ class dashboard extends Object
     }
 
     /**
+     * @param        $post
+     * @param string $template
      * @return string
      */
-    private function get_repair_chart()
+    private function get_repair_chart($post, $template='repair_chart')
     {
         $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
             . ' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
@@ -224,16 +225,16 @@ class dashboard extends Object
             array(array_keys($models)))->assoc('id');
         $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
 
-        if (empty($_POST['categories_id']) && empty($_POST['models_id']) && empty($_POST['goods_id'])) {
+        if (empty($post['categories_id']) && empty($post['models_id']) && empty($post['goods_id'])) {
             $selectedItems = (array)Session::getInstance()->get('chart.selected.items');
             $selectedModels = (array)Session::getInstance()->get('chart.selected.models');
             $selectedCategories = (array)Session::getInstance()->get('chart.selected.categories');
         } else {
-            $selectedItems = empty($_POST['goods_id']) ? array() : $_POST['goods_id'];
+            $selectedItems = empty($post['goods_id']) ? array() : $post['goods_id'];
             Session::getInstance()->set('chart.selected.items', $selectedItems);
-            $selectedModels = empty($_POST['models_id']) ? array() : $_POST['models_id'];
+            $selectedModels = empty($post['models_id']) ? array() : $post['models_id'];
             Session::getInstance()->set('chart.selected.models', $selectedModels);
-            $selectedCategories = empty($_POST['categories_id']) ? array() : $_POST['categories_id'];
+            $selectedCategories = empty($post['categories_id']) ? array() : $post['categories_id'];
             Session::getInstance()->set('chart.selected.categories', $selectedCategories);
         }
 
@@ -297,7 +298,7 @@ class dashboard extends Object
             $resultByCategories = $this->utils->formatForChart($dt, $ordersByCategory, $resultByCategories);
             $ticks = $this->utils->getTicks($dt, $ticks);
         }
-        return $this->view->renderFile('dashboard/repair_chart', array(
+        return $this->view->renderFile("dashboard/{$template}", array(
             'categories' => $categories,
             'models' => $models,
             'items' => $items,
@@ -469,18 +470,89 @@ class dashboard extends Object
     private function ajax()
     {
         $act = isset($_GET['act']) ? trim($_GET['act']) : '';
+        $return = array(
+            'state' => true
+        );
 
         // грузим табу
         if ($act == 'repair-chart') {
-            header("Content-Type: application/json; charset=UTF-8");
 
             $return = array(
-                'html' => $this->get_repair_chart(),
+                'html' => $this->get_repair_chart($_POST),
                 'state' => true,
             );
-            echo json_encode($return);
         }
-        exit;
+        // грузим табу
+        if ($act == 'repair-chart-part') {
+            $return = array(
+                'html' => $this->get_repair_chart($_POST, '_repair_chart'),
+                'state' => true,
+            );
+        }
+        if ($act == 'category-select') {
+            $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
+                . ' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
+                . ' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
+                array())->assoc('id');
+            $categories = $this->db->query('SELECT id, title FROM {categories} WHERE NOT id in (?li) AND avail=1',
+                array(array_keys($models)))->assoc('id');
+
+            if (empty($_POST['categories_id']) && empty($_POST['models_id']) && empty($_POST['goods_id'])) {
+                $selectedCategories = (array)Session::getInstance()->get('chart.selected.categories');
+            } else {
+                $selectedCategories = empty($_POST['categories_id']) ? array() : $_POST['categories_id'];
+                Session::getInstance()->set('chart.selected.categories', $selectedCategories);
+            }
+
+            $return = array(
+                'state' => true,
+                'content' => $this->view->renderFile('dashboard/load_select', array(
+                    'options' => $categories,
+                    'selectedOptions' => $selectedCategories,
+                    'name' => 'categories'
+                ))
+            );
+        }
+        if ($act == 'items-select') {
+            $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
+
+            if (empty($_POST['goods_id'])) {
+                $selectedItems = (array)Session::getInstance()->get('chart.selected.items');
+            } else {
+                $selectedItems = empty($_POST['goods_id']) ? array() : $_POST['goods_id'];
+                Session::getInstance()->set('chart.selected.items', $selectedItems);
+            }
+            $return = array(
+                'state' => true,
+                'content' => $this->view->renderFile('dashboard/load_select', array(
+                    'options' => $items,
+                    'selectedOptions' => $selectedItems,
+                    'name' => 'items'
+                ))
+            );
+        }
+        if ($act == 'models-select') {
+            $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
+                . ' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
+                . ' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
+                array())->assoc('id');
+
+            if (empty($_POST['categories_id']) && empty($_POST['models_id']) && empty($_POST['goods_id'])) {
+                $selectedModels = (array)Session::getInstance()->get('chart.selected.models');
+            } else {
+                $selectedModels = empty($_POST['models_id']) ? array() : $_POST['models_id'];
+                Session::getInstance()->set('chart.selected.models', $selectedModels);
+            }
+            $return = array(
+                'state' => true,
+                'content' => $this->view->renderFile('dashboard/load_select', array(
+                    'options' => $models,
+                    'selectedOptions' => $selectedModels,
+                    'name' => 'models'
+                ))
+            );
+        }
+        Response::json($return);
     }
 
     /**
