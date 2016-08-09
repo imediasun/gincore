@@ -2433,10 +2433,10 @@ function toggle_on_click(_this, event) {
 }
 function goto_delete_all(_this, confirm_msg) {
   if(confirm(confirm_msg)) {
-    _url = location.href;
-    _url += (_url.split('?')[1] ? '&':'?') + 'delete-all=';
-    location.href = _url;
-
+    var parts = location.href.split('?');
+    // _url = location.href;
+    // _url += (_url.split('?')[1] ? '&':'?') + 'delete-all=';
+    location.href = parts[0] + '?delete-all=' + (parts[1]? '&' + parts[1]: '');
   }
   return false;
 }
