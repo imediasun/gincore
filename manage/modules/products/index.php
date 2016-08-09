@@ -846,6 +846,8 @@ class products extends Controller
         if (isset($_GET['delete-all'])) {
             if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
                 $this->deleteAll($_GET, $mod_id);
+            } else {
+                FlashMessage::set(l('У вас не хватает прав'), FlashMessage::WARNING);
             }
             unset($_GET['delete-al;']);
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
