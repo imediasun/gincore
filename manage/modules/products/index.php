@@ -2418,6 +2418,9 @@ class products extends Controller
         if (!empty($used)) {
             FlashMessage::set(l('Список ID товаров, которые не могут быть удалены, так как используются в логистических операциях или заказах:') . implode(',',
                     $used), FlashMessage::WARNING);
+        } else {
+            FlashMessage::set(l('Выбранные товары успешно удалены') . implode(',',
+                    $used), FlashMessage::SUCCESS);
         }
         return true;
     }

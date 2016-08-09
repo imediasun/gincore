@@ -1502,6 +1502,8 @@ class Clients extends Object
         if (!empty($used)) {
             FlashMessage::set(l('Список ID клиентов, которые не могут быть удалены, так как привязаны к заказам, транзакциям или заявкам:') . implode(',',
                     $used), FlashMessage::WARNING);
+        } else {
+            FlashMessage::set(l('Выбранные клиенты успешно удалены'), FlashMessage::SUCCESS);
         }
         return true;
     }
