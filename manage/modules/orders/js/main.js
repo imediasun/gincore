@@ -984,7 +984,7 @@ function recalculate_amount_quick() {
     } else {
       amount = price - discount;
     }
-    $row.find('.js-quick-sum').first().val(amount);
+    $row.find('.js-quick-sum').first().val(Math.round(amount / 100) * 100);
     total += amount;
   });
   if (total == 0) {
@@ -993,7 +993,7 @@ function recalculate_amount_quick() {
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
-  $('.js-quick-total').val(total);
+  $('.js-quick-total').val(Math.round(total * 100) / 100);
   if (total > 0) {
     $('.js-quick-pay-button').removeClass('disabled');
   } else {
@@ -1091,7 +1091,7 @@ function recalculate_amount_eshop() {
     } else {
       amount = price - discount;
     }
-    $row.find('.js-eshop-sum').first().val(amount * count);
+    $row.find('.js-eshop-sum').first().val(Math.round(amount * count * 100) / 100);
     total += (amount * count);
   });
   if (total == 0) {
@@ -1100,7 +1100,7 @@ function recalculate_amount_eshop() {
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
-  $('.js-eshop-total').val(total);
+  $('.js-eshop-total').val(Math.round(total * 100) / 100);
   if (total > 0) {
     $('.js-eshop-pay-button').removeClass('disabled');
   } else {

@@ -346,7 +346,7 @@ $(document).ready(function () {
         success: function (msg) {
           $form.addClass('loaded').append('<form>' + msg.html + '</form>');
           $form.show();
-          if($this.parents(".modal-dialog").length > 0) {
+          if ($this.parents(".modal-dialog").length > 0) {
             $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
           }
           reset_multiselect();
@@ -2197,7 +2197,7 @@ function recalculate_amount_pay(_this) {
   } else {
     result = amount - discount;
   }
-  $parent.find('#amount-with-discount').first().val(result);
+  $parent.find('#amount-with-discount').first().val(Math.round(result * 100) / 100);
 }
 
 
@@ -2280,13 +2280,15 @@ function sum_calculate() {
   var
     price = parseFloat($('#eshop_sale_poduct_cost').val()).toFixed(2) || 0,
     discount = parseInt($('#eshop_sale_poduct_discount').val()) || 0,
-    quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0;
+    quantity = parseInt($('#eshop_sale_poduct_quantity').val()) || 0,
+    sum = 0;
 
   if ($('input[name="discount_type"]').val() == 1) {
-    $('#eshop_sale_poduct_sum').val(price * (1 - discount / 100) * quantity);
+    sum = price * (1 - discount / 100) * quantity;
   } else {
-    $('#eshop_sale_poduct_sum').val((price - discount) * quantity);
+    sum = (price - discount) * quantity;
   }
+  $('#eshop_sale_poduct_sum').val(Math.round(sum * 100) / 100);
 }
 function add_supplier_item_to_table() {
   var $row = $('tr.js-supplier-row-cloning'),
@@ -2339,7 +2341,7 @@ function recalculate_amount_supplier() {
       quantity = parseInt($row.find('.js-supplier-quantity').first().val()) || 0,
       price = parseFloat($row.find('.js-supplier-price').first().val()).toFixed(2) || 0;
 
-    $row.find('.js-supplier-sum').first().val(price * quantity);
+    $row.find('.js-supplier-sum').first().val(Math.round(price * quantity * 100) / 100);
     n = parseFloat($row.find('.js-supplier-sum').first().val());
     total = total + n;
   });
@@ -2350,7 +2352,7 @@ function recalculate_amount_supplier() {
     }
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
-  $('.js-supplier-total').val(total);
+  $('.js-supplier-total').val(Math.round(total * 100) / 100);
 }
 
 
@@ -2363,8 +2365,7 @@ function remove_supplier_row(_this) {
 function recalculate_product_sum(_this) {
   var price = parseFloat($('input[name="warehouse-order-price"]').val()).toFixed(2) || 0,
     quantity = parseInt($('input[name="warehouse-order-count"]').val()) || 0;
-  console.log($('input[name="warehouse-order-count"]').val());
-  $('input.js-sum').val(price * quantity);
+  $('input.js-sum').val(Math.round(price * quantity * 100) / 100);
 }
 
 function add_comma(_this) {
@@ -2432,11 +2433,11 @@ function toggle_on_click(_this, event) {
   event.stopPropagation();
 }
 function goto_delete_all(_this, confirm_msg) {
-  if(confirm(confirm_msg)) {
+  if (confirm(confirm_msg)) {
     var parts = location.href.split('?');
     // _url = location.href;
     // _url += (_url.split('?')[1] ? '&':'?') + 'delete-all=';
-    location.href = parts[0] + '?delete-all=' + (parts[1]? '&' + parts[1]: '');
+    location.href = parts[0] + '?delete-all=' + (parts[1] ? '&' + parts[1] : '');
   }
   return false;
 }
