@@ -1521,6 +1521,7 @@ class Clients extends Object
             );
         }
         if (!$this->Clients->isUsed(intval($post['id']))) {
+            $this->Clients->query('DELETE FROM {clients_phones} WHERE client_id=?i', array($post['id']));
             $this->Clients->delete($post['id']);
             $this->History->save('delete-client', $mod_id, $post['id'], l('Удален') . ' ' . implode(',',
                     array($client['fio'], $client['phone'], $client['email'], $client['legal_address'])));
