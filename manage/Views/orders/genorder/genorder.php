@@ -505,7 +505,8 @@
                 'totalChecked' => $order['total_as_sum'],
                 'total' => $productTotal,
                 'orderId' => $order['id'],
-                'price_type' => $price_type
+                'price_type' => $price_type,
+                'price_type_of_service' => $price_type_of_service,
             )); ?>
         </div>
     </form>

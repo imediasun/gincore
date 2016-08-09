@@ -1733,8 +1733,8 @@ class orders extends Controller
                 WHERE hmr.order_id=?i ORDER by `date` DESC LIMIT 1', array($order['id']))->row();
 
         $notSale = $order['type'] != 3;
-        $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], 1) : null;
+        $goods = $this->all_configs['manageModel']->order_goods($order['id'], GOODS_TYPE_ITEM);
+        $services = $notSale ? $this->all_configs['manageModel']->order_goods($order['id'], GOODS_TYPE_SERVICE) : null;
 
         $productTotal = 0;
         $price_type = $price_type_of_service = ORDERS_GOODS_PRICE_TYPE_RETAIL;
@@ -3688,8 +3688,8 @@ class orders extends Controller
                 SELECT og.id, g.price, g.price_wholesale 
                 FROM {orders_goods} og 
                 LEFT JOIN {goods} g ON g.id = og.goods_id
-                WHERE og.order_id=?i AND NOT og.price_type=?i ?query',
-                array($order['id'], ORDERS_GOODS_PRICE_TYPE_MANUAL, $query))->assoc();
+                WHERE og.order_id=?i ?query',
+                array($order['id'], $query))->assoc();
             if (!empty($goods)) {
                 foreach ($goods as $good) {
                     $this->OrdersGoods->update(array(
