@@ -14,7 +14,7 @@ class AddDeletedToContractorsCategoriesLinks extends Migration
     {
         if (!Schema::hasColumn('contractors_categories_links', 'deleted')) {
             Schema::table('contractors_categories_links', function ($table) {
-                $table->integer('deleted')->integer(1)->unsigned()->default(3);
+                $table->integer('deleted')->integer(1)->unsigned()->default(0);
                 $table->index('deleted');
             });
         }
