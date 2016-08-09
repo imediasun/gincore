@@ -3079,10 +3079,10 @@ class accountings extends Controller
             if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] == 0) {
                 throw  new ExceptionWithMsg(l('Контрагент не найден'));
             }
-            // статьи
-            if (!isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
-                throw  new ExceptionWithMsg(l('Укажите статью'));
-            }
+//            // статьи
+//            if (!isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
+//                throw  new ExceptionWithMsg(l('Укажите статью'));
+//            }
             // фио
             if (!isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
                 throw  new ExceptionWithMsg(l('Введите ФИО'));
@@ -3138,10 +3138,10 @@ class accountings extends Controller
             if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
                 throw  new ExceptionWithMsg(l('Нет прав'));
             }
-            // статьи
-            if (!isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
-                throw  new ExceptionWithMsg(l('Укажите статью'));
-            }
+//            // статьи
+//            if (!isset($_POST['contractor_categories_id']) || count($_POST['contractor_categories_id']) == 0) {
+//                throw  new ExceptionWithMsg(l('Укажите статью'));
+//            }
             // фио
             if (!isset($_POST['title']) || mb_strlen(trim($_POST['title']), 'UTF-8') == 0) {
                 throw  new ExceptionWithMsg(l('Введите ФИО'));
@@ -3165,9 +3165,12 @@ class accountings extends Controller
             }
             $data['id'] = $contractor_id;
             $data['name'] = htmlspecialchars($_POST['title']);
-            foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
-                if ($contractor_category_id > 0) {
-                    $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category_id, $contractor_id);
+            if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
+                foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
+                    if ($contractor_category_id > 0) {
+                        $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category_id,
+                            $contractor_id);
+                    }
                 }
             }
             $this->History->save('add-contractor', $mod_id, $contractor_id);
