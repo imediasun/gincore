@@ -545,7 +545,19 @@ class dashboard extends Object
                 . ' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
                 . ' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
                 array())->assoc('id');
+            $query = '';
+            if(isset($_GET['parent'])) {
+                $selectedCategories = explode(',', $_GET['parent']);
+                $categoriesTree = new MCategoriesTree();
+                $children = $categoriesTree->getChildren($selectedCategories, $models);
+                if (!empty($children)) {
+                    $query = $this->db->makeQuery('AND cat.id in (?li)', array($children));
+                }
+            }
 
+            $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
+                . ' WHERE cat.avail=1 ?query',
+                array($query))->assoc('id');
             if (empty($_POST['categories_id']) && empty($_POST['models_id']) && empty($_POST['goods_id'])) {
                 $selectedModels = (array)Session::getInstance()->get('chart.selected.models');
             } else {
