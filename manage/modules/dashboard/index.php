@@ -514,7 +514,16 @@ class dashboard extends Object
             );
         }
         if ($act == 'items-select') {
-            $items = $this->db->query('SELECT id, title FROM {goods} WHERE avail=1', array())->assoc('id');
+            $query = '';
+            if(isset($_GET['parent'])) {
+                $parent = explode(',', $_GET['parent']);
+                $query = $this->db->makeQuery('AND cg.category_id in (?li)', array($parent));
+            }
+            $items = $this->db->query('
+                SELECT g.id, g.title 
+                FROM {goods} g
+                JOIN {category_goods} cg ON cg.goods_id=g.id
+                WHERE g.avail=1 ?query', array($query))->assoc('id');
 
             if (empty($_POST['goods_id'])) {
                 $selectedItems = (array)Session::getInstance()->get('chart.selected.items');

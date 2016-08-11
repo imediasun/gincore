@@ -24,26 +24,27 @@
                         <fieldset>
                             <label class="col-sm-4">
                                 <?= l('Категории'); ?>:
-                                <div>
-                                    <a class="btn btn-primary"
-                                       href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=category-select"
-                                       onclick="return load_selects(this);"><?= l('Загрузить') ?></a>
+                                <div class="btn btn-primary"
+                                       data-href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=category-select"
+                                       onclick="return load_selects(this);"
+                                       data-child="#load-models-btn" >
+                                    <?= l('Загрузить') ?>
                                 </div>
                             </label>
                             <label class="col-sm-3">
                                 <?= l('Модели'); ?>:
-                                <div>
-                                    <a class="btn btn-primary"
-                                       href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=models-select"
-                                       onclick="return load_selects(this);"><?= l('Загрузить') ?></a>
+                                <div id="load-models-btn"
+                                     data-href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=models-select"
+                                     data-child="#load-items-btn"
+                                     data-parent="">
+
                                 </div>
                             </label>
                             <label class="col-sm-3">
                                 <?= l('Запчасти'); ?>:
-                                <div>
-                                    <a class="btn btn-primary"
-                                       href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=items-select"
-                                       onclick="return load_selects(this);"><?= l('Загрузить') ?></a>
+                                <div id="load-items-btn"
+                                     data-href="<?= $this->all_configs['prefix'] ?>dashboard/ajax?act=items-select"
+                                     data-parent="">
                                 </div>
                             </label>
                             <div class="col-sm-2">

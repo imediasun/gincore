@@ -365,19 +365,41 @@ function set_step(type) {
   return false;
 }
 function load_selects(_this) {
-  var $parent = $(_this).parents('div').first();
+  var $parent = $(_this),
+    child = $parent.data('child');
   $.ajax({
-    url: $(_this).attr('href'),
+    url: $parent.attr('data-href'),
+    data: {
+      parent: $parent.attr('data-parent') || ''
+    },
     type: 'GET',
     dataType: 'json',
     success: function (data) {
       if (data.state) {
+        $parent.removeClass('btn btn-primary');
+        $parent.removeAttr('onclick');
         $parent.html(data.content);
         $parent.find('.multiselect').each(function () {
           var $this = $(this),
             opts = multiselect_options;
           if (typeof $this.attr('data-numberDisplayed') !== 'undefined') {
             opts.numberDisplayed = $this.attr('data-numberDisplayed');
+          }
+          console.log(child);
+          if (typeof child !== 'undefined') {
+            console.log('set on change');
+            opts.onChange = function (option, checked, select) {
+              var $child = $(child), data = $child.attr('data-parent').split(',');
+              if (checked) {
+                data.push(option.val());
+              } else {
+                data.splice(data.indexOf(option.val()), 1);
+              }
+              $child.attr('data-parent', data.join(','));
+              load_selects($child);
+            };
+          } else {
+            opts.onChange = function(){};
           }
           $this.multiselect(opts);
         });
@@ -386,3 +408,4 @@ function load_selects(_this) {
   });
   return false;
 }
+

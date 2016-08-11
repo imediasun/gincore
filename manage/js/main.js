@@ -1242,7 +1242,7 @@ function is_enter(_this, e, id, func) {
   }
 }
 
-function init_multiselect() {
+function init_multiselect(onChangeCallback) {
   setTimeout(function () {
     $('.multiselect').each(function () {
       var $this = $(this),
@@ -1250,15 +1250,18 @@ function init_multiselect() {
       if (typeof $this.attr('data-numberDisplayed') !== 'undefined') {
         opts.numberDisplayed = $this.attr('data-numberDisplayed');
       }
+      if(onChangeCallback) {
+        opts.onChange = onChangeCallback;
+      }
       $this.multiselect(opts);
     });
   }, 0);
 }
 
-function reset_multiselect() {
+function reset_multiselect(onChangeCallback) {
   $('.multiselect').multiselect('destroy');
 
-  init_multiselect();
+  init_multiselect(onChangeCallback);
 }
 
 function close_alert_box() {
