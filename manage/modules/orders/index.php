@@ -205,7 +205,7 @@ class orders extends Controller
 
             if (isset($post['client']) && !empty($post['client'])) {
                 // фильтр клиенту/заказу
-                $url['cl'] = urlencode(trim($post['client']));
+                $url['cl'] = trim($post['client']);
             }
 
             if (isset($post['client-order']) && !empty($post['client-order'])) {
