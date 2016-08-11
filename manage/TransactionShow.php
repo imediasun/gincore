@@ -100,6 +100,9 @@ class TransactionShow
         }
         // в категорию
         $cashbox_info .= $drawer::RIGHT_ARROW . $transaction['category_name'];
+        if($transaction['category_id'] == 2) {
+            return array($cashbox_info, $drawer::INFINITY);
+        }
         // сумма
         if ($this->useSuppliersValue($transaction, $this->contractors, 'from')) {
             $exp = show_price($transaction['value_from_sc']);

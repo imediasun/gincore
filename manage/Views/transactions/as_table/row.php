@@ -1,7 +1,12 @@
 <?php $group_url = $this->renderFile('transactions/as_table/group_url', array(
     'transaction' => $transaction
 )); ?>
-<tr>
+<tr class="<?= $transaction['category_id'] == 2? 'orange': '' ?>">
+    <td>
+        <?php  if($transaction['category_id'] == 2): ?>
+            <b class="text-danger"> <?= l('возврат') ?> </b>
+        <?php endif; ?>
+    </td>
     <td><?= $transaction_id ?></td>
     <td>
     <span title="<?= do_nice_date($transaction['date_transaction'], false, false) ?>">

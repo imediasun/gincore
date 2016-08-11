@@ -18,7 +18,7 @@
         <tbody>
         <?php $i = 1; ?>
         <?php foreach ($orders as $order): ?>
-            <tr class="">
+            <tr class="<?= !empty($order['return_id'])? 'orange': '' ?>">
                 <td><?= $i++ ?></td>
                 <td>
                     <?php if (isset($order['goods']) && count($order['goods']) > 0): ?>

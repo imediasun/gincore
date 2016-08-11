@@ -359,7 +359,7 @@ class Transactions extends Object
                 cb_to.name as cc_to_name,
                 cc_from.cashbox_id as cc_from_cashbox_id,
                 cc_to.cashbox_id as cc_to_cashbox_id,
-
+                ct.id as category_id,
                 ct.name as category_name, c.title as contractor_name, c.id as contractor_id,
                 t.user_id, u.email, u.fio, t.supplier_order_id, t.client_order_id, 
                 ?query
@@ -402,6 +402,7 @@ class Transactions extends Object
                         'email' => $transaction['email'],
                         'fio' => $transaction['fio'],
                         'user_id' => $transaction['user_id'],
+                        'category_id' => $transaction['category_id'],
                         'category_name' => $transaction['category_name'],
                         'contractor_name' => $transaction['contractor_name'],
                         'transaction_type' => $transaction['transaction_type'],

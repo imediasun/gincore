@@ -12,6 +12,7 @@ class TransactionAsArray implements TransactionAsInterface
     const DELIMITER = ' ';
     const RIGHT_ARROW = ' -> ';
     const LEFT_ARROW = ' <- ';
+    const INFINITY = '';
     
 
     /**

@@ -1214,3 +1214,7 @@ table.table-vpaddingless tr td.arrow{
     cursor: pointer;
     border-radius: 0 4px 4px 0 !important;
 }
+
+.orange {
+    background-color: #FFF4CE !important;
+}

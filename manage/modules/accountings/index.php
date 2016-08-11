@@ -2791,7 +2791,7 @@ class accountings extends Controller
 
             $count = $this->all_configs['manageModel']->get_count_accounting_clients_orders($query);
             $orders = $this->all_configs['db']->query('SELECT o.id, o.course_value, o.sum, o.sum_paid, o.fio,
-                        o.phone, o.email, o.date_add, o.date_pay, o.prepay, o.discount, 
+                        o.phone, o.email, o.date_add, o.date_pay, o.prepay, o.discount, o.type, o.return_id,  
                         a.email as a_email, a.fio as a_fio, a.phone as a_phone, a.login as a_login
                     FROM {orders} as o
                     LEFT JOIN {orders_goods} as og ON og.order_id=o.id
