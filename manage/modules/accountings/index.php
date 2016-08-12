@@ -1444,6 +1444,7 @@ class accountings extends Controller
                     }
 
                     if ($count_t > 0 || $count_i > 0 || $count_o > 0) {
+                        $data['state'] = false;
                         $data['msg'] = l('Контрагент содержит операции, его нельзя удалить');
                     } else {
                         $ar = $this->all_configs['db']->query('DELETE FROM {contractors} WHERE id=?i',
