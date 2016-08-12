@@ -345,12 +345,13 @@ $(document).ready(function () {
         type: 'POST',
         success: function (msg) {
           $form.addClass('loaded').append('<form>' + msg.html + '</form>');
-          reset_multiselect();
-          $form.show();
-          if ($this.parents(".modal-dialog").length > 0) {
-            $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
-          }
-          $this.button('reset');
+          reset_multiselect(function () {
+            $form.show();
+            if ($this.parents(".modal-dialog").length > 0) {
+              $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
+            }
+            $this.button('reset');
+          });
         }
       });
       $this.parents('form').find('.submit-from-btn').mousedown(function () {
@@ -1242,7 +1243,7 @@ function is_enter(_this, e, id, func) {
   }
 }
 
-function init_multiselect(onChangeCallback) {
+function init_multiselect(onInitCallback, onChangeCallback) {
   setTimeout(function () {
     $('.multiselect').each(function () {
       var $this = $(this),
@@ -1250,18 +1251,22 @@ function init_multiselect(onChangeCallback) {
       if (typeof $this.attr('data-numberDisplayed') !== 'undefined') {
         opts.numberDisplayed = $this.attr('data-numberDisplayed');
       }
-      if(onChangeCallback) {
+      if (typeof onChangeCallback !== 'undefined') {
         opts.onChange = onChangeCallback;
       }
+      if (typeof onInitCallback !== 'undefined') {
+        opts.onInitialized = onInitCallback;
+      }
+
       $this.multiselect(opts);
     });
   }, 0);
 }
 
-function reset_multiselect(onChangeCallback) {
+function reset_multiselect(onInitCallback, onChangeCallback) {
   $('.multiselect').multiselect('destroy');
 
-  init_multiselect(onChangeCallback);
+  init_multiselect(onInitCallback, onChangeCallback);
 }
 
 function close_alert_box() {

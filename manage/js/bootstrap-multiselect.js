@@ -172,6 +172,9 @@
 
         this.updateButtonText();
         this.updateSelectAll();
+        if(this.options.onInitialized) {
+            this.options.onInitialized();
+        }
 
         if (this.options.disableIfEmpty && $('option', this.$select).length <= 0) {
             this.disable();
