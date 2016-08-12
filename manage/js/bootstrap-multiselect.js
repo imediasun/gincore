@@ -172,7 +172,7 @@
 
         this.updateButtonText();
         this.updateSelectAll();
-        if(this.options.onInitialized) {
+        if(typeof this.options.onInitialized === 'function') {
             this.options.onInitialized();
         }
 

@@ -345,13 +345,21 @@ $(document).ready(function () {
         type: 'POST',
         success: function (msg) {
           $form.addClass('loaded').append('<form>' + msg.html + '</form>');
-          reset_multiselect(function () {
+          if ($this.data('form_id') == 'new_device_form') {
             $form.show();
             if ($this.parents(".modal-dialog").length > 0) {
               $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
             }
             $this.button('reset');
-          });
+          } else {
+            reset_multiselect($form, function () {
+              $form.show();
+              if ($this.parents(".modal-dialog").length > 0) {
+                $form.css('max-width', '1000px').css('position', 'fixed').css('margin-left', 'auto').css('margin-right', 'auto').css('top', '60px');
+              }
+              $this.button('reset');
+            });
+          }
         }
       });
       $this.parents('form').find('.submit-from-btn').mousedown(function () {
@@ -1243,9 +1251,15 @@ function is_enter(_this, e, id, func) {
   }
 }
 
-function init_multiselect(onInitCallback, onChangeCallback) {
+function init_multiselect($form, onInitCallback, onChangeCallback) {
+  var $multiselect;
+  if (typeof $form === 'undefined') {
+    $multiselect = $('.multiselect');
+  } else {
+    $multiselect = $form.find('.multiselect');
+  }
   setTimeout(function () {
-    $('.multiselect').each(function () {
+    $multiselect.each(function () {
       var $this = $(this),
         opts = multiselect_options;
       if (typeof $this.attr('data-numberDisplayed') !== 'undefined') {
@@ -1263,10 +1277,16 @@ function init_multiselect(onInitCallback, onChangeCallback) {
   }, 0);
 }
 
-function reset_multiselect(onInitCallback, onChangeCallback) {
-  $('.multiselect').multiselect('destroy');
+function reset_multiselect($form, onInitCallback, onChangeCallback) {
+  var $multiselect;
+  if (typeof $form === 'undefined') {
+    $multiselect = $('.multiselect');
+  } else {
+    $multiselect = $form.find('.multiselect');
+  }
+  $multiselect.multiselect('destroy');
 
-  init_multiselect(onInitCallback, onChangeCallback);
+  init_multiselect($form, onInitCallback, onChangeCallback);
 }
 
 function close_alert_box() {
