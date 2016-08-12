@@ -28,7 +28,7 @@
                         <input type='submit' class='btn' name='warehouse-type-add' value='<?= l('Создать') ?>'/>
                     <?php else: ?>
                         <input type='hidden' name='warehouse-type-id' value='<?= $type['id'] ?>'/>
-                        <input type='submit' class='btn' name='warehouse-type-edit' value='<? l('Редактировать') ?>'/>
+                        <input type='submit' class='btn' name='warehouse-type-edit' value='<?= l('Редактировать') ?>'/>
                     <?php endif; ?>
                 </div>
             </form>

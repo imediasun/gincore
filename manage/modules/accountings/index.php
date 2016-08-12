@@ -515,7 +515,8 @@ class accountings extends Controller
                 $this->History->save('edit-contractor_category', $mod_id, $post['contractor_category-id']);
             }
             if (!empty($post['contractors'])) {
-                $this->ContractorsCategoriesLinks->updateCategoryToContractors($post['contractor_category-id'], $post['contractors']);
+                $this->ContractorsCategoriesLinks->updateCategoryToContractors($post['contractor_category-id'],
+                    $post['contractors']);
             }
 
         } elseif (isset($post['cashboxes-currencies-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -1415,7 +1416,7 @@ class accountings extends Controller
                     $data['state'] = false;
                     $data['msg'] = l('Системный контрагент - не подлежит редактированию');
                 } else {
-                    $count_t = 0;
+                    $count_t = $count_i = $count_o = 0;
                     // количество транзакций
                     if (array_key_exists('erp-use-for-accountings-operations', $this->all_configs['configs'])
                         && count($this->all_configs['configs']['erp-use-for-accountings-operations']) > 0
@@ -1436,9 +1437,13 @@ class accountings extends Controller
                                 $query,
                                 array_values($this->all_configs['configs']['erp-use-for-accountings-operations'])
                             ))->el();
+                        $count_i = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE supplier_id=?i',
+                            array($_POST['contractor_id']))->el();
+                        $count_o = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE supplier=?i',
+                            array($_POST['contractor_id']))->el();
                     }
 
-                    if ($count_t > 0) {
+                    if ($count_t > 0 || $count_i > 0 || $count_o > 0) {
                         $data['msg'] = l('Контрагент содержит операции, его нельзя удалить');
                     } else {
                         $ar = $this->all_configs['db']->query('DELETE FROM {contractors} WHERE id=?i',
@@ -3114,7 +3119,8 @@ class accountings extends Controller
             if (isset($_POST['contractor_categories_id']) && count($_POST['contractor_categories_id']) > 0) {
                 foreach ($_POST['contractor_categories_id'] as $contractor_category_id) {
                     if ($contractor_category_id > 0) {
-                        $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category_id, $this->all_configs['arrequest'][2]);
+                        $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category_id,
+                            $this->all_configs['arrequest'][2]);
                     }
                 }
             }
