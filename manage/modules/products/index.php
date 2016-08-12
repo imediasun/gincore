@@ -416,6 +416,22 @@ class products extends Controller
             $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, 0));
         }
 
+        // в наличии
+        if(isset($_GET['avail'])) {
+            $avail = array_filter(explode('-', $_GET['avail']));
+            if (array_search('free', $avail) !== false) {
+                $ids = $this->all_configs['db']->query('SELECT goods_id FROM {warehouses_goods_items} WHERE order_id IS NULL OR order_id=0 GROUP by goods_id', array())->col();
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.id in (?li)', array($goods_query, $ids));
+            }
+            if (array_search('not', $avail) !== false) {
+                $ids = $this->all_configs['db']->query('SELECT goods_id FROM {warehouses_goods_items}  GROUP by goods_id', array())->col();
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND NOT g.id in (?li)', array($goods_query, $ids));
+            }
+            if (array_search('all', $avail) !== false) {
+                $ids = $this->all_configs['db']->query('SELECT goods_id FROM {warehouses_goods_items}  GROUP by goods_id', array())->col();
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.id in (?li)', array($goods_query, $ids));
+            }
+        }
         // Отобразить
         if (isset($_GET['show'])) {
             $show = array_filter(explode('-', $_GET['show']));

@@ -1,3 +1,26 @@
+<p class="label label-info"><?= l('Наличие') ?></p>
+<div class="well">
+    <ul style="padding-left:25px">
+        <li>
+            <label class="checkbox">
+                <input type="checkbox" <?= $controller->click_filters('avail', 'free') ?>>
+                <?= l('Есть в свободном остатке') ?>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox">
+                <input type="checkbox" <?= $controller->click_filters('avail', 'all'); ?>>
+                <?= l('Есть в общем остатке') ?>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox">
+                <input type="checkbox" <?= $controller->click_filters('avail', 'not'); ?>>
+                <?= l('Нет в наличии') ?>
+            </label>
+        </li>
+    </ul>
+</div>
 <p class="label label-info"><?= l('Отобразить') ?></p>
 <div class="well">
     <ul style="padding-left:25px">
