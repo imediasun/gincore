@@ -584,74 +584,36 @@ class requests extends \service
     ) {
         $requests = $this->get_requests($client_id, $product_id, true, true);
         $response = '';
+        $client =$this->all_configs['db']->query(
+            'SELECT GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
+                                  ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as data, c.fio
+                                FROM {clients} as c
+                                LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
+                                WHERE c.id = ?i', array($client_id), 'row');
+            $product = $this->all_configs['db']->query("SELECT title FROM {categories} "
+                    . "WHERE id = ?i", array($product_id), 'el');
         if ($requests) {
             $txt = $client_id ? ' ' . l('клиенту') . '' : '';
             $txt = $product_id ? ' ' . l('устройству') . '' : $txt;
             $txt = $product_id && $client_id ? ' ' . l('устройству у клиента') . '' : $txt;
-            $list = '' . l('Заявки по данному') . ' ' . $txt . ':<br>
-                     <table class="table table-bordered table-condensed table-hover" style="max-width: 1100px">
-                         <thead><tr>
-                            <td>
-                                <div class="radio">
-                                    <label>
-                                        <input' . (!$active_request ? ' checked' : '') . ' type="radio" name="crm_request" value="0">
-                                        ' . l('без заявки') . '
-                                    </label>
-                                </div>
-                            </td>
-                            <!--<td>Звонок</td>-->
-                            <td>' . l('Клиент') . '</td>
-                            <td>' . l('Устройство') . '</td>
-                            <td>' . l('Оператор') . '</td>
-                            <td>' . l('Комментарий') . '</td>
-                        </tr></thead><tbody>';
-            foreach ($requests as $req) {
-                $client = $this->all_configs['db']->query(
+            foreach ($requests as &$req) {
+                $req['client'] = $this->all_configs['db']->query(
                     'SELECT GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
                                   ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as data, c.fio
                                 FROM {clients} as c
                                 LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
                                 WHERE c.id = ?i', array($req['client_id']), 'row');
-                $product = $this->all_configs['db']->query("SELECT title FROM {categories} "
+                $req['product'] = $this->all_configs['db']->query("SELECT title FROM {categories} "
                     . "WHERE id = ?i", array($req['product_id']), 'el');
-                $list .=
-                    '<tr>
-                        <td>
-                            <div class="radio">
-                                <label>
-                                    <input type="radio"' . ($active_request == $req['id'] ? ' checked' : '') . ' name="crm_request"  
-                                        data-client_fio="' . $client['fio'] . '"
-                                        data-client_id="' . $req['client_id'] . '" 
-                                        data-product_id="' . $req['product_id'] . '" 
-                                        data-referer_id="' . $req['referer_id'] . '" 
-                                        data-code="' . $req['code'] . '" 
-                                        data-product_name="' . $product . '" 
-                                        value="' . $req['id'] . '">
-                                    №' . $req['id'] . ' от ' . do_nice_date($req['date'], true, true, 0, true) . '        
-                                </label>
-                            </div>
-                        </td>
-                        <!--<td>
-                            ' . do_nice_date($req['call_date'], true, true, 0, true) . '<br>
-                        </td>-->
-                        <td>
-                            ' . $client['data'] . '
-                        </td>
-                        <td>
-                            <a href = "' . $this->all_configs['siteprefix'] . gen_full_link(getMapIdByProductId($req['product_id'])) . '" target="_blank">' . $product . '</a>
-                        </td>
-                        <td>
-                            <i>' . getUsernameById($req['operator_id']) . '</i><br>
-                        </td>
-                        <td>
-                            <i>' . $req['comment'] . '</i><br>
-                        </td>
-                    </tr>';
             }
+            $response = $this->view->renderFile('services/crm/requests/get_requests_list_by_order_client', array(
+                'by' => $txt,
+                'active_request' => $active_request,
+                'requests' => $requests,
+                'product' => $product,
+                'client' => $client
+            ));
             $count = count($requests);
-            $response = $list . '</tbody></table>' .
-                // показываем алерт с введите фио есть у выбранной заявки нету фио клиента
-                ($active_request ? '<script>check_active_request()</script>' : '');
         } else {
             $count = 0;
             $response = 'Заявок нет.';
