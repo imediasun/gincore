@@ -98,6 +98,8 @@ class manageModel
     {
         return $this->all_configs['db']->query('SELECT COUNT(DISTINCT o.id)
                 FROM {contractors_suppliers_orders} as o
+                LEFT JOIN {orders_suppliers_clients} AS osc ON osc.supplier_order_id=o.id 
+                LEFT JOIN {orders} AS oo ON osc.client_order_id=oo.id 
                 LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
                 LEFT JOIN {goods} as g ON g.id=o.goods_id
                 LEFT JOIN {contractors} as s ON s.id=o.supplier
@@ -299,7 +301,7 @@ class manageModel
         }
 
         if (isset($filters['co']) && $filters['co'] > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.id = ?i',
+            $query = $this->all_configs['db']->makeQuery('?query AND oo.id = ?i',
                 array($query, $filters['co']));
         }
 
@@ -791,6 +793,8 @@ class manageModel
             } else {
                 $orders_ids = $this->all_configs['db']->query('SELECT DISTINCT o.id
                     FROM {contractors_suppliers_orders} as o
+                    LEFT JOIN {orders_suppliers_clients} AS osc ON osc.supplier_order_id=o.id 
+                    LEFT JOIN {orders} AS oo ON osc.client_order_id=oo.id 
                     LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
                     LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id
                     ?query GROUP BY o.id ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.parent_id DESC,
