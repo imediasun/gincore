@@ -140,9 +140,14 @@ class orders extends Controller
                 $url['ar'] = 1;
             }
 
-            if (isset($post['order_id']) && $post['order_id'] > 0) {
+            if (isset($post['order_id']) && !empty($post['order_id'])) {
                 // фильтр по id
-                $url['co_id'] = intval($post['order_id']);
+                if (preg_match('/^[zZ]-/', trim($post['order_id'])) === 1) {
+                    $orderId = preg_replace('/^[zZ]-/', '', trim($post['order_id']));
+                } else {
+                    $orderId = trim($post['order_id']);
+                }
+                $url['co_id'] = intval($orderId);
             }
 
             if (isset($post['categories-last']) && $post['categories-last'] > 0) {
@@ -210,7 +215,12 @@ class orders extends Controller
 
             if (isset($post['client-order']) && !empty($post['client-order'])) {
                 // фильтр клиенту/заказу
-                $url['co'] = urlencode(trim($post['client-order']));
+                if (preg_match('/^[zZ]-/', trim($post['client-order'])) === 1) {
+                    $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order']));
+                } else {
+                    $orderId = trim($post['client-order']);
+                }
+                $url['co'] = urlencode(intval($orderId));
             }
 
             if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {

@@ -204,9 +204,14 @@ class accountings extends Controller
                 $url[] = 'sp=' . implode(',', $post['suppliers']);
             }
 
-            if (isset($post['client-order_id']) && $post['client-order_id'] > 0) {
+            if (isset($post['client-order_id']) && !empty($post['client-order_id'])) {
                 // фильтр по поставщикам
-                $url[] = 'co_id=' . $post['client-order_id'];
+                if (preg_match('/^[zZ]-/', trim($post['client-order_id'])) === 1) {
+                    $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order_id']));
+                } else {
+                    $orderId = trim($post['client-order_id']);
+                }
+                $url[] = 'co_id=' . intval($orderId);
             }
 
             if (isset($post['status']) && !empty($post['status'])) {

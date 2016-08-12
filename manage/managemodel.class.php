@@ -219,8 +219,15 @@ class manageModel
         }
         // фильтр по
         if (array_key_exists('co_id', $filters) && $filters['co_id'] > 0 && in_array('client_orders_id', $use)) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',
-                array($query, $filters['co_id']));
+            if (preg_match('/^[zZ]-/', trim($filters['co_id'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($filters['co_id']));
+            } else {
+                $orderId = trim($filters['co_id']);
+            }
+            if (intval($orderId) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',
+                    array($query, intval($orderId)));
+            }
         }
 
         if (array_key_exists('cashless', $filters) && is_numeric($filters['cashless']) && in_array('cashless', $use)) {
@@ -387,9 +394,10 @@ class manageModel
         $orders = array();
         $orders_goods = null;
         $limit = '';
-        if(!empty($count_on_page)) {
+        if (!empty($count_on_page)) {
             $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(
-                $skip, $count_on_page
+                $skip,
+                $count_on_page
             ));
         }
 
@@ -533,7 +541,7 @@ class manageModel
         }
 
         if (isset($filters['o_id']) && !empty($filters['o_id'])) {
-            if(preg_match('/^[zZ]-/', trim($filters['o_id'])) === 1) {
+            if (preg_match('/^[zZ]-/', trim($filters['o_id'])) === 1) {
                 $orderId = preg_replace('/^[zZ]-/', '', trim($filters['o_id']));
             } else {
                 $orderId = trim($filters['o_id']);
@@ -647,8 +655,17 @@ class manageModel
         }
 
         if (isset($filters['co_id']) && $filters['co_id'] > 0) {
+            if (preg_match('/^[zZ]-/', trim($filters['co_id'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($filters['co_id']));
+            } else {
+                $orderId = trim($filters['co_id']);
+            }
+            if (intval($orderId) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',
+                    array($query, intval($orderId)));
+            }
             $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i',
-                array($query, $filters['co_id']));
+                array($query, intval($orderId)));
         }
 
         if (isset($filters['np']) && $filters['np'] > 0) {
@@ -656,13 +673,13 @@ class manageModel
                 array($query, 1));
         }
 
-        if(isset($filters['other']) && count(explode(',', $filters['other'])) > 0) {
+        if (isset($filters['other']) && count(explode(',', $filters['other'])) > 0) {
             $other = explode(',', $filters['other']);
-            if(in_array('hmr', $other)) {
+            if (in_array('hmr', $other)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.home_master_request=?i',
                     array($query, 1));
             }
-            if(in_array('cgd', $other)) {
+            if (in_array('cgd', $other)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND NOT o.courier IS NULL',
                     array($query));
             }
@@ -880,7 +897,7 @@ class manageModel
                 $orders[$order_id]['services'] = isset($goods[$order_id]) && isset($goods[$order_id]['services']) ? $goods[$order_id]['services'] : array();
 
                 $price = ($prices && isset($prices[$order_id])) ? intval($prices[$order_id]) : 0;
-                if($order['order_type'] == ORDER_RETURN) {
+                if ($order['order_type'] == ORDER_RETURN) {
                     $orders[$order_id]['turnover'] = $order['value_from'] * ($order['course_value'] / 100);
                 } else {
                     $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'] * ($order['course_value'] / 100);
@@ -892,9 +909,9 @@ class manageModel
                     $orders[$order_id]['profit'] = $order['value_to'];
                 }
                 if ($order['has_from'] > 0) {
-                    $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value']/ 100);
+                    $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value'] / 100);
                 }
-                if($order['order_type'] != ORDER_RETURN) {
+                if ($order['order_type'] != ORDER_RETURN) {
                     $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
                 }
 
@@ -1213,8 +1230,8 @@ class manageModel
         }
         // не учитывать возвраты поставщикам и списания
 //        if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
-                array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
+        $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
+            array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
 //        }
         // не учитывать доставку
         if (array_key_exists('dlv', $filters)) {

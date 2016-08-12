@@ -1513,7 +1513,12 @@ class warehouses extends Controller
 
         if (isset($post['client-order']) && !empty($post['client-order'])) {
             // фильтр клиенту/заказу
-            $url ['co'] = urlencode(trim($post['client-order']));
+            if (preg_match('/^[zZ]-/', trim($post['client-order'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order']));
+            } else {
+                $orderId = trim($post['client-order']);
+            }
+            $url['co'] = urlencode(intval($orderId));
         }
 
         if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
@@ -1568,9 +1573,14 @@ class warehouses extends Controller
             $url['c_id'] = intval($post['clients']);
         }
 
-        if (isset($post['client-order-number']) && $post['client-order-number'] > 0) {
+        if (isset($post['client-order-number']) && !empty($post['client-order-number'])) {
             // фильтр клиенту/заказу
-            $url['con'] = intval($post['client-order-number']);
+            if (preg_match('/^[zZ]-/', trim($post['client-order-number'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order-number']));
+            } else {
+                $orderId = trim($post['client-order-number']);
+            }
+            $url['con'] = intval($orderId);
         }
 
         if (isset($post['serial']) && !empty($post['serial'])) {
