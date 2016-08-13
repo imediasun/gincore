@@ -219,7 +219,7 @@
                                             </div>
                                         </div>
                                         <textarea
-                                            class="form-control <?= !isset($hide['defect-description']) ? 'hide-field' : '' ?>"
+                                            class="form-control <?= !isset($hide['defect']) ? 'hide-field' : '' ?>"
                                             name="defect"></textarea>
                                     </div>
                                     <?php $this->HideField->end(); ?>

@@ -227,7 +227,7 @@
                             )); ?>
                         <?php endif; ?>
                         <div
-                            class="form-group clearfix <?= !isset($hide['defect']) || !isset($hide['defect-description']) ? 'hide-field' : '' ?>">
+                            class="form-group clearfix <?= !isset($hide['defect']) ? 'hide-field' : '' ?>">
                             <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   title="<?= l('История изменений') ?>"
