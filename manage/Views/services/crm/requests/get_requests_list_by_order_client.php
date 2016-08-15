@@ -1,5 +1,5 @@
 <?= l('Заявки по данному') ?> <?= $by ?>:<br>
-<div style="max-height: 500px; overflow: auto">
+<div style="max-height: 350px; overflow: auto">
 
     <table class="table table-bordered table-condensed table-hover" style="max-width: 1100px">
         <thead>
