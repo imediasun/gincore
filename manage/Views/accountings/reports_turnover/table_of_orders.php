@@ -22,8 +22,12 @@
     <tbody>
     <?php $services_prices = 0; ?>
     <?php foreach ($amounts['orders'] as $order): ?>
-        <tr>
-            <td></td>
+        <tr class="<?= $order['has_return'] ? 'orange' : '' ?>">
+            <td>
+                <?php if ($order['has_return']): ?>
+                    <b class="text-danger"> <?= l('возврат') ?> </b>
+                <?php endif; ?>
+            </td>
             <td>
                 <a href="<?= $this->all_configs['prefix'] . 'orders/create/' . $order['order_id'] ?>"><?= $order['order_id'] ?></a>
             </td>
@@ -55,7 +59,11 @@
                 </td>
             <?php endif; ?>
             <td>
-                <?= show_price($order['turnover'], 2, ' ') ?>
+                <?php if (empty($order['turnover']) && $order['has_return']): ?>
+                    &infin;
+                <?php else: ?>
+                    <?= show_price($order['turnover'], 2, ' ') ?>
+                <?php endif; ?>
             </td>
             <?php if ($isAdmin): ?>
                 <td>

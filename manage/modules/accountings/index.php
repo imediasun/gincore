@@ -2398,7 +2398,7 @@ class accountings extends Controller
     {
         $array = array();
 
-        $amounts = $this->all_configs['manageModel']->profit_margin($_GET);
+        $amounts = $this->profit_margin($_GET);
 
         if ($amounts && is_array($amounts['orders']) && count($amounts['orders']) > 0) {
             foreach ($amounts['orders'] as $k => $p) {
@@ -2479,7 +2479,7 @@ class accountings extends Controller
                 $by['acp'] = $user_id;
             }
             $table_of_orders = '';
-            $amounts = $this->all_configs['manageModel']->profit_margin($by + $_GET);
+            $amounts = $this->profit_margin($by + $_GET);
             if ($amounts && is_array($amounts['orders']) && count($amounts['orders']) > 0) {
                 $turnover = $amounts['turnover'];
                 $profit = $amounts['profit'];
@@ -2551,7 +2551,7 @@ class accountings extends Controller
                 AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")', array($day_from, $day_to));
 
             // прибыль
-            $amounts = $this->all_configs['manageModel']->profit_margin(array('df' => $day_from, 'dt' => $day_to));
+            $amounts = $this->profit_margin(array('df' => $day_from, 'dt' => $day_to));
             $profit = $amounts ? $amounts['profit'] : 0;
 
             $ext_query = '';
@@ -3773,5 +3773,219 @@ class accountings extends Controller
         WHERE ct.cashboxes_currency_id_from in (select id FROM {cashboxes_currencies} WHERE cashbox_id=?i) 
         OR ct.cashboxes_currency_id_to in (select id FROM {cashboxes_currencies} WHERE cashbox_id=?i)
         ', array($cashbox['id'], $cashbox['id']))->el();
+    }
+
+    /**
+     * @param $filters
+     * @return array
+     */
+    private function getProfitMarginCondition($filters)
+    {
+        $query = '';
+
+        // фильтр по менеджерам
+        if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
+                array($query, array_filter(explode(',', $filters['mg']))));
+        }
+        // фильтр по приемщику
+        if (array_key_exists('acp', $filters) && count(array_filter(explode(',', $filters['acp']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
+                array($query, array_filter(explode(',', $filters['acp']))));
+        }
+        // фильтр по Инженер
+        if (array_key_exists('eng', $filters) && count(array_filter(explode(',', $filters['eng']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                array($query, array_filter(explode(',', $filters['eng']))));
+        }
+        // фильтр по статусу
+        if (array_key_exists('sts', $filters)) {
+            $states = explode(',', $filters['sts']);
+            if (count($states) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.status IN (?li)',
+                    array($query, $states));
+            }
+        }
+        // фильтр по оператору
+        if (array_key_exists('op', $filters) && count(array_filter(explode(',', $filters['op']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
+                array($query, array_filter(explode(',', $filters['op']))));
+        }
+        // фильтр по товару
+        if (array_key_exists('by_gid', $filters) && $filters['by_gid'] > 0) {
+            $cos = $this->all_configs['db']->query('SELECT DISTINCT order_id FROM {orders_goods} WHERE goods_id=?i',
+                array(intval($filters['by_gid'])))->vars();
+            if (count($cos) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id IN (?li)',
+                    array($query, array_keys($cos)));
+            } else {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.id=?i', array($query, 0));
+            }
+        }
+        // принято через новую почту
+        if (array_key_exists('np', $filters) && $filters['np'] == 1) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.np_accept=?i',
+                array($query, 1));
+        }
+        // гарантийный
+        if (array_key_exists('wrn', $filters) && $filters['wrn'] == 1 && (!array_key_exists('nowrn',
+                    $filters) || $filters['nowrn'] <> 1)
+        ) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.repair=?i',
+                array($query, 1));
+        }
+        // негарантийный
+        if (array_key_exists('nowrn', $filters) && $filters['nowrn'] == 1 && (!array_key_exists('wrn',
+                    $filters) || $filters['wrn'] <> 1)
+        ) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.repair<>?i',
+                array($query, 1));
+        }
+        // не учитывать возвраты поставщикам и списания
+//        if (array_key_exists('rtrn', $filters) && $filters['rtrn'] == 1) {
+        $query = $this->all_configs['db']->makeQuery('?query AND o.type NOT IN (?li)',
+            array($query, array(ORDER_RETURN, ORDER_WRITE_OFF)));
+//        }
+        // не учитывать доставку
+        if (array_key_exists('dlv', $filters)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 7));
+        }
+        // не учитывать комиссию
+        if (array_key_exists('cms', $filters)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND t.type<>?i', array($query, 6));
+        }
+        // категория
+        if (array_key_exists('dev', $filters) && intval($filters['dev']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND cg.id=?i',
+                array($query, intval($filters['dev'])));
+        }
+        // только продажи
+        if (array_key_exists('sale', $filters) && intval($filters['sale']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
+                array($query, ORDER_SELL));
+        }
+        // только ремонты
+        if (array_key_exists('repair', $filters) && intval($filters['repair']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.type=?i',
+                array($query, ORDER_REPAIR));
+        }
+        if (array_key_exists('by_cid', $filters) && intval($filters['by_cid']) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.user_id=?i',
+                array($query, $filters['by_cid']));
+        }
+        return $query;
+    }
+
+
+    /**
+     * @param array $filters
+     * @return array
+     */
+    public function profit_margin($filters = array())
+    {
+        // фильтры
+
+        // фильтр по дате
+        $day_from = 1 . date(".m.Y") . ' 00:00:00';
+        $day_to = 31 . date(".m.Y") . ' 23:59:59';
+        if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
+            $day_from = $filters['df'] . ' 00:00:00';
+        }
+        if (array_key_exists('dt', $filters) && strtotime($filters['dt']) > 0) {
+            $day_to = $filters['dt'] . ' 23:59:59';
+        }
+
+        $query = $this->getProfitMarginCondition($filters);
+
+        $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
+        $orders = $this->all_configs['db']->query('
+          SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
+              SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
+              SUM(IF(t.transaction_type=1 && not l.contractors_categories_id=2, t.value_from, 0)) as value_from, cg.title,
+              SUM(IF(t.transaction_type=1, 1, 0)) as has_from, 
+              SUM(IF(t.transaction_type=2, 1, 0)) as has_to,
+              o.manager, o.accepter as acceptor, o.engineer,
+              SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return
+            FROM {orders} as o
+            JOIN {categories} as cg ON cg.id=o.category_id
+            JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
+            JOIN (SELECT id, contractors_categories_id, contractors_id FROM {contractors_categories_links}) as l ON l.id=t.contractor_category_link
+            WHERE  t.type<>?i AND t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") 
+              ?query GROUP BY order_id ORDER BY o.id',
+            array(8, $day_from, $day_to, $query))->assoc('order_id');
+
+        if ($orders) {
+            $prices = $this->all_configs['db']->query('SELECT i.order_id, SUM(i.price) as price
+                FROM {warehouses_goods_items} as i WHERE i.order_id IN (?li) GROUP BY i.order_id',
+                array(array_keys($orders)))->vars();
+
+            $goods = array();
+            $data = $this->all_configs['db']->query(
+                'SELECT title, price, order_id, `type`, goods_id, id FROM {orders_goods} WHERE order_id IN (?li)',
+                array(array_keys($orders)))->assoc();
+
+            if ($data) {
+                foreach ($data as $p) {
+                    $goods[$p['order_id']][$p['type'] == 1 ? 'services' : 'goods'][$p['id']] = $p;
+                }
+            }
+            foreach ($orders as $order_id => &$order) {
+                $order['goods'] = isset($goods[$order_id]) && isset($goods[$order_id]['goods']) ? $goods[$order_id]['goods'] : array();
+                $order['services'] = isset($goods[$order_id]) && isset($goods[$order_id]['services']) ? $goods[$order_id]['services'] : array();
+
+                $price = ($prices && isset($prices[$order_id])) ? intval($prices[$order_id]) : 0;
+                if ($order['order_type'] == ORDER_RETURN) {
+                    $orders[$order_id]['turnover'] = $order['value_from'] * ($order['course_value'] / 100);
+                } else {
+                    $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'] * ($order['course_value'] / 100);
+                }
+                $orders[$order_id]['purchase'] = $price * ($order['course_value'] / 100);
+                $orders[$order_id]['profit'] = 0;
+
+                if ($order['has_to'] > 0) {
+                    $orders[$order_id]['profit'] = $order['value_to'];
+                }
+                if ($order['has_from'] > 0) {
+                    $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value'] / 100);
+                }
+                if ($order['order_type'] != ORDER_RETURN) {
+                    $orders[$order_id]['profit'] -= $orders[$order_id]['purchase'];
+                }
+
+                $orders[$order_id]['avg'] = 0;
+                if ($orders[$order_id]['purchase'] == 0) {
+                    $orders[$order_id]['avg'] = '&infin;';
+                }
+                if ($orders[$order_id]['purchase'] > 0 && $orders[$order_id]['turnover'] > 0) {
+                    $orders[$order_id]['avg'] = $orders[$order_id]['profit'] / $orders[$order_id]['purchase'] * 100;
+                }
+
+                $sell += $order['value_to'];
+                $buy += $order['value_from'];
+                $purchase += $orders[$order_id]['purchase'];
+                $turnover += $orders[$order_id]['turnover'];
+                $profit += $orders[$order_id]['profit'];
+                $purchase2 += ($orders[$order_id]['turnover'] > 0 ? $orders[$order_id]['purchase'] : 0);
+            }
+        }
+
+        if ($purchase2 == 0) {
+            $avg = '&infin;';
+        }
+        if ($purchase2 > 0 && $turnover > 0) {
+            $avg = ($profit) / $purchase2 * 100;
+        }
+
+        return array(
+            'profit' => $profit,
+            'turnover' => $turnover,
+            'avg' => $avg,
+            'purchase' => $purchase,
+            'purchase2' => $purchase2,
+            'sell' => $sell,
+            'orders' => $orders,
+        );
+
     }
 }

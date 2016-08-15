@@ -10,7 +10,7 @@ class TransactionAsTable implements TransactionAsInterface
     const DELIMITER = '&nbsp;';
     const RIGHT_ARROW = ' &rarr; ';
     const LEFT_ARROW = ' &larr; ';
-    const INFINITY = '&infin;';
+    const INFINITY = ''; //'&infin;';
 
     /**
      * @var
