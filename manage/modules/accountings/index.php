@@ -3901,7 +3901,7 @@ class accountings extends Controller
         $orders = $this->all_configs['db']->query('
           SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
-              SUM(IF(t.transaction_type=1 && not l.contractors_categories_id=2, t.value_from, 0)) as value_from, cg.title,
+              SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, 
               SUM(IF(t.transaction_type=2, 1, 0)) as has_to,
               o.manager, o.accepter as acceptor, o.engineer,
@@ -3940,6 +3940,7 @@ class accountings extends Controller
                 } else {
                     $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'] * ($order['course_value'] / 100);
                 }
+
                 $orders[$order_id]['purchase'] = $price * ($order['course_value'] / 100);
                 $orders[$order_id]['profit'] = 0;
 
@@ -3964,7 +3965,7 @@ class accountings extends Controller
                 $sell += $order['value_to'];
                 $buy += $order['value_from'];
                 $purchase += $orders[$order_id]['purchase'];
-                $turnover += $orders[$order_id]['turnover'];
+                $turnover += max(0, $orders[$order_id]['turnover']);
                 $profit += $orders[$order_id]['profit'];
                 $purchase2 += ($orders[$order_id]['turnover'] > 0 ? $orders[$order_id]['purchase'] : 0);
             }

@@ -59,7 +59,7 @@
                 </td>
             <?php endif; ?>
             <td>
-                <?php if (empty($order['turnover']) && $order['has_return']): ?>
+                <?php if ($order['turnover'] < 0 && $order['has_return']): ?>
                     &infin;
                 <?php else: ?>
                     <?= show_price($order['turnover'], 2, ' ') ?>
