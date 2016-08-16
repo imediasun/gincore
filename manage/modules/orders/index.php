@@ -12,6 +12,7 @@ $modulemenu[10] = l('orders');
  * @property  MOrdersGoods    OrdersGoods
  * @property  MOrdersComments OrdersComments
  * @property  MLockFilters    LockFilters
+ * @property  MTemplateVars    TemplateVars
  */
 class orders extends Controller
 {
@@ -19,7 +20,8 @@ class orders extends Controller
         'Orders',
         'OrdersGoods',
         'OrdersComments',
-        'LockFilters'
+        'LockFilters',
+        'TemplateVars'
     );
 
     /**
@@ -1801,12 +1803,15 @@ class orders extends Controller
         switch ($order['sale_type']) {
             case 1:
                 $template = 'orders/quicksaleorder/genorder';
+                $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
                 break;
             case 2:
                 $template = 'orders/eshoporder/genorder';
+                $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
                 break;
             default:
                 $template = $modal ? 'orders/genorder/genorder-modal' : 'orders/genorder/genorder';
+                $print_templates = $this->TemplateVars->getUsersPrintTemplates('repair_order');
                 $showUsersFields = $this->checkShowUsersFields($usersFields, $hide);
         }
         return $this->view->renderFile($template, array(
@@ -1838,7 +1843,8 @@ class orders extends Controller
             'showUsersFields' => $showUsersFields,
             'homeMasterRequest' => $home_master_request,
             'price_type' => $price_type,
-            'price_type_of_service' => $price_type_of_service
+            'price_type_of_service' => $price_type_of_service,
+            'print_templates' => $print_templates
         ));
     }
 

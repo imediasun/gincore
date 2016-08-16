@@ -4,7 +4,7 @@ require_once __DIR__ . '/abstract_template.php';
 
 class label_filtered extends AbstractTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $query = '1=1';
         if (isset($_GET['whs']) && array_filter(explode(',', $_GET['whs'])) > 0) {

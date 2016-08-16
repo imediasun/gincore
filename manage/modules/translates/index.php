@@ -54,7 +54,7 @@ class translates
         }
 
         $this->check_get($_GET);
-            
+
         $input_html['mmenu'] = $this->genmenu();
 
         $input_html['mcontent'] = $this->gencontent();
@@ -241,6 +241,14 @@ class translates
     {
         foreach ($post['data'] as $id => $transl) {
             foreach ($transl as $lng => $fields) {
+                if (array_key_exists('description', $fields) && !empty($fields['description'])) {
+                    $this->all_configs['db']->query('UPDATE ?q SET description=? WHERE id=?', array(
+                        $this->getTableName(),
+                        $fields['description'],
+                        $id
+                    ));
+                    unset($fields['description']);
+                }
                 $all_fields = array();
                 $vals = array();
                 $update_vals = array();
@@ -334,7 +342,8 @@ class translates
                 foreach ($post['data'] as $fld => $d) {
                     $v[] = $this->all_configs['db']->makeQuery("?", array($d));
                 }
-                $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?', array($tableName, $post['data']['var']))->el();
+                $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?',
+                    array($tableName, $post['data']['var']))->el();
                 if (!empty($id)) {
                     FlashMessage::set(l('Переменная уже существует'), FlashMessage::INFO);
                     Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);

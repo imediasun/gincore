@@ -5,7 +5,7 @@ require_once __DIR__ . '/abstract_orders_template.php';
 // накладаная на отгрузку товара при продаже
 class waybill extends AbstractOrdersTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
 
         $order = $this->all_configs['db']->query('SELECT o.*, e.fio as manager, w.title as wh_title, aw.title as aw_title,

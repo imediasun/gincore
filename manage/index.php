@@ -370,6 +370,7 @@ try {
                         || ($v == 'widgets')
                         || ($v == 'import')
                         || ($v == 'sms_templates' && $all_configs['oRole']->hasPrivilege('site-administration'))
+                        || ($v == 'print_templates' && $all_configs['oRole']->hasPrivilege('site-administration'))
                         || ($v == 'seo' && $all_configs['oRole']->hasPrivilege('edit-map'))
 
                     ) {
@@ -377,7 +378,7 @@ try {
                             || $v == 'settings' || $v == 'users' || $v == 'offices' || $v == 'wrapper'
                             || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains'
                             || $v == 'debug' || $v == 'tasks' || $v == 'flayers' || $v == 'statistics'
-                            || $v == 'seo' || $v == 'widgets' || $v == 'import' || $v == 'sms_templates'
+                            || $v == 'seo' || $v == 'widgets' || $v == 'import' || $v == 'sms_templates' || $v == 'print_templates'
                         ) {
 
                             if (empty($additionallUrl)) {

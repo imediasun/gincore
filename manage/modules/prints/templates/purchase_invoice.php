@@ -4,7 +4,7 @@ require_once __DIR__ . '/abstract_template.php';
 
 class purchase_invoice extends AbstractTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $parentId = $this->all_configs['db']->query('SELECT parent_id FROM {contractors_suppliers_orders} WHERE id=?i',
             array($object))->el();

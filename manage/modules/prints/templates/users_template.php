@@ -2,13 +2,12 @@
 
 require_once __DIR__ . '/abstract_orders_template.php';
 
-// квитанция
-class check extends AbstractOrdersTemplate
+// users templates
+class users_template extends AbstractOrdersTemplate
 {
     public function draw_one($object, $template='')
     {
         $print_html = '';
-
         $order = $this->all_configs['db']->query(
             'SELECT o.*, a.fio as a_fio, e.fio as engineer, w.title as wh_title, wa.print_address, wa.title as wa_title,
                         wa.print_phone, wa.title as wa_title, wag.address as accept_address
@@ -22,20 +21,15 @@ class check extends AbstractOrdersTemplate
 
         if ($order) {
             $this->editor = true;
-
             // товары и услуги
             $goods = $this->all_configs['db']->query('SELECT og.*, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
 
+
             $arr = $this->getVariables($order, $goods);
 
-            $arr['date'] = array(
-                'value' => date("d/m/Y", strtotime($order['date_add'])),
-                'name' => l('Дата создания заказа на ремонт')
-            );
-
-            $print_html = $this->generate_template($this->addUsersFieldsValues($order, $arr), 'check');
+            $print_html = $this->generate_template($this->addUsersFieldsValues($order, $arr), $template);
         }
         return $print_html;
     }

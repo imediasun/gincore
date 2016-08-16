@@ -4,7 +4,7 @@ require_once __DIR__.'/abstract_template.php';
 
 class location extends AbstractTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $location = $this->all_configs['db']->query('SELECT w.title, l.location, l.id
                 FROM {warehouses} as w, {warehouses_locations} as l

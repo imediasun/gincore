@@ -12,19 +12,20 @@ abstract class AbstractTemplate
     private $templateTable;
     public $editor = false;
 
-    abstract public function draw_one($object);
+    abstract public function draw_one($object, $template='');
 
     /**
+     * @param string $act
      * @return string
      */
-    public function draw()
+    public function draw($act = '')
     {
         $result = '';
         if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             $objects = array_filter(explode(',', $_GET['object_id']));
             foreach ($objects as $object) {
                 if ($object !== 0) {
-                    $result .= $this->draw_one($object);
+                    $result .= $this->draw_one($object, $act);
                 }
             }
         }
@@ -56,10 +57,19 @@ abstract class AbstractTemplate
      */
     public function get_template($act)
     {
+        if(empty($act)) {
+            return '';
+        }
         $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
             . "LEFT JOIN {?q} as t ON t.id = s.var_id "
             . "WHERE s.lang = ? AND t.var = ?",
             array($this->templateTable, $this->templateTable, $this->cur_lang, 'print_template_' . $act), 'el');
+        if(empty($template)) {
+            $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
+                . "LEFT JOIN {?q} as t ON t.id = s.var_id "
+                . "WHERE s.lang = ? AND t.var = ?",
+                array($this->templateTable, $this->templateTable, $this->manage_lang, 'print_template_' . $act), 'el');
+        }
         if (empty($template)) {
             $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
                 . "LEFT JOIN {?q} as t ON t.id = s.var_id "
