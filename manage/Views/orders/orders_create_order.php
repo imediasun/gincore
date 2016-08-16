@@ -218,9 +218,12 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <textarea
-                                            class="form-control <?= !isset($hide['defect']) ? 'hide-field' : '' ?>"
-                                            name="defect"></textarea>
+                                        <?php $this->HideField->end(); ?>
+                                    </div>
+                                    <?php $this->HideField->start('defect-description'); ?>
+                                    <div
+                                        class="form-group <?= !isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
+                                        <textarea class="form-control" name="defect"></textarea>
                                     </div>
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('appearance'); ?>
@@ -424,7 +427,9 @@
                                     <tr>
                                         <td class="hide-field-td" style="padding-right: 10px !important;">
                                             <div class="form-group" style="margin-top: 0px;">
-                                                <button name='save-hide-field-options' type="submit" class="btn btn-primary" onclick="apply_hide(this);"><?= l('Применить') ?></button>
+                                                <button name='save-hide-field-options' type="submit"
+                                                        class="btn btn-primary"
+                                                        onclick="apply_hide(this);"><?= l('Применить') ?></button>
                                             </div>
                                         </td>
                                         <td>
