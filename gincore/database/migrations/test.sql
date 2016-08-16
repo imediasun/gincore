@@ -226,3 +226,8 @@ ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_price_type(price_type
  */
 ALTER TABLE `restore4_contractors_categories_links` ADD COLUMN deleted int(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_contractors_categories_links` ADD INDEX contractors_categories_link_deleted(deleted);
+/*
+2016_08_16_053813_add_for_to_template_vars.php
+ */
+ALTER TABLE `restore4_template_vars` ADD COLUMN `for_view` VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_for_view(for_view);

@@ -4,7 +4,7 @@ require_once __DIR__ . '/abstract_template.php';
 
 class price_list_location extends AbstractTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $print_html = '';
         $goods = $this->all_configs['db']->query(

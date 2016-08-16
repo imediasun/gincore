@@ -4,7 +4,7 @@ require_once __DIR__ . '/abstract_template.php';
 
 class label_location extends AbstractTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $products = $this->all_configs['db']->query(
             'SELECT g.barcode, g.title, wgi.serial, wgi.id as item_id,

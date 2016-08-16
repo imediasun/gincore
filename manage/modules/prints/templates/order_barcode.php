@@ -4,7 +4,7 @@ require_once __DIR__ . '/abstract_orders_template.php';
 
 class order_barcode extends AbstractOrdersTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $print_html = '';
 
