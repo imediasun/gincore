@@ -64,6 +64,12 @@ abstract class AbstractTemplate
             . "LEFT JOIN {?q} as t ON t.id = s.var_id "
             . "WHERE s.lang = ? AND t.var = ?",
             array($this->templateTable, $this->templateTable, $this->cur_lang, 'print_template_' . $act), 'el');
+        if(empty($template)) {
+            $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
+                . "LEFT JOIN {?q} as t ON t.id = s.var_id "
+                . "WHERE s.lang = ? AND t.var = ?",
+                array($this->templateTable, $this->templateTable, $this->manage_lang, 'print_template_' . $act), 'el');
+        }
         if (empty($template)) {
             $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
                 . "LEFT JOIN {?q} as t ON t.id = s.var_id "

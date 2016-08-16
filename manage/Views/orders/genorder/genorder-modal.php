@@ -22,7 +22,8 @@
                                     № <?= $order['id'] ?>
                                     <?= $this->renderFile('orders/genorder/_print_buttons', array(
                                         'hasEditorPrivilege' => $hasEditorPrivilege,
-                                        'order' => $order
+                                        'order' => $order,
+                                        'print_templates' => $print_templates
                                     )) ?>
                                     <button data-o_id="<?= $order['id'] ?>" onclick="alert_box(this, false, 'sms-form')"
                                             class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS

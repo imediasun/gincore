@@ -13,7 +13,6 @@ class print_templates extends translates
 
     public function __construct($all_configs, $lang, $def_lang, $langs)
     {
-        Log::error('test');
         global $manage_langs, $manage_lang, $manage_def_lang;
         parent::__construct($all_configs, $manage_lang, $manage_def_lang, $manage_langs);
     }
@@ -33,7 +32,7 @@ class print_templates extends translates
                     'var' => 'var',
                     'key' => 'var_id',
                     'fields' => array(
-                        'body' => l('Значение')
+                        'text' => l('Значение')
                     )
                 ),
             );
@@ -63,7 +62,7 @@ class print_templates extends translates
                     $filter_query_2 = $this->all_configs['db']->makeQuery("?query AND ?q = ?i ",
                         array($filter_query_2, $config['key'], $this->all_configs['arrequest'][2]));
                 }
-                $filter_query_2 = $this->all_configs['db']->makeQuery("?query AND var LIKE '%?q%' ",
+                $filter_query_2 = $this->all_configs['db']->makeQuery("?query AND var LIKE '%?q%' AND NOT for_view='' ",
                         array($filter_query_2, 'print_template'));
 
                 $table_name = $this->getTableName();
@@ -167,8 +166,11 @@ class print_templates extends translates
     private function saveTemplateVars($tableName, $post)
     {
         $id = null;
-        if (empty($post['data']) || empty($post['data']['var']) || empty($post['data']['type'])) {
+        if (empty($post['data']) || empty($post['data']['var']) || empty($post['data']['for_view'])) {
             throw new ExceptionWithMsg(l('Заполните все поля'));
+        }
+        if(strstr($post['data']['var'], 'print_template') === false) {
+            $post['data']['var'] = 'print_template_'.transliturl($post['data']['var']);
         }
         $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?',
             array($tableName, $post['data']['var']))->el();
@@ -206,7 +208,7 @@ class print_templates extends translates
             'url' => $this->url,
             'table' => $table,
             'languages' => $languages,
-            'textarea' => false,
+            'textarea' => true,
             'manage_lang' => $this->lang,
         ));
     }

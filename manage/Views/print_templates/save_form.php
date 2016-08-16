@@ -1,4 +1,3 @@
-<?php echo print_r($_POST, true) ?>
 <h3><?= $config['name'] ?></h3>
 <form data-='' action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add/save"
       method="post">
@@ -20,7 +19,7 @@
                 <div class="from-control">
                     <label><?= $column['Field'] ?></label>
                     <input required class="form-control" name="data[<?= $column['Field'] ?>]" type="text"
-                           value="<?= isset($_POST['data']['var']) ? $_POST['data']['var'] : '' ?>">
+                           value="<?= isset($_POST['data'][$column['Field']]) ? $_POST['data'][$column['Field']] : '' ?>">
                 </div>
             <?php endif; ?>
         <?php endforeach; ?>

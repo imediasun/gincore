@@ -18,6 +18,11 @@ class AddForToTemplateVars extends Migration
                 $table->index('for_view');
             });
         }
+        if (!Schema::hasColumn('template_vars', 'description')) {
+            Schema::table('template_vars', function ($table) {
+                $table->string('description')->default('');
+            });
+        }
     }
 
     /**
@@ -30,6 +35,11 @@ class AddForToTemplateVars extends Migration
         if (!Schema::hasColumn('template_vars', 'for_view')) {
             Schema::table('template_vars', function ($table) {
                 $table->dropColumn('for_view');
+            });
+        }
+        if (!Schema::hasColumn('template_vars', 'description')) {
+            Schema::table('template_vars', function ($table) {
+                $table->dropColumn('description');
             });
         }
     }

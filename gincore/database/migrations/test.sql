@@ -231,3 +231,4 @@ ALTER TABLE `restore4_contractors_categories_links` ADD INDEX contractors_catego
  */
 ALTER TABLE `restore4_template_vars` ADD COLUMN `for_view` VARCHAR (255) DEFAULT '';
 ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_for_view(for_view);
+ALTER TABLE `restore4_template_vars` ADD COLUMN `description` VARCHAR (255) DEFAULT '';

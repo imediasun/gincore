@@ -58,6 +58,18 @@
                     </label><?= InfoPopover::getInstance()->createQuestion('l_it_order-barcode_print_form') ?>
                 </div>
             </li>
+            <?php foreach ($print_templates as $print_template): ?>
+                <li>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="print[]"
+                                   value="<?= print_link($order['id'], $print_template['var'], '', true) ?>">
+                            <?= h($print_template['description']) ?>
+                        </label>
+                    </div>
+                </li>
+            <?php endforeach; ?>
+
             <li role="separator" class="divider"></li>
             <li class="text-center">
                 <button class="btn btn-sm btn-info" type="button" id="print_now"><?= l('Распечатать') ?></button>
@@ -66,7 +78,7 @@
     </div>
 <?php endif; ?>
 <script>
-    jQuery(document).ready(function(){
+    jQuery(document).ready(function () {
         $('.infopopover_onclick').on('click', function (e) {
             console.log('test');
             e.stopPropagation();
