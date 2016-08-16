@@ -1461,8 +1461,9 @@ class warehouses extends Controller
     {
         $order_id = isset($_POST['object_id']) ? intval($_POST['object_id']) : 0;
 
-        $order = $this->all_configs['db']->query('SELECT o.*, w.title, l.location
+        $order = $this->all_configs['db']->query('SELECT o.*, w.title, l.location, g.title as item
                 FROM {contractors_suppliers_orders} as o
+                LEFT JOIN {goods} as g ON o.goods_id=g.id
                 LEFT JOIN {warehouses} as w ON w.id=o.wh_id
                 LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
                 WHERE o.id=?i',
