@@ -7,9 +7,11 @@
             <td></td>
             <td><?= l('Метка') ?></td>
             <td><?= l('Ф.И.О.') ?></td>
-            <td><?= l('Телефон') ?></td>
-            <td><?= l('Адрес') ?></td>
-            <td><?= l('Эл.почта') ?></td>
+            <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+                <td><?= l('Телефон') ?></td>
+                <td><?= l('Адрес') ?></td>
+                <td><?= l('Эл.почта') ?></td>
+            <?php endif; ?>
             <td><?= l('Дата регистрации') ?></td>
         </tr>
         <tbody>
@@ -44,21 +46,23 @@
                         <?= h($client['fio']) ?>
                     </a>
                 </td>
-                <td>
-                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
-                        <?= h($client['phone']) ?>
-                    </a>
-                </td>
-                <td>
-                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
-                        <?= h($client['legal_address']) ?>
-                    </a>
-                </td>
-                <td>
-                    <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
-                        <?= h($client['email']) ?>
-                    </a>
-                </td>
+                <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+                    <td>
+                        <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                            <?= h($client['phone']) ?>
+                        </a>
+                    </td>
+                    <td>
+                        <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                            <?= h($client['legal_address']) ?>
+                        </a>
+                    </td>
+                    <td>
+                        <a href=" <?= $this->all_configs['prefix'] . $arrequest[0] ?>/create/<?= $client['id'] ?>">
+                            <?= h($client['email']) ?>
+                        </a>
+                    </td>
+                <?php endif; ?>
                 <td>
                     <span title=" <?= do_nice_date($client['date_add'], false) ?>">
                         <?= do_nice_date($client['date_add']) ?>

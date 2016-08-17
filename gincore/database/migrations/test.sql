@@ -237,3 +237,8 @@ ALTER TABLE `restore4_template_vars` ADD COLUMN `description` VARCHAR (255) DEFA
  */
 ALTER TABLE `restore4_goods` ADD COLUMN `vendor_code` VARCHAR (255) DEFAULT '';
 ALTER TABLE `restore4_goods` ADD INDEX goods_vendor_code(vendor_code);
+/*
+2016_08_17_082613_add_show_client_infos_to_users.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN show_client_info int(1) UNSIGNED DEFAULT 1;
+ALTER TABLE `restore4_users` ADD INDEX users_show_client_info(show_client_info);

@@ -543,6 +543,7 @@ class users extends Controller
                 'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on',
                 'salary_from_repair' => isset($post['salary_from_repair']) ? $post['salary_from_repair'] : 0,
                 'salary_from_sale' => isset($post['salary_from_repair']) ? $post['salary_from_sale'] : 0,
+                'show_client_info' => isset($post['show_client_info']) && $post['show_client_info'] == 'on',
             ), array(
                 $this->Users->pk() => $id
             ));
@@ -909,7 +910,8 @@ class users extends Controller
                         'role' => $post['role'],
                         'email' => $post['email'],
                         'send_over_sms' => isset($post['over_sms']) && $post['over_sms'] == 'on',
-                        'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on'
+                        'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on',
+                        'show_client_info' => isset($post['show_client_info']) && $post['show_client_info'] == 'on'
                     ));
                     $this->History->save('add-user', $mod_id, intval($id));
                     $this->saveUserRelations($id, $post);

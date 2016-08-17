@@ -1,7 +1,8 @@
 <tr class="remove-marked-object">
     <td class="floatleft">
         <?php if ($order['home_master_request'] == 1): ?>
-            <i style="color:<?= $color ?>; font-size: 10px" title="<?= $order['hmr_address'] ?>, <?= $order['hmr_date']?>"
+            <i style="color:<?= $color ?>; font-size: 10px"
+               title="<?= $order['hmr_address'] ?>, <?= $order['hmr_date'] ?>"
                class="fa fa-car"></i>
         <?php endif; ?>
         <?= $accepted ?>
@@ -46,8 +47,12 @@
     <?php else: ?>
         <td class="center"><?= ($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? l('да') : '' ?></td>
     <?php endif; ?>
-    <td><?= h($order['o_fio']) ?></td>
-    <td><?= $order['o_phone'] ?></td>
+    <td> <?= h($order['o_fio']) ?> </td>
+    <td>
+        <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+            <?= $order['o_phone'] ?>
+        <?php endif; ?>
+    </td>
     <td class="<?= $order['urgent'] == 1 ? 'text-danger' : '' ?>">
         <?= ($order['urgent'] == 1) ? l('Срочно') : l('Не срочно') ?>
     </td>

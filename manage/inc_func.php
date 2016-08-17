@@ -1097,7 +1097,7 @@ function display_client_order($order)
         : (($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? '<td>да</td>' : '<td></td>'))
 
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
-    . '<td>' . $order['o_phone'] . '</td>'
+    . '<td>' . ($all_configs['configs']['can_see_client_infos']?$order['o_phone']:'') . '</td>'
     . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">' . l('Срочно') . ' ' : '>' . l('Не срочно')) . '</td>'
     . '<td>' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']) . '</td></tr>';
 }

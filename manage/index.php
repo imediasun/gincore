@@ -422,6 +422,7 @@ try {
 ################################################################################
     $all_configs['curmod'] = null;
     if ($ifauth) {
+        $all_configs['configs']['can_see_client_infos'] = $all_configs['oRole']->canSeeClientInfos($_SESSION['id']);
         if ($curmod) {
             $all_configs['curmod'] = $curmod;
             $module = new $curmod($all_configs, $langs['lang'], $langs['def_lang'], $langs['langs']);

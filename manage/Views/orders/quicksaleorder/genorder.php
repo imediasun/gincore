@@ -38,7 +38,7 @@
                             <i title="<?= l('Принято через почту') ?>" class="fa fa-suitcase text-danger"></i>
                         <?php else: ?>
                             <i style="color:<?= $color ?>;" title="<?= l('Принято в сервисном центре') ?>"
-                               class="<?= htmlspecialchars($order['icon']) ?>"></i>
+                               class="<?= h($order['icon']) ?>"></i>
                         <?php endif; ?>
                         <?= $order['aw_title'] ?>&nbsp;<?= timerout($order['id'], true) ?>
                     </div>
@@ -49,14 +49,14 @@
             <div class="row-fluid">
                 <legend> <?= l('Заказ') ?></legend>
                 <div class="col-sm-3">
-                    <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
+                    <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . h($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                     <div class="form-group clearfix">
                         <label class="lh30">
                             <span <?= $style ?>></span>
-                                <span class="cursor-pointer glyphicon glyphicon-list"
-                                      title="<?= l('История перемещений') ?>"
-                                      data-o_id="<?= $order['id'] ?>"
-                                      onclick="alert_box(this, false, 'order-statuses')">
+                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                  title="<?= l('История перемещений') ?>"
+                                  data-o_id="<?= $order['id'] ?>"
+                                  onclick="alert_box(this, false, 'order-statuses')">
 
                                 </span>
                             <?= l('Статус') ?>:
@@ -85,8 +85,8 @@
                             </span>
                             <?= l('Локации') ?>:
                         </label>
-                        <?= htmlspecialchars($order['wh_title']) ?>
-                        <?= htmlspecialchars($order['location']) ?>
+                        <?= h($order['wh_title']) ?>
+                        <?= h($order['location']) ?>
                         <i title="<?= l('Переместить заказ') ?>"
                            onclick="alert_box(this, false, 'stock_move-order', undefined, undefined, 'messages.php')"
                            data-o_id="<?= $order['id'] ?>"
@@ -110,21 +110,23 @@
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
                         </label>
                         <div class="tw100">
-                            <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
+                            <input type="text" value="<?= h($order['fio']) ?>" name="fio"
                                    class="form-control" placeholder="<?= l('ФИО') ?>"/>
                         </div>
                     </div>
-                    <div class="form-group clearfix">
-                        <label class="lh30">
+                    <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+                        <div class="form-group clearfix">
+                            <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-phone')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                        </label>
-                        <div class="tw100">
-                            <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
-                                   class="form-control" placeholder="<?= l('Телефон') ?>"/>
+                            </label>
+                            <div class="tw100">
+                                <input type="text" value="<?= h($order['phone']) ?>" name="phone"
+                                       class="form-control" placeholder="<?= l('Телефон') ?>"/>
+                            </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="row-fluid">
@@ -210,12 +212,12 @@
                                         <?php if ($order['tag_id'] != 0): ?>
                                             <span class="tag"
                                                   style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
-                                    <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
+                                    <?= h($tags[$order['tag_id']]['title']) ?>
                                 </span>
                                         <?php endif; ?>
                                         <span class="text-success">
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
-                                            <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                                            <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= h($order['prepay_comment']) . ')' ?>
                             </span>
                                     </td>
                                     <td></td>

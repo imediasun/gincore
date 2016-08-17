@@ -87,10 +87,11 @@
                         </div>
                         <div class="form-group">
                             <label><?= l('Телефон') ?></label>
-                            <input<?=input_phone_mask_attr()?> onkeydown="return isNumberKey(event)" class="form-control"
-                                   value="<?= (isset($form_data['phone']) ? h($form_data['phone']) : '') ?>"
-                                   name="phone"
-                                   placeholder="<?= l('введите телефон') ?>">
+                            <input<?= input_phone_mask_attr() ?> onkeydown="return isNumberKey(event)"
+                                                                 class="form-control"
+                                                                 value="<?= (isset($form_data['phone']) ? h($form_data['phone']) : '') ?>"
+                                                                 name="phone"
+                                                                 placeholder="<?= l('введите телефон') ?>">
                         </div>
 
                     </div>
@@ -177,14 +178,16 @@
                             <td class="col-sm-6">
                                 <div class="form-group">
                                     <label>
-                                        <?= l('Зарплата от прибыли с заказов за ремонт') ?><?=  InfoPopover::getInstance()->createQuestion('l_it_profit_from_repair_orders')?>
+                                        <?= l('Зарплата от прибыли с заказов за ремонт') ?><?= InfoPopover::getInstance()->createQuestion('l_it_profit_from_repair_orders') ?>
                                     </label><br>
                                 </div>
 
                             </td>
                             <td class="col-sm-6">
                                 <div class="input-group col-sm-5">
-                                    <input type="text" class="form-control" value="<?= (isset($form_data['salary_from_repair']) ? h($form_data['salary_from_repair']) : '') ?>" name="salary_from_repair" aria-describedby="basic-addon1"/>
+                                    <input type="text" class="form-control"
+                                           value="<?= (isset($form_data['salary_from_repair']) ? h($form_data['salary_from_repair']) : '') ?>"
+                                           name="salary_from_repair" aria-describedby="basic-addon1"/>
                                     <span class="input-group-addon" id="basic-addon1">%</span>
                                 </div>
                             </td>
@@ -193,14 +196,16 @@
                             <td class="col-sm-6">
                                 <div class="form-group">
                                     <label>
-                                        <?= l('Зарплата от прибыли с продаж') ?><?=  InfoPopover::getInstance()->createQuestion('l_it_understood_operating_profit')?>
+                                        <?= l('Зарплата от прибыли с продаж') ?><?= InfoPopover::getInstance()->createQuestion('l_it_understood_operating_profit') ?>
                                     </label><br>
                                 </div>
 
                             </td>
                             <td class="col-sm-6">
                                 <div class="input-group col-sm-5">
-                                    <input type="text" class="form-control" value="<?= (isset($form_data['salary_from_sale']) ? h($form_data['salary_from_sale']) : '') ?>" name="salary_from_sale" aria-describedby="basic-addon2"/>
+                                    <input type="text" class="form-control"
+                                           value="<?= (isset($form_data['salary_from_sale']) ? h($form_data['salary_from_sale']) : '') ?>"
+                                           name="salary_from_sale" aria-describedby="basic-addon2"/>
                                     <span class="input-group-addon" id="basic-addon2">%</span>
                                 </div>
                             </td>
@@ -223,6 +228,21 @@
                                                name="over_sms" <?= isset($form_data['send_over_sms']) && $form_data['send_over_sms'] ? 'checked' : '' ?>/>
                                         <?= l('через SMS') ?>
                                     </label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        <?= l('Показывать контактные данные клиентов') ?><?= InfoPopover::getInstance()->createQuestion('l_shos_client_infos') ?>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="checkbox"
+                                           name="show_client_info" <?= isset($form_data['show_client_info']) && !$form_data['show_client_info'] ? '' : 'checked' ?>/>
                                 </div>
                             </td>
                         </tr>

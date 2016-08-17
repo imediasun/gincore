@@ -86,6 +86,7 @@ class MUsers extends AModel
             'send_over_sms',
             'salary_from_repair',
             'salary_from_sale',
+            'show_client_info'
         );
     }
 }

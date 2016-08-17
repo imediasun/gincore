@@ -85,6 +85,15 @@ class Role
     }
 
     /**
+     * @param $userId
+     * @return mixed
+     */
+    public function canSeeClientInfos($userId)
+    {
+        return $this->all_configs['db']->query('SELECT show_client_info FROM {users} WHERE id=?i', array($userId))->el();
+    }
+
+    /**
      * @param null $perm
      * @return bool
      */

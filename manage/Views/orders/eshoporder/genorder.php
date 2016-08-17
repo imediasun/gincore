@@ -53,10 +53,10 @@
                     <div class="form-group clearfix">
                         <label class="lh30">
                             <span <?= $style ?>></span>
-                                <span class="cursor-pointer glyphicon glyphicon-list"
-                                      title="<?= l('История перемещений') ?>"
-                                      data-o_id="<?= $order['id'] ?>"
-                                      onclick="alert_box(this, false, 'order-statuses')">
+                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                  title="<?= l('История перемещений') ?>"
+                                  data-o_id="<?= $order['id'] ?>"
+                                  onclick="alert_box(this, false, 'order-statuses')">
 
                                 </span>
                             <?= l('Статус') ?>:
@@ -136,28 +136,31 @@
                                    class="form-control" placeholder="<?= l('ФИО') ?>"/>
                         </div>
                     </div>
-                    <div class="form-group clearfix">
-                        <label class="lh30">
+
+                    <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+                        <div class="form-group clearfix">
+                            <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-phone')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                        </label>
-                        <div class="tw100">
-                            <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
-                                   class="form-control" placeholder="<?= l('Телефон') ?>"/>
+                            </label>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
+                                       class="form-control" placeholder="<?= l('Телефон') ?>"/>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group clearfix">
-                        <label class="lh30">
+                        <div class="form-group clearfix">
+                            <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-client_email')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                        </label>
-                        <div class="tw100">
-                            <input type="text" value="<?= htmlspecialchars($order['c_email']) ?>" name="email"
-                                   class="form-control" placeholder="<?= l('Email') ?>"/>
+                            </label>
+                            <div class="tw100">
+                                <input type="text" value="<?= htmlspecialchars($order['c_email']) ?>" name="email"
+                                       class="form-control" placeholder="<?= l('Email') ?>"/>
+                            </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
                     <div class="form-group clearfix">
                         <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
@@ -243,7 +246,10 @@
                                     <?php $status = $this->all_configs['configs']['order-status-issued']; ?>
                                     <?php if ($showButtons && !empty($goods) && $status != $order['status']): ?>
                                         <input id="close-order" class="btn btn-success"
-                                               onclick="issue_order(this, 'sale', <?= $order['id'] ?>)" data-status="<?= $status ?>" data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>" type="button"
+                                               onclick="issue_order(this, 'sale', <?= $order['id'] ?>)"
+                                               data-status="<?= $status ?>"
+                                               data-debt="<?= $order['sum'] - $order['sum_paid'] - $order['discount'] ?>"
+                                               type="button"
                                                value="<?= l('Выдать') ?>"/>
                                     <?php endif; ?>
                                     <input id="update-order" class="btn btn-info" onclick="update_order(this)"
