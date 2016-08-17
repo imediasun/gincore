@@ -120,8 +120,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             $query_title = 'g.title';
 
             $data = $all_configs['db']->query('SELECT g.id, ?q as title FROM {goods} as g ?query
-                    WHERE g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
-                array($query_title, $query, $s, 1, $limit))->assoc();
+                    WHERE (g.title LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.avail=?i GROUP BY g.id LIMIT ?i',
+                array($query_title, $query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'goods-goods' || $_POST['table'] == 'new-goods') {
             $query = '';

@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="form-group" style="max-width:400px">
-                <label><?= l('Товар') ?>: </label>
+                <label><?= l('Поиск по товару или артикулу') ?>: </label>
                 <?= typeahead($this->all_configs['db'], 'goods', true, isset($_GET['pid']) && $_GET['pid'] > 0 ? intval($_GET['pid']): 0, $i) ?>
             </div>
             <div class="form-group">

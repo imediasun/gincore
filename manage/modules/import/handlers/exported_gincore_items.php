@@ -23,6 +23,7 @@ class exported_gincore_items extends abstract_import_provider
         $this->cols = array(
             'category' => lq('Категория'),
             'title' => lq('Наименование'),
+            'vendor_code' => lq('Артикул'),
             'price_purchase' => lq('Цена закупки'),
             'price_wholesale' => lq('Цена оптовая'),
             'price' => lq('Цена розничная'),

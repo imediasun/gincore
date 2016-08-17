@@ -155,7 +155,7 @@ class import_gincore_items extends abstract_import_handler
             if (strpos($field, 'price') !== false) {
                 $value *= 100;
             }
-            if (strpos($field, 'category') !== false && $value === false) {
+            if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
                 $value = $this->createCategory($this->provider->getColValue('category', $row));
             }
             if ($value !== false && $good[$field] != $value) {

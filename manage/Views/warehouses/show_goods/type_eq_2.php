@@ -38,6 +38,10 @@
             </td>
         </tr>
         <tr>
+            <td><b><?= l('Артикул') ?></b></td>
+            <td><?= h($product['vendor_code']) ?></td>
+        </tr>
+        <tr>
             <td><b><?= l('Поставщик') ?></b></td>
             <td><?= h($product['contractor_title']) ?></td>
         </tr>
@@ -60,7 +64,7 @@
             </td>
         </tr>
         <tr>
-            <td><b><?= l('Цена') ?></b></td>
+            <td><b><?= l('Цена закупки') ?></b></td>
             <td><?= $controller->show_price($product['price']) ?></td>
         </tr>
         <tr>

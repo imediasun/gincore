@@ -2,13 +2,14 @@
     <thead>
     <tr>
         <td><?= l('Серийный номер') ?></td>
+        <td><?= l('Артикул') ?></td>
         <td><?= l('Наименование') ?></td>
         <td><?= l('Дата') ?></td>
         <td><?= l('Склад') ?></td>
         <td><?= l('Локация') ?></td>
-        <td><?= l('Заказ клиента') ?></td>
-        <td><?= l('Заказ поставщику') ?></td>
-        <td><?= l('Цена') ?></td>
+        <td><?= l('Заказ') ?><br> <?= l('клиента') ?></td>
+        <td><?= l('Заказ') ?> <br> <?= l('поставщику') ?></td>
+        <td><?= l('Цена') ?><br><?= l('закупки') ?></td>
         <td><?= l('Поставщик') ?></td>
     </tr>
     </thead>
@@ -17,6 +18,7 @@
     <?php foreach ($goods as $product): ?>
         <tr>
             <td><?= suppliers_order_generate_serial($product, true, true) ?></td>
+            <td><?= h($product['vendor_code']) ?></td>
             <td>
                 <a class="hash_link"
                    href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock">

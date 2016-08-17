@@ -232,3 +232,8 @@ ALTER TABLE `restore4_contractors_categories_links` ADD INDEX contractors_catego
 ALTER TABLE `restore4_template_vars` ADD COLUMN `for_view` VARCHAR (255) DEFAULT '';
 ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_for_view(for_view);
 ALTER TABLE `restore4_template_vars` ADD COLUMN `description` VARCHAR (255) DEFAULT '';
+/*
+2016_08_17_064021_add_vendor_code_to_goods.php
+ */
+ALTER TABLE `restore4_goods` ADD COLUMN `vendor_code` VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_goods` ADD INDEX goods_vendor_code(vendor_code);

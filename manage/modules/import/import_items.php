@@ -177,7 +177,7 @@ class import_items extends abstract_import_handler
     {
         $title = $this->provider->getTitle($row);
         return $this->all_configs['db']
-            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, price_purchase, price_wholesale, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i, ?i, ?i)',
+            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, price_purchase, price_wholesale, type, vendor_code) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i, ?i, ?i, ?)',
                 array(
                     $title,
                     '',
@@ -188,7 +188,8 @@ class import_items extends abstract_import_handler
                     $userId,
                     $this->provider->getPurchase($row),
                     $this->provider->getWholesale($row),
-                    0
+                    0,
+                    $this->provider->getVendorCode($row)
                 ), 'id');
     }
 

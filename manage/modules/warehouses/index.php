@@ -431,7 +431,7 @@ class warehouses extends Controller
 
             // проверяем количество складов
             if (count($warehouses_selected) > 0) {
-                $goods = $this->all_configs['db']->query('SELECT g.title as product_title, i.goods_id, COUNT(g.id) as qty_wh
+                $goods = $this->all_configs['db']->query('SELECT g.title as product_title, g.vendor_code, i.goods_id, COUNT(g.id) as qty_wh
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND w.id IN (?li) AND l.id=i.location_id ?query ?query
                         GROUP BY g.id LIMIT ?i, ?i',
@@ -457,14 +457,14 @@ class warehouses extends Controller
                 ) {
                     $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
                         i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
-                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
                         ', array($serial, $query_for_noadmin))->assoc();
                 } else {
                     $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
                         i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
-                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
                     ', array($serial, $query_for_noadmin))->assoc();
@@ -552,13 +552,13 @@ class warehouses extends Controller
 
             if ($select_name) {
                 $select = $this->all_configs['db']->makeQuery('i.id as `№ изделия`, i.serial as `Серийный номер`,
-                    g.title as `Наименование`, i.date_add as `' . l('Дата') . '`, w.title as `Склад`, w.id as `№ склада`,
+                    g.title as `Наименование`, g.vendor_code as `Артикул`, i.date_add as `' . l('Дата') . '`, w.title as `Склад`, w.id as `№ склада`,
                     l.location as `Локация`, l.id as `№ локации`, i.order_id as `Заказ клиента`,
                     i.supplier_order_id as `Заказ поставщику`, i.price/100 as `Цена`,
                     u.title as `Поставщик`, i.supplier_id as `№ поставщика`', array());
             } else {
                 $select = $this->all_configs['db']->makeQuery('w.id, w.title, w.code_1c, w.consider_all,
-                    w.consider_store, g.title as product_title, i.id as item_id, i.date_add, i.goods_id,
+                    w.consider_store, g.title as product_title, i.id as item_id, i.date_add, i.goods_id, g.vendor_code,
                     i.order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id,
                     u.title as contractor_title, i.supplier_order_id, l.location, i.location_id', array());
             }
