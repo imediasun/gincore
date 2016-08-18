@@ -6,7 +6,7 @@
             <center>
                 <b><?= l('Заказ поставщику') ?> N<?= $order['id'] ?></b><br>
                 <?php if ($order): ?>
-                    <?= l('Приходуется на:') ?> <?= h($order['wh_title']) ?> <?= h($order['location']); ?>
+                    <?= l('Приходуется на:') ?> <?= h($order['title']) ?> <?= h($order['location']); ?>
                 <?php endif; ?>
             </center>
         </label>
@@ -21,10 +21,10 @@
                     <td>
                         <?= l('Наименование') ?>
                     </td>
-                    <td width="10%">
+                    <td style="white-space: nowrap">
                         <?= l('Кол-во, шт.') ?>
                     </td>
-                    <td width="35%">
+                    <td width="30%">
                         <?= l('Серийные номера') ?>
                     </td>
                 </tr>
@@ -34,7 +34,7 @@
                     <td>
                         <?= h($order['item']); ?>
                     </td>
-                    <td>
+                    <td style="text-align: center">
                         <?= $count ?>
                     </td>
                     <td>
@@ -84,3 +84,8 @@
         <?php endif; ?>
     </div>
 </form>
+<style>
+    .modal.in .modal-dialog {
+        width: 800px;
+    }
+</style>

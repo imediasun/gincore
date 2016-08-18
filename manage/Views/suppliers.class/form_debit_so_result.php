@@ -6,10 +6,10 @@
             <td>
                 <?= l('Наименование') ?>
             </td>
-            <td width="10%">
+            <td style="white-space: nowrap">
                 <?= l('Кол-во, шт.') ?>
             </td>
-            <td width="35%">
+            <td width="30%">
                 <?= l('Серийные номера') ?>
             </td>
         </tr>
@@ -22,7 +22,7 @@
         </tr>
         </tbody>
     </table>
-    <table class="table">
+    <table class="table table-borderless">
         <tbody>
         <?php $cols = 1 ?>
         <?php for ($i = 0; $i < count($msg); $i += 5): ?>
