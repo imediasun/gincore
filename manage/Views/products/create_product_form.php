@@ -67,7 +67,7 @@
                     <div class="form-group">
                         <label class="control-label"><?= l('Артикул') ?>: </label>
                         <div class="controls">
-                            <input placeholder="<?= l('артикул') ?>"
+                            <input placeholder="<?= l('Артикул') ?>"
                                    class="form-control" name="vendor_code"
                                    value="<?= ((array_key_exists('post', $errors) && array_key_exists('vendor_code',
                                            $errors['post'])) ? h($errors['post']['vendor_code']) : '') ?>"/>
