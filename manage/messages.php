@@ -146,14 +146,19 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 array($query, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'clients') {
-            $data = $all_configs['db']->query('SELECT c.id, GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
-                      ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title, c.fio, c.phone, c.tag_id, t.title as t_title, t.color as t_color
+            if($all_configs['configs']['can_see_client_infos']) {
+                $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
+                      ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title');
+            } else {
+                $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, "")) as title');
+            }
+            $data = $all_configs['db']->query('SELECT c.id,  ?query, c.fio, c.phone, c.tag_id, t.title as t_title, t.color as t_color
                     FROM {clients} as c
                     LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
                     LEFT JOIN {tags} as t ON t.id=c.tag_id
                     WHERE (c.email LIKE "%?e%" OR c.fio LIKE "%?e%" OR c.phone LIKE "%?e%" OR p.phone LIKE "%?e%") AND c.id<>?i
                     GROUP BY c.id LIMIT ?i',
-                array($s, $s, $s, $s, $all_configs['configs']['erp-write-off-user'], $limit))->assoc();
+                array($title_query, $s, $s, $s, $s, $all_configs['configs']['erp-write-off-user'], $limit))->assoc();
         }
         if ($_POST['table'] == 'fvalues') {
             $data = $all_configs['db']->query('SELECT value as title, id FROM {filter_value}
