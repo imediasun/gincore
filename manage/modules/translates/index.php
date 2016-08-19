@@ -249,6 +249,14 @@ class translates
                     ));
                     unset($fields['description']);
                 }
+                if (array_key_exists('priority', $fields) && !empty($fields['priority'])) {
+                    $this->all_configs['db']->query('UPDATE ?q SET priority=? WHERE id=?', array(
+                        $this->getTableName(),
+                        $fields['priority'],
+                        $id
+                    ));
+                    unset($fields['priority']);
+                }
                 $all_fields = array();
                 $vals = array();
                 $update_vals = array();
