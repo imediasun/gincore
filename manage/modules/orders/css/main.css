@@ -506,7 +506,7 @@ td.td-sc-count {
     margin-top: 1px;
 }
 .print_menu {
-    padding: 0 0 10px 0;
+    padding: 0 10px 0 0;
     overflow-y: auto;
     max-height: 200px;
 }
