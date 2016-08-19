@@ -242,3 +242,8 @@ ALTER TABLE `restore4_goods` ADD INDEX goods_vendor_code(vendor_code);
  */
 ALTER TABLE `restore4_users` ADD COLUMN show_client_info int(1) UNSIGNED DEFAULT 1;
 ALTER TABLE `restore4_users` ADD INDEX users_show_client_info(show_client_info);
+/*
+2016_08_19_061515_add_priority_to_template_vars.php
+ */
+ALTER TABLE `restore4_template_vars` ADD COLUMN priority int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_priority(priority);

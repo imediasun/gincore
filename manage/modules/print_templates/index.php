@@ -24,7 +24,7 @@ class print_templates extends translates
     {
         if (is_null($this->config)) {
             $this->config = array(
-                $this->tbl_prefix . 'template_vars' => array(
+                'template_vars' => array(
                     'table' => $this->dbcfg['_prefix'] . 'template_vars',
                     'like' => 'print',
                     'name' => l('Пользовательские шаблоны для печати'),
@@ -241,7 +241,7 @@ class print_templates extends translates
     /**
      * @param $id
      */
-    private function deleteTemplate($id)
+    protected function deleteTemplate($id)
     {
         if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
             db()->query('DELETE FROM {template_vars_strings} WHERE var_id=?i', array($id));

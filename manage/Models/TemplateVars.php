@@ -28,7 +28,7 @@ class MTemplateVars extends AModel
      * @return array
      */
     public function getUsersPrintTemplates($forView) {
-        $templates = $this->query('SELECT var, description FROM ?t WHERE var like "%print_template%" AND for_view=?', array(
+        $templates = $this->query('SELECT var, description FROM ?t WHERE var like "%print_template%" AND for_view=? ORDER by prioriy ASC', array(
             $this->table,
             $forView
         ))->assoc();
@@ -45,7 +45,8 @@ class MTemplateVars extends AModel
             'id',
             'var',
             'for_view',
-            'description'
+            'description',
+            'priority'
         );
     }
 }

@@ -2,22 +2,33 @@
 <form data-='' action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add/save"
       method="post">
     <fieldset>
-        <legend><?= l('Название') ?></legend>
         <?php foreach ($columns as $column): ?>
             <?php if ($column['Field'] == 'for_view'): ?>
                 <div class="from-control">
                     <label><?= l('Для формы') ?></label>
                     <select class="form-control" name="data[for_view]">
+                        <option><?= l('Выберите экран для которого используется этот шаблон') ?></option>
                         <?php foreach (array('repair_order', 'sale_order') as $item): ?>
                             <option <?= (isset($_POST['data']['for_view']) && $_POST['data']['for_view'] == $item) ? 'selected' : ''; ?>
-                                value="<?= $item ?>"><?= l($item) ?></option>
+                                value="<?= $item ?>"
+                                onclick="$('.js-arr').hide(); $('.js-<?= $item ?>').show(); return true;"><?= l($item) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
             <?php endif; ?>
             <?php if (!in_array($column['Field'], array('id', 'type', 'for_view'))): ?>
                 <div class="from-control">
-                    <label><?= $column['Field'] ?></label>
+                    <label>
+                        <?php if ($column['Field'] == 'description'): ?>
+                            <?= l('Название') ?>
+                        <?php elseif ($column['Field'] == 'var'): ?>
+                            <?= l('Идентификатор') ?>
+                        <?php elseif ($column['Field'] == 'priority'): ?>
+                            <?= l('Приоритет') ?><?= InfoPopover::getInstance()->createQuestion('l_create_new_template_priority') ?>
+                        <?php else: ?>
+                            <?= l($column['Field']) ?>
+                        <?php endif; ?>
+                    </label>
                     <input required class="form-control" name="data[<?= $column['Field'] ?>]" type="text"
                            value="<?= isset($_POST['data'][$column['Field']]) ? $_POST['data'][$column['Field']] : '' ?>">
                 </div>
@@ -28,6 +39,12 @@
 
     <fieldset>
         <legend><?= l('Шаблон') ?></legend>
+        <div class="js-arr js-repair_order" style="display: none">
+            <?= $this->renderFile('print_templates/_repair_template_arr'); ?>
+        </div>
+        <div class="js-arr js-sale_order" style="display: none">
+            <?= $this->renderFile('print_templates/_sale_template_arr'); ?>
+        </div>
         <?php foreach ($config['fields'] as $field => $field_name): ?>
             <div class="from-control">
                 <label><?= $field_name ?>, <?= $manage_lang ?></label>
