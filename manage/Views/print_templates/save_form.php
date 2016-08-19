@@ -7,7 +7,7 @@
                 <div class="from-control">
                     <label><?= l('Для формы') ?></label>
                     <select class="form-control" name="data[for_view]">
-                        <option><?= l('Выберите экран для которого используется этот шаблон') ?></option>
+                        <option value=""><?= l('Выберите экран для которого используется этот шаблон') ?></option>
                         <?php foreach (array('repair_order', 'sale_order') as $item): ?>
                             <option <?= (isset($_POST['data']['for_view']) && $_POST['data']['for_view'] == $item) ? 'selected' : ''; ?>
                                 value="<?= $item ?>"
