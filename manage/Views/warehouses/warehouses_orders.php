@@ -28,6 +28,12 @@
             <i class="fa fa-filter"></i> <?= l('Фильтровать') ?> <i class="fa fa-caret-down"></i>
         </button>
     </li>
+    <li class="pull-right">
+        <button type="button" class="btn btn-default">
+            <i class="fa fa-plus-circle" aria-hidden="true" style="color: blue"></i>
+            <?= l('Приходовать') ?>
+        </button>
+    </li>
 </ul>
 <div class="clearfix hidden theme_bg filters-box p-sm m-b-md" id="filters">
     <div id="orders-menu"></div>

@@ -42,6 +42,12 @@ class import
                 'remonline' => 'Remonline',
                 'onec' => '1C (формат A)'
             )
+        ),
+        'posting_items' => array(
+            'name' => 'Приходование товара',
+            'handlers' => array(
+                'posting_items' => 'из xls файла',
+            )
         )
     );
 

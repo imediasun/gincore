@@ -7,6 +7,7 @@ abstract class abstract_import_handler extends Object
     protected $all_configs;
     protected $import_settings;
     protected $rows = array();
+    protected $logQuery = array();
 
     /** @var  gincore_orders */
     protected $provider;
@@ -50,6 +51,29 @@ abstract class abstract_import_handler extends Object
             return $this->provider->check_format($row);
         }
         return false;
+    }
+
+    /**
+     * @param $userId
+     * @param $work
+     * @param $modId
+     * @param $itemId
+     */
+    protected function addToLog($userId, $work, $modId, $itemId)
+    {
+        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)',
+            array($userId, $work, $modId, $itemId));
+    }
+
+    /**
+     *
+     */
+    protected function flushLog()
+    {
+        if (!empty($this->logQuery)) {
+            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id) VALUES ?q',
+                array(implode(',', $this->logQuery)));
+        }
     }
 
     /**

@@ -15,7 +15,6 @@ class import_gincore_items extends abstract_import_handler
     protected $items = array();
     public $userAsManager = true;
     protected $userId;
-    protected $logQuery = array();
     public $uses = array(
         'Categories'
     );
@@ -116,29 +115,6 @@ class import_gincore_items extends abstract_import_handler
             $result['message'] = $e->getMessage();
         }
         return $result;
-    }
-
-    /**
-     * @param $userId
-     * @param $work
-     * @param $modId
-     * @param $itemId
-     */
-    private function addToLog($userId, $work, $modId, $itemId)
-    {
-        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)',
-            array($userId, $work, $modId, $itemId));
-    }
-
-    /**
-     *
-     */
-    private function flushLog()
-    {
-        if (!empty($this->logQuery)) {
-            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id) VALUES ?q',
-                array(implode(',', $this->logQuery)));
-        }
     }
 
     /**
