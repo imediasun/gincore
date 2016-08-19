@@ -46,8 +46,10 @@
                 <?php endforeach; ?>
                 <li role="separator" class="divider"></li>
             </ul>
-            <button class="btn btn-sm btn-info" type="button" id="print_now"
-                    onclick="return print_now_from_orders(this);"><?= l('Распечатать') ?></button>
+            <center>
+                <button class="btn btn-sm btn-info" type="button" id="print_now"
+                        onclick="return print_now_from_orders(this);"><?= l('Распечатать') ?></button>
+            </center>
         </div>
     </div>
 <?php endif; ?>

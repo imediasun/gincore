@@ -510,9 +510,6 @@ td.td-sc-count {
     overflow: auto;
     max-height: 200px;
 }
-#print_now {
-    margin-left: 10px;
-}
 
 .order_product{
     background-color: #fff;

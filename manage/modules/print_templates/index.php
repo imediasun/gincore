@@ -144,7 +144,7 @@ class print_templates extends translates
                     ));
                 Response::redirect($this->all_configs['prefix'] . '' . $this->url . '/' . $this->all_configs['arrequest'][1]);
             } catch (ExceptionWithMsg $e) {
-                FlashMessage::set($e->getMessage(), FlashMessage::INFO);
+                FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
             }
         }
         $columns = $this->all_configs['db']->query("SHOW COLUMNS FROM ?q",
