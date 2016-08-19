@@ -500,9 +500,18 @@ td.td-sc-count {
 .print_menu li{
     padding: 0 10px;
     white-space: nowrap;
+    list-style: none outside none;
 }
 .print_menu li input{
     margin-top: 1px;
+}
+.print_menu {
+    padding: 0;
+    overflow: auto;
+    max-height: 200px;
+}
+#print_now {
+    margin-left: 10px;
 }
 
 .order_product{

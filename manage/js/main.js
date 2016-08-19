@@ -1959,6 +1959,13 @@ function print_now(_this) {
   });
   return false;
 }
+function print_now_from_orders(_this) {
+  var $checks = $('ul.print_menu').find(':checked');
+  $checks.each(function () {
+    window_open($(this).val());
+  });
+  return false;
+}
 
 function init_input_masks() {
   var $els = $('[data-phone_mask]');
