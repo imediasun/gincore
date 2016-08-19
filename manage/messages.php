@@ -131,8 +131,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
             $data = $all_configs['db']->query('SELECT g.id, g.title, g.price, g.price_wholesale FROM {goods} as g ?query
-                    WHERE (g.type IS NULL OR g.type=0) AND g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
-                array($query, $s, 1, $limit))->assoc();
+                    WHERE (g.type IS NULL OR g.type=0) AND (g.title LIKE "%?e%"  OR g.vendor_code LIKE "%?e%") AND g.avail=?i GROUP BY g.id LIMIT ?i',
+                array($query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'goods-service') {
             $query = '';
@@ -142,8 +142,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
             $data = $all_configs['db']->query('SELECT g.id, g.title FROM {goods} as g ?query
-                    WHERE g.type=1 AND g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
-                array($query, $s, 1, $limit))->assoc();
+                    WHERE g.type=1 AND (g.title LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.avail=?i GROUP BY g.id LIMIT ?i',
+                array($query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'clients') {
             if($all_configs['configs']['can_see_client_infos']) {
