@@ -39,7 +39,7 @@
                                             <?php $f_name = 'data[' . $id . '][' . $lng . '][description]'; ?>
                                             <label>
                                                 <?= l('Название') ?>
-                                                <input class="form-control" type="text" name="<?= $f_name ?>"
+                                                <input class="form-control" type="text" name="<?= $f_name ?>" required
                                                        value="<?= h($translate['description']) ?>">
                                             </label>
                                         </div>
@@ -59,9 +59,7 @@
                                     <div class="span3">
                                         <label><?= l('Для формы') ?></label>
                                         <?php $f_name = 'data[' . $id . '][' . $lng . '][for_view]'; ?>
-                                        <select class="form-control" name="<?= $f_name ?>">
-                                            <option
-                                                value=""><?= l('Выберите экран для которого используется этот шаблон') ?></option>
+                                        <select class="form-control" name="<?= $f_name ?>" required>
                                             <?php foreach (array('repair_order', 'sale_order') as $item): ?>
                                                 <option <?= ($translate['for_view'] == $item) ? 'selected' : ''; ?>
                                                     value="<?= $item ?>"><?= l($item) ?></option>
