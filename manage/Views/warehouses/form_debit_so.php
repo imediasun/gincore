@@ -2,13 +2,11 @@
     <input type="hidden" value="<?= $order_id ?>" name="order_id"/>
 
     <div class="form-group">
-        <label class="control-label">
-            <center>
+        <label class="control-label" style="text-align: left">
                 <b><?= l('Заказ поставщику') ?> N<?= $order['id'] ?></b><br>
                 <?php if ($order): ?>
                     <?= l('Приходуется на:') ?> <?= h($order['title']) ?> <?= h($order['location']); ?>
                 <?php endif; ?>
-            </center>
         </label>
     </div>
     <hr>
@@ -21,7 +19,7 @@
                     <td>
                         <?= l('Наименование') ?>
                     </td>
-                    <td style="white-space: nowrap">
+                    <td style="white-space: nowrap; text-align: center">
                         <?= l('Кол-во, шт.') ?>
                     </td>
                     <td width="30%">

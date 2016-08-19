@@ -6,7 +6,7 @@
             <td>
                 <?= l('Наименование') ?>
             </td>
-            <td style="white-space: nowrap">
+            <td style="white-space: nowrap; text-align: center">
                 <?= l('Кол-во, шт.') ?>
             </td>
             <td width="30%">
