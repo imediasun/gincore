@@ -149,7 +149,6 @@ class prints extends Controller
             Response::redirect($this->all_configs['prefix']);
         }
         try {
-            Log::dump($this->act);
             $print_html = $this->template->draw($this->act);
             if (empty($print_html)) {
                 FlashMessage::set(l('Сгенерирован пустой документ'), FlashMessage::DANGER);
@@ -166,6 +165,10 @@ class prints extends Controller
         exit;
     }
 
+    /**
+     * @param $barcode
+     * @param $type
+     */
     public function barcode_generate($barcode, $type)
     {
         require_once(__DIR__ . '/../../classes/BCG/BCGFontFile.php');
@@ -219,6 +222,9 @@ class prints extends Controller
         exit;
     }
 
+    /**
+     * @return mixed|string
+     */
     public function upload()
     {
         $filename = '';

@@ -33,28 +33,43 @@
                                     <?= $this->renderFile('print_templates/_sale_template_arr'); ?>
                                 <?php endif; ?>
                                 <?php $value = h($translate[$field]); ?>
-                                <span class="row">
-                                <span class="span3">
-                                    <span class="form-group" style="display:block; margin-top:20px">
-                                        <?php $f_name = 'data[' . $id . '][' . $lng . '][description]'; ?>
-                                        <label>
-                                            <?= l('Название') ?>
-                                            <input class="form-control" type="text" name="<?= $f_name ?>"
-                                                   value="<?= h($translate['description']) ?>">
-                                        </label>
-                                    </span>
-                                </span>
-                                <span class="span3">
-                                    <span class="form-group" style="display:block; margin-top:20px">
-                                        <?php $f_name = 'data[' . $id . '][' . $lng . '][priority]'; ?>
-                                        <label>
-                                            <?= l('Приоритет') ?> <?= InfoPopover::getInstance()->createQuestion('l_create_new_template_priority') ?>
-                                            <input class="form-control" type="text" name="<?= $f_name ?>"
-                                                   value="<?= h($translate['priority']) ?>">
-                                        </label>
-                                    </span>
-                                </span>
-                            </span>
+                                <div class="row-fluid">
+                                    <div class="span3">
+                                        <div class="form-group" style="display:block; margin-top:20px">
+                                            <?php $f_name = 'data[' . $id . '][' . $lng . '][description]'; ?>
+                                            <label>
+                                                <?= l('Название') ?>
+                                                <input class="form-control" type="text" name="<?= $f_name ?>"
+                                                       value="<?= h($translate['description']) ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="span3">
+                                        <div class="form-group" style="display:block; margin-top:20px">
+                                            <?php $f_name = 'data[' . $id . '][' . $lng . '][priority]'; ?>
+                                            <label>
+                                                <?= l('Приоритет') ?> <?= InfoPopover::getInstance()->createQuestion('l_create_new_template_priority') ?>
+                                                <input class="form-control" type="text" name="<?= $f_name ?>"
+                                                       value="<?= h($translate['priority']) ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row-fluid">
+                                    <div class="span3">
+                                        <label><?= l('Для формы') ?></label>
+                                        <?php $f_name = 'data[' . $id . '][' . $lng . '][for_view]'; ?>
+                                        <select class="form-control" name="<?= $f_name ?>">
+                                            <option
+                                                value=""><?= l('Выберите экран для которого используется этот шаблон') ?></option>
+                                            <?php foreach (array('repair_order', 'sale_order') as $item): ?>
+                                                <option <?= ($translate['for_view'] == $item) ? 'selected' : ''; ?>
+                                                    value="<?= $item ?>"><?= l($item) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row-fluid" style="margin-top: 20px">
                                 <span class="form-group" style="display:block">
                             <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
                                     <?php if ($textarea || strlen($value) > 50): ?>
@@ -66,6 +81,7 @@
                                                value="<?= $value ?>">
                                     <?php endif; ?>
                             </span>
+                                </div>
                             </div>
                         </div>
                     <?php endif; ?>

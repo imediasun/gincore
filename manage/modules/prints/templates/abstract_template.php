@@ -49,6 +49,7 @@ abstract class AbstractTemplate
         $this->cur_lang = $cur_lang;
         $this->templateTable = $templateTable;
         $this->view = new View($all_configs);
+        $this->act = isset($_GET['act']) ? trim($_GET['act']) : '';
     }
 
     /**
@@ -143,9 +144,10 @@ abstract class AbstractTemplate
     {
         if ($print_html && $this->editor && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $print_html = $this->view->renderFile('prints/add_edit_form', array(
-                'tpl' => $this->get_template($this->act()),
+                'tpl' => $this->get_template($this->act),
                 'variables' => $this->variables,
-                'print_html' => $print_html
+                'print_html' => $print_html,
+                'act' => $this->act(),
             ));
 
         }

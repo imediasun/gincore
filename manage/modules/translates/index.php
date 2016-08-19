@@ -257,6 +257,14 @@ class translates
                     ));
                     unset($fields['priority']);
                 }
+                if (array_key_exists('for_view', $fields) && !empty($fields['for_view'])) {
+                    $this->all_configs['db']->query('UPDATE ?q SET for_view=? WHERE id=?', array(
+                        $this->getTableName(),
+                        $fields['for_view'],
+                        $id
+                    ));
+                    unset($fields['for_view']);
+                }
                 $all_fields = array();
                 $vals = array();
                 $update_vals = array();
