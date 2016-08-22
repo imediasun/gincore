@@ -602,7 +602,7 @@ class warehouses extends Controller
     {
         $out = '';
         $saved = $this->LockFilters->load('warehouse-orders-filters');
-        if(count($_GET) <= 2 && $saved) {
+        if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
 
@@ -639,7 +639,7 @@ class warehouses extends Controller
     public function warehouses_orders_clients_bind()
     {
         $saved = $this->LockFilters->load('warehouse-filters');
-        if(count($_GET) <= 2 && $saved) {
+        if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
         $out = $this->all_configs['chains']->show_stockman_operations();
@@ -685,7 +685,7 @@ class warehouses extends Controller
     public function warehouses_orders_clients_unbind()
     {
         $saved = $this->LockFilters->load('warehouse-filters');
-        if(count($_GET) <= 2 && $saved) {
+        if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
@@ -1446,7 +1446,12 @@ class warehouses extends Controller
             ),
             array(
                 'click_tab' => true,
-                'another_module' => true, 
+                'url' => '#purchase_invoices',
+                'name' => l('Приходные накладные')
+            ),
+            array(
+                'click_tab' => true,
+                'another_module' => true,
                 'url' => $all_configs['prefix'] . 'stocktaking',
                 'name' => l('Инвентаризация')
             ),
@@ -2122,5 +2127,22 @@ class warehouses extends Controller
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param string $hash
+     * @return string
+     */
+    public function purchase_invoices($hash = '#purchase_invoices')
+    {
+        $invoices = array();
+        return array(
+            'html' => $this->view->renderFile('warehouses/purchase_invoices', array(
+                'controller' => $this,
+                'invoices' => $invoices
+            )),
+            'function' => '',
+            'menu' => ''
+        );
     }
 }
