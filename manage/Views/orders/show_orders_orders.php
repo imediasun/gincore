@@ -17,7 +17,7 @@
                 <td class="center">
                     <?php if ($debts > 0): ?>
                         <a href="<?= $this->all_configs['prefix'] ?>orders?other=pay" class="label label-success urgent"
-                           title='<?= l('Ожидаемая сумма оплаты') ?>'><?= $debts . viewCurrency() ?></a>
+                           title='<?= l('Ожидаемая сумма оплаты') ?>'><?= round($debts,2) . viewCurrency() ?></a>
                         <br>
                     <?php endif; ?>
                     <?= l('Оплачено') ?>
