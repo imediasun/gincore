@@ -1197,7 +1197,8 @@ class Configs
             'blacklist-tag-id' => '4',
             'sms-types' => array(
                 'requests' => 1,
-                'orders' => 2
+                'orders' => 2,
+                'engineer_notify' => 3
             ),
         );  // object instance
 
