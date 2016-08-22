@@ -53,9 +53,10 @@
             </div>
             <div class="col-sm-3 b-r">
                 <div style="margin-bottom: 5px">
-                <?= typeahead($this->all_configs['db'], 'categories-last', true,
-                    isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini', '', false,
-                    false, '', false, l('Модель')) ?>
+                    <?= typeahead($this->all_configs['db'], 'categories-last', true,
+                        isset($_GET['dev']) && $_GET['dev'] ? $_GET['dev'] : '', 5, 'input-small', 'input-mini', '',
+                        false,
+                        false, '', false, l('Модель')) ?>
                 </div>
                 <?= typeahead($this->all_configs['db'], 'goods-goods', true,
                     isset($_GET['by_gid']) && $_GET['by_gid'] ? $_GET['by_gid'] : 0, 6, 'input-small', 'input-mini', '',
@@ -195,7 +196,9 @@
                                     <?php foreach (array(
                                         'hmr' => l('Вызов мастера на дом'),
                                         'cgd' => l('Устройство забрал курьер'),
-                                        'np' => l('Принято через почту')
+                                        'np' => l('Принято через почту'),
+                                        'urgent' => l('Срочные'),
+                                        'pay' => l('Оплаченные не полностью')
                                     ) as $other_id => $other_title): ?>
                                         <option <?= ((isset($_GET['other']) && in_array($other_id,
                                                 explode(',', $_GET['other']))) ? 'selected' : ''); ?>

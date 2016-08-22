@@ -14,13 +14,27 @@
             <td><?= l('Устройство') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                 <td class="center"><?= l('Стоимость') ?></td>
-                <td class="center"><?= l('Оплачено') ?></td>
+                <td class="center">
+                    <?php if ($debts > 0): ?>
+                        <a href="<?= $this->all_configs['prefix'] ?>orders?other=pay" class="label label-success urgent"
+                           title='<?= l('Ожидаемая сумма оплаты') ?>'><?= $debts . viewCurrency() ?></a>
+                        <br>
+                    <?php endif; ?>
+                    <?= l('Оплачено') ?>
+                </td>
             <?php else: ?>
                 <td class="center"><?= l('Оплата') ?></td>
             <?php endif; ?>
             <td><?= l('Клиент') ?></td>
             <td><?= l('Контактный тел') ?></td>
-            <td><?= l('Сроки') ?></td>
+            <td>
+                <?php if ($urgent > 0): ?>
+                    <a href="<?= $this->all_configs['prefix'] ?>orders?other=urgent" class="label label-warning urgent"
+                       title='<?= l('Срочные ремонты') ?>'><?= $urgent ?></a>
+                    <br>
+                <?php endif; ?>
+                <?= l('Сроки') ?>
+            </td>
             <td><?= l('Склад') ?></td>
         </tr>
         </thead>

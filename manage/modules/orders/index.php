@@ -644,6 +644,8 @@ class orders extends Controller
                 'orders' => $orders,
                 'filters' => $filters,
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
+                'urgent' => $this->Orders->getUrgentCount(),
+                'debts' => $this->Orders->getDebts()
             )),
             'functions' => array(),
         );
@@ -1844,7 +1846,7 @@ class orders extends Controller
             'homeMasterRequest' => $home_master_request,
             'price_type' => $price_type,
             'price_type_of_service' => $price_type_of_service,
-            'print_templates' => $print_templates
+            'print_templates' => $print_templates,
         ));
     }
 
