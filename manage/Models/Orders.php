@@ -162,10 +162,18 @@ class MOrders extends AModel
      */
     public function getUrgentCount()
     {
-        return $this->query('SELECT count(*) FROM ?t WHERE urgent=1 AND not type in (?li)', array(
+        return $this->query('SELECT count(*) FROM ?t WHERE urgent=1 AND not status in (?li)', array(
             $this->table,
             $this->all_configs['configs']['order-statuses-urgent-not-show']
         ))->el();
+    }
+
+    /**
+     * @return int
+     */
+    public function getDebts()
+    {
+        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t WHERE status in (?li)', array($this->table, $this->all_configs['configs']['order-statuses-debts']))->el();
     }
 
     /**
@@ -237,13 +245,4 @@ class MOrders extends AModel
             'home_master_request',
         );
     }
-
-    /**
-     * @return int
-     */
-    public function getDebts()
-    {
-        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t', array($this->table))->el();
-    }
-
 }
