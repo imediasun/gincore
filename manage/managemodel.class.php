@@ -686,7 +686,7 @@ class manageModel
                     array($query));
             }
             if (in_array('urgent', $other)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.urgent=1 AND NOT o.type in (?li)',
+                $query = $this->all_configs['db']->makeQuery('?query AND o.urgent=1 AND NOT o.status in (?li)',
                     array($query, $this->all_configs['configs']['order-statuses-urgent-not-show']));
             }
             if (in_array('pay', $other)) {

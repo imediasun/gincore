@@ -162,7 +162,7 @@ class MOrders extends AModel
      */
     public function getUrgentCount()
     {
-        return $this->query('SELECT count(*) FROM ?t WHERE urgent=1 AND not type in (?li)', array(
+        return $this->query('SELECT count(*) FROM ?t WHERE urgent=1 AND not status in (?li)', array(
             $this->table,
             $this->all_configs['configs']['order-statuses-urgent-not-show']
         ))->el();
