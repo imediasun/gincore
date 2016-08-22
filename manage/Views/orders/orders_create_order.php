@@ -200,9 +200,8 @@
                                     <?php $this->HideField->start('defect'); ?>
                                     <div
                                         class="form-group <?= !isset($hide['defect'])? 'hide-field' : '' ?> ">
-                                        <label><?= l('Неисправность со слов клиента') ?>: </label>
                                         <div
-                                            class="row row-15 form-group <?= !isset($hide['defect']) ? 'hide-field' : '' ?>">
+                                            class="row row-15 form-group">
                                             <div class="col-sm-6">
                                                 <label><?= l('Замена') ?>:</label>
                                                 <input class="form-control" name="repair_part"
@@ -223,6 +222,7 @@
                                     <?php $this->HideField->start('defect-description'); ?>
                                     <div
                                         class="form-group <?= !isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
+                                        <label><?= l('Неисправность со слов клиента') ?>: </label>
                                         <textarea class="form-control" name="defect"></textarea>
                                     </div>
                                     <?php $this->HideField->end(); ?>
