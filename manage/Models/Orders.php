@@ -243,7 +243,7 @@ class MOrders extends AModel
      */
     public function getDebts()
     {
-        return $this->query('SELECT sum(`sum` - sum_paid - discount) FROM ?t', array($this->table))->el();
+        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t', array($this->table))->el();
     }
 
 }
