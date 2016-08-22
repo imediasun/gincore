@@ -19,7 +19,7 @@
                 </div>
                 <div class="form-group">
                     <label><?= l('Артикул') ?> : </label>
-                    <input placeholder="<?= l('артикул') ?>" class="form-control" name="vendor_code"
+                    <input placeholder="<?= l('Артикул') ?>" class="form-control" name="vendor_code"
                            value="<?= ((is_array($errors) && array_key_exists('post',
                                    $errors) && array_key_exists('vendor_code',
                                    $errors['post'])) ? h($errors['post']['vendor_code']) : $product['vendor_code']) ?>"/>

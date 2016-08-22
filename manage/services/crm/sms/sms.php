@@ -45,13 +45,22 @@ class sms extends \service
     }
 
     /**
-     * @param $type
-     * @param $vars
+     * @param        $type
+     * @param        $vars
+     * @param string $default_template
      * @return mixed
      */
-    public function get_templates_with_vars($type, $vars)
+    public function get_templates_with_vars($type, $vars, $default_template = '')
     {
-        return $this->replace_vars($this->get_templates($type), $vars);
+        $template = $this->get_templates($type);
+        if (empty($template) && !empty($default_template)) {
+            $template = array(
+                array(
+                    'body' => $default_template
+                )
+            );
+        }
+        return $this->replace_vars($template, $vars);
     }
 
     /**

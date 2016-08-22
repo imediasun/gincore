@@ -89,10 +89,10 @@ class MOrders extends AModel
         $productTotal = 0;
         if (!empty($goods)) {
             foreach ($goods as $product) {
-                if($product['discount_type'] == 1) {
-                    $price = $product['price'] * (1 - $product['discount']/ 100);
+                if ($product['discount_type'] == 1) {
+                    $price = $product['price'] * (1 - $product['discount'] / 100);
                 } else {
-                    $price = $product['price']  - $product['discount']  * 100;
+                    $price = $product['price'] - $product['discount'] * 100;
                 }
                 $productTotal += $price * $product['count'];
             }
@@ -155,6 +155,17 @@ class MOrders extends AModel
             }
         }
         return $items;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrgentCount()
+    {
+        return $this->query('SELECT count(*) FROM ?t WHERE urgent=1 AND not type in (?li)', array(
+            $this->table,
+            $this->all_configs['configs']['order-statuses-urgent-not-show']
+        ))->el();
     }
 
     /**
@@ -225,6 +236,14 @@ class MOrders extends AModel
             'sale_type',
             'home_master_request',
         );
+    }
+
+    /**
+     * @return int
+     */
+    public function getDebts()
+    {
+        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t', array($this->table))->el();
     }
 
 }

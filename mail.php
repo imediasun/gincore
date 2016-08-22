@@ -105,7 +105,6 @@ class Mailer extends PHPMailer
                 $data['body_link_1_title'] = array_key_exists('title', $data) ? $data['title'] : $data['body_link_1'];
                 break;
 
-
             case('order-manager'):
                 $this->Subject = l('Вы назначены ответственным');
                 $this->Body = l('Вы назначены ответственным по заказу #') . "<a href='{$this->host}manage/orders/create/{$data['order_id']}' >{$data['order_id']}</a>";
