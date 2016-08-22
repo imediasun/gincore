@@ -199,7 +199,7 @@
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('defect'); ?>
                                     <div
-                                        class="form-group <?= !isset($hide['defect']) && !isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
+                                        class="form-group <?= !isset($hide['defect'])? 'hide-field' : '' ?> ">
                                         <label><?= l('Неисправность со слов клиента') ?>: </label>
                                         <div
                                             class="row row-15 form-group <?= !isset($hide['defect']) ? 'hide-field' : '' ?>">
