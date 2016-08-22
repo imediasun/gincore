@@ -690,8 +690,8 @@ class manageModel
                     array($query, $this->all_configs['configs']['order-statuses-urgent-not-show']));
             }
             if (in_array('pay', $other)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND (o.sum_paid + o.discount) < o.sum',
-                    array($query));
+                $query = $this->all_configs['db']->makeQuery('?query AND (o.sum_paid + o.discount) < o.sum AND o.status in (?li)',
+                    array($query, $this->all_configs['configs']['order-statuses-debts']));
             }
         }
 

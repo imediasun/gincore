@@ -169,6 +169,14 @@ class MOrders extends AModel
     }
 
     /**
+     * @return int
+     */
+    public function getDebts()
+    {
+        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t WHERE status in (?li)', array($this->table, $this->all_configs['configs']['order-statuses-debts']))->el();
+    }
+
+    /**
      * @return array
      */
     public function columns()
@@ -237,13 +245,4 @@ class MOrders extends AModel
             'home_master_request',
         );
     }
-
-    /**
-     * @return int
-     */
-    public function getDebts()
-    {
-        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t', array($this->table))->el();
-    }
-
 }
