@@ -9,7 +9,8 @@ $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
 /**
- * @property  MLockFilters LockFilters
+ * @property  MLockFilters     LockFilters
+ * @property MPurchaseInvoices PurchaseInvoices
  */
 class warehouses extends Controller
 {
@@ -19,7 +20,8 @@ class warehouses extends Controller
     public $count_on_page;
 
     public $uses = array(
-        'LockFilters'
+        'LockFilters',
+        'PurchaseInvoices'
     );
 
     /**
@@ -304,7 +306,8 @@ class warehouses extends Controller
         } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $this->warehouseDelete($_POST);
         } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $this->createPurchaseInvoice($_POST);
+            $data = $this->createPurchaseInvoice($_POST);
+            Response::json($data);
         }
 
         // чистим кеш складов
@@ -2141,7 +2144,13 @@ class warehouses extends Controller
      */
     public function purchase_invoices($hash = '#purchase_invoices')
     {
-        $invoices = array();
+        $invoices = $this->PurchaseInvoices->query('
+            SELECT pi.*, u.*, c.title as stitle, g.cnt as quantity, g.amount/100 as amount, 0 as wh_id, "" as wh_title
+            FROM {purchase_invoices} as pi
+            JOIN {contractors} as c ON c.id = pi.supplier_id
+            JOIN {users} as u ON u.id = pi.user_id
+            JOIN (SELECT invoice_id, count(*) as cnt, sum(`price` * quantity) as amount FROM {purchase_invoice_goods} GROUP by invoice_id ) as g ON g.invoice_id=pi.id
+        ')->assoc();
         return array(
             'html' => $this->view->renderFile('warehouses/purchase_invoices/purchase_invoices', array(
                 'controller' => $this,
@@ -2166,7 +2175,7 @@ class warehouses extends Controller
                 array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
         }
         return array(
-          'state' => true,
+            'state' => true,
             'content' => $this->view->renderFile('warehouses/purchase_invoices/create_purchase_invoice', array(
                 'suppliers' => $suppliers
             )),
@@ -2175,10 +2184,50 @@ class warehouses extends Controller
         );
     }
 
+    /**
+     * @param $post
+     * @return array
+     */
     private function createPurchaseInvoice($post)
     {
-        return array(
+        $result = array(
             'state' => true,
-        ) ;
+        );
+        $prepareItems = function ($data) {
+            $result = array();
+            if (array_key_exists('item_ids', $data)) {
+                foreach ($data['item_ids'] as $id => $value) {
+                    $result[] = array(
+                        'good_id' => $id,
+                        'price' => $data['amount'][$id] * 100,
+                        'quantity' => $data['quantity'][$id],
+                        'not_found' => $data['not_found'][$id] || ''
+                    );
+                }
+            }
+            return $result;
+        };
+        $items = $prepareItems($post);
+        if (empty($items)) {
+            return array(
+                'state' => false,
+                'message' => l('Коризна пустая')
+            );
+        }
+        $data = array(
+            'user_id' => $this->getUserId(),
+            'supplier_id' => $post['warehouse-supplier'],
+            'comment' => $post['comment'],
+            'date' => date('Y-m-d H:i:s', strtotime($post['warehouse-order-date'])),
+            'items' => $items,
+            'type' => $post['warehouse-type']
+        );
+        if (!$this->PurchaseInvoices->add($data)) {
+            $result = array(
+                'state' => false,
+                'message' => l('Что-то пошло не так')
+            );
+        }
+        return $result;
     }
 }

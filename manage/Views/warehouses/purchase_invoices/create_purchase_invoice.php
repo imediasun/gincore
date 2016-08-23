@@ -1,12 +1,12 @@
 <div class="row-fluid">
     <div class="col-sm-12">
-        <form id="create-purchase-invoice-modal">
-
+        <form id="suppliers-order-form">
+            <input type="hidden" name="create-purchase-invoice" />
             <?php if (empty($suppliers)): ?>
                 <p class="text-danger"><?= l('Нет поставщиков') ?></p>
             <?php else: ?>
                 <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-header">
-                    <div class="form-group relative col-sm-8">
+                    <div class="form-group relative col-sm-12">
                         <table class="table table-borderless">
                             <thead>
                             <tr>
@@ -54,9 +54,9 @@
                                            name="warehouse-order-date" data-required="true" value=""/>
                                 </td>
                                 <td>
-                                    <select class="form-control" data-required="true">
-                                        <option value="1" name="warehouse_type"><?= l('Локально') ?> </option>
-                                        <option value="2" name="warehouse_type"><?= l('Заграница') ?> </option>
+                                    <select class="form-control" data-required="true" name="warehouse-type">
+                                        <option value="1"><?= l('Локально') ?> </option>
+                                        <option value="2"><?= l('Заграница') ?> </option>
                                     </select>
                                 </td>
                             </tr>
@@ -65,7 +65,7 @@
                     </div>
                 </div>
                 <div class="row-fluid">
-                    <div class="form-group relative col-sm-8">
+                    <div class="form-group relative col-sm-12">
                         <table class="table table-borderless">
                             <thead>
                             <tr>

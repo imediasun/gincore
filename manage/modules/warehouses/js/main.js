@@ -425,7 +425,7 @@ function create_purchase_invoice() {
           url: prefix + 'warehouses?act=create-purchase-invoice',
           dataType: "json",
           type: 'POST',
-          data: $('form#create-purchase-invoice-modal').serialize(),
+          data: $('form#suppliers-order-form').serialize(),
           success: function (data) {
             if (data['state'] == false) {
               alert(data['message']);

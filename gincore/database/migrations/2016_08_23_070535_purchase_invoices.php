@@ -24,6 +24,7 @@ class PurchaseInvoices extends Migration
                 $table->integer('state')->integer(2)->unsigned();
                 $table->string('comment')->default('');
                 $table->timestamp('date');
+                $table->timestamp('purchase_date');
                 $table->index('user_id');
                 $table->index('supplier_id');
                 $table->index('warehouse_id');

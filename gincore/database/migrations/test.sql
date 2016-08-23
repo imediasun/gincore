@@ -260,6 +260,7 @@ CREATE TABLE IF NOT EXISTS `restore4_purchase_invoices` (
   `state` int(10) unsigned NOT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `date` TIMESTAMP,
+  `purchase_date` TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `purchase_invoices_user_id` (`user_id`),
   KEY `purchase_invoices_supplier_id` (`supplier_id`),

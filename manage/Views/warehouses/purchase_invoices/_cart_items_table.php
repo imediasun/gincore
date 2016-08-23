@@ -19,10 +19,6 @@
                     <input type="text" class="form-control js-supplier-sum dasabled" readonly
                            onkeyup="recalculate_amount_supplier(this);" value="" name=""/>
                 </td>
-                <td>
-                    <input type="text" class="form-control js-supplier-order_numbers dasabled" readonly value=""
-                           name=""/>
-                </td>
                 <td class="col-sm-1">
                     <a href="#" onclick="return remove_supplier_row(this);">
                         <i class="glyphicon glyphicon-remove"></i>
@@ -58,14 +54,6 @@
                                    value="<?= $invoice['price'] * $invoice['quantity'] ?>"/>
                             <?php $total += $invoice['price'] * $invoice['quantity'] ?>
                         </td>
-                        <td>
-                            <input type="hidden" class="form-control js-supplier-order_numbers disabled"
-                                   value="<?= implode(',', $invoice['cos']) ?>"
-                                   name="so_co[<?= $id ?>]"/>
-                            <input type="text" class="form-control js-supplier-order_numbers" style="background-color: #eeeeee"
-                                   value="<?= implode(',', $invoice['cos']) ?>"
-                            />
-                        </td>
                         <td class="col-sm-2">
                         </td>
                     </tr>
@@ -82,7 +70,6 @@
                 <td>
                     <input type="text" readonly class="form-control js-supplier-total" value="<?= $total ?>"/>
                 </td>
-                <td></td>
                 <td></td>
             </tr>
             </tfoot>
