@@ -414,3 +414,61 @@ function create_warehouse_modal(_this) {
   });
   return false;
 }
+
+function create_purchase_invoice() {
+  var buttons = {
+    success: {
+      label: "Создать",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'warehouses?act=create-purchase-invoice',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#create-purchase-invoice-modal').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=create-purchase-invoice-form',
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
+function cancel_purchase_invoice(_this, id) {
+
+}

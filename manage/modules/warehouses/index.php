@@ -303,6 +303,8 @@ class warehouses extends Controller
             }
         } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $this->warehouseDelete($_POST);
+        } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $this->createPurchaseInvoice($_POST);
         }
 
         // чистим кеш складов
@@ -1233,6 +1235,10 @@ class warehouses extends Controller
             $data = $this->all_configs['suppliers_orders']->orders_link($so_id, $co_id);
         }
 
+        if ($act == 'create-purchase-invoice-form') {
+            $data = $this->createPurchaseInvoiceForm($data);
+        }
+
         // очистка серийника
         if ($act == 'clear-serial' && isset($_POST['item_id'])) {
             $data = $this->clearSerial($data);
@@ -2137,12 +2143,42 @@ class warehouses extends Controller
     {
         $invoices = array();
         return array(
-            'html' => $this->view->renderFile('warehouses/purchase_invoices', array(
+            'html' => $this->view->renderFile('warehouses/purchase_invoices/purchase_invoices', array(
                 'controller' => $this,
                 'invoices' => $invoices
             )),
             'function' => '',
             'menu' => ''
         );
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function createPurchaseInvoiceForm($data)
+    {
+        $suppliers = null;
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        }
+        return array(
+          'state' => true,
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/create_purchase_invoice', array(
+                'suppliers' => $suppliers
+            )),
+            'title' => '',
+            'message' => ''
+        );
+    }
+
+    private function createPurchaseInvoice($post)
+    {
+        return array(
+            'state' => true,
+        ) ;
     }
 }

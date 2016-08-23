@@ -247,3 +247,36 @@ ALTER TABLE `restore4_users` ADD INDEX users_show_client_info(show_client_info);
  */
 ALTER TABLE `restore4_template_vars` ADD COLUMN priority int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_priority(priority);
+/*
+2016_08_23_070535_purchase_invoices.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_purchase_invoices` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `supplier_id` int(10) unsigned NOT NULL,
+  `warehouse_id` int(10) unsigned NOT NULL,
+  `location_id` int(10) unsigned NOT NULL,
+  `type` int(10) unsigned NOT NULL,
+  `state` int(10) unsigned NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `date` TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `purchase_invoices_user_id` (`user_id`),
+  KEY `purchase_invoices_supplier_id` (`supplier_id`),
+  KEY `purchase_invoices_warehoust_id` (`warehouse_id`),
+  KEY `purchase_invoices_location_id` (`location_id`),
+  KEY `purchase_invoices_type` (`type`),
+  KEY `purchase_invoices_state` (`state`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_id` int(10) unsigned NOT NULL,
+  `good_id` int(10) unsigned NULL,
+  `price` int(10) unsigned NOT NULL,
+  `quantity` int(10) unsigned NOT NULL,
+  `not_found` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_invoice_goods_invoice_id` (`invoice_id`),
+  KEY `purchase_invoice_goods_good_id` (`good_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
