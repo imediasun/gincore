@@ -323,4 +323,15 @@ class import_items extends abstract_import_handler
         }
         return array();
     }
+    /**
+     * @param $userId
+     * @param $work
+     * @param $modId
+     * @param $itemId
+     */
+    private function addToLog($userId, $work, $modId, $itemId)
+    {
+        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
+            array($userId, $work, $modId, $itemId));
+    }
 }
