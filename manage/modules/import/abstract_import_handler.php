@@ -87,4 +87,9 @@ abstract class abstract_import_handler extends Object
      * @return string
      */
     abstract public function get_result_row($row);
+
+    /**
+     * @return string
+     */
+    abstract public function getImportForm();
 }

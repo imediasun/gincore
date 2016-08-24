@@ -157,4 +157,12 @@ class import_clients extends abstract_import_handler
         return '<td ># ' . $row['num'] . ' ' . (!empty($row['fio']) ? '(' . htmlspecialchars($row['fio']) . ')' : '') . '</td>'
         . '<td>' . $row['message'] . '</td>';
     }
+
+    /**
+     * @return string
+     */
+    public function getImportForm()
+    {
+        return '';
+    }
 }

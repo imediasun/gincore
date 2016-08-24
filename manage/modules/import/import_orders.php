@@ -365,4 +365,12 @@ class import_orders extends abstract_import_handler
     {
         return isset($this->types[$typeOfRepair]) ? $this->types[$typeOfRepair] : 0;
     }
+
+    /**
+     * @return string
+     */
+    public function getImportForm()
+    {
+        return $this->view->renderFile('import/forms/orders');
+    }
 }

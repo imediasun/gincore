@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../Core/Object.php';
 require_once __DIR__ . '/../../Core/View.php';
 
 global $all_configs;
@@ -7,7 +8,7 @@ $modulename[133] = 'import';
 $modulemenu[133] = l('Импорт');
 $moduleactive[133] = $all_configs['oRole']->hasPrivilege('edit-users');
 
-class import
+class import extends Object
 {
     protected $all_configs;
     /** @var View */
@@ -46,7 +47,7 @@ class import
         'posting_items' => array(
             'name' => 'Приходование товара',
             'handlers' => array(
-                'posting_items' => 'из xls файла',
+                'xls' => 'из xls файла',
             )
         )
     );
@@ -182,10 +183,12 @@ class import
      */
     function get_import_form($type)
     {
+        $import = $this->getImportHandler($type, null, null);
         return $this->view->renderFile('import/get_import_form', array(
             'type' => $type,
             'options' => $this->upload_types,
-            'handlers' => array_keys($this->upload_types[$type]['handlers'])
+            'handlers' => array_keys($this->upload_types[$type]['handlers']),
+            'body' => empty($import) ? '' : $import->getImportForm()
         ));
     }
 
@@ -214,22 +217,7 @@ class import
                 } else {
                     $source = $this->upload_path . $import_type . '.csv';
                     if (file_exists($source)) {
-                        $import_settings = array();
-                        switch ($import_type) {
-                            case 'items':
-                                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
-                                break;
-                            case 'orders':
-                                if (!$this->has_orders()) { // если есть заказы в системе то низя
-                                    $import_settings['clear_categories'] = isset($_POST['clear_categories']);
-                                }
-                                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
-                                break;
-                        }
-                        require $this->all_configs['path'] . 'modules/import/import_helper.php';
-                        require $this->all_configs['path'] . 'modules/import/import_class.php';
-                        $import = new import_class($this->all_configs, $source, $import_type, $handler,
-                            $import_settings);
+                        $import = $this->getImportHandler($import_type, $source, $handler);
                         $data = $import->run();
                     } else {
                         $data['state'] = false;
@@ -306,8 +294,36 @@ class import
                 break;
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
+    }
+
+    /**
+     * @param $import_type
+     * @param $source
+     * @param $handler
+     * @return import_class
+     */
+    private function getImportHandler($import_type, $source, $handler)
+    {
+        $import_settings = array();
+        switch ($import_type) {
+            case 'items':
+                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                break;
+            case 'orders':
+                if (!$this->has_orders()) { // если есть заказы в системе то низя
+                    $import_settings['clear_categories'] = isset($_POST['clear_categories']);
+                }
+                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                break;
+            case 'posting_items':
+                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                $import_settings['location'] = isset($_POST['location']) ? $_POST['location'] : 0;
+                $import_settings['contractor'] = isset($_POST['contractor']) ? $_POST['contractor'] : 0;
+        }
+        require $this->all_configs['path'] . 'modules/import/import_helper.php';
+        require $this->all_configs['path'] . 'modules/import/import_class.php';
+        return new import_class($this->all_configs, $source, $import_type, $handler,
+            $import_settings);
     }
 }

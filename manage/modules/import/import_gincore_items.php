@@ -168,4 +168,12 @@ class import_gincore_items extends abstract_import_handler
 
         ));
     }
+
+    /**
+     * @return string
+     */
+    public function getImportForm()
+    {
+        return '';
+    }
 }

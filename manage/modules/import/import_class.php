@@ -32,6 +32,15 @@ class import_class
     }
 
     /**
+     * @return mixed
+     */
+    public function getImportForm()
+    {
+        $this->set_import_handler();
+        return method_exists($this->import_handler, 'getImportForm') ? $this->import_handler->getImportForm() : '';
+    }
+
+    /**
      * @return array
      * @throws Exception
      */
@@ -73,6 +82,9 @@ class import_class
      */
     private function get_import_provider_handler()
     {
+        if(empty(trim($this->provider))) {
+            return null;
+        }
         $provider_handler_name = $this->provider . '_' . $this->type;
         if (file_exists($this->include_path . 'handlers/' . $provider_handler_name . '.php')) {
             require $this->include_path . 'handlers/' . $provider_handler_name . '.php';

@@ -323,4 +323,12 @@ class import_items extends abstract_import_handler
         }
         return array();
     }
+
+    /**
+     * @return string
+     */
+    public function getImportForm()
+    {
+        return $this->view->renderFile('import/forms/items');
+    }
 }
