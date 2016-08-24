@@ -268,18 +268,6 @@ class import_items extends abstract_import_handler
     }
 
     /**
-     * @param $userId
-     * @param $work
-     * @param $modId
-     * @param $itemId
-     */
-    private function addToLog($userId, $work, $modId, $itemId)
-    {
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-            array($userId, $work, $modId, $itemId));
-    }
-
-    /**
      * @return null|string
      */
     private function getManagerId()
@@ -319,6 +307,9 @@ class import_items extends abstract_import_handler
      */
     private function getBranch($categoriesTree, $categoryId)
     {
+        if(empty($categoryId)) {
+            return $categoriesTree;
+        }
         if (!empty($categoriesTree)) {
             foreach ($categoriesTree as &$category) {
                 if ($category['id'] == $categoryId) {
