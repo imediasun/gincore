@@ -1732,14 +1732,14 @@ class Chains extends Object
                         if ($id) {
                             if ($free_order['supplier'] > 0) {
                                 if ($free_order['count_debit'] > 0) {
-                                    $text = 'Ожидание отгрузки запчасти';//'Запчасть была оприходована';
+                                    $text = lq('Ожидание отгрузки запчасти');//'Запчасть была оприходована';
                                 } elseif ($free_order['count_come'] > 0) {
-                                    $text = 'Запчасть была принята';
+                                    $text = lq('Запчасть была принята');
                                 } else {
-                                    $text = 'Запчасть заказана';
+                                    $text = lq('Запчасть заказана');
                                 }
                             } else {
-                                $text = 'Отправлен запрос на покупку. Ожидаем ответ.';
+                                $text = lq('Отправлен запрос на покупку. Ожидаем ответ.');
                             }
                             if ($send_stockman == true) {
                                 // добавляем комментарий
@@ -1747,8 +1747,8 @@ class Chains extends Object
                                     $text);
                                 // отправляем уведомление кладовщику
                                 $href = $this->all_configs['prefix'] . 'warehouses?con=' . intval($order_id) . '#orders-clients_bind';
-                                $content = 'При наличии запчасти на складе, отгрузите ее под заказ <a href="' . $href . '">№' . intval($order_id) . '</a>';
-                                $this->notification('Отгрузите запчасть под заказ', $content,
+                                $content = lq('При наличии запчасти на складе, отгрузите ее под заказ').' <a href="' . $href . '">№' . intval($order_id) . '</a>';
+                                $this->notification(lq('Отгрузите запчасть под заказ'), $content,
                                     'mess-debit-clients-orders');
                             }
                         }
@@ -1761,7 +1761,7 @@ class Chains extends Object
                             'so_co' => array(
                                 'client' => $order_id
                             ),
-                            'comment-supplier' => $product['warehouse_type'] == 1 ? 'Локально' : ($product['warehouse_type'] == 2 ? 'Заграница' : ''),
+                            'comment-supplier' => $product['warehouse_type'] == 1 ? lq('Локально') : ($product['warehouse_type'] == 2 ? lq('Заграница') : ''),
                             'warehouse_type' => $product['warehouse_type'],
                             'warehouse-order-count' => isset($post['count']) ? $post['count'] : 1,
                             'from_client_order' => true,
@@ -1776,10 +1776,10 @@ class Chains extends Object
                         if ($data['id'] > 0) {
                             $data['order_id'] = $data['id'];
                             // отправляем уведомление
-                            $content = 'Необходимо завершить закупку запчасти ';
+                            $content = lq('Необходимо завершить закупку запчасти').' ';
                             $content .= '<a href="' . $this->all_configs['prefix'] . 'orders/edit/' . $data['id'] . '#create_supplier_order">№' . $data['id'] . '</a>';
-                            $content .= ' под ремонт №' . $order_id;
-                            $this->notification('Закупка запчасти', $content, 'edit-suppliers-orders');
+                            $content .= ' '.lq('под ремонт').' №' . $order_id;
+                            $this->notification(lq('Закупка запчасти'), $content, 'edit-suppliers-orders');
                         }
                     }
 
