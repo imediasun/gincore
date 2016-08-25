@@ -495,7 +495,7 @@ class requests extends \service
         $exists_requests = $this->get_requests_for_call_form($call_id);
         return '
             ' . $this->assets() . '
-            <h3>Заявки</h3>
+            <h3>' . l('Заявки') . '</h3>
             <div class="row-fluid">
                 <div class="span4">
                     <b>' . l('Устройство') . '</b>

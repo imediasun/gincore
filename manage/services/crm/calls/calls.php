@@ -90,7 +90,7 @@ class calls extends \service{
      */
     public function get_referers(){
         $r = $this->all_configs['db']->query("SELECT id, name FROM {crm_referers} ORDER BY name")->vars();
-        $r[0] = $r[''] = 'нет';
+        $r[0] = $r[''] = l('нет');
         return $r;
     }
 

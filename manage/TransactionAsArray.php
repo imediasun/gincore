@@ -54,7 +54,7 @@ class TransactionAsArray implements TransactionAsInterface
     public function row($transaction, $transaction_id, $cashbox_info, $inc, $exp, $inc_sc = 0, $exp_sc = 0)
     {
         $row = array();
-        $group = $transaction['count_t'] . ' транз.';
+        $group = $transaction['count_t'] . ' '.l('транз.');
 
         $row['id'] = $transaction_id;
         $row['Дата'] = $transaction['date_transaction'];
