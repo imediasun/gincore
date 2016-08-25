@@ -472,3 +472,57 @@ function create_purchase_invoice() {
 function cancel_purchase_invoice(_this, id) {
 
 }
+function edit_purchase_invoice(id) {
+  var buttons = {
+    success: {
+      label: "Сохранить",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'warehouses?act=edit-purchase-invoice',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#suppliers-order-form').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=edit-purchase-invoice-form&id='+id,
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}

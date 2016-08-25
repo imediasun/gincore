@@ -1218,3 +1218,6 @@ table.table-vpaddingless tr td.arrow{
 .orange {
     background-color: #FFF4CE !important;
 }
+.editable-click {
+    cursor: pointer;
+}

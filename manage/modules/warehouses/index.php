@@ -308,6 +308,9 @@ class warehouses extends Controller
         } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $data = $this->createPurchaseInvoice($_POST);
             Response::json($data);
+        } elseif (isset($post['edit-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->editPurchaseInvoice($_POST);
+            Response::json($data);
         }
 
         // чистим кеш складов
@@ -1237,6 +1240,9 @@ class warehouses extends Controller
             $co_id = isset($_POST['so_co']) ? $_POST['so_co'] : 0;
             $data = $this->all_configs['suppliers_orders']->orders_link($so_id, $co_id);
         }
+        if ($act == 'edit-purchase-invoice-form') {
+            $data = $this->editPurchaseInvoiceForm($_GET);
+        }
 
         if ($act == 'create-purchase-invoice-form') {
             $data = $this->createPurchaseInvoiceForm($data);
@@ -2145,7 +2151,7 @@ class warehouses extends Controller
     public function purchase_invoices($hash = '#purchase_invoices')
     {
         $invoices = $this->PurchaseInvoices->query('
-            SELECT pi.*, u.*, c.title as stitle, g.cnt as quantity, g.amount/100 as amount, 0 as wh_id, "" as wh_title
+            SELECT pi.*, u.fio, u.login, u.email, c.title as stitle, g.cnt as quantity, g.amount as amount, 0 as wh_id, "" as wh_title
             FROM {purchase_invoices} as pi
             JOIN {contractors} as c ON c.id = pi.supplier_id
             JOIN {users} as u ON u.id = pi.user_id
@@ -2165,6 +2171,41 @@ class warehouses extends Controller
      * @param $data
      * @return array
      */
+    private function editPurchaseInvoiceForm($data)
+    {
+        $suppliers = null;
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        }
+        $invoice = $this->PurchaseInvoices->getByPk($data['id']);
+        $goods = $this->PurchaseInvoices->query('
+            SELECT pig.*, g.title as product 
+            FROM {purchase_invoice_goods} as pig
+            JOIN {goods} as g ON g.id=pig.good_id
+            WHERE pig.invoice_id=?i
+        ', array($data['id']))->assoc('id');
+        Log::dump($goods);
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/edit_purchase_invoice', array(
+                'suppliers' => $suppliers,
+                'invoice' => $invoice,
+                'goods' => $goods,
+                'warehouses' => $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->assoc(),
+                'controller' => $this
+            )),
+            'title' => '',
+            'message' => ''
+        );
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
     private function createPurchaseInvoiceForm($data)
     {
         $suppliers = null;
@@ -2177,11 +2218,38 @@ class warehouses extends Controller
         return array(
             'state' => true,
             'content' => $this->view->renderFile('warehouses/purchase_invoices/create_purchase_invoice', array(
-                'suppliers' => $suppliers
+                'suppliers' => $suppliers,
+                'warehouses' => $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->assoc(),
+                'controller' => $this
             )),
             'title' => '',
             'message' => ''
         );
+    }
+
+    /**
+     * @param      $data
+     * @param bool $withId
+     * @return array
+     */
+    public function prepareItemsForInvoice($data, $withId = false)
+    {
+        $result = array();
+        if (array_key_exists('item_ids', $data)) {
+            foreach ($data['item_ids'] as $id => $value) {
+                $good = array(
+                    'good_id' => $id,
+                    'price' => $data['amount'][$id] * 100,
+                    'quantity' => $data['quantity'][$id],
+                    'not_found' => $data['not_found'][$id] || ''
+                );
+                if ($withId) {
+                    $good['id'] = $id;
+                }
+                $result[] = $good;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -2193,21 +2261,7 @@ class warehouses extends Controller
         $result = array(
             'state' => true,
         );
-        $prepareItems = function ($data) {
-            $result = array();
-            if (array_key_exists('item_ids', $data)) {
-                foreach ($data['item_ids'] as $id => $value) {
-                    $result[] = array(
-                        'good_id' => $id,
-                        'price' => $data['amount'][$id] * 100,
-                        'quantity' => $data['quantity'][$id],
-                        'not_found' => $data['not_found'][$id] || ''
-                    );
-                }
-            }
-            return $result;
-        };
-        $items = $prepareItems($post);
+        $items = $this->prepareItemsForInvoice($post);
         if (empty($items)) {
             return array(
                 'state' => false,
@@ -2220,13 +2274,65 @@ class warehouses extends Controller
             'comment' => $post['comment'],
             'date' => date('Y-m-d H:i:s', strtotime($post['warehouse-order-date'])),
             'items' => $items,
-            'type' => $post['warehouse-type']
+            'type' => $post['warehouse-type'],
+            'warehouse_id' => $post['warehouse'],
+            'location_id' => $post['location']
         );
         if (!$this->PurchaseInvoices->add($data)) {
             $result = array(
                 'state' => false,
                 'message' => l('Что-то пошло не так')
             );
+        }
+        return $result;
+    }
+
+    /**
+     * @param      $wh_id
+     * @param null $location_id
+     * @return string
+     */
+    public function gen_locations($wh_id, $location_id = null)
+    {
+        $out = '';
+        $wh_id = array_filter(is_array($wh_id) ? $wh_id : explode(',', $wh_id));
+        $location_id = $location_id ? (array_filter(is_array($location_id) ? $location_id : explode(',',
+            $location_id))) : array();
+
+        if (count($wh_id) > 0) {
+            $locations = $this->all_configs['db']->query(
+                'SELECT id, location FROM {warehouses_locations} WHERE wh_id IN (?li)', array($wh_id))->vars();
+            $out = $this->view->renderFile('warehouses/purchase_invoices/_locations', array(
+                'locations' => $locations,
+                'location_id' => $location_id
+            ));
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    private function editPurchaseInvoice($post)
+    {
+        $result = array(
+            'state' => true,
+        );
+        try {
+            $invoice = $this->PurchaseInvoices->getByPk($post['invoice_id']);
+            if (empty($invoice)) {
+                throw new ExceptionWithMsg(l('Накладная не найдена'));
+            }
+            $this->PurchaseInvoices->updateInvoice($invoice, $post);
+            $this->PurchaseInvoices->updateItems($invoice['id'], $this->prepareItemsForInvoice($post));
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+
         }
         return $result;
     }

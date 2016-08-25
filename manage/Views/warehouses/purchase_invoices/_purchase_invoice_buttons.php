@@ -4,7 +4,7 @@
     </a>
     <ul class="dropdown-menu pull-right">
         <li>
-            <a href="">
+            <a href="#" onclick="return edit_purchase_invoice(<?= $invoice['id'] ?>);">
                 <i class="glyphicon glyphicon-pencil"></i>&nbsp;<?= l('Редактировать') ?>
             </a>
         </li>

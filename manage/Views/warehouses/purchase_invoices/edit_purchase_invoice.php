@@ -1,7 +1,8 @@
 <div class="row-fluid">
     <div class="col-sm-12">
         <form id="suppliers-order-form">
-            <input type="hidden" name="create-purchase-invoice" />
+            <input type="hidden" name="create-purchase-invoice"/>
+            <input type="hidden" name="invoice_id" value="<?= $invoice['id'] ?>"/>
             <?php if (empty($suppliers)): ?>
                 <p class="text-danger"><?= l('Нет поставщиков') ?></p>
             <?php else: ?>
@@ -33,7 +34,7 @@
                                             <option value=""></option>
                                             <?php foreach ($suppliers as $supplier): ?>
                                                 <option
-                                                    value="<?= $supplier['id'] ?>"><?= $supplier['title'] ?></option>
+                                                    value="<?= $supplier['id'] ?>" <?= $invoice['supplier_id'] == $supplier['id'] ? 'selected' : '' ?>><?= $supplier['title'] ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                         <div class="input-group-btn">
@@ -51,12 +52,15 @@
 
                                 <td class="col-sm-4">
                                     <input class="datetimepicker form-control" data-format="yyyy-MM-dd" type="text"
-                                           name="warehouse-order-date" data-required="true" value=""/>
+                                           name="warehouse-order-date" data-required="true"
+                                           value="<?= $invoice['date'] ?>"/>
                                 </td>
                                 <td>
                                     <select class="form-control" data-required="true" name="warehouse-type">
-                                        <option value="1"><?= l('Локально') ?> </option>
-                                        <option value="2"><?= l('Заграница') ?> </option>
+                                        <option
+                                            value="1" <?= $invoice['type'] == 1 ? 'selected' : '' ?>><?= l('Локально') ?> </option>
+                                        <option
+                                            value="2" <?= $invoice['type'] == 2 ? 'selected' : '' ?>><?= l('Заграница') ?> </option>
                                     </select>
                                 </td>
                             </tr>
@@ -90,7 +94,8 @@
                                             <option value=""></option>
                                             <?php if ($warehouses): ?>
                                                 <?php foreach ($warehouses as $warehouse): ?>
-                                                    <option value="<?= $warehouse['id'] ?>"><?= $warehouse['title'] ?> </option>
+                                                    <option <?= (isset($invoice) && $warehouse['id'] == $invoice['warehouse_id']) ? 'selected' : '' ?>
+                                                        value="<?= $warehouse['id'] ?>"><?= $warehouse['title'] ?> </option>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
                                         </select>
@@ -100,6 +105,8 @@
                                     <div class="form-group">
                                         <select
                                             class="form-control select-location" name="location">
+                                            <?= $controller->gen_locations($invoice['warehouse_id'],
+                                                $invoice['location_id']); ?>
                                         </select>
                                     </div>
                                 </td>
@@ -137,8 +144,12 @@
                 </div>
                 <hr>
 
-                <?= $this->renderFile('warehouses/purchase_invoices/_add_product_form', array()); ?>
-                <?= $this->renderFile('warehouses/purchase_invoices/_cart_items_table', array()); ?>
+                <?php if (false): ?>
+                    <?= $this->renderFile('warehouses/purchase_invoices/_add_product_form', array()); ?>
+                <?php endif; ?>
+                <?= $this->renderFile('warehouses/purchase_invoices/_cart_items_table', array(
+                    'goods' => $goods
+                )); ?>
             <?php endif; ?>
         </form>
     </div>

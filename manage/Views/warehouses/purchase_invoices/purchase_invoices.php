@@ -35,9 +35,9 @@
                             <?= $invoice['id'] ?>
                         </td>
                         <td>
-                    <span title="<?= do_nice_date($invoice['date'], false) ?>">
-                        <?= do_nice_date($invoice['date']) ?>
-                    </span>
+                            <span title="<?= $invoice['date'] ?>">
+                                <?= $invoice['date'] ?>
+                            </span>
                         </td>
                         <td><?= h(get_user_name($invoice)) ?></td>
                         <td><?= h($invoice['stitle']) ?></td>
@@ -58,9 +58,9 @@
                         <td>
                             <i class="glyphicon glyphicon-pencil editable-click pull-right" data-placement="left"
                                data-display="false" data-title="Редактировать комментарий"
-                               data-url="messages.php?act=edit-supplier-order-comment" data-pk="<?= $invoice['id'] ?>"
-                               data-type="textarea" data-value="<?= h($invoice['comment']) ?>"></i>
-                            <span id="supplier-order-comment-<?= $invoice['id'] ?>"><?= cut_string($invoice['comment'],
+                               data-url="messages.php?act=edit-purchase-invoice-comment" data-pk="<?= $invoice['id'] ?>"
+                               data-type="textarea" data-value="<?= h($invoice['description']) ?>"></i>
+                            <span id="supplier-order-comment-<?= $invoice['id'] ?>"><?= cut_string($invoice['description'],
                                     50) ?></span>
                         </td>
                         <td><?= $this->renderFile('warehouses/purchase_invoices/_purchase_invoice_buttons', array(

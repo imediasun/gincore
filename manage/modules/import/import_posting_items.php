@@ -6,7 +6,7 @@ require_once __DIR__ . '/abstract_import_handler.php';
  * Class import_posting_items
  *
  * @property MPurchaseInvoiceGoods PurchaseInvoiceGoods
- * @property MPurchaseInvoices PurchaseInvoices
+ * @property MPurchaseInvoices     PurchaseInvoices
  *
  */
 class import_posting_items extends abstract_import_handler
@@ -40,26 +40,19 @@ class import_posting_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
-            /** @todo remove */
-            $goods = db()->query('SELECT * FROM {goods}')->assoc('title');
             $invoiceId = $this->createInvoice($this->import_settings);
             foreach ($rows as $row) {
-                $title = $this->provider->get_title($row);
-                if (!empty($title) && isset($goods[$title])) {
-                    $data = $this->getItemData($goods[$title], $row);
-
-                    if (!empty($data)) {
-                        $results[] = $this->addItem($invoiceId, $data);
-                    } else {
-                        $results[] = array(
-                            'state' => true,
-                            'id' => $title,
-                            'message' => l('Ошибка при добавлении товара в накладную')
-                        );
-                    }
+                try {
+                    $data = $this->getItemData($row);
+                    $results[] = $this->addItem($invoiceId, $data);
+                } catch (ExceptionWithMsg $e) {
+                    $results[] = array(
+                        'state' => true,
+                        'id' => $this->provider->get_title($row),
+                        'message' => l('Ошибка при добавлении товара в накладную')
+                    );
                 }
             }
-            /** @todo remove */
         }
         $this->flushLog();
         return array(
@@ -106,12 +99,31 @@ class import_posting_items extends abstract_import_handler
         ));
     }
 
-    private function getItemData($title, $row)
+    /**
+     * @param $row
+     * @return array
+     */
+    private function getItemData($row)
     {
+        $id = $this->provider->get_item_id($row);
+        return array(
+            'good_id' => $id ? $id : '',
+            'not_found' => ($id === false) ? $this->provider->get_title($row) : '',
+            'price' => $this->provider->get_price($row),
+            'quantity' => $this->provider->get_quantity($row)
+        );
+
     }
 
+    /**
+     * @param $invoice
+     * @param $data
+     * @return bool|int
+     */
     private function addItem($invoice, $data)
     {
+        $data['invoice_id'] = $invoice;
+        return $this->PurchaseInvoiceGoods->insert($data);
     }
 
     /**

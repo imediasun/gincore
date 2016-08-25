@@ -29,6 +29,46 @@ class MPurchaseInvoices extends AModel
     }
 
     /**
+     * @param $invoice
+     * @param $data
+     * @return bool|int
+     */
+    public function updateInvoice($invoice, $data)
+    {
+       $update = array();
+        if($invoice['supplier_id'] != $data['warehouse-supplier']) {
+            $update['supplier_id'] = $data['warehouse-supplier'];
+        }
+        if($invoice['warehouse_id'] != $data['warehouse']) {
+            $update['warehouse_id'] = $data['warehouse'];
+        }
+        if($invoice['location_id'] != $data['location']) {
+            $update['location_id'] = $data['location'];
+        }
+        if($invoice['type'] != $data['warehouse-type']) {
+            $update['type'] = $data['warehouse-type'];
+        }
+        if($invoice['description'] != $data['comment-supplier']) {
+            $update['description'] = $data['comment-supplier'];
+        }
+        if($invoice['date'] != date('Y-m-d H:s:i', strtotime($data['warehouse-order-date']))) {
+            $update['date'] = date('Y-m-d H:s:i', strtotime($data['warehouse-order-date']));
+        }
+        return $this->update($update, array(
+            'id' => $invoice['id']
+        ));
+    }
+
+    /**
+     * @param $id
+     * @param $items
+     */
+    public function updateItems($id, $items)
+    {
+        $this->PurchaseInvoiceGoods->updateItems($items);
+    }
+
+    /**
      * @return array
      */
     public function columns()
