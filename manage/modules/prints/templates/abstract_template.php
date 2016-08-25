@@ -194,7 +194,6 @@ abstract class AbstractTemplate
                 $currency['gender'],
                 $currency['words'],
                 $currency['remaind']);
-            Log::error($result);
         } else {
             $result = convert_number_to_words($amount);
         }
