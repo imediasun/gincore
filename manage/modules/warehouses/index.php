@@ -1258,6 +1258,10 @@ class warehouses extends Controller
             $data = $this->form_debit_so($data);
         }
 
+        if ($act == 'form-debit-purchase-invoice') {
+            $data = $this->form_debit_purchase_invoice($data);
+        }
+
         //
         if ($act == 'add-goods-to-inv') {
             $data = $this->addGoodsToInv($data);
@@ -1383,6 +1387,11 @@ class warehouses extends Controller
         // приходование заказа
         if ($act == 'debit-supplier-order') {
             $this->all_configs['suppliers_orders']->debit_order($_POST, $mod_id);
+        }
+
+        // приходование накладной
+        if ($act == 'debit-purchase-invoice') {
+                $this->debit_purchase_invoice($_POST, $mod_id);
         }
 
         // принятие заказа
@@ -2335,5 +2344,45 @@ class warehouses extends Controller
 
         }
         return $result;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function form_debit_purchase_invoice($data)
+    {
+        $invoice_id = isset($_POST['object_id']) ? intval($_POST['object_id']) : 0;
+
+        $invoice = $this->all_configs['db']->query('SELECT pi.*, w.title as warehouse, l.location
+                FROM {purchase_invoices} as pi
+                LEFT JOIN {warehouses} as w ON w.id=pi.warehouse_id
+                LEFT JOIN {warehouses_locations} as l ON l.id=pi.location_id
+                WHERE pi.id=?i',
+            array($invoice_id))->row();
+
+        $goods = $this->all_configs['db']->query('SELECT pig.*, g.title as item
+                FROM {purchase_invoice_goods} as pig
+                LEFT JOIN {goods} as g ON pig.good_id=g.id
+                WHERE pig.invoice_id=?i AND NOT pig.good_id=0',
+            array($invoice_id))->assoc('id');
+        Log::dump($goods);
+        return array(
+            'state' => true,
+            'btns' => '<input class="btn" onclick="debit_purchase_invoice(this)" type="button" value="' . l('Приходовать') . '" />',
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/form_debit', array(
+                'invoice' => $invoice,
+                'invoice_id' => $invoice_id,
+                'goods' => $goods,
+            ))
+        );
+    }
+
+    /*
+     * @todo реализовать логику создания и приходования заказов поставщиков на базе приходной накладной
+     */
+    private function debit_purchase_invoice($_POST, $mod_id)
+    {
+        //$this->all_configs['suppliers_orders']->debit_order($_POST, $mod_id);
     }
 }

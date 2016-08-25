@@ -526,3 +526,58 @@ function edit_purchase_invoice(id) {
   });
   return false;
 }
+// @todo переделать
+function debit_purchase_invoice(_this) {
+  $(_this).button('loading');
+  $('form#debit-so-form .dso-msg').html('');
+  $('form#debit-so-form .html-msg').remove();
+
+  $.ajax({
+    url: prefix + 'warehouses/ajax/?act=debit-purchase-invoice',
+    type: 'POST',
+    dataType: "json",
+    data: $('form#debit-so-form').serialize(),
+
+    success: function (msg) {
+      if (msg) {
+        var reload = false;
+        if (msg['state'] == false && msg['msg']) {
+          alert(msg['msg']);
+        }
+        if (msg['result']) {
+          $('#debit-so-form-content').html(msg['result']);
+          $(_this).hide().siblings("[data-bb-handler='ok']").text('OK');
+          reload= true;
+        }
+        if (msg['html']) {
+          $('#debit-so-form-content').append('<div class="html-msg"><div class="alert alert-block">' +
+            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+            msg['html'] + '</div>');
+        }
+        if (msg['print_link']) {
+          window_open(msg['print_link']);
+        }
+        if (reload == true) {
+          if ($('#modal-dialog').is(':visible')) {
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            var order_id = $('input[name="order_id"]').val();
+            $('body').append($div);
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            click_tab_hash();
+          }
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}

@@ -49,6 +49,9 @@ define('ORDERS_GOODS_PRICE_TYPE_RETAIL',1);
 define('ORDERS_GOODS_PRICE_TYPE_WHOLESALE',2);
 define('ORDERS_GOODS_PRICE_TYPE_MANUAL',3);
 
+define('PURCHASE_INVOICE_STATE_NEW', 0);
+define('PURCHASE_INVOICE_STATE_CAPITALIZED', 1);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';
