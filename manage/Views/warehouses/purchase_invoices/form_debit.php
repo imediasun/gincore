@@ -15,6 +15,7 @@
         <?php foreach ($goods as $id => $good): ?>
             <?php $count = $good['quantity'] ?>
             <?php if ($count > 0): ?>
+                <input type="hidden" name="goods[<?= $id ?>]" value="<?= $good['good_id'] ?>" />
                 <table class="table">
                     <thead>
                     <tr>

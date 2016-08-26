@@ -188,3 +188,7 @@ ul.dropdown-menu {
 #show_orders table > tbody > tr:first-child > td {
     border-top: 1px solid #E0E0E0;
 }
+
+table tr.capitalized {
+    background-color: #dff0d8;
+}

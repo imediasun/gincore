@@ -2198,7 +2198,6 @@ class warehouses extends Controller
             JOIN {goods} as g ON g.id=pig.good_id
             WHERE pig.invoice_id=?i
         ', array($data['id']))->assoc('id');
-        Log::dump($goods);
         return array(
             'state' => true,
             'content' => $this->view->renderFile('warehouses/purchase_invoices/edit_purchase_invoice', array(
@@ -2397,12 +2396,13 @@ class warehouses extends Controller
             if ($invoice['state'] == PURCHASE_INVOICE_STATE_CAPITALIZED) {
                 throw new ExceptionWithMsg(l('Накладная уже оприходована'));
             }
-            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($post,
+            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice, $post,
                 $mod_id) : $invoice['supplier_order_id'];
             $result = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
-            if ($result['state']) {
+            Log::dump($result);
+            if (!empty($result)) {
                 $this->PurchaseInvoices->update(array(
-                    'state' => PURCHASE_INVOICE_STATE_CAPITALIZED,
+                    'state' => PURCHASE_INVOICE_STATE_CAPITALIZED
                 ), array('id' => $post['invoice_id']));
             }
         } catch (ExceptionWithMsg $e) {
@@ -2420,7 +2420,7 @@ class warehouses extends Controller
      * @return array
      * @throws ExceptionWithMsg
      */
-    private function createOrderFromInvoice($post, $mod_id)
+    private function createOrderFromInvoice($invoice, $post, $mod_id)
     {
         $goods = $this->PurchaseInvoices->getGoods($post['invoice_id']);
         if (empty($goods)) {
@@ -2428,10 +2428,10 @@ class warehouses extends Controller
         }
 
         $data = array(
-            'warehouse-supplier' => '',
-            'warehouse-order-date' => '',
-            'warehouse-type' => '',
-            'comment-supplier' => '',
+            'warehouse-supplier' => $invoice['supplier_id'],
+            'warehouse-order-date' => $invoice['date'],
+            'warehouse-type' => $invoice['type'],
+            'comment-supplier' => $invoice['description'],
             'item_ids' => array(),
             'amount' => array(),
             'quantity' => array()
@@ -2439,23 +2439,31 @@ class warehouses extends Controller
 
         foreach ($goods as $id => $good) {
             $data['item_ids'][$id] = $good['good_id'];
-            $data['amount'][$id] = $good['price'];
+            $data['amount'][$id] = $good['price'] / 100;
             $data['quantity'][$id] = $good['quantity'];
         }
-        $order = $this->all_configs['suppliers_orders']->create_order($data, $mod_id);
+        $order = $this->all_configs['suppliers_orders']->create_order($mod_id, $data);
         if (!isset($order['id']) || $order['id'] == 0) {
             throw new ExceptionWithMsg(l('Проблемы при создании заказа поставщику'));
         }
+        $this->all_configs['db']->query('
+            UPDATE {contractors_suppliers_orders} 
+            SET wh_id=?i, location_id=?i, date_come=?, date_check=?, user_id_accept=user_id
+            WHERE id=?i OR parent_order_id=?i',
+            array($invoice['warehouse_id'], $invoice['location_id'], date('Y-m-d H:i'), date('Y-m-d H:i'), $order['id'], $order['id']))->ar();
         $this->PurchaseInvoices->update(array(
             'supplier_order_id' => $order['id'],
         ), array('id' => $post['invoice_id']));
         return $order['id'];
     }
 
-    /*
-Array([invoice_id] => 5
-[auto] => Array([7] => on)      [serial] => Array([7] => Array([1] => [2] => [3] => [4] =>)))  [] []
-*/
+    /**
+     * @param $parentOrderId
+     * @param $post
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
     private function debitOrderFromInvoice($parentOrderId, $post, $mod_id)
     {
         $orders = $this->all_configs['db']->query('
@@ -2463,11 +2471,25 @@ Array([invoice_id] => 5
             FROM {contractors_suppliers_orders} 
             WHERE id=?i OR parent_order_id=?i
         ', array($parentOrderId, $parentOrderId))->assoc('id');
-        if(empty($orders)) {
+        if (empty($orders)) {
             throw new ExceptionWithMsg(l('Договора с поставщиком не найдены'));
         }
-        foreach ($orders as $order) {
-        //$this->all_configs['suppliers_orders']->debit_order($data, $mod_id);
+        $goods = $this->all_configs['db']->query(' SELECT * FROM {purchase_invoice_goods} WHERE invoice_id=?i AND NOT good_id=0',
+            array($post['invoice_id']))->assoc('good_id');
+        $result = array();
+        if (!empty($goods)) {
+            foreach ($orders as $order) {
+                $id = $goods[$order['goods_id']]['id'];
+                $data = array(
+                    'order_id' => $order['id'],
+                    'serial' => $post['serial'][$id],
+                    'auto' => $post['auto'][$id],
+                    'print' => $post['print'][$id]
+                );
+                    $tst = $this->all_configs['suppliers_orders']->debit_supplier_order($data, $mod_id);
+                $result[] = $tst;
+            }
         }
+        return $result;
     }
 }

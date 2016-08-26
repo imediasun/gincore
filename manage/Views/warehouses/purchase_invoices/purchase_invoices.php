@@ -20,7 +20,7 @@
                     <td><?= l('Поставщик') ?></td>
                     <td><?= l('Позиций') ?></td>
                     <td><?= l('Стоимость') ?>, <?= viewCurrencySuppliers() ?></td>
-                    <td><?= l('Оприх.') ?></td>
+                    <td><?= l('Заказы') ?></td>
                     <td><?= l('Склад') ?></td>
                     <td><?= l('Примеч.') ?></td>
                     <td></td>
@@ -28,8 +28,8 @@
                 </thead>
                 <tbody>
                 <?php foreach ($invoices as $invoice): ?>
-                    <?php $status_txt = $class = '' ?>
-
+                    <?php $status_txt = ''; ?>
+                    <?php $class = $invoice['state'] == PURCHASE_INVOICE_STATE_CAPITALIZED ? 'capitalized' : '' ?>
                     <tr title="<?= $status_txt ?>" class=" <?= $class ?>" id="supplier-order_id-<?= $invoice['id'] ?>">
                         <td>
                             <?= $invoice['id'] ?>
@@ -44,8 +44,13 @@
                         <td><?= $invoice['quantity'] ?></td>
                         <td><?= show_price($invoice['amount'], 2, ' ', ',') ?></td>
                         <td>
-                            <span title="<?= do_nice_date($invoice['purchase_date'],
-                                false) ?>"><?= do_nice_date($invoice['purchase_date']) ?> </span>
+                            <?php if ($invoice['supplier_order_id'] > 0): ?>
+                                <a class="hash_link"
+                                   href="<?= $this->all_configs['prefix'] ?>orders?pso_id=<?= $invoice['supplier_order_id'] ?>&lock-button=0#show_suppliers_orders-all">
+                                    <?= h($invoice['supplier_order_id']) ?>
+                                </a>
+                            <?php endif; ?>
+
                         </td>
                         <td>
                             <?php if ($invoice['wh_id'] > 0): ?>

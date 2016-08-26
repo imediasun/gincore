@@ -60,7 +60,7 @@ class MPurchaseInvoiceGoods extends AModel
         return $this->query('
             SELECT *
             FROM ?t
-            WHERE invoice_id=?i
+            WHERE invoice_id=?i AND NOT good_id=0
         ', array($this->table, $invoiceId))->assoc('id');
     }
 
