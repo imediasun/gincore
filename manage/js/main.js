@@ -398,7 +398,7 @@ $(document).ready(function () {
   $('.js-show-tariff').on('click', function () {
     var buttons = {
       success: {
-        label: "Изменить",
+        label: L.change,
         className: "btn-success",
         callback: function () {
           window.open($('#tariffs-url').val(), '_blank');
@@ -406,7 +406,7 @@ $(document).ready(function () {
         }
       },
       main: {
-        label: "Отменить",
+        label: L.cancel,
         className: "btn-primary",
         callback: function () {
           $(this).button('reset');
@@ -2059,7 +2059,7 @@ function show_infopopover_modal(modal_html) {
   $(function () {
 
     $(document).on('click', '.infopopover_onclick', function (e) {
-      console.log('test');
+//      console.log('test');
       e.stopPropagation();
       var $this = $(this);
       if (!$this.hasClass('hasPopover')) {

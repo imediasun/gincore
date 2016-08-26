@@ -358,7 +358,7 @@ class translates
                 foreach ($post['data'] as $fld => $d) {
                     $v[] = $this->all_configs['db']->makeQuery("?", array($d));
                 }
-                $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE var=?',
+                $id = $this->all_configs['db']->query('SELECT id FROM ?q WHERE BINARY(var)=BINARY(?)',
                     array($tableName, $post['data']['var']))->el();
                 if (!empty($id)) {
                     FlashMessage::set(l('Переменная уже существует'), FlashMessage::INFO);

@@ -178,6 +178,10 @@ if ($("#file-uploader")[0]) {
     var pid = arrequest()[2];
     var uploader = new qq.FileUploader({
         // Pass the HTML element here
+        uploadButtonText: L.qq_uploadButtonText,
+        dragText : L.qq_dragText,
+        cancelButtonText : L.qq_cancelButtonText,
+        failUploadText : L.qq_failUploadText,
         element: document.getElementById('file-uploader'),
         maxConnections: 500,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],

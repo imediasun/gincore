@@ -1125,7 +1125,7 @@ function manager_setup(_this) {
 
         buttons = {
           success: {
-            label: "Применить",
+            label: L.confirm,
             className: "btn-success",
             callback: function () {
               $.ajax({
@@ -1143,7 +1143,7 @@ function manager_setup(_this) {
             }
           },
           main: {
-            label: "Отменить",
+            label: L.cansel,
             className: "btn-primary",
             callback: function () {
               $(_this).button('reset');

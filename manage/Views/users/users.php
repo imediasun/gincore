@@ -59,7 +59,7 @@
                                    data-pk="<?= $user['id'] ?>"
                                    data-type="password"
                                    data-url="<?= $this->all_configs['arrequest'][0] ?>/ajax?act=change-admin-password"
-                                   data-title="Введите новый пароль" data-display="false"></i></td>
+                                   data-title="<?= l('Введите новый пароль') ?>" data-display="false"></i></td>
                             <td>
                                 <select class="form-control input-sm" name="roles[<?= $user['id'] ?>]">
                                     <option value=""></option>
