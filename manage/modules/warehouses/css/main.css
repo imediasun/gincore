@@ -190,5 +190,5 @@ ul.dropdown-menu {
 }
 
 table tr.capitalized {
-    background-color: #dff0d8;
+    background-color: #dff0d8 !important;
 }

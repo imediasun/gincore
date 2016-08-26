@@ -507,7 +507,7 @@ function edit_purchase_invoice(id) {
     }
   };
   $.ajax({
-    url: prefix + 'warehouses/ajax?act=edit-purchase-invoice-form&id='+id,
+    url: prefix + 'warehouses/ajax?act=edit-purchase-invoice-form&id=' + id,
     dataType: "json",
     type: 'GET',
     success: function (data) {
@@ -541,13 +541,19 @@ function debit_purchase_invoice(_this) {
     success: function (msg) {
       if (msg) {
         var reload = false;
-        if (msg['state'] == false && msg['msg']) {
-          alert(msg['msg']);
+        console.log(msg);
+        if (msg['state'] == false) {
+          if (msg['msg']) {
+            alert(msg['msg']);
+          }
+          if (msg['message']) {
+            alert(msg['message']);
+          }
         }
         if (msg['result']) {
           $('#debit-so-form-content').html(msg['result']);
           $(_this).hide().siblings("[data-bb-handler='ok']").text('OK');
-          reload= true;
+          reload = true;
         }
         if (msg['html']) {
           $('#debit-so-form-content').append('<div class="html-msg"><div class="alert alert-block">' +

@@ -291,6 +291,7 @@ class Suppliers extends Object
                     $parent_order_id = $data['id'];
                 }
                 $part += 1;
+                $data['parent_order_id'] = $parent_order_id;
             }
             FlashMessage::set(l('Заказ успешно создан'));
         } catch (ExceptionWithMsg $e) {
@@ -1656,7 +1657,6 @@ class Suppliers extends Object
         $auto = isset($post['auto']) ? $post['auto'] == 'on' : false;
         $print = isset($post['print']) ? $post['print'] == 'on' : false;
 
-
         if (!$order || $order['count_come'] - $order['count_debit'] == 0) {
             throw new ExceptionWithMsg(l('Заказ уже полностю приходован'));
         }
@@ -1685,7 +1685,6 @@ class Suppliers extends Object
                 throw new ExceptionWithMsg(l('Серийники уже используются: ') . $s);
             }
         }
-
 
         $html = '';
         $msg = $debit_items = $print_items = array();
@@ -1723,7 +1722,6 @@ class Suppliers extends Object
                 }
             }
         }
-
         if (count($debit_items) > 0) {
             // количество не обработанных заявок на этот товар
             $qty = $this->all_configs['db']->query('SELECT COUNT(l.id)
@@ -2046,7 +2044,7 @@ class Suppliers extends Object
      * @param $msg
      * @return string
      */
-    private function form_debit_so_result($order, $msg)
+    public function form_debit_so_result($order, $msg)
     {
         return $this->view->renderFile('suppliers.class/form_debit_so_result', array(
             'order' => $order,

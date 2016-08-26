@@ -1391,7 +1391,7 @@ class warehouses extends Controller
 
         // приходование накладной
         if ($act == 'debit-purchase-invoice') {
-            $this->debit_purchase_invoice($_POST, $mod_id);
+            $data = $this->debit_purchase_invoice($_POST, $mod_id);
         }
 
         // принятие заказа
@@ -2398,12 +2398,19 @@ class warehouses extends Controller
             }
             $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice, $post,
                 $mod_id) : $invoice['supplier_order_id'];
-            $result = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
-            Log::dump($result);
-            if (!empty($result)) {
-                $this->PurchaseInvoices->update(array(
-                    'state' => PURCHASE_INVOICE_STATE_CAPITALIZED
-                ), array('id' => $post['invoice_id']));
+            $debitResult = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
+            if (empty($debitResult)) {
+                throw new ExceptionWithMsg(l('Возникли проблемы при оприходовании заказов'));
+            }
+            $this->PurchaseInvoices->update(array(
+                'state' => PURCHASE_INVOICE_STATE_CAPITALIZED
+            ), array('id' => $post['invoice_id']));
+            $result = array(
+                'state' => true,
+                'result' => ''
+            );
+            foreach ($debitResult as $value) {
+                $result['result'] .= $this->form_debit_invoice_result($value['order_for_result'], $value['msg']);
             }
         } catch (ExceptionWithMsg $e) {
             $result = array(
@@ -2412,6 +2419,19 @@ class warehouses extends Controller
             );
         }
         return $result;
+    }
+
+    /**
+     * @param $order
+     * @param $msg
+     * @return string
+     */
+    public function form_debit_invoice_result($order, $msg)
+    {
+        return $this->view->renderFile('warehouses/purchase_invoices/form_debit_result', array(
+            'order' => $order,
+            'msg' => $msg
+        ));
     }
 
     /**
@@ -2449,12 +2469,19 @@ class warehouses extends Controller
         $this->all_configs['db']->query('
             UPDATE {contractors_suppliers_orders} 
             SET wh_id=?i, location_id=?i, date_come=?, date_check=?, user_id_accept=user_id
-            WHERE id=?i OR parent_order_id=?i',
-            array($invoice['warehouse_id'], $invoice['location_id'], date('Y-m-d H:i'), date('Y-m-d H:i'), $order['id'], $order['id']))->ar();
+            WHERE id=?i OR parent_id=?i',
+            array(
+                $invoice['warehouse_id'],
+                $invoice['location_id'],
+                date('Y-m-d H:i'),
+                date('Y-m-d H:i'),
+                $order['parent_order_id'],
+                $order['parent_order_id']
+            ))->ar();
         $this->PurchaseInvoices->update(array(
             'supplier_order_id' => $order['id'],
         ), array('id' => $post['invoice_id']));
-        return $order['id'];
+        return $order['parent_order_id'];
     }
 
     /**
@@ -2469,7 +2496,7 @@ class warehouses extends Controller
         $orders = $this->all_configs['db']->query('
             SELECT * 
             FROM {contractors_suppliers_orders} 
-            WHERE id=?i OR parent_order_id=?i
+            WHERE id=?i OR parent_id=?i
         ', array($parentOrderId, $parentOrderId))->assoc('id');
         if (empty($orders)) {
             throw new ExceptionWithMsg(l('Договора с поставщиком не найдены'));
@@ -2486,8 +2513,7 @@ class warehouses extends Controller
                     'auto' => $post['auto'][$id],
                     'print' => $post['print'][$id]
                 );
-                    $tst = $this->all_configs['suppliers_orders']->debit_supplier_order($data, $mod_id);
-                $result[] = $tst;
+                $result[] = $this->all_configs['suppliers_orders']->debit_supplier_order($data, $mod_id);
             }
         }
         return $result;
