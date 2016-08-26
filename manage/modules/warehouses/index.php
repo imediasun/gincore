@@ -2246,9 +2246,9 @@ class warehouses extends Controller
     {
         $result = array();
         if (array_key_exists('item_ids', $data)) {
-            foreach ($data['item_ids'] as $id => $value) {
+            foreach ($data['item_ids'] as $id => $itemId) {
                 $good = array(
-                    'good_id' => $id,
+                    'good_id' => $itemId,
                     'price' => $data['amount'][$id] * 100,
                     'quantity' => $data['quantity'][$id],
                     'not_found' => $data['not_found'][$id] || ''

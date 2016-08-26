@@ -22,7 +22,7 @@ class import extends Object
             )
         ),
         'items' => array(
-            'name' => 'Товары',
+            'name' => 'Товарная номенклатура',
             'handlers' => array(
                 'gincore' => 'из унифицированного формата',
                 'vvs' => 'из VVS Склад-офис-магазин',
@@ -45,7 +45,7 @@ class import extends Object
             )
         ),
         'posting_items' => array(
-            'name' => 'Приходование товара',
+            'name' => 'Импорт товарных остатков',
             'handlers' => array(
                 'xls' => 'из xls файла',
             )

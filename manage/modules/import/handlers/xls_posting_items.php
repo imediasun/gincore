@@ -17,7 +17,7 @@ class xls_posting_items extends abstract_gincore_import_provider
             'title' => lq('Наименование'),
             'vendor_code' => lq('Артикул'),
             'quantity' => lq('Количество'),
-            'price' => lq('Цена'),
+            'price' => lq('Закупочная цена'),
         );
         $this->goods = db()->query('select id, title from {goods}', array())->assoc('title');
     }

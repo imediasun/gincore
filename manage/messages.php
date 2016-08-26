@@ -485,8 +485,8 @@ if ($act == 'get_locations') {
     if (isset($_POST['wh_id'])) {
         $warehouses = get_service('wh_helper')->get_warehouses();
         if (isset($warehouses[$_POST['wh_id']]['locations'])) {
-            $out = '';
             $i = 0;
+            $out = '<option value="0">'.l('Выберите локацию на складе').'</option>';
             foreach ($warehouses[$_POST['wh_id']]['locations'] as $id => $location) {
                 if (trim($location['name'])) {
                     $out .= '<option' . (!$i ? ' selected="selected"' : '') . ' value="' . $id . '">' .

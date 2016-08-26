@@ -132,14 +132,13 @@ class import_posting_items extends abstract_import_handler
     public function getImportForm()
     {
         $contractors = db()->query('SELECT id, title FROM {contractors}')->vars();
-        $locations = db()->query('
-            SELECT l.id, CONCAT(w.title,"(", l.location, ")") as title 
-            FROM {warehouses_locations} as l 
-            JOIN {warehouses} as w ON w.id=l.wh_id
+        $warehouses = db()->query('
+            SELECT w.id, w.title 
+            FROM {warehouses} as w
         ')->vars();
         return $this->view->renderFile('import/forms/posting_items', array(
             'contractors' => $contractors,
-            'locations' => $locations
+            'warehouses' => $warehouses
         ));
     }
 }
