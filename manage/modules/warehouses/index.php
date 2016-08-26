@@ -1391,7 +1391,7 @@ class warehouses extends Controller
 
         // приходование накладной
         if ($act == 'debit-purchase-invoice') {
-                $this->debit_purchase_invoice($_POST, $mod_id);
+            $this->debit_purchase_invoice($_POST, $mod_id);
         }
 
         // принятие заказа
@@ -2160,10 +2160,12 @@ class warehouses extends Controller
     public function purchase_invoices($hash = '#purchase_invoices')
     {
         $invoices = $this->PurchaseInvoices->query('
-            SELECT pi.*, u.fio, u.login, u.email, c.title as stitle, g.cnt as quantity, g.amount as amount, 0 as wh_id, "" as wh_title
+            SELECT pi.*, u.fio, u.login, u.email, c.title as supplier, g.cnt as quantity, g.amount as amount, wh.title as warehouse, wl.location as location, wh.id as wh_id
             FROM {purchase_invoices} as pi
             JOIN {contractors} as c ON c.id = pi.supplier_id
             JOIN {users} as u ON u.id = pi.user_id
+            JOIN {warehouses} as wh ON wh.id = pi.warehouse_id
+            JOIN {warehouses_locations} as wl ON wl.id = pi.location_id
             JOIN (SELECT invoice_id, count(*) as cnt, sum(`price` * quantity) as amount FROM {purchase_invoice_goods} GROUP by invoice_id ) as g ON g.invoice_id=pi.id
         ')->assoc();
         return array(
@@ -2366,7 +2368,6 @@ class warehouses extends Controller
                 LEFT JOIN {goods} as g ON pig.good_id=g.id
                 WHERE pig.invoice_id=?i AND NOT pig.good_id=0',
             array($invoice_id))->assoc('id');
-        Log::dump($goods);
         return array(
             'state' => true,
             'btns' => '<input class="btn" onclick="debit_purchase_invoice(this)" type="button" value="' . l('Приходовать') . '" />',
@@ -2378,11 +2379,95 @@ class warehouses extends Controller
         );
     }
 
-    /*
-     * @todo реализовать логику создания и приходования заказов поставщиков на базе приходной накладной
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array|void
      */
-    private function debit_purchase_invoice($_POST, $mod_id)
+    private function debit_purchase_invoice($post, $mod_id)
     {
-        //$this->all_configs['suppliers_orders']->debit_order($_POST, $mod_id);
+        try {
+            if (empty($post['invoice_id'])) {
+                throw new ExceptionWithMsg(l('Накладная не найдена'));
+            }
+            $invoice = $this->PurchaseInvoices->getByPk($post['invoice_id']);
+            if (empty($invoice)) {
+                throw new ExceptionWithMsg(l('Накладная не найдена'));
+            }
+            if ($invoice['state'] == PURCHASE_INVOICE_STATE_CAPITALIZED) {
+                throw new ExceptionWithMsg(l('Накладная уже оприходована'));
+            }
+            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($post,
+                $mod_id) : $invoice['supplier_order_id'];
+            $result = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
+            if ($result['state']) {
+                $this->PurchaseInvoices->update(array(
+                    'state' => PURCHASE_INVOICE_STATE_CAPITALIZED,
+                ), array('id' => $post['invoice_id']));
+            }
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $result;
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    private function createOrderFromInvoice($post, $mod_id)
+    {
+        $goods = $this->PurchaseInvoices->getGoods($post['invoice_id']);
+        if (empty($goods)) {
+            throw new ExceptionWithMsg(l('Товары не заданы'));
+        }
+
+        $data = array(
+            'warehouse-supplier' => '',
+            'warehouse-order-date' => '',
+            'warehouse-type' => '',
+            'comment-supplier' => '',
+            'item_ids' => array(),
+            'amount' => array(),
+            'quantity' => array()
+        );
+
+        foreach ($goods as $id => $good) {
+            $data['item_ids'][$id] = $good['good_id'];
+            $data['amount'][$id] = $good['price'];
+            $data['quantity'][$id] = $good['quantity'];
+        }
+        $order = $this->all_configs['suppliers_orders']->create_order($data, $mod_id);
+        if (!isset($order['id']) || $order['id'] == 0) {
+            throw new ExceptionWithMsg(l('Проблемы при создании заказа поставщику'));
+        }
+        $this->PurchaseInvoices->update(array(
+            'supplier_order_id' => $order['id'],
+        ), array('id' => $post['invoice_id']));
+        return $order['id'];
+    }
+
+    /*
+Array([invoice_id] => 5
+[auto] => Array([7] => on)      [serial] => Array([7] => Array([1] => [2] => [3] => [4] =>)))  [] []
+*/
+    private function debitOrderFromInvoice($parentOrderId, $post, $mod_id)
+    {
+        $orders = $this->all_configs['db']->query('
+            SELECT * 
+            FROM {contractors_suppliers_orders} 
+            WHERE id=?i OR parent_order_id=?i
+        ', array($parentOrderId, $parentOrderId))->assoc('id');
+        if(empty($orders)) {
+            throw new ExceptionWithMsg(l('Договора с поставщиком не найдены'));
+        }
+        foreach ($orders as $order) {
+        //$this->all_configs['suppliers_orders']->debit_order($data, $mod_id);
+        }
     }
 }

@@ -1,5 +1,5 @@
 <form method="POST" id="debit-so-form">
-    <input type="hidden" value="<?= $invoice_id ?>" name="order_id"/>
+    <input type="hidden" value="<?= $invoice_id ?>" name="invoice_id"/>
 
     <div class="form-group">
         <label class="control-label" style="text-align: left">
@@ -43,14 +43,14 @@
                                     <input checked
                                            onchange="$('.js-serials-<?= $id ?>').toggle(); return true;"
                                            type="checkbox"
-                                           class="dso_auto_serial" name="auto"/>
+                                           class="dso_auto_serial" name="auto[<?= $id ?>]"/>
                                     <?= l('Сгенерировать') ?>
                                 </label>
                                 <?= InfoPopover::getInstance()->createQuestion('l_debit_so_auto_serial_info') ?>
                             </div>
                             <div class="checkbox">
                                 <label class="">
-                                    <input type="checkbox" name="print" class="dso_print"/>
+                                    <input type="checkbox" name="print[<?= $id ?>]" class="dso_print"/>
                                     <?= l('Распечатать') ?>
                                 </label>
                                 <?= InfoPopover::getInstance()->createQuestion('l_debit_so_print_serial_info') ?>
@@ -71,7 +71,7 @@
                                 </td>
                                 <td>
                                     <input type="text" class="form-control input-large dso_serial"
-                                           placeholder="<?= l('серийный номер') ?>" name="serial[<?= $cols ?>]"/>
+                                           placeholder="<?= l('серийный номер') ?>" name="serial[<?= $id ?>][<?= $cols ?>]"/>
                                 </td>
                                 <?php $cols++ ?>
                             <?php endfor; ?>

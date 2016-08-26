@@ -19,7 +19,7 @@
                     <td><?= l('Создал') ?></td>
                     <td><?= l('Поставщик') ?></td>
                     <td><?= l('Позиций') ?></td>
-                    <td><?= l('Стоимость') ?></td>
+                    <td><?= l('Стоимость') ?>, <?= viewCurrencySuppliers() ?></td>
                     <td><?= l('Оприх.') ?></td>
                     <td><?= l('Склад') ?></td>
                     <td><?= l('Примеч.') ?></td>
@@ -40,7 +40,7 @@
                             </span>
                         </td>
                         <td><?= h(get_user_name($invoice)) ?></td>
-                        <td><?= h($invoice['stitle']) ?></td>
+                        <td><?= h($invoice['supplier']) ?></td>
                         <td><?= $invoice['quantity'] ?></td>
                         <td><?= show_price($invoice['amount'], 2, ' ', ',') ?></td>
                         <td>
@@ -51,16 +51,17 @@
                             <?php if ($invoice['wh_id'] > 0): ?>
                                 <a class="hash_link"
                                    href="<?= $this->all_configs['prefix'] ?>warehouses?whs=<?= $invoice['wh_id'] ?>#show_items">
-                                    <?= h($invoice['wh_title']) ?>
+                                    <?= h($invoice['warehouse']) ?>(<?= h($invoice['location']) ?>)
                                 </a>
                             <?php endif; ?>
                         </td>
                         <td>
                             <i class="glyphicon glyphicon-pencil editable-click pull-right" data-placement="left"
-                               data-display="false" data-title="Редактировать комментарий"
+                               data-display="false" data-title="<?= l('Редактировать комментарий') ?>"
                                data-url="messages.php?act=edit-purchase-invoice-comment" data-pk="<?= $invoice['id'] ?>"
                                data-type="textarea" data-value="<?= h($invoice['description']) ?>"></i>
-                            <span id="supplier-order-comment-<?= $invoice['id'] ?>"><?= cut_string($invoice['description'],
+                            <span
+                                id="supplier-order-comment-<?= $invoice['id'] ?>"><?= cut_string($invoice['description'],
                                     50) ?></span>
                         </td>
                         <td><?= $this->renderFile('warehouses/purchase_invoices/_purchase_invoice_buttons', array(

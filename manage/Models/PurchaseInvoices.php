@@ -65,7 +65,16 @@ class MPurchaseInvoices extends AModel
      */
     public function updateItems($id, $items)
     {
-        $this->PurchaseInvoiceGoods->updateItems($items);
+        $this->PurchaseInvoiceGoods->updateItems($id, $items);
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function getGoods($id)
+    {
+        return $this->PurchaseInvoiceGoods->getGoods($id);
     }
 
     /**
@@ -83,7 +92,8 @@ class MPurchaseInvoices extends AModel
             'state',
             'description',
             'date',
-            'purchase_date'
+            'purchase_date',
+            'supplier_order_id'
         );
     }
 }

@@ -281,3 +281,8 @@ CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
   KEY `purchase_invoice_goods_invoice_id` (`invoice_id`),
   KEY `purchase_invoice_goods_good_id` (`good_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_08_25_123845_add_order_id_to_purchase_invoices.php
+ */
+ALTER TABLE `restore4_purchase_invoices` ADD COLUMN supplier_order_id int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_purchase_invoices` ADD INDEX purchase_invoices_supplier_order_id(supplier_order_id);

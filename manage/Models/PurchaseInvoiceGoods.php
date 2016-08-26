@@ -20,21 +20,6 @@ class MPurchaseInvoiceGoods extends AModel
     }
 
     /**
-     * @return array
-     */
-    public function columns()
-    {
-        return array(
-            'id',
-            'invoice_id',
-            'good_id',
-            'price',
-            'quantity',
-            'not_found',
-        );
-    }
-
-    /**
      * @param $invoiceId
      * @param $items
      */
@@ -64,5 +49,33 @@ class MPurchaseInvoiceGoods extends AModel
                 }
             }
         }
+    }
+
+    /**
+     * @param $invoiceId
+     * @return array
+     */
+    public function getGoods($invoiceId)
+    {
+        return $this->query('
+            SELECT *
+            FROM ?t
+            WHERE invoice_id=?i
+        ', array($this->table, $invoiceId))->assoc('id');
+    }
+
+    /**
+     * @return array
+     */
+    public function columns()
+    {
+        return array(
+            'id',
+            'invoice_id',
+            'good_id',
+            'price',
+            'quantity',
+            'not_found',
+        );
     }
 }
