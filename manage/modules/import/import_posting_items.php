@@ -48,7 +48,7 @@ class import_posting_items extends abstract_import_handler
                 } catch (ExceptionWithMsg $e) {
                     $results[] = array(
                         'state' => true,
-                        'id' => $this->provider->get_title($row),
+                        'id' => $this->provider->title($row),
                         'message' => l('Ошибка при добавлении товара в накладную')
                     );
                 }
@@ -88,13 +88,11 @@ class import_posting_items extends abstract_import_handler
      */
     private function createInvoice($import_settings)
     {
-        $location = db()->query('SELECT id, wh_id FROM {warehouses_locations} WHERE id=?i',
-            array($import_settings['location']))->row();
         return $this->PurchaseInvoices->insert(array(
             'user_id' => $this->getUserId(),
             'supplier_id' => $import_settings['contractor'],
-            'warehouse_id' => $location['wh_id'],
-            'location_id' => $location['id'],
+            'warehouse_id' => $import_settings['warehouse'],
+            'location_id' => $import_settings['location'],
             'date' => date('Y-m-d H:i:s')
         ));
     }
@@ -106,11 +104,13 @@ class import_posting_items extends abstract_import_handler
     private function getItemData($row)
     {
         $id = $this->provider->get_item_id($row);
+        $title = $this->provider->title($row);
         return array(
             'good_id' => $id ? $id : '',
-            'not_found' => ($id === false) ? $this->provider->get_title($row) : '',
-            'price' => $this->provider->get_price($row),
-            'quantity' => $this->provider->get_quantity($row)
+            'not_found' => ($id === false) ? $title : '',
+            'price' => $this->provider->price($row),
+            'quantity' => $this->provider->quantity($row),
+            'title' => $title
         );
 
     }
@@ -118,12 +118,21 @@ class import_posting_items extends abstract_import_handler
     /**
      * @param $invoice
      * @param $data
-     * @return bool|int
+     * @return array
      */
     private function addItem($invoice, $data)
     {
         $data['invoice_id'] = $invoice;
-        return $this->PurchaseInvoiceGoods->insert($data);
+        $id = $this->PurchaseInvoiceGoods->insert($data);
+        return $id ? array(
+            'state' => true,
+            'title' => $data['title'],
+            'message' => l('Товар добавлен в накладную')
+        ) : array(
+            'state' => true,
+            'title' => $data['title'],
+            'message' => l('Ошибка при добавлении товара в накладную')
+        );
     }
 
     /**

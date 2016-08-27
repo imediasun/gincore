@@ -26,7 +26,7 @@ abstract class abstract_gincore_import_provider extends abstract_import_provider
         if (!empty($colPosition) && method_exists($this, $method)) {
             return call_user_func_array(array($this, $method), $arguments);
         }
-        if (isset($this->cols[$name])) {
+        if (array_key_exists($name, $this->cols)) {
             return $this->getColValue($name, $arguments[0]);
         }
         return false;

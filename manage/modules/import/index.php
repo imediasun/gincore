@@ -320,6 +320,7 @@ class import extends Object
                 $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
                 $import_settings['location'] = isset($_POST['location']) ? $_POST['location'] : 0;
                 $import_settings['contractor'] = isset($_POST['contractor']) ? $_POST['contractor'] : 0;
+                $import_settings['warehouse'] = isset($_POST['warehouse']) ? $_POST['warehouse'] : 0;
         }
         require $this->all_configs['path'] . 'modules/import/import_helper.php';
         require $this->all_configs['path'] . 'modules/import/import_class.php';
