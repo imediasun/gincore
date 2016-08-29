@@ -179,11 +179,65 @@ $(document).ready(function () {
     //$(this).click();
   });
 
+    var daterangepicker_locale = {
+        ru: {
+            daysOfWeek: [
+                "Вс",
+                "Пн",
+                "Вт",
+                "Ср",
+                "Чт",
+                "Пт",
+                "Сб"
+            ],
+            monthNames: [
+                "Январь",
+                "Февраль",
+                "Март",
+                "Апрель",
+                "Май",
+                "Июнь",
+                "Июль",
+                "Август",
+                "Сентябрь",
+                "Октябрь",
+                "Ноябрь",
+                "Декабрь"
+            ],
+            firstDay: 1
+        },
+        en: {
+            daysOfWeek: [
+                "Su",
+                "Mo",
+                "Tu",
+                "We",
+                "Th",
+                "Fr",
+                "Sa"
+            ],
+            monthNames: [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ]
+        }
+    };
+
   $('input.daterangepicker').live('focusin', '.daterangepicker', function (e) {
     $(this).daterangepicker({
-      locale: {
+      locale: $.extend(daterangepicker_locale[manage_lang], {
         format: 'DD.MM.YYYY'
-      },
+      }),
       showDropdowns: true,
       autoApply: true
     });
@@ -194,9 +248,9 @@ $(document).ready(function () {
     $(this).daterangepicker({
       singleDatePicker: true,
       showDropdowns: true,
-      locale: {
+      locale: $.extend(daterangepicker_locale[manage_lang], {
         format: format
-      }
+      })
     });
   });
 
