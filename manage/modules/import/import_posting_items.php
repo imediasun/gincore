@@ -205,7 +205,7 @@ class import_posting_items extends abstract_import_handler
             foreach ($orders as $order) {
                 $data = array(
                     'order_id' => $order['id'],
-                    'serial' => '',
+                    'serial' => range(1, $order['count_come']),
                     'auto' => 'on',
                 );
                 $result[] = $this->all_configs['suppliers_orders']->debit_supplier_order($data, $mod_id);
