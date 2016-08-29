@@ -46,7 +46,7 @@ class import_posting_items extends abstract_import_handler
                 try {
                     $data = $this->getItemData($row);
                     $result = $this->addItem($invoiceId, $data);
-                    if(empty($data['id'])) {
+                    if(empty($data['good_id'])) {
                        $result = array(
                            'state' => false,
                            'title' => $data['title'],
