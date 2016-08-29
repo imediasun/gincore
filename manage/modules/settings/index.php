@@ -358,6 +358,14 @@ class settings extends Controller
                         Response::redirect($this->all_configs['prefix'].'settings/'.$this->all_configs['arrequest'][1]);
                     }
                 }
+                if(isset($post['crm-requests-statuses'])){
+                    $newStatuses = $this->getNewRequestsStatus($_POST);
+                    if(!empty($newStatuses)) {
+                        $value = json_encode($newStatuses);
+                    } else {
+                        $value = db()->query('SELECT `value` FROM {settings} WHERE `name`="crm-requests-statuses"')->el();
+                    }
+                }
                 $this->all_configs['db']->query("UPDATE {settings} SET value=?
                              WHERE id=?i AND ro=0 LIMIT 1", array($value, $this->all_configs['arrequest'][1]), 'ar');
 
@@ -386,6 +394,32 @@ class settings extends Controller
             Response::redirect($tariffsUrl);
         }
         parent::routing($arrequest);
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    private function getNewRequestsStatus($post)
+    {
+        $used = function($status) {
+            return (bool) db()->query('SELECT count(*) FROM {crm_requests} WHERE status=?i', array($status))->el();
+        };
+        $status = array();
+        if(!empty($post)) {
+            $lastId = 0;
+            foreach ($post['name'] as $id => $value) {
+                $statusId = ($id == 'new')? $lastId + 1: $id;
+                $lastId = max($lastId, $id);
+                if(!empty($value) && (!isset($post['delete'][$id]) || $post['delete'][$id] != 'on' || $used($id)))  {
+                    $status[$statusId] = array(
+                        'name' => trim($value),
+                        'active' => !(isset($post['close'][$id]) && $post['close'][$id] == 'on')
+                    );
+                }
+            }
+        }
+        return $status;
     }
 }
 
