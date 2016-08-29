@@ -2292,7 +2292,7 @@ class warehouses extends Controller
         $data = array(
             'user_id' => $this->getUserId(),
             'supplier_id' => $post['warehouse-supplier'],
-            'description' => $post['comment-supplier'],
+            'comment' => $post['comment-supplier'],
             'date' => date('Y-m-d H:i:s', strtotime($post['warehouse-order-date'])),
             'items' => $items,
             'type' => $post['warehouse-type'],
