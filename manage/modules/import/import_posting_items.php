@@ -130,7 +130,7 @@ class import_posting_items extends abstract_import_handler
         return array(
             'good_id' => $id ? $id : '',
             'not_found' => ($id === false) ? $title : '',
-            'price' => $this->provider->price($row),
+            'price' => $this->provider->price($row) * 100,
             'quantity' => $this->provider->quantity($row),
             'title' => $title
         );
