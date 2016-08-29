@@ -2468,7 +2468,7 @@ class warehouses extends Controller
         }
         $this->all_configs['db']->query('
             UPDATE {contractors_suppliers_orders} 
-            SET wh_id=?i, location_id=?i, date_come=?, date_check=?, user_id_accept=user_id
+            SET wh_id=?i, location_id=?i, date_come=?, date_check=?, user_id_accept=user_id, count_come=`count`
             WHERE id=?i OR parent_id=?i',
             array(
                 $invoice['warehouse_id'],

@@ -220,7 +220,7 @@ class Suppliers extends Object
             return true;
         }
         foreach ($ids as $key => $id) {
-            if (empty($values[$key]) || 0 == (int)$values[$key]) {
+            if (empty($values[$key]) || 0 == $values[$key]) {
                 return true;
             }
         }
@@ -2011,7 +2011,7 @@ class Suppliers extends Object
                 'goods_id' => $product_id,
                 'user_id' => $user_id,
                 '`count`' => $count,
-                'count_come' => $count,
+                'count_come' => 0,
                 'comment' => $comment,
                 'group_parent_id' => $group_parent_id,
                 'num' => $num,
