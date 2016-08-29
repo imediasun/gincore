@@ -1692,7 +1692,7 @@ class Chains extends Object
 
                     if (!$free_order || $free_order['free_items'] == 0 || $free_order['id'] == 0) {
                         // ищем заказ со свободным местом для заявки
-                        $free_order = $this->all_configs['db']->query('SELECT o.*, IF(o.count_come>0, o.count_come, o.count) -
+                        $free_order = $this->all_configs['db']->query('SELECT o.*, convert(IF(o.count_come>0, o.count_come, o.count), signed integer )-
                           (SELECT COUNT(l.id) FROM {orders_suppliers_clients} as l WHERE o.id=l.supplier_order_id
                             AND l.order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL)) as free_items
                         FROM {contractors_suppliers_orders} as o
