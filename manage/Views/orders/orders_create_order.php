@@ -199,7 +199,7 @@
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('defect'); ?>
                                     <div
-                                        class="form-group <?= !isset($hide['defect'])? 'hide-field' : '' ?> ">
+                                        class="form-group <?= !isset($hide['defect']) ? 'hide-field' : '' ?> ">
                                         <div
                                             class="row row-15 form-group">
                                             <div class="col-sm-6">
@@ -366,6 +366,26 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <?php $this->HideField->end(); ?>
+                                    <?php $this->HideField->start('accountable'); ?>
+                                    <legend><?= l('Ответственные') ?></legend>
+                                    <div class="form-group <?= !isset($hide['accountable']) ? 'hide-field' : '' ?>">
+                                        <div class="span6">
+                                            <label class="col-sm-12" ><?= l('Менеджер') ?> : </label>
+                                            <?= $this->renderFile('orders/_employers', array(
+                                                'type' => 'manager',
+                                                'users' => $managers
+                                            )) ?>
+                                        </div>
+                                        <div class="span6">
+                                            <label class="col-sm-12" ><?= l('Инженер') ?> : </label>
+                                            <?= $this->renderFile('orders/_employers', array(
+                                                'type' => 'engineer',
+                                                'users' => $engineers
+                                            )) ?>
+                                        </div>
+                                        <div style="clear: both"></div>
                                     </div>
                                     <?php $this->HideField->end(); ?>
                                     <div style="clear: both"></div>

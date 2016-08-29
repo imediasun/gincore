@@ -3118,6 +3118,7 @@ class Chains extends Object
             'is_replacement_fund' => isset($post['is_replacement_fund']) ? 1 : 0,
             'replacement_fund' => isset($post['replacement_fund']) ? trim($post['replacement_fund']) : '',
             'manager' => isset($post['manager']) && $post['manager'] > 0 ? $post['manager'] : null,
+            'engineer' => isset($post['engineer']) && $post['engineer'] > 0 ? $post['engineer'] : null,
             'prepay_comment' => isset($post['prepay_comment']) ? trim($post['prepay_comment']) : '',
             'nonconsent' => isset($post['nonconsent']) ? 1 : 0,
             'is_waiting' => isset($post['is_waiting']) ? 1 : 0,
