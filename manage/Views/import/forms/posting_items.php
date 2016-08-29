@@ -1,11 +1,4 @@
-<div class="form-group">
-    <div class="checkbox">
-        <label>
-            <input type="checkbox" name="accepter_as_manager" value="1">
-            <?= l('назначить приемщика менеджером, если последний не указан') ?>
-        </label>
-    </div>
-</div>
+<input type="hidden" name="accepter_as_manager" value="1">
 <div class="form-group">
     <select class="form-control" name="contractor" required>
         <option value="0"><?= l('Выберите поставщика, от которого принимаем товар') ?> </option>
