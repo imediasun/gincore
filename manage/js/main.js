@@ -2449,6 +2449,11 @@ function recalculate_amount_supplier() {
   } else {
     $('.js-create-purchase-invoice').hide();
   }
+  if(count < 2) {
+    $('.js-form').removeClass('js-scroll-form');
+  } else {
+    $('.js-form').addClass('js-scroll-form');
+  }
 }
 
 
