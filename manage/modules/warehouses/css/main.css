@@ -193,3 +193,7 @@ table tr.capitalized {
     background-color: #dff0d8 !important;
 }
 .js-create-purchase-invoice {display:none}
+.row-fluid.test {
+    max-height: 420px;
+    overflow: auto;
+}

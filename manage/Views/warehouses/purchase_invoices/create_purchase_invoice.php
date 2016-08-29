@@ -1,4 +1,4 @@
-<div class="row-fluid">
+<div class="row-fluid test">
     <div id=""></div>
     <div class="col-sm-12">
         <form id="suppliers-order-form">
