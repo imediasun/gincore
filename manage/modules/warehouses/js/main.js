@@ -415,14 +415,15 @@ function create_warehouse_modal(_this) {
   return false;
 }
 
-function create_purchase_invoice() {
+function create_purchase_invoice(act) {
   var buttons = {
     success: {
-      label: "Создать",
+      label: "Приходовать",
       className: "btn-success",
       callback: function () {
         $.ajax({
-          url: prefix + 'warehouses?act=create-purchase-invoice',
+          // url: prefix + 'warehouses?act=create-purchase-invoice'
+          url: prefix + 'warehouses?act=create-purchase-invoice-and-posting',
           dataType: "json",
           type: 'POST',
           data: $('form#suppliers-order-form').serialize(),
@@ -430,7 +431,8 @@ function create_purchase_invoice() {
             if (data['state'] == false) {
               alert(data['message']);
             } else {
-              window.location.reload();
+              alert_box(this, false, 'form-debit-purchase-invoice', {object_id:data['id']});
+              // window.location.reload();
             }
           },
           error: function (xhr, ajaxOptions, thrownError) {
@@ -526,7 +528,6 @@ function edit_purchase_invoice(id) {
   });
   return false;
 }
-// @todo переделать
 function debit_purchase_invoice(_this) {
   $(_this).button('loading');
   $('form#debit-so-form .dso-msg').html('');
@@ -541,7 +542,6 @@ function debit_purchase_invoice(_this) {
     success: function (msg) {
       if (msg) {
         var reload = false;
-        console.log(msg);
         if (msg['state'] == false) {
           if (msg['msg']) {
             alert(msg['msg']);
@@ -585,5 +585,63 @@ function debit_purchase_invoice(_this) {
     }
   });
 
+  return false;
+}
+function start_purchase_invoice(_this) {
+  alert_box(_this, false, 'posting-one');
+  return false;
+}
+function purchase_invoice_import_form() {
+  var buttons = {
+    success: {
+      label: "Импортировать и приходовать",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'warehouses/ajax?act=purchase-invoice-import',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#import_form').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              alert_box(this, false, 'form-debit-purchase-invoice', {object_id:data['id']});
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=purchase-invoice-import-form',
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
   return false;
 }

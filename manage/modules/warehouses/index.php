@@ -308,6 +308,9 @@ class warehouses extends Controller
         } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $data = $this->createPurchaseInvoice($_POST);
             Response::json($data);
+        } elseif (isset($post['create-purchase-invoice-and-posting']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->createPurchaseInvoice($_POST);
+            Response::json($data);
         } elseif (isset($post['edit-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $data = $this->editPurchaseInvoice($_POST);
             Response::json($data);
@@ -1276,6 +1279,9 @@ class warehouses extends Controller
         if ($act == 'close-inventory') {
             $data = $this->closeInventory($data);
         }
+        if ($act == 'posting-one') {
+            $data = $this->postingStepOne($data);
+        }
 
         // сканирование
         if ($act == 'scan-serial') {
@@ -1398,7 +1404,12 @@ class warehouses extends Controller
         if ($act == 'accept-supplier-order') {
             $this->all_configs['suppliers_orders']->accept_order($mod_id, $this->all_configs['chains']);
         }
-
+        if ($act == 'purchase-invoice-import-form' && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->purchaseInvoiceImportForm();
+        }
+        if ($act == 'purchase-invoice-import' && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->purchaseInvoiceImport($_POST);
+        }
         Response::json($data);
     }
 
@@ -1468,11 +1479,11 @@ class warehouses extends Controller
                 'url' => '#settings',
                 'name' => l('Настройки')
             ),
-            array(
-                'click_tab' => true,
-                'url' => '#purchase_invoices',
-                'name' => l('Приходные накладные')
-            ),
+              array(
+              'click_tab' => true,
+              'url' => '#purchase_invoices',
+              'name' => l('Приходные накладные')
+              ),
             array(
                 'click_tab' => true,
                 'another_module' => true,
@@ -2288,7 +2299,8 @@ class warehouses extends Controller
             'warehouse_id' => $post['warehouse'],
             'location_id' => $post['location']
         );
-        if (!$this->PurchaseInvoices->add($data)) {
+        $result['id'] =$this->PurchaseInvoices->add($data);
+        if (!$result['id']) {
             $result = array(
                 'state' => false,
                 'message' => l('Что-то пошло не так')
@@ -2517,5 +2529,45 @@ class warehouses extends Controller
             }
         }
         return $result;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function postingStepOne($data)
+    {
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/posting_from_step_one'),
+        );
+    }
+
+    /**
+     * @return array
+     */
+    private function purchaseInvoiceImportForm()
+    {
+        $contractors = db()->query('SELECT id, title FROM {contractors}')->vars();
+        $warehouses = db()->query('
+            SELECT w.id, w.title 
+            FROM {warehouses} as w
+        ')->vars();
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/import_form', array(
+                'contractors' => $contractors,
+                'warehouses' => $warehouses
+            )),
+            'title' => l('Импорт из файла')
+        );
+    }
+
+    private function purchaseInvoiceImport($post)
+    {
+        return array(
+          'state' => true,
+            'content' => 'test'
+        );
     }
 }
