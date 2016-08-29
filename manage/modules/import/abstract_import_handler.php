@@ -29,14 +29,16 @@ abstract class abstract_import_handler extends Object
     }
 
     /**
-     * @param $results
+     * @param     $results
+     * @param int $onlyError
      * @return string
      */
-    protected function gen_result_table($results)
+    protected function gen_result_table($results, $onlyError = 0)
     {
         return $this->view->renderFile('import/gen_result_table', array(
             'results' => $results,
-            'controller' => $this
+            'controller' => $this,
+            'onlyError' => $onlyError
         ));
     }
 

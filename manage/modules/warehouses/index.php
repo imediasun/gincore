@@ -2408,8 +2408,7 @@ class warehouses extends Controller
             if ($invoice['state'] == PURCHASE_INVOICE_STATE_CAPITALIZED) {
                 throw new ExceptionWithMsg(l('Накладная уже оприходована'));
             }
-            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice, $post,
-                $mod_id) : $invoice['supplier_order_id'];
+            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice, $mod_id) : $invoice['supplier_order_id'];
             $debitResult = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
             if (empty($debitResult)) {
                 throw new ExceptionWithMsg(l('Возникли проблемы при оприходовании заказов'));
@@ -2447,53 +2446,14 @@ class warehouses extends Controller
     }
 
     /**
-     * @param $post
+     * @param $invoice
      * @param $mod_id
      * @return array
      * @throws ExceptionWithMsg
      */
-    private function createOrderFromInvoice($invoice, $post, $mod_id)
+    private function createOrderFromInvoice($invoice, $mod_id)
     {
-        $goods = $this->PurchaseInvoices->getGoods($post['invoice_id']);
-        if (empty($goods)) {
-            throw new ExceptionWithMsg(l('Товары не заданы'));
-        }
-
-        $data = array(
-            'warehouse-supplier' => $invoice['supplier_id'],
-            'warehouse-order-date' => $invoice['date'],
-            'warehouse-type' => $invoice['type'],
-            'comment-supplier' => $invoice['description'],
-            'item_ids' => array(),
-            'amount' => array(),
-            'quantity' => array()
-        );
-
-        foreach ($goods as $id => $good) {
-            $data['item_ids'][$id] = $good['good_id'];
-            $data['amount'][$id] = $good['price'] / 100;
-            $data['quantity'][$id] = $good['quantity'];
-        }
-        $order = $this->all_configs['suppliers_orders']->create_order($mod_id, $data);
-        if (!isset($order['id']) || $order['id'] == 0) {
-            throw new ExceptionWithMsg(l('Проблемы при создании заказа поставщику'));
-        }
-        $this->all_configs['db']->query('
-            UPDATE {contractors_suppliers_orders} 
-            SET wh_id=?i, location_id=?i, date_come=?, date_check=?, user_id_accept=user_id, count_come=`count`
-            WHERE id=?i OR parent_id=?i',
-            array(
-                $invoice['warehouse_id'],
-                $invoice['location_id'],
-                date('Y-m-d H:i'),
-                date('Y-m-d H:i'),
-                $order['parent_order_id'],
-                $order['parent_order_id']
-            ))->ar();
-        $this->PurchaseInvoices->update(array(
-            'supplier_order_id' => $order['id'],
-        ), array('id' => $post['invoice_id']));
-        return $order['parent_order_id'];
+        return $this->PurchaseInvoices->createOrderFromInvoice($invoice, $mod_id);
     }
 
     /**

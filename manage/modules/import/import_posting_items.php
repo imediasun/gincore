@@ -40,24 +40,46 @@ class import_posting_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
+            $error = 0;
             $invoiceId = $this->createInvoice($this->import_settings);
             foreach ($rows as $row) {
                 try {
                     $data = $this->getItemData($row);
-                    $results[] = $this->addItem($invoiceId, $data);
+                    $result = $this->addItem($invoiceId, $data);
+                    if(empty($data['id'])) {
+                       $result = array(
+                           'state' => false,
+                           'title' => $data['title'],
+                           'message' => l('Отсутствует соответствие в номенклатуре')
+                       );
+                        $error = 1;
+                    }
+                    $results[] = $result;
                 } catch (ExceptionWithMsg $e) {
                     $results[] = array(
-                        'state' => true,
+                        'state' => false,
                         'id' => $this->provider->title($row),
                         'message' => l('Ошибка при добавлении товара в накладную')
                     );
+                }
+            }
+            if($error == 0) {
+                try {
+                    $invoice = $this->PurchaseInvoices->getByPk($invoiceId);
+                    $mod_id = $this->all_configs['configs']['warehouses-manage-page'];
+                    $parentOrderId = $this->PurchaseInvoices->createOrderFromInvoice($invoice, $mod_id);
+                    $this->debitOrderFromInvoice($invoiceId, $parentOrderId, $mod_id);
+                    $this->PurchaseInvoices->update(array(
+                        'state' => PURCHASE_INVOICE_STATE_CAPITALIZED
+                    ), array('id' => $invoiceId));
+                } catch (ExceptionWithMsg $e) {
                 }
             }
         }
         $this->flushLog();
         return array(
             'state' => true,
-            'message' => $this->gen_result_table($results)
+            'message' => $this->gen_result_table($results, $error)
         );
     }
 
@@ -129,7 +151,7 @@ class import_posting_items extends abstract_import_handler
             'title' => $data['title'],
             'message' => l('Товар добавлен в накладную')
         ) : array(
-            'state' => true,
+            'state' => false,
             'title' => $data['title'],
             'message' => l('Ошибка при добавлении товара в накладную')
         );
@@ -149,5 +171,39 @@ class import_posting_items extends abstract_import_handler
             'contractors' => $contractors,
             'warehouses' => $warehouses
         ));
+    }
+
+
+    /**
+     * @param $invoiceId
+     * @param $parentOrderId
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    private function debitOrderFromInvoice($invoiceId, $parentOrderId, $mod_id)
+    {
+        $orders = $this->all_configs['db']->query('
+            SELECT * 
+            FROM {contractors_suppliers_orders} 
+            WHERE id=?i OR parent_id=?i
+        ', array($parentOrderId, $parentOrderId))->assoc('id');
+        if (empty($orders)) {
+            throw new ExceptionWithMsg(l('Договора с поставщиком не найдены'));
+        }
+        $goods = $this->all_configs['db']->query(' SELECT * FROM {purchase_invoice_goods} WHERE invoice_id=?i AND NOT good_id=0',
+            array($invoiceId))->assoc('good_id');
+        $result = array();
+        if (!empty($goods)) {
+            foreach ($orders as $order) {
+                $data = array(
+                    'order_id' => $order['id'],
+                    'serial' => '',
+                    'auto' => 'on',
+                );
+                $result[] = $this->all_configs['suppliers_orders']->debit_supplier_order($data, $mod_id);
+            }
+        }
+        return $result;
     }
 }

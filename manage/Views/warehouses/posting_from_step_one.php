@@ -4,7 +4,7 @@
         <?= l('Создать заказ поставщику в разделе Заказы-Создать заказ поставщику. После чего в  разделе Склад-Заказы поставщикам выбрать из списка нужный заказ и оприходовать его') ?>
     </li>
     <li style="margin-bottom: 20px">
-        <a href="" class="btn btn-default" onclick="return purchase_invoice_import_form();"><?= l('Загрузить') ?></a>
+        <a href="<?= $this->all_configs['prefix'] ?>import#import" class="btn btn-default"><?= l('Загрузить') ?></a>
         <?= l('накладную от поставщика в формате Excel. Товар перечисленный в накладной будет оприходован на склад') ?>
     </li>
     <li>

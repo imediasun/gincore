@@ -78,6 +78,56 @@ class MPurchaseInvoices extends AModel
     }
 
     /**
+     * @param $invoice
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    public function createOrderFromInvoice($invoice, $mod_id)
+    {
+        $goods = $this->getGoods($invoice['id']);
+        if (empty($goods)) {
+            throw new ExceptionWithMsg(l('Товары не заданы'));
+        }
+
+        $data = array(
+            'warehouse-supplier' => $invoice['supplier_id'],
+            'warehouse-order-date' => $invoice['date'],
+            'warehouse-type' => $invoice['type'],
+            'comment-supplier' => $invoice['description'],
+            'item_ids' => array(),
+            'amount' => array(),
+            'quantity' => array()
+        );
+
+        foreach ($goods as $id => $good) {
+            $data['item_ids'][$id] = $good['good_id'];
+            $data['amount'][$id] = $good['price'] / 100;
+            $data['quantity'][$id] = $good['quantity'];
+        }
+        $order = $this->all_configs['suppliers_orders']->create_order($mod_id, $data);
+        if (!isset($order['id']) || $order['id'] == 0) {
+            throw new ExceptionWithMsg(l('Проблемы при создании заказа поставщику'));
+        }
+        $this->query('
+            UPDATE {contractors_suppliers_orders} 
+            SET wh_id=?i, location_id=?i, date_come=?, date_check=?, user_id_accept=user_id, count_come=`count`
+            WHERE id=?i OR parent_id=?i',
+            array(
+                $invoice['warehouse_id'],
+                $invoice['location_id'],
+                date('Y-m-d H:i'),
+                date('Y-m-d H:i'),
+                $order['parent_order_id'],
+                $order['parent_order_id']
+            ))->ar();
+        $this->update(array(
+            'supplier_order_id' => $order['id'],
+        ), array('id' => $invoice['id']));
+        return $order['parent_order_id'];
+    }
+
+    /**
      * @return array
      */
     public function columns()
