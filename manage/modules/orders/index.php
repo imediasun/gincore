@@ -780,7 +780,9 @@ class orders extends Controller
                 'order_data' => $order_data,
                 'available' => Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'],
                     $this->all_configs['configs']['host']),
-                'users_fields' => $this->getUsersFields()
+                'users_fields' => $this->getUsersFields(),
+                'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
+                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer')
             ));
         }
 
