@@ -984,7 +984,7 @@ function recalculate_amount_quick() {
     } else {
       amount = price - discount;
     }
-    $row.find('.js-quick-sum').first().val(Math.round(amount / 100) * 100);
+    $row.find('.js-quick-sum').first().val(Math.round(amount * 100) / 100);
     total += amount;
   });
   if (total == 0) {
