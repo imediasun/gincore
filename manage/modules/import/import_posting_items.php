@@ -166,7 +166,7 @@ class import_posting_items extends abstract_import_handler
             && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
         ) {
             $contractors = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
-                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->vars();
         } else {
             $contractors = db()->query('SELECT id, title FROM {contractors}')->vars();
         }
