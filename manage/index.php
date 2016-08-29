@@ -419,6 +419,7 @@ try {
             }
         }
     }
+    get_service('crm/requests');
 ################################################################################
     $all_configs['curmod'] = null;
     if ($ifauth) {
