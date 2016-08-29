@@ -419,7 +419,7 @@ function create_purchase_invoice(act) {
   var buttons = {
     success: {
       label: "Приходовать",
-      className: "btn-success",
+      className: "btn-success js-create-purchase-invoice",
       callback: function () {
         $.ajax({
           // url: prefix + 'warehouses?act=create-purchase-invoice'

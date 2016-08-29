@@ -34,10 +34,8 @@
                             'action' => 'products/ajax/?act=create_form',
                             'form_id' => 'new_device_form'
                         ), false) ?>
-                    <?php if ($is_modal): ?>
                         <div id="new_device_form"
                              class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
-                    <?php endif; ?>
                 </td>
                 <td>
                     <input type="text" data-required="true" onkeydown="return isNumberKey(event, this)"

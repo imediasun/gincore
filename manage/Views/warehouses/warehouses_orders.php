@@ -30,7 +30,7 @@
     </li>
     <li class="pull-right">
         <button type="button" class="btn btn-success" onclick="return start_purchase_invoice(this);">
-            <i class="fa fa-plus-circle" aria-hidden="true" style="color: blue"></i>
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
             <?= l('Приходовать') ?>
         </button>
     </li>

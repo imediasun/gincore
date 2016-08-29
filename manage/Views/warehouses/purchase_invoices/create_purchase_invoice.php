@@ -1,4 +1,5 @@
 <div class="row-fluid">
+    <div id=""></div>
     <div class="col-sm-12">
         <form id="suppliers-order-form">
             <input type="hidden" name="create-purchase-invoice" />
@@ -43,10 +44,8 @@
                                                     data-id="supplier_creator"><?= l('Добавить') ?></button>
                                         </div>
                                     </div>
-                                    <?php if ($is_modal): ?>
                                         <div id="new_supplier_form"
                                              class="typeahead_add_form_box theme_bg new_supplier_form p-md"></div>
-                                    <?php endif; ?>
                                 </td>
 
                                 <td class="col-sm-4">

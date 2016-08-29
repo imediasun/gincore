@@ -130,3 +130,8 @@
     </div>
 <?php endif; ?>
 </form>
+<script>
+    jQuery(document).ready(function () {
+       $('.multiselect').multiselect();
+    });
+</script>

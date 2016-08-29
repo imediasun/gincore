@@ -2,7 +2,7 @@
     <ul class="list-unstyled inline clearfix">
         <li class="pull-right">
             <button type="button" class="btn btn-default" onclick="return create_purchase_invoice();">
-                <i class="fa fa-plus-circle" aria-hidden="true" style="color: blue"></i>
+                <i class="fa fa-plus-circle" aria-hidden="true"></i>
                 <?= l('Создать новую') ?>
             </button>
         </li>

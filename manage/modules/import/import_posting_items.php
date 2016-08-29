@@ -46,12 +46,12 @@ class import_posting_items extends abstract_import_handler
                 try {
                     $data = $this->getItemData($row);
                     $result = $this->addItem($invoiceId, $data);
-                    if(empty($data['good_id'])) {
-                       $result = array(
-                           'state' => false,
-                           'title' => $data['title'],
-                           'message' => l('Отсутствует соответствие в номенклатуре')
-                       );
+                    if (empty($data['good_id'])) {
+                        $result = array(
+                            'state' => false,
+                            'title' => $data['title'],
+                            'message' => l('Название товара в базе не найдено')
+                        );
                         $error = 1;
                     }
                     $results[] = $result;
@@ -63,7 +63,7 @@ class import_posting_items extends abstract_import_handler
                     );
                 }
             }
-            if($error == 0) {
+            if ($error == 0) {
                 try {
                     $invoice = $this->PurchaseInvoices->getByPk($invoiceId);
                     $mod_id = $this->all_configs['configs']['warehouses-manage-page'];
@@ -162,7 +162,14 @@ class import_posting_items extends abstract_import_handler
      */
     public function getImportForm()
     {
-        $contractors = db()->query('SELECT id, title FROM {contractors}')->vars();
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $contractors = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        } else {
+            $contractors = db()->query('SELECT id, title FROM {contractors}')->vars();
+        }
         $warehouses = db()->query('
             SELECT w.id, w.title 
             FROM {warehouses} as w

@@ -2423,7 +2423,8 @@ function add_supplier_item_to_table() {
 
 function recalculate_amount_supplier() {
   var total = parseFloat(0),
-    $body = $('.supplier-table-items > tbody');
+    $body = $('.supplier-table-items > tbody'),
+    count = 0;
 
   $body.children('tr.row-item').each(function () {
     var $row = $(this),
@@ -2433,6 +2434,7 @@ function recalculate_amount_supplier() {
     $row.find('.js-supplier-sum').first().val(Math.round(price * quantity * 100) / 100);
     n = parseFloat($row.find('.js-supplier-sum').first().val());
     total = total + n;
+    count++;
   });
   total = total.toFixed(2);
   if (total == 0) {
@@ -2442,6 +2444,11 @@ function recalculate_amount_supplier() {
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-supplier-total').val(Math.round(total * 100) / 100);
+  if(count) {
+    $('.js-create-purchase-invoice').show();
+  } else {
+    $('.js-create-purchase-invoice').hide();
+  }
 }
 
 
