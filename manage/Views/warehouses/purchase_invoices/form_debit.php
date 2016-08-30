@@ -19,10 +19,10 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <td>
+                        <td width="50%">
                             <?= l('Наименование') ?>
                         </td>
-                        <td style="white-space: nowrap; text-align: center">
+                        <td width='20%' style="white-space: nowrap; text-align: center">
                             <?= l('Кол-во, шт.') ?>
                         </td>
                         <td width="30%">
@@ -32,7 +32,7 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td>
+                        <td style="max-width: 50%">
                             <?= h($good['item']); ?>
                         </td>
                         <td style="text-align: center">
