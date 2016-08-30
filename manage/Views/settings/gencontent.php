@@ -89,7 +89,7 @@
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
-                <thead>
+                <tfoot>
                 <tr>
                     <td>
                     </td>
@@ -105,7 +105,7 @@
                     <td>
                     </td>
                 </tr>
-                </thead>
+                </tfoot>
             </table>
             <?php break; ?>
 
