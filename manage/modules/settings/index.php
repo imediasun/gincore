@@ -409,7 +409,7 @@ class settings extends Controller
         if(!empty($post)) {
             $lastId = 0;
             foreach ($post['name'] as $id => $value) {
-                $statusId = ($id == 'new')? $lastId + 1: $id;
+                $statusId = ($id === 'new')? $lastId + 1: $id;
                 $lastId = max($lastId, $id);
                 if(!empty($value) && (!isset($post['delete'][$id]) || $post['delete'][$id] != 'on' || $used($id)))  {
                     $status[$statusId] = array(
