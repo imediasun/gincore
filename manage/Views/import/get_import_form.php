@@ -1,9 +1,9 @@
 <?php if ($type): ?>
     <div class="form-group">
-        <label><?= l('Провайдер') ?></label>
         <input type="hidden" name="handler" value="<?= reset($handlers) ?>"/>
         <?php if (false): ?>
             <?php // закоментировал возможность выбирать из списка провайдеров ?>
+            <label><?= l('Провайдер') ?></label>
             <select class="form-control" name="handler">
                 <?= $this->renderFile('import/gen_types_select_options', array(
                     'selected' => $type,

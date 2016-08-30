@@ -162,13 +162,18 @@ class import extends Object
     }
 
     /**
-     * @todo not used???
-     *
      * @return array
      */
     private function import_import()
     {
         $import = isset($_GET['i']) && isset($this->upload_types[$_GET['i']]) ? $_GET['i'] : '';
+        if (isset($_GET['load']) && $_GET['load'] == 'posting_items') {
+            return array(
+                'html' => $this->view->renderFile('import/import_posting_items', array(
+                    'body' => $this->get_import_form('posting_items')
+                ))
+            );
+        }
         return array(
             'html' => $this->view->renderFile('import/import_import', array(
                 'selected' => $import,
@@ -184,6 +189,7 @@ class import extends Object
     function get_import_form($type)
     {
         $import = $this->getImportHandler($type, null, null);
+
         return $this->view->renderFile('import/get_import_form', array(
             'type' => $type,
             'options' => $this->upload_types,
