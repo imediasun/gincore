@@ -132,6 +132,6 @@
 </form>
 <script>
     jQuery(document).ready(function () {
-       $('.multiselect').multiselect();
+        $('.multiselect').multiselect(multiselect_options);
     });
 </script>
