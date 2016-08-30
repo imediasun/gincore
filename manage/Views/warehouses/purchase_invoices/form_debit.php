@@ -3,7 +3,7 @@
 
     <div class="form-group">
         <label class="control-label" style="text-align: left">
-            <b><?= l('Приходная накладная') ?> N<?= $invoice['id'] ?></b><br>
+            <b><?= l('Заказ поставщику') ?> N<?= $invoice['supplier_order_id'] ?></b><br>
             <?php if ($invoice): ?>
                 <?= l('Приходуется на:') ?> <?= h($invoice['warehouse']) ?> <?= h($invoice['location']); ?>
             <?php endif; ?>

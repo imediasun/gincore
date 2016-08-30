@@ -3,7 +3,7 @@
     <table class="table">
         <thead>
         <tr>
-            <td>
+            <td width="50%">
                 <?= l('Наименование') ?>
             </td>
             <td width='20%' style="white-space: nowrap; text-align: center">
