@@ -166,7 +166,7 @@
                                 </div>
                             </td>
                             <td class="col-sm-6">
-                                <div class="form-group">
+                                <div class="form-group" style="max-width: 150px">
                                     <?= $this->renderFile('users/roles_options', array(
                                         'roles' => $roles,
                                         'form_data' => $form_data
@@ -243,6 +243,21 @@
                                 <div class="form-group">
                                     <input type="checkbox"
                                            name="show_client_info" <?= isset($form_data['show_client_info']) && !$form_data['show_client_info'] ? '' : 'checked' ?>/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        <?= l('Сотрудник может видеть только свои заказы на ремонт или продажу') ?><?= InfoPopover::getInstance()->createQuestion('l_show_only_users_orders') ?>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="checkbox"
+                                           name="show_only_his_orders" <?= isset($form_data['show_only_his_orders']) && !$form_data['show_only_his_orders'] ? '' : 'checked' ?>/>
                                 </div>
                             </td>
                         </tr>

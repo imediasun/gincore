@@ -286,3 +286,8 @@ CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
  */
 ALTER TABLE `restore4_purchase_invoices` ADD COLUMN supplier_order_id int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_purchase_invoices` ADD INDEX purchase_invoices_supplier_order_id(supplier_order_id);
+/*
+2016_08_30_113445_add_show_only_users_orders.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN show_only_his_orders int(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD INDEX users_show_only_his_orders(show_only_his_orders);

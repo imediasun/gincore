@@ -1,6 +1,7 @@
 <?php
+require_once __DIR__.'/Core/Object.php';
 
-class manageModel
+class manageModel extends Object
 {
     protected $all_configs;
 
@@ -762,6 +763,11 @@ class manageModel
                 array($query, DELIVERY_BY_COURIER));
         }
 
+        $userId = $this->getUserId();
+        $onlyHisOrders = $this->all_configs['db']->query('SELECT show_only_his_orders FROM {users} WHERE id=?i', array($userId))->el();
+        if($onlyHisOrders) {
+            $query = $this->all_configs['db']->makeQuery('?query AND (o.manager=?i OR o.accepter=?i OR o.engineer=?i)', array($query, $userId, $userId, $userId));
+        }
         return array(
             'query' => $query,
             'count_on_page' => $count_on_page,
