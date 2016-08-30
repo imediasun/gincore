@@ -5,7 +5,7 @@ require_once __DIR__ . '/abstract_orders_template.php';
 // гарантийный талон на продажу
 class sale_warranty extends AbstractOrdersTemplate
 {
-    public function draw_one($object)
+    public function draw_one($object, $template='')
     {
         $print_html = '';
 

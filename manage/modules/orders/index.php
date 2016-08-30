@@ -12,6 +12,7 @@ $modulemenu[10] = l('orders');
  * @property  MOrdersGoods    OrdersGoods
  * @property  MOrdersComments OrdersComments
  * @property  MLockFilters    LockFilters
+ * @property  MTemplateVars   TemplateVars
  */
 class orders extends Controller
 {
@@ -19,7 +20,8 @@ class orders extends Controller
         'Orders',
         'OrdersGoods',
         'OrdersComments',
-        'LockFilters'
+        'LockFilters',
+        'TemplateVars'
     );
 
     /**
@@ -642,6 +644,8 @@ class orders extends Controller
                 'orders' => $orders,
                 'filters' => $filters,
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
+                'urgent' => $this->Orders->getUrgentCount(),
+                'debts' => $this->Orders->getDebts()
             )),
             'functions' => array(),
         );
@@ -677,6 +681,7 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page,
                 'saleOrdersFilters' => $this->sale_orders_filters(true),
+                'debts' => $this->Orders->getDebts(ORDER_SELL)
             )),
             'functions' => array(),
         );
@@ -776,7 +781,9 @@ class orders extends Controller
                 'order_data' => $order_data,
                 'available' => Tariff::isAddOrderAvailable($this->all_configs['configs']['api_url'],
                     $this->all_configs['configs']['host']),
-                'users_fields' => $this->getUsersFields()
+                'users_fields' => $this->getUsersFields(),
+                'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
+                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer')
             ));
         }
 
@@ -1801,12 +1808,15 @@ class orders extends Controller
         switch ($order['sale_type']) {
             case 1:
                 $template = 'orders/quicksaleorder/genorder';
+                $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
                 break;
             case 2:
                 $template = 'orders/eshoporder/genorder';
+                $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
                 break;
             default:
                 $template = $modal ? 'orders/genorder/genorder-modal' : 'orders/genorder/genorder';
+                $print_templates = $this->TemplateVars->getUsersPrintTemplates('repair_order');
                 $showUsersFields = $this->checkShowUsersFields($usersFields, $hide);
         }
         return $this->view->renderFile($template, array(
@@ -1815,7 +1825,7 @@ class orders extends Controller
             'hasEditorPrivilege' => $hasEditorPrivilege,
             'notSale' => $notSale,
             'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
-            'engineers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('engineer'): null,
+            'engineers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('engineer') : null,
             'navigation' => $this->clients_orders_navigation(true),
             'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
                 $this->all_configs['settings']['order_warranties']) : array(),
@@ -1838,7 +1848,8 @@ class orders extends Controller
             'showUsersFields' => $showUsersFields,
             'homeMasterRequest' => $home_master_request,
             'price_type' => $price_type,
-            'price_type_of_service' => $price_type_of_service
+            'price_type_of_service' => $price_type_of_service,
+            'print_templates' => $print_templates,
         ));
     }
 
@@ -2944,7 +2955,7 @@ class orders extends Controller
                 $value = $this->all_configs['configs']['order-status'][$_POST['status']]['name'];
             }
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'status', $value);
-            if(!empty($response['msg'])) {
+            if (!empty($response['msg'])) {
                 FlashMessage::set($response['msg'], FlashMessage::WARNING);
             }
         }
@@ -3027,11 +3038,21 @@ class orders extends Controller
                     $_POST['engineer']
                 );
                 $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer', $user['fio']);
+                $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
                 if ($user['send_over_sms']) {
-                    $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
-                    $orderId = $this->all_configs['arrequest'][2];
-                    send_sms("+{$user['phone']}",
-                        l('Vi naznacheni otvetstvennim po zakazu #') . $orderId);
+                    $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
+                        array($order['user_id']))->row();
+                    $templates = get_service('crm/sms')->get_templates_with_vars('engineer_notify', array(
+                        '{{order_id}}' => $order['id'],
+                        '{{client}}' => $client['fio'],
+                        '{{phone}}' => $client['phone'],
+                        '{{address}}' => $client['legal_address'],
+                        '{{device}}' => $order['title']
+                    ), 'Order № {{order_id}} {{phone}} {{client}} {{device}}');
+                    if (!empty($templates)) {
+                        $current = current($templates);
+                        send_sms("+{$user['phone']}", $current['body']);
+                    }
                 }
                 if ($user['send_over_email']) {
                     require_once $this->all_configs['sitepath'] . 'mail.php';

@@ -1,6 +1,7 @@
 <?php
+require_once __DIR__.'/Core/Object.php';
 
-class manageModel
+class manageModel extends Object
 {
     protected $all_configs;
 
@@ -685,6 +686,14 @@ class manageModel
                 $query = $this->all_configs['db']->makeQuery('?query AND NOT o.courier IS NULL',
                     array($query));
             }
+            if (in_array('urgent', $other)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.urgent=1 AND NOT o.status in (?li)',
+                    array($query, $this->all_configs['configs']['order-statuses-urgent-not-show']));
+            }
+            if (in_array('pay', $other)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND (o.sum_paid + o.discount) < o.sum AND o.status in (?li)',
+                    array($query, $this->all_configs['configs']['order-statuses-debts']));
+            }
         }
 
         if (isset($filters['rf']) && $filters['rf'] > 0) {
@@ -754,6 +763,11 @@ class manageModel
                 array($query, DELIVERY_BY_COURIER));
         }
 
+        $userId = $this->getUserId();
+        $onlyHisOrders = $this->all_configs['db']->query('SELECT show_only_his_orders FROM {users} WHERE id=?i', array($userId))->el();
+        if($onlyHisOrders) {
+            $query = $this->all_configs['db']->makeQuery('?query AND (o.manager=?i OR o.accepter=?i OR o.engineer=?i)', array($query, $userId, $userId, $userId));
+        }
         return array(
             'query' => $query,
             'count_on_page' => $count_on_page,

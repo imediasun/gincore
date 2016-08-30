@@ -28,6 +28,7 @@ function product_exports_form($all_configs)
         array('label' => 'ID', 'name' => 'id'),
         array('label' => lq('Категория'), 'name' => 'categories'),
         array('label' => lq('Наименование'), 'name' => 'title'),
+        array('label' => lq('Артикул'), 'name' => 'vendor_code'),
         array('label' => lq('Цена закупки'), 'name' => 'price_purchase'),
         array('label' => lq('Цена оптовая'), 'name' => 'price_wholesale'),
         array('label' => lq('Цена розничная'), 'name' => 'price'),
@@ -63,6 +64,9 @@ function exports_goods($all_configs, $ids)
     $select[] = 'DISTINCT g.id as ID';//обязательно
     if (isset($_GET['title']) && $_GET['title'] == 1) {
         $select[] = 'g.title as `' . lq('Наименование') . '`';
+    }
+    if (isset($_GET['vendor_code']) && $_GET['vendor_code'] == 1) {
+        $select[] = 'g.vendor_code as `' . lq('Артикул') . '`';
     }
     if (isset($_GET['url']) && $_GET['url'] == 1) {
         $select[] = 'CONCAT("http://' . $_SERVER['HTTP_HOST'] . $all_configs['siteprefix'] . '", g.url, "/' . $all_configs['configs']['product-page'] . '/", g.id) as `Ссылка на товар`';

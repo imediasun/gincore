@@ -7,8 +7,10 @@
 <?= l('Редактирование клиента') ?> ID: <?= $client['id'] ?>
 <fieldset>
     <legend>
-        <?= htmlspecialchars(empty($client['fio']) ? $client['email'] : $client['fio']) ?>, <?= l('тел') ?>
-        : <?= implode(', ', $phones) ?>
+        <?= htmlspecialchars(empty($client['fio']) ? $client['email'] : $client['fio']) ?>
+        <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+            , <?= l('тел') ?> : <?= implode(', ', $phones) ?>
+        <?php endif; ?>
 
         <?php if ($client['tag_id'] != 0): ?>
             <span class="tag" style="background-color: <?= $tags[$client['tag_id']]['color'] ?>">

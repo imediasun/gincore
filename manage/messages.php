@@ -120,8 +120,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             $query_title = 'g.title';
 
             $data = $all_configs['db']->query('SELECT g.id, ?q as title FROM {goods} as g ?query
-                    WHERE g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
-                array($query_title, $query, $s, 1, $limit))->assoc();
+                    WHERE (g.title LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.avail=?i GROUP BY g.id LIMIT ?i',
+                array($query_title, $query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'goods-goods' || $_POST['table'] == 'new-goods') {
             $query = '';
@@ -131,8 +131,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
             $data = $all_configs['db']->query('SELECT g.id, g.title, g.price, g.price_wholesale FROM {goods} as g ?query
-                    WHERE (g.type IS NULL OR g.type=0) AND g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
-                array($query, $s, 1, $limit))->assoc();
+                    WHERE (g.type IS NULL OR g.type=0) AND (g.title LIKE "%?e%"  OR g.vendor_code LIKE "%?e%") AND g.avail=?i GROUP BY g.id LIMIT ?i',
+                array($query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'goods-service') {
             $query = '';
@@ -142,18 +142,23 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
             $data = $all_configs['db']->query('SELECT g.id, g.title FROM {goods} as g ?query
-                    WHERE g.type=1 AND g.title LIKE "%?e%" AND g.avail=?i GROUP BY g.id LIMIT ?i',
-                array($query, $s, 1, $limit))->assoc();
+                    WHERE g.type=1 AND (g.title LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.avail=?i GROUP BY g.id LIMIT ?i',
+                array($query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'clients') {
-            $data = $all_configs['db']->query('SELECT c.id, GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
-                      ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title, c.fio, c.phone, c.tag_id, t.title as t_title, t.color as t_color
+            if($all_configs['configs']['can_see_client_infos']) {
+                $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
+                      ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title');
+            } else {
+                $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, "")) as title');
+            }
+            $data = $all_configs['db']->query('SELECT c.id,  ?query, c.fio, c.phone, c.tag_id, t.title as t_title, t.color as t_color
                     FROM {clients} as c
                     LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
                     LEFT JOIN {tags} as t ON t.id=c.tag_id
                     WHERE (c.email LIKE "%?e%" OR c.fio LIKE "%?e%" OR c.phone LIKE "%?e%" OR p.phone LIKE "%?e%") AND c.id<>?i
                     GROUP BY c.id LIMIT ?i',
-                array($s, $s, $s, $s, $all_configs['configs']['erp-write-off-user'], $limit))->assoc();
+                array($title_query, $s, $s, $s, $s, $all_configs['configs']['erp-write-off-user'], $limit))->assoc();
         }
         if ($_POST['table'] == 'fvalues') {
             $data = $all_configs['db']->query('SELECT value as title, id FROM {filter_value}
@@ -346,6 +351,19 @@ if ($act == 'edit-supplier-order-comment') {
     echo json_encode($data);
     exit;
 }
+// редактирование комментария приходной накладной
+if ($act == 'edit-purchase-invoice-comment') {
+    if (isset($_POST['pk']) && isset($_POST['value'])) {
+        Log::dump($_POST);
+        $data['element_id'] = 'supplier-order-comment-' . $_POST['pk'];
+        $data['element_value'] = cut_string(trim($_POST['value']), 25);
+        $all_configs['db']->query('UPDATE {purchase_invoices} SET description=? WHERE id=?i',
+            array(trim($_POST['value']), intval($_POST['pk'])));
+    }
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode($data);
+    exit;
+}
 
 // перемещаем заказ
 if ($act == 'move-order') {
@@ -467,8 +485,8 @@ if ($act == 'get_locations') {
     if (isset($_POST['wh_id'])) {
         $warehouses = get_service('wh_helper')->get_warehouses();
         if (isset($warehouses[$_POST['wh_id']]['locations'])) {
-            $out = '';
             $i = 0;
+            $out = '<option value="0">'.l('Выберите локацию на складе').'</option>';
             foreach ($warehouses[$_POST['wh_id']]['locations'] as $id => $location) {
                 if (trim($location['name'])) {
                     $out .= '<option' . (!$i ? ' selected="selected"' : '') . ' value="' . $id . '">' .

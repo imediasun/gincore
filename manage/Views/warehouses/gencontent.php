@@ -27,6 +27,9 @@
                    href="<?= $mod_submenu[3]['url'] ?>"><?= $mod_submenu[3]['name'] ?><span
                         class="tab_count hide tc_sum_warehouses_orders"></span></a></li>
         <?php endif; ?>
+        <li><a class="click_tab" data-open_tab="purchase_invoices" onclick="click_tab(this, event)"
+               data-toggle="tab"
+               href="<?= $mod_submenu[5]['url'] ?>"><?= $mod_submenu[5]['name'] ?></a></li>
         <?php if ($this->all_configs["oRole"]->hasPrivilege("site-administration")): ?>
             <li><a class="click_tab" data-open_tab="warehouses_settings" onclick="click_tab(this, event)"
                    data-toggle="tab"
@@ -64,6 +67,8 @@
             </div>
         <?php endif; ?>
 
+        <div id="purchase_invoices" class="tab-pane">
+        </div>
 
         <div id="inventories" class="tab-pane">
         </div>

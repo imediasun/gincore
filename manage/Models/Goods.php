@@ -114,7 +114,8 @@ class MGoods extends AModel
             'search_keywords_categories',
             'serach_clicks',
             'search_weight',
-            'deleted'
+            'deleted',
+            'vendor_code'
         );
     }
 

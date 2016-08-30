@@ -6,14 +6,15 @@
             <h4 class="modal-title" id="exampleModalLabel" style="font-size:13px"><?= l('Редактирование заказа') ?></h4>
         </div>
         <div class="modal-body">
-            <form method="post" id="order-form" class="clearfix order-form-edit backgroud-white order-form-p-lg row-fluid"
+            <form method="post" id="order-form"
+                  class="clearfix order-form-edit backgroud-white order-form-p-lg row-fluid"
                   style="margin:0;">
                 <?php $color = preg_match('/^#[a-f0-9]{6}$/i',
                     trim($order['color'])) ? trim($order['color']) : '#000000'; ?>
 
                 <div class="span6">
-                    <input id='order_id' type="hidden" name="order_id" value="<?= $order['id'] ?>" />
-                    <input type="hidden" name="is_modal" value="1" />
+                    <input id='order_id' type="hidden" name="order_id" value="<?= $order['id'] ?>"/>
+                    <input type="hidden" name="is_modal" value="1"/>
                     <div class="bordered">
                         <div class="row-fluid">
 
@@ -22,7 +23,8 @@
                                     № <?= $order['id'] ?>
                                     <?= $this->renderFile('orders/genorder/_print_buttons', array(
                                         'hasEditorPrivilege' => $hasEditorPrivilege,
-                                        'order' => $order
+                                        'order' => $order,
+                                        'print_templates' => $print_templates
                                     )) ?>
                                     <button data-o_id="<?= $order['id'] ?>" onclick="alert_box(this, false, 'sms-form')"
                                             class="btn btn-default" type="button"><i class="fa fa-mobile"></i> SMS
@@ -37,7 +39,8 @@
                                     </small>
                                     &nbsp;
                                     <?php if (!empty($homeMasterRequest)): ?>
-                                        <i style="color:<?= $color ?>; font-size: 10px" title="<?= $homeMasterRequest['address'] ?>, <?= $homeMasterRequest['date']?>"
+                                        <i style="color:<?= $color ?>; font-size: 10px"
+                                           title="<?= $homeMasterRequest['address'] ?>, <?= $homeMasterRequest['date'] ?>"
                                            class="fa fa-car"></i>
                                     <?php endif; ?>
                                     <?php if (mb_strlen($order['courier'], 'UTF-8') > 0): ?>
@@ -50,7 +53,7 @@
                                            class="fa fa-suitcase text-danger"></i>
                                     <?php else: ?>
                                         <i style="color:<?= $color ?>;" title="<?= l('Принято в сервисном центре') ?>"
-                                           class="<?= htmlspecialchars($order['icon']) ?>"></i>
+                                           class="<?= h($order['icon']) ?>"></i>
                                     <?php endif; ?>
                                     <?= $order['aw_title'] ?>&nbsp;<?= timerout($order['id'], true) ?>
                                 </div>
@@ -74,22 +77,25 @@
                                         <?= l('Заказчик') ?>:
                                     </label>
                                     <div class="tw100">
-                                        <input type="text" value="<?= htmlspecialchars($order['fio']) ?>" name="fio"
+                                        <input type="text" value="<?= h($order['fio']) ?>" name="fio"
                                                class="form-control"/>
                                     </div>
                                 </div>
-                                <div class="form-group clearfix">
-                                    <label class="lh30">
+                                <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
+                                    <div class="form-group clearfix">
+                                        <label class="lh30">
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:update-order-phone')"
                                   data-o_id="<?= $order['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                                        <?= l('Телефон') ?>:
-                                    </label>
-                                    <div class="tw100">
-                                        <input type="text" value="<?= htmlspecialchars($order['phone']) ?>" name="phone"
-                                               class="form-control"/>
+                                            <?= l('Телефон') ?>:
+                                        </label>
+                                        <div class="tw100">
+                                            <input type="text" value="<?= h($order['phone']) ?>"
+                                                   name="phone"
+                                                   class="form-control"/>
+                                        </div>
                                     </div>
-                                </div>
+                                <?php endif; ?>
                                 <div class="form-group clearfix">
                                     <label>
                             <span class="cursor-pointer glyphicon glyphicon-list" title="<?= l('История изменений') ?>"
@@ -125,7 +131,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <?= htmlspecialchars($order['note']) ?>
+                                    <?= h($order['note']) ?>
                                 </div>
                                 <?php if ($notSale): ?>
                                     <div class="form-group clearfix <?= !isset($hide['serial']) ? 'hide-field' : '' ?>">
@@ -139,7 +145,7 @@
                                             S/N:
                                         </label>
                                         <div class="tw100">
-                                            <input type="text" value="<?= htmlspecialchars($order['serial']) ?>"
+                                            <input type="text" value="<?= h($order['serial']) ?>"
                                                    name="serial"
                                                    class="form-control"/>
                                         </div>
@@ -183,22 +189,22 @@
                             </span>
                                         <?= l('Локации') ?>:
                                     </label>
-                                    <?= htmlspecialchars($order['wh_title']) ?>
-                                    <?= htmlspecialchars($order['location']) ?>
+                                    <?= h($order['wh_title']) ?>
+                                    <?= h($order['location']) ?>
                                     <i title="<?= l('Переместить заказ') ?>"
                                        onclick="alert_box(this, false, 'stock_move-order', undefined, undefined, 'messages.php')"
                                        data-o_id="<?= $order['id'] ?>"
                                        class="glyphicon glyphicon-move cursor-pointer"></i>
                                 </div>
 
-                                <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . htmlspecialchars($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
+                                <?php $style = isset($this->all_configs['configs']['order-status'][$order['status']]) ? 'style="color:#' . h($this->all_configs['configs']['order-status'][$order['status']]['color']) . '"' : '' ?>
                                 <div class="form-group clearfix">
                                     <label class="lh30">
                                         <span <?= $style ?>></span>
-                                <span class="cursor-pointer glyphicon glyphicon-list"
-                                      title="<?= l('История перемещений') ?>"
-                                      data-o_id="<?= $order['id'] ?>"
-                                      onclick="alert_box(this, false, 'order-statuses')">
+                                        <span class="cursor-pointer glyphicon glyphicon-list"
+                                              title="<?= l('История перемещений') ?>"
+                                              data-o_id="<?= $order['id'] ?>"
+                                              onclick="alert_box(this, false, 'order-statuses')">
 
                                 </span>
                                         <?= l('Статус') ?>:
@@ -236,7 +242,7 @@
                                     )); ?>
                                 <?php endif; ?>
                                 <div
-                                    class="form-group clearfix <?= !isset($hide['defect']) ? 'hide-field' : '' ?>">
+                                    class="form-group clearfix <?= !isset($hide['defect-description']) ? 'hide-field' : '' ?>">
                                     <label>
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   title="<?= l('История изменений') ?>"
@@ -246,8 +252,8 @@
                             </span>
                                         <?= l('Неисправность со слов клиента') ?>:
                                     </label>
-                        <textarea class="form-control"
-                                  name="defect"><?= htmlspecialchars($order['defect']) ?></textarea>
+                                    <textarea class="form-control"
+                                              name="defect"><?= h($order['defect']) ?></textarea>
                                 </div>
                                 <div class="form-group clearfix <?= !isset($hide['appearance']) ? 'hide-field' : '' ?>">
                                     <label>
@@ -259,8 +265,8 @@
                             </span>
                                         <?= l('Примечание') ?>/<?= l('Внешний вид') ?>:
                                     </label>
-                            <textarea class="form-control"
-                                      name="comment"><?= htmlspecialchars($order['comment']) ?></textarea>
+                                    <textarea class="form-control"
+                                              name="comment"><?= h($order['comment']) ?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -271,8 +277,8 @@
                                 <div
                                     class="form-group clearfix <?= !isset($hide['available-date']) ? 'hide-field' : '' ?>">
                                     <label><?= l('Ориентировочная дата готовности') ?>: </label>
-                            <span title="<?= do_nice_date($order['date_readiness'],
-                                false) ?>"><?= do_nice_date($order['date_readiness']) ?></span>
+                                    <span title="<?= do_nice_date($order['date_readiness'],
+                                        false) ?>"><?= do_nice_date($order['date_readiness']) ?></span>
                                 </div>
                                 <?php if ($hasEditorPrivilege): ?>
                                     <div class="form-group clearfix"><label><?= l('Ориентировочная стоимость') ?>
@@ -310,7 +316,7 @@
                                     <input <?= ($order['is_replacement_fund'] == 1 ? 'disabled' : 'style="display:none;"') ?>
                                         type="text" placeholder="<?= l('Модель, серийный номер') ?>"
                                         class="form-control replacement_fund"
-                                        value="<?= htmlspecialchars($order['replacement_fund']) ?>"
+                                        value="<?= h($order['replacement_fund']) ?>"
                                         name="replacement_fund"/>
                                 </div>
                                 <div
@@ -389,7 +395,7 @@
                                         <input <?= (!$hasEditorPrivilege ? ' disabled' : '') ?> class="form-control"
                                                                                                 type="text"
                                                                                                 name="code"
-                                                                                                value="<?= htmlspecialchars($order['code']) ?>">
+                                                                                                value="<?= h($order['code']) ?>">
                                     </div>
                                 </div>
                                 <div class="form-group clearfix <?= !isset($hide['referrer']) ? 'hide-field' : '' ?>">
@@ -478,12 +484,12 @@
                                         <?php if ($order['tag_id'] != 0): ?>
                                             <span class="tag"
                                                   style="background-color: <?= $tags[$order['tag_id']]['color'] ?>">
-                                    <?= htmlspecialchars($tags[$order['tag_id']]['title']) ?>
+                                    <?= h($tags[$order['tag_id']]['title']) ?>
                                 </span>
                                         <?php endif; ?>
                                         <span class="text-success">
                                 <?= l('Оплачено') ?>: <?= ($order['sum_paid'] / 100) ?> <?= viewCurrency() ?>
-                                            <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= htmlspecialchars($order['prepay_comment']) . ')' ?>
+                                            <?= '(' . l('из них предоплата') ?> <?= ($order['prepay'] / 100) ?> <?= viewCurrency() ?> <?= h($order['prepay_comment']) . ')' ?>
                                             <?php if ($order['discount'] > 0): ?>
                                                 <?= l('Скидка') . ': ' . $order['discount'] / 100 ?> <?= viewCurrency() ?>
                                             <?php endif; ?>
@@ -539,8 +545,8 @@
     </div>
 </div>
 <script>
-    jQuery(document).ready(function(){
-        $('#print_now').on('click', function(){
+    jQuery(document).ready(function () {
+        $('#print_now').on('click', function () {
             return print_now(this);
         });
     });

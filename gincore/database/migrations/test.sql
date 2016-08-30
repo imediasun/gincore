@@ -226,3 +226,68 @@ ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_price_type(price_type
  */
 ALTER TABLE `restore4_contractors_categories_links` ADD COLUMN deleted int(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_contractors_categories_links` ADD INDEX contractors_categories_link_deleted(deleted);
+/*
+2016_08_16_053813_add_for_to_template_vars.php
+ */
+ALTER TABLE `restore4_template_vars` ADD COLUMN `for_view` VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_for_view(for_view);
+ALTER TABLE `restore4_template_vars` ADD COLUMN `description` VARCHAR (255) DEFAULT '';
+/*
+2016_08_17_064021_add_vendor_code_to_goods.php
+ */
+ALTER TABLE `restore4_goods` ADD COLUMN `vendor_code` VARCHAR (255) DEFAULT '';
+ALTER TABLE `restore4_goods` ADD INDEX goods_vendor_code(vendor_code);
+/*
+2016_08_17_082613_add_show_client_infos_to_users.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN show_client_info int(1) UNSIGNED DEFAULT 1;
+ALTER TABLE `restore4_users` ADD INDEX users_show_client_info(show_client_info);
+/*
+2016_08_19_061515_add_priority_to_template_vars.php
+ */
+ALTER TABLE `restore4_template_vars` ADD COLUMN priority int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_template_vars` ADD INDEX template_vars_priority(priority);
+/*
+2016_08_23_070535_purchase_invoices.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_purchase_invoices` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `supplier_id` int(10) unsigned NOT NULL,
+  `warehouse_id` int(10) unsigned NOT NULL,
+  `location_id` int(10) unsigned NOT NULL,
+  `type` int(10) unsigned NOT NULL,
+  `state` int(10) unsigned NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `date` TIMESTAMP,
+  `purchase_date` TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `purchase_invoices_user_id` (`user_id`),
+  KEY `purchase_invoices_supplier_id` (`supplier_id`),
+  KEY `purchase_invoices_warehoust_id` (`warehouse_id`),
+  KEY `purchase_invoices_location_id` (`location_id`),
+  KEY `purchase_invoices_type` (`type`),
+  KEY `purchase_invoices_state` (`state`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_id` int(10) unsigned NOT NULL,
+  `good_id` int(10) unsigned NULL,
+  `price` int(10) unsigned NOT NULL,
+  `quantity` int(10) unsigned NOT NULL,
+  `not_found` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_invoice_goods_invoice_id` (`invoice_id`),
+  KEY `purchase_invoice_goods_good_id` (`good_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_08_25_123845_add_order_id_to_purchase_invoices.php
+ */
+ALTER TABLE `restore4_purchase_invoices` ADD COLUMN supplier_order_id int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_purchase_invoices` ADD INDEX purchase_invoices_supplier_order_id(supplier_order_id);
+/*
+2016_08_30_113445_add_show_only_users_orders.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN show_only_his_orders int(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD INDEX users_show_only_his_orders(show_only_his_orders);

@@ -12,19 +12,20 @@ abstract class AbstractTemplate
     private $templateTable;
     public $editor = false;
 
-    abstract public function draw_one($object);
+    abstract public function draw_one($object, $template='');
 
     /**
+     * @param string $act
      * @return string
      */
-    public function draw()
+    public function draw($act = '')
     {
         $result = '';
         if (isset($_GET['object_id']) && !empty($_GET['object_id'])) {
             $objects = array_filter(explode(',', $_GET['object_id']));
             foreach ($objects as $object) {
                 if ($object !== 0) {
-                    $result .= $this->draw_one($object);
+                    $result .= $this->draw_one($object, $act);
                 }
             }
         }
@@ -48,6 +49,7 @@ abstract class AbstractTemplate
         $this->cur_lang = $cur_lang;
         $this->templateTable = $templateTable;
         $this->view = new View($all_configs);
+        $this->act = isset($_GET['act']) ? trim($_GET['act']) : '';
     }
 
     /**
@@ -56,10 +58,19 @@ abstract class AbstractTemplate
      */
     public function get_template($act)
     {
+        if(empty($act)) {
+            return '';
+        }
         $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
             . "LEFT JOIN {?q} as t ON t.id = s.var_id "
             . "WHERE s.lang = ? AND t.var = ?",
             array($this->templateTable, $this->templateTable, $this->cur_lang, 'print_template_' . $act), 'el');
+        if(empty($template)) {
+            $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
+                . "LEFT JOIN {?q} as t ON t.id = s.var_id "
+                . "WHERE s.lang = ? AND t.var = ?",
+                array($this->templateTable, $this->templateTable, $this->manage_lang, 'print_template_' . $act), 'el');
+        }
         if (empty($template)) {
             $template = $this->all_configs['db']->query("SELECT text FROM {?q_strings} as s "
                 . "LEFT JOIN {?q} as t ON t.id = s.var_id "
@@ -133,9 +144,10 @@ abstract class AbstractTemplate
     {
         if ($print_html && $this->editor && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $print_html = $this->view->renderFile('prints/add_edit_form', array(
-                'tpl' => $this->get_template($this->act()),
+                'tpl' => $this->get_template($this->act),
                 'variables' => $this->variables,
-                'print_html' => $print_html
+                'print_html' => $print_html,
+                'act' => $this->act(),
             ));
 
         }
@@ -182,7 +194,6 @@ abstract class AbstractTemplate
                 $currency['gender'],
                 $currency['words'],
                 $currency['remaind']);
-            Log::error($result);
         } else {
             $result = convert_number_to_words($amount);
         }

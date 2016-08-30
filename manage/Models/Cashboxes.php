@@ -11,7 +11,7 @@ class MCashboxes extends AModel
      */
     public function getCashboxes($query = '')
     {
-        return $this->db->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
+        return $this->query('SELECT c.name, c.id, c.avail, c.avail_in_balance, c.avail_in_orders, cc.amount, cc.currency,
               cr.name as cur_name, cr.short_name, cr.course, cr.currency
             FROM ?t as c
             LEFT JOIN (SELECT id, cashbox_id, amount, currency FROM {cashboxes_currencies})cc ON cc.cashbox_id=c.id
@@ -25,10 +25,10 @@ class MCashboxes extends AModel
      */
     public function getPreparedCashboxes($userId)
     {
-        $query = '';
+        $query = $this->makeQuery('WHERE NOT c.name IN(?l)', array(array(lq('Терминал'), lq('Транзитная'))));
         if (!$this->all_configs['oRole']->hasPrivilege('accounting')) {
-            $query = $this->db->makeQuery(" WHERE c.id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i) ",
-                array($userId));
+            $query = $this->makeQuery(" WHERE c.id in (SELECT cashbox_id FROM {cashboxes_users} WHERE user_id=?i AND NOT c.name IN (?l)) ",
+                array($userId, array(lq('Терминал'), lq('Транзитная'))));
         }
         return $this->prepareCashboxes($this->getCashboxes($query));
     }

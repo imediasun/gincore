@@ -24,7 +24,7 @@ class sms_templates extends translates
     {
         if (is_null($this->config)) {
             $this->config = array(
-                $this->tbl_prefix . 'sms_templates' => array(
+                'sms_templates' => array(
                     'table' => $this->dbcfg['_prefix'] . 'sms_templates',
                     'like' => 'print',
                     'name' => l('Шаблоны для sms'),
@@ -238,7 +238,7 @@ class sms_templates extends translates
     /**
      * @param $id
      */
-    private function deleteTemplate($id)
+    protected function deleteTemplate($id)
     {
         if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
             db()->query('DELETE FROM {sms_templates_strings} WHERE sms_templates_id=?i', array($id));

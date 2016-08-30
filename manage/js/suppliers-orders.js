@@ -368,18 +368,12 @@ function debit_supplier_order(_this) {
           alert(msg['msg']);
         }
         if (msg['result']) {
-          for (var i in msg['result']) {
-            if (msg['result'][i]['state'] == true) {
-              reload = true;
-              $('#dso-group-' + i).html('<div class="text-success">' + msg['result'][i]['msg'] + '</div>');
-            } else {
-              $('#dso-group-' + i + ' .dso-msg').html('<div class="text-error">' + msg['result'][i]['msg'] + '</div>');
-            }
-          }
+          $('#debit-so-form-content').html(msg['result']);
           $(_this).hide().siblings("[data-bb-handler='ok']").text('OK');
+          reload= true;
         }
         if (msg['html']) {
-          $('form#debit-so-form').append('<div class="html-msg"><div class="alert alert-block">' +
+          $('#debit-so-form-content').append('<div class="html-msg"><div class="alert alert-block">' +
             '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
             msg['html'] + '</div>');
         }

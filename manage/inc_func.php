@@ -926,8 +926,8 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= ' value="' . $tmp['id'] . '">' . $space . $arrow . htmlspecialchars($tmp['title']) . '</option>';
             }
             if ($type == 2) {
-                if(empty($recycledBin)) {
-                    require_once __DIR__.'/Models/Categories.php';
+                if (empty($recycledBin)) {
+                    require_once __DIR__ . '/Models/Categories.php';
                     $Categories = new MCategories($all_configs);
                     $recycledBin = $Categories->getRecycleBin();
                 }
@@ -1006,9 +1006,10 @@ function get_user_name($user, $p = '', $link = false, $admin = false)
         $return = trim($user[$p . 'title']);
     }
 
-    if ($link == true && isset($user['id']) && $user['id'] > 0) {
+    $userId = (isset($user['user_id']) && $user['user_id'] > 0) ? $user['user_id'] : (isset($user['id']) && $user['id'] > 0 ? $user['id'] : 0);
+    if ($link == true && $userId > 0) {
         if ($admin == false) {
-            $return = '<a title="' . htmlspecialchars($return) . '" href="' . $prefix . 'clients/create/' . $user['id'] . '">' . htmlspecialchars($return) . '</a>';
+            $return = '<a title="' . htmlspecialchars($return) . '" href="' . $prefix . 'clients/create/' . $userId . '">' . htmlspecialchars($return) . '</a>';
         } else {
             $return = '<a title="' . htmlspecialchars($return) . '" href="' . $prefix . 'users">' . htmlspecialchars($return) . '</a>';
         }
@@ -1097,7 +1098,7 @@ function display_client_order($order)
         : (($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? '<td>да</td>' : '<td></td>'))
 
     . '<td>' . $accepted . htmlspecialchars($order['o_fio']) . '</td>'
-    . '<td>' . $order['o_phone'] . '</td>'
+    . '<td>' . ($all_configs['configs']['can_see_client_infos'] ? $order['o_phone'] : '') . '</td>'
     . '<td' . ($order['urgent'] == 1 ? ' class="text-danger">' . l('Срочно') . ' ' : '>' . l('Не срочно')) . '</td>'
     . '<td>' . htmlspecialchars($order['wh_title']) . ' ' . htmlspecialchars($order['location']) . '</td></tr>';
 }
@@ -1759,13 +1760,14 @@ function h($string)
     return htmlspecialchars($string);
 }
 
-function discount($product) {
+function discount($product)
+{
     if ($product['discount_type'] == DISCOUNT_TYPE_PERCENT) {
         $discount = $product['price'] / 100 * ($product['discount'] / 100);
     } else {
         $discount = $product['discount'];
     }
-    return $discount; 
+    return $discount;
 }
 
 function price_with_discount($product)
@@ -1864,7 +1866,7 @@ function convert_number_to_words($number)
     if ($number < 0) {
         return $negative . convert_number_to_words(abs($number));
     }
-    
+
     $fraction = null;
 
     if (strpos($number, '.') !== false) {

@@ -9,7 +9,8 @@ $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
 /**
- * @property  MLockFilters LockFilters
+ * @property  MLockFilters     LockFilters
+ * @property MPurchaseInvoices PurchaseInvoices
  */
 class warehouses extends Controller
 {
@@ -19,7 +20,8 @@ class warehouses extends Controller
     public $count_on_page;
 
     public $uses = array(
-        'LockFilters'
+        'LockFilters',
+        'PurchaseInvoices'
     );
 
     /**
@@ -303,6 +305,15 @@ class warehouses extends Controller
             }
         } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $this->warehouseDelete($_POST);
+        } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->createPurchaseInvoice($_POST);
+            Response::json($data);
+        } elseif (isset($post['create-purchase-invoice-and-posting']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->createPurchaseInvoice($_POST);
+            Response::json($data);
+        } elseif (isset($post['edit-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->editPurchaseInvoice($_POST);
+            Response::json($data);
         }
 
         // чистим кеш складов
@@ -431,7 +442,7 @@ class warehouses extends Controller
 
             // проверяем количество складов
             if (count($warehouses_selected) > 0) {
-                $goods = $this->all_configs['db']->query('SELECT g.title as product_title, i.goods_id, COUNT(g.id) as qty_wh
+                $goods = $this->all_configs['db']->query('SELECT g.title as product_title, g.vendor_code, i.goods_id, COUNT(g.id) as qty_wh
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND w.id IN (?li) AND l.id=i.location_id ?query ?query
                         GROUP BY g.id LIMIT ?i, ?i',
@@ -457,14 +468,14 @@ class warehouses extends Controller
                 ) {
                     $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
                         i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
-                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
                         ', array($serial, $query_for_noadmin))->assoc();
                 } else {
                     $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
                         i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
-                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
                     ', array($serial, $query_for_noadmin))->assoc();
@@ -552,13 +563,13 @@ class warehouses extends Controller
 
             if ($select_name) {
                 $select = $this->all_configs['db']->makeQuery('i.id as `№ изделия`, i.serial as `Серийный номер`,
-                    g.title as `Наименование`, i.date_add as `' . l('Дата') . '`, w.title as `Склад`, w.id as `№ склада`,
+                    g.title as `Наименование`, g.vendor_code as `Артикул`, i.date_add as `' . l('Дата') . '`, w.title as `Склад`, w.id as `№ склада`,
                     l.location as `Локация`, l.id as `№ локации`, i.order_id as `Заказ клиента`,
                     i.supplier_order_id as `Заказ поставщику`, i.price/100 as `Цена`,
                     u.title as `Поставщик`, i.supplier_id as `№ поставщика`', array());
             } else {
                 $select = $this->all_configs['db']->makeQuery('w.id, w.title, w.code_1c, w.consider_all,
-                    w.consider_store, g.title as product_title, i.id as item_id, i.date_add, i.goods_id,
+                    w.consider_store, g.title as product_title, i.id as item_id, i.date_add, i.goods_id, g.vendor_code,
                     i.order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id,
                     u.title as contractor_title, i.supplier_order_id, l.location, i.location_id', array());
             }
@@ -602,7 +613,7 @@ class warehouses extends Controller
     {
         $out = '';
         $saved = $this->LockFilters->load('warehouse-orders-filters');
-        if(count($_GET) <= 2 && $saved) {
+        if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
 
@@ -639,7 +650,7 @@ class warehouses extends Controller
     public function warehouses_orders_clients_bind()
     {
         $saved = $this->LockFilters->load('warehouse-filters');
-        if(count($_GET) <= 2 && $saved) {
+        if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
         $out = $this->all_configs['chains']->show_stockman_operations();
@@ -685,7 +696,7 @@ class warehouses extends Controller
     public function warehouses_orders_clients_unbind()
     {
         $saved = $this->LockFilters->load('warehouse-filters');
-        if(count($_GET) <= 2 && $saved) {
+        if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
         $out = $this->all_configs['chains']->show_stockman_operations(4, '#orders-clients_unbind');
@@ -1232,6 +1243,13 @@ class warehouses extends Controller
             $co_id = isset($_POST['so_co']) ? $_POST['so_co'] : 0;
             $data = $this->all_configs['suppliers_orders']->orders_link($so_id, $co_id);
         }
+        if ($act == 'edit-purchase-invoice-form') {
+            $data = $this->editPurchaseInvoiceForm($_GET);
+        }
+
+        if ($act == 'create-purchase-invoice-form') {
+            $data = $this->createPurchaseInvoiceForm($data);
+        }
 
         // очистка серийника
         if ($act == 'clear-serial' && isset($_POST['item_id'])) {
@@ -1241,6 +1259,10 @@ class warehouses extends Controller
         // форма приходования заказа поставщику
         if ($act == 'form-debit-so') {
             $data = $this->form_debit_so($data);
+        }
+
+        if ($act == 'form-debit-purchase-invoice') {
+            $data = $this->form_debit_purchase_invoice($data);
         }
 
         //
@@ -1256,6 +1278,9 @@ class warehouses extends Controller
         // Закрытие инвентаризации
         if ($act == 'close-inventory') {
             $data = $this->closeInventory($data);
+        }
+        if ($act == 'posting-one') {
+            $data = $this->postingStepOne($data);
         }
 
         // сканирование
@@ -1370,11 +1395,21 @@ class warehouses extends Controller
             $this->all_configs['suppliers_orders']->debit_order($_POST, $mod_id);
         }
 
+        // приходование накладной
+        if ($act == 'debit-purchase-invoice') {
+            $data = $this->debit_purchase_invoice($_POST, $mod_id);
+        }
+
         // принятие заказа
         if ($act == 'accept-supplier-order') {
             $this->all_configs['suppliers_orders']->accept_order($mod_id, $this->all_configs['chains']);
         }
-
+        if ($act == 'purchase-invoice-import-form' && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->purchaseInvoiceImportForm();
+        }
+        if ($act == 'purchase-invoice-import' && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            $data = $this->purchaseInvoiceImport($_POST);
+        }
         Response::json($data);
     }
 
@@ -1444,9 +1479,16 @@ class warehouses extends Controller
                 'url' => '#settings',
                 'name' => l('Настройки')
             ),
+            /**
+              array(
+              'click_tab' => true,
+              'url' => '#purchase_invoices',
+              'name' => l('Приходные накладные')
+              ),
+             */
             array(
                 'click_tab' => true,
-                'another_module' => true, 
+                'another_module' => true,
                 'url' => $all_configs['prefix'] . 'stocktaking',
                 'name' => l('Инвентаризация')
             ),
@@ -1461,8 +1503,9 @@ class warehouses extends Controller
     {
         $order_id = isset($_POST['object_id']) ? intval($_POST['object_id']) : 0;
 
-        $order = $this->all_configs['db']->query('SELECT o.*, w.title, l.location
+        $order = $this->all_configs['db']->query('SELECT o.*, w.title, l.location, g.title as item
                 FROM {contractors_suppliers_orders} as o
+                LEFT JOIN {goods} as g ON o.goods_id=g.id
                 LEFT JOIN {warehouses} as w ON w.id=o.wh_id
                 LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
                 WHERE o.id=?i',
@@ -2121,5 +2164,372 @@ class warehouses extends Controller
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param string $hash
+     * @return string
+     */
+    public function purchase_invoices($hash = '#purchase_invoices')
+    {
+        $invoices = $this->PurchaseInvoices->query('
+            SELECT pi.*, u.fio, u.login, u.email, c.title as supplier, g.cnt as quantity, g.amount as amount, wh.title as warehouse, wl.location as location, wh.id as wh_id
+            FROM {purchase_invoices} as pi
+            JOIN {contractors} as c ON c.id = pi.supplier_id
+            JOIN {users} as u ON u.id = pi.user_id
+            JOIN {warehouses} as wh ON wh.id = pi.warehouse_id
+            JOIN {warehouses_locations} as wl ON wl.id = pi.location_id
+            JOIN (SELECT invoice_id, count(*) as cnt, sum(`price` * quantity) as amount FROM {purchase_invoice_goods} GROUP by invoice_id ) as g ON g.invoice_id=pi.id
+        ')->assoc();
+        return array(
+            'html' => $this->view->renderFile('warehouses/purchase_invoices/purchase_invoices', array(
+                'controller' => $this,
+                'invoices' => $invoices
+            )),
+            'function' => '',
+            'menu' => ''
+        );
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function editPurchaseInvoiceForm($data)
+    {
+        $suppliers = null;
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        }
+        $invoice = $this->PurchaseInvoices->getByPk($data['id']);
+        $goods = $this->PurchaseInvoices->query('
+            SELECT pig.*, g.title as product 
+            FROM {purchase_invoice_goods} as pig
+            JOIN {goods} as g ON g.id=pig.good_id
+            WHERE pig.invoice_id=?i
+        ', array($data['id']))->assoc('id');
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/edit_purchase_invoice', array(
+                'suppliers' => $suppliers,
+                'invoice' => $invoice,
+                'goods' => $goods,
+                'warehouses' => $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->assoc(),
+                'controller' => $this
+            )),
+            'title' => '',
+            'message' => ''
+        );
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function createPurchaseInvoiceForm($data)
+    {
+        $suppliers = null;
+        if (array_key_exists('erp-contractors-use-for-suppliers-orders', $this->all_configs['configs'])
+            && count($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']) > 0
+        ) {
+            $suppliers = $this->all_configs['db']->query('SELECT id, title FROM {contractors} WHERE type IN (?li) ORDER BY title',
+                array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders'])))->assoc();
+        }
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/create_purchase_invoice', array(
+                'suppliers' => $suppliers,
+                'warehouses' => $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->assoc(),
+                'controller' => $this
+            )),
+            'title' => '',
+            'message' => ''
+        );
+    }
+
+    /**
+     * @param      $data
+     * @param bool $withId
+     * @return array
+     */
+    public function prepareItemsForInvoice($data, $withId = false)
+    {
+        $result = array();
+        if (array_key_exists('item_ids', $data)) {
+            foreach ($data['item_ids'] as $id => $itemId) {
+                $good = array(
+                    'good_id' => $itemId,
+                    'price' => $data['amount'][$id] * 100,
+                    'quantity' => $data['quantity'][$id],
+                    'not_found' => $data['not_found'][$id] || ''
+                );
+                if ($withId) {
+                    $good['id'] = $id;
+                }
+                $result[] = $good;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    private function createPurchaseInvoice($post)
+    {
+        $result = array(
+            'state' => true,
+        );
+        $items = $this->prepareItemsForInvoice($post);
+        if (empty($items)) {
+            return array(
+                'state' => false,
+                'message' => l('Коризна пустая')
+            );
+        }
+        $data = array(
+            'user_id' => $this->getUserId(),
+            'supplier_id' => $post['warehouse-supplier'],
+            'comment' => $post['comment-supplier'],
+            'date' => date('Y-m-d H:i:s', strtotime($post['warehouse-order-date'])),
+            'items' => $items,
+            'type' => $post['warehouse-type'],
+            'warehouse_id' => $post['warehouse'],
+            'location_id' => $post['location']
+        );
+        $result['id'] =$this->PurchaseInvoices->add($data);
+        if (!$result['id']) {
+            $result = array(
+                'state' => false,
+                'message' => l('Что-то пошло не так')
+            );
+        }
+        return $result;
+    }
+
+    /**
+     * @param      $wh_id
+     * @param null $location_id
+     * @return string
+     */
+    public function gen_locations($wh_id, $location_id = null)
+    {
+        $out = '';
+        $wh_id = array_filter(is_array($wh_id) ? $wh_id : explode(',', $wh_id));
+        $location_id = $location_id ? (array_filter(is_array($location_id) ? $location_id : explode(',',
+            $location_id))) : array();
+
+        if (count($wh_id) > 0) {
+            $locations = $this->all_configs['db']->query(
+                'SELECT id, location FROM {warehouses_locations} WHERE wh_id IN (?li)', array($wh_id))->vars();
+            $out = $this->view->renderFile('warehouses/purchase_invoices/_locations', array(
+                'locations' => $locations,
+                'location_id' => $location_id
+            ));
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    private function editPurchaseInvoice($post)
+    {
+        $result = array(
+            'state' => true,
+        );
+        try {
+            $invoice = $this->PurchaseInvoices->getByPk($post['invoice_id']);
+            if (empty($invoice)) {
+                throw new ExceptionWithMsg(l('Накладная не найдена'));
+            }
+            $this->PurchaseInvoices->updateInvoice($invoice, $post);
+            $this->PurchaseInvoices->updateItems($invoice['id'], $this->prepareItemsForInvoice($post));
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+
+        }
+        return $result;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function form_debit_purchase_invoice($data)
+    {
+        $invoice_id = isset($_POST['object_id']) ? intval($_POST['object_id']) : 0;
+
+        $invoice = $this->all_configs['db']->query('SELECT pi.*, w.title as warehouse, l.location
+                FROM {purchase_invoices} as pi
+                LEFT JOIN {warehouses} as w ON w.id=pi.warehouse_id
+                LEFT JOIN {warehouses_locations} as l ON l.id=pi.location_id
+                WHERE pi.id=?i',
+            array($invoice_id))->row();
+
+        $goods = $this->all_configs['db']->query('SELECT pig.*, g.title as item
+                FROM {purchase_invoice_goods} as pig
+                LEFT JOIN {goods} as g ON pig.good_id=g.id
+                WHERE pig.invoice_id=?i AND NOT pig.good_id=0',
+            array($invoice_id))->assoc('id');
+        return array(
+            'state' => true,
+            'btns' => '<input class="btn" onclick="debit_purchase_invoice(this)" type="button" value="' . l('Приходовать') . '" />',
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/form_debit', array(
+                'invoice' => $invoice,
+                'invoice_id' => $invoice_id,
+                'goods' => $goods,
+            ))
+        );
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array|void
+     */
+    private function debit_purchase_invoice($post, $mod_id)
+    {
+        try {
+            if (empty($post['invoice_id'])) {
+                throw new ExceptionWithMsg(l('Накладная не найдена'));
+            }
+            $invoice = $this->PurchaseInvoices->getByPk($post['invoice_id']);
+            if (empty($invoice)) {
+                throw new ExceptionWithMsg(l('Накладная не найдена'));
+            }
+            if ($invoice['state'] == PURCHASE_INVOICE_STATE_CAPITALIZED) {
+                throw new ExceptionWithMsg(l('Накладная уже оприходована'));
+            }
+            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice, $mod_id) : $invoice['supplier_order_id'];
+            $debitResult = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
+            if (empty($debitResult)) {
+                throw new ExceptionWithMsg(l('Возникли проблемы при оприходовании заказов'));
+            }
+            $this->PurchaseInvoices->update(array(
+                'state' => PURCHASE_INVOICE_STATE_CAPITALIZED
+            ), array('id' => $post['invoice_id']));
+            $result = array(
+                'state' => true,
+                'result' => ''
+            );
+            foreach ($debitResult as $value) {
+                $result['result'] .= $this->form_debit_invoice_result($value['order_for_result'], $value['msg']);
+            }
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $result;
+    }
+
+    /**
+     * @param $order
+     * @param $msg
+     * @return string
+     */
+    public function form_debit_invoice_result($order, $msg)
+    {
+        return $this->view->renderFile('warehouses/purchase_invoices/form_debit_result', array(
+            'order' => $order,
+            'msg' => $msg
+        ));
+    }
+
+    /**
+     * @param $invoice
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    private function createOrderFromInvoice($invoice, $mod_id)
+    {
+        return $this->PurchaseInvoices->createOrderFromInvoice($invoice, $mod_id);
+    }
+
+    /**
+     * @param $parentOrderId
+     * @param $post
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    private function debitOrderFromInvoice($parentOrderId, $post, $mod_id)
+    {
+        $orders = $this->all_configs['db']->query('
+            SELECT * 
+            FROM {contractors_suppliers_orders} 
+            WHERE id=?i OR parent_id=?i
+        ', array($parentOrderId, $parentOrderId))->assoc('id');
+        if (empty($orders)) {
+            throw new ExceptionWithMsg(l('Договора с поставщиком не найдены'));
+        }
+        $goods = $this->all_configs['db']->query(' SELECT * FROM {purchase_invoice_goods} WHERE invoice_id=?i AND NOT good_id=0',
+            array($post['invoice_id']))->assoc('good_id');
+        $result = array();
+        if (!empty($goods)) {
+            foreach ($orders as $order) {
+                $id = $goods[$order['goods_id']]['id'];
+                $data = array(
+                    'order_id' => $order['id'],
+                    'serial' => $post['serial'][$id],
+                    'auto' => $post['auto'][$id],
+                    'print' => $post['print'][$id]
+                );
+                $result[] = $this->all_configs['suppliers_orders']->debit_supplier_order($data, $mod_id);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    private function postingStepOne($data)
+    {
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/posting_from_step_one'),
+        );
+    }
+
+    /**
+     * @return array
+     */
+    private function purchaseInvoiceImportForm()
+    {
+        $contractors = db()->query('SELECT id, title FROM {contractors}')->vars();
+        $warehouses = db()->query('
+            SELECT w.id, w.title 
+            FROM {warehouses} as w
+        ')->vars();
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('warehouses/purchase_invoices/import_form', array(
+                'contractors' => $contractors,
+                'warehouses' => $warehouses
+            )),
+            'title' => l('Импорт из файла')
+        );
+    }
+
+    private function purchaseInvoiceImport($post)
+    {
+        return array(
+          'state' => true,
+            'content' => 'test'
+        );
     }
 }

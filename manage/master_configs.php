@@ -265,6 +265,7 @@ class Configs
 //            'admin_translates',
 //                'debug',
             'sms_templates',
+                'print_templates',
                 'stocktaking',
                 'import'
             ),
@@ -1062,6 +1063,8 @@ class Configs
             'order-statuses-closed' => array(25, 40),
             'order-statuses-nocomments' => array(35, 15, 20, 25, 50, 40),
             'order-statuses-manager' => array(0, 2, 5, 10, 27, 30, 45),
+            'order-statuses-urgent-not-show' => array(25, 40, 15, 20, 35, 50),
+            'order-statuses-debts' => array(40, 35),
             //по каким статусам выбирать заказы в менеджер заказов
             'order-statuses-dis-if-spare-part' => array(15, 20, 25),
             // нельзя установить этот статус пока к заказу привязаны запчасти (с серийниками или без - неважно)
@@ -1196,7 +1199,8 @@ class Configs
             'blacklist-tag-id' => '4',
             'sms-types' => array(
                 'requests' => 1,
-                'orders' => 2
+                'orders' => 2,
+                'engineer_notify' => 3
             ),
         );  // object instance
 

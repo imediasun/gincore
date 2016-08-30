@@ -177,7 +177,7 @@ class import_items extends abstract_import_handler
     {
         $title = $this->provider->getTitle($row);
         return $this->all_configs['db']
-            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, price_purchase, price_wholesale, type) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i, ?i, ?i)',
+            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, price_purchase, price_wholesale, type, vendor_code) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i, ?i, ?i, ?)',
                 array(
                     $title,
                     '',
@@ -188,7 +188,8 @@ class import_items extends abstract_import_handler
                     $userId,
                     $this->provider->getPurchase($row),
                     $this->provider->getWholesale($row),
-                    0
+                    0,
+                    $this->provider->getVendorCode($row)
                 ), 'id');
     }
 
@@ -267,18 +268,6 @@ class import_items extends abstract_import_handler
     }
 
     /**
-     * @param $userId
-     * @param $work
-     * @param $modId
-     * @param $itemId
-     */
-    private function addToLog($userId, $work, $modId, $itemId)
-    {
-        $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
-            array($userId, $work, $modId, $itemId));
-    }
-
-    /**
      * @return null|string
      */
     private function getManagerId()
@@ -318,6 +307,9 @@ class import_items extends abstract_import_handler
      */
     private function getBranch($categoriesTree, $categoryId)
     {
+        if(empty($categoryId)) {
+            return $categoriesTree;
+        }
         if (!empty($categoriesTree)) {
             foreach ($categoriesTree as &$category) {
                 if ($category['id'] == $categoryId) {
@@ -330,5 +322,13 @@ class import_items extends abstract_import_handler
             }
         }
         return array();
+    }
+
+    /**
+     * @return string
+     */
+    public function getImportForm()
+    {
+        return $this->view->renderFile('import/forms/items');
     }
 }

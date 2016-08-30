@@ -14,6 +14,7 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
         5 => 'подкатегория товара 4',
         6 => 'розничная цена',
         7 => 'закупочная цена',
+        8 => 'артикул'
     );
 
     /**
@@ -81,6 +82,15 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
     public function getWholesale($data)
     {
         return 0;
+    }
+
+    /**
+     * @param $data
+     * @return int
+     */
+    public function getVendorCode($data)
+    {
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[8] : iconv('cp1251', 'utf8', trim($data[8]));
     }
 
     /**

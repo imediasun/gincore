@@ -3,6 +3,10 @@ function create_avatar_uploader(){
     var $fileuploader = $('#fileuploader');
     if($fileuploader.length){
         avatar_uploader = new qq.FileUploader({
+            uploadButtonText: L.qq_uploadButtonText,
+            dragText : L.qq_dragText,
+            cancelButtonText : L.qq_cancelButtonText,
+            failUploadText : L.qq_failUploadText,
             element: $fileuploader[0],
             action: prefix + module + '/ajax/',
             multiple: false,
@@ -132,7 +136,7 @@ $(function(){
 
                    buttons =  {
                        success: {
-                           label: "Сохранить",
+                           label: L.save,
                            className: "btn-success",
                            callback: function() {
                                $.ajax({
@@ -151,7 +155,7 @@ $(function(){
                            }
                        },
                        main: {
-                           label: "Отменить",
+                           label: L.cansel,
                            className: "btn-primary",
                            callback: function() {
                                $(_this).button('reset');

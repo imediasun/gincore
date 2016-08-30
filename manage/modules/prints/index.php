@@ -48,7 +48,8 @@ class prints extends Controller
             require_once(__DIR__ . '/templates/' . $act . '.php');
             return new $act($this->all_configs, $this->templateTable, $this->cur_lang);
         }
-        return null;
+        require_once(__DIR__ . '/templates/users_template.php');
+        return new users_template($this->all_configs, $this->templateTable, $this->cur_lang);
     }
 
     /**
@@ -78,18 +79,7 @@ class prints extends Controller
 
         if ($_GET['ajax'] == 'editor' && isset($_GET['act'])) {
             $save_act = trim($_GET['act']);
-            if (in_array($save_act, array(
-                    'check',
-                    'warranty',
-                    'invoice',
-                    'act',
-                    'invoicing',
-                    'waybill',
-                    'sale_warranty',
-                    'price_list',
-                    'purchase_invoice'
-                )) && isset($_POST['html'])
-            ) {
+            if (isset($_POST['html'])) {
                 // remove empty tags
                 $value = preg_replace("/<[^\/>]*>([\s]?)*<\/[^>]*>/", '', trim($_POST['html']));
                 $return['state'] = true;
@@ -159,7 +149,7 @@ class prints extends Controller
             Response::redirect($this->all_configs['prefix']);
         }
         try {
-            $print_html = $this->template->draw();
+            $print_html = $this->template->draw($this->act);
             if (empty($print_html)) {
                 FlashMessage::set(l('Сгенерирован пустой документ'), FlashMessage::DANGER);
                 Response::redirect($this->all_configs['prefix']);
@@ -175,6 +165,10 @@ class prints extends Controller
         exit;
     }
 
+    /**
+     * @param $barcode
+     * @param $type
+     */
     public function barcode_generate($barcode, $type)
     {
         require_once(__DIR__ . '/../../classes/BCG/BCGFontFile.php');
@@ -228,6 +222,9 @@ class prints extends Controller
         exit;
     }
 
+    /**
+     * @return mixed|string
+     */
     public function upload()
     {
         $filename = '';

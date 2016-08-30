@@ -984,7 +984,7 @@ function recalculate_amount_quick() {
     } else {
       amount = price - discount;
     }
-    $row.find('.js-quick-sum').first().val(Math.round(amount / 100) * 100);
+    $row.find('.js-quick-sum').first().val(Math.round(amount * 100) / 100);
     total += amount;
   });
   if (total == 0) {
@@ -1125,7 +1125,7 @@ function manager_setup(_this) {
 
         buttons = {
           success: {
-            label: "Применить",
+            label: L.confirm,
             className: "btn-success",
             callback: function () {
               $.ajax({
@@ -1143,7 +1143,7 @@ function manager_setup(_this) {
             }
           },
           main: {
-            label: "Отменить",
+            label: L.cansel,
             className: "btn-primary",
             callback: function () {
               $(_this).button('reset');

@@ -7,6 +7,7 @@ abstract class abstract_import_handler extends Object
     protected $all_configs;
     protected $import_settings;
     protected $rows = array();
+    protected $logQuery = array();
 
     /** @var  gincore_orders */
     protected $provider;
@@ -28,14 +29,16 @@ abstract class abstract_import_handler extends Object
     }
 
     /**
-     * @param $results
+     * @param     $results
+     * @param int $onlyError
      * @return string
      */
-    protected function gen_result_table($results)
+    protected function gen_result_table($results, $onlyError = 0)
     {
         return $this->view->renderFile('import/gen_result_table', array(
             'results' => $results,
-            'controller' => $this
+            'controller' => $this,
+            'onlyError' => $onlyError
         ));
     }
 
@@ -53,6 +56,29 @@ abstract class abstract_import_handler extends Object
     }
 
     /**
+     * @param $userId
+     * @param $work
+     * @param $modId
+     * @param $itemId
+     */
+    protected function addToLog($userId, $work, $modId, $itemId)
+    {
+        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)',
+            array($userId, $work, $modId, $itemId));
+    }
+
+    /**
+     *
+     */
+    protected function flushLog()
+    {
+        if (!empty($this->logQuery)) {
+            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id) VALUES ?q',
+                array(implode(',', $this->logQuery)));
+        }
+    }
+
+    /**
      * @param $rows
      * @return array
      */
@@ -63,4 +89,9 @@ abstract class abstract_import_handler extends Object
      * @return string
      */
     abstract public function get_result_row($row);
+
+    /**
+     * @return string
+     */
+    abstract public function getImportForm();
 }

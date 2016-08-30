@@ -289,3 +289,32 @@ db()->query("INSERT IGNORE INTO {migrations} (migration, batch)
 ('2016_03_29_135756_users_sms_code', 5),
 ('2016_03_31_081346_cashboxes_users', 5)
                 ", array());
+
+db()->query("TRUNCATE TABLE {crm_referers}");
+db()->query("
+    INSERT INTO {crm_referers} (`id`, `name`, `group_id`) VALUES
+    (1, '".lq('Google Adwords')."', 1),
+    (2, '".lq('Google Organic')."', 3),
+    (3, '".lq('Yandex Direct')."', 1),
+    (4, '".lq('Yandex Organic')."', 3),
+    (5, '".lq('VK')."', 3),
+    (6, '".lq('VK Ad')."', 1),
+    (7, '".lq('Twitter')."', 3),
+    (8, '".lq('Forum, Blog')."', 3),
+    (9, '".lq('Facebook')."', 3),
+    (10, '".lq('Facebook Ad')."', 1),
+    (11, '".lq('(Direct)')."', 3),
+    (12, '".lq('Other')."', 3),
+    (13, '".lq('Email')."', 3),
+    (14, '".lq('Youtube')."', 3),
+    (15, '".lq('Other organic')."', 3),
+    (16, '".lq('Тизер')."', 4);
+");
+
+db()->query("TRUNCATE TABLE {warehouses_types}");
+db()->query("
+    INSERT INTO {warehouses_types} (`id`, `name`, `user_id`, `date_add`, `icon`) VALUES
+    (1, '".lq('Сервисный центр')."', 10, NOW(), 'fa fa-home'),
+    (2, '".lq('Точка приема-выдачи')."', 10, NOW(), 'fa fa-flag'),
+    (3, '".lq('Курьер')."', 10, NOW(), 'fa fa-arrows');
+");

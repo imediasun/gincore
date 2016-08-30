@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../Core/Object.php';
 require_once __DIR__ . '/../../Core/View.php';
 
 global $all_configs;
@@ -7,7 +8,7 @@ $modulename[133] = 'import';
 $modulemenu[133] = l('Импорт');
 $moduleactive[133] = $all_configs['oRole']->hasPrivilege('edit-users');
 
-class import
+class import extends Object
 {
     protected $all_configs;
     /** @var View */
@@ -21,7 +22,7 @@ class import
             )
         ),
         'items' => array(
-            'name' => 'Товары',
+            'name' => 'Товарная номенклатура',
             'handlers' => array(
                 'gincore' => 'из унифицированного формата',
                 'vvs' => 'из VVS Склад-офис-магазин',
@@ -41,6 +42,12 @@ class import
                 'gincore' => 'из унифицированного формата',
                 'remonline' => 'Remonline',
                 'onec' => '1C (формат A)'
+            )
+        ),
+        'posting_items' => array(
+            'name' => 'Импорт товарных остатков',
+            'handlers' => array(
+                'xls' => 'из xls файла',
             )
         )
     );
@@ -155,13 +162,18 @@ class import
     }
 
     /**
-     * @todo not used???
-     *
      * @return array
      */
     private function import_import()
     {
         $import = isset($_GET['i']) && isset($this->upload_types[$_GET['i']]) ? $_GET['i'] : '';
+        if (isset($_GET['load']) && $_GET['load'] == 'posting_items') {
+            return array(
+                'html' => $this->view->renderFile('import/import_posting_items', array(
+                    'body' => $this->get_import_form('posting_items')
+                ))
+            );
+        }
         return array(
             'html' => $this->view->renderFile('import/import_import', array(
                 'selected' => $import,
@@ -176,10 +188,13 @@ class import
      */
     function get_import_form($type)
     {
+        $import = $this->getImportHandler($type, null, null);
+
         return $this->view->renderFile('import/get_import_form', array(
             'type' => $type,
             'options' => $this->upload_types,
-            'handlers' => array_keys($this->upload_types[$type]['handlers'])
+            'handlers' => array_keys($this->upload_types[$type]['handlers']),
+            'body' => empty($import) ? '' : $import->getImportForm()
         ));
     }
 
@@ -208,22 +223,7 @@ class import
                 } else {
                     $source = $this->upload_path . $import_type . '.csv';
                     if (file_exists($source)) {
-                        $import_settings = array();
-                        switch ($import_type) {
-                            case 'items':
-                                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
-                                break;
-                            case 'orders':
-                                if (!$this->has_orders()) { // если есть заказы в системе то низя
-                                    $import_settings['clear_categories'] = isset($_POST['clear_categories']);
-                                }
-                                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
-                                break;
-                        }
-                        require $this->all_configs['path'] . 'modules/import/import_helper.php';
-                        require $this->all_configs['path'] . 'modules/import/import_class.php';
-                        $import = new import_class($this->all_configs, $source, $import_type, $handler,
-                            $import_settings);
+                        $import = $this->getImportHandler($import_type, $source, $handler);
                         $data = $import->run();
                     } else {
                         $data['state'] = false;
@@ -300,8 +300,37 @@ class import
                 break;
         }
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode($data);
-        exit;
+        Response::json($data);
+    }
+
+    /**
+     * @param $import_type
+     * @param $source
+     * @param $handler
+     * @return import_class
+     */
+    private function getImportHandler($import_type, $source, $handler)
+    {
+        $import_settings = array();
+        switch ($import_type) {
+            case 'items':
+                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                break;
+            case 'orders':
+                if (!$this->has_orders()) { // если есть заказы в системе то низя
+                    $import_settings['clear_categories'] = isset($_POST['clear_categories']);
+                }
+                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                break;
+            case 'posting_items':
+                $import_settings['accepter_as_manager'] = isset($_POST['accepter_as_manager']);
+                $import_settings['location'] = isset($_POST['location']) ? $_POST['location'] : 0;
+                $import_settings['contractor'] = isset($_POST['contractor']) ? $_POST['contractor'] : 0;
+                $import_settings['warehouse'] = isset($_POST['warehouse']) ? $_POST['warehouse'] : 0;
+        }
+        require $this->all_configs['path'] . 'modules/import/import_helper.php';
+        require $this->all_configs['path'] . 'modules/import/import_class.php';
+        return new import_class($this->all_configs, $source, $import_type, $handler,
+            $import_settings);
     }
 }

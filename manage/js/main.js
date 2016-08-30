@@ -179,11 +179,65 @@ $(document).ready(function () {
     //$(this).click();
   });
 
+    var daterangepicker_locale = {
+        ru: {
+            daysOfWeek: [
+                "Вс",
+                "Пн",
+                "Вт",
+                "Ср",
+                "Чт",
+                "Пт",
+                "Сб"
+            ],
+            monthNames: [
+                "Январь",
+                "Февраль",
+                "Март",
+                "Апрель",
+                "Май",
+                "Июнь",
+                "Июль",
+                "Август",
+                "Сентябрь",
+                "Октябрь",
+                "Ноябрь",
+                "Декабрь"
+            ],
+            firstDay: 1
+        },
+        en: {
+            daysOfWeek: [
+                "Su",
+                "Mo",
+                "Tu",
+                "We",
+                "Th",
+                "Fr",
+                "Sa"
+            ],
+            monthNames: [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ]
+        }
+    };
+
   $('input.daterangepicker').live('focusin', '.daterangepicker', function (e) {
     $(this).daterangepicker({
-      locale: {
+      locale: $.extend(daterangepicker_locale[manage_lang], {
         format: 'DD.MM.YYYY'
-      },
+      }),
       showDropdowns: true,
       autoApply: true
     });
@@ -194,9 +248,9 @@ $(document).ready(function () {
     $(this).daterangepicker({
       singleDatePicker: true,
       showDropdowns: true,
-      locale: {
+      locale: $.extend(daterangepicker_locale[manage_lang], {
         format: format
-      }
+      })
     });
   });
 
@@ -398,7 +452,7 @@ $(document).ready(function () {
   $('.js-show-tariff').on('click', function () {
     var buttons = {
       success: {
-        label: "Изменить",
+        label: L.change,
         className: "btn-success",
         callback: function () {
           window.open($('#tariffs-url').val(), '_blank');
@@ -406,7 +460,7 @@ $(document).ready(function () {
         }
       },
       main: {
-        label: "Отменить",
+        label: L.cancel,
         className: "btn-primary",
         callback: function () {
           $(this).button('reset');
@@ -1959,6 +2013,13 @@ function print_now(_this) {
   });
   return false;
 }
+function print_now_from_orders(_this) {
+  var $checks = $('ul.print_menu').find(':checked');
+  $checks.each(function () {
+    window_open($(this).val());
+  });
+  return false;
+}
 
 function init_input_masks() {
   var $els = $('[data-phone_mask]');
@@ -2052,7 +2113,7 @@ function show_infopopover_modal(modal_html) {
   $(function () {
 
     $(document).on('click', '.infopopover_onclick', function (e) {
-      console.log('test');
+//      console.log('test');
       e.stopPropagation();
       var $this = $(this);
       if (!$this.hasClass('hasPopover')) {
@@ -2362,7 +2423,8 @@ function add_supplier_item_to_table() {
 
 function recalculate_amount_supplier() {
   var total = parseFloat(0),
-    $body = $('.supplier-table-items > tbody');
+    $body = $('.supplier-table-items > tbody'),
+    count = 0;
 
   $body.children('tr.row-item').each(function () {
     var $row = $(this),
@@ -2372,6 +2434,7 @@ function recalculate_amount_supplier() {
     $row.find('.js-supplier-sum').first().val(Math.round(price * quantity * 100) / 100);
     n = parseFloat($row.find('.js-supplier-sum').first().val());
     total = total + n;
+    count++;
   });
   total = total.toFixed(2);
   if (total == 0) {
@@ -2381,6 +2444,16 @@ function recalculate_amount_supplier() {
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-supplier-total').val(Math.round(total * 100) / 100);
+  if(count) {
+    $('.js-create-purchase-invoice').show();
+  } else {
+    $('.js-create-purchase-invoice').hide();
+  }
+  if(count < 2) {
+    $('.js-form').removeClass('js-scroll-form');
+  } else {
+    $('.js-form').addClass('js-scroll-form');
+  }
 }
 
 

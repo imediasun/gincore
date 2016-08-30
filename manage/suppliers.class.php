@@ -5,10 +5,10 @@ require_once __DIR__ . '/Core/Object.php';
 require_once __DIR__ . '/Core/Response.php';
 
 /**
- * @property MGoods                      Goods
- * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
- * @property MHistory                    History
- * @property  MLockFilters               LockFilters
+ * @property MGoods                       Goods
+ * @property MContractorsSuppliersOrders  ContractorsSuppliersOrders
+ * @property MHistory                     History
+ * @property  MLockFilters                LockFilters
  * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
  */
 class Suppliers extends Object
@@ -220,7 +220,7 @@ class Suppliers extends Object
             return true;
         }
         foreach ($ids as $key => $id) {
-            if (empty($values[$key]) || 0 == (int)$values[$key]) {
+            if (empty($values[$key]) || 0 == $values[$key]) {
                 return true;
             }
         }
@@ -291,6 +291,7 @@ class Suppliers extends Object
                     $parent_order_id = $data['id'];
                 }
                 $part += 1;
+                $data['parent_order_id'] = $parent_order_id;
             }
             FlashMessage::set(l('Заказ успешно создан'));
         } catch (ExceptionWithMsg $e) {
@@ -1609,11 +1610,42 @@ class Suppliers extends Object
      */
     function debit_order($post, $mod_id)
     {
+        try {
+            $data = $this->debit_supplier_order($post, $mod_id);
+            $result = array(
+                'result' => $this->form_debit_so_result($data['order_for_result'], $data['msg']),
+                'print_link' => $data['print_link'],
+                'html' => $data['html']
+            );
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'msg' => $e->getMessage()
+            );
+        }
+        Response::json($result);
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     * @throws ExceptionWithMsg
+     */
+    public function debit_supplier_order($post, $mod_id)
+    {
         if (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') && $this->all_configs['configs']['erp-use'] == false) {
-            Response::json(array('msg' => l('У Вас недостаточно прав'), 'state' => false));
+            throw new ExceptionWithMsg(l('У Вас недостаточно прав'));
         }
 
         $order_id = isset($post['order_id']) ? intval($post['order_id']) : 0;
+        $order_for_result = $this->all_configs['db']->query('SELECT o.*, w.title, l.location, g.title as item
+                FROM {contractors_suppliers_orders} as o
+                LEFT JOIN {goods} as g ON o.goods_id=g.id
+                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id
+                WHERE o.id=?i',
+            array($order_id))->row();
 
         // достаем информацию о заказе
         $order = $this->all_configs['db']->query(
@@ -1622,41 +1654,36 @@ class Suppliers extends Object
             WHERE o.id=?i AND (o.count_come-o.count_debit)>0', array($order_id))->row();
 
         $serials = isset($post['serial']) ? (array)$post['serial'] : array();
-        $auto = isset($post['auto']) ? (array)$post['auto'] : array();
-        $print = isset($post['print']) ? (array)$post['print'] : array();
-
-        if (count($serials) == 0) {
-            Response::json(array(
-                'msg' => l('Ведите серийный номер или установите галочку сгенерировать'),
-                'state' => false
-            ));
-        }
+        $auto = isset($post['auto']) ? $post['auto'] == 'on' : false;
+        $print = isset($post['print']) ? $post['print'] == 'on' : false;
 
         if (!$order || $order['count_come'] - $order['count_debit'] == 0) {
-            Response::json(array('msg' => l('Заказ уже полностю приходован'), 'state' => false));
+            throw new ExceptionWithMsg(l('Заказ уже полностю приходован'));
         }
 
         if ($order['supplier'] == 0) {
-            Response::json(array('msg' => l('У заказа не найден поставщик'), 'state' => false));
+            throw new ExceptionWithMsg(l('У заказа не найден поставщик'));
         }
 
         if ($order['avail'] == 0) {
-            Response::json(array('msg' => l('Заказ отменен'), 'state' => false));
+            throw new ExceptionWithMsg(l('Заказ отменен'));
         }
 
+        if (count($serials) == 0) {
+            throw new ExceptionWithMsg(l('Ведите серийный номер или установите галочку сгенерировать'));
+        }
         $clear_serials = array_filter($serials);
-        if (isset($post['serial']) && count($clear_serials) > 0) {
+        if (!$auto && count($clear_serials) != $order['count_come']) {
+            throw new ExceptionWithMsg(l('Частичное приходование запрещено'));
+        }
+        if (!$auto && count($clear_serials) > 0) {
             // объединил $clear_serial через implode поскольку через ?li вставлялся 0. В чем причина не понятно
             $s = $this->all_configs['db']->query(
                 'SELECT GROUP_CONCAT(serial) FROM {warehouses_goods_items} WHERE serial IN (?q)',
                 array("'" . implode("','", $clear_serials) . "'"))->el();
             if ($s && $s !== null) {
-                Response::json(array('msg' => l('Серийники уже используются: ') . $s, 'state' => false));
+                throw new ExceptionWithMsg(l('Серийники уже используются: ') . $s);
             }
-        }
-
-        if (count($clear_serials) + count($auto) != $order['count_come']) {
-            Response::json(array('msg' => l('Частичное приходование запрещено'), 'state' => false));
         }
 
         $html = '';
@@ -1664,10 +1691,10 @@ class Suppliers extends Object
 
         foreach ($serials as $k => $serial) {
             $item_id = null;
-            if ($order['count_debit'] + count($serials) > $order['count_come']) {
+            if (!$auto && count($serials) > $order['count_come']) {
                 break;
             }
-            if (isset($auto[$k])) {
+            if ($auto) {
                 $item_id = $this->add_item($order, null, $mod_id);
             } elseif (mb_strlen(trim($serial), 'UTF-8') > 0) {
                 $item_id = $this->add_item($order, trim($serial), $mod_id);
@@ -1679,7 +1706,7 @@ class Suppliers extends Object
             }
             if (!isset($msg[$k])) {
                 if ($item_id > 0) {
-                    if (isset($print[$k])) {
+                    if ($print) {
                         $print_items[$k] = $item_id;
                     }
                     $debit_items[$k] = suppliers_order_generate_serial(array(
@@ -1688,14 +1715,13 @@ class Suppliers extends Object
                     ));
                     $msg[$k] = array(
                         'state' => true,
-                        'msg' => l('Серийник ') . ' ' . $debit_items[$k] . ' ' . l(' успешно добавлен')
+                        'msg' => $debit_items[$k]
                     );
                 } else {
                     $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
                 }
             }
         }
-
         if (count($debit_items) > 0) {
             // количество не обработанных заявок на этот товар
             $qty = $this->all_configs['db']->query('SELECT COUNT(l.id)
@@ -1753,7 +1779,12 @@ class Suppliers extends Object
 
         // пробуем закрыть заказ
         $this->close_order($order_id, $mod_id);
-        Response::json(array('result' => $msg, 'print_link' => $print_link, 'html' => $html));
+        return array(
+            'order_for_result' => $order_for_result,
+            'msg' => $msg,
+            'print_link' => $print_link,
+            'html' => $html
+        );
     }
 
     /**
@@ -1789,7 +1820,8 @@ class Suppliers extends Object
             );
 
             // связка между контрагентом и категорией
-            $this->ContractorsCategoriesLinks->addCategoryToContractors($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']);
+            $this->ContractorsCategoriesLinks->addCategoryToContractors($this->all_configs['configs']['erp-so-contractor_category_id_from'],
+                $order['supplier']);
             $contractor_category_link = $this->all_configs['db']->query('SELECT id FROM {contractors_categories_links}
                 WHERE contractors_categories_id=?i AND contractors_id=?i',
                 array($this->all_configs['configs']['erp-so-contractor_category_id_from'], $order['supplier']))->el();
@@ -1979,6 +2011,7 @@ class Suppliers extends Object
                 'goods_id' => $product_id,
                 'user_id' => $user_id,
                 '`count`' => $count,
+                'count_come' => 0,
                 'comment' => $comment,
                 'group_parent_id' => $group_parent_id,
                 'num' => $num,
@@ -2004,5 +2037,18 @@ class Suppliers extends Object
             $this->buildESO($id);
         }
         return $data;
+    }
+
+    /**
+     * @param $order
+     * @param $msg
+     * @return string
+     */
+    public function form_debit_so_result($order, $msg)
+    {
+        return $this->view->renderFile('suppliers.class/form_debit_so_result', array(
+            'order' => $order,
+            'msg' => $msg
+        ));
     }
 }

@@ -199,10 +199,9 @@
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('defect'); ?>
                                     <div
-                                        class="form-group <?= !isset($hide['defect']) && !isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
-                                        <label><?= l('Неисправность со слов клиента') ?>: </label>
+                                        class="form-group <?= !isset($hide['defect']) ? 'hide-field' : '' ?> ">
                                         <div
-                                            class="row row-15 form-group <?= !isset($hide['defect']) ? 'hide-field' : '' ?>">
+                                            class="row row-15 form-group">
                                             <div class="col-sm-6">
                                                 <label><?= l('Замена') ?>:</label>
                                                 <input class="form-control" name="repair_part"
@@ -218,9 +217,13 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <textarea
-                                            class="form-control <?= !isset($hide['defect']) ? 'hide-field' : '' ?>"
-                                            name="defect"></textarea>
+                                        <?php $this->HideField->end(); ?>
+                                    </div>
+                                    <?php $this->HideField->start('defect-description'); ?>
+                                    <div
+                                        class="form-group <?= !isset($hide['defect-description']) ? 'hide-field' : '' ?> ">
+                                        <label><?= l('Неисправность со слов клиента') ?>: </label>
+                                        <textarea class="form-control" name="defect"></textarea>
                                     </div>
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('appearance'); ?>
@@ -365,6 +368,26 @@
                                         </div>
                                     </div>
                                     <?php $this->HideField->end(); ?>
+                                    <?php $this->HideField->start('accountable'); ?>
+                                    <legend><?= l('Ответственные') ?></legend>
+                                    <div class="form-group <?= !isset($hide['accountable']) ? 'hide-field' : '' ?>">
+                                        <div class="span6">
+                                            <label class="col-sm-12" ><?= l('Менеджер') ?> : </label>
+                                            <?= $this->renderFile('orders/_employers', array(
+                                                'type' => 'manager',
+                                                'users' => $managers
+                                            )) ?>
+                                        </div>
+                                        <div class="span6">
+                                            <label class="col-sm-12" ><?= l('Инженер') ?> : </label>
+                                            <?= $this->renderFile('orders/_employers', array(
+                                                'type' => 'engineer',
+                                                'users' => $engineers
+                                            )) ?>
+                                        </div>
+                                        <div style="clear: both"></div>
+                                    </div>
+                                    <?php $this->HideField->end(); ?>
                                     <div style="clear: both"></div>
                                     <?php if (!empty($users_fields)): ?>
                                         <?php foreach ($users_fields as $field): ?>
@@ -424,7 +447,9 @@
                                     <tr>
                                         <td class="hide-field-td" style="padding-right: 10px !important;">
                                             <div class="form-group" style="margin-top: 0px;">
-                                                <button name='save-hide-field-options' type="submit" class="btn btn-primary" onclick="apply_hide(this);"><?= l('Применить') ?></button>
+                                                <button name='save-hide-field-options' type="submit"
+                                                        class="btn btn-primary"
+                                                        onclick="apply_hide(this);"><?= l('Применить') ?></button>
                                             </div>
                                         </td>
                                         <td>

@@ -500,9 +500,15 @@ td.td-sc-count {
 .print_menu li{
     padding: 0 10px;
     white-space: nowrap;
+    list-style: none outside none;
 }
 .print_menu li input{
     margin-top: 1px;
+}
+.print_menu {
+    padding: 0 10px 0 0;
+    overflow-y: auto;
+    max-height: 200px;
 }
 
 .order_product{
@@ -659,4 +665,11 @@ table.eshop-table-items  > tfoot > tr > td, table.quick-table-items  > tfoot > t
 }
 .filters-box .form-group {
     margin-bottom: 5px;
+}
+table tr.overhead  > td {
+    padding: 0;
+    border-top: 1px solid #ddd;
+}
+table tr.head  > td {
+    border: none;
 }

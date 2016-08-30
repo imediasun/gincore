@@ -1,13 +1,13 @@
 <ul class="list-unstyled inline clearfix">
     <?php if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')): ?>
         <li>
-            <a class="click_tab btn btn-success" onclick="click_tab(this, event)"
+            <a class="click_tab btn btn-info" onclick="click_tab(this, event)"
                data-open_tab="warehouses_orders_clients_bind"
                title="<?= l('Привязать серийный номер к заказу') ?>" href="#orders-clients_bind">
                 <?= l('Привязать сер . номер') ?><span class="tab_count hide tc_warehouses_clients_orders_bind"></span>
             </a>
         </li>
-        <li><a class="click_tab btn btn-danger" onclick="click_tab(this, event)"
+        <li><a class="click_tab btn btn-primary" onclick="click_tab(this, event)"
                data-open_tab="warehouses_orders_clients_unbind"
              title="<?= l('Отвязать серийный номер от заказа') ?>" href="#orders-clients_unbind">
                 <?= l('Отвязать сер . номер') ?><span class="tab_count hide tc_warehouses_clients_orders_unbind"></span>
@@ -26,6 +26,12 @@
     <li class="">
         <button data-toggle="filters" type="button" class="toggle-hidden btn btn-default">
             <i class="fa fa-filter"></i> <?= l('Фильтровать') ?> <i class="fa fa-caret-down"></i>
+        </button>
+    </li>
+    <li class="pull-right">
+        <button type="button" class="btn btn-success" onclick="return start_purchase_invoice(this);">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            <?= l('Приходовать') ?>
         </button>
     </li>
 </ul>

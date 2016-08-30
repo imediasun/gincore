@@ -414,3 +414,234 @@ function create_warehouse_modal(_this) {
   });
   return false;
 }
+
+function create_purchase_invoice(act) {
+  var buttons = {
+    success: {
+      label: "Приходовать",
+      className: "btn-success js-create-purchase-invoice",
+      callback: function () {
+        $.ajax({
+          // url: prefix + 'warehouses?act=create-purchase-invoice'
+          url: prefix + 'warehouses?act=create-purchase-invoice-and-posting',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#suppliers-order-form').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              alert_box(this, false, 'form-debit-purchase-invoice', {object_id:data['id']});
+              // window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=create-purchase-invoice-form',
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
+function cancel_purchase_invoice(_this, id) {
+
+}
+function edit_purchase_invoice(id) {
+  var buttons = {
+    success: {
+      label: "Сохранить",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'warehouses?act=edit-purchase-invoice',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#suppliers-order-form').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=edit-purchase-invoice-form&id=' + id,
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
+function debit_purchase_invoice(_this) {
+  $(_this).button('loading');
+  $('form#debit-so-form .dso-msg').html('');
+  $('form#debit-so-form .html-msg').remove();
+
+  $.ajax({
+    url: prefix + 'warehouses/ajax/?act=debit-purchase-invoice',
+    type: 'POST',
+    dataType: "json",
+    data: $('form#debit-so-form').serialize(),
+
+    success: function (msg) {
+      if (msg) {
+        var reload = false;
+        if (msg['state'] == false) {
+          if (msg['msg']) {
+            alert(msg['msg']);
+          }
+          if (msg['message']) {
+            alert(msg['message']);
+          }
+        }
+        if (msg['result']) {
+          $('#debit-so-form-content').html(msg['result']);
+          $(_this).hide().siblings("[data-bb-handler='ok']").text('OK');
+          reload = true;
+        }
+        if (msg['html']) {
+          $('#debit-so-form-content').append('<div class="html-msg"><div class="alert alert-block">' +
+            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+            msg['html'] + '</div>');
+        }
+        if (msg['print_link']) {
+          window_open(msg['print_link']);
+        }
+        if (reload == true) {
+          if ($('#modal-dialog').is(':visible')) {
+            var $div = $('<div class="modal-backdrop fade in"></div>');
+            var order_id = $('input[name="order_id"]').val();
+            $('body').append($div);
+            edit_order_dialog_by_order_id(order_id, 'display-order');
+            setTimeout(function () {
+              $('#modal-dialog').css('overflow', 'auto');
+              $('#modal-dialog').css('display', 'block');
+            }, 10);
+          } else {
+            click_tab_hash();
+          }
+        }
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}
+function start_purchase_invoice(_this) {
+  alert_box(_this, false, 'posting-one');
+  return false;
+}
+function purchase_invoice_import_form() {
+  var buttons = {
+    success: {
+      label: "Импортировать и приходовать",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'warehouses/ajax?act=purchase-invoice-import',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#import_form').serialize(),
+          success: function (data) {
+            if (data['state'] == false) {
+              alert(data['message']);
+            } else {
+              alert_box(this, false, 'form-debit-purchase-invoice', {object_id:data['id']});
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.ajax({
+    url: prefix + 'warehouses/ajax?act=purchase-invoice-import-form',
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}

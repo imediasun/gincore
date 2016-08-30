@@ -1,16 +1,12 @@
 <?php
 
-require_once __DIR__ . '/abstract_import_provider.php';
+require_once __DIR__ . '/abstract_gincore_import_provider.php';
 
-class exported_gincore_items extends abstract_import_provider
+class exported_gincore_items extends abstract_gincore_import_provider
 {
     public $cols = array(
         0 => 'ID',
     );
-    /**
-     * @var array
-     */
-    protected $header_row;
     protected $categories = array();
     protected $managers = array();
 
@@ -23,6 +19,7 @@ class exported_gincore_items extends abstract_import_provider
         $this->cols = array(
             'category' => lq('Категория'),
             'title' => lq('Наименование'),
+            'vendor_code' => lq('Артикул'),
             'price_purchase' => lq('Цена закупки'),
             'price_wholesale' => lq('Цена оптовая'),
             'price' => lq('Цена розничная'),
@@ -92,47 +89,6 @@ class exported_gincore_items extends abstract_import_provider
     public function get_id($row)
     {
         return (int)$row[0];
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
-     * @return bool|mixed
-     */
-    public function __call($name, $arguments)
-    {
-        if (method_exists($this, $name)) {
-            return call_user_func_array($name, $arguments);
-        }
-        $method = 'get_' . $name;
-        $colPosition = $this->getColPosition($this->cols[$name]);
-        if (!empty($colPosition) && method_exists($this, $method)) {
-            return call_user_func_array(array($this, $method), $arguments);
-        }
-        if (isset($this->cols[$name])) {
-            return $this->getColValue($name, $arguments[0]);
-        }
-        return false;
-    }
-
-    /**
-     * @param $name
-     * @param $row
-     * @return bool
-     */
-    public function getColValue($name, $row)
-    {
-        $col = $this->getColPosition($this->cols[$name]);
-        return $col !== false && isset($row[$col])  && !empty($row[$col])? $row[$col] : false;
-    }
-
-    /**
-     * @param $colName
-     * @return bool|int
-     */
-    private function getColPosition($colName)
-    {
-        return isset($this->header_row[$colName])? $this->header_row[$colName] : false;
     }
 
     /**

@@ -15,7 +15,6 @@ class import_gincore_items extends abstract_import_handler
     protected $items = array();
     public $userAsManager = true;
     protected $userId;
-    protected $logQuery = array();
     public $uses = array(
         'Categories'
     );
@@ -119,29 +118,6 @@ class import_gincore_items extends abstract_import_handler
     }
 
     /**
-     * @param $userId
-     * @param $work
-     * @param $modId
-     * @param $itemId
-     */
-    private function addToLog($userId, $work, $modId, $itemId)
-    {
-        $this->logQuery[] = $this->all_configs['db']->makeQuery('(?i, ?, ?i, ?i)',
-            array($userId, $work, $modId, $itemId));
-    }
-
-    /**
-     *
-     */
-    private function flushLog()
-    {
-        if (!empty($this->logQuery)) {
-            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id) VALUES ?q',
-                array(implode(',', $this->logQuery)));
-        }
-    }
-
-    /**
      * @param $good
      * @param $row
      * @return array
@@ -155,7 +131,7 @@ class import_gincore_items extends abstract_import_handler
             if (strpos($field, 'price') !== false) {
                 $value *= 100;
             }
-            if (strpos($field, 'category') !== false && $value === false) {
+            if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
                 $value = $this->createCategory($this->provider->getColValue('category', $row));
             }
             if ($value !== false && $good[$field] != $value) {
@@ -191,5 +167,13 @@ class import_gincore_items extends abstract_import_handler
             'avail' => 1
 
         ));
+    }
+
+    /**
+     * @return string
+     */
+    public function getImportForm()
+    {
+        return '';
     }
 }

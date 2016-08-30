@@ -471,8 +471,8 @@ class products extends Controller
         // поиск
         if (isset($_GET['s']) && !empty($_GET['s'])) {
             $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim(urldecode($_GET['s'])));
-            $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%") AND g.deleted=0 ',
-                array($goods_query, $s, $s));
+            $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.deleted=0 ',
+                array($goods_query, $s, $s, $s));
         }
 
         // imt
@@ -612,7 +612,7 @@ class products extends Controller
         // достаем описания товаров
         if (count($goods_ids) > 0) {
             $add_fields = array();
-            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url, g.deleted,
+            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url, g.deleted, g.vendor_code,
                     g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q
                   FROM {goods} AS g WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
@@ -1458,9 +1458,8 @@ class products extends Controller
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
-            $product = $this->all_configs['db']->query('SELECT title, secret_title, article, code_1c, material, weight,
-                    size, id, url, barcode, price_wholesale, price, content, price_purchase, qty_wh, qty_store, prio
-                FROM {goods} WHERE id=?i',
+            $product = $this->all_configs['db']->query('SELECT g.* 
+                FROM {goods} as g WHERE g.id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
             $goods_html = $this->view->renderFile('products/products_main', array(
@@ -1923,7 +1922,7 @@ class products extends Controller
             return array('error' => l('Заполните название'), 'post' => $post);
         }
         $id = $this->all_configs['db']->query('INSERT INTO {goods}
-                    (title, secret_title, url, avail, price, price_wholesale, article, author, type) VALUES (?, ?, ?n, ?i, ?i, ?i, ?, ?i, ?i)',
+                    (title, secret_title, url, avail, price, price_wholesale, article, author, type, vendor_code) VALUES (?, ?, ?n, ?i, ?i, ?i, ?, ?i, ?i, ?)',
             array(
                 trim($post['title']),
                 '',
@@ -1933,7 +1932,8 @@ class products extends Controller
                 floatval(trim($post['price_wholesale'])) * 100,
                 $user_id,
                 '',
-                isset($_POST['type']) ? 1 : 0
+                isset($_POST['type']) ? 1 : 0,
+                trim($_POST['vendor_code'])
             ), 'id'
         );
 
@@ -2397,7 +2397,7 @@ class products extends Controller
         }
 
         $ar = $this->all_configs['db']->query('UPDATE {goods}
-                    SET title=?, secret_title=?, url=?n, prio=?i, article=?n, barcode=? WHERE id=?i',
+                    SET title=?, secret_title=?, url=?n, prio=?i, article=?n, barcode=?, vendor_code=? WHERE id=?i',
             array(
                 trim($post['title']),
                 trim($post['secret_title']),
@@ -2405,6 +2405,7 @@ class products extends Controller
                 intval($post['prio']),
                 empty($post['article']) ? null : trim($post['article']),
                 trim($post['barcode']),
+                trim($post['vendor_code']),
                 $product_id
             ))->ar();
 

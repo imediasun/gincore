@@ -25,8 +25,9 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
         $sum_with_discount = $order['sum'] - $order['discount'];
         $sum_for_paid = $sum_with_discount - $order['sum_paid'];
 
+        $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
+            array($order['user_id']))->row();
         if ($order['type'] == 0) {
-            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i', array($order['user_id']))->row();
             $services_cost = array();
             $products = $products_cost = $services = '';
             $sum_by_products_and_services = $sum_by_products = $sum_by_services = 0;
@@ -143,11 +144,26 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 ),
                 'sum_by_products' => array('value' => $sum_by_products / 100, 'name' => l('Сумма за запчасти')),
                 'sum_by_services' => array('value' => $sum_by_services / 100, 'name' => l('Сумма за услуги')),
-                'client_reg_data_1' => array('value' => isset($client['reg_data_1'])? $client['reg_data_1']: '', 'name' => l('Клиент (Регистрационные данные 1)')),
-                'client_reg_data_2' => array('value' => isset($client['reg_data_2'])? $client['reg_data_2']: '', 'name' => l('Клиент (Регистрационные данные 2)')),
-                'client_legal_address' => array('value' => isset($client['legal_address'])? $client['legal_address']: '', 'name' => l('Клиент (Юридический адрес)')),
-                'client_residential_address' => array('value' => isset($client['residential_address'])? $client['residential_address']: '', 'name' => l('Клиент (Фактический адрес)')),
-                'client_note' => array('value' => isset($client['note'])? $client['note']: '', 'name' => l('Клиент (примечания)')),
+                'client_reg_data_1' => array(
+                    'value' => isset($client['reg_data_1']) ? $client['reg_data_1'] : '',
+                    'name' => l('Клиент (Регистрационные данные 1)')
+                ),
+                'client_reg_data_2' => array(
+                    'value' => isset($client['reg_data_2']) ? $client['reg_data_2'] : '',
+                    'name' => l('Клиент (Регистрационные данные 2)')
+                ),
+                'client_legal_address' => array(
+                    'value' => isset($client['legal_address']) ? $client['legal_address'] : '',
+                    'name' => l('Клиент (Юридический адрес)')
+                ),
+                'client_residential_address' => array(
+                    'value' => isset($client['residential_address']) ? $client['residential_address'] : '',
+                    'name' => l('Клиент (Фактический адрес)')
+                ),
+                'client_note' => array(
+                    'value' => isset($client['note']) ? $client['note'] : '',
+                    'name' => l('Клиент (примечания)')
+                ),
             );
             $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
             $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];
@@ -168,10 +184,10 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 }
             }
             $arr = array(
-                'id' => array('value' => intval($order['id']), 'name' => 'ID заказа на ремонт'),
-                'sum' => array('value' => $summ / 100, 'name' => 'Сумма за ремонт'),
-                'qty_all' => array('value' => $qty_all, 'name' => 'Количество наименований'),
-                'products_and_services' => array('value' => $products_html, 'name' => 'Товары и услуги'),
+                'id' => array('value' => intval($order['id']), 'name' => l('ID заказа на ремонт')),
+                'sum' => array('value' => $summ / 100, 'name' => l('Сумма за ремонт')),
+                'qty_all' => array('value' => $qty_all, 'name' => l('Количество наименований')),
+                'products_and_services' => array('value' => $products_html, 'name' => l('Товары и услуги')),
                 'discount' => array(
                     'value' => ($discount > 0 ? $discount . viewCurrency() : ''),
                     'name' => l('Скидка на заказ')
@@ -190,28 +206,48 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 ),
                 'product' => array(
                     'value' => h($order['g_title']) . ' ' . h($order['note']),
-                    'name' => 'Устройство'
+                    'name' => l('Устройство')
                 ),
                 'serial' => array(
                     'value' => suppliers_order_generate_serial($order),
-                    'name' => 'Серийный номер'
+                    'name' => l('Серийный номер')
                 ),
                 'company' => array(
                     'value' => h($this->all_configs['settings']['site_name']),
-                    'name' => 'Название компании'
+                    'name' => l('Название компании')
                 ),
                 'address' => array('value' => h($order['accept_address']), 'name' => 'Адрес'),
                 'wh_phone' => array(
                     'value' => h($order['print_phone']),
-                    'name' => 'Телефон склада'
+                    'name' => l('Телефон склада')
                 ),
-                'now' => array('value' => $str_date, 'name' => 'Текущая дата'),
-                'currency' => array('value' => viewCurrency(), 'name' => 'Валюта'),
-                'sum_in_words' => array('value' => $sum_in_words, 'name' => 'Сумма за ремонт прописью'),
-                'order' => array('value' => $order['id'], 'name' => 'Номер заказа'),
+                'now' => array('value' => $str_date, 'name' => l('Текущая дата')),
+                'currency' => array('value' => viewCurrency(), 'name' => l('Валюта')),
+                'sum_in_words' => array('value' => $sum_in_words, 'name' => l('Сумма за ремонт прописью')),
+                'order' => array('value' => $order['id'], 'name' => l('Номер заказа')),
                 'order_data' => array(
                     'value' => date('d/m/Y', $order['date_add']),
-                    'name' => 'Дата создания заказа'
+                    'name' => l('Дата создания заказа')
+                ),
+                'client_reg_data_1' => array(
+                    'value' => isset($client['reg_data_1']) ? $client['reg_data_1'] : '',
+                    'name' => l('Клиент (Регистрационные данные 1)')
+                ),
+                'client_reg_data_2' => array(
+                    'value' => isset($client['reg_data_2']) ? $client['reg_data_2'] : '',
+                    'name' => l('Клиент (Регистрационные данные 2)')
+                ),
+                'client_legal_address' => array(
+                    'value' => isset($client['legal_address']) ? $client['legal_address'] : '',
+                    'name' => l('Клиент (Юридический адрес)')
+                ),
+                'client_residential_address' => array(
+                    'value' => isset($client['residential_address']) ? $client['residential_address'] : '',
+                    'name' => l('Клиент (Фактический адрес)')
+                ),
+                'client_note' => array(
+                    'value' => isset($client['note']) ? $client['note'] : '',
+                    'name' => l('Клиент (примечания)')
                 ),
             );
         }

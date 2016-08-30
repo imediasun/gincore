@@ -15,56 +15,68 @@ class requests extends \service
      */
     private function set_statuses()
     {
-        $this->statuses = array(
-            0 => array(
-                'name' => l('Новая'),
-                'active' => 1
-            ),
-            1 => array(
-                'name' => l('Пока нет денег'),
-                'active' => 1
-            ),
-            11 => array(
-                'name' => l('Не нашли запчасть'),
-                'active' => 1
-            ),
-            2 => array(
-                'name' => l('Сдал в ремонт'),
-                'active' => 0 //  0 - закрывалка заявки - поставив этот статус, заявку редактировать больше нельзя
-            ),
-            3 => array(
-                'name' => l('Отказ без объяснений'),
-                'active' => 1
-            ),
-            4 => array(
-                'name' => l('Нашел дешевле'),
-                'active' => 1
-            ),
-            5 => array(
-                'name' => l('Нашел ближе к дому'),
-                'active' => 1
-            ),
-            6 => array(
-                'name' => l('Передумал ремонтировать'),
-                'active' => 1
-            ),
-            7 => array(
-                'name' => l('В другом городе, не хочет отправлять'),
-                'active' => 1
-            ),
-            8 => array(
-                'name' => l('Не устроили сроки ожидания запчасти'),
-                'active' => 1
-            ),
-            9 => array(
-                'name' => l('Не устроили сроки выполнения ремонта'),
-                'active' => 1
-            ),
-            10 => array(
-                'name' => l('Закрыта'),
-                'active' => 0
-            )
-        );
+        $statuses = db()->query('SELECT `value` FROM {settings} WHERE `name`="crm-requests-statuses"')->el();
+        if (empty($statuses)) {
+            $this->statuses = array(
+                0 => array(
+                    'name' => l('Новая'),
+                    'active' => 1
+                ),
+                1 => array(
+                    'name' => l('Пока нет денег'),
+                    'active' => 1
+                ),
+                11 => array(
+                    'name' => l('Не нашли запчасть'),
+                    'active' => 1
+                ),
+                2 => array(
+                    'name' => l('Сдал в ремонт'),
+                    'active' => 0 //  0 - закрывалка заявки - поставив этот статус, заявку редактировать больше нельзя
+                ),
+                3 => array(
+                    'name' => l('Отказ без объяснений'),
+                    'active' => 1
+                ),
+                4 => array(
+                    'name' => l('Нашел дешевле'),
+                    'active' => 1
+                ),
+                5 => array(
+                    'name' => l('Нашел ближе к дому'),
+                    'active' => 1
+                ),
+                6 => array(
+                    'name' => l('Передумал ремонтировать'),
+                    'active' => 1
+                ),
+                7 => array(
+                    'name' => l('В другом городе, не хочет отправлять'),
+                    'active' => 1
+                ),
+                8 => array(
+                    'name' => l('Не устроили сроки ожидания запчасти'),
+                    'active' => 1
+                ),
+                9 => array(
+                    'name' => l('Не устроили сроки выполнения ремонта'),
+                    'active' => 1
+                ),
+                10 => array(
+                    'name' => l('Закрыта'),
+                    'active' => 0
+                )
+            );
+            db()->query('INSERT INTO {settings} (description, title, `name`, `value`) VALUES (?, ?, ?, ?)', array(
+                lq('Статусы заявок на ремонт'),
+                lq('Статусы заявок на ремонт'),
+                'crm-requests-statuses',
+                json_encode($this->statuses)
+            ));
+
+        } else {
+            $this->statuses = json_decode($statuses, true);
+        }
     }
 
     /**
@@ -352,7 +364,7 @@ class requests extends \service
         // дата
         $date = (isset($_GET['date']) ? htmlspecialchars(urldecode($_GET['date'])) : '');
         return $this->view->renderFile('services/crm/requests/all_requests_list_filters_block', array(
-           'operators' => $operators,
+            'operators' => $operators,
             'date' => $date,
             'controller' => $this
         ));
@@ -441,7 +453,7 @@ class requests extends \service
      */
     public function request_to_order_form()
     {
-        return $this->view->renderFile('services/crm/requests/request_to_order_form', array()). $this->assets();
+        return $this->view->renderFile('services/crm/requests/request_to_order_form', array()) . $this->assets();
     }
 
     // генерит форму (строку) добавления заявки на странице нового звонка
@@ -495,7 +507,7 @@ class requests extends \service
         $exists_requests = $this->get_requests_for_call_form($call_id);
         return '
             ' . $this->assets() . '
-            <h3>Заявки</h3>
+            <h3>' . l('Заявки') . '</h3>
             <div class="row-fluid">
                 <div class="span4">
                     <b>' . l('Устройство') . '</b>
@@ -584,14 +596,14 @@ class requests extends \service
     ) {
         $requests = $this->get_requests($client_id, $product_id, true, true);
         $response = '';
-        $client =$this->all_configs['db']->query(
+        $client = $this->all_configs['db']->query(
             'SELECT GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
                                   ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as data, c.fio
                                 FROM {clients} as c
                                 LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
                                 WHERE c.id = ?i', array($client_id), 'row');
-            $product = $this->all_configs['db']->query("SELECT title FROM {categories} "
-                    . "WHERE id = ?i", array($product_id), 'el');
+        $product = $this->all_configs['db']->query("SELECT title FROM {categories} "
+            . "WHERE id = ?i", array($product_id), 'el');
         if ($requests) {
             $txt = $client_id ? ' ' . l('клиенту') . '' : '';
             $txt = $product_id ? ' ' . l('устройству') . '' : $txt;

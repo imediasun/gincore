@@ -2,7 +2,37 @@
 <?php if (!empty($orders)): ?>
     <table class="table table-striped table-fs-12">
         <thead>
-        <tr>
+        <?php if ($debts > 0): ?>
+            <tr class="overhead">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="center"></td>
+                <td class="center"></td>
+                <td class="center"></td>
+                <td class="center"></td>
+                <td></td>
+                <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
+                    <td class="center"></td>
+                    <td class="center">
+                        <?php if ($debts > 0): ?>
+                            <a href="<?= $this->all_configs['prefix'] ?>orders?other=pay#show_orders-sold"
+                               class="label label-success urgent"
+                               title='<?= l('Ожидаемая сумма оплаты') ?>'><?= sprintf('%.2f', round($debts, 2)) ?>
+                                &nbsp; <?= viewCurrency() ?></a>
+                        <?php endif; ?>
+                    </td>
+                <?php else: ?>
+                    <td class="center"></td>
+                <?php endif; ?>
+                <td></td>
+                <td></td>
+                <td>
+                </td>
+                <td></td>
+            </tr>
+        <?php endif; ?>
+        <tr class="head">
             <td><?= l('номер заказа') ?></td>
             <td title="<?= l('Возможность ставить напоминания по заказам себе и другим пользователям') ?>"><i
                     class="fa fa-bell cursor-pointer btn-timer" href="javascript:void(0);"></i></td>
@@ -41,9 +71,7 @@
 <?php endif; ?>
 <script>
     jQuery(document).ready(function () {
-        $('.multiselect').multiselect({
-            buttonWidth: '150px'
-        });
+        $('.multiselect').multiselect(multiselect_options);
         $(".tree").Tree();
     });
 </script>
