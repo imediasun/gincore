@@ -61,8 +61,8 @@
                 <tr>
                     <th>id</th>
                     <th><?= l('Наименование статуса') ?></th>
-                    <th><?= l('Закрывать заявку') ?></th>
-                    <th><?= l('Удалить') ?></th>
+                    <th style="text-align: center"><?= l('Закрывать заявку') ?></th>
+                    <th style="text-align: center"><?= l('Удалить') ?></th>
                 </tr>
                 </thead>
                 <tbody>
