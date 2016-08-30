@@ -16,7 +16,7 @@
         </thead>
         <tbody>
         <tr>
-            <td> <?= h($order['item']); ?> </td>
+            <td style="max-width: 50%"> <?= h($order['item']); ?> </td>
             <td style="text-align: center"> <?= $count ?> </td>
             <td> <div class="text-success"> <?= l('Серийные номера успешно добавлены в систему'); ?> </div> </td>
         </tr>
