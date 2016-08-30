@@ -94,7 +94,7 @@ class MPurchaseInvoices extends AModel
             'warehouse-supplier' => $invoice['supplier_id'],
             'warehouse-order-date' => $invoice['date'],
             'warehouse-type' => $invoice['type'],
-            'comment-supplier' => $invoice['description'],
+            'comment-supplier' => $invoice['comment'],
             'item_ids' => array(),
             'amount' => array(),
             'quantity' => array()
@@ -140,7 +140,7 @@ class MPurchaseInvoices extends AModel
             'location_id',
             'type',
             'state',
-            'description',
+            'comment',
             'date',
             'purchase_date',
             'supplier_order_id'
