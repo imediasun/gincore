@@ -226,6 +226,7 @@ ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_price_type(price_type
  */
 ALTER TABLE `restore4_contractors_categories_links` ADD COLUMN deleted int(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_contractors_categories_links` ADD INDEX contractors_categories_link_deleted(deleted);
+
 /*
 2016_08_16_053813_add_for_to_template_vars.php
  */
@@ -258,16 +259,18 @@ CREATE TABLE IF NOT EXISTS `restore4_purchase_invoices` (
   `location_id` int(10) unsigned NOT NULL,
   `type` int(10) unsigned NOT NULL,
   `state` int(10) unsigned NOT NULL,
-  `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `date` TIMESTAMP,
-  `purchase_date` TIMESTAMP,
+  `comment` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `purchase_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `supplier_order_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `purchase_invoices_user_id` (`user_id`),
-  KEY `purchase_invoices_supplier_id` (`supplier_id`),
-  KEY `purchase_invoices_warehoust_id` (`warehouse_id`),
-  KEY `purchase_invoices_location_id` (`location_id`),
-  KEY `purchase_invoices_type` (`type`),
-  KEY `purchase_invoices_state` (`state`)
+  KEY `purchase_invoices_user_id_index` (`user_id`),
+  KEY `purchase_invoices_supplier_id_index` (`supplier_id`),
+  KEY `purchase_invoices_warehouse_id_index` (`warehouse_id`),
+  KEY `purchase_invoices_location_id_index` (`location_id`),
+  KEY `purchase_invoices_type_index` (`type`),
+  KEY `purchase_invoices_state_index` (`state`),
+  KEY `purchase_invoices_supplier_order_id_index` (`supplier_order_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
@@ -284,8 +287,8 @@ CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
 /*
 2016_08_25_123845_add_order_id_to_purchase_invoices.php
  */
-ALTER TABLE `restore4_purchase_invoices` ADD COLUMN supplier_order_id int(10) UNSIGNED DEFAULT 0;
-ALTER TABLE `restore4_purchase_invoices` ADD INDEX purchase_invoices_supplier_order_id(supplier_order_id);
+/*ALTER TABLE `restore4_purchase_invoices` ADD COLUMN supplier_order_id int(10) UNSIGNED DEFAULT 0;*/
+/*ALTER TABLE `restore4_purchase_invoices` ADD INDEX purchase_invoices_supplier_order_id(supplier_order_id);*/
 /*
 2016_08_30_113445_add_show_only_users_orders.php
  */
