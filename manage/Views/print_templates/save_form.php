@@ -6,12 +6,12 @@
             <?php if ($column['Field'] == 'for_view'): ?>
                 <div class="from-control">
                     <label><?= l('Для формы') ?></label>
-                    <select class="form-control" name="data[for_view]" required>
+                    <select class="form-control" name="data[for_view]" required
+                            onchange="$('.js-arr').hide();$('.js-'+this.options[this.selectedIndex].value).show(); return true;">
                         <option value=""><?= l('Выберите экран для которого используется этот шаблон') ?></option>
                         <?php foreach (array('repair_order', 'sale_order') as $item): ?>
                             <option <?= (isset($_POST['data']['for_view']) && $_POST['data']['for_view'] == $item) ? 'selected' : ''; ?>
-                                value="<?= $item ?>"
-                                onclick="$('.js-arr').hide(); $('.js-<?= $item ?>').show(); return true;"><?= l($item) ?></option>
+                                value="<?= $item ?>"><?= l($item) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
