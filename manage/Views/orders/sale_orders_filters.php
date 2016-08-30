@@ -78,6 +78,7 @@
             </div>
             <div class="col-sm-3 b-r">
                 <?= $filter_manager ?>
+                <div style="clear:both"></div>
                 <div>
                     <div class="span5">
                         <p class="form-control-static"><?= l('Статус') ?>:</p>
@@ -97,6 +98,7 @@
                             </span>
                     </div>
                 </div>
+                <div style="clear:both"></div>
                 <div>
                     <div class="span5">
                         <p class="form-control-static"><?= l('Тип клиента') ?>:</p>
@@ -113,6 +115,28 @@
                                                 explode(',', $_GET['person']))) ? 'selected' : ''); ?>
                                             value="<?= $type_id ?>">
                                             <?= h($type_title) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </span>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
+                <div>
+                    <div class="span5">
+                        <p class="form-control-static"><?= l('Прочее') ?>:</p>
+                    </div>
+                    <div class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="other[]"
+                                        multiple="multiple">
+                                    <?php foreach (array(
+                                        'pay' => l('Оплаченные не полностью')
+                                    ) as $other_id => $other_title): ?>
+                                        <option <?= ((isset($_GET['other']) && in_array($other_id,
+                                                explode(',', $_GET['other']))) ? 'selected' : ''); ?>
+                                            value="<?= $other_id ?>">
+                                            <?= h($other_title) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

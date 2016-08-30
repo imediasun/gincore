@@ -1479,13 +1479,11 @@ class warehouses extends Controller
                 'url' => '#settings',
                 'name' => l('Настройки')
             ),
-            /**
               array(
               'click_tab' => true,
               'url' => '#purchase_invoices',
               'name' => l('Приходные накладные')
-              ),\
-             */
+              ),
             array(
                 'click_tab' => true,
                 'another_module' => true,

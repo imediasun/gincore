@@ -55,7 +55,7 @@
             <?php break; ?>
         <?php case 'crm-requests-statuses': ?>
             <?php $values = json_decode($pp['value'], true); ?>
-            <input type="hidden" name="crm-requests-statuses" value="" />
+            <input type="hidden" name="crm-requests-statuses" value=""/>
             <table class="table">
                 <thead>
                 <tr>
@@ -76,11 +76,15 @@
                                    value="<?= h($value['name']) ?>"/>
                         </td>
                         <td>
-                            <input class="form-control" type="checkbox"
-                                   name="close[<?= $id ?>]" <?= $value['active'] == 0 ? 'checked' : '' ?> />
+                            <center>
+                                <input class="checkbox" type="checkbox"
+                                       name="close[<?= $id ?>]" <?= $value['active'] == 0 ? 'checked' : '' ?> />
+                            </center>
                         </td>
                         <td>
-                            <input class="form-control" type="checkbox" name="delete[<?= $id ?>]"/>
+                            <center>
+                                <input class="checkbox" type="checkbox" name="delete[<?= $id ?>]"/>
+                            </center>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -90,10 +94,13 @@
                     <td>
                     </td>
                     <td>
-                        <input class="form-control" type="text" name="name[new]" value="" placeholder="<?= l('Введите название нового статуса') ?>"/>
+                        <input class="form-control" type="text" name="name[new]" value=""
+                               placeholder="<?= l('Введите название нового статуса') ?>"/>
                     </td>
                     <td>
-                        <input class="form-control" type="checkbox" name="close[new]"/>
+                        <center>
+                            <input class="checkbox" type="checkbox" name="close[new]"/>
+                        </center>
                     </td>
                     <td>
                     </td>

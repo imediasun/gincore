@@ -169,11 +169,12 @@ class MOrders extends AModel
     }
 
     /**
+     * @param int $by
      * @return int
      */
-    public function getDebts()
+    public function getDebts($by = ORDER_REPAIR)
     {
-        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t WHERE status in (?li)', array($this->table, $this->all_configs['configs']['order-statuses-debts']))->el();
+        return $this->query('SELECT sum(`sum`/100 - sum_paid/100 - discount/100) FROM ?t WHERE status in (?li) AND `type`=?i', array($this->table, $this->all_configs['configs']['order-statuses-debts'], $by))->el();
     }
 
     /**

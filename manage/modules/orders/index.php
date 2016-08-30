@@ -681,6 +681,7 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page,
                 'saleOrdersFilters' => $this->sale_orders_filters(true),
+                'debts' => $this->Orders->getDebts(ORDER_SELL)
             )),
             'functions' => array(),
         );

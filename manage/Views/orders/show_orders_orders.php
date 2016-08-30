@@ -82,9 +82,7 @@
 <?php endif; ?>
 <script>
     jQuery(document).ready(function () {
-        $('.multiselect').multiselect({
-            buttonWidth: '150px'
-        });
+        $('.multiselect').multiselect(multiselect_options);
         $("#tree").Tree();
     });
 </script>
