@@ -369,17 +369,19 @@
                                     </div>
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('accountable'); ?>
-                                    <legend><?= l('Ответственные') ?></legend>
+                                    <?php if (isset($hide['accountable'])): ?>
+                                        <legend><?= l('Ответственные') ?></legend>
+                                    <?php endif; ?>
                                     <div class="form-group <?= !isset($hide['accountable']) ? 'hide-field' : '' ?>">
                                         <div class="span6">
-                                            <label class="col-sm-12" ><?= l('Менеджер') ?> : </label>
+                                            <label class="col-sm-12"><?= l('Менеджер') ?> : </label>
                                             <?= $this->renderFile('orders/_employers', array(
                                                 'type' => 'manager',
                                                 'users' => $managers
                                             )) ?>
                                         </div>
                                         <div class="span6">
-                                            <label class="col-sm-12" ><?= l('Инженер') ?> : </label>
+                                            <label class="col-sm-12"><?= l('Инженер') ?> : </label>
                                             <?= $this->renderFile('orders/_employers', array(
                                                 'type' => 'engineer',
                                                 'users' => $engineers
