@@ -14,7 +14,7 @@ class AddShowOnlyUsersOrders extends Migration
     {
         if (!Schema::hasColumn('users', 'show_only_his_orders')) {
             Schema::table('users', function ($table) {
-                $table->integer('show_only_his_orders')->default(1);
+                $table->integer('show_only_his_orders')->default(0);
                 $table->index('show_only_his_orders');
             });
         }
