@@ -89,23 +89,18 @@
 
         /* label begin */
         .label-box {
-            height: 2.5cm;  
+            /*height: 2.5cm;*/
             overflow: hidden;
-            width: 4cm; 
+            /*width: 4cm;*/
             display: block;
-            margin: 0px 0 0px 6px;
-       	    page-break-after: always;
+            margin: 3px 0 1px 2px;
         }
         
         .label-box-title {
-          margin-bottom: 2px;
+            margin-bottom: 3px;
           max-height: 36px;
           overflow: hidden;
-          font-size: 10px;
-          line-height: 10px;
-          text-align: center;
         }
-
 
         .label-box-code {
             text-align: center;
@@ -113,8 +108,6 @@
 
         .label-box-order {
             text-align: center;
-            font-size: 10px;
-            line-height: 10px;
         }
 
         /* label end */
