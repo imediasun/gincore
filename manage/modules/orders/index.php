@@ -2593,7 +2593,8 @@ class orders extends Controller
             'cost' => 'on',
             'prepaid' => 'on',
             'available-date' => 'on',
-            'addition-info' => 'on'
+            'addition-info' => 'on',
+            'accountable' => 'on'
         );
         $this->all_configs['db']->query(" INSERT INTO {settings} (name, title, description, value, ro) VALUES ('order-fields-hide', ?, ?, ?, 1)",
             array(
