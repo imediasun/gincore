@@ -42,7 +42,7 @@ class HideField extends Helper
     /**
      * @param $field
      */
-    public function start($field)
+    public function start($field = '')
     {
         $this->field = $field;
         ob_start(array($this, 'wrap'));

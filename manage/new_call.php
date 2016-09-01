@@ -73,6 +73,7 @@ if($phone){
     exit;
 }
 
+exit;
 
 mail('ragenoir@gmail.com', 'VoIP API 1', 'IP: ' . $_SERVER['REMOTE_ADDR'] . ' phone: ' . $phone
                     . '<hr>GET: <pre>' . print_r($_GET, true) . '</pre>' 

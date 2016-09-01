@@ -51,6 +51,7 @@ class Tariff
     protected static function get($api, $host, $data = array())
     {
         $result = null;
+        $data = array_merge($data, self::getSystemInfo());
         $data['host'] = $host;
         $data['key'] = self::getAPIKey();
         $data['signature'] = self::getSignature($data);
@@ -294,7 +295,7 @@ class Tariff
     private static function getSignature($data)
     {
         $keyAPI = self::getAPIKey();
-        return md5($keyAPI . implode(';', $data) . $keyAPI);
+        return @md5($keyAPI . implode(';', $data) . $keyAPI);
     }
 
     /**
@@ -359,6 +360,29 @@ class Tariff
         /** блокируем оставшихся */
         db()->query("UPDATE {users} SET blocked_by_tariff=?i WHERE ?q NOT id=?i AND NOT blocked_by_tariff=?i",
             array(USER_DEACTIVATED_BY_TARIFF_AUTOMATIC, $query, $adminId, USER_DEACTIVATED_BY_TARIFF_MANUAL));
+    }
+    
+    public static function getSystemInfo()
+    {
+        global $all_configs;
+        $info = array();
+        
+        $info['orders']['count'] = db()->query("SELECT count(*) FROM {orders}")->el();
+        $info['orders']['date_last'] = db()->query("SELECT date_add FROM {orders} ORDER BY date_add DESC LIMIT 1")->el();
+        $info['clients']['count'] = db()->query("SELECT count(*) FROM {clients}")->el();
+        $info['clients']['date_last'] = db()->query("SELECT date_add FROM {clients} ORDER BY date_add DESC LIMIT 1")->el();
+        $info['users']['count'] = db()->query("SELECT count(*) FROM {users}")->el();
+        $info['warehouses_goods_items']['count_all'] = db()->query("SELECT count(*) FROM {warehouses_goods_items}")->el();
+        $info['cashboxes']['count'] = db()->query("SELECT count(*) FROM {cashboxes}")->el();
+        $info['users']['date_last'] = date("Y-m-d H:i:s", db()->query("SELECT uxt FROM {users} ORDER BY uxt DESC LIMIT 1")->el());
+        
+        return array(
+            //'act' => 'getSystemInfo',
+            'settings' => $all_configs['settings'],
+            'info' => $info,
+        );
+        
+        
     }
 
 }
