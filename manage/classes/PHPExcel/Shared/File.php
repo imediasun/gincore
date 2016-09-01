@@ -41,7 +41,7 @@ class PHPExcel_Shared_File
      * @protected
      * @var	boolean
      */
-    protected static $_useUploadTempDirectory = FALSE;
+    protected static $_useUploadTempDirectory = TRUE;
 
 
     /**
