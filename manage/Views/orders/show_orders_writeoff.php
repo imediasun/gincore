@@ -27,7 +27,7 @@
         </tbody>
     </table>
 
-    <?= page_block(ceil($count / $count_on_page), $count, '#show_orders', null,
+    <?= page_block(ceil($count / $count_on_page), $count, '#show_orders-writeoff', null,
         $this->renderFile('orders/_export_button', array(
             'prefix' => $prefix
         ))); ?>
