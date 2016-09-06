@@ -395,9 +395,9 @@ class orders extends Controller
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
@@ -424,14 +424,14 @@ class orders extends Controller
             $wfs = array('groups' => array(), 'nogroups' => array());
             foreach ($data as $wf) {
                 if ($wf['group_id'] > 0) {
-                    $wfs['groups'][$wf['group_id']]['name'] = htmlspecialchars($wf['name']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
+                    $wfs['groups'][$wf['group_id']]['name'] = h($wf['name']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = h($wf['color']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = h($wf['title']);
                 } else {
-                    $wfs['nogroups'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
-                    $wfs['nogroups'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['nogroups'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
+                    $wfs['nogroups'][$wf['id']]['title'] = h($wf['title']);
+                    $wfs['nogroups'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['nogroups'][$wf['id']]['color'] = h($wf['color']);
                     $wfs['nogroups'][$wf['id']]['icon'] .= ' text-danger';
                 }
             }
@@ -466,9 +466,9 @@ class orders extends Controller
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET = $saved;
         }
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
@@ -496,14 +496,14 @@ class orders extends Controller
             $wfs = array('groups' => array(), 'nogroups' => array());
             foreach ($data as $wf) {
                 if ($wf['group_id'] > 0) {
-                    $wfs['groups'][$wf['group_id']]['name'] = htmlspecialchars($wf['name']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
+                    $wfs['groups'][$wf['group_id']]['name'] = h($wf['name']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = h($wf['color']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = h($wf['title']);
                 } else {
-                    $wfs['nogroups'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
-                    $wfs['nogroups'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['nogroups'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
+                    $wfs['nogroups'][$wf['id']]['title'] = h($wf['title']);
+                    $wfs['nogroups'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['nogroups'][$wf['id']]['color'] = h($wf['color']);
                     $wfs['nogroups'][$wf['id']]['icon'] .= ' text-danger';
                 }
             }
@@ -957,9 +957,9 @@ class orders extends Controller
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $this->view->load('LockButton');
         return $this->view->renderFile('orders/menu_recommendations_procurement', array(
@@ -1505,7 +1505,7 @@ class orders extends Controller
                 $query .= $this->get_orders_manager_filter_by_manager_query($mg);
             }
             // фильтр статистики по дате
-            $get_date = isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '';
+            $get_date = isset($_GET['date']) ? h($_GET['date']) : '';
             $date = isset($_GET['date']) && trim($_GET['date']) ? explode('-', $_GET['date']) : array();
             $filter_stats = '';
             if ($date) {
@@ -1785,7 +1785,7 @@ class orders extends Controller
             $parts[] = l('Коробка');
         }
         if ($order['equipment']) {
-            $parts[] = htmlspecialchars($order['equipment']);
+            $parts[] = h($order['equipment']);
         }
 
         $returns = $this->all_configs['db']->query('SELECT ct.id as id, value_from, currency
@@ -2247,9 +2247,9 @@ class orders extends Controller
             $access = new access($this->all_configs, false);
             $data = $access->registration($_POST);
             if ($data['id'] > 0) {
-                $fio = isset($_POST['fio']) ? htmlspecialchars($_POST['fio']) : '';
-                $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '';
-                $phone = isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : '';
+                $fio = isset($_POST['fio']) ? h($_POST['fio']) : '';
+                $email = isset($_POST['email']) ? h($_POST['email']) : '';
+                $phone = isset($_POST['phone']) ? h($_POST['phone']) : '';
                 $data['name'] = $fio . ', ' . $email . ', ' . $phone;
             }
         }

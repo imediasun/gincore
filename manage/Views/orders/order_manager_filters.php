@@ -9,8 +9,14 @@
                     <?= $service_filter ?>
                 </td>
                 <td>
-                    <input type="text" placeholder="<?= l('Дата') ?>" name="date" class="daterangepicker form-control "
-                           value="<?= $get_date ?>"/>
+                    <div class="input-group">
+                        <p class="form-control-static" style="display: inline-block; margin-right: 10px;">
+                            <?= l('Статистика за') ?>
+                        </p>
+                        <input type="text" placeholder="<?= l('Дата') ?>" name="date"
+                               class="daterangepicker form-control "
+                               value="<?= $get_date ?>"/>
+                    </div>
                 </td>
                 <td>
                     <input type="submit" class="btn btn-primary" value="<?= l('Фильтровать') ?>">
