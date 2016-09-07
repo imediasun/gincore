@@ -29,10 +29,12 @@ function viewCurrency($show = 'viewName')
     return $all_configs['configs']['currencies'][$all_configs['settings']['currency_orders']][$show];
 }
 
-function db()
-{
-    global $all_configs;
-    return $all_configs['db'];
+if (!function_exists('db')) {
+    function db()
+    {
+        global $all_configs;
+        return $all_configs['db'];
+    }
 }
 
 function get_langs()
@@ -60,35 +62,39 @@ function get_langs()
     return $return;
 }
 
-function clear_empty_inarray($array)
-{
-    $ret_arr = array();
-    foreach ($array as $val) {
-        $val = preg_replace('/[^0-9a-z-A-Z-_?]/', '', urldecode($val)); //trim тут не нужен?
-        if (empty($val)) {
-            continue;
+if (!function_exists('clear_empty_inarray')) {
+    function clear_empty_inarray($array)
+    {
+        $ret_arr = array();
+        foreach ($array as $val) {
+            $val = preg_replace('/[^0-9a-z-A-Z-_?]/', '', urldecode($val)); //trim тут не нужен?
+            if (empty($val)) {
+                continue;
+            }
+            if (strpos($val, '?') !== false) {
+                $ret_arr[] = strstr($val, '?', true);
+            } else {
+                $ret_arr[] = $val;
+            }
         }
-        if (strpos($val, '?') !== false) {
-            $ret_arr[] = strstr($val, '?', true);
-        } else {
-            $ret_arr[] = $val;
-        }
+        return $ret_arr;
     }
-    return $ret_arr;
 }
 
-function quote_smart($value)
-{
-    // если magic_quotes_gpc включена - используем stripslashes
-    if (get_magic_quotes_gpc()) {
-        $value = stripslashes($value);
+if (!function_exists('quote_smart')) {
+    function quote_smart($value)
+    {
+        // если magic_quotes_gpc включена - используем stripslashes
+        if (get_magic_quotes_gpc()) {
+            $value = stripslashes($value);
+        }
+        // Если переменная - число, то экранировать её не нужно
+        // если нет - то окружем её кавычками, и экранируем
+        if (!is_numeric($value)) {
+            $value = "'" . mysql_escape_string($value) . "'"; // if DB error mysql_real_escape_string()
+        }
+        return $value;
     }
-    // Если переменная - число, то экранировать её не нужно
-    // если нет - то окружем её кавычками, и экранируем
-    if (!is_numeric($value)) {
-        $value = "'" . mysql_escape_string($value) . "'"; // if DB error mysql_real_escape_string()
-    }
-    return $value;
 }
 
 function gen_list_select($arr, $name, $selected)
@@ -253,78 +259,87 @@ function resample_photo($file, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
 
 ################################################################################
 
-function send_mail($to, $sbj, $msgtxt)
-{
-    GLOBAL $all_configs;
+if (!function_exists('send_mail')) {
+    function send_mail($to, $sbj, $msgtxt)
+    {
+        GLOBAL $all_configs;
 
-    $subject = "=?UTF-8?B?" . base64_encode($sbj) . "?=\n";
+        $subject = "=?UTF-8?B?" . base64_encode($sbj) . "?=\n";
 
-    $ip = ''; // ?
+        $ip = ''; // ?
 
-    $message = $msgtxt . "<br><br>\r\n";
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=UTF-8 \r\n";
-    $headers .= "X-originating-IP: " . $ip . "\r\n";
-    $headers .= 'From: ' . $all_configs['settings']['site_name'] . ' <' . $all_configs['settings']['content_email'] . '>' . "\r\n";
+        $message = $msgtxt . "<br><br>\r\n";
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8 \r\n";
+        $headers .= "X-originating-IP: " . $ip . "\r\n";
+        $headers .= 'From: ' . $all_configs['settings']['site_name'] . ' <' . $all_configs['settings']['content_email'] . '>' . "\r\n";
 
-    return (bool)(mail($to, $subject, $message, $headers));
+        return (bool)(mail($to, $subject, $message, $headers));
+    }
 }
 
-function mb_ucfirst($str)
-{
-    $fc = mb_strtoupper(mb_substr($str, 0, 1));
-    return $fc . mb_substr($str, 1);
+if (!function_exists('mb_ucfirst')) {
+    function mb_ucfirst($str)
+    {
+        $fc = mb_strtoupper(mb_substr($str, 0, 1));
+        return $fc . mb_substr($str, 1);
+    }
 }
 
+if (!function_exists('send_sms')) {
 // отправка сообщений через turbosms
-function send_sms($phone, $message, $sender = null)
-{
-    global $all_configs;
+    function send_sms($phone, $message, $sender = null)
+    {
+        global $all_configs;
 
-    include_once $all_configs['sitepath'] . 'shop/turbosms.class.php';
+        include_once $all_configs['sitepath'] . 'shop/turbosms.class.php';
 
-    if (is_null($sender)) {
-        $from = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
-    } else {
-        $from = trim($sender);
-    }
-    $login = isset($all_configs['settings']['turbosms-login']) ? trim($all_configs['settings']['turbosms-login']) : '';
-    $password = isset($all_configs['settings']['turbosms-password']) ? trim($all_configs['settings']['turbosms-password']) : '';
+        if (is_null($sender)) {
+            $from = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
+        } else {
+            $from = trim($sender);
+        }
+        $login = isset($all_configs['settings']['turbosms-login']) ? trim($all_configs['settings']['turbosms-login']) : '';
+        $password = isset($all_configs['settings']['turbosms-password']) ? trim($all_configs['settings']['turbosms-password']) : '';
 
-    $turbosms = new turbosms($login, $password);
-    $result = array_values((array)$turbosms->send($from, '+' . $phone, $message));
+        $turbosms = new turbosms($login, $password);
+        $result = array_values((array)$turbosms->send($from, '+' . $phone, $message));
 
-    $result = is_array($result) && isset($result[0]) ? $result[0] : '';
+        $result = is_array($result) && isset($result[0]) ? $result[0] : '';
 
-    return array(
-        'state' => is_array($result),
-        'msg' => is_array($result) ? current($result) : $result
-    );
-}
-
-function gen_level($page)
-{
-    global $link, $all_configs;
-    $row = $all_configs['db']->query("SELECT id, url, parent FROM {map} WHERE id = ?i", array($page), 'row');
-    $link[] = $row['url'];
-    if ($row['parent']) {
-        gen_level($row['parent']);
+        return array(
+            'state' => is_array($result),
+            'msg' => is_array($result) ? current($result) : $result
+        );
     }
 }
 
-function gen_full_link($page_id)
-{
-    global $link;
-
-    $link = array();
-
-    gen_level($page_id);
-
-    krsort($link);
-
-    return implode("/", $link);
+if (!function_exists('gen_level')) {
+    function gen_level($page)
+    {
+        global $link, $all_configs;
+        $row = $all_configs['db']->query("SELECT id, url, parent FROM {map} WHERE id = ?i", array($page), 'row');
+        $link[] = $row['url'];
+        if ($row['parent']) {
+            gen_level($row['parent']);
+        }
+    }
 }
 
+if (!function_exists('gen_full_link')) {
+    function gen_full_link($page_id)
+    {
+        global $link;
+
+        $link = array();
+
+        gen_level($page_id);
+
+        krsort($link);
+
+        return implode("/", $link);
+    }
+}
 function getMapIdByProductId($product_id)
 {
     global $all_configs;
@@ -337,6 +352,7 @@ function getUsernameById($id)
     $user = $all_configs['db']->query("SELECT `fio`, `login` FROM {users} WHERE id = ?i", array($id), 'row');
     return ($user['fio'] ? $user['fio'] : $user['login']);
 }
+
 
 /**
  * Правильный постоянный редирект на УРЛ.
@@ -384,21 +400,23 @@ function count_on_page()
     return $count;
 }
 
-/**
- * get real ip
- * */
-function get_ip()
-{
-    $ip = '';
-    if (isset($_SERVER['HTTP_X_REAL_IP'])) {
-        $ip = $_SERVER['HTTP_X_REAL_IP'];
-    } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-        $ip = $_SERVER['REMOTE_ADDR'];
-    }
+if (!function_exists('get_ip')) {
+    /**
+     * get real ip
+     * */
+    function get_ip()
+    {
+        $ip = '';
+        if (isset($_SERVER['HTTP_X_REAL_IP'])) {
+            $ip = $_SERVER['HTTP_X_REAL_IP'];
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
 
-    return $ip;
+        return $ip;
+    }
 }
 
 /**
@@ -540,7 +558,8 @@ function do_nice_date($date_input, $short_format = true, $time = true, $lang = 0
     } else {
         if ($time == true) {
             $out = date("j ",
-                    $date) . $months[$manage_lang][$date_mounth] . date(" Y {$years_short[$manage_lang]}, G:i", $date);
+                    $date) . $months[$manage_lang][$date_mounth] . date(" Y {$years_short[$manage_lang]}, G:i",
+                    $date);
         } else {
             $out = date("j ", $date) . $months[$manage_lang][$date_mounth] . date(" Y {$years_short[$manage_lang]}",
                     $date);
@@ -690,8 +709,15 @@ function client_double_typeahead($id = null, $callbacks = '')
 /**
  * Выводим цену
  * */
-function show_price($price, $zero = 2, $space = '', $delimiter = '.', $course = 100, $currencies = array(), $count = 1)
-{
+function show_price(
+    $price,
+    $zero = 2,
+    $space = '',
+    $delimiter = '.',
+    $course = 100,
+    $currencies = array(),
+    $count = 1
+) {
     $price_html = '';
     $price = (array)$price;
     $currencies = (array)$currencies;
@@ -969,6 +995,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
     return $tree;
 }
 
+
 function createTree(&$list, $parent)
 {
     $tree = array();
@@ -1081,7 +1108,8 @@ function display_client_order($order)
     . show_marked($order['order_id'], 'co', $order['m_id'])
     . '<i class="glyphicon glyphicon-move icon-move cursor-pointer" data-o_id="' . $order['order_id'] . '" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" title="' . l('Переместить заказ') . '"></i></td>'
     . '<td>' /* . $order['order_id'] */ . timerout($order['order_id']) . '</td>'
-    . '<td><span title="' . do_nice_date($order['date'], false) . '">' . do_nice_date($order['date']) . '</span></td>'
+    . '<td><span title="' . do_nice_date($order['date'],
+        false) . '">' . do_nice_date($order['date']) . '</span></td>'
     . '<td>' . get_user_name($order, 'a_') . '</td>'
     . '<td>' . (($order['manager'] == 0 && $all_configs['oRole']->hasPrivilege('edit-clients-orders')) ?
         '<form method="post" action="' . $all_configs['prefix'] . 'orders/create/' . $order['order_id'] . '">'
@@ -1350,49 +1378,52 @@ function suppliers_order_generate_serial_by_id($itemId, $generate = true, $link 
     return suppliers_order_generate_serial($item, $generate, $link, $class);
 }
 
-/**
- * генерирование/разгенерирование серийника заказа поставщика
- *
- * @param        $order
- * @param bool   $generate
- * @param bool   $link
- * @param string $class
- * @return int|mixed|string
- */
-function suppliers_order_generate_serial($order, $generate = true, $link = false, $class = '')
-{
-    global $all_configs;
+if (!function_exists('suppliers_order_generate_serial')) {
+    /**
+     * генерирование/разгенерирование серийника заказа поставщика
+     *
+     * @param        $order
+     * @param bool   $generate
+     * @param bool   $link
+     * @param string $class
+     * @return int|mixed|string
+     */
+    function suppliers_order_generate_serial($order, $generate = true, $link = false, $class = '')
+    {
+        global $all_configs;
 
-    $serial = trim($order['serial']);
-    if ($generate) {
-        if (mb_strlen($serial, 'UTF-8') == 0) {
-            if ($order['item_id'] > 0) {
-                $serial = $all_configs['configs']['erp-serial-prefix'] . str_pad('', (7 - strlen($order['item_id'])),
-                        0) . $order['item_id'];
-            } elseif (array_key_exists('last_item_id', $order) && $order['last_item_id'] > 0) {
-                $order = $all_configs['db']->query(
-                    'SELECT i.id as item_id, i.serial FROM {warehouses_goods_items} as i WHERE i.id=?i',
-                    array($order['last_item_id']))->row();
+        $serial = trim($order['serial']);
+        if ($generate) {
+            if (mb_strlen($serial, 'UTF-8') == 0) {
+                if ($order['item_id'] > 0) {
+                    $serial = $all_configs['configs']['erp-serial-prefix'] . str_pad('',
+                            (7 - strlen($order['item_id'])),
+                            0) . $order['item_id'];
+                } elseif (array_key_exists('last_item_id', $order) && $order['last_item_id'] > 0) {
+                    $order = $all_configs['db']->query(
+                        'SELECT i.id as item_id, i.serial FROM {warehouses_goods_items} as i WHERE i.id=?i',
+                        array($order['last_item_id']))->row();
 
-                return suppliers_order_generate_serial($order, $generate, $link, 'muted');
+                    return suppliers_order_generate_serial($order, $generate, $link, 'muted');
+                }
+            }
+            $serial = htmlspecialchars(urldecode($serial));
+        } else {
+            if (preg_match('/^(' . $all_configs['configs']['erp-serial-prefix'] . ')([0-9]{' . $all_configs['configs']['erp-serial-count-num'] . '})$/',
+                    $serial) == 1
+            ) {
+                $serial = preg_replace("|[^0-9]|i", "", $serial);
+                $serial = intval($serial);
+            } else {
+                $serial = urldecode($order['serial']);
             }
         }
-        $serial = htmlspecialchars(urldecode($serial));
-    } else {
-        if (preg_match('/^(' . $all_configs['configs']['erp-serial-prefix'] . ')([0-9]{' . $all_configs['configs']['erp-serial-count-num'] . '})$/',
-                $serial) == 1
-        ) {
-            $serial = preg_replace("|[^0-9]|i", "", $serial);
-            $serial = intval($serial);
-        } else {
-            $serial = urldecode($order['serial']);
-        }
-    }
 
-    if ($link && $generate) {
-        return '<a class="' . $class . '" href="' . $all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
-    } else {
-        return $serial;
+        if ($link && $generate) {
+            return '<a class="' . $class . '" href="' . $all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
+        } else {
+            return $serial;
+        }
     }
 }
 
@@ -1680,79 +1711,81 @@ function isHTTPS()
 }
 
 
-function generate_xls_with_login_logs()
-{
-    require_once(__DIR__ . '/classes/PHPExcel.php');
-    require_once(__DIR__ . '/classes/PHPExcel/Writer/Excel5.php');
-    $users = db()->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
-    foreach ($users as $id => $user) {
-        $users[$id]['logs'] = db()->query('SELECT DATE_FORMAT(created_at,\'%d-%m-%Y\') as date_add, MIN(created_at) as stamp, ip FROM {users_login_log} WHERE user_id=?i AND created_at > ? GROUP by date_add ORDER by date_add ASC',
-            array($user['id'], date('Y-1-1', time())))->assoc();
-    }
-    $xls = new PHPExcel();
-    $currentYear = date('Y');
-    $currentMonth = date('m');
-    foreach (range(1, $currentMonth) as $item) {
-        $xls->createSheet($item);
-        $xls->setActiveSheetIndex($item);
-        $sheet = $xls->getActiveSheet();
-        $sheet->setTitle("{$item}-{$currentYear}");
-        $sheet->getColumnDimensionByColumn(0)->setAutoSize(true);
-        $sheet->setCellValue("A1", 'Пользователь');
-        $sheet->getStyle('A1')->getFill()
-            ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-        $sheet->getStyle('A1')->getFill()
-            ->getStartColor()->setRGB('EEEEEE');
-        $sheet->getStyle('A1')->getAlignment()
-            ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-
-        foreach (range(1, 31) as $day) {
-            $cell = $sheet->setCellValueByColumnAndRow($day, 1, $day, true);
-            $sheet->getColumnDimensionByColumn($day)->setAutoSize(true);
-            $sheet->getStyle($cell->getCoordinate())->getFill()
-                ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-            $sheet->getStyle($cell->getCoordinate())->getFill()
-                ->getStartColor()->setRGB('EEEEEE');
-            $sheet->getStyle($cell->getCoordinate())->getAlignment()
-                ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle($cell->getCoordinate())->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+if (!function_exists('generate_xls_with_login_logs')) {
+    function generate_xls_with_login_logs()
+    {
+        require_once(__DIR__ . '/classes/PHPExcel.php');
+        require_once(__DIR__ . '/classes/PHPExcel/Writer/Excel5.php');
+        $users = db()->query('SELECT id, login, email, fio FROM {users} WHERE avail=1 AND deleted=0')->assoc();
+        foreach ($users as $id => $user) {
+            $users[$id]['logs'] = db()->query('SELECT DATE_FORMAT(created_at,\'%d-%m-%Y\') as date_add, MIN(created_at) as stamp, ip FROM {users_login_log} WHERE user_id=?i AND created_at > ? GROUP by date_add ORDER by date_add ASC',
+                array($user['id'], date('Y-1-1', time())))->assoc();
         }
-    }
-    $xls->removeSheetByIndex(0);
-    foreach ($users as $id => $user) {
+        $xls = new PHPExcel();
+        $currentYear = date('Y');
+        $currentMonth = date('m');
         foreach (range(1, $currentMonth) as $item) {
-            $xls->setActiveSheetIndex((int)$item - 1);
+            $xls->createSheet($item);
+            $xls->setActiveSheetIndex($item);
             $sheet = $xls->getActiveSheet();
-            $sheet->setCellValueByColumnAndRow(
-                0,
-                (int)$id + 2,
-                $user['login']);
-        }
-        if (!empty($user['logs'])) {
-            $last = '';
-            foreach ($user['logs'] as $log) {
-                list($day, $month, $year) = explode('-', $log['date_add']);
-                $xls->setActiveSheetIndex((int)$month - 1);
-                $sheet = $xls->getActiveSheet();
-                $cell = $sheet->setCellValueByColumnAndRow(
-                    (int)$day,
-                    (int)$id + 2,
-                    date('H:i', strtotime($log['stamp'])),
-                    true
-                );
-                if (!empty($last) && $log['ip'] != $last) {
-                    $sheet->getStyle($cell->getCoordinate())->getFill()
-                        ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-                    $sheet->getStyle($cell->getCoordinate())->getFill()
-                        ->getStartColor()->setRGB('FFEAEA');
-                }
-                $last = $log['ip'];
+            $sheet->setTitle("{$item}-{$currentYear}");
+            $sheet->getColumnDimensionByColumn(0)->setAutoSize(true);
+            $sheet->setCellValue("A1", 'Пользователь');
+            $sheet->getStyle('A1')->getFill()
+                ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+            $sheet->getStyle('A1')->getFill()
+                ->getStartColor()->setRGB('EEEEEE');
+            $sheet->getStyle('A1')->getAlignment()
+                ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A1')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+            foreach (range(1, 31) as $day) {
+                $cell = $sheet->setCellValueByColumnAndRow($day, 1, $day, true);
+                $sheet->getColumnDimensionByColumn($day)->setAutoSize(true);
+                $sheet->getStyle($cell->getCoordinate())->getFill()
+                    ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+                $sheet->getStyle($cell->getCoordinate())->getFill()
+                    ->getStartColor()->setRGB('EEEEEE');
+                $sheet->getStyle($cell->getCoordinate())->getAlignment()
+                    ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle($cell->getCoordinate())->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
             }
         }
-    }
+        $xls->removeSheetByIndex(0);
+        foreach ($users as $id => $user) {
+            foreach (range(1, $currentMonth) as $item) {
+                $xls->setActiveSheetIndex((int)$item - 1);
+                $sheet = $xls->getActiveSheet();
+                $sheet->setCellValueByColumnAndRow(
+                    0,
+                    (int)$id + 2,
+                    $user['login']);
+            }
+            if (!empty($user['logs'])) {
+                $last = '';
+                foreach ($user['logs'] as $log) {
+                    list($day, $month, $year) = explode('-', $log['date_add']);
+                    $xls->setActiveSheetIndex((int)$month - 1);
+                    $sheet = $xls->getActiveSheet();
+                    $cell = $sheet->setCellValueByColumnAndRow(
+                        (int)$day,
+                        (int)$id + 2,
+                        date('H:i', strtotime($log['stamp'])),
+                        true
+                    );
+                    if (!empty($last) && $log['ip'] != $last) {
+                        $sheet->getStyle($cell->getCoordinate())->getFill()
+                            ->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+                        $sheet->getStyle($cell->getCoordinate())->getFill()
+                            ->getStartColor()->setRGB('FFEAEA');
+                    }
+                    $last = $log['ip'];
+                }
+            }
+        }
 
-    return new PHPExcel_Writer_Excel5($xls);
+        return new PHPExcel_Writer_Excel5($xls);
+    }
 }
 
 function h($string)
@@ -1915,4 +1948,157 @@ function convert_number_to_words($number)
     }
 
     return $string;
+}
+
+function classify($word)
+{
+    return str_replace(" ", "", ucwords(strtr($word, "_-", "  ")));
+}
+
+/**
+ * Camelizes a word. This uses the classify() method and turns the first character to lowercase.
+ *
+ * @param string $word The word to camelize.
+ *
+ * @return string The camelized word.
+ */
+function camelize($word)
+{
+    return ucfirst(classify($word));
+}
+
+/**
+ * @param $order
+ * @param $day
+ * @return bool
+ */
+function check_with_default_config($order, $day)
+{
+    global $all_configs;
+    //1 Запчасть заказана, оприходована, но не отгружена под ремонт больше 2-х дней
+    //2 Заказ клиента подвязан к заказу поставщику, а указанная в заказе поставщику дата поставки просрочена.
+    //3 По нормативу с момента создания заказа на закупку (пустышки) и создания заказа поставщику не должно пройти больше 3х дней.
+    //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
+    //5 На диагностику не более 2-х дней
+    if ($order['status'] == $all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
+        return true;
+    }
+    // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+    if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
+        return true;
+    }
+    // Принят в ремонт > 3 дней
+    if ($order['status'] == $all_configs['configs']['order-status-new'] && strtotime($order['date']) + $day * 3 < time()) {
+        return true;
+    }
+    // На диагностике > 2 дней
+    if ($order['status'] == $all_configs['configs']['order-status-diagnosis'] && strtotime($order['date']) + $day * 2 < time()) {
+        return true;
+    }
+    // В процессе ремонта > 3 дней
+    if ($order['status'] == $all_configs['configs']['order-status-work'] && strtotime($order['date']) + $day * 3 < time()) {
+        return true;
+    }
+    // В удаленном сервисе > 3 дней
+    if ($order['status'] == $all_configs['configs']['order-status-service'] && strtotime($order['date']) + $day * 3 < time()) {
+        return true;
+    }
+    // Принят на доработку > 3 дней
+    if ($order['status'] == $all_configs['configs']['order-status-rework'] && strtotime($order['date']) + $day * 3 < time()) {
+        return true;
+    }
+    // На согласовании > 10 дней
+    if ($order['status'] == $all_configs['configs']['order-status-agreement'] && strtotime($order['date']) + $day * 10 < time()) {
+        return true;
+    }
+    return false;
+}
+
+// status -1
+/**
+ * @param $order
+ * @return bool
+ */
+function check_if_order_fail_in_orders_manager($order)
+{
+    global $all_configs;
+    $day = 60 * 60 * 24;
+    $managerConfigs = $all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-manager-configs'")->assoc();
+    if (empty($managerConfigs)) {
+        return check_with_default_config($order, $day);
+    } else {
+        $lastDateOfChangeStatus = $all_configs['db']->query('SELECT s.date FROM {order_status} as s
+                WHERE s.order_id=?i ORDER BY `date` DESC LIMIT 1',
+            array($order['id']))->el();
+        if (empty($lastDateOfChangeStatus)) {
+            $lastDateOfChangeStatus = $order['date_add'];
+        }
+        $config = json_decode($managerConfigs[0]['value'], true);
+        foreach ($config as $id => $value) {
+            $endTime = strtotime($lastDateOfChangeStatus) + $day * $value;
+            // Принят в ремонт > 24 часов назад и никто из манагеров не взял
+            if (empty($order['manager']) && strtotime($order['date_add']) <= (time() - $day)) {
+                return true;
+            }
+            if ($order['status'] == $all_configs['configs']['order-status-waits']) {
+                $goods = $all_configs['manageModel']->order_goods($order['id'], 0);
+                if ($order['status'] == $id && empty($goods) && $endTime < time()) {
+                    return true;
+                }
+                foreach ($goods as $product) {
+                    // проверяем дооформлена ли пустышка
+                    if ($id == 'status_sold' && $endTime < time()) {
+                        if ($product['unavailable'] != 1 && $product['count_debit'] <= 0 && $product['count_come'] <= 0 && $product['supplier'] <= 0) {
+                            return true;
+                        }
+                    }
+                    // дата доставки просрочена, а заказ поставщику не оприходован
+                    if (empty($product['date_come']) && strtotime($product['date_wait']) < time()) {
+                        return true;
+                    }
+                    // деталь не привязана
+                    if ($id == 'status_repair') {
+                        if (!empty($product['date_come']) && empty($product['item_id']) && $endTime < time()) {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                if ($order['status'] == $id && $endTime < time()) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * @param string $filters_query
+ * @return mixed
+ */
+function get_orders_for_orders_manager($filters_query = '')
+{
+    global $all_configs;
+    return db()->query(
+        'SELECT o.status, o.date_add, o.id, s.date, o.accept_wh_id, o.manager, w.group_id, SUM(IF ((
+                    (l.id IS NOT NULL AND g.item_id IS NULL AND so.count_debit>0 AND DATE_ADD(l.date_add, INTERVAL 2 day)<NOW()) ||
+                    (so.id IS NOT NULL AND so.date_wait<NOW() AND g.id IS NOT NULL AND g.item_id IS NULL AND so.supplier>0 AND so.count_debit=0) ||
+                    (DATE_ADD(so.date_add, INTERVAL 3 day)<NOW() AND so.id IS NOT NULL AND so.count_debit=0 AND so.supplier IS NULL) ||
+                    (l.id IS NULL AND g.id IS NOT NULL AND g.item_id IS NULL)) AND o.status=?i, 1, 0)) as broken
+                FROM {orders} as o
+                LEFT JOIN (SELECT order_id, date, id FROM {order_status} ORDER BY `date` DESC) as s ON s.order_id=o.id AND o.status_id=s.id
+                LEFT JOIN {orders_goods} as g ON g.order_id=o.id AND g.type=0
+                LEFT JOIN {orders_suppliers_clients} as l ON l.order_goods_id=g.id
+                LEFT JOIN {contractors_suppliers_orders} as so ON so.id=l.supplier_order_id
+                LEFT JOIN {warehouses} AS w ON o.accept_wh_id=w.id
+                WHERE ?query o.type NOT IN (?li) AND o.status IN (?li) AND UNIX_TIMESTAMP(o.date_add)>? 
+                GROUP BY o.id ORDER BY o.date_add',
+        array(
+            $all_configs['configs']['order-status-waits'],
+            $filters_query,
+            array(3),
+            $all_configs['configs']['order-statuses-manager'],
+            (time() - 60 * 60 * 24 * 90)
+        ))->assoc();
 }
