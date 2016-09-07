@@ -16,11 +16,11 @@ function isLocalRequest()
 
 echo "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>";
 
-include 'inc_config.php';
-include 'inc_func.php';
+require_once 'inc_config.php';
+require_once 'inc_func.php';
 require_once 'mail.php';
-include 'manage/configs.php';
-include 'manage/inc_func_lang.php';
+require_once 'manage/configs.php';
+require_once 'manage/inc_func_lang.php';
 $all_configs = all_configs();
 require_once 'manage/core_langs.php';
 
@@ -340,16 +340,13 @@ function suppliers_order_generate_serial($order, $generate = true, $link = false
 function orders_manager_stats()
 {
     global $all_configs;
-
     $ifauth = null;
-    require $all_configs['path'] . 'manage/modules/orders/index.php';
-    $orders_class = new orders($all_configs, false);
-
-    $orders = $orders_class->get_orders_for_orders_manager();
+    require_once __DIR__.'/manage/inc_func.php';
+    $orders = get_orders_for_orders_manager();
     $save_query = array();
     foreach ($orders as $order) {
         $status = $order['status'];
-        if ($orders_class->check_if_order_fail_in_orders_manager($order)) {
+        if (check_if_order_fail_in_orders_manager($order)) {
             $status = -1;
         }
         $save_query[] = $all_configs['db']->makeQuery("(?i,NOW(),?i,?i,?i)",

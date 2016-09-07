@@ -395,9 +395,9 @@ class orders extends Controller
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
@@ -424,14 +424,14 @@ class orders extends Controller
             $wfs = array('groups' => array(), 'nogroups' => array());
             foreach ($data as $wf) {
                 if ($wf['group_id'] > 0) {
-                    $wfs['groups'][$wf['group_id']]['name'] = htmlspecialchars($wf['name']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
+                    $wfs['groups'][$wf['group_id']]['name'] = h($wf['name']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = h($wf['color']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = h($wf['title']);
                 } else {
-                    $wfs['nogroups'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
-                    $wfs['nogroups'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['nogroups'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
+                    $wfs['nogroups'][$wf['id']]['title'] = h($wf['title']);
+                    $wfs['nogroups'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['nogroups'][$wf['id']]['color'] = h($wf['color']);
                     $wfs['nogroups'][$wf['id']]['icon'] .= ' text-danger';
                 }
             }
@@ -466,9 +466,9 @@ class orders extends Controller
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET = $saved;
         }
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $count = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}', array())->el();
         $count_unworked = $this->all_configs['db']->query('SELECT COUNT(id) FROM {orders}
@@ -496,14 +496,14 @@ class orders extends Controller
             $wfs = array('groups' => array(), 'nogroups' => array());
             foreach ($data as $wf) {
                 if ($wf['group_id'] > 0) {
-                    $wfs['groups'][$wf['group_id']]['name'] = htmlspecialchars($wf['name']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
+                    $wfs['groups'][$wf['group_id']]['name'] = h($wf['name']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['color'] = h($wf['color']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['groups'][$wf['group_id']]['warehouses'][$wf['id']]['title'] = h($wf['title']);
                 } else {
-                    $wfs['nogroups'][$wf['id']]['title'] = htmlspecialchars($wf['title']);
-                    $wfs['nogroups'][$wf['id']]['icon'] = htmlspecialchars($wf['icon']);
-                    $wfs['nogroups'][$wf['id']]['color'] = htmlspecialchars($wf['color']);
+                    $wfs['nogroups'][$wf['id']]['title'] = h($wf['title']);
+                    $wfs['nogroups'][$wf['id']]['icon'] = h($wf['icon']);
+                    $wfs['nogroups'][$wf['id']]['color'] = h($wf['color']);
                     $wfs['nogroups'][$wf['id']]['icon'] .= ' text-danger';
                 }
             }
@@ -957,9 +957,9 @@ class orders extends Controller
         if (count($_GET) <= 2 && !empty($saved)) {
             $_GET += $saved;
         }
-        $date = (isset($_GET['df']) ? htmlspecialchars(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
+        $date = (isset($_GET['df']) ? h(urldecode($_GET['df'])) : ''/*date('01.m.Y', time())*/)
             . (isset($_GET['df']) || isset($_GET['dt']) ? ' - ' : '')
-            . (isset($_GET['dt']) ? htmlspecialchars(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
+            . (isset($_GET['dt']) ? h(urldecode($_GET['dt'])) : ''/*date('t.m.Y', time())*/);
 
         $this->view->load('LockButton');
         return $this->view->renderFile('orders/menu_recommendations_procurement', array(
@@ -1266,55 +1266,7 @@ class orders extends Controller
      */
     public function check_if_order_fail_in_orders_manager($order)
     {
-        $day = 60 * 60 * 24;
-        $managerConfigs = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE name = 'order-manager-configs'")->assoc();
-        if (empty($managerConfigs)) {
-            return $this->check_with_default_config($order, $day);
-        } else {
-            $lastDateOfChangeStatus = $this->all_configs['db']->query('SELECT s.date FROM {order_status} as s
-                WHERE s.order_id=?i ORDER BY `date` DESC LIMIT 1',
-                array($order['id']))->el();
-            if (empty($lastDateOfChangeStatus)) {
-                $lastDateOfChangeStatus = $order['date_add'];
-            }
-            $config = json_decode($managerConfigs[0]['value'], true);
-            foreach ($config as $id => $value) {
-                $endTime = strtotime($lastDateOfChangeStatus) + $day * $value;
-                // Принят в ремонт > 24 часов назад и никто из манагеров не взял
-                if (empty($order['manager']) && strtotime($order['date_add']) <= (time() - $day)) {
-                    return true;
-                }
-                if ($order['status'] == $this->all_configs['configs']['order-status-waits']) {
-                    $goods = $this->all_configs['manageModel']->order_goods($order['id'], 0);
-                    if ($order['status'] == $id && empty($goods) && $endTime < time()) {
-                        return true;
-                    }
-                    foreach ($goods as $product) {
-                        // проверяем дооформлена ли пустышка
-                        if ($id == 'status_sold' && $endTime < time()) {
-                            if ($product['unavailable'] != 1 && $product['count_debit'] <= 0 && $product['count_come'] <= 0 && $product['supplier'] <= 0) {
-                                return true;
-                            }
-                        }
-                        // дата доставки просрочена, а заказ поставщику не оприходован
-                        if (empty($product['date_come']) && strtotime($product['date_wait']) < time()) {
-                            return true;
-                        }
-                        // деталь не привязана
-                        if ($id == 'status_repair') {
-                            if (!empty($product['date_come']) && empty($product['item_id']) && $endTime < time()) {
-                                return true;
-                            }
-                        }
-                    }
-                } else {
-                    if ($order['status'] == $id && $endTime < time()) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return check_if_order_fail_in_orders_manager($order);
     }
 
     /**
@@ -1324,43 +1276,7 @@ class orders extends Controller
      */
     protected function check_with_default_config($order, $day)
     {
-        //1 Запчасть заказана, оприходована, но не отгружена под ремонт больше 2-х дней
-        //2 Заказ клиента подвязан к заказу поставщику, а указанная в заказе поставщику дата поставки просрочена.
-        //3 По нормативу с момента создания заказа на закупку (пустышки) и создания заказа поставщику не должно пройти больше 3х дней.
-        //4 У ремонта выставлен статус "Ожидает запчасть", а заказ на закупку не отправлен и не привязан никакой заказ поставщику
-        //5 На диагностику не более 2-х дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-waits'] && $order['broken'] > 0) {
-            return true;
-        }
-        // Принят в ремонт > 24 часов назад и никто из манагеров не взял
-        if (!$order['manager'] && strtotime($order['date_add']) <= time() - 86400) {
-            return true;
-        }
-        // Принят в ремонт > 3 дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-new'] && strtotime($order['date']) + $day * 3 < time()) {
-            return true;
-        }
-        // На диагностике > 2 дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-diagnosis'] && strtotime($order['date']) + $day * 2 < time()) {
-            return true;
-        }
-        // В процессе ремонта > 3 дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-work'] && strtotime($order['date']) + $day * 3 < time()) {
-            return true;
-        }
-        // В удаленном сервисе > 3 дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-service'] && strtotime($order['date']) + $day * 3 < time()) {
-            return true;
-        }
-        // Принят на доработку > 3 дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-rework'] && strtotime($order['date']) + $day * 3 < time()) {
-            return true;
-        }
-        // На согласовании > 10 дней
-        if ($order['status'] == $this->all_configs['configs']['order-status-agreement'] && strtotime($order['date']) + $day * 10 < time()) {
-            return true;
-        }
-        return false;
+        return check_with_default_config($order, $day);
     }
 
     /**
@@ -1369,27 +1285,7 @@ class orders extends Controller
      */
     public function get_orders_for_orders_manager($filters_query = '')
     {
-        return db()->query(
-            'SELECT o.status, o.date_add, o.id, s.date, o.accept_wh_id, o.manager, w.group_id, SUM(IF ((
-                    (l.id IS NOT NULL AND g.item_id IS NULL AND so.count_debit>0 AND DATE_ADD(l.date_add, INTERVAL 2 day)<NOW()) ||
-                    (so.id IS NOT NULL AND so.date_wait<NOW() AND g.id IS NOT NULL AND g.item_id IS NULL AND so.supplier>0 AND so.count_debit=0) ||
-                    (DATE_ADD(so.date_add, INTERVAL 3 day)<NOW() AND so.id IS NOT NULL AND so.count_debit=0 AND so.supplier IS NULL) ||
-                    (l.id IS NULL AND g.id IS NOT NULL AND g.item_id IS NULL)) AND o.status=?i, 1, 0)) as broken
-                FROM {orders} as o
-                LEFT JOIN (SELECT order_id, date, id FROM {order_status} ORDER BY `date` DESC) as s ON s.order_id=o.id AND o.status_id=s.id
-                LEFT JOIN {orders_goods} as g ON g.order_id=o.id AND g.type=0
-                LEFT JOIN {orders_suppliers_clients} as l ON l.order_goods_id=g.id
-                LEFT JOIN {contractors_suppliers_orders} as so ON so.id=l.supplier_order_id
-                LEFT JOIN {warehouses} AS w ON o.accept_wh_id=w.id
-                WHERE ?query o.type NOT IN (?li) AND o.status IN (?li) AND UNIX_TIMESTAMP(o.date_add)>? 
-                GROUP BY o.id ORDER BY o.date_add',
-            array(
-                $this->all_configs['configs']['order-status-waits'],
-                $filters_query,
-                array(3),
-                $this->all_configs['configs']['order-statuses-manager'],
-                (time() - 60 * 60 * 24 * 90)
-            ))->assoc();
+        return get_orders_for_orders_manager($filters_query);
     }
 
     /**
@@ -1505,7 +1401,7 @@ class orders extends Controller
                 $query .= $this->get_orders_manager_filter_by_manager_query($mg);
             }
             // фильтр статистики по дате
-            $get_date = isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '';
+            $get_date = isset($_GET['date']) ? h($_GET['date']) : '';
             $date = isset($_GET['date']) && trim($_GET['date']) ? explode('-', $_GET['date']) : array();
             $filter_stats = '';
             if ($date) {
@@ -1785,7 +1681,7 @@ class orders extends Controller
             $parts[] = l('Коробка');
         }
         if ($order['equipment']) {
-            $parts[] = htmlspecialchars($order['equipment']);
+            $parts[] = h($order['equipment']);
         }
 
         $returns = $this->all_configs['db']->query('SELECT ct.id as id, value_from, currency
@@ -2247,9 +2143,9 @@ class orders extends Controller
             $access = new access($this->all_configs, false);
             $data = $access->registration($_POST);
             if ($data['id'] > 0) {
-                $fio = isset($_POST['fio']) ? htmlspecialchars($_POST['fio']) : '';
-                $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '';
-                $phone = isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : '';
+                $fio = isset($_POST['fio']) ? h($_POST['fio']) : '';
+                $email = isset($_POST['email']) ? h($_POST['email']) : '';
+                $phone = isset($_POST['phone']) ? h($_POST['phone']) : '';
                 $data['name'] = $fio . ', ' . $email . ', ' . $phone;
             }
         }
