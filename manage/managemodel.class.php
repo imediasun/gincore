@@ -280,19 +280,23 @@ class manageModel extends Object
 
         if (isset($filters['sst']) && $filters['sst'] > 0) {
             if ($filters['sst'] == 1) {
-                $query = $this->all_configs['db']->makeQuery('?query AND (o.count_come IS NULL OR o.count_come=?i) AND o.avail=?i',
+                $query = $this->all_configs['db']->makeQuery('?query AND (o.count_come IS NULL OR o.count_come=?i) AND o.avail=?i AND NOT o.supplier is NULL',
                     array($query, 0, 1));
             }
             if ($filters['sst'] == 2) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.avail=?i', array($query, 0));
             }
             if ($filters['sst'] == 3) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.date_wait<NOW() AND (o.count_come IS NULL OR o.count_come=?i) AND o.avail=?i',
+                $query = $this->all_configs['db']->makeQuery('?query AND o.date_wait<NOW() AND (o.count_come IS NULL OR o.count_come=?i) AND o.avail=?i AND NOT o.supplier is NULL',
                     array($query, 0, 1));
             }
             if ($filters['sst'] == 4) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.count_come>?i AND o.count_come<o.count_debit',
-                    array($query, 0));
+                $query = $this->all_configs['db']->makeQuery('?query AND o.avail=1 AND NOT o.supplier is NULL AND NOT o.date_wait is NULL AND o.count_come > o.count_debit AND NOT o.confirm = 1',
+                    array($query));
+            }
+            if ($filters['sst'] == 5) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.supplier is NULL AND o.avail=1 AND o.confirm=0 AND o.wh_id is NULL AND o.count_come=0',
+                    array($query));
             }
         }
 
