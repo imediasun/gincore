@@ -373,4 +373,25 @@ class import_orders extends abstract_import_handler
     {
         return $this->view->renderFile('import/forms/orders');
     }
+
+    /**
+     *
+     */
+    public function example()
+    {
+        $data = db()->query('
+            SELECT 
+            o.id, o.date_add as date_add, o.date_pay as date_pay, "" as f1, 
+            c.title as device, "" as f2, o.serial as serial, "" as f3, o.defect, o.note, 
+            o.sum/100, o.sum_paid/100, ua.fio as a_fio, 
+            um.fio as m_fio, ue.fio as e_fio, o.fio, o.phone 
+            FROM {orders} as o
+            JOIN {users} as ua ON ua.id=o.accepter
+            JOIN {users} as um ON um.id=o.manager
+            JOIN {users} as ue ON ue.id=o.engineer
+            JOIN {categories} as c ON c.id=o.category_id
+            LIMIT 2;
+        ')->assoc();
+        return $this->provider->example($data);
+    }
 }

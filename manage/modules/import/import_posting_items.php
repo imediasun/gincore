@@ -213,4 +213,17 @@ class import_posting_items extends abstract_import_handler
         }
         return $result;
     }
+
+    /**
+     *
+     */
+    public function example()
+    {
+        $data = db()->query('
+            SELECT title, vendor_code, 10, price_purchase
+            FROM {goods}
+            LIMIT 2
+        ')->assoc();
+        return $this->provider->example($data);
+    }
 }

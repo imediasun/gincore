@@ -165,4 +165,19 @@ class import_clients extends abstract_import_handler
     {
         return '';
     }
+
+    /**
+     *
+     */
+    public function example()
+    {
+        $data = db()->query('
+            SELECT c.fio, cn.title, c.phone, c.email, c.legal_address
+            FROM {clients} as c 
+            JOIN {contractors} as cn ON cn.id=c.contractor_id
+            ORDER by c.id DESC
+            LIMIT 2
+        ')->assoc();
+        return $this->provider->example($data);
+    }
 }

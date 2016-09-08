@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../import_helper.php';
+require_once __DIR__.'/../../../Core/ExportsToXls.php';
 
 abstract class abstract_import_provider
 {
@@ -55,4 +56,20 @@ abstract class abstract_import_provider
      * @return array
      */
     abstract public function get_cols();
+
+    /**
+     * @return array
+     */
+    public function get_translated_cols() {
+        return $this->get_cols();
+    }
+
+    /**
+     * @param $data
+     */
+    public function example($data) {
+        $export = new ExportsToXls();
+        $xls = $export->makeXLSTitle($export->getXLS(l('Образец')), l('Образец'), $this->get_translated_cols());
+        $export->outputXLS($export->makeXLSBody($xls, $data), 'example');
+    }
 }
