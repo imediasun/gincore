@@ -3941,13 +3941,13 @@ class accountings extends Controller
                     $orders[$order_id]['turnover'] = $order['value_to'] - $order['value_from'] * ($order['course_value'] / 100);
                 }
 
-                $orders[$order_id]['purchase'] = $price * ($order['course_value'] / 100);
+                $course = $order['course_value'] / 100;
+                $orders[$order_id]['purchase'] = $price * ($course > 0 ? $course : 1);
                 $orders[$order_id]['profit'] = 0;
-
-                if ($order['has_to'] > 0 && $orders[$order_id]['turnover']  > 0) {
+                if ($order['has_to'] > 0 && $orders[$order_id]['turnover'] > 0) {
                     $orders[$order_id]['profit'] = $order['value_to'];
                 }
-                if ($order['has_from'] > 0 && $orders[$order_id]['turnover']  > 0) {
+                if ($order['has_from'] > 0 && $orders[$order_id]['turnover'] > 0) {
                     $orders[$order_id]['profit'] -= ($order['value_from'] * $order['course_value'] / 100);
                 }
                 if ($order['order_type'] != ORDER_RETURN) {
