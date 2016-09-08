@@ -102,9 +102,7 @@ class Products_webcam
         $new_img_prefix = $this->all_configs['siteprefix'] . $this->all_configs['configs']['orders-images-path'] . $object_id . '/';
 
         if (!is_dir($new_img_path)) {
-            if (@mkdir($new_img_path)) {
-                chmod($new_img_path, 0770);
-            } else {
+            if (!@mkdir($new_img_path, 0770, true)) {
                 $error = error_get_last();
                 return array('state' => false, 'msg' => 'Нет доступа к директории', 'error' => $error['message']);
             }

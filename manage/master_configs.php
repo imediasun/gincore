@@ -182,16 +182,16 @@ class Configs
                     'phone' => array(
                         'code' => 370,
                         'short_code' => 0,
-                        'length' => 9,
+                        'length' => 8,
                         'mask' => '370ddddddddd'
                     )
                 ),
                 14 => array(
                     'name' => l('Латвия'),
                     'phone' => array(
-                        'code' => 371,
+                        'code' => 371, //37137111111
                         'short_code' => 0,
-                        'length' => 9,
+                        'length' => 8,
                         'mask' => '371dddddddd'
                     )
                 ),
@@ -200,7 +200,7 @@ class Configs
                     'phone' => array(
                         'code' => 372,
                         'short_code' => 0,
-                        'length' => 9,
+                        'length' => 8,
                         'mask' => '372ddddddddd'
                     )
                 ),
