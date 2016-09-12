@@ -360,26 +360,27 @@ function getUsernameById($id)
  * @param string $url2redirect
  * @return unknown
  */
-function redirect($url2redirect, $permanently = true)
-{
-    if ($permanently) {
-        header('HTTP/1.1 301 Moved Permanently');
+if (!function_exists('redirect')) {
+    function redirect($url2redirect, $permanently = true)
+    {
+        if ($permanently) {
+            header('HTTP/1.1 301 Moved Permanently');
+        }
+        header('Location: ' . $url2redirect);
+        echo '
+            <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+            <html><head>
+            <title>301 Moved Permanently</title>
+            </head><body>
+            <h1>Moved Permanently</h1>
+            <p>The document has moved <a href="' . $url2redirect . '">here</a>.</p>
+            <hr>
+            <address>Server at ' . $_SERVER["HTTP_HOST"] . '</address>
+            </body></html>
+        ';
+        exit;
     }
-    header('Location: ' . $url2redirect);
-    echo '
-        <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-        <html><head>
-        <title>301 Moved Permanently</title>
-        </head><body>
-        <h1>Moved Permanently</h1>
-        <p>The document has moved <a href="' . $url2redirect . '">here</a>.</p>
-        <hr>
-        <address>Server at ' . $_SERVER["HTTP_HOST"] . '</address>
-        </body></html>
-    ';
-    exit;
 }
-
 function count_on_page()
 {
     global $all_configs, $cfg;
