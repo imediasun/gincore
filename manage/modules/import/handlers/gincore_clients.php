@@ -89,4 +89,16 @@ class gincore_clients extends abstract_import_provider
     {
         return true;
     }
+
+    /**
+     * @return array
+     */
+    public function get_translated_cols()
+    {
+        $cols = array();
+        foreach ($this->get_cols() as $col) {
+            $cols[] = l($col);
+        }
+       return $cols;
+    }
 }

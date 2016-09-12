@@ -61,6 +61,10 @@ class warehouses extends Controller
         if (isset($post['filters'])) {
             $this->createUrlForFilters($post);
         }
+        // фильтруем
+        if (isset($post['bind-filters'])) {
+            $this->createUrlForBindFilters($post);
+        }
         if (isset($post['filter-warehouses'])) {
             $this->createUrlForFilterWarehouses($post);
         }
@@ -649,7 +653,7 @@ class warehouses extends Controller
      */
     public function warehouses_orders_clients_bind()
     {
-        $saved = $this->LockFilters->load('warehouse-filters');
+        $saved = $this->LockFilters->load('warehouse-bind-order-filters');
         if (count($_GET) <= 2 && $saved) {
             $_GET += $saved;
         }
@@ -2531,5 +2535,51 @@ class warehouses extends Controller
           'state' => true,
             'content' => 'test'
         );
+    }
+
+    /**
+     * @param $post
+     */
+    private function createUrlForBindFilters($post)
+    {
+        $url = array();
+
+        if (isset($post['noitems'])) {
+            // фильтр по без "изделий нет"
+            $url['noi'] = 1;
+        }
+
+        if (isset($post['goods']) && $post['goods'] > 0) {
+            // фильтр по товару
+            $url['by_gid'] = intval($post['goods']);
+        }
+
+        if (isset($post['warehouse']) && $post['warehouse'] > 0) {
+            $url['warehouse'] = intval($post['warehouse']);
+        }
+
+        if (isset($post['location']) && $post['location'] > 0) {
+            $url['location'] = intval($post['location']);
+        }
+
+        if (isset($post['client-order-number']) && !empty($post['client-order-number'])) {
+            // фильтр клиенту/заказу
+            if (preg_match('/^[zZ]-/', trim($post['client-order-number'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order-number']));
+            } else {
+                $orderId = trim($post['client-order-number']);
+            }
+            $url['con'] = intval($orderId);
+        }
+
+        if (isset($post['lock-button'])) {
+            // фильтр клиенту/заказу
+            $url['lock-button'] = intval($post['lock-button']);
+        }
+
+        $this->LockFilters->toggle('warehouse-bind-serial-filters', $url);
+
+        $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
+        Response::redirect($url);
     }
 }

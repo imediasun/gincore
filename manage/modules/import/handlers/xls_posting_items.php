@@ -21,6 +21,7 @@ class xls_posting_items extends abstract_gincore_import_provider
         );
         $this->goods = db()->query('select id, title from {goods}', array())->assoc('title');
     }
+
     /**
      * @return array
      */
@@ -53,5 +54,13 @@ class xls_posting_items extends abstract_gincore_import_provider
             }
         }
         return empty($id) ? false : $id;
+    }
+
+    /**
+     * @return array
+     */
+    public function get_translated_cols()
+    {
+        return array_values($this->get_cols());
     }
 }

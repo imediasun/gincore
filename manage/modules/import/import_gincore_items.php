@@ -176,4 +176,12 @@ class import_gincore_items extends abstract_import_handler
     {
         return '';
     }
+
+    /**
+     *
+     */
+    public function example()
+    {
+        return $this->provider->example(array());
+    }
 }

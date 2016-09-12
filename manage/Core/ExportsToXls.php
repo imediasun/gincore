@@ -1,9 +1,34 @@
 <?php
 
+class ExportsToXls
+{
+    /**
+     * @param $xls
+     * @param $data
+     * @return mixed
+     */
+    public function makeXLSBody($xls, $data)
+    {
+        if (empty($data)) {
+            return $xls;
+        }
 
-abstract class ExportsToXls {
-    abstract public function makeXLSBody($xls, $data);
-    
+        $sheet = $xls->getActiveSheet();
+        $id = 1;
+        foreach ($data as $row) {
+
+            $col = 0;
+            foreach ($row as $item) {
+
+                $sheet->setCellValueByColumnAndRow($col, (int)$id + 1, $item);
+                $col++;
+            }
+            $id++;
+        }
+
+        return $xls;
+    }
+
     /**
      * @param $name
      * @return PHPExcel
@@ -47,11 +72,11 @@ abstract class ExportsToXls {
     /**
      * @param $xls
      */
-    public function outputXLS($xls)
+    public function outputXLS($xls, $fileName='report')
     {
         $out = new PHPExcel_Writer_Excel5($xls);
         header('Content-type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment; filename="report.xls"');
+        header("Content-Disposition: attachment; filename='{$fileName}.xls'");
         $out->save('php://output');
         exit();
     }

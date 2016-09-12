@@ -14,12 +14,7 @@
     </div>
     <div class="form-group">
         <?php if ($type !== 'gincore_items'): ?>
-            <?php if (file_exists(GINCORE_ROOT . '/manage/modules/import/templates/' . $type . '.xls')): ?>
-                <?php $extension = '.xls'; ?>
-            <?php else: ?>
-                <?php $extension = '.csv'; ?>
-            <?php endif; ?>
-            <a href="<?= $this->all_configs['prefix'] ?>modules/import/templates/<?= $type . $extension ?>">
+            <a target='_blank' href="<?= $this->all_configs['prefix'] ?>import/ajax?act=example&import_type=<?= $type ?>&handler=<?= reset($handlers) ?>">
                 <i class="fa fa-file-excel-o"
                    aria-hidden="true"></i>&nbsp;<?= l(sprintf('Скачать образец файла для импорта %s', $type)) ?>
             </a>

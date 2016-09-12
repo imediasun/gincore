@@ -15,8 +15,10 @@
                 <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                     <td class="center"></td>
                     <td class="center">
+                        <?php $url = $this->all_configs['prefix'] . 'orders' . (isset($_GET['other']) && strpos($_GET['other'],
+                                'pay') !== false ? '' : '?other=pay'); ?>
                         <?php if ($debts > 0): ?>
-                            <a href="<?= $this->all_configs['prefix'] ?>orders?other=pay"
+                            <a href="<?= $url ?>"
                                class="label label-success urgent"
                                title='<?= l('Ожидаемая сумма оплаты') ?>'><?= sprintf('%.2f', round($debts, 2)) ?>
                                 &nbsp; <?= viewCurrency() ?></a>

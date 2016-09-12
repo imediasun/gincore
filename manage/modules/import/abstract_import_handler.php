@@ -94,4 +94,9 @@ abstract class abstract_import_handler extends Object
      * @return string
      */
     abstract public function getImportForm();
+
+    /**
+     * @return mixed
+     */
+    abstract public function example();
 }

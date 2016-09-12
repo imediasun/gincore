@@ -6,16 +6,16 @@ require_once __DIR__ . '/Core/Exceptions.php';
 require_once __DIR__ . '/Core/Log.php';
 
 /**
- * @property MHistory                    History
- * @property MOrders                     Orders
- * @property MSettings                   Settings
- * @property MWarehouses                 Warehouses
- * @property MClients                    Clients
- * @property MOrdersGoods                OrdersGoods
- * @property MCashboxesTransactions      CashboxesTransactions
- * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
- * @property MOrdersSuppliersClients     OrdersSuppliersClients
- * @property MHomeMasterRequests         HomeMasterRequests
+ * @property MHistory                     History
+ * @property MOrders                      Orders
+ * @property MSettings                    Settings
+ * @property MWarehouses                  Warehouses
+ * @property MClients                     Clients
+ * @property MOrdersGoods                 OrdersGoods
+ * @property MCashboxesTransactions       CashboxesTransactions
+ * @property MContractorsSuppliersOrders  ContractorsSuppliersOrders
+ * @property MOrdersSuppliersClients      OrdersSuppliersClients
+ * @property MHomeMasterRequests          HomeMasterRequests
  * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
  */
 class Chains extends Object
@@ -336,7 +336,7 @@ class Chains extends Object
                 if ($ar1 || $ar2) {
                     if ($order_product['manager'] && $send == true) {
                         $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
-                        $content = l('Запчасть только что была отгружена, под заказ').' <a href="' . $href . '">№' . $order_product['id'] . '</a>';
+                        $content = l('Запчасть только что была отгружена, под заказ') . ' <a href="' . $href . '">№' . $order_product['id'] . '</a>';
                         $this->notification('Запчасть отгружена под ремонт', $content, $order_product['manager']);
                     }
 
@@ -415,7 +415,7 @@ class Chains extends Object
                 // уведомление о продаже более одной запчасти под ремонт
                 if ($products && $products['items'] > 1) {
                     $href = $this->all_configs['prefix'] . 'orders/create/' . $order_product['id'];
-                    $content = l('Продажа более одной запчасти на ремонт').' <a href="' . $href . '">№' . $order_product['id'] . '</a>';
+                    $content = l('Продажа более одной запчасти на ремонт') . ' <a href="' . $href . '">№' . $order_product['id'] . '</a>';
                     $this->notification(l('Продажа более одной запчасти на ремонт'), $content, 'site-administration');
                 }
 
@@ -560,6 +560,14 @@ class Chains extends Object
                 return null;
             }
         }
+        if(isset($filters['warehouse']) && $filters['warehouse'] > 0) {
+            $filters_query = $this->all_configs['db']->makeQuery('?query AND o.wh_id=?i',
+                array($filters_query, $filters['warehouse']));
+        }
+        if(isset($filters['location']) && $filters['location'] > 0) {
+            $filters_query = $this->all_configs['db']->makeQuery('?query AND o.location_id=?i',
+                array($filters_query, $filters['location']));
+        }
         // открытый
         if ($type == 1) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND i.id IS NULL', array($filters_query));
@@ -589,7 +597,7 @@ class Chains extends Object
             if ($type == 1) {
                 $operations = $this->all_configs['db']->query('SELECT g.title, g.order_id, g.goods_id, i.serial,
                       o.comment, o.fio, o.phone, g.item_id, g.id, g.last_item_id, l.date_add,
-                      t.location, l.supplier_order_id, g.warehouse_type, wg.name, wg.color, wt.icon
+                      t.location, l.supplier_order_id, g.warehouse_type, wg.name, wg.color, wt.icon, wl.location
                     FROM {orders_suppliers_clients} as l, {orders} as o
                     LEFT JOIN {orders_goods} as g ON o.id=g.order_id
                     LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
@@ -597,6 +605,7 @@ class Chains extends Object
                     LEFT JOIN {warehouses} as w ON w.id=o.wh_id
                     LEFT JOIN {warehouses_groups} as wg ON wg.id=w.group_id
                     LEFT JOIN {warehouses_types} as wt ON wt.id=w.type_id
+                    LEFT JOIN {warehouses_locations} as wl ON wl.id=o.location_id
                     WHERE o.id=g.order_id AND l.order_goods_id=g.id ?query
                     ORDER BY IF(i.id IS NULL, 0, 1), l.date_add DESC LIMIT ?i, ?i',
 
@@ -697,7 +706,21 @@ class Chains extends Object
         }
 
         $this->view->load('LockButton');
-        $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
+        if ($type === 1) {
+            $filters = $this->view->renderFile('chains.class/binding_serial_filters', array(
+                'warehouses' => db()->query('
+                    SELECT id, title
+                    FROM {warehouses}
+                ')->assoc(),
+                'locations' => isset($_GET['warehouse']) ? db()->query('
+                    SELECT id, location as title
+                    FROM {warehouses_locations}
+                    WHERE wh_id=?i 
+                ', array($_GET['warehouse']))->assoc() : array()
+            ));
+        } else {
+            $filters = $this->view->renderFile('chains.class/show_stockman_operations_filters');
+        }
 
         return array(
             'html' => $this->view->renderFile('chains.class/show_stockman_operations', array(
@@ -1747,7 +1770,7 @@ class Chains extends Object
                                     $text);
                                 // отправляем уведомление кладовщику
                                 $href = $this->all_configs['prefix'] . 'warehouses?con=' . intval($order_id) . '#orders-clients_bind';
-                                $content = lq('При наличии запчасти на складе, отгрузите ее под заказ').' <a href="' . $href . '">№' . intval($order_id) . '</a>';
+                                $content = lq('При наличии запчасти на складе, отгрузите ее под заказ') . ' <a href="' . $href . '">№' . intval($order_id) . '</a>';
                                 $this->notification(lq('Отгрузите запчасть под заказ'), $content,
                                     'mess-debit-clients-orders');
                             }
@@ -1776,9 +1799,9 @@ class Chains extends Object
                         if ($data['id'] > 0) {
                             $data['order_id'] = $data['id'];
                             // отправляем уведомление
-                            $content = lq('Необходимо завершить закупку запчасти').' ';
+                            $content = lq('Необходимо завершить закупку запчасти') . ' ';
                             $content .= '<a href="' . $this->all_configs['prefix'] . 'orders/edit/' . $data['id'] . '#create_supplier_order">№' . $data['id'] . '</a>';
-                            $content .= ' '.lq('под ремонт').' №' . $order_id;
+                            $content .= ' ' . lq('под ремонт') . ' №' . $order_id;
                             $this->notification(lq('Закупка запчасти'), $content, 'edit-suppliers-orders');
                         }
                     }
@@ -2037,10 +2060,11 @@ class Chains extends Object
                 $supplier_order_id = $order['id'];
                 $post['date_transaction'] = date("Y-m-d H:i:s", time());
                 $supplierOrderCurrency = viewCurrencySuppliers();
-                $post['comment'] = l("Выплата за заказ поставщика")." {$this->all_configs['suppliers_orders']->supplier_order_number($order)}, ".l("сумма")." {$post['amount_from']} {$supplierOrderCurrency}, ".l('склад')." {$order['wh_title']}, {$post['date_transaction']}";
+                $post['comment'] = l("Выплата за заказ поставщика") . " {$this->all_configs['suppliers_orders']->supplier_order_number($order)}, " . l("сумма") . " {$post['amount_from']} {$supplierOrderCurrency}, " . l('склад') . " {$order['wh_title']}, {$post['date_transaction']}";
                 $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-so-contractor_category_id_from'];
                 $post['contractors_id'] = $order['supplier'];
-                $this->ContractorsCategoriesLinks->addCategoryToContractors($post['contractor_category_id_to'], $post['contractors_id']);
+                $this->ContractorsCategoriesLinks->addCategoryToContractors($post['contractor_category_id_to'],
+                    $post['contractors_id']);
             }
             // если транзакция на прием оплаты с заказа клиента
             if (isset($post['client_order_id']) && $post['client_order_id'] > 0) {
@@ -2090,7 +2114,7 @@ class Chains extends Object
                 if ($post['transaction_type'] == TRANSACTION_OUTPUT) {
                     $post['contractor_category_id_to'] = $this->all_configs['configs']['erp-co-contractor_category_id_to'];
                     if (!isset($post['comment']) || mb_strlen(trim($post['comment']), 'UTF-8') == 0) {
-                        $post['comment'] = l("Выдача денег клиенту за заказ"). " " . $post['client_order_id'] . ", " . l("сумма") . " " . $post['amount_from'] . ' ' . viewCurrency() . ', ' . $post['date_transaction'];
+                        $post['comment'] = l("Выдача денег клиенту за заказ") . " " . $post['client_order_id'] . ", " . l("сумма") . " " . $post['amount_from'] . ' ' . viewCurrency() . ', ' . $post['date_transaction'];
                     }
                     if (round((float)$post['amount_from'] * 100) > ($order['sum_paid'] - $order['sum'])) {
                         throw new ExceptionWithMsg(l('Не больше чем') . " " . show_price(intval($order['sum_paid']) - intval($order['sum'])));
@@ -2173,7 +2197,8 @@ class Chains extends Object
                 }
 
                 if ($category_id > 0) {
-                    $this->ContractorsCategoriesLinks->addCategoryToContractors($category_id, intval($post['contractors_id']));
+                    $this->ContractorsCategoriesLinks->addCategoryToContractors($category_id,
+                        intval($post['contractors_id']));
 
                     $contractor_category_link = $this->all_configs['db']->query('SELECT id
                       FROM {contractors_categories_links}
@@ -2348,7 +2373,7 @@ class Chains extends Object
                         $transaction['transaction_type'] = TRANSACTION_OUTPUT;
                         //$transaction['comment'] = 'На баланса контрагента, ' . date("Y-m-d H:i:s");
                     }
-                    $transaction['comment'] = l('Списание с баланса контрагента, за заказ'). ' ' . $client_order_id . ', ' . date("Y-m-d H:i:s");
+                    $transaction['comment'] = l('Списание с баланса контрагента, за заказ') . ' ' . $client_order_id . ', ' . date("Y-m-d H:i:s");
                     $transaction['cashbox_currencies_from'] = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
                     $transaction['cashbox_currencies_to'] = $this->all_configs['suppliers_orders']->currency_suppliers_orders;
                     $transaction['amount_from'] = $amount_to;
@@ -2585,7 +2610,7 @@ class Chains extends Object
                     if ($chain_id) {
                         $href1 = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
                         $href2 = $this->all_configs['prefix'] . 'logistics?o_id=' . $order['id'] . '#motions';
-                        $content = l('Заказ'). ' <a href="' . $href1 . '">№' . $order['id'] . '</a> '.l('попал на склад и создалась').' <a href="' . $href2 . '">'.l('цепочка').'</a> '.l('(запрос) на перемещение');
+                        $content = l('Заказ') . ' <a href="' . $href1 . '">№' . $order['id'] . '</a> ' . l('попал на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
                         $this->notification(l('Создалась цепочка на перемещение заказа'), $content,
                             'logistics-mess');
                     }
@@ -2654,7 +2679,7 @@ class Chains extends Object
                             if ($chain_id) {
                                 $href1 = $this->all_configs['prefix'] . 'warehouses?serial=' . $data['serial'] . '#show_items';
                                 $href2 = $this->all_configs['prefix'] . 'logistics?i_id=' . $data['serial'] . '#motions';
-                                $content = l('Изделие').' <a href="' . $href1 . '">' . $data['serial'] . '</a> '.l('попало на склад и создалась').' <a href="' . $href2 . '">'.l('цепочка').'</a> '.l('(запрос) на перемещение');
+                                $content = l('Изделие') . ' <a href="' . $href1 . '">' . $data['serial'] . '</a> ' . l('попало на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
                                 $this->notification(l('Создалась цепочка на перемещение изделия'), $content,
                                     'logistics-mess');
                             }
@@ -2684,7 +2709,7 @@ class Chains extends Object
                             if ($del['manager'] > 0) {
                                 $href = $this->all_configs['prefix'] . 'orders/create/' . $del['client_order_id'];
                                 $href1 = $this->all_configs['prefix'] . 'orders/edit/' . (isset($result['order_id']) ? $result['order_id'] : '') . '#create_supplier_order';
-                                $content = l('Заявка на').' <a href="' . $href1 . '">'.l('заказ поставщика').'</a> '.l('изменена').' <a href="' . $href . '">№' . $del['client_order_id'] . '</a>';
+                                $content = l('Заявка на') . ' <a href="' . $href1 . '">' . l('заказ поставщика') . '</a> ' . l('изменена') . ' <a href="' . $href . '">№' . $del['client_order_id'] . '</a>';
                                 $this->notification(l('Заявка на заказ поставщика изменена'), $content,
                                     $del['manager']);
                             }
