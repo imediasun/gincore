@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../Core/Object.php';
 require_once __DIR__ . '/../../Core/Response.php';
 require_once __DIR__ . '/../../Core/Exceptions.php';
 require_once __DIR__ . '/../../Core/View.php';
+require_once __DIR__ . '/../../Core/Log.php';
 
 $modulename[] = 'master';
 $modulemenu[] = 'Мастер';
@@ -38,6 +39,7 @@ class master extends Object
         $this->langs = $langs;
         $this->all_configs = $all_configs;
         $this->db = $all_configs['db'];
+        $this->applyUses();
 
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
             $this->ajax();
@@ -74,7 +76,7 @@ class master extends Object
             $countryIds[$country['name']] = $id;
         }
         ksort($countryIds, SORT_LOCALE_STRING);
-        $input_html['country_select'] = $view->renderFile('master/_currencies', array(
+        $input_html['country_select'] = $view->renderFile('master/_country_select', array(
             'countryIds' => $countryIds
         ));
     }
@@ -96,8 +98,6 @@ class master extends Object
 //        $email = isset($_POST['email']) ? $_POST['email'] : '';
         // сервисные центры
         $services = isset($_POST['services']) ? $_POST['services'] : array();
-        // юзеры
-        $users = isset($_POST['users']) ? $_POST['users'] : array();
         // валюта расчетов за заказы
         $orders_currency = isset($_POST['orders_currency']) ? $_POST['orders_currency'] : 0;
         // валюта расчетов за заказы поставщикам
@@ -121,14 +121,13 @@ class master extends Object
                 throw new ExceptionWithMsg(l('Выберите валюту расчетов за заказы поставщикам'));
             }
             // ------- проверка на ошибки
-            $this->validateServicesData($services);
-            $this->validateUsersData($users);
+            $services = $this->prepareServicesData($services, $phone);
 
             $this->saveMainSettings($country, $phone, $business, $site_name, $orders_currency);
             $this->addCurrencies($contractors_currency, $orders_currency, $contractors_currency_course);
             $added_services = $this->addServices($services);
             $this->createWarehouses();
-            $this->addUsers($users, $added_services);
+            $this->addUsers($this->prepareUsersData(current($added_services)), $added_services);
             $this->setGoodsManager();
             $this->endSetup();
         } catch (ExceptionWithMsg $e) {
@@ -380,73 +379,66 @@ class master extends Object
 
     /**
      * @param $services
-     * @return bool
+     * @param $phone
+     * @return array
      * @throws ExceptionWithMsg
      */
-    private function validateServicesData($services)
+    private function prepareServicesData($services, $phone)
     {
+        $result = array();
+
         $added_services_names = array();
-        $added_services_colors = array();
         foreach ($services as $i => $service) {
             if (!trim($service['name'])) {
                 throw new ExceptionWithMsg(l('Не указано название отделения'));
             }
-            if (!$service['color']) {
-                throw new ExceptionWithMsg(l('Не выбран цвет отделения') . ' ' . h($service['name']));
-            }
-            if (!$service['address']) {
-                throw new ExceptionWithMsg(l('Не выбран адрес отделения') . ' ' . h($service['name']));
-            }
-            if (!$service['phone']) {
-                throw new ExceptionWithMsg(l('Не выбран телефон отделения') . ' ' . h($service['name']));
-            }
             if (in_array($service['name'], $added_services_names)) {
                 throw new ExceptionWithMsg(l('У отделений не могут быть одинаковые названия'));
             }
-            if (in_array($service['color'], $added_services_colors)) {
-                throw new ExceptionWithMsg(l('У отделений не могут быть одинаковые цвета'));
-            }
-            $added_services_names[] = trim($service['name']);
-            $added_services_colors[] = trim($service['color']);
+            $result[] = array(
+                'name' => $service['name'],
+                'color' => $this->randomColor(),
+                'address' => l('Адрес'),
+                'phone' => $phone,
+            );
+            $added_services_names[] = $service['name'];
         }
         if (empty($added_services_names)) {
             throw new ExceptionWithMsg(l('Добавьте отделения'));
         }
-        return true;
+        return $result;
     }
 
     /**
-     * @param $users
-     * @throws ExceptionWithMsg
+     * @param $service
+     * @return array
      */
-    private function validateUsersData($users)
+    private function prepareUsersData($service)
     {
-        $users_logins = array();
-        // если не одного юзера нема, то проверку не делаем
-        // и даем возможность зарегаться без сотрудников
-        if (count($users) > 1 || $users[0]['fio'] || $users[0]['login'] || $users[0]['password']) {
-            foreach ($users as $i => $user) {
-                if (!isset($user['login']) || !$user['login']) {
-                    throw new ExceptionWithMsg(l('Укажите логин пользователя'));
-                }
-                if (!isset($user['fio']) || !$user['fio']) {
-                    throw new ExceptionWithMsg(l('Укажите ФИО пользователя '));
-                }
-                if (!isset($user['position']) || !$user['position']) {
-                    throw new ExceptionWithMsg(l('Укажите должность пользователя ') . h($user['fio']));
-                }
-                if (!isset($user['service'])) {
-                    throw new ExceptionWithMsg(l('Укажите отделение пользователя ') . h($user['fio']));
-                }
-                if (empty($user['password'])) {
-                    throw new ExceptionWithMsg(l('Укажите пароль для пользователя ') . h($user['fio']));
-                }
-                if (in_array($user['login'], $users_logins)) {
-                    throw new ExceptionWithMsg(l('У пользователей не могут быть одинаковые логины'));
-                }
-                $users_logins[] = trim($user['login']);
-            }
-        }
+        return array(
+            array(
+                'login' => 'Tech',
+                'fio' => l('Ваш мастер'),
+                'position' => 7, //роль инженера
+                'password' => 'Tech',
+                'service' => $service['id']
+            ),
+            array(
+                'login' => 'Manager',
+                'fio' => l('Ваш менеджер'),
+                'position' => 5, // роль менеджера по продажам
+                'password' => 'Manager',
+                'service' => $service['id']
+            ),
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function randomColor()
+    {
+        return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
     }
 }
 

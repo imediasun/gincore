@@ -99,7 +99,7 @@ abstract class AModel extends Object
         foreach ($conditions as $field => $value) {
             switch (true) {
                 case is_array($value):
-                    $conditionsQuery = $this->makeQuery('?q AND ?q IN (?li)', array($conditionsQuery, $field, $value));
+                    $conditionsQuery = $this->makeQuery('?q AND ?q IN (?l)', array($conditionsQuery, $field, $value));
                     break;
                 case is_numeric($value):
                     $conditionsQuery = $this->makeQuery('?q AND ?q=?i', array($conditionsQuery, $field, $value));
