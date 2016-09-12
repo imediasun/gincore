@@ -188,4 +188,13 @@ class import_class
 
         return $output['delimiter']['value'];
     }
+
+    /**
+     * @return mixed
+     */
+    public function example()
+    {
+        $this->set_import_handler();
+        return $this->import_handler->example();
+    }
 }

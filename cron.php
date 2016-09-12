@@ -24,13 +24,16 @@ require_once 'manage/inc_func_lang.php';
 $all_configs = all_configs();
 require_once 'manage/core_langs.php';
 
-set_time_limit(14400); // 4 часа
+include_once 'manage/managemodel.class.php';
+$all_configs['manageModel'] = new manageModel($all_configs);
+
+
+set_time_limit(14400); // 4 часа // шото дофига (A. K.)
 
 $date_begin = date("Y-m-d H:i:s");
 
 $error = '';
 
-$all_configs = all_configs();
 
 $function = isset($_GET['act']) ? trim($_GET['act']) : '';
 if (function_exists($function)) {

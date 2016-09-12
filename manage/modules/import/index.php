@@ -266,6 +266,9 @@ class import extends Object
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
         switch ($act) {
+            case 'example':
+                $data = $this->example($_GET);
+                break;
             case 'get_form':
                 $type = isset($_POST['type']) ? $_POST['type'] : '';
                 $data['state'] = true;
@@ -332,5 +335,18 @@ class import extends Object
         require $this->all_configs['path'] . 'modules/import/import_class.php';
         return new import_class($this->all_configs, $source, $import_type, $handler,
             $import_settings);
+    }
+
+    /**
+     * @param $get
+     * @return mixed
+     */
+    public function example($get)
+    {
+        $import_type = isset($get['import_type']) ? trim($get['import_type']) : '';
+        $handler = isset($get['handler']) ? trim($get['handler']) : '';
+        $import = $this->getImportHandler($import_type, null, $handler);
+
+        return $import->example();
     }
 }

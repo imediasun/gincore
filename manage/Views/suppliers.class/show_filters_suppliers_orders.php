@@ -75,6 +75,9 @@
                                 <option <?= (isset($_GET['sst']) && $_GET['sst'] == 4 ? 'selected' : '') ?> value="4">
                                     <?= l('Ожидаем поступления') ?>
                                 </option>
+                                <option <?= (isset($_GET['sst']) && $_GET['sst'] == 5 ? 'selected' : '') ?> value="5">
+                                    <?= l('Не обработанные') ?>
+                                </option>
                             </select>
                         </span>
                     </div>

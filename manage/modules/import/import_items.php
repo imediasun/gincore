@@ -307,7 +307,7 @@ class import_items extends abstract_import_handler
      */
     private function getBranch($categoriesTree, $categoryId)
     {
-        if(empty($categoryId)) {
+        if (empty($categoryId)) {
             return $categoriesTree;
         }
         if (!empty($categoriesTree)) {
@@ -330,5 +330,22 @@ class import_items extends abstract_import_handler
     public function getImportForm()
     {
         return $this->view->renderFile('import/forms/items');
+    }
+
+    /**
+     *
+     */
+    public function example()
+    {
+        $data = db()->query('
+            SELECT 
+                g.title as title, c.title as c_title, "" as subcat1, "" as subcat2, "" as subcat3, "" as subcat4, 
+                g.price/100, g.price_purchase/100, g.vendor_code
+            FROM {goods} as g 
+            JOIN {category_goods} as cg ON cg.goods_id=g.id
+            JOIN {categories} as c ON c.id=cg.category_id
+            LIMIT 2
+        ')->assoc();
+        return $this->provider->example($data);
     }
 }

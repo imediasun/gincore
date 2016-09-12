@@ -7,15 +7,16 @@
             <?= show_marked($item['order_id'], 'wso' . $type, $selected) ?>
             <?= show_marked($item['order_id'], 'woi', $selected_oi) ?>
         </td>
-        <td><span title="<?= do_nice_date($item['date_add'], false) ?>"> <?= do_nice_date($item['date_add']) ?></span>
+        <td>
+            <i style="color:<?= htmlspecialchars($item['color']) ?>;" class="<?= htmlspecialchars($item['icon']) ?>"></i>
+            <?= htmlspecialchars($item['name']) ?>
         </td>
+        <td><?= h($item['location']) ?></td>
+        <td><span title="<?= do_nice_date($item['date_add'], false) ?>"> <?= do_nice_date($item['date_add']) ?></span></td>
         <td>
             <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $item['goods_id'] ?>"> <?= htmlspecialchars($item['title']) ?></a>
             <i class="fa fa-arrows popover-info" data-content="<?= $state ?>"></i>
         </td>
-        <?php if ($type == 1): ?>
-            <td><?= ($item['warehouse_type'] == 1 ? 'Локально' : ($item['warehouse_type'] == 2 ? 'Заграница' : '')) ?></td>
-        <?php endif; ?>
     <?php endif; ?>
     <?php if ($type == 1): ?>
         <td></td>
@@ -49,9 +50,5 @@
             <input class="btn btn-xs" type="button" value="Отвязать" data-o_id="<?= $item['item_id'] ?>"
                    onclick="alert_box(this, null, 'bind-move-item-form')"/>
         <?php endif; ?>
-    </td>
-    <td>
-        <i style="color:<?= htmlspecialchars($item['color']) ?>;" class="<?= htmlspecialchars($item['icon']) ?>"></i>
-        <?= htmlspecialchars($item['name']) ?>
     </td>
 </tr>

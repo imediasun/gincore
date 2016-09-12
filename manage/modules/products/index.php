@@ -470,7 +470,7 @@ class products extends Controller
 
         // поиск
         if (isset($_GET['s']) && !empty($_GET['s'])) {
-            $s = str_replace(array("\xA0", '&nbsp;', ' '), '%', trim(urldecode($_GET['s'])));
+            $s = trim(urldecode($_GET['s']));
             $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.deleted=0 ',
                 array($goods_query, $s, $s, $s));
         }
