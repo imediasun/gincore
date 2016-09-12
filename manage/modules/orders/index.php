@@ -642,6 +642,26 @@ class orders extends Controller
         $count_page = ceil($count / $this->count_on_page);
 
         $this->view->load('DisplayOrder');
+        $columns = $this->LockFilters->load('repair-order-table-columns');
+        if(count($columns) == 1) {
+            $columns = array(
+                'npp' => 'on',
+                'notice' => 'on',
+                'date' => 'on',
+                'accepter' => 'on',
+                'manager' => 'on',
+                'status' => 'on',
+                'components' => 'on',
+                'device' => 'on',
+                'amount' => 'on',
+                'paid' => 'on',
+                'client' => 'on',
+                'phone' => 'on',
+                'terms' => 'on',
+                'location' => 'on',
+            );
+            $this->LockFilters->toggle('repair-order-table-columns', $columns);
+        }
         return array(
             'html' => $this->view->renderFile('orders/show_orders_orders', array(
                 'count' => $count,
@@ -651,7 +671,7 @@ class orders extends Controller
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
                 'urgent' => $this->Orders->getUrgentCount(),
                 'debts' => $this->Orders->getDebts(),
-                'columns' => $this->LockFilters->load('repair-order-table-columns')
+                'columns' => $columns
             )),
             'functions' => array(),
         );
