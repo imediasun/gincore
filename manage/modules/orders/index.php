@@ -278,6 +278,11 @@ class orders extends Controller
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)) . $hash);
         }
 
+        if (isset($post['repair-order-table-columns'])) {
+            $this->LockFilters->toggle('repair-order-table-columns', $_POST);
+            Response::redirect(Response::referrer());
+        }
+
         // принимаем заказ
         if (isset($post['accept-manager']) == 1 && isset($post['id']) && $post['id'] > 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
             $this->all_configs['db']->query('UPDATE {orders} SET manager=?i WHERE id=?i AND (manager IS NULL OR manager=0 OR manager="")',
@@ -645,7 +650,8 @@ class orders extends Controller
                 'filters' => $filters,
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
                 'urgent' => $this->Orders->getUrgentCount(),
-                'debts' => $this->Orders->getDebts()
+                'debts' => $this->Orders->getDebts(),
+                'columns' => $this->LockFilters->load('repair-order-table-columns')
             )),
             'functions' => array(),
         );
@@ -3541,22 +3547,37 @@ class orders extends Controller
         $export = new ExportOrdersToXLS();
         $xls = $export->getXLS(l('Заказы'));
 
+        $columns = $this->LockFilters->load('repair-order-table-columns');
         if (in_array($currentOrderType, array(ORDER_REPAIR, ORDER_WRITE_OFF, ORDER_RETURN))) {
-            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
-                lq('N'),
-                lq('Дата'),
-                lq('Приемщик'),
-                lq('Менеджер'),
-                lq('Статус'),
-                lq('Запчасти'),
-                lq('Устройство'),
-                lq('Стоимость'),
-                lq('Оплачено'),
-                lq('Клиент'),
-                lq('Контактный телефон'),
-                lq('Сроки'),
-                lq('Склад'),
-            ));
+            $title = array();
+
+            foreach (array(
+                'npp' => 'N',
+                'notice' => 'Напоминания',
+                'date' => 'Дата',
+                'accepter' => 'Приемщик',
+                'manager' => 'Менеджер',
+                'engineer' => 'Инженер',
+                'status' => 'Статус',
+                'components' => 'Запчасти',
+                'device' => 'Устройство',
+                'amount' => 'Стоимость',
+                'paid' => 'Оплачено',
+                'client' => 'Клиент',
+                'phone' => 'Контактный телефон',
+                'terms' => 'Сроки',
+                'location' => 'Склад',
+                'sn' => 'Серийный номер',
+                'repair' => 'Тип ремонта',
+                'date_end' => 'Дата готовности',
+                'warranty' => 'Гарантия',
+                'adv_channel' => 'Рекламный канал'
+            ) as $item => $name) {
+                if (isset($columns[$item])) {
+                    $title[] = lq($name);
+                }
+            }
+            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), $title);
         } else {
             $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
                 lq('N'),
@@ -3575,7 +3596,11 @@ class orders extends Controller
             ));
         }
         if (!empty($orders)) {
-            $export->makeXLSBody($xls, array('orders' => $orders, 'type' => $currentOrderType));
+            $export->makeXLSBody($xls, array(
+                'orders' => $orders,
+                'type' => $currentOrderType,
+                'columns' => $columns
+            ));
         }
         $export->outputXLS($xls);
 

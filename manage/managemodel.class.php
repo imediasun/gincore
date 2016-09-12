@@ -426,13 +426,15 @@ class manageModel extends Object
                   o.discount, u.fio as h_fio, u.login as h_login, o.urgent, o.wh_id, w.title as wh_title, aw.title as aw_wh_title, og.type,
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
-                  gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date
+                  gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date,
+                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair
                 FROM {orders} AS o
                 LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
                 LEFT JOIN {contractors_suppliers_orders} as co ON co.id=sc.supplier_order_id
                 LEFT JOIN {users} as u ON u.id=o.manager
                 LEFT JOIN {users} as a ON a.id=o.accepter
+                LEFT JOIN {users} as e ON e.id=o.engineer
                 LEFT JOIN {users_marked} as m ON m.object_id=o.id AND m.type=? AND m.user_id=?i
                 LEFT JOIN {users_marked} as mi ON mi.object_id=o.id AND mi.type="oi"
                 LEFT JOIN {warehouses} as w ON w.id=o.wh_id
