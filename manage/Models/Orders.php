@@ -244,7 +244,8 @@ class MOrders extends AModel
             'delivery_to',
             'sale_type',
             'home_master_request',
-            'engineer_comment'
+            'engineer_comment',
+            'brand_id'
         );
     }
 }

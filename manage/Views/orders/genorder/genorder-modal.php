@@ -158,19 +158,21 @@
 
                                     <div
                                         class="form-group clearfix <?= !isset($hide['repair-type']) ? 'hide-field' : '' ?>">
-                                        <label><?= l('Вид ремонта') ?>:</label>
-                                        <?php
-                                        switch ($order['repair']) {
-                                            case 0:
-                                                echo l('Платный');
-                                                break;
-                                            case 1:
-                                                echo l('Гарантийный');
-                                                break;
-                                            case 2:
-                                                echo l('Доработка');
-                                                break;
-                                        } ?>
+                                        <label class="lh30">
+                                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                                  onclick="alert_box(this, false, 'changes:update-order-repair-type')"
+                                                  data-o_id="<?= $order['id'] ?>"
+                                                  title="<?= l('История изменений') ?>">
+
+                                            </span>
+                                            <?= l('Вид ремонта') ?>:
+                                        </label>
+                                        <div class="tw100">
+                                            <?= $this->renderFile('orders/genorder/_repair_types', array(
+                                                'order' => $order,
+                                                'brands' => $brands
+                                            )); ?>
+                                        </div>
                                     </div>
                                     <div class="form-group clearfix">
                                         <label><?= l('Сроки') ?>:</label>

@@ -203,7 +203,21 @@ class orders extends Controller
             }
             if (isset($post['repair']) && !empty($post['repair'])) {
                 // фильтр по статусу
-                $url['rep'] = implode(',', $post['repair']);
+                $repair = array();
+                if (in_array('pay', $post['repair'])) {
+                    $repair[] = 0;
+                    array_shift($post['repair']);
+                }
+                if (in_array('wa', $post['repair'])) {
+                    $repair[] = 1;
+                    array_shift($post['repair']);
+                }
+                if (!empty($repair)) {
+                    $url['rep'] = implode(',', $repair);
+                }
+                if (!empty($post['repair'])) {
+                    $url['brands'] = implode(',', $post['repair']);
+                }
             }
             if (isset($post['person']) && !empty($post['person'])) {
                 // фильтр по статусу
@@ -524,7 +538,8 @@ class orders extends Controller
             'count_unworked' => $count_unworked,
             'date' => $date,
             'link' => $link,
-            'wfs' => isset($wfs) ? $wfs : array()
+            'wfs' => isset($wfs) ? $wfs : array(),
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
         ));
     }
 
@@ -643,7 +658,7 @@ class orders extends Controller
 
         $this->view->load('DisplayOrder');
         $columns = $this->LockFilters->load('repair-order-table-columns');
-        if(count($columns) == 1) {
+        if (count($columns) == 1) {
             $columns = array(
                 'npp' => 'on',
                 'notice' => 'on',
@@ -809,7 +824,8 @@ class orders extends Controller
                     $this->all_configs['configs']['host']),
                 'users_fields' => $this->getUsersFields(),
                 'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
-                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer')
+                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer'),
+                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
             ));
         }
 
@@ -1772,6 +1788,7 @@ class orders extends Controller
             'price_type' => $price_type,
             'price_type_of_service' => $price_type_of_service,
             'print_templates' => $print_templates,
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
         ));
     }
 
@@ -2657,6 +2674,7 @@ class orders extends Controller
             $order = $this->changeWarranty($order, $mod_id);
             $order = $this->changeDevice($order, $mod_id);
             $order = $this->changeReturnId($order, $mod_id);
+            $order = $this->changeRepairType($order, $mod_id);
             // комментарии к заказам
             if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
                 $data = $this->updateOrderComments($order, $data);
@@ -3552,7 +3570,8 @@ class orders extends Controller
                 $took
             );
             $order['engineer_comment'] = $took;
-            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer_comment', $order['engineer_comment']);
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer_comment',
+                $order['engineer_comment']);
         }
         return $order;
     }
@@ -3716,5 +3735,73 @@ class orders extends Controller
             );
         }
         return $result;
+    }
+
+    /**
+     * @param $order
+     * @return mixed|string
+     */
+    private function getCurrentRepairType($order)
+    {
+        switch ($order['repair']) {
+            case 1:
+                $result = l('Гарантия');
+                $brand = $this->all_configs['db']->query('SELECT title FROM {brands} WHERE id=?i',
+                    array($order['brand_id']))->el();
+                if (!empty($brand)) {
+                    $result .= ' ' . $brand;
+                }
+                break;
+            case 2:
+                $result = l('Доработка');
+                break;
+            default:
+                $result = l('Платный');
+        }
+        return $result;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     * @throws Exception
+     */
+    protected function changeRepairType($order, $mod_id)
+    {
+        $message = '';
+        $current = $this->getCurrentRepairType($order);
+        if (isset($_POST['repair'])) {
+            if ($_POST['repair'] == 'pay' && $order['repair'] != 0) {
+                $order['repair'] = 0;
+                $message = l('Платный');
+            }
+            if ($_POST['repair'] == 'rework' && $order['repair'] != 2) {
+                $order['repair'] = 2;
+                $message = l('Доработка');
+            }
+            if (is_numeric($_POST['repair'])) {
+                $brand = $this->all_configs['db']->query('SELECT title FROM {brands} WHERE id=?i',
+                    array($_POST['repair']))->el();
+                if ($order['repair'] != 1) {
+                    $order['repair'] = 1;
+                    $order['brand_id'] = $_POST['repair'];
+                    $message = l('Гарантия') . ' ' . $brand;
+                } elseif ($order['brand_id'] != $_POST['repair']) {
+                    $order['brand_id'] = $_POST['repair'];
+                    $message = l('Гарантия') . ' ' . $brand;
+                }
+            }
+            if (!empty($message)) {
+                $this->History->save(
+                    'update-order-repair-type',
+                    $mod_id,
+                    $this->all_configs['arrequest'][2],
+                    $current . '==>' . $message
+                );
+                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'repair_type', $message);
+            }
+        }
+        return $order;
     }
 }

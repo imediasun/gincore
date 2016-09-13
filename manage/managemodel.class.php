@@ -631,6 +631,10 @@ class manageModel extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND o.repair IN (?li)',
                 array($query, explode(',', $filters['rep'])));
         }
+        if (isset($filters['brands']) && count(explode(',', $filters['brands'])) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.brand_id IN (?li)',
+                array($query, explode(',', $filters['brands'])));
+        }
 
         if (isset($filters['wh']) && count(explode(',', $filters['wh'])) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.accept_wh_id IN (?li)',
@@ -828,7 +832,7 @@ class manageModel extends Object
                           u.fio, u.email, u.login, o.wh_id, w.title as wh_title, o.supplier, s.title as stitle, o.num,
                           ac.fio as accept_fio, ac.email as accept_email, ac.login as accept_login, i.id as item_id,
                           o.group_parent_id, m.id as m_id, o.avail, o.unavailable, l.location, o.location_id,
-                          o.date_check, osc.client_order_id, i.date_checked, i.serial
+                          o.date_check, osc.client_order_id, i.date_checked, i.serial, o.brand_id
                         FROM {contractors_suppliers_orders} as o
                         LEFT JOIN {orders_suppliers_clients} as osc ON o.id=osc.supplier_order_id
                         LEFT JOIN {goods} as g ON g.id=o.goods_id

@@ -3161,8 +3161,8 @@ class Chains extends Object
             'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
             'total_as_sum' => isset($post['total_as_sum']) ? intval($post['total_as_sum']) : 0,
             'home_master_request' => isset($post['home_master_request']) ? intval($post['home_master_request']) : 0,
+            'brand_id' => (isset($post['brand_id']) && isset($post['repair']) && intval($post['repair']) == 1)?intval($post['brand_id']):0
         );
-
         // создаем заказ
         try {
             $id = $this->Orders->save($params);
