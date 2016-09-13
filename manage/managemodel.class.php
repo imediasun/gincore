@@ -427,7 +427,7 @@ class manageModel extends Object
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
                   gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date,
-                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair, , o.brand_id
+                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair, o.brand_id
                 FROM {orders} AS o
                 LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
