@@ -1648,7 +1648,7 @@ class orders extends Controller
         $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
                 a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title, c.tag_id as tag_id,
-                c.legal_address as c_legal_address, c.email as c_email
+                c.legal_address as c_legal_address, c.email as c_email, o.engineer_comment
                 FROM {orders} as o
                 LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users} as u ON u.id=o.manager
@@ -2672,6 +2672,7 @@ class orders extends Controller
             }
             $order = $this->changeReplacement($order, $mod_id);
             $order = $this->changeClientTook($order, $mod_id);
+            $order = $this->changeEngineerComment($order, $mod_id);
 
             $order['notify'] = isset($_POST['notify']) ? 1 : 0;
             $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
@@ -3531,6 +3532,27 @@ class orders extends Controller
             );
             $order['client_took'] = $took;
             $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_took', $order['client_took']);
+        }
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    private function changeEngineerComment($order, $mod_id)
+    {
+        $took = isset($_POST['engineer_comment']) ? trim($_POST['engineer_comment']) : '';
+        if ($took !== $order['engineer_comment']) {
+            $this->History->save(
+                'update-order-engineer_comment',
+                $mod_id,
+                $order['id'],
+                $took
+            );
+            $order['engineer_comment'] = $took;
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer_comment', $order['engineer_comment']);
         }
         return $order;
     }

@@ -34,14 +34,28 @@
 
         <?php if ($this->all_configs['oRole']->hasPrivilege('add-comment-to-clients-orders') && !$onlyEngineer): ?>
             <div class="div-tfoot">
-                <div class="div-table-row">
+                <div class="div-table-row js-comment">
                     <div class="div-table-col span12">
-                        <textarea placeholder="<?= l('Данный комментарий виден клиенту на сайте') ?>" class="form-control" name="public_comment"></textarea>
+                        <textarea placeholder="<?= l('Данный комментарий виден клиенту на сайте') ?>"
+                                  class="form-control" name="public_comment"></textarea>
+                    </div>
+                </div>
+                <div class="div-table-row js-comment" style="display: none">
+                    <div class="div-table-col span12">
+                        <textarea placeholder="<?= l('Данный комментарий виден клиенту на сайте') ?>"
+                                  class="form-control"
+                                  name="engineer_comment"><?= $order['engineer_comment'] ?></textarea>
                     </div>
                 </div>
                 <div class="div-table-row">
                     <div class="div-table-col span12">
-                        <input name="add_public_comment" data-alert_box_not_disabled="true" class="btn btn-sm" value="<?= l('Добавить') ?>" type="submit">
+                        <input name="add_public_comment" data-alert_box_not_disabled="true" class="btn btn-sm"
+                               value="<?= l('Добавить') ?>" type="submit">
+                        <button name="add_engineer_comment" onclick='return show_engineer_comment(this);'
+                                data-title='<?= empty($order['engineer_comment']) ? l('Заключение инженера:')."\n" : '' ?>'
+                                data-alert_box_not_disabled="true" class="btn btn-sm btn-default"
+                                type="submit"> <?= l('Заключение') ?>&nbsp;<i class="fa fa-plus js-comment" aria-hidden="true"></i><i class="fa fa-minus js-comment" aria-hidden="true" style="color:red; display:none"></i>
+                        </button>
                     </div>
                 </div>
             </div>

@@ -514,7 +514,8 @@
                             'comments_public' => $comments_public,
                             'comments_private' => $comments_private,
                             'onlyEngineer' => $onlyEngineer,
-                            'modal' => true
+                            'modal' => true,
+                            'order' => $order
                         )); ?>
                         <?= $this->renderFile('orders/genorder/_private_comments', array(
                             'comments_public' => $comments_public,
