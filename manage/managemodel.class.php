@@ -427,7 +427,7 @@ class manageModel extends Object
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
                   gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date,
-                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair
+                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair, , o.brand_id
                 FROM {orders} AS o
                 LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
@@ -832,7 +832,7 @@ class manageModel extends Object
                           u.fio, u.email, u.login, o.wh_id, w.title as wh_title, o.supplier, s.title as stitle, o.num,
                           ac.fio as accept_fio, ac.email as accept_email, ac.login as accept_login, i.id as item_id,
                           o.group_parent_id, m.id as m_id, o.avail, o.unavailable, l.location, o.location_id,
-                          o.date_check, osc.client_order_id, i.date_checked, i.serial, o.brand_id
+                          o.date_check, osc.client_order_id, i.date_checked, i.serial
                         FROM {contractors_suppliers_orders} as o
                         LEFT JOIN {orders_suppliers_clients} as osc ON o.id=osc.supplier_order_id
                         LEFT JOIN {goods} as g ON g.id=o.goods_id
