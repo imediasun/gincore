@@ -89,7 +89,7 @@
                 <?= l('Рекламный канал') ?>
             </td>
             <td>
-                <?= $this->renderFile('orders/repair_order_colum_filter', array(
+                <?= $this->renderFile('orders/repair_order_column_filter', array(
                     'columns' => $columns
                 )) ?>
             </td>

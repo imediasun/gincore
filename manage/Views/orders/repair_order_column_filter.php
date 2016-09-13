@@ -4,7 +4,7 @@
     </a>
     <ul class="dropdown-menu pull-right" style="max-height: 600px">
         <li>
-            <form method="POST" style="width: 250px">
+            <form method="POST" style="width: 200px">
                 <fieldset>
                     <?php foreach (array(
                         'npp' => 'Номер заказа',
