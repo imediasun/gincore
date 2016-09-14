@@ -934,12 +934,15 @@ class accountings extends Controller
                 $out .= '
                     <div class="form-group">
                         <label>' . l('Телефон') . '</label>
-                        <input type="text" name="phone" class="form-control">
+                        <input '. input_phone_mask_attr() .'type="text" name="phone" class="form-control">
                     </div>
                     <div class="form-group">
                         <label>' . l('Эл. адрес') . '</label>
                         <input type="text" name="email" class="form-control">
                     </div>
+                    <script>
+                    jQuery(document).ready(function(){init_input_masks();})
+                    </script>
                 ';
             }
             if (!$wrap_form) {
