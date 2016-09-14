@@ -19,7 +19,7 @@ class Brands extends Migration
                 $table->string('title');
             });
         }
-        if (!Schema::hasColumn('orders', 'engineer_comment')) {
+        if (!Schema::hasColumn('orders', 'brand_id')) {
             Schema::table('orders', function ($table) {
                 $table->integer('brand_id')->integer(10)->unsigned();
                 $table->index('brand_id');
