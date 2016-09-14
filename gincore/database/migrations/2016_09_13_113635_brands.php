@@ -18,6 +18,18 @@ class Brands extends Migration
                 $table->increments('id');
                 $table->string('title');
             });
+
+            DB::table('brands')->insert(array(
+                array(
+                    'title' => 'LQ',
+                ),
+                array(
+                    'title' => 'Apple',
+                ),
+                array(
+                    'title' => 'Samsung',
+                ),
+            ));
         }
         if (!Schema::hasColumn('orders', 'brand_id')) {
             Schema::table('orders', function ($table) {

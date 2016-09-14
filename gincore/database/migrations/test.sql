@@ -308,3 +308,4 @@ CREATE TABLE IF NOT EXISTS `restore4_brands` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 ALTER TABLE `restore4_orders` ADD COLUMN brand_id int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_orders` ADD INDEX orders_brand_id(brand_id);
+INSERT INTO `restore4_brands` (title) VALUES ('LG'), ('Apple'), ('Samsung');
