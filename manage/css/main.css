@@ -1221,3 +1221,11 @@ table.table-vpaddingless tr td.arrow{
 .editable-click {
     cursor: pointer;
 }
+.hide-sidebar .blinking{
+    animation:blinking 3s infinite;
+}
+@keyframes blinking{
+    0%{color:rgba(0, 0, 0, 1);}
+    50%{color:rgba(0, 0, 0, 0);}
+    100%{color:rgba(0, 0, 0, 1);}
+}
