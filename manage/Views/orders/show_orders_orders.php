@@ -1,5 +1,7 @@
 <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
 <?php if ($orders && count($orders) > 0): ?>
+    <div style="overflow-x: auto">
+
     <table class="table table-striped table-fs-12">
         <thead>
         <?php if ($debts > 0 || $urgent > 0): ?>
@@ -102,6 +104,7 @@
         <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 
 
     <?= page_block($count_page, $count, '#show_orders', null,
