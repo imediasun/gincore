@@ -640,9 +640,9 @@ class Clients extends Object
         $phones = array();
 
         if ($user_id > 0) {
-            $phones = $this->all_configs['db']->query('SELECT p.id, p.phone FROM {clients_phones} as p, {clients} as c
-                    WHERE p.client_id=?i AND c.id=p.client_id',
-                array($user_id))->vars();
+            $phones = $this->all_configs['db']->query('
+                SELECT p.id, p.phone FROM {clients_phones} as p WHERE p.client_id=?i
+            ', array($user_id))->vars();
         }
 
         return $show_inputs ? $this->view->renderFile('clients/phones', array(

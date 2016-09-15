@@ -77,6 +77,14 @@ abstract class Controller extends Object
     }
 
     /**
+     * @return mixed|string
+     */
+    public function getNotCanShowModuleError()
+    {
+        return l('У Вас не достаточно прав');
+    }
+
+    /**
      * @return string
      */
     public function render()
@@ -85,7 +93,8 @@ abstract class Controller extends Object
 
         if (!$this->can_show_module()) {
             if ($this->isAjax($this->all_configs['arrequest'])) {
-                Response::json(array('message' => l('У Вас не достаточно прав'), 'state' => false));
+
+                Response::json(array('message' => $this->getNotCanShowModuleError(), 'state' => false));
             } else {
                 return $this->renderCanShowModuleError();
             }

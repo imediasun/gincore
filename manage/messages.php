@@ -354,7 +354,6 @@ if ($act == 'edit-supplier-order-comment') {
 // редактирование комментария приходной накладной
 if ($act == 'edit-purchase-invoice-comment') {
     if (isset($_POST['pk']) && isset($_POST['value'])) {
-        Log::dump($_POST);
         $data['element_id'] = 'supplier-order-comment-' . $_POST['pk'];
         $data['element_value'] = cut_string(trim($_POST['value']), 25);
         $all_configs['db']->query('UPDATE {purchase_invoices} SET description=? WHERE id=?i',

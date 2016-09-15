@@ -164,6 +164,10 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'value' => isset($client['note']) ? $client['note'] : '',
                     'name' => l('Клиент (примечания)')
                 ),
+                'tech_report'=> array(
+                    'value' => isset($order['engineer_comment']) ? $order['engineer_comment'] : '',
+                    'name' => l('Заключение инженера')
+                ),
             );
             $arr['repair']['value'] = $order['repair'] == 0 ? 'Платный' : $arr['repair']['value'];
             $arr['repair']['value'] = $order['repair'] == 1 ? 'Гарантийный' : $arr['repair']['value'];

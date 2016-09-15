@@ -1,5 +1,5 @@
 <tr class="remove-marked-object">
-    <td class="floatleft">
+    <td class="floatleft <?= isset($columns['npp'])?'': 'hide' ?>">
         <?php if ($order['home_master_request'] == 1): ?>
             <i style="color:<?= $color ?>; font-size: 10px"
                title="<?= $order['hmr_address'] ?>, <?= $order['hmr_date'] ?>"
@@ -16,20 +16,21 @@
                href="<?= $this->all_configs['prefix'] ?>orders/create/<?= $order['order_id'] . $get ?>"></a>
         <?php endif; ?>
     </td>
-    <td><?= timerout($order['order_id']) ?></td>
-    <td><span title="<?= do_nice_date($order['date'], false) ?>"><?= do_nice_date($order['date']) ?></span></td>
-    <td><?= get_user_name($order, 'a_') ?></td>
-    <td>
+    <td class="<?= isset($columns['notice'])?'': 'hide' ?>"><?= timerout($order['order_id']) ?></td>
+    <td class="<?= isset($columns['date'])?'': 'hide' ?>"><span title="<?= do_nice_date($order['date'], false) ?>"><?= do_nice_date($order['date']) ?></span></td>
+    <td class="<?= isset($columns['accepter'])?'': 'hide' ?>" title="<?= get_user_name($order, 'a_') ?>"><?= mb_strimwidth(get_user_name($order, 'a_'), 0, 30, "...") ?></td>
+    <td class="<?= isset($columns['manager'])?'': 'hide' ?>" title="<?= get_user_name($order, 'h_') ?>">
         <?php if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
             <form method="post" action="<?= $this->all_configs['prefix'] ?>orders/create/<?= $order['order_id'] ?>">
                 <input name="accept-manager" type="submit" class="btn btn-accept" value="<?= l('Взять заказ') ?>"/>
                 <input type="hidden" name="id" value="<?= $order['order_id'] ?>"/>
             </form>
         <?php else: ?>
-            <?= get_user_name($order, 'h_') ?>
+            <?= mb_strimwidth(get_user_name($order, 'h_'), 0, 30, "...") ?>
         <?php endif; ?>
     </td>
-    <td class="center order-status-col">
+    <td class="<?= isset($columns['engineer'])?'': 'hide' ?>" title="<?= get_user_name($order, 'e_') ?>"><?= mb_strimwidth(get_user_name($order, 'e_'), 0, 30, "...") ?></td>
+    <td class="center order-status-col <?= isset($columns['status'])?'': 'hide' ?>">
         <?= $this->renderFile('orders/_sale_order_status', array(
             'active' => $order['status'],
             'orderId' => $order['order_id'],
@@ -38,23 +39,49 @@
             'type' => 'repair'
         )); ?>
     </td>
-    <td class="center"><?= $ordered ?></td>
-    <td><?= h($order['product']) ?> <?= h($order['note']) ?></td>
+    <td class="center <?= isset($columns['components'])?'': 'hide' ?>"><?= $ordered ?></td>
+    <td class="<?= isset($columns['device'])?'': 'hide' ?>" title="<?=  h($order['product']) . h($order['note']) ?>"><?= mb_strimwidth(h($order['product']) . h($order['note']), 0, 50, "...") ?></td>
 
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
-        <td class="center <?= ($order['discount'] > 0 ? 'text-danger' : '') ?>"><?= ($order['sum'] / 100) ?> </td>
-        <td class="center"><?= ($order['sum_paid'] / 100) ?></td>
+        <td class="center <?= ($order['discount'] > 0 ? 'text-danger' : '') ?> <?= isset($columns['amount'])?'': 'hide' ?>"><?= ($order['sum'] / 100) ?> </td>
+        <td class="center <?= isset($columns['paid'])?'': 'hide' ?>"><?= ($order['sum_paid'] / 100) ?></td>
     <?php else: ?>
         <td class="center"><?= ($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? l('да') : '' ?></td>
     <?php endif; ?>
-    <td> <?= h($order['o_fio']) ?> </td>
-    <td>
+    <td class="<?= isset($columns['client'])?'': 'hide' ?>" title="<?= h($order['o_fio']) ?>"> <?= mb_strimwidth(h($order['o_fio']), 0, 30, "...") ?> </td>
+    <td class="<?= isset($columns['phone'])?'': 'hide' ?>">
         <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
             <?= $order['o_phone'] ?>
         <?php endif; ?>
     </td>
-    <td class="<?= $order['urgent'] == 1 ? 'text-danger' : '' ?>">
+    <td class="<?= $order['urgent'] == 1 ? 'text-danger' : '' ?> <?= isset($columns['terms'])?'': 'hide' ?>">
         <?= ($order['urgent'] == 1) ? l('Срочно') : l('Не срочно') ?>
     </td>
-    <td><?= h($order['wh_title']) . ' ' . h($order['location']) ?></td>
+    <td class="<?= isset($columns['location'])?'': 'hide' ?>"><?= h($order['wh_title']) . ' ' . h($order['location']) ?></td>
+    <td class="<?= isset($columns['sn'])?'': 'hide' ?>">
+        <?= h($order['serial']) ?>
+    </td>
+    <td class="<?= isset($columns['repair'])?'': 'hide' ?>">
+        <?php
+        switch ($order['repair']) {
+            case 1:
+                echo l('Гарантийный');
+                break;
+            case 2:
+                echo l('Доработка');
+                break;
+            default:
+                echo l('Платный');
+        } ?>
+    </td>
+    <td class="<?= isset($columns['date_end'])?'': 'hide' ?>">
+        <?= do_nice_date($order['date_readiness']) ?>
+    </td>
+    <td class="<?= isset($columns['warranty'])?'': 'hide' ?>">
+        <?= h($order['warranty']) ?>
+    </td>
+    <td class="<?= isset($columns['adv_channel'])?'': 'hide' ?>">
+        <?= get_service('crm/calls')->get_referrer($order['referer_id']) ?>
+    </td>
+    <td></td>
 </tr>

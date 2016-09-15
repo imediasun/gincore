@@ -59,6 +59,7 @@ try {
         </li>
     ';
     }
+    $input['main_menu'] = l('Главное меню');
 // добавляем переводы в шаблон
     $input = array_merge($input, $manage_translates);
 

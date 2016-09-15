@@ -1,7 +1,8 @@
 <?php namespace services\crm;
 
-class calls extends \service{
-    /** @var \View  */
+class calls extends \service
+{
+    /** @var \View */
     protected $view;
 
     private static $instance = null;
@@ -9,7 +10,8 @@ class calls extends \service{
     // id c АТС
     private $call_types;
 
-    private function set_call_types(){
+    private function set_call_types()
+    {
         $this->call_types = array(
             null => l('Завершен'),
             0 => l('Новый'),
@@ -18,12 +20,13 @@ class calls extends \service{
             3 => l('Пропущен'),
         );
     }
-    
+
     // форма и кнопка создания нового звонка
     /**
      * @return string
      */
-    public function create_call_form(){
+    public function create_call_form()
+    {
         return $this->view($this->view->renderFile('services/crm/calls/create_call_form', array(
             'all_configs' => $this->all_configs
         )));
@@ -34,8 +37,9 @@ class calls extends \service{
      * @param $client_id
      * @return string
      */
-    public function calls_list_table($client_id){
-        $list_items = $this->calls_list($client_id, function($call){
+    public function calls_list_table($client_id)
+    {
+        $list_items = $this->calls_list($client_id, function ($call) {
             return $this->view->renderFile('services/crm/calls/user_calls_list', array(
                 'call' => $call,
                 'all_configs' => $this->all_configs,
@@ -62,11 +66,12 @@ class calls extends \service{
     /**
      * @return string
      */
-    public function get_all_calls_list(){
+    public function get_all_calls_list()
+    {
         $count_on_page = count_on_page();
         $referrers = $this->get_referers();
         $tags = $this->getTags();
-        $list_data = $this->calls_list(null, function($call) use ($referrers, $tags){
+        $list_data = $this->calls_list(null, function ($call) use ($referrers, $tags) {
             return $this->view->renderFile('services/crm/calls/calls_list', array(
                 'referrers' => $referrers,
                 'call' => $call,
@@ -88,10 +93,22 @@ class calls extends \service{
     /**
      * @return mixed
      */
-    public function get_referers(){
+    public function get_referers()
+    {
         $r = $this->all_configs['db']->query("SELECT id, name FROM {crm_referers} ORDER BY name")->vars();
         $r[0] = $r[''] = l('нет');
         return $r;
+    }
+
+    /**
+     * @param $referrerId
+     * @return string
+     */
+    public function get_referrer($referrerId)
+    {
+        $referrer = $this->all_configs['db']->query("SELECT name FROM {crm_referers} WHERE id=?i",
+            array($referrerId))->el();
+        return empty($referrer) ? '' : $referrer;
     }
 
     // выпадающий список источников
@@ -102,12 +119,13 @@ class calls extends \service{
      * @param string $addClass
      * @return string
      */
-    public function get_referers_list($active = 0, $multi = '', $disabled = false, $addClass = ''){
+    public function get_referers_list($active = 0, $multi = '', $disabled = false, $addClass = '')
+    {
         $statuses_opts = '<option value="0">' . l('нет') . '</option>';
         $referers = $this->get_referers();
-        foreach($referers as $id => $name){
-            if($id){
-                $statuses_opts .= '<option'.($active == $id ? ' selected' : '').' value="'.$id.'">'.$name.'</option>';
+        foreach ($referers as $id => $name) {
+            if ($id) {
+                $statuses_opts .= '<option' . ($active == $id ? ' selected' : '') . ' value="' . $id . '">' . $name . '</option>';
             }
         }
         return '<select' . ($disabled ? ' disabled' : '') . ' name="referer_id' . ($multi ? '[' . $multi . ']' : '') . '" class="form-control ' . $addClass . '">' . $statuses_opts . '</select>';
@@ -119,11 +137,12 @@ class calls extends \service{
      * @param null $call_id
      * @return string
      */
-    public function calls_list_select($client_id, $call_id = null){
-        $list_items = $this->calls_list($client_id, function($call) use ($call_id){
-            return '<option'.($call_id == $call['id'] ? ' selected' : '').' value="'.$call['id'].'">id '.$call['id'].', '.$call['date'].'</option>';
+    public function calls_list_select($client_id, $call_id = null)
+    {
+        $list_items = $this->calls_list($client_id, function ($call) use ($call_id) {
+            return '<option' . ($call_id == $call['id'] ? ' selected' : '') . ' value="' . $call['id'] . '">id ' . $call['id'] . ', ' . $call['date'] . '</option>';
         });
-        return '<select name="call_id"><option value="0">' . l('Выберите') . '</option>'.$list_items.'</select>';
+        return '<select name="call_id"><option value="0">' . l('Выберите') . '</option>' . $list_items . '</select>';
     }
 
     // массив данных о звонке
@@ -131,11 +150,12 @@ class calls extends \service{
      * @param $id
      * @return mixed
      */
-    public function get_call($id){
+    public function get_call($id)
+    {
         return $this->all_configs['db']->query("SELECT c.*, IF(u.fio = '',u.email,u.fio) as operator_fio "
-                                              ."FROM {crm_calls} as c "
-                                              ."LEFT JOIN {users} as u ON u.id = c.operator_id "
-                                              ."WHERE c.id = ?i", array($id), 'row');
+            . "FROM {crm_calls} as c "
+            . "LEFT JOIN {users} as u ON u.id = c.operator_id "
+            . "WHERE c.id = ?i", array($id), 'row');
     }
 
     // массив звонков клиента или всех если клиент нулл
@@ -144,35 +164,37 @@ class calls extends \service{
      * @param bool $use_pages
      * @return array
      */
-    private function get_calls($client_id, $use_pages = false){
-        if($use_pages){
+    private function get_calls($client_id, $use_pages = false)
+    {
+        if ($use_pages) {
             $count_on_page = count_on_page();
             $skip = (isset($_GET['p']) && $_GET['p'] > 0) ? ($count_on_page * ($_GET['p'] - 1)) : 0;
             $limit_query = $this->all_configs['db']->makeQuery(" LIMIT ?i, ?i", array($skip, $count_on_page));
-        }else{
+        } else {
             $limit_query = '';
         }
 
         //$client_id_q = 'ORDER BY open_requests DESC, c.date DESC';
         $client_id_q = 'ORDER BY c.date DESC';
-        if(!is_null($client_id)){
-            $client_id_q = $this->all_configs['db']->makeQuery("WHERE client_id = ?i ORDER BY date DESC ", array($client_id));
+        if (!is_null($client_id)) {
+            $client_id_q = $this->all_configs['db']->makeQuery("WHERE client_id = ?i ORDER BY date DESC ",
+                array($client_id));
         }
         $items = $this->all_configs['db']->query("SELECT c.*, cp.fio as client_fio, cp.phone, IF(c.phone = '' OR c.phone IS NULL, cp.phone, c.phone) as phone, vc.visitor_id, "
-                                                    . "IF(u.fio = '',u.email,u.fio) as operator_fio, cp.tag_id as tag_id  "
-                                                    . ", (SELECT COUNT(*) FROM {crm_requests} WHERE call_id = c.id AND active = 1) as open_requests "
-                                              ."FROM {crm_calls} as c "
-                                              ."LEFT JOIN {clients} as cp ON cp.id = c.client_id "
-                                              ."LEFT JOIN {visitors_code} as vc ON vc.code = c.code "
-                                              ."LEFT JOIN {users} as u ON u.id = c.operator_id ?q".$limit_query,
-                                              array($client_id_q), 'assoc:id');
-        if($use_pages){
+            . "IF(u.fio = '',u.email,u.fio) as operator_fio, cp.tag_id as tag_id  "
+            . ", (SELECT COUNT(*) FROM {crm_requests} WHERE call_id = c.id AND active = 1) as open_requests "
+            . "FROM {crm_calls} as c "
+            . "LEFT JOIN {clients} as cp ON cp.id = c.client_id "
+            . "LEFT JOIN {visitors_code} as vc ON vc.code = c.code "
+            . "LEFT JOIN {users} as u ON u.id = c.operator_id ?q" . $limit_query,
+            array($client_id_q), 'assoc:id');
+        if ($use_pages) {
             $count = $this->all_configs['db']->query("SELECT COUNT(*) "
-                                              ."FROM {crm_calls} as c "
-                                              ."LEFT JOIN {users} as u ON u.id = c.operator_id ?q",
-                                              array($client_id_q), 'el');
+                . "FROM {crm_calls} as c "
+                . "LEFT JOIN {users} as u ON u.id = c.operator_id ?q",
+                array($client_id_q), 'el');
             return array($items, $count);
-        }else{
+        } else {
             return $items;
         }
     }
@@ -183,19 +205,20 @@ class calls extends \service{
      * @param bool     $use_pages
      * @return array|string
      */
-    private function calls_list($client_id, callable $callback, $use_pages = false){
+    private function calls_list($client_id, callable $callback, $use_pages = false)
+    {
         $calls = $this->get_calls($client_id, $use_pages);
-        if($use_pages){
+        if ($use_pages) {
             $count = $calls[1];
             $calls = $calls[0];
         }
         $list = '';
-        foreach($calls as $call){
+        foreach ($calls as $call) {
             $list .= $callback($call);
         }
-        if($use_pages){
+        if ($use_pages) {
             return array($list, $count);
-        }else{
+        } else {
             return $list;
         }
     }
@@ -207,11 +230,12 @@ class calls extends \service{
      * @param bool   $set_operator
      * @return mixed
      */
-    public function create_call($client_id, $call_type = 'null', $phone = '', $set_operator = true){
+    public function create_call($client_id, $call_type = 'null', $phone = '', $set_operator = true)
+    {
         $operator_id = $set_operator && isset($_SESSION['id']) ? $_SESSION['id'] : '';
         return $this->all_configs['db']->query(
-                        "INSERT INTO {crm_calls}(phone,type,client_id,operator_id,date) "
-                       ."VALUES (?,?q,?i,?i,NOW())", array($phone,$call_type,$client_id,$operator_id), 'id');
+            "INSERT INTO {crm_calls}(phone,type,client_id,operator_id,date) "
+            . "VALUES (?,?q,?i,?i,NOW())", array($phone, $call_type, $client_id, $operator_id), 'id');
     }
 
     /**
@@ -219,25 +243,26 @@ class calls extends \service{
      * @param string $call_type
      * @return bool|mixed
      */
-    public function create_call_by_phone($phone, $call_type = 'null'){
+    public function create_call_by_phone($phone, $call_type = 'null')
+    {
         require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
         $access = new \access($this->all_configs, false);
         $serach_phone = $access->is_phone($phone);
-        if($serach_phone !== false){
+        if ($serach_phone !== false) {
             $serach_phone = $serach_phone[0];
             $client_id = $this->all_configs['db']->query(
-                            "SELECT c.id "
-                           ."FROM {clients} as c "
-                           ."LEFT JOIN {clients_phones} as p ON p.client_id = c.id "
-                           ."WHERE c.phone LIKE '%?e' OR p.phone LIKE '%?e'"
-                           ."LIMIT 1", array($serach_phone, $serach_phone), 'el');
-            if(!$client_id){
+                "SELECT c.id "
+                . "FROM {clients} as c "
+                . "LEFT JOIN {clients_phones} as p ON p.client_id = c.id "
+                . "WHERE c.phone LIKE '%?e' OR p.phone LIKE '%?e'"
+                . "LIMIT 1", array($serach_phone, $serach_phone), 'el');
+            if (!$client_id) {
                 $u = $access->registration(array('phone' => $phone));
-                if($u['id'] > 0){
+                if ($u['id'] > 0) {
                     $client_id = $u['id'];
                 }
             }
-            if($client_id) {
+            if ($client_id) {
                 return $this->create_call($client_id, $call_type, $serach_phone, false);
             }
         }
@@ -248,16 +273,17 @@ class calls extends \service{
      * @param $code
      * @return bool
      */
-    public function code_exists($code){
+    public function code_exists($code)
+    {
         $c = mb_strtoupper($code, 'UTF-8');
         $code_exists = $this->all_configs['db']->query(
-                            "SELECT SUM(t.c) FROM ("
-                               ."SELECT count(*) as c "
-                               ."FROM {visitors_code} WHERE code = ? "
-                               ."UNION "
-                               ."SELECT count(*) as c "
-                               ."FROM {visitors_system_codes} WHERE code = ?"
-                            .") AS t ", array($c, $c), 'el');
+            "SELECT SUM(t.c) FROM ("
+            . "SELECT count(*) as c "
+            . "FROM {visitors_code} WHERE code = ? "
+            . "UNION "
+            . "SELECT count(*) as c "
+            . "FROM {visitors_system_codes} WHERE code = ?"
+            . ") AS t ", array($c, $c), 'el');
         return !!$code_exists;
     }
 
@@ -265,10 +291,11 @@ class calls extends \service{
      * @param $data
      * @return array
      */
-    public function ajax($data){
+    public function ajax($data)
+    {
         $response = array();
         $operator_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-        switch($data['action']){
+        switch ($data['action']) {
             // создаем звонок
             case 'new_call':
                 $phone = !empty($data['clients-value']) ? $data['clients-value'] : null;
@@ -276,33 +303,33 @@ class calls extends \service{
 //                $code = !empty($data['code']) ? $data['code'] : null;
 //                $referer_id = !empty($data['referer_id']) ? $data['referer_id'] : null;
 //                if($code || $referer_id){
-                    // создаем нового клиента
-                    if(!$client_id && $phone){
-                        if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
-                            $response['state'] = false;
-                            $response['msg'] = l('У Вас недостаточно прав для создания нового клиента');
-                        }
-                        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                        $access = new \access($this->all_configs, false);
-                        $_POST['phone'] = $phone;
-                        $u = $access->registration($_POST);
-                        if ($u['id'] > 0) {
-                            $client_id = $u['id'];
-                        }else{
-                            $response['state'] = false;
-                            $response['msg'] = l('Ошибка. Клиент не создан:').' '.$u['msg'];
-                        }
+                // создаем нового клиента
+                if (!$client_id && $phone) {
+                    if (!$this->all_configs['oRole']->hasPrivilege('edit-clients-orders')) {
+                        $response['state'] = false;
+                        $response['msg'] = l('У Вас недостаточно прав для создания нового клиента');
                     }
-                    if($client_id){
-                        $id = $this->create_call($client_id/*, $code, $referer_id*/);
-                        $response['state'] = true;
-                        $response['redirect'] = $this->all_configs['prefix'].'clients/create/'.$client_id.'/?new_call='.$id;
+                    require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+                    $access = new \access($this->all_configs, false);
+                    $_POST['phone'] = $phone;
+                    $u = $access->registration($_POST);
+                    if ($u['id'] > 0) {
+                        $client_id = $u['id'];
+                    } else {
+                        $response['state'] = false;
+                        $response['msg'] = l('Ошибка. Клиент не создан:') . ' ' . $u['msg'];
                     }
+                }
+                if ($client_id) {
+                    $id = $this->create_call($client_id/*, $code, $referer_id*/);
+                    $response['state'] = true;
+                    $response['redirect'] = $this->all_configs['prefix'] . 'clients/create/' . $client_id . '/?new_call=' . $id;
+                }
 //                }else{
 //                    $response['state'] = false;
 //                    $response['msg'] = 'Укажите код или канал';
 //                }
-            break;
+                break;
             // апдейтим все звонки
             case 'save_calls':
                 $client_id = !empty($data['client_id']) ? $data['client_id'] : null;
@@ -311,44 +338,55 @@ class calls extends \service{
                 $calls = $this->get_calls($client_id);
                 $referers = $this->get_referers();
                 $response['state'] = true;
-                foreach($referer_ids as $call_id => $referer_id){
-                    if(!isset($calls[$call_id])) continue;
+                foreach ($referer_ids as $call_id => $referer_id) {
+                    if (!isset($calls[$call_id])) {
+                        continue;
+                    }
                     $new_referer_id = $referer_id;
                     $new_code = $codes[$call_id];
                     $changes = array();
-                    if((int)$referer_id && $new_referer_id != $calls[$call_id]['referer_id']){
+                    if ((int)$referer_id && $new_referer_id != $calls[$call_id]['referer_id']) {
                         $changes[] = $this->all_configs['db']->makeQuery(
                             '(?i, ?, null, ?i, ?)',
-                                array($operator_id, 'crm-call-change-referer_id', $call_id,
-                                      $referers[$calls[$call_id]['referer_id']].' ==> '.$referers[$new_referer_id])
+                            array(
+                                $operator_id,
+                                'crm-call-change-referer_id',
+                                $call_id,
+                                $referers[$calls[$call_id]['referer_id']] . ' ==> ' . $referers[$new_referer_id]
+                            )
                         );
                     }
-                    if($new_code != $calls[$call_id]['code']){
+                    if ($new_code != $calls[$call_id]['code']) {
                         $changes[] = $this->all_configs['db']->makeQuery(
                             '(?i, ?, null, ?i, ?)',
-                                array($operator_id, 'crm-call-change-code', $call_id,
-                                      ($calls[$call_id]['code'] ?: l('нет')).' ==> '.$new_code)
+                            array(
+                                $operator_id,
+                                'crm-call-change-code',
+                                $call_id,
+                                ($calls[$call_id]['code'] ?: l('нет')) . ' ==> ' . $new_code
+                            )
                         );
                     }
-                    if($changes){
+                    if ($changes) {
                         $this->all_configs['db']->query(
                             'INSERT INTO {changes}(user_id, work, map_id, object_id, `change`) VALUES ?q',
-                                array(implode(',', $changes))
+                            array(implode(',', $changes))
                         );
                     }
                     $new_code = $new_code ? $this->all_configs['db']->makeQuery(" ? ", array($new_code)) : 'null';
-                    $new_referer_id = $new_referer_id ? $this->all_configs['db']->makeQuery(" ?i ", array($new_referer_id)) : 'null';
+                    $new_referer_id = $new_referer_id ? $this->all_configs['db']->makeQuery(" ?i ",
+                        array($new_referer_id)) : 'null';
                     $this->all_configs['db']->query(
                         "UPDATE {crm_calls} SET code = ?q, referer_id = ?q WHERE id = ?i",
-                            array($new_code, $new_referer_id, $call_id)
+                        array($new_code, $new_referer_id, $call_id)
                     );
                 }
-            break;
+                break;
             // проверка кода на существование при создании звонка
             case 'check_code':
                 $code = isset($_POST['code']) ? trim($_POST['code']) : '';
                 $response['state'] = $this->code_exists($code);
-            break;
+                break;
         }
         return $response;
     }
@@ -357,8 +395,9 @@ class calls extends \service{
      * @param $content
      * @return string
      */
-    private function view($content){
-        if(!isset($this->assets_added)){
+    private function view($content)
+    {
+        if (!isset($this->assets_added)) {
             $this->assets_added = true;
             $content .= $this->assets();
         }
@@ -368,19 +407,21 @@ class calls extends \service{
     /**
      * @return string
      */
-    public function assets(){
+    public function assets()
+    {
         return '
-            <link rel="stylesheet" href="'.$this->all_configs['prefix'].'services/crm/calls/css/main.css?1">
-            <script type="text/javascript" src="'.$this->all_configs['prefix'].'services/crm/calls/js/jquery.maskedinput.min.js"></script>
-            <script type="text/javascript" src="'.$this->all_configs['prefix'].'services/crm/calls/js/main.js?2"></script>
+            <link rel="stylesheet" href="' . $this->all_configs['prefix'] . 'services/crm/calls/css/main.css?1">
+            <script type="text/javascript" src="' . $this->all_configs['prefix'] . 'services/crm/calls/js/jquery.maskedinput.min.js"></script>
+            <script type="text/javascript" src="' . $this->all_configs['prefix'] . 'services/crm/calls/js/main.js?2"></script>
         ';
     }
 
     /**
      * @return null|calls
      */
-    public static function getInstanse(){
-        if(is_null(self::$instance)){
+    public static function getInstanse()
+    {
+        if (is_null(self::$instance)) {
             self::$instance = new self();
             self::$instance->set_call_types();
         }
@@ -390,7 +431,8 @@ class calls extends \service{
     /**
      * calls constructor.
      */
-    private function __construct(){
+    private function __construct()
+    {
         $this->view = new \View();
     }
 }

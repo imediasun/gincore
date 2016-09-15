@@ -203,7 +203,21 @@ class orders extends Controller
             }
             if (isset($post['repair']) && !empty($post['repair'])) {
                 // фильтр по статусу
-                $url['rep'] = implode(',', $post['repair']);
+                $repair = array();
+                if (in_array('pay', $post['repair'])) {
+                    $repair[] = 0;
+                    array_shift($post['repair']);
+                }
+                if (in_array('wa', $post['repair'])) {
+                    $repair[] = 1;
+                    array_shift($post['repair']);
+                }
+                if (!empty($repair)) {
+                    $url['rep'] = implode(',', $repair);
+                }
+                if (!empty($post['repair'])) {
+                    $url['brands'] = implode(',', $post['repair']);
+                }
             }
             if (isset($post['person']) && !empty($post['person'])) {
                 // фильтр по статусу
@@ -276,6 +290,11 @@ class orders extends Controller
                     $hash = '#show_orders-orders';
             }
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url)) . $hash);
+        }
+
+        if (isset($post['repair-order-table-columns'])) {
+            $this->LockFilters->toggle('repair-order-table-columns', $_POST);
+            Response::redirect(Response::referrer());
         }
 
         // принимаем заказ
@@ -519,7 +538,8 @@ class orders extends Controller
             'count_unworked' => $count_unworked,
             'date' => $date,
             'link' => $link,
-            'wfs' => isset($wfs) ? $wfs : array()
+            'wfs' => isset($wfs) ? $wfs : array(),
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
         ));
     }
 
@@ -637,6 +657,26 @@ class orders extends Controller
         $count_page = ceil($count / $this->count_on_page);
 
         $this->view->load('DisplayOrder');
+        $columns = $this->LockFilters->load('repair-order-table-columns');
+        if (empty($columns) || count($columns) == 1) {
+            $columns = array(
+                'npp' => 'on',
+                'notice' => 'on',
+                'date' => 'on',
+                'accepter' => 'on',
+                'manager' => 'on',
+                'status' => 'on',
+                'components' => 'on',
+                'device' => 'on',
+                'amount' => 'on',
+                'paid' => 'on',
+                'client' => 'on',
+                'phone' => 'on',
+                'terms' => 'on',
+                'location' => 'on',
+            );
+            $this->LockFilters->toggle('repair-order-table-columns', $columns);
+        }
         return array(
             'html' => $this->view->renderFile('orders/show_orders_orders', array(
                 'count' => $count,
@@ -645,7 +685,8 @@ class orders extends Controller
                 'filters' => $filters,
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
                 'urgent' => $this->Orders->getUrgentCount(),
-                'debts' => $this->Orders->getDebts()
+                'debts' => $this->Orders->getDebts(),
+                'columns' => $columns
             )),
             'functions' => array(),
         );
@@ -783,7 +824,8 @@ class orders extends Controller
                     $this->all_configs['configs']['host']),
                 'users_fields' => $this->getUsersFields(),
                 'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
-                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer')
+                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer'),
+                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
             ));
         }
 
@@ -1622,7 +1664,7 @@ class orders extends Controller
         $order = $this->all_configs['db']->query('SELECT o.*, o.color as o_color, l.location, w.title as wh_title, gr.color, tp.icon,
                 u.fio as m_fio, u.phone as m_phone, u.login as m_login, u.email as m_email,
                 a.fio as a_fio, a.phone as a_phone, a.login as a_login, a.email as a_email, aw.title as aw_title, c.tag_id as tag_id,
-                c.legal_address as c_legal_address, c.email as c_email
+                c.legal_address as c_legal_address, c.email as c_email, o.engineer_comment
                 FROM {orders} as o
                 LEFT JOIN {clients} as c ON c.id=o.user_id
                 LEFT JOIN {users} as u ON u.id=o.manager
@@ -1746,6 +1788,7 @@ class orders extends Controller
             'price_type' => $price_type,
             'price_type_of_service' => $price_type_of_service,
             'print_templates' => $print_templates,
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
         ));
     }
 
@@ -2631,6 +2674,7 @@ class orders extends Controller
             $order = $this->changeWarranty($order, $mod_id);
             $order = $this->changeDevice($order, $mod_id);
             $order = $this->changeReturnId($order, $mod_id);
+            $order = $this->changeRepairType($order, $mod_id);
             // комментарии к заказам
             if ((!empty($_POST['private_comment']) || !empty($_POST['public_comment']))) {
                 $data = $this->updateOrderComments($order, $data);
@@ -2646,6 +2690,7 @@ class orders extends Controller
             }
             $order = $this->changeReplacement($order, $mod_id);
             $order = $this->changeClientTook($order, $mod_id);
+            $order = $this->changeEngineerComment($order, $mod_id);
 
             $order['notify'] = isset($_POST['notify']) ? 1 : 0;
             $order['nonconsent'] = isset($_POST['nonconsent']) ? 1 : 0;
@@ -3510,6 +3555,28 @@ class orders extends Controller
     }
 
     /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     */
+    private function changeEngineerComment($order, $mod_id)
+    {
+        $took = isset($_POST['engineer_comment']) ? trim($_POST['engineer_comment']) : '';
+        if ($took !== $order['engineer_comment']) {
+            $this->History->save(
+                'update-order-engineer_comment',
+                $mod_id,
+                $order['id'],
+                $took
+            );
+            $order['engineer_comment'] = $took;
+            $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer_comment',
+                $order['engineer_comment']);
+        }
+        return $order;
+    }
+
+    /**
      *
      */
     private function exportOrders()
@@ -3541,22 +3608,37 @@ class orders extends Controller
         $export = new ExportOrdersToXLS();
         $xls = $export->getXLS(l('Заказы'));
 
+        $columns = $this->LockFilters->load('repair-order-table-columns');
         if (in_array($currentOrderType, array(ORDER_REPAIR, ORDER_WRITE_OFF, ORDER_RETURN))) {
-            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
-                lq('N'),
-                lq('Дата'),
-                lq('Приемщик'),
-                lq('Менеджер'),
-                lq('Статус'),
-                lq('Запчасти'),
-                lq('Устройство'),
-                lq('Стоимость'),
-                lq('Оплачено'),
-                lq('Клиент'),
-                lq('Контактный телефон'),
-                lq('Сроки'),
-                lq('Склад'),
-            ));
+            $title = array();
+
+            foreach (array(
+                'npp' => 'N',
+                'notice' => 'Напоминания',
+                'date' => 'Дата',
+                'accepter' => 'Приемщик',
+                'manager' => 'Менеджер',
+                'engineer' => 'Инженер',
+                'status' => 'Статус',
+                'components' => 'Запчасти',
+                'device' => 'Устройство',
+                'amount' => 'Стоимость',
+                'paid' => 'Оплачено',
+                'client' => 'Клиент',
+                'phone' => 'Контактный телефон',
+                'terms' => 'Сроки',
+                'location' => 'Склад',
+                'sn' => 'Серийный номер',
+                'repair' => 'Тип ремонта',
+                'date_end' => 'Дата готовности',
+                'warranty' => 'Гарантия',
+                'adv_channel' => 'Рекламный канал'
+            ) as $item => $name) {
+                if (isset($columns[$item])) {
+                    $title[] = lq($name);
+                }
+            }
+            $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), $title);
         } else {
             $export->makeXLSTitle($xls, lq('Отфильтрованные заказы'), array(
                 lq('N'),
@@ -3575,7 +3657,11 @@ class orders extends Controller
             ));
         }
         if (!empty($orders)) {
-            $export->makeXLSBody($xls, array('orders' => $orders, 'type' => $currentOrderType));
+            $export->makeXLSBody($xls, array(
+                'orders' => $orders,
+                'type' => $currentOrderType,
+                'columns' => $columns
+            ));
         }
         $export->outputXLS($xls);
 
@@ -3649,5 +3735,73 @@ class orders extends Controller
             );
         }
         return $result;
+    }
+
+    /**
+     * @param $order
+     * @return mixed|string
+     */
+    private function getCurrentRepairType($order)
+    {
+        switch ($order['repair']) {
+            case 1:
+                $result = l('Гарантия');
+                $brand = $this->all_configs['db']->query('SELECT title FROM {brands} WHERE id=?i',
+                    array($order['brand_id']))->el();
+                if (!empty($brand)) {
+                    $result .= ' ' . $brand;
+                }
+                break;
+            case 2:
+                $result = l('Доработка');
+                break;
+            default:
+                $result = l('Платный');
+        }
+        return $result;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @return mixed
+     * @throws Exception
+     */
+    protected function changeRepairType($order, $mod_id)
+    {
+        $message = '';
+        $current = $this->getCurrentRepairType($order);
+        if (isset($_POST['repair'])) {
+            if ($_POST['repair'] == 'pay' && $order['repair'] != 0) {
+                $order['repair'] = 0;
+                $message = l('Платный');
+            }
+            if ($_POST['repair'] == 'rework' && $order['repair'] != 2) {
+                $order['repair'] = 2;
+                $message = l('Доработка');
+            }
+            if (is_numeric($_POST['repair'])) {
+                $brand = $this->all_configs['db']->query('SELECT title FROM {brands} WHERE id=?i',
+                    array($_POST['repair']))->el();
+                if ($order['repair'] != 1) {
+                    $order['repair'] = 1;
+                    $order['brand_id'] = $_POST['repair'];
+                    $message = l('Гарантия') . ' ' . $brand;
+                } elseif ($order['brand_id'] != $_POST['repair']) {
+                    $order['brand_id'] = $_POST['repair'];
+                    $message = l('Гарантия') . ' ' . $brand;
+                }
+            }
+            if (!empty($message)) {
+                $this->History->save(
+                    'update-order-repair-type',
+                    $mod_id,
+                    $this->all_configs['arrequest'][2],
+                    $current . '==>' . $message
+                );
+                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'repair_type', $message);
+            }
+        }
+        return $order;
     }
 }
