@@ -76,9 +76,14 @@ class master extends Object
             $countryIds[$country['name']] = $id;
         }
         ksort($countryIds, SORT_LOCALE_STRING);
+
+        $country = get_country_by_ip($_SERVER['REMOTE_ADDR']);
         $input_html['country_select'] = $view->renderFile('master/_country_select', array(
-            'countryIds' => $countryIds
+            'countryIds' => $countryIds,
+            'country_by_ip' => $country
         ));
+        $registered_site_name = db()->query('SELECT value FROM {settings} WHERE name="registered_site_name"')->el();
+        $input_html['registered_site_name'] = empty($registered_site_name)?'':h($registered_site_name);
     }
 
     /**
