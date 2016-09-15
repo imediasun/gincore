@@ -1461,6 +1461,10 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
             if (msg['btns']) {
               $('.bootbox-alert .modal-footer').prepend(msg['btns']);
             }
+          } else {
+            if(msg['message']) {
+              alert(msg['message']);
+            }
           }
           if (msg['functions'] && msg['functions'].length > 0) {
             for (i in msg['functions']) {

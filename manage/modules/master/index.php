@@ -243,6 +243,7 @@ class master extends Object
                         $user['fio'],
                         $user['position']
                     ))->id();
+                $this->db->query('INSERT IGNORE INTO {cashboxes_users} (user_id, cashbox_id) VALUES (?i, ?i)', array($user_id, SYSTEM_CASHBOX_MAIN_ID));
                 if ($user_id && isset($user['service']) && isset($added_services[$user['service']])) {
                     // прикрепляем в складу
                     $this->db->query("INSERT INTO {warehouses_users}(wh_id,location_id,user_id,main) VALUES(?i,?i,?i,1)",

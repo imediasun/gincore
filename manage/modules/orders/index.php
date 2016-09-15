@@ -658,7 +658,7 @@ class orders extends Controller
 
         $this->view->load('DisplayOrder');
         $columns = $this->LockFilters->load('repair-order-table-columns');
-        if (count($columns) == 1) {
+        if (empty($columns) || count($columns) == 1) {
             $columns = array(
                 'npp' => 'on',
                 'notice' => 'on',

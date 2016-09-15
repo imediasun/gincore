@@ -66,6 +66,14 @@ class accountings extends Controller
     }
 
     /**
+     * @return mixed|string
+     */
+    public function getNotCanShowModuleError()
+    {
+        return l('У Вас нет доступа к кассам. Доступ к кассам можно настроить в карточке пользователя или с помощью системы прав доступа');
+    }
+
+    /**
      * @return bool
      */
     public function can_show_module()
