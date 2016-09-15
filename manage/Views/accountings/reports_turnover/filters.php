@@ -46,7 +46,7 @@
                                         <div class="checkbox"><label>
                                                 <input type="checkbox" value="<?= $id ?>"
                                                        name="brands[]" <?= (isset($_GET['brands']) && in_array($id, explode(',', $_GET['brands']))) ? 'checked' : ''; ?> >
-                                                <?= l('Гарантия:') ?><?= $title ?>
+                                                <?= l('Гарантия:') ?>&nbsp;<?= $title ?>
                                             </label>
                                         </div>
                                     <?php endforeach; ?>
