@@ -18,18 +18,18 @@
     </td>
     <td class="<?= isset($columns['notice'])?'': 'hide' ?>"><?= timerout($order['order_id']) ?></td>
     <td class="<?= isset($columns['date'])?'': 'hide' ?>"><span title="<?= do_nice_date($order['date'], false) ?>"><?= do_nice_date($order['date']) ?></span></td>
-    <td class="<?= isset($columns['accepter'])?'': 'hide' ?>"><?= get_user_name($order, 'a_') ?></td>
-    <td class="<?= isset($columns['manager'])?'': 'hide' ?>">
+    <td class="<?= isset($columns['accepter'])?'': 'hide' ?>" title="<?= get_user_name($order, 'a_') ?>"><?= mb_strimwidth(get_user_name($order, 'a_'), 0, 30, "...") ?></td>
+    <td class="<?= isset($columns['manager'])?'': 'hide' ?>" title="<?= get_user_name($order, 'h_') ?>">
         <?php if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
             <form method="post" action="<?= $this->all_configs['prefix'] ?>orders/create/<?= $order['order_id'] ?>">
                 <input name="accept-manager" type="submit" class="btn btn-accept" value="<?= l('Взять заказ') ?>"/>
                 <input type="hidden" name="id" value="<?= $order['order_id'] ?>"/>
             </form>
         <?php else: ?>
-            <?= get_user_name($order, 'h_') ?>
+            <?= mb_strimwidth(get_user_name($order, 'h_'), 0, 30, "...") ?>
         <?php endif; ?>
     </td>
-    <td class="<?= isset($columns['engineer'])?'': 'hide' ?>"><?= get_user_name($order, 'e_') ?></td>
+    <td class="<?= isset($columns['engineer'])?'': 'hide' ?>" title="<?= get_user_name($order, 'e_') ?>"><?= mb_strimwidth(get_user_name($order, 'e_'), 0, 30, "...") ?></td>
     <td class="center order-status-col <?= isset($columns['status'])?'': 'hide' ?>">
         <?= $this->renderFile('orders/_sale_order_status', array(
             'active' => $order['status'],
@@ -40,7 +40,7 @@
         )); ?>
     </td>
     <td class="center <?= isset($columns['components'])?'': 'hide' ?>"><?= $ordered ?></td>
-    <td class="<?= isset($columns['device'])?'': 'hide' ?>"><?= h($order['product']) ?> <?= h($order['note']) ?></td>
+    <td class="<?= isset($columns['device'])?'': 'hide' ?>" title="<?=  h($order['product']) . h($order['note']) ?>"><?= mb_strimwidth(h($order['product']) . h($order['note']), 0, 50, "...") ?></td>
 
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="center <?= ($order['discount'] > 0 ? 'text-danger' : '') ?> <?= isset($columns['amount'])?'': 'hide' ?>"><?= ($order['sum'] / 100) ?> </td>

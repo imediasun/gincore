@@ -1,4 +1,4 @@
-<div class="btn-group">
+<div class="btn-group js-repair-order-column-filter" style="margin-left: 5px">
     <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="fa fa-cog" aria-hidden="true"></i> <i class="fa fa-caret-down"></i>
     </a>

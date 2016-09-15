@@ -1,5 +1,8 @@
 <div class="hidden js-filters"><?= $repairOrdersFilters ?></div>
 <?php if ($orders && count($orders) > 0): ?>
+    <?= $this->renderFile('orders/repair_order_column_filter', array(
+        'columns' => $columns
+    )) ?>
     <table class="table table-striped table-fs-12 table-of-repair-orders" width="100%">
         <thead>
         <?php if ($debts > 0 || $urgent > 0): ?>
@@ -43,7 +46,6 @@
                 <td class="<?= isset($columns['date_end']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['warranty']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['adv_channel']) ? '' : 'hide' ?>"></td>
-                <td></td>
             </tr>
         <?php endif; ?>
         <tr class="head">
@@ -90,11 +92,6 @@
             <td class="<?= isset($columns['adv_channel']) ? '' : 'hide' ?>">
                 <?= l('Рекламный канал') ?>
             </td>
-            <td>
-                <?= $this->renderFile('orders/repair_order_column_filter', array(
-                    'columns' => $columns
-                )) ?>
-            </td>
         </tr>
         </thead>
         <tbody id="table_clients_orders">
@@ -123,6 +120,7 @@
         jQuery(document).ready(function () {
             $('body').on('resize', toggle_menu);
             toggle_menu();
+            $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
         });
     </script>
 
@@ -135,3 +133,14 @@
         $("#tree").Tree();
     });
 </script>
+<style>
+    .hide_with_ellipsis {
+        white-space: nowrap; /* Отменяем перенос текста */
+        overflow: hidden; /* Обрезаем содержимое */
+        padding: 5px; /* Поля */
+        text-overflow: ellipsis; /* Многоточие */
+    }
+    .hide_with_ellipsis:hover {
+        white-space: normal; /* Обычный перенос текста */
+    }
+</style>
