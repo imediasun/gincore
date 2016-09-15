@@ -14,8 +14,8 @@
         </div>
         <div class="input-group" style="margin-right: 0">
             <input type="submit" class="btn btn-primary" value="<?= l('Фильтровать') ?>">
-            <button type="button" class="btn fullscreen"><i class="fa fa-arrows-alt"></i></button>
-            <button type="button" class="btn btn-primary"
+            <button type="button" class="btn fullscreen" style="margin-left: 2px;"><i class="fa fa-arrows-alt"></i></button>
+            <button type="button" class="btn btn-primary" style="margin-left: 2px;"
                     onclick="return manager_setup(this);"><?= l('Настройки') ?></button>
         </div>
     </form>

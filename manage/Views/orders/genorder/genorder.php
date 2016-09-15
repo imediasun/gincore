@@ -141,10 +141,6 @@
                                            class="form-control"/>
                                 </div>
                             </div>
-                            <div class="form-group clearfix <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
-                                <label><?= l('Комлектация') ?>:</label><br>
-                                <?= implode(', ', $parts) ?>
-                            </div>
 
                             <div class="form-group clearfix <?= !isset($hide['repair-type']) ? 'hide-field' : '' ?>">
                                 <label class="lh30">
@@ -162,6 +158,10 @@
                                     'brands' => $brands
                                 )); ?>
                                 </div>
+                            </div>
+                            <div class="form-group clearfix <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
+                                <label><?= l('Комлектация') ?>:</label><br>
+                                <?= implode(', ', $parts) ?>
                             </div>
                             <div class="form-group clearfix">
                                 <label><?= l('Сроки') ?>:</label>
