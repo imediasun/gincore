@@ -292,8 +292,13 @@ if (!function_exists('send_sms')) {
     {
         global $all_configs;
 
+        $result = false;
+        
         include_once $all_configs['sitepath'] . 'shop/turbosms.class.php';
 
+        //проверка провайдера, если не задано, действуем по старинке, думаем, что это turbosms
+        $sms_privider = (isset($all_configs['settings']['sms-provider']) && $all_configs['settings']['sms-provider']) ? trim($all_configs['settings']['sms-provider']) : 'turbosms';
+        
         if (is_null($sender)) {
             $from = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
         } else {
@@ -302,15 +307,54 @@ if (!function_exists('send_sms')) {
         $login = isset($all_configs['settings']['turbosms-login']) ? trim($all_configs['settings']['turbosms-login']) : '';
         $password = isset($all_configs['settings']['turbosms-password']) ? trim($all_configs['settings']['turbosms-password']) : '';
 
-        $turbosms = new turbosms($login, $password);
-        $result = array_values((array)$turbosms->send($from, '+' . $phone, $message));
+        if ($sms_privider == 'turbosms'){
+            $turbosms = new turbosms($login, $password);
+            $result = array_values((array)$turbosms->send($from, '+' . $phone, $message));
+            $result = is_array($result) && isset($result[0]) ? $result[0] : '';
+            
+            return array(
+                'state' => is_array($result),
+                'msg' => is_array($result) ? current($result) : $result
+            );
+        }
 
-        $result = is_array($result) && isset($result[0]) ? $result[0] : '';
+        if ($sms_privider == 'smsru'){
+            $ch = curl_init("http://sms.ru/sms/send");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
 
-        return array(
-            'state' => is_array($result),
-            'msg' => is_array($result) ? current($result) : $result
-        );
+                "api_id"=>	$password,
+                "to"    =>	$phone,
+                "text"	=>	$message,
+                "from"  =>  $from,
+                "partner_id" => 171701,
+                //'test' => 1
+            ));
+            $result = curl_exec($ch);
+            curl_close($ch);
+          
+            $msg = l('Ошибка');
+            if ($result == 100) $msg = l('Сообщение принято к отправке');
+            if ($result == 200) $msg = l('Неправильный api_id (пароль)');
+            if ($result == 201) $msg = l('Не хватает средств на лицевом счету');
+            if ($result == 202) $msg = l('Неправильно указан получатель');
+            if ($result == 202) $msg = l('Неправильно указан получатель');
+            if ($result == 204) $msg = l('Имя отправителя не согласовано с администрацией');
+            if ($result == 220) $msg = l('Сервис СМС временно недоступен, попробуйте чуть позже');
+            if ($result == 302) $msg = l('Пользователь авторизован, аккаунт не подтвержден (не введен код из смс)');
+
+            
+            return array(
+                'state' => ($result == 100 ? true : false),
+                'msg' => 'sms.ru: ' . $msg
+            );
+        }
+
+        //return array(
+        //    'state' => is_array($result),
+        //    'msg' => is_array($result) ? current($result) : $result
+        //);
     }
 }
 

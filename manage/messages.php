@@ -150,7 +150,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
                       ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title');
             } else {
-                $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, "")) as title');
+                $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, "")) as title', array());
             }
             $data = $all_configs['db']->query('SELECT c.id,  ?query, c.fio, c.phone, c.tag_id, t.title as t_title, t.color as t_color
                     FROM {clients} as c

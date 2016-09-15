@@ -684,6 +684,8 @@ function send_sms($phone, $message)
 
     $result = is_array($result) && isset($result[0]) ? $result[0] : '';
 
+    Log::warning('Sms send from /inc_func.php (not manage/inc_func.php)');
+    
     return array(
         'state' => is_array($result) ? true : false,
         'msg' => is_array($result) ? current($result) : $result

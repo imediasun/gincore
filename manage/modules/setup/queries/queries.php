@@ -46,9 +46,10 @@ db()->query("
 $settingsArr = array();
 $settingsArr[]=array('content_email', '', lq('Эл. адрес'), 0, '');
 $settingsArr[]=array('site_name', lq('Сервисный центр'), lq('Название сайта'), 0, '');
-$settingsArr[]=array('turbosms-from', '', lq('Турбосмс от кого'), 0, '');
-$settingsArr[]=array('turbosms-login', '', lq('Турбосмс логин'), 0, '');
-$settingsArr[]=array('turbosms-password', '', lq('Турбосмс пароль'), 0, '');
+$settingsArr[]=array('turbosms-from', '', lq('Смс от кого'), 0, '');
+$settingsArr[]=array('turbosms-login', '', lq('Смс логин'), 0, '');
+$settingsArr[]=array('turbosms-password', '', lq('Смс пароль'), 0, '');
+$settingsArr[]=array('sms-provider', 0, lq('Смс провайдер'), 0, lq('Укажите провайдера: turbosms или smsru'), '');
 $settingsArr[]=array('orders_comments_days', '3', lq('Количество дней для уведомления менеджера об отсутствии новых записей в статусе заказа'), 0, '');
 $settingsArr[]=array('warranties_left_days', '1,3,7', lq('Дни, для уведомлений менеджеру до конца 14ти дневного срока гарантийного обслуживания'), 0, '');
 $settingsArr[]=array('unsold_items_days', '10', lq('Количество дней для уведомления менеджера о нарушении оборачиваемости'), 0, '');
@@ -67,6 +68,7 @@ $settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
 $settingsArr[]=array('time_zone', 'Europe/Kiev', lq('Временная зона'), 0, lq('Временная зона, например Europe/Kiev'));
 $settingsArr[]=array('need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 0, lq('Отправлять ежедневные логи входа на email'));
 $settingsArr[]=array('email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 0, lq('email на который будут отправлять логи входов в систему'));
+
 
 foreach ($settingsArr as $ar) {
     $value = '';
