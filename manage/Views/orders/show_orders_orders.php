@@ -108,19 +108,7 @@
             'prefix' => $prefix
         ))); ?>
     <script>
-        function toggle_menu() {
-            if($('body').width() < 1400) {
-                if(!$('body').hasClass('hide-sidebar')) {
-                    $('body').addClass('hide-sidebar');
-                }
-            } else {
-                $('body').removeClass('hide-sidebar');
-            }
-        }
         jQuery(document).ready(function () {
-            $('body').on('resize', toggle_menu);
-            toggle_menu();
-            $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
         });
     </script>
 
@@ -128,19 +116,21 @@
     <div class="span9"><p class="text-danger"><?= l('Заказов не найдено') ?></p></div>
 <?php endif; ?>
 <script>
+    function toggle_menu() {
+        if ($('body').width() < 1400) {
+            if (!$('body').hasClass('hide-sidebar')) {
+                $('body').addClass('hide-sidebar');
+            }
+        } else {
+            $('body').removeClass('hide-sidebar');
+        }
+    }
     jQuery(document).ready(function () {
         $('.multiselect').multiselect(multiselect_options);
         $("#tree").Tree();
+        $('body').on('resize', toggle_menu);
+        toggle_menu();
+        $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
+        $($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]).css('white-space', 'nowrap');
     });
 </script>
-<style>
-    .hide_with_ellipsis {
-        white-space: nowrap; /* Отменяем перенос текста */
-        overflow: hidden; /* Обрезаем содержимое */
-        padding: 5px; /* Поля */
-        text-overflow: ellipsis; /* Многоточие */
-    }
-    .hide_with_ellipsis:hover {
-        white-space: normal; /* Обычный перенос текста */
-    }
-</style>
