@@ -37,7 +37,7 @@
                     <?php $url = $this->all_configs['prefix'] . 'orders' . (isset($_GET['other']) && strpos($_GET['other'],
                             'urgent') !== false ? '' : '?other=urgent'); ?>
                     <?php if ($urgent > 0): ?>
-                        <a href="<?= $url ?> class="label label-warning urgent" title='<?= l('Срочные ремонты') ?>'><?= $urgent ?></a>
+                        <a href="<?= $url ?>" class="label label-warning urgent" title='<?= l('Срочные ремонты') ?>'><?= $urgent ?></a>
                     <?php endif; ?>
                 </td>
                 <td class="<?= isset($columns['location']) ? '' : 'hide' ?>"></td>
