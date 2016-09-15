@@ -1346,5 +1346,12 @@ function change_personal(_this, item_id, response, id) {
     });
   }
 }
-
+function show_engineer_comment(_this) {
+  var title = $(_this).data('title');
+  if(title.length > 0) {
+    $('textarea[name="engineer_comment"]').html(title);
+  }
+  $('.js-comment').toggle();
+  return false;
+}
 

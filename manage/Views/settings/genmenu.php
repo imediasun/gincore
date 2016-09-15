@@ -28,6 +28,14 @@
         </a>
     </li>
     <li>
+        <a href="<?= $this->all_configs['prefix'] ?>settings/brands" <?= (isset($this->all_configs['arrequest'][1]) && $pps['id'] == $this->all_configs['arrequest'][1] ? ' style="font-weight: bold"' : '') ?> >
+            <?= l('Список брендов') ?>
+        </a>
+        <a href="<?= $this->all_configs['prefix'] ?>settings/brands/add" <?= (isset($this->all_configs['arrequest'][1]) && $pps['id'] == $this->all_configs['arrequest'][1] ? ' style="font-weight: bold"' : '') ?> >
+            +
+        </a>
+    </li>
+    <li>
         <a href="<?= $this->all_configs['prefix'] ?>print_templates/template_vars" <?= (isset($this->all_configs['arrequest'][1]) && $pps['id'] == $this->all_configs['arrequest'][1] ? ' style="font-weight: bold"' : '') ?> >
             <?= l('Пользовательские шаблоны печатных документов') ?>
         </a>

@@ -294,3 +294,18 @@ CREATE TABLE IF NOT EXISTS `restore4_purchase_invoice_goods` (
  */
 ALTER TABLE `restore4_users` ADD COLUMN show_only_his_orders int(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_users` ADD INDEX users_show_only_his_orders(show_only_his_orders);
+/*
+2016_09_13_065228_add_engineer_comment_to_orders.php
+ */
+ALTER TABLE `restore4_orders` ADD COLUMN engineer_comment varchar(255) DEFAULT '';
+/*
+2016_09_13_113635_brands.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_brands` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+ALTER TABLE `restore4_orders` ADD COLUMN brand_id int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_orders` ADD INDEX orders_brand_id(brand_id);
+INSERT INTO `restore4_brands` (title) VALUES ('LG'), ('Apple'), ('Samsung');

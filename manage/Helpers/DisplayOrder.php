@@ -48,9 +48,10 @@ class DisplayOrder extends Helper
 
     /**
      * @param $order
+     * @param $columns
      * @return string
      */
-    public function asRepairRow($order)
+    public function asRepairRow($order, $columns)
     {
         $status = '<span class="muted">' . l('Сообщите менеджеру') . '</span>';
         if (array_key_exists($order['status'], $this->all_configs['configs']['order-status'])) {
@@ -84,6 +85,7 @@ class DisplayOrder extends Helper
             'accepted' => $accepted,
             'color' => $color,
             'helper' => $this,
+            'columns' => $columns
         ));
     }
 

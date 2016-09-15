@@ -1,7 +1,7 @@
 <form method="post" style="max-width: 400px">
     <table class="table borderless">
         <tr>
-            <td style="padding: 0 5px 10px 0" colspan="<?= $isAdmin? 8: 4 ?>">
+            <td style="padding: 0 5px 10px 0" colspan="<?= $isAdmin ? 8 : 4 ?>">
                 <input type="text" name="date" value="<?= $date ?>"
                        class="btn btn-info daterangepicker"/><?php //=  InfoPopover::getInstance()->createQuestion('l_accountings_report_period_info')?>
             </td>
@@ -38,9 +38,19 @@
                                 <div class="checkbox"><label>
                                         <input type="checkbox" value="1"
                                                name="warranties" <?= (isset($_GET['wrn']) && $_GET['wrn'] == 1) ? 'checked' : ''; ?> >
-                                        <?= l('гарантийные') ?>
+                                        <?= l('все гарантийные') ?>
                                     </label>
                                 </div>
+                                <?php if (!empty($brands)): ?>
+                                    <?php foreach ($brands as $id => $title): ?>
+                                        <div class="checkbox"><label>
+                                                <input type="checkbox" value="<?= $id ?>"
+                                                       name="brands[]" <?= (isset($_GET['brands']) && in_array($id, explode(',', $_GET['brands']))) ? 'checked' : ''; ?> >
+                                                <?= l('Гарантия:') ?><?= $title ?>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" value="1"

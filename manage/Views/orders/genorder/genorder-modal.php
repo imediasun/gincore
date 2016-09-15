@@ -150,27 +150,29 @@
                                                    class="form-control"/>
                                         </div>
                                     </div>
+
+                                    <div
+                                        class="form-group clearfix <?= !isset($hide['repair-type']) ? 'hide-field' : '' ?>">
+                                        <label class="lh30">
+                                            <span class="cursor-pointer glyphicon glyphicon-list"
+                                                  onclick="alert_box(this, false, 'changes:update-order-repair-type')"
+                                                  data-o_id="<?= $order['id'] ?>"
+                                                  title="<?= l('История изменений') ?>">
+
+                                            </span>
+                                            <?= l('Вид ремонта') ?>:
+                                        </label>
+                                        <div class="tw100">
+                                            <?= $this->renderFile('orders/genorder/_repair_types', array(
+                                                'order' => $order,
+                                                'brands' => $brands
+                                            )); ?>
+                                        </div>
+                                    </div>
                                     <div
                                         class="form-group clearfix <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
                                         <label><?= l('Комлектация') ?>:</label><br>
                                         <?= implode(', ', $parts) ?>
-                                    </div>
-
-                                    <div
-                                        class="form-group clearfix <?= !isset($hide['repair-type']) ? 'hide-field' : '' ?>">
-                                        <label><?= l('Вид ремонта') ?>:</label>
-                                        <?php
-                                        switch ($order['repair']) {
-                                            case 0:
-                                                echo l('Платный');
-                                                break;
-                                            case 1:
-                                                echo l('Гарантийный');
-                                                break;
-                                            case 2:
-                                                echo l('Доработка');
-                                                break;
-                                        } ?>
                                     </div>
                                     <div class="form-group clearfix">
                                         <label><?= l('Сроки') ?>:</label>
@@ -514,7 +516,8 @@
                             'comments_public' => $comments_public,
                             'comments_private' => $comments_private,
                             'onlyEngineer' => $onlyEngineer,
-                            'modal' => true
+                            'modal' => true,
+                            'order' => $order
                         )); ?>
                         <?= $this->renderFile('orders/genorder/_private_comments', array(
                             'comments_public' => $comments_public,

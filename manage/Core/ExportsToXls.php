@@ -76,7 +76,7 @@ class ExportsToXls
     {
         $out = new PHPExcel_Writer_Excel5($xls);
         header('Content-type: application/vnd.ms-excel');
-        header("Content-Disposition: attachment; filename='{$fileName}.xls'");
+        header("Content-Disposition: attachment; filename={$fileName}.xls");
         $out->save('php://output');
         exit();
     }

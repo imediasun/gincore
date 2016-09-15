@@ -11,7 +11,8 @@ class MLockFilters extends AModel
      */
     public function load($filter)
     {
-        $saved = db()->query('SELECT value FROM ?t WHERE name=? AND user_id=?i', array($this->table, $filter, $this->getUserId()))->el();
+        $saved = db()->query('SELECT value FROM ?t WHERE name=? AND user_id=?i',
+            array($this->table, $filter, $this->getUserId()))->el();
         return empty($saved) ? array() : json_decode($saved, true);
     }
 
@@ -21,12 +22,10 @@ class MLockFilters extends AModel
      */
     public function toggle($filter, $post)
     {
-        if (isset($post['lock-button'])) {
-            if ($post['lock-button'] == 1) {
-                $this->lock($filter, $post);
-            } else {
-                $this->unlock($filter);
-            }
+        if (isset($post['lock-button']) && $post['lock-button'] != 1) {
+            $this->unlock($filter);
+        } else {
+            $this->lock($filter, $post);
         }
     }
 

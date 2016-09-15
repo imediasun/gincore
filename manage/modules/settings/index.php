@@ -171,6 +171,13 @@ class settings extends Controller
                     ),
                 )
             ),
+            $this->dbcfg['_prefix'] . 'brands' => array(
+                'settings' => array('name' => l('Список брендов')),
+                'columns' => array(
+                    'id' => array('0', '1', 'ID', ''),
+                    'title' => array('0', '0', l('Название'), ''),
+                )
+            ),
         );
     }
 

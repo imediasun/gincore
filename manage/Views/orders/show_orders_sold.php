@@ -17,8 +17,8 @@
                     <td class="center">
                         <?php if ($debts > 0): ?>
                             <?php $url = $this->all_configs['prefix'] . 'orders' . (isset($_GET['other']) && strpos($_GET['other'],
-                                    'pay') !== false ? '' : '?other=pay#show_orders-sold'); ?>
-                            <a href="<?= $url ?>"
+                                    'pay') !== false ? '' : '?other=pay'); ?>
+                            <a href="<?= $url ?>#show_orders-sold"
                                class="label label-success urgent"
                                title='<?= l('Ожидаемая сумма оплаты') ?>'><?= sprintf('%.2f', round($debts, 2)) ?>
                                 &nbsp; <?= viewCurrency() ?></a>

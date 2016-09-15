@@ -187,15 +187,25 @@
                                     <div class="form-group <?= !isset($hide['repair-type']) ? 'hide-field' : '' ?>">
                                         <label><?= l('Вид ремонта') ?>: </label><br>
                                         <label class="radio-inline">
-                                            <input type="radio" checked value="0" name="repair"/><?= l('Платный') ?>
+                                            <input type="radio" checked value="0" name="repair" onclick="$('.js-warranty-brand').hide()"/><?= l('Платный') ?>
                                         </label>
                                         <label class="radio-inline">
-                                            <input type="radio" value="1" name="repair"/><?= l('Гарантийный') ?>
+                                            <input type="radio" value="1" name="repair" onclick="$('.js-warranty-brand').show()"/><?= l('Гарантийный') ?>
                                         </label>
                                         <label class="radio-inline">
-                                            <input type="radio" value="2" name="repair"/><?= l('Доработка') ?>
+                                            <input type="radio" value="2" name="repair" onclick="$('.js-warranty-brand').hide()"/><?= l('Доработка') ?>
                                         </label>
                                     </div>
+                                    <?php if(!empty($brands)): ?>
+                                        <div class="form-group js-warranty-brand" style="display: none">
+                                            <label><?= l('Авторизация') ?><?= InfoPopover::getInstance()->createQuestion('l_create_order_form_authorization') ?>: </label><br>
+                                            <?php foreach ($brands as $id => $title): ?>
+                                                <label class="radio-inline">
+                                                    <input type="radio" checked value="<?= $id ?>" name="brand_id"/><?= h($title) ?>
+                                                </label>
+                                             <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
                                     <?php $this->HideField->end(); ?>
                                     <?php $this->HideField->start('defect'); ?>
                                     <div
