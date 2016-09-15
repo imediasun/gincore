@@ -52,6 +52,10 @@ define('ORDERS_GOODS_PRICE_TYPE_MANUAL',3);
 define('PURCHASE_INVOICE_STATE_NEW', 0);
 define('PURCHASE_INVOICE_STATE_CAPITALIZED', 1);
 
+define('SYSTEM_CASHBOX_MAIN_ID', 1);
+define('SYSTEM_CASHBOX_TRANSIT_ID', 2);
+define('SYSTEM_CASHBOX_TERMINAL_ID', 3);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';

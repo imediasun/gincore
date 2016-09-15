@@ -3,28 +3,18 @@
         <input type="hidden" name="act" value="save_data">
         <div class="form-group">
             <div class="col-sm-3"></div>
-            <div class="col-sm-5 relative">
+            <div class="col-sm-4 relative">
                 <div class="main-titles">
                     <h1 class="text-center">{-txt-master_head_title}</h1>
                     <p class="text-center m-b-md">{-txt-master_sub_title}</p>
                 </div>
             </div>
         </div>
-        <!--div class="form-group">
-            <label class="col-sm-3 control-label">
-                {-txt-master_field_business}
-            </label>
-            <div class="col-sm-5 relative">
-                <select class="form-control" name="business">
-                    <option value="0">{-txt-master_field_business_option_1}</option>
-                </select>
-            </div>
-        </div-->
         <div class="form-group">
             <label class="col-sm-3 control-label">
                 {-txt-master_field_country}
             </label>
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <select class="form-control" name="country">
                     <option value="-1">{-txt-master_field_country_option_default}</option>
                     {-html-country_select}
@@ -33,50 +23,28 @@
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">{-txt-master_field_service_name}</label>
-            <div class="col-sm-5">
-                <input type="tel" name="site_name" class="form-control">
+            <div class="col-sm-4">
+                <input type="tel" name="site_name" class="form-control" value="{-html-registered_site_name}">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">{-txt-master_field_phone}</label>
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <input type="tel" name="phone" class="form-control">
             </div>
         </div>
-        <!--div class="form-group">
-            <label class="col-sm-3 control-label">{-txt-master_field_email}</label>
-            <div class="col-sm-5">
-                <input type="email" name="email" class="form-control">
-            </div>
-        </div-->
         <div class="form-group">
             <label class="col-sm-3 control-label">
                 {-txt-master_field_service_centers}
             </label>
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <div class="services-row m-b-xs" data-id="0">
                     <div class="row">
                         <div class="number">1.</div>
                         <div class="col-xs-12">
                             <div class="row">
-                                <div class="col-xs-6">
+                                <div class="col-xs-12">
                                     <input class="form-control fill-select" data-select=".services-select" type="text" name="services[0][name]" placeholder="{-txt-master_field_service_centers_name}">
-                                </div>
-                                <div class="col-xs-6">
-                                    <input class="form-control" type="text" name="services[0][address]" placeholder="{-txt-master_field_service_centers_address}">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <input class="form-control branch-phone" type="text" name="services[0][phone]" placeholder="{-txt-master_field_service_centers_phone}">
-                                </div>
-                                <div class="col-xs-6">
-                                    <div id="demo_endis" class="input-group colorpicker-auto colorpicker-component colorpicker-element">
-                                        <input class="form-control colorpicker" type="text" name="services[0][color]" placeholder="{-txt-master_field_service_centers_color}" value="#0000ff">
-                                        <span class="input-group-addon">
-                                            <i class='show-color' style="background-color: blue;"></i>
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -84,45 +52,6 @@
                 </div>
                 <button type="button" data-clone=".services-row" class="clone-elements btn btn-info btn-xs">
                     <i class="fa fa-plus"></i> {-txt-master_field_service_centers_add}
-                </button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">
-                {-txt-master_field_add_users}
-            </label>
-            <div class="col-sm-5">
-                <div class="client-row m-b-xs" data-id="0">
-                    <div class="row">
-                        <div class="number">1.</div>
-                        <div class="col-xs-6">
-                            <select class="form-control" name="users[0][position]">
-                                <option selected disabled>{-txt-master_field_add_users_position}</option>
-                                {-html-roles}
-                            </select>
-                        </div>
-                        <div class="col-xs-6">
-                            <input class="form-control" type="text" name="users[0][fio]" placeholder="{-txt-master_field_add_users_fio}">
-                        </div>
-                    </div>
-                    <div class="row m-t-xs">
-                        <div class="col-xs-6">
-                            <input class="form-control" type="text" name="users[0][login]" placeholder="{-txt-master_field_add_users_login}">
-                        </div>
-                        <div class="col-xs-6">
-                            <input class="form-control" type="text" name="users[0][password]" placeholder="{-txt-master_field_add_users_password}">
-                        </div>
-                    </div>
-                    <div class="row m-t-xs">
-                        <div class="col-xs-12">
-                            <select class="form-control services-select" name="users[0][service]">
-                                <option selected disabled>{-txt-master_field_add_users_service}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" data-clone=".client-row" class="clone-elements btn btn-info btn-xs">
-                    <i class="fa fa-plus"></i> {-txt-master_field_add_users_add}
                 </button>
             </div>
         </div>
@@ -168,14 +97,6 @@
                 <p class="text-info">{-txt-master_field_currency_hint}</p>
             </div>
         </div>
-<!--        <div class="form-group">
-            <label class="col-sm-3 control-label">
-                Укажите валюту, в которой возможны рассчеты в системе:
-            </label>
-            <div class="col-xs-9">
-                {-html-currencies}
-            </div>
-        </div>-->
         <div class="form-group">
             <div class="row">
                 <div class="col-xs-3">&nbsp;</div>
