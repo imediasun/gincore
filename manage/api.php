@@ -9,6 +9,9 @@ if (!isset($_POST['data'])) {
 
 $data = json_decode($_POST['data']);
 
+if (isset($data->subdomain)) {
+    $subdomain = $data->subdomain;
+}
 
 if (!$data) {
     http_response_code(404);
@@ -68,6 +71,14 @@ if ($data->act == 'getSystemInfo') {
         'settings' => $all_configs['settings'],
         'info' => $info,
     );
+    
+    
+    //один раз прописать всем поддомен
+    if (!isset($all_configs['settings']['registered_site_name']) && isset($subdomain)) {
+        $all_configs['db']->query("INSERT INTO {settings} (`name`, `value`, `ro`, `title`) 
+        VALUES ('registered_site_name', ?, 0, 'Название поддомена')
+        ON DUPLICATE KEY UPDATE `value` = ? ", array($subdomain, $subdomain));
+    }
 
     $data['message'] = '';
     if ($result) {
