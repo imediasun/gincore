@@ -149,16 +149,25 @@
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="repair[]"
                                         multiple="multiple">
-                                    <?php foreach (array(
-                                        l('Платный'),
-                                        l('Гарантийный'),
-                                    ) as $rep_id => $rep_title): ?>
-                                        <option <?= ((isset($_GET['rep']) && in_array($rep_id,
+                                        <option <?= ((isset($_GET['rep']) && in_array(0,
                                                 explode(',', $_GET['rep']))) ? 'selected' : ''); ?>
-                                            value="<?= $rep_id ?>">
-                                            <?= h($rep_title) ?>
+                                            value="pay">
+                                            <?= l('Платный') ?>
                                         </option>
-                                    <?php endforeach; ?>
+                                        <option <?= ((isset($_GET['rep']) && in_array(1,
+                                                explode(',', $_GET['rep']))) ? 'selected' : ''); ?>
+                                            value="wa">
+                                            <?= l('Гарантийный все') ?>
+                                        </option>
+                                    <?php if (!empty($brands)): ?>
+                                        <?php foreach ($brands as $rep_id => $rep_title): ?>
+                                            <option <?= ((isset($_GET['brands']) && in_array($rep_id,
+                                                    explode(',', $_GET['brands']))) ? 'selected' : ''); ?>
+                                                value="<?= $rep_id ?>">
+                                            <?= l('Гарантийный') . ' ' . h($rep_title) ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </span>
                         </td>

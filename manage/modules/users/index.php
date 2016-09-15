@@ -583,7 +583,7 @@ class users extends Controller
         }
         // добавляем кассы
         $this->all_configs['db']->query('DELETE FROM {cashboxes_users} WHERE user_id=?i', array($userId));
-        if (!empty($post['cashboxes']) && $post['cashboxes'] != -1) {
+        if (!empty($post['cashboxes']) && !in_array(-1, $post['cashboxes'])) {
             foreach ($post['cashboxes'] as $cashbox) {
                 $this->all_configs['db']->query(
                     'INSERT IGNORE INTO {cashboxes_users} (cashbox_id, user_id) '

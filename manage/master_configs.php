@@ -62,6 +62,7 @@ class Configs
             'countries' => array(
                 0 => array(
                     'name' => l('Украина'),
+                    'code' => 'UA',
                     'phone' => array(
                         'code' => 380,  // 380631112233
                         'short_code' => 0, // 0631112233
@@ -71,6 +72,7 @@ class Configs
                 ),
                 1 => array(
                     'name' => l('Россия'),
+                    'code' => 'RU',
                     'phone' => array(
                         'code' => 7,
                         'short_code' => 8,
@@ -80,6 +82,7 @@ class Configs
                 ),
                 2 => array(
                     'name' => l('Казахстан'),
+                    'code' => 'KZ',
                     'phone' => array(
                         'code' => 7,
                         'short_code' => 7,
@@ -89,6 +92,7 @@ class Configs
                 ),
                 3 => array(
                     'name' => l('Беларусь'),
+                    'code' => 'BY',
                     'phone' => array(
                         'code' => 375,
                         'short_code' => 375,
@@ -98,6 +102,7 @@ class Configs
                 ),
                 4 => array(
                     'name' => l('Молдавия'),
+                    'code' => 'MD',
                     'phone' => array(
                         'code' => 373,
                         'short_code' => 373,
@@ -107,6 +112,7 @@ class Configs
                 ),
                 5 => array(
                     'name' => l('USA'),
+                    'code' => 'US',
                     'phone' => array(
                         'code' => 1,
                         'short_code' => 1,
@@ -116,6 +122,7 @@ class Configs
                 ),
                 6 => array(
                     'name' => l('Азербайджан'),
+                    'code' => 'AZ',
                     'phone' => array(
                         'code' => 994,
                         'short_code' => 0,
@@ -125,6 +132,7 @@ class Configs
                 ),
                 7 => array(
                     'name' => l('Армения'),
+                    'code' => 'AM',
                     'phone' => array(
                         'code' => 374,
                         'short_code' => 0,
@@ -134,6 +142,7 @@ class Configs
                 ),
                 8 => array(
                     'name' => l('Киргизия'),
+                    'code' => 'KG',
                     'phone' => array(
                         'code' => 996,
                         'short_code' => 0,
@@ -143,6 +152,7 @@ class Configs
                 ),
                 9 => array(
                     'name' => l('Таджикистан'),
+                    'code' => 'TJ',
                     'phone' => array(
                         'code' => 992,
                         'short_code' => 0,
@@ -152,6 +162,7 @@ class Configs
                 ),
                 10 => array(
                     'name' => l('Туркмения'),
+                    'code' => 'TM',
                     'phone' => array(
                         'code' => 993,
                         'short_code' => 0,
@@ -161,6 +172,7 @@ class Configs
                 ),
                 11 => array(
                     'name' => l('Узбекистан'),
+                    'code' => 'UZ',
                     'phone' => array(
                         'code' => 998,
                         'short_code' => 0,
@@ -170,6 +182,7 @@ class Configs
                 ),
                 12 => array(
                     'name' => l('Грузия'),
+                    'code' => 'GE',
                     'phone' => array(
                         'code' => 995,
                         'short_code' => 0,
@@ -179,6 +192,7 @@ class Configs
                 ),
                 13 => array(
                     'name' => l('Литва'),
+                    'code' => 'LT',
                     'phone' => array(
                         'code' => 370,
                         'short_code' => 0,
@@ -188,6 +202,7 @@ class Configs
                 ),
                 14 => array(
                     'name' => l('Латвия'),
+                    'code' => 'LV',
                     'phone' => array(
                         'code' => 371, //37137111111
                         'short_code' => 0,
@@ -197,6 +212,7 @@ class Configs
                 ),
                 15 => array(
                     'name' => l('Эстония'),
+                    'code' => 'EE',
                     'phone' => array(
                         'code' => 372,
                         'short_code' => 0,
@@ -206,6 +222,7 @@ class Configs
                 ),
                 16 => array(
                     'name' => l('Израиль'),
+                    'code' => 'IL',
                     'phone' => array(
                         'code' => 972, //+972546829601
                         'short_code' => 0, //0546829601
@@ -215,6 +232,7 @@ class Configs
                 ),
                 17 => array(
                     'name' => l('Великобритания'),
+                    'code' => 'GB',
                     'phone' => array(
                         'code' => 44, //+972546829601
                         'short_code' => 0, //0546829601

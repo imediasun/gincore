@@ -66,6 +66,14 @@ class accountings extends Controller
     }
 
     /**
+     * @return mixed|string
+     */
+    public function getNotCanShowModuleError()
+    {
+        return l('У Вас нет доступа к кассам. Доступ к кассам можно настроить в карточке пользователя или с помощью системы прав доступа');
+    }
+
+    /**
      * @return bool
      */
     public function can_show_module()
@@ -274,6 +282,9 @@ class accountings extends Controller
             if (isset($post['clients'])) {
                 // фильтр по доставке
                 $url[] = 'by_cid=' . intval($post['clients']);
+            }
+            if(isset($post['brands']) && count($post['brands']) > 0) {
+                $url[] = 'brands=' . implode(',', $post['brands']);
             }
 
             $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&',
@@ -934,12 +945,15 @@ class accountings extends Controller
                 $out .= '
                     <div class="form-group">
                         <label>' . l('Телефон') . '</label>
-                        <input type="text" name="phone" class="form-control">
+                        <input '. input_phone_mask_attr() .'type="text" name="phone" class="form-control">
                     </div>
                     <div class="form-group">
                         <label>' . l('Эл. адрес') . '</label>
                         <input type="text" name="email" class="form-control">
                     </div>
+                    <script>
+                    jQuery(document).ready(function(){init_input_masks();})
+                    </script>
                 ';
             }
             if (!$wrap_form) {
@@ -2466,7 +2480,8 @@ class accountings extends Controller
                         'title' => $value['name']
                     );
                 }, array_keys($states), $states),
-                'userId' => $user_id
+                'userId' => $user_id,
+                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
             ));
 
             // прибыль и оборот
@@ -3873,6 +3888,10 @@ class accountings extends Controller
             $query = $this->all_configs['db']->makeQuery('?query AND o.user_id=?i',
                 array($query, $filters['by_cid']));
         }
+        if(array_key_exists('brands', $filters) &&  count(array_filter(explode(',', $filters['brands']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.brand_id in (?li)',
+                array($query, explode(',', $filters['brands'])));
+        }
         return $query;
     }
 
@@ -3904,7 +3923,7 @@ class accountings extends Controller
               SUM(IF(t.transaction_type=1, t.value_from, 0)) as value_from, cg.title,
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, 
               SUM(IF(t.transaction_type=2, 1, 0)) as has_to,
-              o.manager, o.accepter as acceptor, o.engineer,
+              o.manager, o.accepter as acceptor, o.engineer, o.brand_id,
               SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return
             FROM {orders} as o
             JOIN {categories} as cg ON cg.id=o.category_id
