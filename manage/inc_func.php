@@ -319,7 +319,7 @@ if (!function_exists('send_sms')) {
         }
 
         if ($sms_privider == 'smsru'){
-            $ch = curl_init("http://sms.ru/sms/send");
+            $ch = curl_init("https://sms.ru/sms/send");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_POSTFIELDS, array(
@@ -348,6 +348,44 @@ if (!function_exists('send_sms')) {
             return array(
                 'state' => ($result == 100 ? true : false),
                 'msg' => 'sms.ru: ' . $msg
+            );
+        }
+
+        if ($sms_privider == 'plivo'){
+            $ch = curl_init('https://api.plivo.com/v1/Account/' . $login . '/Message/'); //нет ли тут уязвимости? Что можно сделать?
+            
+            $data = array(
+                "src"  =>  $from,
+                "dst"    =>	$phone,
+                "text"	=>	$message,
+                //"partner_id" => 171701,
+                //'test' => 1
+            );
+            $data_string = json_encode($data);
+
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string))
+            );
+            curl_setopt($ch, CURLOPT_USERPWD, "$login:$password");
+            $result = curl_exec($ch);
+            curl_close($ch);
+          
+            $json = @json_decode($result);
+            
+            if (is_object($json)) {
+                $msg = isset($json->error) ? $json->error : $json->message;
+            } else {
+                $msg = $result;
+            }
+            
+            return array(
+                'state' => is_object($json),
+                'msg' => htmlspecialchars($msg)
             );
         }
 
