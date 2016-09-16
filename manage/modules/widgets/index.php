@@ -167,20 +167,20 @@ class widgets extends Controller
                 $this->Settings->deleteAll(array('name' => 'email-to-receive-new-comments'));
             }
             $value = isset($post['bg-color']) ? $post['bg-color'] : array();
-            $this->saveSetting('widget-order-feedback-bg-color', $value, 'Цвет фона виджета отзывов о работе сервиса',
+            $this->saveSetting('widget-order-feedback-bg-color', $value, lq('Цвет фона виджета отзывов о работе сервиса'),
                 'Цвет фона виджета отзывов о работе сервиса');
             $value = isset($post['fg-color']) ? $post['fg-color'] : array();
-            $this->saveSetting('widget-order-feedback-fg-color', $value, 'Цвет текста виджета отзывов о работе сервиса',
-                'Цвет текста виджета отзывов о работе сервиса');
+            $this->saveSetting('widget-order-feedback-fg-color', $value, lq('Цвет текста виджета отзывов о работе сервиса'),
+                lq('Цвет текста виджета отзывов о работе сервиса'));
             FlashMessage::set(lq('Настройки сохранены'), FlashMessage::SUCCESS);
         }
         if (isset($post['status-form'])) {
             $value = isset($post['bg-color']) ? $post['bg-color'] : array();
-            $this->saveSetting('widget-order-state-bg-color', $value, 'Цвет фона виджета статуса заказов',
+            $this->saveSetting('widget-order-state-bg-color', $value, lq('Цвет фона виджета статуса заказов'),
                 'Цвет фона виджета статуса заказов');
             $value = isset($post['fg-color']) ? $post['fg-color'] : array();
-            $this->saveSetting('widget-order-state-fg-color', $value, 'Цвет текста виджета статуса заказов',
-                'Цвет текста виджета статуса заказов');
+            $this->saveSetting('widget-order-state-fg-color', $value, lq('Цвет текста виджета статуса заказов'),
+                lq('Цвет текста виджета статуса заказов'));
         }
         Response::redirect(Response::referrer());
     }

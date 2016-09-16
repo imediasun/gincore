@@ -29,8 +29,8 @@
                     <p class="text-muted"><?= $field ?></p>
 
                     <?php foreach ($langs as $lng => $translate): ?>
-                        <?php $value = htmlspecialchars($translate[$field]); ?>
-                        <span class="form-group" style="display:block">
+                        <?php $value = htmlspecialchars($translate[$field]); $err_no_value_class = $value ? '' : ' error'; ?>
+                        <div class="form-group <?= $err_no_value_class ?>" style="display:block">
                             <label><?= $languages[$lng]['name'] ?>, <?= $lng ?></label>
                             <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
                             <?php if ($textarea || strlen($value) > 50): ?>
@@ -39,7 +39,7 @@
                             <?php else: ?>
                                 <input class="form-control" type="text" name="<?= $f_name ?>" value="<?= $value ?>">
                             <?php endif; ?>
-                        </span>
+                        </div>
                     <?php endforeach; ?>
                 <?php endforeach; ?>
             </div>
