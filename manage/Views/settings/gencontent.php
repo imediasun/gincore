@@ -1,5 +1,9 @@
-<h3>«<?= $pp['title'] ?>»</h3>
-
+<h3>
+    «<?= $pp['title'] ?>»
+    <?php if ($pp['name'] == 'sms-provider'): ?>
+        <?= InfoPopover::getInstance()->createQuestion('l_sms_provider_info') ?>
+    <?php endif; ?>
+</h3>
 <?php if (!isset($this->all_configs['arrequest'][2])): ?>
 
     <?php if (isset($pp['description'])): ?>
@@ -51,6 +55,21 @@
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                 </select>
+            </div>
+            <?php break; ?>
+        <?php case 'sms-provider': ?>
+            <div class="row">
+            <div class="form-group span6" style="margin-left: 30px">
+                <label><?= l('Провайдер услуг') ?>:</label>
+                <select class="form-control" name="value">
+                    <option value="-1"><?= l('Выберите провайдера услуг') ?></option>
+                    <?php foreach ($this->all_configs['configs']['available-sms-providers'] as $id => $title): ?>
+                            <option <?= ($pp['value'] == $id ? 'selected' : '') ?>
+                                    value="<?= $id ?>"><?= h($title) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             </div>
             <?php break; ?>
         <?php case 'crm-requests-statuses': ?>

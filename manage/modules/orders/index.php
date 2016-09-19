@@ -2024,7 +2024,11 @@ class orders extends Controller
             $text = isset($_POST['text']) ? trim($_POST['text']) : '';
             $phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';
             $result = send_sms($phone, $text);
-            $data['msg'] = $result['msg'];
+            if ($result['state']) {
+                FlashMessage::set(l('Сообщение приняток отправке'), FlashMessage::SUCCESS);
+            } else {
+                $data['msg'] = $result['msg'];
+            }
         }
 
         // отправить смс
