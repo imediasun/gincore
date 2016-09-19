@@ -177,7 +177,7 @@
                                                value="<?= ($order['sum'] / 100) ?>"
                                                name="sum" <?= $order['total_as_sum'] ? 'readonly' : '' ?>/>
                                     </td>
-                                    <td class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>">
+                                    <td class="<?= $prefix == 'quick' ? 'col-sm-3' : '' ?>" colspan="3">
                                         <?php $pay_btn = ''; ?>
                                         <?php if (intval($order['prepay']) > 0 && intval($order['prepay']) > intval($order['sum_paid'])): ?>
                                             <input type="button" class="btn btn-success"
@@ -189,15 +189,39 @@
                                                    value="<?= l('Принять оплату') ?>"
                                                    onclick="pay_client_order(this, 'sale', <?= $order['id'] ?>)"/>
                                         <?php endif; ?>
-                                    </td>
-                                    <td>
+                                        <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && $order['sum_paid'] > 0): ?>
+                                            <?php if (empty($order['return_id']) && !empty($returns)): ?>
+                                                <input type="button"
+                                                       class="btn btn-default js-return-pay"
+                                                       value="<?= l('Вернуть деньги') ?>"
+                                                       onclick="return return_pay(this)"/>
+                                            <?php endif; ?>
+                                            <span class="form-group clearfix js-return-pay" style="display: <?= empty($order['return_id'])?'none': '' ?>;">
+                                                <label><?= l('Номер возврата') ?>: </label>
+                                                <label class="lh30" style="font-weight: normal">
+                                                    <?= $order['id'] ?>-
+                                                </label>
+                                                <div class="tw100">
+                                                    <?php if (!empty($returns)): ?>
+                                                        <select name="return_id" class="form-control">
+                                                            <option value="-1"><?= l("Не выбрано") ?></option>
+                                                            <?php foreach ($returns as $return): ?>
+                                                                <option <?= $return['id'] == $order['return_id'] ? 'selected' : '' ?>
+                                                                    value="<?= $return['id'] ?>">
+                                                                    <?= $return['id'] . "(" . ($return['value_from'] / 100) . ' ' . $this->all_configs['configs']['currencies'][$return['currency']]['name'] . ")" ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </span>
+                                        <?php endif; ?>
                                         <link type="text/css" rel="stylesheet"
                                               href="<?= $this->all_configs['prefix'] ?>modules/accountings/css/main.css?1">
                                         <input id="send-sms" data-o_id="<?= $order['id'] ?>"
                                                onclick="alert_box(this, false, 'sms-form')"
                                                class="hidden" type="button"/>
                                     </td>
-                                    <td></td>
                                 <?php endif; ?>
                             </tr>
                             <?php if (!empty($goods)): ?>

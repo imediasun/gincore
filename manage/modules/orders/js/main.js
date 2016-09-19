@@ -1355,3 +1355,6 @@ function show_engineer_comment(_this) {
   return false;
 }
 
+function return_pay(_this) {
+  $('.js-return-pay').toggle();
+}

@@ -673,3 +673,8 @@ table tr.overhead  > td {
 table tr.head  > td {
     border: none;
 }
+span.js-return-pay {
+     max-width: 300px;
+    display: inline-block;
+    margin-left: 10px;
+}
