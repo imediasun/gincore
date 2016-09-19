@@ -69,6 +69,10 @@ $settingsArr[]=array('time_zone', 'Europe/Kiev', lq('Временная зона
 $settingsArr[]=array('need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 0, lq('Отправлять ежедневные логи входа на email'));
 $settingsArr[]=array('email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 0, lq('email на который будут отправлять логи входов в систему'));
 
+$settingsArr[]=array('ga-profile-id', '', lq('GA id профиля'), 0, lq('дентификатор вашего профиля из Гугл Аналитики'));
+$settingsArr[]=array('ga-service-account-email', '', lq('GA сервисный эл. адрес'), 0, '');
+$settingsArr[]=array('ga-private-key', '', lq('GA закрытый ключ API'), 0, '');
+$settingsArr[]=array('order-first-number', '', lq('Начало нумарации заказов'), 0, lq('Укажите последний номер заказа, который у вас был ранее'));
 
 foreach ($settingsArr as $ar) {
     $value = '';
