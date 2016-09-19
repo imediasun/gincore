@@ -446,6 +446,7 @@ function send_sms(_this) {
         }
       }
       $(_this).button('reset');
+      close_alert_box();
     },
     error: function (xhr, ajaxOptions, thrownError) {
       alert(xhr.responseText);
