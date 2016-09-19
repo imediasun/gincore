@@ -15,10 +15,10 @@ class AddSettingsOrderFirstNumber extends Migration
         if (!DB::table('settings')->select('id')->where('name', '=', 'order-first-number')->count()) {
             DB::table('settings')->insert(array(
                 'section' => 1,
-                'description' => '{Укажите последний номер заказа, который у вас был ранее}',
+                'description' => 'Укажите последний номер заказа, который у вас был ранее',
                 'name' => 'order-first-number',
                 'value' => 0,
-                'title' => '{Начало нумарации заказов}',
+                'title' => 'Начало нумарации заказов',
                 'ro' => 0
             ));
         }
