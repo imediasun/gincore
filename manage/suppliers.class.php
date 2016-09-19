@@ -220,7 +220,7 @@ class Suppliers extends Object
             return true;
         }
         foreach ($ids as $key => $id) {
-            if (empty($values[$key]) || 0 == $values[$key]) {
+            if (empty($values[$key]) || 0 == (round($values[$key] * 100)/ 100)) {
                 return true;
             }
         }
@@ -251,11 +251,10 @@ class Suppliers extends Object
          * [quantity] => Array([727] => 12)  )
          **/
         try {
-
             // проверка на создание заказа с ценой 0
             if ($this->isEmpty($post['item_ids'], $post['amount'])
-                && $this->all_configs['configs']['suppliers-orders-zero'] == false
-                && empty($post['from_client_orders'])
+//                && $this->all_configs['configs']['suppliers-orders-zero'] === false
+                && empty($post['from_client_order'])
             ) {
                 throw new ExceptionWithMsg(l('Укажите цену больше 0'));
             }
