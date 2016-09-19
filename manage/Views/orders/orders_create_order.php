@@ -398,7 +398,7 @@
                                         </div>
                                         <div class="span6">
                                             <label class="col-sm-12"><?= l('Инженер') ?> : </label>
-                                            <?= $this->renderFile('orders/_employers', array(
+                                            <?= $this->renderFile('orders/_engineers', array(
                                                 'type' => 'engineer',
                                                 'users' => $engineers
                                             )) ?>

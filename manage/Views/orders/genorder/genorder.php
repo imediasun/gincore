@@ -225,7 +225,7 @@
                                     'type' => 'manager'
                                 )); ?>
                             <?php endif; ?>
-                            <?= $this->renderFile('orders/genorder/_employers', array(
+                            <?= $this->renderFile('orders/genorder/_engineers', array(
                                 'users' => $engineers,
                                 'order' => $order,
                                 'title' => l('Инженер'),

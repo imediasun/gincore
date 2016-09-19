@@ -824,7 +824,7 @@ class orders extends Controller
                     $this->all_configs['configs']['host']),
                 'users_fields' => $this->getUsersFields(),
                 'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
-                'engineers' => $this->all_configs['oRole']->get_users_by_permissions('engineer'),
+                'engineers' => $this->getEngineersWithWorkload(),
                 'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
             ));
         }
@@ -1763,7 +1763,7 @@ class orders extends Controller
             'hasEditorPrivilege' => $hasEditorPrivilege,
             'notSale' => $notSale,
             'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
-            'engineers' => $notSale ? $this->all_configs['oRole']->get_users_by_permissions('engineer') : null,
+            'engineers' => $notSale ? $this->getEngineersWithWorkload() : null,
             'navigation' => $this->clients_orders_navigation(true),
             'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
                 $this->all_configs['settings']['order_warranties']) : array(),
@@ -1790,6 +1790,31 @@ class orders extends Controller
             'print_templates' => $print_templates,
             'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
         ));
+    }
+
+    /**
+     * @return array
+     */
+    public function getEngineersWithWorkload()
+    {
+        $callback = function ($element) {
+            return $element['id'];
+        };
+        $users = $this->all_configs['oRole']->get_users_by_permissions('engineer');
+        $result = array();
+        if (!empty($users)) {
+            $ids = array_map($callback, $users);
+
+            $query = $this->all_configs['db']->makeQuery('u.avail=1 AND u.deleted=0 AND id IN (?li)', array($ids));
+            $result = $this->all_configs['db']->query('
+                SELECT u.*, CONCAT(u.fio, " ", u.login) as name,
+                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND type in (?l)) as workload,
+                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND type in (?l)) as wait_parts
+                FROM {users} as u
+                WHERE  ?query',
+                array($this->all_configs['configs']['order-statuses-engineer-workload'], $this->all_configs['configs']['order-statuses-expect-parts'], $query))->assoc('id');
+        }
+        return $result;
     }
 
     /**
