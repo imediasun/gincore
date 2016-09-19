@@ -1220,6 +1220,10 @@ class Configs
                 'orders' => 2,
                 'engineer_notify' => 3
             ),
+            'available-sms-providers' => array(
+                'smsru' => l('smsru'),
+                'turbosms' => l('turbosms')
+            )
         );  // object instance
 
         if (is_callable(self::$configs_extend_function)) {

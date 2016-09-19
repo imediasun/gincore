@@ -1215,7 +1215,7 @@ class Chains extends Object
                 }
 
                 $post['warranty'] = $warranty;
-                $this->createNewOrder($post, $client, $category, $wh, $part_quality_comment);
+                $orderId = $this->createNewOrder($post, $client, $category, $wh, $part_quality_comment);
                 $data['id'] = $post['id'];
 
                 if ($data['id'] > 0) {
@@ -1234,6 +1234,19 @@ class Chains extends Object
                         $part_quality_comment,
                         $crm_request
                     );
+                    $createdOrder = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i', array($data['id']))->row();
+                    if(!empty($post['manager']) && !empty($createdOrder)) {
+                        $manager = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['manager']))->row();
+                        if(!empty($manager)) {
+                            $this->noticeManager($manager, $order);
+                        }
+                    }
+                    if(!empty($post['engineer']) && !empty($createdOrder)) {
+                        $engineer = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['engineer']))->row();
+                        if(!empty($engineer)) {
+                            $this->noticeEngineer($engineer, $order);
+                        }
+                    }
                 }
             }
             $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
@@ -1245,6 +1258,57 @@ class Chains extends Object
             );
         }
         return $data;
+    }
+
+    /**
+     * @param $user
+     * @param $order
+     */
+    public function noticeManager($user, $order)
+    {
+        if ($user['send_over_sms']) {
+            $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
+            send_sms("+{$user['phone']}",
+                l('Vi naznacheni otvetstvennim po zakazu #') . $order['id']);
+        }
+        if ($user['send_over_email']) {
+            require_once $this->all_configs['sitepath'] . 'mail.php';
+            $mailer = new Mailer($this->all_configs);
+            $mailer->group('order-manager', $user['email'],
+                array('order_id' => $order['id']));
+            $mailer->go();
+        }
+    }
+
+    /**
+     * @param $user
+     * @param $order
+     */
+    public function noticeEngineer($user, $order)
+    {
+        if ($user['send_over_sms']) {
+            $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
+                array($order['user_id']))->row();
+            $templates = get_service('crm/sms')->get_templates_with_vars('engineer_notify', array(
+                '{{order_id}}' => $order['id'],
+                '{{client}}' => $client['fio'],
+                '{{phone}}' => $client['phone'],
+                '{{address}}' => $client['legal_address'],
+                '{{device}}' => $order['title']
+            ), 'Order № {{order_id}} {{phone}} {{client}} {{device}}');
+            if (!empty($templates)) {
+                $current = current($templates);
+                send_sms("+{$user['phone']}", $current['body']);
+            }
+        }
+        if ($user['send_over_email']) {
+            require_once $this->all_configs['sitepath'] . 'mail.php';
+            $mailer = new Mailer($this->all_configs);
+            $mailer->group('order-manager', $user['email'],
+                array('order_id' => $order['id']));
+            $mailer->go();
+
+        }
     }
 
     /**
@@ -3095,7 +3159,7 @@ class Chains extends Object
      * @param $category
      * @param $wh
      * @param $part_quality_comment
-     * @return array
+     * @return int
      * @throws ExceptionWithMsg
      */
     protected function createNewOrder($post, $client, $category, $wh, $part_quality_comment)

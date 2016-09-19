@@ -35,7 +35,7 @@
                         'hide' => $hide,
                         'users_fields' => $users_fields
                     )); ?>
-                    <form method="post" id="order-form">
+                    <form method="post" id="order-form" onsubmit="return false;">
                         <div class="col-sm-6 js-fields">
                             <fieldset>
                                 <table class="table table-borderless table-paddingless">

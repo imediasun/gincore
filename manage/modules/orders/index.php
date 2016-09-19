@@ -2024,7 +2024,11 @@ class orders extends Controller
             $text = isset($_POST['text']) ? trim($_POST['text']) : '';
             $phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';
             $result = send_sms($phone, $text);
-            $data['msg'] = $result['msg'];
+            if ($result['state']) {
+                FlashMessage::set(l('Сообщение приняток отправке'), FlashMessage::SUCCESS);
+            } else {
+                $data['msg'] = $result['msg'];
+            }
         }
 
         // отправить смс
@@ -2940,19 +2944,7 @@ class orders extends Controller
                     get_user_name($user), $_POST['manager']);
                 $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'manager', $user['fio']);
                 $order['manager'] = intval($_POST['manager']);
-                if ($user['send_over_sms']) {
-                    $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
-                    $orderId = $this->all_configs['arrequest'][2];
-                    send_sms("+{$user['phone']}",
-                        l('Vi naznacheni otvetstvennim po zakazu #') . $orderId);
-                }
-                if ($user['send_over_email']) {
-                    require_once $this->all_configs['sitepath'] . 'mail.php';
-                    $mailer = new Mailer($this->all_configs);
-                    $mailer->group('order-manager', $user['email'],
-                        array('order_id' => $this->all_configs['arrequest'][2]));
-                    $mailer->go();
-                }
+                $this->all_configs['chains']->noticeManager($user, $order);
             }
         }
         return $order;
@@ -2981,29 +2973,8 @@ class orders extends Controller
                 );
                 $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'engineer', $user['fio']);
                 $host = 'https://' . $_SERVER['HTTP_HOST'] . $this->all_configs['prefix'];
-                if ($user['send_over_sms']) {
-                    $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
-                        array($order['user_id']))->row();
-                    $templates = get_service('crm/sms')->get_templates_with_vars('engineer_notify', array(
-                        '{{order_id}}' => $order['id'],
-                        '{{client}}' => $client['fio'],
-                        '{{phone}}' => $client['phone'],
-                        '{{address}}' => $client['legal_address'],
-                        '{{device}}' => $order['title']
-                    ), 'Order № {{order_id}} {{phone}} {{client}} {{device}}');
-                    if (!empty($templates)) {
-                        $current = current($templates);
-                        send_sms("+{$user['phone']}", $current['body']);
-                    }
-                }
-                if ($user['send_over_email']) {
-                    require_once $this->all_configs['sitepath'] . 'mail.php';
-                    $mailer = new Mailer($this->all_configs);
-                    $mailer->group('order-manager', $user['email'],
-                        array('order_id' => $this->all_configs['arrequest'][2]));
-                    $mailer->go();
+                $this->all_configs['chains']->noticeEngineer($user, $order);
 
-                }
             }
         }
         return $order;
