@@ -1295,7 +1295,7 @@ class Chains extends Object
                 '{{phone}}' => $client['phone'],
                 '{{address}}' => $client['legal_address'],
                 '{{device}}' => $order['title']
-            ), 'Order № {{order_id}} {{phone}} {{client}} {{device}}');
+            ), 'Order № {{order_id}} +{{phone}} {{client}} {{device}}');
             if (!empty($templates)) {
                 $current = current($templates);
                 send_sms("+{$user['phone']}", $current['body']);

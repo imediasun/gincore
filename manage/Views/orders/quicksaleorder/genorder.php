@@ -190,7 +190,7 @@
                                                    onclick="pay_client_order(this, 'sale', <?= $order['id'] ?>)"/>
                                         <?php endif; ?>
                                         <?php if ($this->all_configs['oRole']->hasPrivilege('edit_return_id') && $order['sum_paid'] > 0): ?>
-                                            <?php if (empty($order['return_id']) && !empty($returns)): ?>
+                                            <?php if (empty($order['return_id'])): ?>
                                                 <input type="button"
                                                        class="btn btn-default js-return-pay"
                                                        value="<?= l('Вернуть деньги') ?>"
