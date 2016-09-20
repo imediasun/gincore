@@ -51,6 +51,16 @@ class gincore_orders extends abstract_import_provider
     }
 
     /**
+     * @return array
+     */
+    public function get_translated_cols() {
+        $translate = function($value) {
+            return lq($value);
+        };
+        return array_map($translate, $this->get_cols());
+    }
+
+    /**
      * @param $data
      * @return mixed
      */
