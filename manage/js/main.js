@@ -949,10 +949,12 @@ function check_mess(last_time_query) {
         var item;
 
         if (msg) {
+          
+          if (typeof msg['alarms'] != 'undefined') {
+            startcountdown(msg['alarms'] ? msg['alarms'] : null);
+          }
 
-          startcountdown(msg['alarms'] ? msg['alarms'] : null);
-
-          if (msg['counts']) {
+          if (typeof msg['counts'] != 'undefined') {
             $('.tab_count').addClass('hide');
             for (var key in msg['counts']) {
               item = $('span.' + key);
@@ -962,8 +964,13 @@ function check_mess(last_time_query) {
             }
           }
 
-          if (msg['error'])
-            alert(msg['error']);
+          
+          if (typeof msg['error'] != 'undefined') {
+            alert(msg['message']);
+            if (typeof msg['reload'] != 'undefined') {
+              location.reload();
+            }
+          }
 
           //if (msg['messages'] && msg['messages']['new_count'] > 0) {
           if (msg['new_comments'] && msg['new_comments'] > 0) {
