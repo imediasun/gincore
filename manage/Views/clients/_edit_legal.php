@@ -62,6 +62,26 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <div class="<?= !empty($new_client) ? 'span7' : 'col-sm-7' ?>">
+            <label class="control-label"><?= l('Тип клиента') ?>: </label>
+        </div>
+        <div class="<?= !empty($new_client) ? 'span5' : 'col-sm-5' ?>" style="text-align: right; min-width: 150px">
+            <div style="width:150px; float: right">
+                <select name="person" class="form-control">
+                    <option
+                        value="<?= CLIENT_IS_PERSONAL ?>" <?= $client['person'] == CLIENT_IS_PERSONAL ? 'selected' : '' ?>>
+                        <?= l('Физ. лицо') ?>
+                    </option>
+                    <option
+                        value="<?= CLIENT_IS_LEGAL ?>" <?= $client['person'] == CLIENT_IS_LEGAL ? 'selected' : '' ?>>
+                        <?= l('Юр. лицо') ?>
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
     <div class="form-group ">
         <?= $contractorsList; ?>
     </div>

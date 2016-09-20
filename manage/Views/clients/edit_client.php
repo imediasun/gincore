@@ -47,7 +47,7 @@
     <?php endif; ?>
     <div id="main" class="tab-pane<?= (!$new_call_id ? ' active' : '') ?>">
         <div class="row">
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <?php if ($client['person'] == CLIENT_IS_LEGAL): ?>
                     <?= $this->renderFile('clients/_edit_legal', array(
                         'arrequest' => $arrequest,

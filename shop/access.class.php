@@ -657,6 +657,7 @@ class access extends Object
             $regData1 = isset($post['reg_data_1']) ? trim($post['reg_data_1']) : $client['reg_data_1'];
             $regData2 = isset($post['reg_data_2']) ? trim($post['reg_data_2']) : $client['reg_data_2'];
             $contractor_id = isset($post['contractor_id']) ? $post['contractor_id'] : $client['contractor_id'];
+            $person = isset($post['person']) ? $post['person'] : $client['person'];
             $tag_id = isset($post['tag_id']) ? $post['tag_id'] : $client['tag_id'];
             if (($tag_id == $this->all_configs['configs']['blacklist-tag-id']) && !$this->all_configs['oRole']->hasPrivilege('add-client-to-blacklist')) {
                 $tag_id = $client['tag_id'];
@@ -674,7 +675,8 @@ class access extends Object
                 'reg_data_1' => $regData1,
                 'reg_data_2' => $regData2,
                 'note' => $note,
-                'residential_address' => $residental_address
+                'residential_address' => $residental_address,
+                'person' => $person
             ), array(
                 'id' => $post['id']
             ));
