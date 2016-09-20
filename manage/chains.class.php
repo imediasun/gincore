@@ -1215,7 +1215,7 @@ class Chains extends Object
                 }
 
                 $post['warranty'] = $warranty;
-                $orderId = $this->createNewOrder($post, $client, $category, $wh, $part_quality_comment);
+                $this->createNewOrder($post, $client, $category, $wh, $part_quality_comment);
                 $data['id'] = $post['id'];
 
                 if ($data['id'] > 0) {
@@ -1234,17 +1234,21 @@ class Chains extends Object
                         $part_quality_comment,
                         $crm_request
                     );
-                    $createdOrder = $this->all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i', array($data['id']))->row();
+                    $createdOrder = $this->all_configs['db']->query('
+                        SELECT o.* 
+                        FROM {orders} as o
+                        WHERE o.id=?i
+                    ', array($data['id']))->row();
                     if(!empty($post['manager']) && !empty($createdOrder)) {
                         $manager = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['manager']))->row();
                         if(!empty($manager)) {
-                            $this->noticeManager($manager, $order);
+                            $this->noticeManager($manager, $createdOrder);
                         }
                     }
                     if(!empty($post['engineer']) && !empty($createdOrder)) {
                         $engineer = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['engineer']))->row();
                         if(!empty($engineer)) {
-                            $this->noticeEngineer($engineer, $order);
+                            $this->noticeEngineer($engineer, $createdOrder);
                         }
                     }
                 }
