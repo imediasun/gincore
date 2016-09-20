@@ -256,11 +256,10 @@ class Tariff
     {
         $count = db()->query("SELECT count(*) FROM {settings} WHERE name='tariff'", array())->el();
         if (empty($count)) {
-            db()->query("INSERT INTO {settings} (description, name, value, title, ro) VALUES (?, 'tariff', ?, ?)", array(
+            db()->query("INSERT INTO {settings} (description, name, value, title, ro) VALUES (?, 'tariff', ?, ?, 1)", array(
                 lq('Текущий тариф'),
                 json_encode($response),
-                lq('Текущий тариф'),
-                1
+                lq('Текущий тариф')
             ));
         } else {
             db()->query("UPDATE {settings} SET value=? WHERE name='tariff'", array(
