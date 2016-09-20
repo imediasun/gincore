@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/../../../Core/Object.php';
 require_once __DIR__ . '/../../../Core/View.php';
 require_once __DIR__ . '/../../../Core/Log.php';
 
-abstract class AbstractTemplate
+abstract class AbstractTemplate extends Object
 {
     protected $view;
     protected $all_configs;
@@ -50,6 +51,7 @@ abstract class AbstractTemplate
         $this->templateTable = $templateTable;
         $this->view = new View($all_configs);
         $this->act = isset($_GET['act']) ? trim($_GET['act']) : '';
+        $this->applyUses();
     }
 
     /**

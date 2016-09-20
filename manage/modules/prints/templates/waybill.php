@@ -7,7 +7,6 @@ class waybill extends AbstractOrdersTemplate
 {
     public function draw_one($object, $template='')
     {
-
         $order = $this->all_configs['db']->query('SELECT o.*, e.fio as manager, w.title as wh_title, aw.title as aw_title,
                                                 aw.print_address,aw.print_phone 
                                                 FROM {orders} as o
@@ -33,9 +32,9 @@ class waybill extends AbstractOrdersTemplate
                     $amount += sum_with_discount($good);
                 }
             }
-            
+
             $products = $view->renderFile('prints/waybill_products', array(
-                'goods' => $goods, 
+                'goods' => $this->productsGroup($goods),
                 'amount' => $amount
             ));
 
