@@ -172,6 +172,11 @@
                 <div class="row-fluid">
                     <div class="form-group col-sm-6">
                         <?= $order['btn'] ?>
+                        <?= $this->renderFile('suppliers.class/_addition_order_buttons', array(
+                            'order' => $order,
+                            'controller' => $controller,
+                            'edit_form' => true
+                        )) ?>
                     </div>
                 </div>
             <?php endif; ?>
