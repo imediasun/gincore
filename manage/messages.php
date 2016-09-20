@@ -13,6 +13,11 @@ if (!isset($_SESSION)) {
 }
 
 if (!isset($_SESSION['id']) || $_SESSION['id'] == 0) {
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode(array('message' => l('Сессия была прервана, выполните вход в Gincore'), 
+        'error' => true, 'reload' => true,
+        ));
+    exit;
     return false;
 }
 
