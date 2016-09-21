@@ -1484,11 +1484,11 @@ class warehouses extends Controller
                 'name' => l('Настройки')
             ),
             /**
-              array(
-              'click_tab' => true,
-              'url' => '#purchase_invoices',
-              'name' => l('Приходные накладные')
-              ),
+             * array(
+             * 'click_tab' => true,
+             * 'url' => '#purchase_invoices',
+             * 'name' => l('Приходные накладные')
+             * ),
              */
             array(
                 'click_tab' => true,
@@ -1922,6 +1922,17 @@ class warehouses extends Controller
                         }
                     }
                 }
+                if (!$data['state']) {
+                    $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
+                    $item = $this->all_configs['db']->query(
+                        'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
+                        array(trim($scan), suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
+                    if ($item) {
+                        $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
+                        $data['msg'] .= l('Изделие') . ' ' . $scan;
+                        $data['state'] = true;
+                    }
+                }
             }
         }
 
@@ -2305,7 +2316,7 @@ class warehouses extends Controller
             'warehouse_id' => $post['warehouse'],
             'location_id' => $post['location']
         );
-        $result['id'] =$this->PurchaseInvoices->add($data);
+        $result['id'] = $this->PurchaseInvoices->add($data);
         if (!$result['id']) {
             $result = array(
                 'state' => false,
@@ -2414,7 +2425,8 @@ class warehouses extends Controller
             if ($invoice['state'] == PURCHASE_INVOICE_STATE_CAPITALIZED) {
                 throw new ExceptionWithMsg(l('Накладная уже оприходована'));
             }
-            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice, $mod_id) : $invoice['supplier_order_id'];
+            $orderId = empty($invoice['supplier_order_id']) ? $this->createOrderFromInvoice($invoice,
+                $mod_id) : $invoice['supplier_order_id'];
             $debitResult = $this->debitOrderFromInvoice($orderId, $post, $mod_id);
             if (empty($debitResult)) {
                 throw new ExceptionWithMsg(l('Возникли проблемы при оприходовании заказов'));
@@ -2532,7 +2544,7 @@ class warehouses extends Controller
     private function purchaseInvoiceImport($post)
     {
         return array(
-          'state' => true,
+            'state' => true,
             'content' => 'test'
         );
     }
