@@ -28,7 +28,7 @@ class HideField extends Helper
      */
     public function wrap($buffer)
     {
-        return "<tr><td class='hide-field-td'>". $this->drawToggle($this->field) ."</td><td>{$buffer}</td></tr>";
+        return "<tr><td class='hide-field-td' style='padding-right: 10px ! important; '>". $this->drawToggle($this->field) ."</td><td>{$buffer}</td></tr>";
     }
 
     /**
