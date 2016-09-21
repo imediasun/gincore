@@ -679,3 +679,6 @@ span.js-return-pay {
     margin-left: 10px;
     margin-bottom: 20px;
 }
+.hide-field-td {
+    padding-right: 10px ! important;
+}
