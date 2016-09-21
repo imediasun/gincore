@@ -1859,6 +1859,7 @@ class warehouses extends Controller
     {
         $scan = isset($_POST['scanned'][1]) ? '"' . $_POST['scanned'][1] . '"' : '';
         $data['msg'] = l('Сканирование') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
+        $data['error'] = true;
 
         $order = $item = $location = null;
         $order_prefix = 'Z-'; // префикс для заказа
@@ -1880,6 +1881,7 @@ class warehouses extends Controller
                         if ($order) {
                             $data['msg'] = l('Заказ') . ' №' . $order['id'];
                             $data['state'] = true;
+                            $data['error'] = false;
                         }
                     }
                 }
@@ -1897,6 +1899,7 @@ class warehouses extends Controller
                             $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
                             $data['msg'] .= l('Изделие') . ' ' . suppliers_order_generate_serial($item);
                             $data['state'] = true;
+                            $data['error'] = false;
                         }
                     }
                 }
@@ -1919,18 +1922,20 @@ class warehouses extends Controller
                             $data['msg'] .= $item ? l('Изделие') . ' ' . suppliers_order_generate_serial($item) . '<br />' : '';
                             $data['msg'] .= l('Склад') . ' "' . htmlspecialchars($location['title']) . '", ' . l('локация') . ' "' . htmlspecialchars($location['location']) . '"';
                             $data['state'] = true;
+                            $data['error'] = false;
                         }
                     }
                 }
-                if (!$data['state']) {
-                    $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
+                if ($data['error']) {
                     $item = $this->all_configs['db']->query(
                         'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
-                        array(trim($scan), suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
-                    if ($item) {
+                        array($scan, suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
+                    if (!empty($item)) {
                         $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
                         $data['msg'] .= l('Изделие') . ' ' . $scan;
                         $data['state'] = true;
+                    } else {
+                        $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено!!!!');
                     }
                 }
             }
