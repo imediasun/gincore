@@ -248,7 +248,7 @@ class import_orders extends abstract_import_handler
         if (!$manager && !empty($this->import_settings['accepter_as_manager'])) {
             return $acceptorId;
         }
-        return @isset($this->managers[$manager]) ? 0 : $this->managers[$manager];
+        return !isset($this->managers[$manager]) ? 0 : $this->managers[$manager];
     }
 
         /**
