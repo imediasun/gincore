@@ -153,10 +153,10 @@
                                     <?= l('Вид ремонта') ?>:
                                 </label>
                                 <div class="tw100">
-                                <?= $this->renderFile('orders/genorder/_repair_types', array(
-                                    'order' => $order,
-                                    'brands' => $brands
-                                )); ?>
+                                    <?= $this->renderFile('orders/genorder/_repair_types', array(
+                                        'order' => $order,
+                                        'brands' => $brands
+                                    )); ?>
                                 </div>
                             </div>
                             <div class="form-group clearfix <?= !isset($hide['equipment']) ? 'hide-field' : '' ?>">
@@ -356,11 +356,11 @@
                     )); ?>
                     <?php if ($request): ?>
                         <div class="from-group clearfix">
-                            <?= l('Заявка') . ' ' . $request['id'] . ' ' . do_nice_date($request['date'],
-                                true) . '<br> '
-                            . '' . l('Звонок') . ' ' . $request['call_id'] . ' ' . do_nice_date($request['call_date'],
-                                true) . ' '
-                            . ($request['code'] ? '<br>Код: ' . $request['code'] : '') . '  '
+                            <?= l('Заявка') . ' N' . $request['id'] . ' ' . l('от') . ' ' . date('d-m-Y',
+                                strtotime($request['date']))
+                            . '<br> ' . '' . l('Звонок') . ' ' . $request['call_id'] . ' ' . l('от') . ' ' . date('d-m-Y',
+                                strtotime($request['call_date']))
+                            . ' ' . ($request['code'] ? '<br>' . l('Код') . ': ' . $request['code'] : '') . '  '
                             . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
                         </div>
                     <?php else: ?>
