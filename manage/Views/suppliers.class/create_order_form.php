@@ -115,7 +115,7 @@
             <div class="row-fluid">
                 <div class="col-sm-2 form-group">
                     <?php if (empty($order_id)): ?>
-                        <input type="button" class="btn submit-from-btn" onclick="create_supplier_order(this)"
+                        <input id='js-create-button' type="button" class="btn submit-from-btn" style='display:none' onclick="create_supplier_order(this)"
                                value="<?= l('Создать') ?>"/>
                     <?php else: ?>
                         <input type="submit" class="btn btn-primary submit-from-btn" name="new-order"

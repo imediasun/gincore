@@ -2428,6 +2428,7 @@ function add_supplier_item_to_table() {
     $row.parent().append($clone);
     $('table.supplier-table-items').show();
     recalculate_amount_supplier();
+    $('#js-create-button').show();
   }
   return false;
 }

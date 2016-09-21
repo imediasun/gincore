@@ -79,9 +79,7 @@
                             <span class="btn btn-sm btn-primary btn-add-good"
                                   onclick="return add_supplier_item_to_table();"
                                   title="<?= l('Добавить товар') ?>">
-                                    <span class="small" style="line-height: 22px">
-                                        <i class="glyphicon glyphicon-plus"></i>
-                                    </span>
+                                <?= l('Добавить товар') ?>
                             </span>
                 </td>
             </tr>
