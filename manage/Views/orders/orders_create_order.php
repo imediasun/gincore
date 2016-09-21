@@ -35,7 +35,7 @@
                         'hide' => $hide,
                         'users_fields' => $users_fields
                     )); ?>
-                    <form method="post" id="order-form" onsubmit="return false;">
+                    <form method="post" id="order-form">
                         <div class="col-sm-6 js-fields">
                             <fieldset>
                                 <table class="table table-borderless table-paddingless">
@@ -465,7 +465,7 @@
                                     <tr>
                                         <td class="hide-field-td" style="padding-right: 10px !important;">
                                             <div class="form-group" style="margin-top: 0px;">
-                                                <button name='save-hide-field-options' type="submit"
+                                                <button name='save-hide-field-options'
                                                         class="btn btn-primary"
                                                         onclick="apply_hide(this);"><?= l('Применить') ?></button>
                                             </div>
@@ -571,3 +571,12 @@
         <?php endif; ?>
     </div>
 </div>
+<script>
+    jQuery(document).ready(function () {
+        $("#order-form").bind("keypress", function (e) {
+            if (e.keyCode == 13) {
+                return false;
+            }
+        });
+    });
+</script>
