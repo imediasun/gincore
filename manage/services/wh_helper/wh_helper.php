@@ -32,7 +32,7 @@ class wh_helper extends \service
                  LEFT JOIN {warehouses} as w ON w.id = l.wh_id
                  ORDER BY w.id, location_name
                 "
-            )->assoc();
+            )->assoc('id');
             $warehouses = array();
             foreach ($wh as $w) {
                 if (!isset($warehouses[$w['id']])) {

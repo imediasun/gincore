@@ -479,6 +479,9 @@ class users extends Controller
         $warehouses = get_service('wh_helper')->get_warehouses();
 
         $firstWarehouse = reset($warehouses);
+        if($user['warehouse'] && array_key_exists($user['warehouse'], $warehouses)) {
+            $firstWarehouse = $warehouses[$user['warehouse']];
+        }
         return $this->view->renderFile('users/create', array(
             'error' => $error,
             'form_data' => $user,
