@@ -10,35 +10,6 @@ require_once __DIR__ . '/abstract_template.php';
 abstract class AbstractOrdersTemplate extends AbstractTemplate
 {
     /**
-     * @param $product
-     * @return string
-     */
-    public function calculateHash($product)
-    {
-        $string = $product['goods_id'] . $product['price'] . $product['discount'] . $product['url'] . $product['item_id'] . $product['warranty'] . $product['discount_type'];
-        return md5($string);
-    }
-
-    /**
-     * @param $products
-     * @return array
-     */
-    public function productsGroup($products)
-    {
-        $result = array();
-        foreach ($products as $product) {
-            $hash = $this->calculateHash($product);
-            if (empty($result[$hash])) {
-                $result[$hash] = $product;
-                $result[$hash]['id'] = $hash;
-                $result[$hash]['count'] = 0;
-            }
-            $result[$hash]['count'] += $product['count'];
-        }
-        return $result;
-    }
-
-    /**
      * @param $order
      * @param $goods
      * @return array

@@ -31,7 +31,7 @@ class purchase_invoice extends AbstractTemplate
             }
 
             $products = $view->renderFile('prints/purchase_invoice_products', array(
-                'orders' => $orders,
+                'orders' => $this->productsGroup($orders),
                 'amount' => $amount
             ));
 
