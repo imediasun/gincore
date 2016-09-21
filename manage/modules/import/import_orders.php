@@ -245,10 +245,13 @@ class import_orders extends abstract_import_handler
     private function getManagerId($row, $acceptorId)
     {
         $manager = import_helper::remove_whitespace($this->provider->get_manager($row));
-        return (!$manager && !empty($this->import_settings['accepter_as_manager'])) ? $acceptorId : 0;
+        if (!$manager && !empty($this->import_settings['accepter_as_manager'])) {
+            return $acceptorId;
+        }
+        return @isset($this->managers[$manager]) ? 0 : $this->managers[$manager];
     }
 
-    /**
+        /**
      * @param $row
      * @return string
      * @throws Exception
