@@ -87,6 +87,7 @@
                             <span class="input-group-btn">
                                 <select data-numberDisplayed="0" class="multiselect btn-sm" name="engineers[]"
                                         multiple="multiple">
+                                    <option value="-1"><?= l('Сотрудник не указан') ?></option>
                                     <?php foreach ($engineers as $engineer): ?>
                                         <option <?= ((isset($_GET['eng']) && in_array($engineer['id'],
                                                 explode(',', $_GET['eng']))) ? 'selected' : ''); ?>
@@ -110,6 +111,7 @@
                                     data-numberDisplayed="0" <?= ($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration')
                                     ? 'disabled' : '') ?> class="multiselect btn-sm" name="accepter[]"
                                     multiple="multiple">
+                                    <option value="-1"><?= l('Сотрудник не указан') ?></option>
                                     <?php foreach ($accepters as $accepter): ?>
                                         <?php $selected = (($this->all_configs['oRole']->hasPrivilege('partner') && !$this->all_configs['oRole']->hasPrivilege('site-administration') && $user_id == $accepter['id']) || (isset($_GET['acp']) && in_array($accepter['id'],
                                                     explode(',', $_GET['acp'])))) ? 'selected' : ''; ?>

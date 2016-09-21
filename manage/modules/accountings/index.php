@@ -3799,19 +3799,40 @@ class accountings extends Controller
         $query = '';
 
         // фильтр по менеджерам
-        if (array_key_exists('mg', $filters) && count(array_filter(explode(',', $filters['mg']))) > 0) {
+        $mg = array_filter(explode(',', $filters['mg']));
+        if (array_key_exists('mg', $filters) && count($mg) > 0) {
+            if (count($mg) > 1 || !in_array(-1, $mg)) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
-                array($query, array_filter(explode(',', $filters['mg']))));
+                array($query, $mg));
+            }
+            if (in_array(-1, $mg)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.manager IS NULL',
+                    array($query));
+            }
         }
         // фильтр по приемщику
-        if (array_key_exists('acp', $filters) && count(array_filter(explode(',', $filters['acp']))) > 0) {
+        $acp = array_filter(explode(',', $filters['acp']));
+        if (array_key_exists('acp', $filters) && count($acp) > 0) {
+            if (count($acp) > 1 || !in_array(-1, $acp)) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
-                array($query, array_filter(explode(',', $filters['acp']))));
+                array($query, $acp));
+            }
+            if (in_array(-1, $acp)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IS NULL',
+                    array($query));
+            }
         }
         // фильтр по Инженер
-        if (array_key_exists('eng', $filters) && count(array_filter(explode(',', $filters['eng']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
-                array($query, array_filter(explode(',', $filters['eng']))));
+        $eng = array_filter(explode(',', $filters['eng']));
+        if (array_key_exists('eng', $filters) && count($eng) > 0) {
+            if (count($eng) > 1 || !in_array(-1, $eng)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                    array($query, $eng));
+            }
+            if (in_array(-1, $eng)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IS NULL',
+                    array($query));
+            }
         }
         // фильтр по статусу
         if (array_key_exists('sts', $filters)) {

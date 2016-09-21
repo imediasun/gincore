@@ -68,6 +68,7 @@
                 <td style="padding: 0 5px 0 0 ">
                     <select class="multiselect  form-control report-filter" name="managers[]" multiple="multiple"
                             data-placeholder="<?= l('manager') ?>">
+                        <option value="-1"><?= l('Сотрудник не указан') ?></option>
                         <?= build_array_tree($managers,
                             ((isset($_GET['mg'])) ? explode(',', $_GET['mg']) : array())); ?>
                     </select>
@@ -77,6 +78,7 @@
                 <select <?= $isAdmin ? '' : 'disabled'; ?> class="multiselect form-control report-filter"
                                                            name="accepters[]"
                                                            multiple="multiple" data-placeholder="<?= l('Приемщик') ?>">
+                    <option value="-1"><?= l('Сотрудник не указан') ?></option>
                     <?php $selected = !$isAdmin ? $userId : ((isset($_GET['acp'])) ? explode(',',
                         $_GET['acp']) : array()); ?>
                     <?= build_array_tree($accepters, $selected); ?>
@@ -86,6 +88,7 @@
                 <td style="padding: 0 5px 0 0 ">
                     <select class="multiselect form-control report-filter" name="engineers[]"
                             multiple="multiple" data-placeholder="<?= l('Инженер') ?>">
+                        <option value="-1"><?= l('Сотрудник не указан') ?></option>
                         <?= build_array_tree($engineers,
                             ((isset($_GET['eng'])) ? explode(',', $_GET['eng']) : array())); ?>
                     </select>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/Core/Object.php';
+require_once __DIR__ . '/Core/Object.php';
 
 class manageModel extends Object
 {
@@ -589,9 +589,16 @@ class manageModel extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND m.user_id=?i AND m.type=?',
                 array($query, $_SESSION['id'], trim($filters['marked'])));
         }
-        if (isset($filters['mg']) && count(array_filter(explode(',', $filters['mg']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
-                array($query, array_filter(explode(',', $filters['mg']))));
+        $mg = array_filter(explode(',', $filters['mg']));
+        if (isset($filters['mg']) && count($mg) > 0) {
+            if (count($mg) > 1 || !in_array(-1, $mg)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
+                    array($query, array_filter(explode(',', $filters['mg']))));
+            }
+            if (in_array(-1, $mg)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.manager IS NULL',
+                    array($query));
+            }
         }
         if (isset($filters['person']) && count(array_filter(explode(',', $filters['person']))) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND c.person IN (?li)',
@@ -603,9 +610,16 @@ class manageModel extends Object
                 ?query AND man.fio LIKE "%?e%"',
                 array($query, $filters['manager']));
         }
-        if (isset($filters['eng']) && count(array_filter(explode(',', $filters['eng']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
-                array($query, array_filter(explode(',', $filters['eng']))));
+        $eng = array_filter(explode(',', $filters['eng']));
+        if (isset($filters['eng']) && count($eng) > 0) {
+            if (count($eng) > 1 || !in_array(-1, $eng)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                    array($query, array_filter(explode(',', $filters['eng']))));
+            }
+            if (in_array(-1, $eng)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IS NULL',
+                    array($query));
+            }
         }
         if (!empty($filters['engineer'])) {
             $query = $this->all_configs['db']->makeQuery('
@@ -613,9 +627,16 @@ class manageModel extends Object
                 ?query AND eng.fio LIKE "%?e%"',
                 array($query, $filters['engineer']));
         }
-        if (isset($filters['acp']) && count(array_filter(explode(',', $filters['acp']))) > 0) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
-                array($query, array_filter(explode(',', $filters['acp']))));
+        $acp = array_filter(explode(',', $filters['acp']));
+        if (isset($filters['acp']) && count($acp) > 0) {
+            if (count($acp) > 1 || !in_array(-1, $acp)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
+                    array($query, array_filter(explode(',', $filters['acp']))));
+            }
+            if (in_array(-1, $acp)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IS NULL',
+                    array($query));
+            }
         }
         if (!empty($filters['accepter'])) {
             $query = $this->all_configs['db']->makeQuery('
@@ -774,9 +795,11 @@ class manageModel extends Object
         }
 
         $userId = $this->getUserId();
-        $onlyHisOrders = $this->all_configs['db']->query('SELECT show_only_his_orders FROM {users} WHERE id=?i', array($userId))->el();
-        if($onlyHisOrders) {
-            $query = $this->all_configs['db']->makeQuery('?query AND (o.manager=?i OR o.accepter=?i OR o.engineer=?i)', array($query, $userId, $userId, $userId));
+        $onlyHisOrders = $this->all_configs['db']->query('SELECT show_only_his_orders FROM {users} WHERE id=?i',
+            array($userId))->el();
+        if ($onlyHisOrders) {
+            $query = $this->all_configs['db']->makeQuery('?query AND (o.manager=?i OR o.accepter=?i OR o.engineer=?i)',
+                array($query, $userId, $userId, $userId));
         }
         return array(
             'query' => $query,
