@@ -158,6 +158,7 @@ class widgets extends Controller
                         'value' => $post['send_email'],
                         'title' => lq('Уведомлять о новых отзывах на почту'),
                         'description' => lq('Уведомлять о новых отзывах на почту'),
+                        'ro' => 1
                     ));
                 } else {
                     $this->Settings->update(array('value' => $post['send_email']),
@@ -168,19 +169,19 @@ class widgets extends Controller
             }
             $value = isset($post['bg-color']) ? $post['bg-color'] : array();
             $this->saveSetting('widget-order-feedback-bg-color', $value, lq('Цвет фона виджета отзывов о работе сервиса'),
-                'Цвет фона виджета отзывов о работе сервиса');
+                'Цвет фона виджета отзывов о работе сервиса', 1);
             $value = isset($post['fg-color']) ? $post['fg-color'] : array();
             $this->saveSetting('widget-order-feedback-fg-color', $value, lq('Цвет текста виджета отзывов о работе сервиса'),
-                lq('Цвет текста виджета отзывов о работе сервиса'));
+                lq('Цвет текста виджета отзывов о работе сервиса'), 1);
             FlashMessage::set(lq('Настройки сохранены'), FlashMessage::SUCCESS);
         }
         if (isset($post['status-form'])) {
             $value = isset($post['bg-color']) ? $post['bg-color'] : array();
             $this->saveSetting('widget-order-state-bg-color', $value, lq('Цвет фона виджета статуса заказов'),
-                'Цвет фона виджета статуса заказов');
+                'Цвет фона виджета статуса заказов', 1);
             $value = isset($post['fg-color']) ? $post['fg-color'] : array();
             $this->saveSetting('widget-order-state-fg-color', $value, lq('Цвет текста виджета статуса заказов'),
-                lq('Цвет текста виджета статуса заказов'));
+                lq('Цвет текста виджета статуса заказов'), 1);
         }
         Response::redirect(Response::referrer());
     }
@@ -199,7 +200,7 @@ class widgets extends Controller
      * @param $title
      * @param $description
      */
-    private function saveSetting($name, $value, $title, $description)
+    private function saveSetting($name, $value, $title, $description, $ro = 0)
     {
         if(empty($name)) {
             return;
@@ -212,6 +213,7 @@ class widgets extends Controller
                     'value' => $value,
                     'title' => lq($title),
                     'description' => lq($description),
+                    'ro' => $ro
                 ));
             } else {
                 $this->Settings->update(array('value' => $value),
