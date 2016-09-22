@@ -1085,7 +1085,7 @@ class Configs
             'order-statuses-debts' => array(40, 35),
             //по каким статусам выбирать заказы в менеджер заказов
             'order-statuses-dis-if-spare-part' => array(15, 20, 25),
-            'order-statuses-engineer-workload' => array(0, 2, 5, 10, 27, 45),
+            'order-statuses-engineer-not-workload' => array(15, 20, 25, 35, 40, 30, 50),
             'order-statuses-expect-parts' => array(10, 27),
             // нельзя установить этот статус пока к заказу привязаны запчасти (с серийниками или без - неважно)
 

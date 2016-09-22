@@ -1789,11 +1789,11 @@ class orders extends Controller
             $query = $this->all_configs['db']->makeQuery('u.avail=1 AND u.deleted=0 AND id IN (?li)', array($ids));
             $result = $this->all_configs['db']->query('
                 SELECT u.*, CONCAT(u.fio, " ", u.login) as name,
-                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as workload,
+                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND NOT status in (?l)) as workload,
                 (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as wait_parts
                 FROM {users} as u
                 WHERE  ?query',
-                array($this->all_configs['configs']['order-statuses-engineer-workload'], $this->all_configs['configs']['order-statuses-expect-parts'], $query))->assoc('id');
+                array($this->all_configs['configs']['order-statuses-engineer-not-workload'], $this->all_configs['configs']['order-statuses-expect-parts'], $query))->assoc('id');
         }
         return $result;
     }
