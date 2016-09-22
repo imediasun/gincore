@@ -333,7 +333,7 @@ class products extends Controller
         }
         // убераем менеджеров которые уже прикреплены к товару
         return $this->all_configs['db']->query('
-                SELECT u.id, u.login, m.user_id as manager FROM {users} as u
+                SELECT u.id, if(u.fio is NULL OR u.fio="",  u.login, u.fio) as login, m.user_id as manager FROM {users} as u
                 LEFT JOIN {users_roles} as r ON u.role=r.id
                 LEFT JOIN {users_role_permission} as rp ON rp.role_id=r.id
                 RIGHT JOIN (SELECT id FROM {users_permissions} WHERE link="external-marketing")p ON p.id=rp.permission_id

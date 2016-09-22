@@ -13,6 +13,7 @@ $modulemenu[10] = l('orders');
  * @property  MOrdersComments OrdersComments
  * @property  MLockFilters    LockFilters
  * @property  MTemplateVars   TemplateVars
+ * @property  MUsers   Users
  */
 class orders extends Controller
 {
@@ -21,7 +22,8 @@ class orders extends Controller
         'OrdersGoods',
         'OrdersComments',
         'LockFilters',
-        'TemplateVars'
+        'TemplateVars',
+        'Users'
     );
 
     /**
@@ -349,10 +351,7 @@ class orders extends Controller
      */
     function show_filter_manager_as_row()
     {
-        $managers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('edit-clients-orders', 'site-administration'))->assoc();
+        $managers = $this->Users->getByPermission(array('edit-clients-orders', 'site-administration'));
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
             (isset($_GET['managers']) ? $_GET['managers'] : array());
         return $this->view->renderFile('orders/show_filter_manager_as_row', array(
@@ -368,10 +367,7 @@ class orders extends Controller
      */
     function show_filter_manager($compact = false, $showWrapper = true)
     {
-        $managers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('edit-clients-orders', 'site-administration'))->assoc();
+        $managers = $this->Users->getByPermission(array('edit-clients-orders', 'site-administration'));
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
             (isset($_GET['managers']) ? $_GET['managers'] : array());
         return $this->view->renderFile('orders/show_filter_manager', array(
@@ -387,10 +383,7 @@ class orders extends Controller
      */
     function show_filter_manager_small()
     {
-        $managers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('edit-clients-orders', 'site-administration'))->assoc();
+        $managers = $this->Users->getByPermission(array('edit-clients-orders', 'site-administration'));
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
             (isset($_GET['managers']) ? $_GET['managers'] : array());
         return $this->view->renderFile('orders/show_filter_manager_small', array(
@@ -425,15 +418,9 @@ class orders extends Controller
             JOIN {orders} o ON o.id=um.object_id 
             WHERE um.user_id=?i AND um.type=? AND o.type=?i', array($_SESSION['id'], 'co', ORDER_SELL))->el();
         // индинеры
-        $engineers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
-            array('engineer'))->assoc();
-        $accepters = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('create-clients-orders', 'site-administration'))->assoc();
-        // фильтр по складам (дерево)
+        $engineers = $this->Users->getByPermission(array('engineer'));
+        $accepters = $this->Users->getByPermission(array('create-clients-orders', 'site-administration'));
+        // фильтр по складам (дерево)->get
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
             FROM {orders} as o, {warehouses} as w
             LEFT JOIN {warehouses_groups} as gr ON gr.id=w.group_id
@@ -497,14 +484,8 @@ class orders extends Controller
             WHERE um.user_id=?i AND um.type=? AND o.type in (?li)',
             array($_SESSION['id'], 'co', array(ORDER_REPAIR, ORDER_WRITE_OFF)))->el();
         // индинеры
-        $engineers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
-            array('engineer'))->assoc();
-        $accepters = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('create-clients-orders', 'site-administration'))->assoc();
+        $engineers = $this->Users->getByPermission(array('engineer'));
+        $accepters = $this->Users->getByPermission(array('create-clients-orders', 'site-administration'));
         // фильтр по складам (дерево)
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
             FROM {orders} as o, {warehouses} as w
