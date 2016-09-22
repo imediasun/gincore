@@ -227,7 +227,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             if ($data) {
                 foreach ($data as $k => $v) {
                     $data[$k] = array(
-                        'title' => suppliers_order_generate_serial($v) . ($v['reserve'] ? l('(бронь)') : ''),
+                        'title' => suppliers_order_generate_serial($v) . ($v['reserve'] ? ' ' . l('(бронь)') : ''),
                         'class' => $v['reserve'] ? 'reserved' : '',
                         'id' => $v['item_id']
                     );
