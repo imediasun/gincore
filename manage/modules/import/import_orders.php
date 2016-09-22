@@ -171,9 +171,7 @@ class import_orders extends abstract_import_handler
         foreach ($rows as $row) {
             $this->getAcceptorOrSetNotFound($row);
             $this->getEngineerOrSetNotFound($row);
-            if (empty($this->import_settings['accepter_as_manager'])) {
-                $this->getManagerOrSetNotFound($row);
-            }
+            $this->getManagerOrSetNotFound($row);
         }
         if ($this->not_found_acceptors || $this->not_found_engineers || $this->not_found_managers) {
             return array(
@@ -251,7 +249,7 @@ class import_orders extends abstract_import_handler
         return !isset($this->managers[$manager]) ? 0 : $this->managers[$manager];
     }
 
-        /**
+    /**
      * @param $row
      * @return string
      * @throws Exception

@@ -3,8 +3,8 @@
 include 'inc_config.php';
 include 'inc_func.php';
 include 'inc_settings.php';
-require_once __DIR__.'/Core/Log.php';
-require_once __DIR__.'/Core/Response.php';
+require_once __DIR__ . '/Core/Log.php';
+require_once __DIR__ . '/Core/Response.php';
 
 global $all_configs;
 
@@ -14,9 +14,11 @@ if (!isset($_SESSION)) {
 
 if (!isset($_SESSION['id']) || $_SESSION['id'] == 0) {
     header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array('message' => l('Сессия была прервана, выполните вход в Gincore'), 
-        'error' => true, 'reload' => true,
-        ));
+    echo json_encode(array(
+        'message' => l('Сессия была прервана, выполните вход в Gincore'),
+        'error' => true,
+        'reload' => true,
+    ));
     exit;
     return false;
 }
@@ -98,7 +100,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                     WHERE cg.deleted=0 AND cg.title LIKE "%?e%" ?query LIMIT ?i',
                 array($join, $s, $query, $limit))->assoc();
         }
-        if($_POST['table'] == 'categories-parent') {
+        if ($_POST['table'] == 'categories-parent') {
             $data = $all_configs['db']->query('
             SELECT cg.id, cg.title 
             FROM {categories} as cg
@@ -151,7 +153,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 array($query, $s, $s, 1, $limit))->assoc();
         }
         if ($_POST['table'] == 'clients') {
-            if($all_configs['configs']['can_see_client_infos']) {
+            if ($all_configs['configs']['can_see_client_infos']) {
                 $title_query = $all_configs['db']->makeQuery('GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
                       ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as title');
             } else {
@@ -188,6 +190,42 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             $data = $all_configs['db']->query('SELECT id as item_id, serial FROM {warehouses_goods_items}
                     WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL) AND order_id IS NULL) LIMIT ?i',
                 array($s, $query, $limit))->assoc();
+            if ($data) {
+                foreach ($data as $k => $v) {
+                    $data[$k] = array('title' => suppliers_order_generate_serial($v), 'id' => $v['item_id']);
+                }
+            }
+        }
+        if ($_POST['table'] == 'not-bind-serials') {
+            if (preg_match("/{$all_configs['configs']['erp-serial-prefix']}0*/", $s)) {
+                list($prefix, $length) = prepare_for_serial_search($all_configs['configs']['erp-serial-prefix'], $s,
+                    $all_configs['configs']['erp-serial-count-num']);
+                $query = $all_configs['db']->makeQuery('id REGEXP "^?e[0-9]?e$"', array($prefix, "{0,{$length}}"));
+            } else {
+                $query = $all_configs['db']->makeQuery('id LIKE "%?e%"',
+                    array(intval(preg_replace('/[^0-9]/', '', $s))));
+            }
+
+            $data = $all_configs['db']->query('SELECT id as item_id, serial, supplier_order_id FROM {warehouses_goods_items}
+                    WHERE ((serial LIKE "%?e%" AND serial IS NOT NULL) OR (?query AND serial IS NULL) AND order_id IS NULL) LIMIT ?i',
+                array($s, $query, $limit))->assoc();
+
+            if (!empty($data)) {
+                foreach ($data as $id => $item) {
+                    // проверяем есть ли заявки на изделие
+                    $count_free = $all_configs['db']->query('SELECT COUNT(DISTINCT i.id) - COUNT(DISTINCT l.id) as qty,
+                GROUP_CONCAT(l.client_order_id) as orders FROM {warehouses} as w, {warehouses_goods_items} as i
+                LEFT JOIN {orders_suppliers_clients} as l ON i.supplier_order_id=l.supplier_order_id AND l.order_goods_id IN
+                (SELECT id FROM {orders_goods} WHERE item_id IS NULL)
+                WHERE w.consider_store=1 AND i.wh_id=w.id AND i.order_id IS NULL AND i.supplier_order_id=?i
+                GROUP BY i.goods_id', array($item['supplier_order_id']))->row();
+
+                    if ($count_free && $count_free['qty'] < 1) {
+                        unset($data[$id]);
+                    }
+                }
+            }
+
             if ($data) {
                 foreach ($data as $k => $v) {
                     $data[$k] = array('title' => suppliers_order_generate_serial($v), 'id' => $v['item_id']);
@@ -490,7 +528,7 @@ if ($act == 'get_locations') {
         $warehouses = get_service('wh_helper')->get_warehouses();
         if (isset($warehouses[$_POST['wh_id']]['locations'])) {
             $i = 0;
-            $out = '<option value="0">'.l('Выберите локацию на складе').'</option>';
+            $out = '<option value="0">' . l('Выберите локацию на складе') . '</option>';
             foreach ($warehouses[$_POST['wh_id']]['locations'] as $id => $location) {
                 if (trim($location['name'])) {
                     $out .= '<option' . (!$i ? ' selected="selected"' : '') . ' value="' . $id . '">' .
@@ -661,7 +699,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
 
     $query = $all_configs['manageModel']->global_filters($_GET,
         array('date', 'category', 'product', 'operators', 'client', 'client_orders_id'));
-    $query = $all_configs['db']->makeQuery('?query AND (o.sum>(o.sum_paid + o.discount) OR o.sum<o.sum_paid)', array($query));
+    $query = $all_configs['db']->makeQuery('?query AND (o.sum>(o.sum_paid + o.discount) OR o.sum<o.sum_paid)',
+        array($query));
     $data['tc_accountings_clients_orders'] = $all_configs['manageModel']->get_count_accounting_clients_orders($query);
     $q1 = $all_configs['manageModel']->suppliers_orders_query($_GET + array('type' => 'pay'));
     $data['tc_accountings_suppliers_orders'] = $all_configs['manageModel']->get_count_suppliers_orders($q1['query']);
@@ -719,30 +758,30 @@ if (isset($_POST['act']) && $_POST['act'] == 'send_message') {
 
     if (!isset($_POST['send-mess-user']) || !is_array($_POST['send-mess-user']) || count($_POST['send-mess-user']) < 1) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Выберите пользователя'), 'error'=>true));
+        echo json_encode(array('message' => l('Выберите пользователя'), 'error' => true));
         exit;
     }
 
     if (!isset($_POST['text'])) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите текст'), 'error'=>true));
+        echo json_encode(array('message' => l('Введите текст'), 'error' => true));
         exit;
     }
     if (!isset($_POST['title'])) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите заглавие'), 'error'=>true));
+        echo json_encode(array('message' => l('Введите заглавие'), 'error' => true));
         exit;
     }
     $text = trim($_POST['text']);
     $title = trim($_POST['title']);
     if (empty($text)) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите сообщение'), 'error'=>true));
+        echo json_encode(array('message' => l('Введите сообщение'), 'error' => true));
         exit;
     }
     if (empty($title)) {
         header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите заглавие'), 'error'=>true));
+        echo json_encode(array('message' => l('Введите заглавие'), 'error' => true));
         exit;
     }
     $array = array();
@@ -795,19 +834,19 @@ if (isset($_POST['pk']['act']) && $_POST['pk']['act'] == 'infobox'
 
 }
 
-if($act == 'hide-infopopover'){
+if ($act == 'hide-infopopover') {
     $var = !empty($_POST['id']) ? $_POST['id'] : '';
-    if($var){
-        include_once __DIR__.'/Helpers/InfoPopover.php';
+    if ($var) {
+        include_once __DIR__ . '/Helpers/InfoPopover.php';
         InfoPopover::getInstance()->oneTimePopoverToggle($var);
     }
 }
 
-if($act == 'hide-toggle-infopopover'){
+if ($act == 'hide-toggle-infopopover') {
     $var = !empty($_POST['id']) ? $_POST['id'] : '';
     $state = !empty($_GET['state']) ? $_GET['state'] : 0;
-    if($var){
-        include_once __DIR__.'/Helpers/InfoPopover.php';
+    if ($var) {
+        include_once __DIR__ . '/Helpers/InfoPopover.php';
         InfoPopover::getInstance()->oneTimePopoverToggle($var, $state);
     }
 }
