@@ -356,9 +356,9 @@
                     )); ?>
                     <?php if ($request): ?>
                         <div class="from-group clearfix">
-                            <?= l('Заявка') . ' N' . $request['id'] . ' ' . l('от') . ' ' . date('d-m-Y',
+                            <?= l('Заявка') . ' №' . $request['id'] . ' ' . l('от') . ' ' . date('d-m-Y',
                                 strtotime($request['date']))
-                            . '<br> ' . '' . l('Звонок') . ' ' . $request['call_id'] . ' ' . l('от') . ' ' . date('d-m-Y',
+                            . '<br> ' . '' . l('Звонок') . ' №' . $request['call_id'] . ' ' . l('от') . ' ' . date('d-m-Y',
                                 strtotime($request['call_date']))
                             . ' ' . ($request['code'] ? '<br>' . l('Код') . ': ' . $request['code'] : '') . '  '
                             . ($request['rf_name'] ? '<br>' . l('Источник') . ': ' . $request['rf_name'] . '' : '') . '  ' ?>
