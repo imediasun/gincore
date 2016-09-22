@@ -285,7 +285,8 @@ class Configs
             'sms_templates',
                 'print_templates',
                 'stocktaking',
-                'import'
+                'import',
+                'custom_status'
             ),
             //'wrapper', 'debug', 'admin_translates'
             'manage-reset-access' => true,

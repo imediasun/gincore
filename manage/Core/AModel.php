@@ -278,4 +278,12 @@ abstract class AModel extends Object
         }
         return $values;
     }
+
+    /**
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return (bool) $this->query('SELECT count(*) FROM ?t', array($this->table))->el();
+    }
 }

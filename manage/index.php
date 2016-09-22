@@ -373,13 +373,14 @@ try {
                         || ($v == 'sms_templates' && $all_configs['oRole']->hasPrivilege('site-administration'))
                         || ($v == 'print_templates' && $all_configs['oRole']->hasPrivilege('site-administration'))
                         || ($v == 'seo' && $all_configs['oRole']->hasPrivilege('edit-map'))
+                        || ($v == 'custom_status')
 
                     ) {
                         if ($v == 'map' || $v == 'langs' || $v == 'translates' || $v == 'admin_translates' || $v == 'chat'
                             || $v == 'settings' || $v == 'users' || $v == 'offices' || $v == 'wrapper'
                             || $v == 'banners' || $v == 'imports' || $v == 'forms' || $v == 'subdomains'
                             || $v == 'debug' || $v == 'tasks' || $v == 'flayers' || $v == 'statistics'
-                            || $v == 'seo' || $v == 'widgets' || $v == 'import' || $v == 'sms_templates' || $v == 'print_templates'
+                            || $v == 'seo' || $v == 'widgets' || $v == 'import' || $v == 'sms_templates' || $v == 'print_templates' || $v == 'custom_status'
                         ) {
 
                             if (empty($additionallUrl)) {
@@ -423,6 +424,7 @@ try {
     get_service('crm/requests');
 ################################################################################
     $all_configs['curmod'] = null;
+    Log::dump($curmod);
     if ($ifauth) {
         $all_configs['configs']['can_see_client_infos'] = $all_configs['oRole']->canSeeClientInfos($_SESSION['id']);
         if ($curmod) {

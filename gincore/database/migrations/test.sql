@@ -309,3 +309,22 @@ CREATE TABLE IF NOT EXISTS `restore4_brands` (
 ALTER TABLE `restore4_orders` ADD COLUMN brand_id int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_orders` ADD INDEX orders_brand_id(brand_id);
 INSERT INTO `restore4_brands` (title) VALUES ('LG'), ('Apple'), ('Samsung');
+/*
+2016_09_22_121620_custom_statuses.php
+ */
+CREATE TABLE IF NOT EXISTS `restore4_status` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR (255) NOT NULL,
+    `from` VARCHAR (255) NOT NULL,
+    `color` VARCHAR (6) NOT NULL,
+    `status_id` int(10) UNSIGNED NOT NULL,
+    `order_type` int(10) UNSIGNED DEFAULT 0,
+    `system` SMALLINT UNSIGNED DEFAULT 0,
+    `use_in_manager` SMALLINT UNSIGNED DEFAULT 1,
+    `active` SMALLINT UNSIGNED DEFAULT 1,
+PRIMARY KEY (`id`),
+INDEX (`status_id`),
+INDEX(`system`),
+INDEX(`use_in_manager`),
+INDEX(`active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
