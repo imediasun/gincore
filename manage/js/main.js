@@ -337,6 +337,12 @@ $(document).ready(function () {
       highlighter: function (obj) {
         var item = JSON.parse(obj);
         var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
+        console.log(item);
+        if(item.original.class) {
+          return '<span class="' + item.original.class + '">' + item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+            return '<strong>' + match + '</strong>'
+          }) + '</span>';
+        }
         return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
           return '<strong>' + match + '</strong>'
         })

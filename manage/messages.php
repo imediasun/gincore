@@ -220,14 +220,15 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 WHERE w.consider_store=1 AND i.wh_id=w.id AND i.order_id IS NULL AND i.supplier_order_id=?i
                 GROUP BY i.goods_id', array($item['supplier_order_id']))->row();
 
-                        $data[$id]['reserve'] = ($count_free && $count_free['qty'] < 1) ;
+                    $data[$id]['reserve'] = ($count_free && $count_free['qty'] < 1);
                 }
             }
 
             if ($data) {
                 foreach ($data as $k => $v) {
                     $data[$k] = array(
-                        'title' => suppliers_order_generate_serial($v) . ($v['reserve']?l('(бронь)'):''),
+                        'title' => suppliers_order_generate_serial($v) . ($v['reserve'] ? l('(бронь)') : ''),
+                        'class' => $v['reserve'] ? 'reserved' : '',
                         'id' => $v['item_id']
                     );
                 }
