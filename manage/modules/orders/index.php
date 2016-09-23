@@ -13,7 +13,8 @@ $modulemenu[10] = l('orders');
  * @property  MOrdersComments OrdersComments
  * @property  MLockFilters    LockFilters
  * @property  MTemplateVars   TemplateVars
- * @property  MUsers   Users
+ * @property  MUsers          Users
+ * @property  MStatus         Status
  */
 class orders extends Controller
 {
@@ -23,7 +24,8 @@ class orders extends Controller
         'OrdersComments',
         'LockFilters',
         'TemplateVars',
-        'Users'
+        'Users',
+        'Status'
     );
 
     /**
@@ -1793,7 +1795,11 @@ class orders extends Controller
                 (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as wait_parts
                 FROM {users} as u
                 WHERE  ?query',
-                array($this->all_configs['configs']['order-statuses-engineer-not-workload'], $this->all_configs['configs']['order-statuses-expect-parts'], $query))->assoc('id');
+                array(
+                    $this->all_configs['configs']['order-statuses-engineer-not-workload'],
+                    $this->all_configs['configs']['order-statuses-expect-parts'],
+                    $query
+                ))->assoc('id');
         }
         return $result;
     }
@@ -2477,7 +2483,7 @@ class orders extends Controller
             'orderStatus' => $this->all_configs['configs']['order-status'],
             'shows' => array_keys($this->all_configs['configs']['show-status-in-manager-config']),
             'default' => $this->all_configs['configs']['show-status-in-manager-config'],
-            'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
+            'current' => empty($current) ? array() : json_decode($current[0]['value'], true),
         ));
         $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . ' '
             . InfoPopover::getInstance()->createQuestion('l_manager_setup_info') . '</center>';

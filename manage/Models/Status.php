@@ -83,4 +83,27 @@ class MStatus extends AModel
         ))->el();
         return $last + 1;
     }
+
+    /**
+     * @param int $type
+     * @return array
+     */
+    public function getStatus($type  = ORDER_REPAIR)
+    {
+        $status = $this->query('
+            SELECT status_id, name, color, `from`, system, use_in_manager
+            FROM ?t 
+            WHERE order_type=?i AND active=1
+            ORDER by status_id ASC
+        ', array(
+            $this->table,
+            $type
+        ))->assoc('status_id');
+        if(!empty($status)) {
+            foreach ($status as $id => $state) {
+                $status[$id]['from'] = json_decode($state['from'], true);
+            }
+        }
+        return $status;
+    }
 }
