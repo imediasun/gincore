@@ -284,6 +284,6 @@ abstract class AModel extends Object
      */
     public function isEmpty()
     {
-        return (bool) $this->query('SELECT count(*) FROM ?t', array($this->table))->el();
+        return ! (bool) $this->query('SELECT count(*) FROM ?t', array($this->table))->el();
     }
 }

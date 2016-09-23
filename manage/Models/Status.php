@@ -10,14 +10,16 @@ class MStatus extends AModel
     public $table = 'status';
 
     /**
+     * @param int $type
      * @return array
      */
-    public function getAll()
+    public function getAll($type = ORDER_REPAIR)
     {
         if ($this->isEmpty()) {
             $this->setDefault();
         }
-        return $this->query('SELECT * FROM ?t', array($this->table))->assoc('id');
+        return $this->query('SELECT * FROM ?t WHERE order_type=?i ORDER by status_id ASC',
+            array($this->table, $type))->assoc('id');
     }
 
     /**
@@ -25,11 +27,10 @@ class MStatus extends AModel
      */
     protected function setDefault()
     {
-        global $all_configs;
-        foreach ($all_configs['configs']['order-status'] as $id => $status) {
+        foreach ($this->all_configs['configs']['order-status'] as $id => $status) {
             $this->insert(array(
                 'name' => $status['name'],
-                'from' => json_encode($status['from']),
+                '`from`' => json_encode($status['from']),
                 'color' => $status['color'],
                 'status_id' => $id,
                 'order_type' => ORDER_REPAIR,
@@ -38,10 +39,10 @@ class MStatus extends AModel
                 'active' => 1,
             ));
         }
-        foreach ($all_configs['configs']['sale-order-status'] as $id => $status) {
+        foreach ($this->all_configs['configs']['sale-order-status'] as $id => $status) {
             $this->insert(array(
                 'name' => $status['name'],
-                'from' => json_encode($status['from']),
+                '`from`' => json_encode($status['from']),
                 'color' => $status['color'],
                 'status_id' => $id,
                 'order_type' => ORDER_SELL,
@@ -68,5 +69,18 @@ class MStatus extends AModel
             'use_in_manager',
             'active',
         );
+    }
+
+    /**
+     * @param int $type
+     * @return string
+     */
+    public function getNextStatusId($type = ORDER_REPAIR)
+    {
+        $last = $this->query('SELECT status_id FROM ?t WHERE order_type=?i ORDER by status_id DESC LIMIT 1', array(
+            $this->table,
+            $type
+        ))->el();
+        return $last + 1;
     }
 }

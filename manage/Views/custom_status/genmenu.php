@@ -1,8 +1,8 @@
 <ul>
-    <li <?= ($current == 'status' ? 'class="active"' : '') ?>>
-        <a href="<?= $this->all_configs['prefix'] ?>widgets/status"><?= l('Статус ремонта') ?></a>
+    <li <?= ($current == 'repair' ? 'class="active"' : '') ?>>
+        <a href="<?= $this->all_configs['prefix'] ?>custom_status?type=repair"><?= l('Статусы ремонтов') ?></a>
     </li>
-    <li <?= ($current == 'feedback' ? 'class="active"' : '') ?>>
-        <a href="<?= $this->all_configs['prefix'] ?>widgets/feedback"><?= l('Отзыввы о работе персонала') ?></a>
+    <li <?= ($current == 'sale' ? 'class="active"' : '') ?>>
+        <a href="<?= $this->all_configs['prefix'] ?>custom_status?type=sale"><?= l('Статусы продаж') ?></a>
     </li>
 </ul>
