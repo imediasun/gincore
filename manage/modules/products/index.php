@@ -1597,9 +1597,7 @@ class products extends Controller
         $goods_html = '';
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
-            $mod_id = $this->all_configs['configs']['products-manage-page'];
-
-            $histories = $this->History->getProductsManagersChanges($mod_id, $this->all_configs['arrequest'][2]);
+            $histories = $this->History->getProductsManagersChanges($this->all_configs['arrequest'][2]);
             $goods_html = $this->view->renderFile('products/products_managers_history', array(
                 'histories' => $histories,
             ));
