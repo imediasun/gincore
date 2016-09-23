@@ -941,6 +941,9 @@ function add_quick_item_to_table() {
     serial = $('input[name="serials"]').val(),
     rnd = parseInt(Math.random() * 1000);
 
+  if(id.length == 0) {
+    alert(L['serial_not_found'] || '{js_serial_not_found}');
+  }
   if (cost == 0) {
     $('#sale_poduct_cost').addClass('parsley-error');
     $('#sale_product_cost_error').show();
