@@ -103,6 +103,7 @@ require_once 'core_langs.php';
 Configs::getInstance()->set_configs();
 $all_configs['configs'] = Configs::getInstance()->get();
 $Status = new MStatus($all_configs);
+$Status->setDefaultIfNeed();
 $all_configs['configs']['order-status'] = $Status->getStatus(ORDER_REPAIR);
 $all_configs['configs']['sale-order-status'] = $Status->getStatus(ORDER_SELL);
 

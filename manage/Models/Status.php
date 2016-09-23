@@ -10,14 +10,21 @@ class MStatus extends AModel
     public $table = 'status';
 
     /**
+     *
+     */
+    public function setDefaultIfNeed()
+    {
+        if ($this->isEmpty()) {
+            $this->setDefault();
+        }
+    }
+    /**
      * @param int $type
      * @return array
      */
     public function getAll($type = ORDER_REPAIR)
     {
-        if ($this->isEmpty()) {
-            $this->setDefault();
-        }
+        $this->setDefaultIfNeed();
         return $this->query('SELECT * FROM ?t WHERE order_type=?i ORDER by status_id ASC',
             array($this->table, $type))->assoc('id');
     }
