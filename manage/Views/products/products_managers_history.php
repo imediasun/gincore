@@ -11,7 +11,7 @@
         <?php foreach ($histories as $history): ?>
             <tr>
                 <td><a href="<?= $this->all_configs['prefix'] ?>users"><?= $history['login'] ?></a></td>
-                <td><?= $this->all_configs['configs']['changes'][$history['work']] ?></td>
+                <td><?= $history['change'] ?></td>
                 <td><span title="<?= do_nice_date($history['date_add'],
                         false) ?>"><?= do_nice_date($history['date_add']) ?></span></td>
             </tr>

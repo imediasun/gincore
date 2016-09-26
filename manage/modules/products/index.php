@@ -207,42 +207,22 @@ class products extends Controller
 
             // менеджеры
             if (isset($post['edit-product-managers_managers'])) {
-                $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
-                    array($product_id));
-                // добавляем доступ к товару пользователям
-                if (isset($post['users'])) {
-                    foreach ($post['users'] as $user) {
-                        if ($user > 0) {
-                            $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager}
-                                    SET user_id=?i, goods_id=?i',
-                                array($user, $product_id));
-                        }
-                    }
-                }
+                $this->editProductManagers($post, $product_id);
             }
 
             // finance/stock заказы поставщикам
             if (isset($post['edit-product-financestock_finance'])) {
-                $this->all_configs['db']->query('DELETE FROM {goods_suppliers} WHERE goods_id=?i', array($product_id));
-                if (isset($post['links'])) {
-                    foreach ($post['links'] as $link) {
-                        if (mb_strlen(trim($link), 'UTF-8') > 0) {
-                            $this->all_configs['db']->query(
-                                'INSERT INTO {goods_suppliers} (goods_id, link) VALUES (?i, ?)',
-                                array($product_id, trim($link)));
-                        }
-                    }
-                }
+                $this->editProductFinacestock($post, $product_id);
             }
 
             // омт уведомления
             if (isset($post['edit-product-omt_notices'])) {
-                $post = $this->editProductOmtNotices($post, $product_id);
+                $post = $this->editProductOmtNotices($post, $product_id, $mod_id);
             }
 
             // омт управление закупками
             if (isset($post['edit-product-omt_procurement']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-                $post = $this->editProductOmtProcurement($post, $product_id);
+                $this->editProductOmtProcurement($post, $product_id, $mod_id);
 
             }
 
@@ -2257,12 +2237,23 @@ class products extends Controller
     {
         $good = $this->Goods->getByPk($product_id);
 
-        $ar = $this->all_configs['db']->query('UPDATE {goods}
-                    SET avail=?i, type=?i WHERE id=?i',
-            array(isset($post['avail']) ? 1 : 0, isset($post['type']) ? 1 : 0, $product_id))->ar();
+        $update = array(
+            'avail' => isset($post['avail']) ? 1 : 0,
+            '`type`' => isset($post['type']) ? 1 : 0
+        );
+        $ar = $this->Goods->update($update, array(
+            'id' => $product_id
+        ));
 
         if (intval($ar) > 0) {
-            $this->History->save('edit-goods', $mod_id, $product_id);
+            if ($good['avail'] != $update['avail']) {
+                $this->History->save('edit-goods', $mod_id, $product_id,
+                    l('Доступность') . ': ' . ($good['avail'] ? l('Да') : l('Нет')));
+            }
+            if ($good['type'] != $update['`type`']) {
+                $this->History->save('edit-goods', $mod_id, $product_id,
+                    l('Тип') . ': ' . ($good['type'] == GOODS_TYPE_ITEM ? l('Товар') : l('Услуга')));
+            }
         }
 
         $query = '';
@@ -2298,47 +2289,47 @@ class products extends Controller
     /**
      * @param array $post
      * @param       $product_id
+     * @param       $mod_id
      * @return array
      */
-    private function editProductOmtProcurement(array $post, $product_id)
+    private function editProductOmtProcurement(array $post, $product_id, $mod_id)
     {
-// если есть роль внутреннего маркета
-        $query_update = $this->all_configs['db']->makeQuery('price=?',
-            array(trim($post['price']) * 100));
+        $product = $this->Goods->getByPk($product_id);
+        $update = array(
+            'price' => trim($post['price']) * 100,
+            'price_wholesale' => trim($post['price_wholesale']) * 100
+        );
 
         // старая цена
         if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
             && $this->all_configs['configs']['use-goods-old-price'] == true && isset($post['old_price'])
         ) {
-            $query_update = $this->all_configs['db']->makeQuery('?query, old_price=?',
-                array($query_update, trim($post['old_price']) * 100));
+            $update['old_price'] = trim($post['old_price']) * 100;
         }
-
-        $query_update = $this->all_configs['db']->makeQuery('?query, price_wholesale=?', array(
-            $query_update,
-            trim($post['price_wholesale']) * 100
-        ));
 
         // редактируем количество только если отключен 1с и управление складами
         if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
-            $query_update = $this->all_configs['db']->makeQuery('?query, qty_store=?i, qty_wh=?i,
-                            price_purchase=?i, price_wholesale=?',
-                array(
-                    $query_update,
-                    intval($post['exist']),
-                    intval($post['qty_wh']),
-                    trim($post['price_purchase']) * 100,
-                    trim($post['price_wholesale']) * 100
-                ));
+            $update['qty_store'] = intval($post['exist']);
+            $update['qty_wh'] = intval($post['qty_wh']);
+            $update['price_purchase'] = trim($post['price_purchase']) * 100;
+            $update['price_wholesale'] = trim($post['price_wholesale']) * 100;
         }
-        $this->all_configs['db']->query('UPDATE {goods} SET ?query WHERE id=?i',
-            array($query_update, $product_id));
-        // сохранение по товарам в группе размеров
-        if ($this->all_configs['configs']['group-goods'] && isset($sgg_ids_query)) {
-            $this->all_configs['db']->query('UPDATE {goods} SET ?query WHERE ?q',
-                array($query_update, $sgg_ids_query));
+        $ar = $this->Goods->update($update, array(
+            'id' => $product_id
+        ));
+        if ($ar > 0) {
+            if ($product['price'] != $update['price']) {
+                $this->History->save('edit-goods', $mod_id, $product_id, l('Цена') . ': ' . $product['price']);
+            }
+            if ($product['price_wholesale'] != $update['price_wholesale']) {
+                $this->History->save('edit-goods', $mod_id, $product_id,
+                    l('Оптовая цена') . ': ' . $product['price_wholesale']);
+            }
+            if (isset($update['price_purchase']) && $product['price_purchase'] != $update['price_purchase']) {
+                $this->History->save('edit-goods', $mod_id, $product_id,
+                    l('Розничная цена') . ': ' . $product['price_purchase']);
+            }
         }
-        return $post;
     }
 
     /**
@@ -2346,7 +2337,7 @@ class products extends Controller
      * @param       $product_id
      * @return array
      */
-    private function editProductOmtNotices(array $post, $product_id)
+    private function editProductOmtNotices(array $post, $product_id, $mod_id)
     {
         $each_sale = 0;
         if (isset($post['each_sale'])) {
@@ -2410,21 +2401,33 @@ class products extends Controller
             return array('error' => l('Заполните название'), 'post' => $post);
         }
 
-        $ar = $this->all_configs['db']->query('UPDATE {goods}
-                    SET title=?, secret_title=?, url=?n, prio=?i, article=?n, barcode=?, vendor_code=? WHERE id=?i',
-            array(
-                trim($post['title']),
-                trim($post['secret_title']),
-                transliturl($url),
-                intval($post['prio']),
-                empty($post['article']) ? null : trim($post['article']),
-                trim($post['barcode']),
-                trim($post['vendor_code']),
-                $product_id
-            ))->ar();
+        $product = $this->Goods->getByPk($product_id);
+        $update = array(
+            'title' => trim($post['title']),
+            'secret_title' => trim($post['secret_title']),
+            'url' => transliturl($url),
+            'prio' => intval($post['prio']),
+            'article' => empty($post['article']) ? null : trim($post['article']),
+            'barcode' => trim($post['barcode']),
+            'vendor_code' => trim($post['vendor_code']),
+        );
+        $ar = $this->Goods->update($update, array(
+            'id' => $product_id
+        ));
 
         if (intval($ar) > 0) {
-            $this->History->save('edit-goods', $mod_id, $product_id);
+            if (strcmp(trim($post['title']), $product['title']) !== 0) {
+                $this->History->save('edit-goods', $mod_id, $product_id, l('Название') . ': ' . $product['title']);
+            }
+            if (intval($post['prio']) != $product['prio']) {
+                $this->History->save('edit-goods', $mod_id, $product_id, l('Приоритет') . ': ' . $product['prio']);
+            }
+            if (strcmp(trim($post['barcode']), $product['barcode']) !== 0) {
+                $this->History->save('edit-goods', $mod_id, $product_id, l('Штрихкод') . ': ' . $product['barcode']);
+            }
+            if (strcmp(trim($post['vendor_code']), $product['vendor_code']) !== 0) {
+                $this->History->save('edit-goods', $mod_id, $product_id, l('Артикул') . ': ' . $product['vendor_code']);
+            }
         }
         return array('state' => true);
     }
@@ -2454,5 +2457,43 @@ class products extends Controller
                     $used), FlashMessage::SUCCESS);
         }
         return true;
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     */
+    private function editProductFinacestock(array $post, $product_id)
+    {
+        $this->all_configs['db']->query('DELETE FROM {goods_suppliers} WHERE goods_id=?i', array($product_id));
+        if (isset($post['links'])) {
+            foreach ($post['links'] as $link) {
+                if (mb_strlen(trim($link), 'UTF-8') > 0) {
+                    $this->all_configs['db']->query(
+                        'INSERT INTO {goods_suppliers} (goods_id, link) VALUES (?i, ?)',
+                        array($product_id, trim($link)));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $post
+     * @param       $product_id
+     */
+    private function editProductManagers(array $post, $product_id)
+    {
+        $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
+            array($product_id));
+        // добавляем доступ к товару пользователям
+        if (isset($post['users'])) {
+            foreach ($post['users'] as $user) {
+                if ($user > 0) {
+                    $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager}
+                                    SET user_id=?i, goods_id=?i',
+                        array($user, $product_id));
+                }
+            }
+        }
     }
 }

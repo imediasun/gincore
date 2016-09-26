@@ -124,7 +124,7 @@ abstract class AModel extends Object
         $values = $this->prepareValues($options);
 
         return $this->query('UPDATE ?t SET ?q WHERE ?q',
-            array($this->table, implode(',', $values), $this->makeConditionsQuery($conditions)))->id();
+            array($this->table, implode(',', $values), $this->makeConditionsQuery($conditions)))->ar();
     }
 
     /**
