@@ -962,7 +962,8 @@ class orders extends Controller
             $orders_html = $this->view->renderFile('orders/orders_show_suppliers_orders_wait', array(
                 'orders' => $orders,
                 'count' => $count,
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'serials' => $serials
             ));
         }
 
