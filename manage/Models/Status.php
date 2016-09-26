@@ -18,15 +18,17 @@ class MStatus extends AModel
             $this->setDefault();
         }
     }
+
     /**
-     * @param int $type
+     * @param int    $type
+     * @param string $assocBy
      * @return array
      */
-    public function getAll($type = ORDER_REPAIR)
+    public function getAll($type = ORDER_REPAIR, $assocBy='id')
     {
         $this->setDefaultIfNeed();
         return $this->query('SELECT * FROM ?t WHERE order_type=?i ORDER by status_id ASC',
-            array($this->table, $type))->assoc('id');
+            array($this->table, $type))->assoc($assocBy);
     }
 
     /**

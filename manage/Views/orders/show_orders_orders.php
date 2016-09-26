@@ -97,7 +97,7 @@
         <tbody id="table_clients_orders">
 
         <?php foreach ($orders as $order): ?>
-            <?= $this->DisplayOrder->asRepairRow($order, $columns); ?>
+            <?= $this->DisplayOrder->asRepairRow($order, $columns, $status); ?>
         <?php endforeach; ?>
         </tbody>
     </table>

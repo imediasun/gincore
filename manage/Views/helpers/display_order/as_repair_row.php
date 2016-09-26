@@ -34,7 +34,7 @@
         <?= $this->renderFile('orders/_sale_order_status', array(
             'active' => $order['status'],
             'orderId' => $order['order_id'],
-            'status' => $this->all_configs['configs']['order-status'],
+            'status' => $statuses,
             'showPayForm' => $order['sum'] - $order['sum_paid'] - $order['discount'],
             'type' => 'repair'
         )); ?>
