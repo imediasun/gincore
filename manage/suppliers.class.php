@@ -787,9 +787,9 @@ class Suppliers extends Object
 
             if ($order['confirm'] == 0 && $order['avail'] == 1 && (($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))
             ) {
-                $order['btn'] = '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="' . l('Сохранить') . '" />';
-                $order['btn'] .= ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="' . l('Отменить') . '" />';
-//                $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="' . l('Запчасть не доступна к заказу') . '" />';
+                $order['btn'] = $this->view->renderFile('suppliers.class/_order_btn', array(
+                    'order' => $order
+                ));
             } else {
                 $order['btn'] = '';
                 $disabled = 'disabled';
