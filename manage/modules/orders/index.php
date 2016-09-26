@@ -2853,7 +2853,7 @@ class orders extends Controller
                 LEFT JOIN {users} as u ON u.id=s.user_id WHERE s.order_id=?i ORDER BY `date` DESC',
             array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
         if ($statuses) {
-            $sts = $this->all_configs['configs']['order-status'];
+            $sts = $this->Status->getAll();
             $data['content'] = $this->view->renderFile('orders/order_statuses', array(
                 'statuses' => $statuses,
                 'sts' => $sts
