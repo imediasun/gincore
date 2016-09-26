@@ -69,14 +69,18 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             trim(preg_replace('/ {1,}/', ' ', mb_strtolower($_POST['query'], 'UTF-8'))));
 
         if ($_POST['table'] == 'categories' || $_POST['table'] == 'categories-last' || $_POST['table'] == 'categories-goods') {
-            $query = '';
+            $query = $all_configs['db']->makeQuery('NOT cg.url in (?l)', array(
+                array(
+                    'recycle-bin',
+                    'prodazha',
+                    'spisanie',
+                    'vozvrat-postavschiku',
+                )
+            ));
             $join = '';
             if (isset($_POST['fix']) && $_POST['fix'] > 0) {
-                $query = $all_configs['db']->makeQuery('AND cg.id IN (?li)',
-                    array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
-                /*$query = $all_configs['db']->makeQuery('AND cg.id IN (SELECT id FROM {categories}
-                            JOIN (SELECT @pv:=?i)tmp WHERE parent_id=@pv OR id=@pv)',
-                    array($_POST['fix']));*/
+                $query = $all_configs['db']->makeQuery('?query AND cg.id IN (?li)',
+                    array($query, array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
             if ($_POST['table'] == 'categories-last') {
                 $_POST['table'] = 'categories';
@@ -97,16 +101,24 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 $join = $all_configs['db']->makeQuery('LEFT JOIN {categories} as scg ON scg.parent_id=cg.id', array());
             }
             $data = $all_configs['db']->query('SELECT cg.id, cg.title FROM {categories} as cg ?query
-                    WHERE cg.deleted=0 AND cg.title LIKE "%?e%" ?query LIMIT ?i',
+                    WHERE cg.deleted=0 AND cg.title LIKE "%?e%" AND ?query LIMIT ?i',
                 array($join, $s, $query, $limit))->assoc();
         }
         if ($_POST['table'] == 'categories-parent') {
+            $query = $all_configs['db']->makeQuery('NOT cg.url in (?l)', array(
+                array(
+                    'recycle-bin',
+                    'prodazha',
+                    'spisanie',
+                    'vozvrat-postavschiku',
+                )
+            ));
             $data = $all_configs['db']->query('
             SELECT cg.id, cg.title 
             FROM {categories} as cg
             LEFT JOIN (SELECT DISTINCT parent_id FROM {categories}) AS sub ON cg.id = sub.parent_id
-            WHERE  cg.deleted=0 AND cg.title LIKE "%?e%" AND cg.avail=1 AND NOT (sub.parent_id IS NULL OR sub.parent_id = 0) LIMIT ?i
-            ', array($s, $limit))->assoc();
+            WHERE cg.deleted=0 AND cg.title LIKE "%?e%" AND cg.avail=1 AND NOT (sub.parent_id IS NULL OR sub.parent_id = 0) AND ?query LIMIT ?i
+            ', array($s, $limit, $query))->assoc();
         }
         if ($_POST['table'] == 'users') {
             $query = '';
