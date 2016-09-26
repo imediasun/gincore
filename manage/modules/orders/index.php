@@ -938,8 +938,8 @@ class orders extends Controller
             // заказы клиентов на которых можно проверить изделия
             $data = $this->all_configs['db']->query('SELECT i.goods_id, o.id
                 FROM {warehouses_goods_items} as i, {orders} as o, {category_goods} as cg
-                WHERE o.status NOT IN (?li) AND cg.goods_id=i.goods_id AND cg.category_id=o.category_id',
-                array($this->all_configs['configs']['order-statuses-closed']))->assoc();
+                WHERE o.status NOT IN (?li) AND cg.goods_id=i.goods_id AND cg.category_id=o.category_id AND o.type=?i',
+                array($this->all_configs['configs']['order-statuses-closed'], ORDER_REPAIR))->assoc();
             $serials = array();
             $g = array();
             if ($data) {
