@@ -133,7 +133,7 @@ class custom_status extends Controller
         if (!empty($post['name'][$id])) {
             $type = strcmp($post['order-type'], 'repair') === 0 ? ORDER_REPAIR : ORDER_SELL;
             $data = array(
-                'name' => substr($post['name'][$id], 0, self::STATUS_NAME_LENGTH),
+                'name' => mb_substr($post['name'][$id], 0, self::STATUS_NAME_LENGTH),
                 '`from`' => json_encode(array()),
                 'color' => ltrim($post['color'][$id], '#'),
                 'status_id' => $this->Status->getNextStatusId($type),
@@ -182,7 +182,7 @@ class custom_status extends Controller
             $data = $status['system'] ? array(
                 'color' => $color
             ) : array(
-                'name' => substr($post['name'][$id], 0, self::STATUS_NAME_LENGTH),
+                'name' => mb_substr($post['name'][$id], 0, self::STATUS_NAME_LENGTH),
                 '`from`' => json_encode(array()),
                 'color' => $color,
                 'use_in_manager' => (int)(isset($post['use_in_manager'][$id]) && $post['use_in_manager'][$id] === 'on'),
