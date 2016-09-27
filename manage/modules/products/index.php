@@ -217,7 +217,7 @@ class products extends Controller
 
             // омт уведомления
             if (isset($post['edit-product-omt_notices'])) {
-                $post = $this->editProductOmtNotices($post, $product_id, $mod_id);
+                $this->editProductOmtNotices($post, $product_id, $mod_id);
             }
 
             // омт управление закупками
@@ -1705,9 +1705,11 @@ class products extends Controller
         ) {
             $user = $this->all_configs['db']->query('SELECT * FROM {users_notices} WHERE user_id=?i AND goods_id=?i',
                 array($_SESSION['id'], $this->all_configs['arrequest'][2]))->row();
+            $product = $this->Goods->getByPk($this->all_configs['arrequest'][2]);
             $goods_html = $this->view->renderFile('products/products_omt_notices', array(
                 'user' => $user,
-                'btn_save' => $this->btn_save_product('omt_notices')
+                'btn_save' => $this->btn_save_product('omt_notices'),
+                'product' => $product
             ));
         }
 
@@ -2318,7 +2320,6 @@ class products extends Controller
     /**
      * @param array $post
      * @param       $product_id
-     * @return array
      */
     private function editProductOmtNotices(array $post, $product_id, $mod_id)
     {
@@ -2367,7 +2368,23 @@ class products extends Controller
                 $seldom_sold,
                 $supply_goods
             ));
-        return $post;
+        $product = $this->Goods->getByPk($product_id);
+        $update = array(
+            'use_minimum_balance' => (int) (strcmp($post['use_minimum_balance'], 'on') === 0),
+            'minimum_balance' => $post['minimum_balance'],
+            'use_automargin' => (int) (strcmp($post['use_automargin'], 'on') === 0),
+            'automargin_type' => $post['automargin_type'],
+            'automargin' => $post['automargin'],
+            'wholesale_automargin_type' => $post['wholesale_automargin_type'],
+            'wholesale_automargin' => $post['wholesale_automargin'],
+        );
+        $ar = $this->Goods->update($update, array(
+            'id' => $product_id
+        ));
+
+        if (intval($ar) > 0) {
+            $this->saveMoreHistory($update, $product, $mod_id);
+        }
     }
 
     /**
@@ -2506,6 +2523,26 @@ class products extends Controller
         if (isset($update['`type`']) && $product['type'] != $update['`type`']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Тип') . ': ' . ($product['type'] == GOODS_TYPE_ITEM ? l('Товар') : l('Услуга')));
+        }
+        if (isset($update['use_minimum_balance']) && $product['use_minimum_balance'] != $update['use_minimum_balance']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Использовать неснижаемый остаток') . ': ' . ($product['use_minimum_balance'] ? l('Да') : l('Нет')));
+        }
+        if (isset($update['use_automargin']) && $product['use_automargin'] != $update['use_automargin']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Использовать автонаценку') . ': ' . ($product['use_automargin'] ? l('Да') : l('Нет')));
+        }
+        if (isset($update['automargin']) && $product['automargin'] != $update['automargin']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Автонаценка') . ': ' . $product['automargin'].($product['automargin_type']?viewCurrency():'%'));
+        }
+        if (isset($update['wholesale_automargin']) && $product['wholesale_automargin'] != $update['wholesale_automargin']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Оптовая автонаценка') . ': ' . $product['wholesale_automargin'].($product['wholesale_automargin_type']?viewCurrency():'%'));
+        }
+        if (isset($update['minimum_balance']) && $product['minimum_balance'] != $update['minimum_balance']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Неснижаемый остаток') . ': ' . $product['minimum_balance']);
         }
     }
 }

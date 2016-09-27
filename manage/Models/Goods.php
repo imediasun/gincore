@@ -115,7 +115,14 @@ class MGoods extends AModel
             'serach_clicks',
             'search_weight',
             'deleted',
-            'vendor_code'
+            'vendor_code',
+            'use_minimum_balance',
+            'minimum_balance',
+            'use_automargin',
+            'automargin_type',
+            'automargin',
+            'wholesale_automargin_type',
+            'wholesale_automargin',
         );
     }
 
