@@ -2313,7 +2313,7 @@ class products extends Controller
             'id' => $product_id
         ));
         if ($ar > 0) {
-            $this->saveMoreHistory($update, $product_id, $mod_id);
+            $this->saveMoreHistory($update, $product, $mod_id);
         }
     }
 
