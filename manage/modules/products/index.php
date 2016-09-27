@@ -2246,7 +2246,7 @@ class products extends Controller
         ));
 
         if (intval($ar) > 0) {
-            $this->saveMoreHistory($update, $product_id, $mod_id);
+            $this->saveMoreHistory($update, $good, $mod_id);
         }
 
         $query = '';
@@ -2298,6 +2298,7 @@ class products extends Controller
         ) {
             $update['old_price'] = trim($post['old_price']) * 100;
         }
+        $product = $this->Goods->getByPk($product_id);
 
         // редактируем количество только если отключен 1с и управление складами
         if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
@@ -2382,6 +2383,7 @@ class products extends Controller
         if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
             return array('error' => l('Заполните название'), 'post' => $post);
         }
+        $product = $this->Goods->getByPk($product_id);
 
         $update = array(
             'title' => trim($post['title']),
@@ -2397,7 +2399,7 @@ class products extends Controller
         ));
 
         if (intval($ar) > 0) {
-            $this->saveMoreHistory($update, $product_id, $mod_id);
+            $this->saveMoreHistory($update, $product, $mod_id);
         }
         return array('state' => true);
     }
@@ -2469,41 +2471,40 @@ class products extends Controller
 
     /**
      * @param array $update
-     * @param       $product_id
+     * @param       $product
      * @param       $mod_id
      */
-    private function saveMoreHistory(array $update, $product_id, $mod_id)
+    private function saveMoreHistory(array $update, $product, $mod_id)
     {
-        $product = $this->Goods->getByPk($product_id);
         if (isset($update['title']) && strcmp(trim($update['title']), $product['title']) !== 0) {
-            $this->History->save('edit-goods', $mod_id, $product_id, l('Название') . ': ' . $product['title']);
+            $this->History->save('edit-goods', $mod_id, $product['id'], l('Название') . ': ' . $product['title']);
         }
         if (isset($update['prio']) && intval($update['prio']) != $product['prio']) {
-            $this->History->save('edit-goods', $mod_id, $product_id, l('Приоритет') . ': ' . $product['prio']);
+            $this->History->save('edit-goods', $mod_id, $product['id'], l('Приоритет') . ': ' . $product['prio']);
         }
         if (isset($update['barcode']) && strcmp(trim($update['barcode']), $product['barcode']) !== 0) {
-            $this->History->save('edit-goods', $mod_id, $product_id, l('Штрихкод') . ': ' . $product['barcode']);
+            $this->History->save('edit-goods', $mod_id, $product['id'], l('Штрихкод') . ': ' . $product['barcode']);
         }
         if (isset($update['vendor_code']) && strcmp(trim($update['vendor_code']), $product['vendor_code']) !== 0) {
-            $this->History->save('edit-goods', $mod_id, $product_id, l('Артикул') . ': ' . $product['vendor_code']);
+            $this->History->save('edit-goods', $mod_id, $product['id'], l('Артикул') . ': ' . $product['vendor_code']);
         }
         if (isset($update['price']) && $product['price'] != $update['price']) {
-            $this->History->save('edit-goods', $mod_id, $product_id, l('Цена') . ': ' . $product['price']);
+            $this->History->save('edit-goods', $mod_id, $product['id'], l('Цена') . ': ' . $product['price']);
         }
         if (isset($update['price_wholesale']) && $product['price_wholesale'] != $update['price_wholesale']) {
-            $this->History->save('edit-goods', $mod_id, $product_id,
+            $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Оптовая цена') . ': ' . $product['price_wholesale']);
         }
         if (isset($update['price_purchase']) && $product['price_purchase'] != $update['price_purchase']) {
-            $this->History->save('edit-goods', $mod_id, $product_id,
+            $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Розничная цена') . ': ' . $product['price_purchase']);
         }
         if (isset($update['avail']) && $product['avail'] != $update['avail']) {
-            $this->History->save('edit-goods', $mod_id, $product_id,
+            $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Доступность') . ': ' . ($product['avail'] ? l('Да') : l('Нет')));
         }
         if (isset($update['`type`']) && $product['type'] != $update['`type`']) {
-            $this->History->save('edit-goods', $mod_id, $product_id,
+            $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Тип') . ': ' . ($product['type'] == GOODS_TYPE_ITEM ? l('Товар') : l('Услуга')));
         }
     }
