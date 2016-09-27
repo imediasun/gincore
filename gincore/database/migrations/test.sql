@@ -328,3 +328,13 @@ INDEX(`system`),
 INDEX(`use_in_manager`),
 INDEX(`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+/*
+2016_09_27_082521_add_margin_to_products.php
+ */
+ALTER TABLE `restore4_goods` ADD COLUMN minimum_balance int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN automargin int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN wholesale_automargin int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN use_minimum_balance tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN use_automargin tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN automargin_type tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN wholesale_automargin_type tinyint(1) UNSIGNED DEFAULT 0;
