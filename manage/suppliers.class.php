@@ -1771,7 +1771,7 @@ class Suppliers extends Object
             );
             $product = $this->Goods->getByPk($order['goods_id']);
             if($product['use_automargin']) {
-                $price = $order['price'] / getCourse($this->all_configs['settings']['currency_suppliers_orders']);
+                $price = $order['price'] * 100 / getCourse($this->all_configs['settings']['currency_suppliers_orders']);
                 $update['price'] = $price + $this->automargin($price, $product, 'automargin');
                 $update['price_wholesale'] = $price + $this->automargin($price, $product, 'wholesale_automargin');
             }
