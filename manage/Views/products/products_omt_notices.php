@@ -47,7 +47,7 @@
             <td>
                 <label class="checkbox-inline">
                     <input <?= ($product['use_automargin'] == 1) ? 'checked' : '' ?> type="checkbox" name="use_automargin"/>
-                    <?= l('уведомлять меня об остатке') ?>
+                    <?= l('Автонаценка') ?> <?= InfoPopover::getInstance()->createQuestion('l_good_automargin') ?>
                 </label>
             </td>
             <td>

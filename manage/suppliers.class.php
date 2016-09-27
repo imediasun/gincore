@@ -1766,8 +1766,17 @@ class Suppliers extends Object
             $this->ContractorsSuppliersOrders->increase('count_debit', count($debit_items),
                 array('id' => $order['id']));
             // обновление цены закупки в товаре
-            $this->all_configs['db']->query('UPDATE {goods} SET price_purchase=?i WHERE id=?i',
-                array($order['price'], $order['goods_id']));
+            $update = array(
+                'price_purchase' => $order['price']
+            );
+            $product = $this->Goods->getByPk($order['goods_id']);
+            if($product['use_automargin']) {
+                $update['price'] = $order['price'] + $this->automargin($order['price'], $product, 'automargin');
+                $update['price_wholesale'] = $order['price'] + $this->automargin($order['price'], $product, 'wholesale_automargin');
+            }
+            $this->Goods->update($update, array(
+               'id' => $order['goods_id']
+            ));
         }
 
         // печать
@@ -1786,6 +1795,21 @@ class Suppliers extends Object
         );
     }
 
+    /**
+     * @param $value
+     * @param $product
+     * @param $type
+     * @return mixed
+     */
+    protected function automargin($value, $product, $type)
+    {
+        if ($product[$type.'_type'] == DISCOUNT_TYPE_PERCENT) {
+            $automargin = $value * ($product[$type] / 100);
+        } else {
+            $automargin = $product[$type] * 100;
+        }
+        return $automargin;
+    }
     /**
      * @param      $order
      * @param null $serial

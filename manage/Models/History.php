@@ -70,9 +70,9 @@ class MHistory extends AModel
             'edit-goods',
         );
         return $this->all_configs['db']->query(
-            'SELECT c.date_add, c.work, u.login, c.change 
+            'SELECT c.date_add, c.work, u.login, u.fio, c.change 
               FROM ?t as c
-              LEFT JOIN (SELECT id, login FROM {users})u ON u.id=c.user_id
+              LEFT JOIN (SELECT id, login, fio FROM {users})u ON u.id=c.user_id
               WHERE c.work in (?l) AND c.object_id=?i 
               ORDER BY c.date_add DESC',
             array($this->table, $modIds, $objectId))->assoc();

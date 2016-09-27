@@ -2370,9 +2370,9 @@ class products extends Controller
             ));
         $product = $this->Goods->getByPk($product_id);
         $update = array(
-            'use_minimum_balance' => (int) (strcmp($post['use_minimum_balance'], 'on') === 0),
+            'use_minimum_balance' => (int)(strcmp($post['use_minimum_balance'], 'on') === 0),
             'minimum_balance' => $post['minimum_balance'],
-            'use_automargin' => (int) (strcmp($post['use_automargin'], 'on') === 0),
+            'use_automargin' => (int)(strcmp($post['use_automargin'], 'on') === 0),
             'automargin_type' => $post['automargin_type'],
             'automargin' => $post['automargin'],
             'wholesale_automargin_type' => $post['wholesale_automargin_type'],
@@ -2506,11 +2506,12 @@ class products extends Controller
             $this->History->save('edit-goods', $mod_id, $product['id'], l('Артикул') . ': ' . $product['vendor_code']);
         }
         if (isset($update['price']) && $product['price'] != $update['price']) {
-            $this->History->save('edit-goods', $mod_id, $product['id'], l('Цена') . ': ' . $product['price']);
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Цена') . ': ' . ($product['price'] / 100) . viewCurrency());
         }
         if (isset($update['price_wholesale']) && $product['price_wholesale'] != $update['price_wholesale']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
-                l('Оптовая цена') . ': ' . $product['price_wholesale']);
+                l('Оптовая цена') . ': ' . ($product['price_wholesale'] / 100) . viewCurrency());
         }
         if (isset($update['price_purchase']) && $product['price_purchase'] != $update['price_purchase']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
@@ -2534,11 +2535,11 @@ class products extends Controller
         }
         if (isset($update['automargin']) && $product['automargin'] != $update['automargin']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
-                l('Автонаценка') . ': ' . $product['automargin'].($product['automargin_type']?viewCurrency():'%'));
+                l('Автонаценка') . ': ' . $product['automargin'] . ($product['automargin_type'] ? viewCurrency() : '%'));
         }
         if (isset($update['wholesale_automargin']) && $product['wholesale_automargin'] != $update['wholesale_automargin']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
-                l('Оптовая автонаценка') . ': ' . $product['wholesale_automargin'].($product['wholesale_automargin_type']?viewCurrency():'%'));
+                l('Оптовая автонаценка') . ': ' . $product['wholesale_automargin'] . ($product['wholesale_automargin_type'] ? viewCurrency() : '%'));
         }
         if (isset($update['minimum_balance']) && $product['minimum_balance'] != $update['minimum_balance']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],

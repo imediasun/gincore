@@ -10,7 +10,9 @@
         <tbody>
         <?php foreach ($histories as $history): ?>
             <tr>
-                <td><a href="<?= $this->all_configs['prefix'] ?>users"><?= $history['login'] ?></a></td>
+                <td>
+                    <a href="<?= $this->all_configs['prefix'] ?>users"><?= $history['fio'] ? $history['fio'] : $history['login'] ?></a>
+                </td>
                 <td><?= $history['change'] ?></td>
                 <td><span title="<?= do_nice_date($history['date_add'],
                         false) ?>"><?= do_nice_date($history['date_add']) ?></span></td>
