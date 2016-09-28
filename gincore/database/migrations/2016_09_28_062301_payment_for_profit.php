@@ -24,6 +24,12 @@ class PaymentForProfit extends Migration
                 $table->integer('percent_from_profit')->unsigned()->default(0);
             });
         }
+        if (!Schema::hasColumn('users', 'use_fixed_payment')) {
+            Schema::table('users', function ($table) {
+                $table->boolean('use_fixed_payment')->default(0);
+                $table->boolean('use_percent_from_profit')->default(0);
+            });
+        }
     }
 
     /**
@@ -43,6 +49,12 @@ class PaymentForProfit extends Migration
             Schema::table('categories', function ($table) {
                 $table->dropColumn('fixed_payment');
                 $table->dropColumn('percent_from_profit');
+            });
+        }
+        if (Schema::hasColumn('users', 'use_fixed_payment')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('use_fixed_payment');
+                $table->dropColumn('use_percent_from_profit');
             });
         }
     }

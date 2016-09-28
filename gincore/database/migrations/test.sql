@@ -345,3 +345,5 @@ ALTER TABLE `restore4_goods` ADD COLUMN percent_from_profit int(10) UNSIGNED DEF
 ALTER TABLE `restore4_goods` ADD COLUMN fixed_payment float UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_categories` ADD COLUMN percent_from_profit int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_categories` ADD COLUMN fixed_payment float UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD COLUMN use_percent_from_profit tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_users` ADD COLUMN use_fixed_payment tinyint(1) UNSIGNED DEFAULT 0;

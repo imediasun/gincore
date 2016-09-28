@@ -103,6 +103,8 @@ class MUsers extends AModel
             'salary_from_sale',
             'show_client_info',
             'show_only_his_orders',
+            'use_percent_from_profit',
+            'use_fixed_payment'
         );
     }
 }
