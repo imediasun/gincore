@@ -72,7 +72,9 @@ class MCategories extends AModel
             'information',
             'rating',
             'votes',
-            'deleted'
+            'deleted',
+            'percent_from_profit',
+            'fixed_payment'
         );
     }
 }

@@ -2241,7 +2241,9 @@ class products extends Controller
 
         $update = array(
             'avail' => isset($post['avail']) ? 1 : 0,
-            '`type`' => isset($post['type']) ? 1 : 0
+            '`type`' => isset($post['type']) ? 1 : 0,
+            'percent_from_profit' => $post['percent_from_profit'],
+            'fixed_payment' => $post['fixed_payment']
         );
         $ar = $this->Goods->update($update, array(
             'id' => $product_id
@@ -2524,6 +2526,14 @@ class products extends Controller
         if (isset($update['`type`']) && $product['type'] != $update['`type`']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Тип') . ': ' . ($product['type'] == GOODS_TYPE_ITEM ? l('Товар') : l('Услуга')));
+        }
+        if (isset($update['percent_from_profit']) && $product['percent_from_profit'] != $update['percent_from_profit']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Процент от прибыли') . ': ' . $product['percent_from_profit'] . '%');
+        }
+        if (isset($update['fixed_payment']) && $product['fixed_payment'] != $update['fixed_payment']) {
+            $this->History->save('edit-goods', $mod_id, $product['id'],
+                l('Фиксированная оплата') . ': ' . $product['fixed_payment'] . viewCurrency());
         }
         if (isset($update['use_minimum_balance']) && $product['use_minimum_balance'] != $update['use_minimum_balance']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],

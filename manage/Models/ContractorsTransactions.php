@@ -27,7 +27,7 @@ class MContractorsTransactions extends AModel
             'supplier_order_id',
             'transaction_id',
             'item_id',
-            'goods_id'
+            'goods_id',
         );
     }
 }

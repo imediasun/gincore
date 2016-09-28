@@ -123,6 +123,8 @@ class MGoods extends AModel
             'automargin',
             'wholesale_automargin_type',
             'wholesale_automargin',
+            'percent_from_profit',
+            'fixed_payment'
         );
     }
 

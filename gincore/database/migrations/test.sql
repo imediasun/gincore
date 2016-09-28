@@ -338,3 +338,10 @@ ALTER TABLE `restore4_goods` ADD COLUMN use_minimum_balance tinyint(1) UNSIGNED 
 ALTER TABLE `restore4_goods` ADD COLUMN use_automargin tinyint(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_goods` ADD COLUMN automargin_type tinyint(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_goods` ADD COLUMN wholesale_automargin_type tinyint(1) UNSIGNED DEFAULT 0;
+/*
+2016_09_28_062301_payment_for_profit.php
+ */
+ALTER TABLE `restore4_goods` ADD COLUMN percent_from_profit int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD COLUMN fixed_payment float UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_categories` ADD COLUMN percent_from_profit int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_categories` ADD COLUMN fixed_payment float UNSIGNED DEFAULT 0;
