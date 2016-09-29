@@ -12,7 +12,7 @@ class AddMarginToProducts extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('goods', 'margin')) {
+        if (!Schema::hasColumn('goods', 'automargin')) {
             Schema::table('goods', function ($table) {
                 $table->boolean('use_minimum_balance')->default(0);
                 $table->integer('minimum_balance')->unsigned()->default(0);
@@ -32,7 +32,7 @@ class AddMarginToProducts extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn('goods', 'margin')) {
+        if (Schema::hasColumn('goods', 'automargin')) {
             Schema::table('goods', function ($table) {
                 $table->dropColumn('brand_id');
                 $table->dropColumn('use_minimum_balance');
