@@ -9,14 +9,24 @@
                     </tr>
                     <tr>
                         <td><?= l('Ремонты') ?></td>
-                        <td><?= round(($repairProfit[$user['id']] / 100) * ($user['salary_from_repair'] / 100), 2) ?>
-                            &nbsp;<?= viewCurrency() ?>(<?= $user['salary_from_repair'] ?>%)
+                        <td>
+                            <?php if ($user['use_fixed_payment'] || $user['use_percent_from_profit']): ?>
+                                <?= round(($repairProfit[$user['id']] / 100), 2) ?> &nbsp;<?= viewCurrency() ?>
+                            <?php else: ?>
+                                <?= round(($repairProfit[$user['id']] / 100) * ($user['salary_from_repair'] / 100), 2) ?>
+                                &nbsp;<?= viewCurrency() ?>(<?= $user['salary_from_repair'] ?>%)
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <tr>
                         <td><?= l('Продажи') ?></td>
-                        <td><?= round(($saleProfit[$user['id']] / 100) * ($user['salary_from_sale'] / 100), 2) ?>
-                            &nbsp;<?= viewCurrency() ?>(<?= $user['salary_from_sale'] ?>%)
+                        <td>
+                            <?php if ($user['use_fixed_payment'] || $user['use_percent_from_profit']): ?>
+                                <?= round(($saleProfit[$user['id']] / 100), 2) ?> &nbsp;<?= viewCurrency() ?>
+                            <?php else: ?>
+                                <?= round(($saleProfit[$user['id']] / 100) * ($user['salary_from_sale'] / 100), 2) ?>
+                                &nbsp;<?= viewCurrency() ?>(<?= $user['salary_from_sale'] ?>%)
+                            <?php endif; ?>
                         </td>
                     </tr>
                 </table>

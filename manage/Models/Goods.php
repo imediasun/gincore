@@ -8,6 +8,8 @@ require_once __DIR__ . '/../Core/AModel.php';
  */
 class MGoods extends AModel
 {
+    const PERCENT_FROM_PROFIT = 0;
+    const FIXED_PAYMENT = 1;
     public $table = 'goods';
     public $uses = array(
         'History',
