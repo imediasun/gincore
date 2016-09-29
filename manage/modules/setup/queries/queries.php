@@ -148,7 +148,8 @@ db()->query("
     (59, '".lq('Добавление клиента в черный список')."', 'add-client-to-blacklist', 0, 1),
     (60, '".lq('Списание изделия')."', 'write-off-items', 0, 1),
     (61, '".lq('Доступ к разделу "Клиенты"')."', 'show-client-section', 0, 4),
-    (62, '".lq('Доступ к экспорту базы клиентов и заказов')."', 'export-clients-and-orders', 0, 4)
+    (62, '".lq('Доступ к экспорту базы клиентов и заказов')."', 'export-clients-and-orders', 0, 4),
+    (63, '".lq('Возврат денежных средств клиентам')."', 'edit_return_id', 0, 6)
     
 ");
 db()->query('TRUNCATE TABLE {users_role_permission}');
