@@ -232,6 +232,11 @@ class manageModel extends Object
                     array($query, intval($orderId)));
             }
         }
+        // фильтр по
+        if (array_key_exists('co', $filters) && !empty($filters['co']) && in_array('client', $use)) {
+            $query = $this->all_configs['db']->makeQuery('?query AND o.fio LIKE "%?q%"',
+                array($query, $filters['co']));
+        }
 
         if (array_key_exists('cashless', $filters) && is_numeric($filters['cashless']) && in_array('cashless', $use)) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.cashless=?i',

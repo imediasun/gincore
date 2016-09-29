@@ -21,7 +21,7 @@ abstract class AbstractTemplate extends Object
      */
     public function calculateHash($product)
     {
-        $string = $product['goods_id'] . $product['price'] . $product['discount'] . $product['url'] . $product['item_id'] . $product['warranty'] . $product['discount_type'];
+        $string = $product['goods_id'] . $product['price'] . $product['discount'] . $product['url'] . $product['discount_type'];
         return md5($string);
     }
 

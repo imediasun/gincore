@@ -4,11 +4,11 @@
          data-action="<?= $this->all_configs['prefix'] ?>products/ajax/?act=create_new"
          class="backgroud-white p-sm">
         <?php else: ?>
-        <div class="row-fluid">
-            <div class="col-sm-6">
                 <?php endif; ?>
                 <fieldset>
                     <legend><?= l('Добавление нового товара/услуги') ?>:</legend>
+        <div class="row-fluid">
+            <div class="col-sm-6">
 
                     <?php if (is_array($errors) && array_key_exists('error', $errors)): ?>
                         <div class="alert alert-danger fade in">
@@ -122,12 +122,12 @@
                         <button type="button"
                                 class="btn btn-default hide_typeahead_add_form"><?= l('Отмена') ?></button>
                     <?php endif; ?>
+        </div>
+    </div>
                 </fieldset>
                 <?php if ($isAjax): ?>
             </div>
             <?php else: ?>
-        </div>
-    </div>
 <?php endif; ?>
 </form>
 <script>

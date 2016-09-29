@@ -1,4 +1,5 @@
-<?php /* $orderStatus = array(
+<?php
+/* $orderStatus = array(
     0 => array(
         'name' => l('Принят в ремонт'),
         'color' => 'B05DBB',
@@ -28,7 +29,7 @@ $i = 1;
     <form method="POST" id="manager-setup">
         <fieldset>
             <?php foreach ($orderStatus as $id => $status): ?>
-                <?php if (in_array($id, $shows) && $id != 10): ?>
+                <?php if ((in_array($id, $shows) && $id != 10) || (!$status['system'] && $status['use_in_manager'])): ?>
                     <div class="row-fluid">
                         <div class="col-sm-3">
                             <div class="form-group">
@@ -39,7 +40,7 @@ $i = 1;
                         <div class="col-sm-2">
                             <div class="form-group">
                                 <input class="form-control" type="text" name="status[<?= $id ?>]"
-                                       value="<?= empty($current[$id]) ? $default[$id] : $current[$id] ?>"
+                                       value="<?= empty($current[$id]) ? (isset($default[$id]) ? $default[$id] : 1) : $current[$id] ?>"
                                        placeholder=""/>
                             </div>
                         </div>
@@ -59,13 +60,14 @@ $i = 1;
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input class="form-control" type="text" name="status[10]" value="<?= empty($current[10]) ? $default[10] : $current[10] ?>"
+                        <input class="form-control" type="text" name="status[10]"
+                               value="<?= empty($current[10]) ? $default[10] : $current[10] ?>"
                                placeholder=""/>
                     </div>
                 </div>
                 <div class="col-sm-7">
                     <?= l('Укажите максимальное количество дней, которое заказ может находиться в данном статусе без изменений')
-            . l(', если не указана дата поставки запчасти (заказ на ремонт не привязан к заказу поставщика)');  ?>
+                    . l(', если не указана дата поставки запчасти (заказ на ремонт не привязан к заказу поставщика)'); ?>
                 </div>
             </div>
             <hr/>

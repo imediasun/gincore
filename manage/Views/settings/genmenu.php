@@ -43,4 +43,9 @@
             +
         </a>
     </li>
+    <li>
+        <a href="<?= $this->all_configs['prefix'] ?>custom_status">
+            <?= l('Пользовательские статусы заказов') ?>
+        </a>
+    </li>
 </ul>

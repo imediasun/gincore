@@ -31,6 +31,6 @@
     <?php endif; ?>
 </ul>
 <div class="count_all_records">
-    <span class="form-control"><?= l('Всего') ?>:<?= $count . l('записей') ?></span>
+    <span class="form-control"><?= l('Всего') ?>: <?= $count . l('записей') ?></span>
 </div>
 <?= $after ?>

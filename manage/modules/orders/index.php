@@ -13,7 +13,8 @@ $modulemenu[10] = l('orders');
  * @property  MOrdersComments OrdersComments
  * @property  MLockFilters    LockFilters
  * @property  MTemplateVars   TemplateVars
- * @property  MUsers   Users
+ * @property  MUsers          Users
+ * @property  MStatus         Status
  */
 class orders extends Controller
 {
@@ -23,7 +24,8 @@ class orders extends Controller
         'OrdersComments',
         'LockFilters',
         'TemplateVars',
-        'Users'
+        'Users',
+        'Status'
     );
 
     /**
@@ -667,7 +669,8 @@ class orders extends Controller
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
                 'urgent' => $this->Orders->getUrgentCount(),
                 'debts' => $this->Orders->getDebts(),
-                'columns' => $columns
+                'columns' => $columns,
+                'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
             'functions' => array(),
         );
@@ -703,7 +706,8 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page,
                 'saleOrdersFilters' => $this->sale_orders_filters(true),
-                'debts' => $this->Orders->getDebts(ORDER_SELL)
+                'debts' => $this->Orders->getDebts(ORDER_SELL),
+                'status' => $this->Status->getAll(ORDER_SELL, 'status_id')
             )),
             'functions' => array(),
         );
@@ -731,7 +735,8 @@ class orders extends Controller
                 'orders' => $orders,
                 'count' => empty($orders) ? 0 : $this->all_configs['manageModel']->get_count_clients_orders($query,
                     'co'),
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
             'menu' => $this->repair_orders_filters(),
             'functions' => array('reset_multiselect()', 'gen_tree()'),
@@ -762,7 +767,7 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page,
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
-
+                'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
             'functions' => array(),
         );
@@ -936,8 +941,8 @@ class orders extends Controller
             // заказы клиентов на которых можно проверить изделия
             $data = $this->all_configs['db']->query('SELECT i.goods_id, o.id
                 FROM {warehouses_goods_items} as i, {orders} as o, {category_goods} as cg
-                WHERE o.status NOT IN (?li) AND cg.goods_id=i.goods_id AND cg.category_id=o.category_id',
-                array($this->all_configs['configs']['order-statuses-closed']))->assoc();
+                WHERE o.status NOT IN (?li) AND cg.goods_id=i.goods_id AND cg.category_id=o.category_id AND o.type=?i',
+                array($this->all_configs['configs']['order-statuses-closed'], ORDER_REPAIR))->assoc();
             $serials = array();
             $g = array();
             if ($data) {
@@ -960,7 +965,8 @@ class orders extends Controller
             $orders_html = $this->view->renderFile('orders/orders_show_suppliers_orders_wait', array(
                 'orders' => $orders,
                 'count' => $count,
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'serials' => $serials
             ));
         }
 
@@ -1728,15 +1734,18 @@ class orders extends Controller
             case 1:
                 $template = 'orders/quicksaleorder/genorder';
                 $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
+                $status = $this->Status->getAll(ORDER_SELL, 'status_id');
                 break;
             case 2:
                 $template = 'orders/eshoporder/genorder';
                 $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
+                $status = $this->Status->getAll(ORDER_SELL, 'status_id');
                 break;
             default:
                 $template = $modal ? 'orders/genorder/genorder-modal' : 'orders/genorder/genorder';
                 $print_templates = $this->TemplateVars->getUsersPrintTemplates('repair_order');
                 $showUsersFields = $this->checkShowUsersFields($usersFields, $hide);
+                $status = $this->Status->getAll(ORDER_REPAIR, 'status_id');
         }
         return $this->view->renderFile($template, array(
             'order' => $order,
@@ -1769,7 +1778,8 @@ class orders extends Controller
             'price_type' => $price_type,
             'price_type_of_service' => $price_type_of_service,
             'print_templates' => $print_templates,
-            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars(),
+            'status' => $status
         ));
     }
 
@@ -1793,7 +1803,11 @@ class orders extends Controller
                 (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as wait_parts
                 FROM {users} as u
                 WHERE  ?query',
-                array($this->all_configs['configs']['order-statuses-engineer-not-workload'], $this->all_configs['configs']['order-statuses-expect-parts'], $query))->assoc('id');
+                array(
+                    $this->all_configs['configs']['order-statuses-engineer-not-workload'],
+                    $this->all_configs['configs']['order-statuses-expect-parts'],
+                    $query
+                ))->assoc('id');
         }
         return $result;
     }
@@ -2477,7 +2491,7 @@ class orders extends Controller
             'orderStatus' => $this->all_configs['configs']['order-status'],
             'shows' => array_keys($this->all_configs['configs']['show-status-in-manager-config']),
             'default' => $this->all_configs['configs']['show-status-in-manager-config'],
-            'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
+            'current' => empty($current) ? array() : json_decode($current[0]['value'], true),
         ));
         $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . ' '
             . InfoPopover::getInstance()->createQuestion('l_manager_setup_info') . '</center>';
@@ -2842,11 +2856,12 @@ class orders extends Controller
     {
         $data['state'] = true;
         $data['content'] = l('История изменения статусов не найдена');
+        $order = $this->Orders->getByPk($_POST['object_id']);
         $statuses = $this->all_configs['db']->query('SELECT s.status, s.date, u.* FROM {order_status} as s
                 LEFT JOIN {users} as u ON u.id=s.user_id WHERE s.order_id=?i ORDER BY `date` DESC',
             array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
         if ($statuses) {
-            $sts = $this->all_configs['configs']['order-status'];
+            $sts = $this->Status->getAll(!empty($order) ? $order['type'] : ORDER_REPAIR, 'status_id');
             $data['content'] = $this->view->renderFile('orders/order_statuses', array(
                 'statuses' => $statuses,
                 'sts' => $sts

@@ -13,13 +13,11 @@ if (!isset($_SESSION)) {
 }
 
 if (!isset($_SESSION['id']) || $_SESSION['id'] == 0) {
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array(
+    Response::json(array(
         'message' => l('Сессия была прервана, выполните вход в Gincore'),
         'error' => true,
         'reload' => true,
     ));
-    exit;
     return false;
 }
 
@@ -28,9 +26,7 @@ $user_id = $_SESSION['id'];
 // помечаем
 if (isset($_POST['act']) && $_POST['act'] == 'marked-object') {
     if (!isset($_POST['object_id']) || $_POST['object_id'] == 0 || !isset($_POST['type']) || empty($_POST['type'])) {
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Побробуйте еще раз'), 'error' => true));
-        exit;
+        Response::json(array('message' => l('Побробуйте еще раз'), 'error' => true));
     }
 
     $ar = $all_configs['db']->query('DELETE FROM {users_marked} WHERE user_id=?i AND object_id=?i AND type=?',
@@ -41,9 +37,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'marked-object') {
               WHERE user_id=?i AND type=?',
             array($_SESSION['id'], trim($_POST['type'])))->el();
 
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Успешно'), 'count-marked' => $count_marked));
-        exit;
+        Response::json(array('message' => l('Успешно'), 'count-marked' => $count_marked));
     }
 
     $all_configs['db']->query('INSERT INTO {users_marked} (user_id, object_id, type) VALUES (?i, ?i, ?)',
@@ -52,9 +46,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'marked-object') {
     $count_marked = $all_configs['db']->query('SELECT COUNT(id) FROM {users_marked} WHERE user_id=?i AND type=?',
         array($_SESSION['id'], trim($_POST['type'])))->el();
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array('message' => l('Успешно'), 'count-marked' => $count_marked));
-    exit;
+    Response::json(array('message' => l('Успешно'), 'count-marked' => $count_marked));
 }
 
 if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
@@ -69,14 +61,18 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
             trim(preg_replace('/ {1,}/', ' ', mb_strtolower($_POST['query'], 'UTF-8'))));
 
         if ($_POST['table'] == 'categories' || $_POST['table'] == 'categories-last' || $_POST['table'] == 'categories-goods') {
-            $query = '';
+            $query = $all_configs['db']->makeQuery('NOT cg.url in (?l)', array(
+                array(
+                    'recycle-bin',
+                    'prodazha',
+                    'spisanie',
+                    'vozvrat-postavschiku',
+                )
+            ));
             $join = '';
             if (isset($_POST['fix']) && $_POST['fix'] > 0) {
-                $query = $all_configs['db']->makeQuery('AND cg.id IN (?li)',
-                    array(array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
-                /*$query = $all_configs['db']->makeQuery('AND cg.id IN (SELECT id FROM {categories}
-                            JOIN (SELECT @pv:=?i)tmp WHERE parent_id=@pv OR id=@pv)',
-                    array($_POST['fix']));*/
+                $query = $all_configs['db']->makeQuery('?query AND cg.id IN (?li)',
+                    array($query, array_values(get_childs_categories($all_configs['db'], $_POST['fix']))));
             }
             if ($_POST['table'] == 'categories-last') {
                 $_POST['table'] = 'categories';
@@ -97,16 +93,24 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 $join = $all_configs['db']->makeQuery('LEFT JOIN {categories} as scg ON scg.parent_id=cg.id', array());
             }
             $data = $all_configs['db']->query('SELECT cg.id, cg.title FROM {categories} as cg ?query
-                    WHERE cg.deleted=0 AND cg.title LIKE "%?e%" ?query LIMIT ?i',
+                    WHERE cg.deleted=0 AND cg.title LIKE "%?e%" AND ?query LIMIT ?i',
                 array($join, $s, $query, $limit))->assoc();
         }
         if ($_POST['table'] == 'categories-parent') {
+            $query = $all_configs['db']->makeQuery('NOT cg.url in (?l)', array(
+                array(
+                    'recycle-bin',
+                    'prodazha',
+                    'spisanie',
+                    'vozvrat-postavschiku',
+                )
+            ));
             $data = $all_configs['db']->query('
             SELECT cg.id, cg.title 
             FROM {categories} as cg
             LEFT JOIN (SELECT DISTINCT parent_id FROM {categories}) AS sub ON cg.id = sub.parent_id
-            WHERE  cg.deleted=0 AND cg.title LIKE "%?e%" AND cg.avail=1 AND NOT (sub.parent_id IS NULL OR sub.parent_id = 0) LIMIT ?i
-            ', array($s, $limit))->assoc();
+            WHERE cg.deleted=0 AND cg.title LIKE "%?e%" AND cg.avail=1 AND NOT (sub.parent_id IS NULL OR sub.parent_id = 0) AND ?query LIMIT ?i
+            ', array($s, $limit, $query))->assoc();
         }
         if ($_POST['table'] == 'users') {
             $query = '';
@@ -220,15 +224,17 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
                 WHERE w.consider_store=1 AND i.wh_id=w.id AND i.order_id IS NULL AND i.supplier_order_id=?i
                 GROUP BY i.goods_id', array($item['supplier_order_id']))->row();
 
-                    if ($count_free && $count_free['qty'] < 1) {
-                        unset($data[$id]);
-                    }
+                    $data[$id]['reserve'] = ($count_free && $count_free['qty'] < 1);
                 }
             }
 
             if ($data) {
                 foreach ($data as $k => $v) {
-                    $data[$k] = array('title' => suppliers_order_generate_serial($v), 'id' => $v['item_id']);
+                    $data[$k] = array(
+                        'title' => suppliers_order_generate_serial($v) . ($v['reserve'] ? ' ' . l('(бронь)') : ''),
+                        'class' => $v['reserve'] ? 'reserved' : '',
+                        'id' => $v['item_id']
+                    );
                 }
             }
         }
@@ -240,9 +246,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-typeahead') {
         }
     }
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 $act = isset($_POST['act']) ? trim($_POST['act']) : (isset($_GET['act']) ? trim($_GET['act']) : '');
@@ -260,9 +264,7 @@ if ($act == 'read-message') {
             array(intval($_POST['mess_id'])));
         $data['qty'] = count_unread_messages();
     }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // удаляем сообщение
@@ -282,9 +284,7 @@ if ($act == 'remove-message') {
         $all_configs['db']->query('UPDATE {messages} SET remove=1 WHERE `type`=?i AND user_id_destination=?i ?query',
             array(intval($_POST['type']), $user_id, $query));
     }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // удаление напоминания
@@ -296,9 +296,7 @@ if ($act == 'remove-alarm') {
         $data['state'] = false;
         $data['msg'] = l('Напоминание не найдено');
     }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // добавление напоминаний
@@ -326,9 +324,7 @@ if ($act == 'add-alarm') {
         }
     }
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // форма напоминаний
@@ -344,9 +340,7 @@ if ($act == 'alarm-clock') {
         'user_id' => $user_id,
     ));
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 function show_alarms($all_configs, $user_id, $old = false)
@@ -390,9 +384,7 @@ if ($act == 'edit-supplier-order-comment') {
         $all_configs['db']->query('UPDATE {contractors_suppliers_orders} SET comment=? WHERE id=?i',
             array(trim($_POST['value']), intval($_POST['pk'])));
     }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 // редактирование комментария приходной накладной
 if ($act == 'edit-purchase-invoice-comment') {
@@ -402,9 +394,7 @@ if ($act == 'edit-purchase-invoice-comment') {
         $all_configs['db']->query('UPDATE {purchase_invoices} SET description=? WHERE id=?i',
             array(trim($_POST['value']), intval($_POST['pk'])));
     }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // перемещаем заказ
@@ -500,25 +490,19 @@ if ($act == 'get-product-title' || $act == 'get-product-title-and-price') {
         }
     }
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // закрытие заказа
 if ($act == 'close-supplier-order') {
     $data = $all_configs['suppliers_orders']->close_order(isset($_POST['order_id']) ? $_POST['order_id'] : 0, true);
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // запчасти не будет
 if ($act == 'end-supplier-order') {
     $data = $all_configs['suppliers_orders']->end_order(isset($_POST['order_id']) ? $_POST['order_id'] : 0, true);
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // список локаций по складу
@@ -542,9 +526,7 @@ if ($act == 'get_locations') {
         }
     }
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // форма перемещения заказа
@@ -559,9 +541,7 @@ if ($act == 'stock_move-order') {
     $data['state'] = true;
     $data['functions'] = array('reset_multiselect()');
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // смена контактных телефонов
@@ -577,9 +557,7 @@ if ($act == 'show_contact_phones') {
         $data['btns'] = '<input onclick="alert_box(this, false, \'alarm_contact_phones\', undefined, undefined, \'messages.php\')" type="button" value="Включить аварийные телефоны " class="btn" />';
     }
     $data['content'] = $html;
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // переключение на аварийные телефоны
@@ -587,9 +565,7 @@ if ($act == 'alarm_contact_phones') {
     $data['state'] = true;
     $all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?', array('1', 'content_alarm'));
     $data['content'] = 'Телефон переключен на аварийный';
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // переключение на обычные телефоны
@@ -597,9 +573,7 @@ if ($act == 'usually_contact_phones') {
     $data['state'] = true;
     $all_configs['db']->query('UPDATE {settings} SET value=? WHERE name=?', array('0', 'content_alarm'));
     $data['content'] = 'Телефон переключен на обычный';
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // количество не прочтенных сообщений
@@ -672,9 +646,7 @@ if ($act == 'get-messages') {
     $onclick = 'onclick="remove_message(this, \'all\'' . ($type === null ? '' : ', ' . $type) . ')"';
     $data['btns'] = '<input ' . $onclick . ' type="button" class="btn btn-danger" value="' . l('Удалить все') . '" />';
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($data);
-    exit;
+    Response::json($data);
 }
 
 // аякс
@@ -739,9 +711,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
     if (!empty($flash)) {
         $result['flash'] = $flash;
     }
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode($result);
-    exit;
+    Response::json($result);
 }
 
 // закрываем аларм
@@ -757,32 +727,22 @@ if (isset($_POST['act']) && $_POST['act'] == 'close-alarm') {
 if (isset($_POST['act']) && $_POST['act'] == 'send_message') {
 
     if (!isset($_POST['send-mess-user']) || !is_array($_POST['send-mess-user']) || count($_POST['send-mess-user']) < 1) {
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Выберите пользователя'), 'error' => true));
-        exit;
+        Response::json(array('message' => l('Выберите пользователя'), 'error' => true));
     }
 
     if (!isset($_POST['text'])) {
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите текст'), 'error' => true));
-        exit;
+        Response::json(array('message' => l('Введите текст'), 'error' => true));
     }
     if (!isset($_POST['title'])) {
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите заглавие'), 'error' => true));
-        exit;
+        Response::json(array('message' => l('Введите заглавие'), 'error' => true));
     }
     $text = trim($_POST['text']);
     $title = trim($_POST['title']);
     if (empty($text)) {
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите сообщение'), 'error' => true));
-        exit;
+        Response::json(array('message' => l('Введите сообщение'), 'error' => true));
     }
     if (empty($title)) {
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array('message' => l('Введите заглавие'), 'error' => true));
-        exit;
+        Response::json(array('message' => l('Введите заглавие'), 'error' => true));
     }
     $array = array();
     foreach ($_POST['send-mess-user'] as $user) {
@@ -791,9 +751,7 @@ if (isset($_POST['act']) && $_POST['act'] == 'send_message') {
             array($text, get_ip(), $_SESSION['id'], $user, $title));
     }
 
-    header("Content-Type: application/json; charset=UTF-8");
-    echo json_encode(array('message' => l('Успешно отправлено')));
-    exit;
+    Response::json(array('message' => l('Успешно отправлено')));
 }
 
 
@@ -801,35 +759,27 @@ if (isset($_POST['act']) && $_POST['act'] == 'send_message') {
 if (isset($_POST['act']) && $_POST['act'] == 'infobox' && isset($_POST['do'])
     && isset($_POST['hash'])
 ) {
-
     require_once 'classes/infoblock.class.php';
     $infoblock = new Infoblock($all_configs);
 
     if ($_POST['do'] == 'get') {
         $arr = $infoblock->getinfo(nl2br(strip_tags($_POST['hash'])));
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array(
+        Response::json(array(
             'text' => $arr['text'],
             'title' => $arr['title']
         ));
-
     }
-
 }
 
 if (isset($_POST['pk']['act']) && $_POST['pk']['act'] == 'infobox'
     && isset($_POST['pk']['do']) && isset($_POST['value']) && isset($_POST['pk']['hash'])
 ) {
-
     require_once 'classes/infoblock.class.php';
     $infoblock = new Infoblock($all_configs);
 
     if ($_POST['pk']['do'] == 'set') {
-
         $infoblock->setinfo($_POST['pk']['hash'], $_POST['value']);
-
-        header("Content-Type: application/json; charset=UTF-8");
-        echo json_encode(array("msg" => ''));
+        Response::json(array("msg" => ''));
     }
 
 }

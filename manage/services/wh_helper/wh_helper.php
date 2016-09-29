@@ -23,16 +23,16 @@ class wh_helper extends \service
      */
     public function get_warehouses()
     {
-        if (file_exists($this->cache_warehouses)) {
-            return json_decode(file_get_contents($this->cache_warehouses), true);
-        } else {
+//        if (file_exists($this->cache_warehouses)) {
+//            return json_decode(file_get_contents($this->cache_warehouses), true);
+//        } else {
             $wh = $this->all_configs['db']->query(
                 "SELECT l.id as location_id, l.location as location_name, w.*
                  FROM {warehouses_locations} as l
                  LEFT JOIN {warehouses} as w ON w.id = l.wh_id
                  ORDER BY w.id, location_name
                 "
-            )->assoc('id');
+            )->assoc();
             $warehouses = array();
             foreach ($wh as $w) {
                 if (!isset($warehouses[$w['id']])) {
@@ -47,12 +47,12 @@ class wh_helper extends \service
                 );
             }
 
-            if (!is_dir($this->cache_folder)) {
-                mkdir($this->cache_folder, 0775);
-            }
-            file_put_contents($this->cache_warehouses, json_encode($warehouses));
+//            if (!is_dir($this->cache_folder)) {
+//                mkdir($this->cache_folder, 0775);
+//            }
+//            file_put_contents($this->cache_warehouses, json_encode($warehouses));
             return $warehouses;
-        }
+//        }
     }
 
     /**
