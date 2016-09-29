@@ -3566,32 +3566,26 @@ class Chains extends Object
         switch ($next) {
             case 'print_waybill':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=waybill&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
                 break;
             case 'print_sale_warranty':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=sale_warranty&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
                 break;
             case 'print_check':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
                 break;
 
             case 'print':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
                 break;
             case 'new_order':
-                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
+                $data['open_window'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
                 break;
             case 'print_and_new_order':
-                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
             default:
-                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
-                break;
         }
+        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
         return $data;
     }
 
