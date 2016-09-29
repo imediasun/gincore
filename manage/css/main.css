@@ -689,9 +689,9 @@ input.row-input {
     right: 0;
 }
 
-#add-alarm .btn {
-    margin-left: 40px;
-}
+/*#add-alarm .btn {*/
+    /*margin-left: 40px;*/
+/*}*/
 
 #add-alarm .checkbox {
     margin-left: 10px;
@@ -1228,4 +1228,10 @@ table.table-vpaddingless tr td.arrow{
     0%{color:rgba(0, 0, 0, 1);}
     50%{color:rgba(0, 0, 0, 1); background-color: rgba(98, 203, 49, 0.4)}
     100%{color:rgba(0, 0, 0, 1);}
+}
+.alert-after-one-day {
+    background-color: #FFBBBB;
+}
+.alert-before-one-hour {
+    background-color: #FFf8f8;
 }

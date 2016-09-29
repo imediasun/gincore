@@ -304,22 +304,25 @@ if ($act == 'add-alarm') {
     $data = array('state' => true);
 
     $order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : null;
-    $for_user_id = isset($_POST['users']) && intval($_POST['users']) > 0 ? intval($_POST['users']) : null;
-    $text = isset($_POST['text']) ? trim($_POST['text']) : '';
-    $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
+    if (!empty($_POST['users']) && is_array($_POST['users'])) {
+        foreach ($_POST['users'] as $for_user_id) {
+            $text = isset($_POST['text']) ? trim($_POST['text']) : '';
+            $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
-    if ($data['state'] == true && strtotime($date) < time()) {
-        $date = date('Y-m-d H:i:s', strtotime('+ 1 minutes'));
-    }
+            if ($data['state'] == true && strtotime($date) < time()) {
+                $date = date('Y-m-d H:i:s', strtotime('+ 1 minutes'));
+            }
 
-    if ($data['state'] == true) {
-        $id = $all_configs['db']->query(
-            'INSERT INTO {alarm_clock} (date_alarm, user_id, for_user_id, text, order_id, closed) VALUES (?, ?i, ?n, ?, ?n, 0)',
-            array($date, $user_id, $for_user_id, $text, $order_id), 'id');
+            if ($data['state'] == true) {
+                $id = $all_configs['db']->query(
+                    'INSERT INTO {alarm_clock} (date_alarm, user_id, for_user_id, text, order_id, closed) VALUES (?, ?i, ?n, ?, ?n, 0)',
+                    array($date, $user_id, $for_user_id, $text, $order_id), 'id');
 
-        if ($id) {
-            if (isset($_POST['text-to-private-comment']) && $order_id > 0 && mb_strlen($text, 'UTF-8') > 0) {
-                $all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, 1);
+                if ($id) {
+                    if (isset($_POST['text-to-private-comment']) && $order_id > 0 && mb_strlen($text, 'UTF-8') > 0) {
+                        $all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, 1);
+                    }
+                }
             }
         }
     }
@@ -335,9 +338,11 @@ if ($act == 'alarm-clock') {
 
     require_once __DIR__ . '/Core/View.php';
     $view = new View($all_configs);
+    $users = $all_configs['db']->query('SELECT fio, login, id FROM {users} WHERE avail=1 AND deleted=0')->assoc('id');
     $data['content'] = $view->renderFile('messages/alarm_clock_form', array(
         'order_id' => $order_id,
         'user_id' => $user_id,
+        'users' => $users
     ));
 
     Response::json($data);
@@ -345,35 +350,25 @@ if ($act == 'alarm-clock') {
 
 function show_alarms($all_configs, $user_id, $old = false)
 {
-    $html =
-        '<table class="table">
-            <thead><tr><td>' . l('Дата создания') . '</td><td>' . l('Дата напоминания') . '</td><td>' . l('Автор') . '</td><td>' . l('номер заказа') . '</td><td>' . l('Текст') . '</td><td></td></tr></thead>
-            <tbody>';
+    require_once __DIR__ . '/Core/View.php';
+    $view = new View($all_configs);
 
-    $alarms = $all_configs['db']->query('SELECT a.*, u.fio, u.phone, u.login, u.email FROM {alarm_clock} as a
-        LEFT JOIN {users} as u ON u.id=a.user_id WHERE IF(a.for_user_id>0, a.for_user_id=?i, true) AND a.date_alarm ?query NOW()
-        ORDER BY date_alarm DESC', array($user_id, $old === false ? '>' : '<'))->assoc();
+    $alarms = $all_configs['db']->query('
+        SELECT a.*, 
+        u.fio, u.phone, u.login, u.email,
+        fu.fio as fu_fio, fu.phone as fu_phone, fu.login as fu_login, fu.email as fu_email
+        FROM {alarm_clock} as a
+        LEFT JOIN {users} as u ON u.id=a.user_id 
+        LEFT JOIN {users} as fu ON fu.id=a.for_user_id 
+        WHERE (IF(a.for_user_id>0, a.for_user_id=?i, true) OR a.user_id=?i) AND a.date_alarm ?query NOW()
+        ORDER BY date_alarm DESC
+    ', array($user_id, $user_id, $old === false ? '>' : '<'))->assoc();
 
-    if ($alarms) {
-        foreach ($alarms as $alarm) {
-            $html .= '<tr><td><span title="' . do_nice_date($alarm['date_add'],
-                    false) . '">' . do_nice_date($alarm['date_add']) . '</span></td>';
-            $html .= '<td><span title="' . do_nice_date($alarm['date_alarm'],
-                    false) . '">' . do_nice_date($alarm['date_alarm']) . '</span></td>';
-            $html .= '<td>' . get_user_name($alarm) . '</td><td>';
-            if ($alarm['order_id'] > 0) {
-                $href = $all_configs['prefix'] . 'orders/create/' . $alarm['order_id'];
-                $html .= '<a href="' . $href . '">' . $alarm['order_id'] . '</a>';
-            }
-            $html .= '</td><td>' . cut_string($alarm['text']) . '</td>';
-            $html .= '<td><i onclick="remove_alarm(this, ' . $alarm['id'] . ')" class="glyphicon glyphicon-remove cursor-pointer"></i></td></tr>';
-        }
-    } else {
-        $html .= '<tr><td colspan="5">' . l('Напоминаний нет') . '</td></tr>';
-    }
-    $html .= '</tbody></table>';
 
-    return $html;
+    return $view->renderFile('messages/show_alarms', array(
+        'alarms' => $alarms,
+        'user_id' => $user_id
+    ));
 }
 
 // редактирование комментария заказа поставщику
@@ -690,8 +685,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
         GROUP_CONCAT(ac.text, " <a href=\'' . $all_configs['prefix'] . 'orders/create/", ac.order_id, "\'>", ac.order_id, "</a><span  class=\'from\'>(", if(not u.fio = NULL, u.fio, u.login), ")</span>") as text
         FROM {alarm_clock} ac'
         . ' JOIN {users} u ON u.id=ac.user_id'
-        . ' WHERE IF(for_user_id>0, for_user_id=?i, true) AND date_alarm>NOW()
-        GROUP BY order_id ORDER BY date_alarm', array($user_id))->assoc('order_id');
+        . ' WHERE (IF(for_user_id>0, for_user_id=?i, true) OR user_id=?i)AND date_alarm>NOW()
+        GROUP BY order_id ORDER BY date_alarm', array($user_id, $user_id))->assoc('order_id');
 
     if ($alarms && $alarms[key($alarms)] != 0) {
         $alarms[0] = $alarms[key($alarms)];
