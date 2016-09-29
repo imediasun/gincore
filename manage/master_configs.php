@@ -1224,7 +1224,8 @@ class Configs
             ),
             'available-sms-providers' => array(
                 'smsru' => l('smsru'),
-                'turbosms' => l('turbosms')
+                'turbosms' => l('turbosms'),
+                'plivo' => l('plivo'),
             )
         );  // object instance
 
