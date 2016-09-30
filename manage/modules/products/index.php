@@ -2543,11 +2543,11 @@ class products extends Controller
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Использовать автонаценку') . ': ' . ($product['use_automargin'] ? l('Да') : l('Нет')));
         }
-        if (isset($update['automargin']) && $product['automargin'] != $update['automargin']) {
+        if (isset($update['automargin']) && ($product['automargin'] != $update['automargin'] || $product['automargin_type'] != $update['automargin_type'])) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Автонаценка') . ': ' . $product['automargin'] . ($product['automargin_type'] ? viewCurrency() : '%'));
         }
-        if (isset($update['wholesale_automargin']) && $product['wholesale_automargin'] != $update['wholesale_automargin']) {
+        if (isset($update['wholesale_automargin']) && ($product['wholesale_automargin'] != $update['wholesale_automargin'] || $product['wholesale_automargin_type'] != $update['wholesale_automargin_type'])) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Оптовая автонаценка') . ': ' . $product['wholesale_automargin'] . ($product['wholesale_automargin_type'] ? viewCurrency() : '%'));
         }
