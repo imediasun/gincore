@@ -3606,7 +3606,6 @@ class orders extends Controller
 
             foreach (array(
                 'npp' => 'N',
-                'notice' => 'Напоминания',
                 'date' => 'Дата',
                 'accepter' => 'Приемщик',
                 'manager' => 'Менеджер',
