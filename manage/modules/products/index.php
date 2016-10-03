@@ -1480,7 +1480,7 @@ class products extends Controller
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
-            $product = $this->all_configs['db']->query('SELECT type, avail, deleted FROM {goods} WHERE id=?i',
+            $product = $this->all_configs['db']->query('SELECT type, avail, deleted, fixed_payment, percent_from_profit FROM {goods} WHERE id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
             if ($product) {
@@ -2543,11 +2543,11 @@ class products extends Controller
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Использовать автонаценку') . ': ' . ($product['use_automargin'] ? l('Да') : l('Нет')));
         }
-        if (isset($update['automargin']) && $product['automargin'] != $update['automargin']) {
+        if (isset($update['automargin']) && ($product['automargin'] != $update['automargin'] || $product['automargin_type'] != $update['automargin_type'])) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Автонаценка') . ': ' . $product['automargin'] . ($product['automargin_type'] ? viewCurrency() : '%'));
         }
-        if (isset($update['wholesale_automargin']) && $product['wholesale_automargin'] != $update['wholesale_automargin']) {
+        if (isset($update['wholesale_automargin']) && ($product['wholesale_automargin'] != $update['wholesale_automargin'] || $product['wholesale_automargin_type'] != $update['wholesale_automargin_type'])) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Оптовая автонаценка') . ': ' . $product['wholesale_automargin'] . ($product['wholesale_automargin_type'] ? viewCurrency() : '%'));
         }
