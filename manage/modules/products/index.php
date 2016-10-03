@@ -1480,7 +1480,7 @@ class products extends Controller
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
-            $product = $this->all_configs['db']->query('SELECT type, avail, deleted FROM {goods} WHERE id=?i',
+            $product = $this->all_configs['db']->query('SELECT type, avail, deleted, fixed_payment, percent_from_profit FROM {goods} WHERE id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
             if ($product) {
