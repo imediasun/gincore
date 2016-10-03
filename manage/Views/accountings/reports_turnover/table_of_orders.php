@@ -7,11 +7,10 @@
         <td><?= l('Устройство') ?></td>
         <td><?= l('Запчасти') ?></td>
         <td><?= l('Работа') ?></td>
-
+        <td><?= l('Цена продажи') ?></td>
         <?php if ($isAdmin): ?>
             <td><?= l('Стоимость работ') ?> <?= InfoPopover::getInstance()->createQuestion('l_accountings_report_table_cost_info') ?></td>
         <?php endif; ?>
-        <td><?= l('Цена продажи') ?></td>
         <?php if ($isAdmin): ?>
             <td><?= l('Цена запчасти') ?> <?= InfoPopover::getInstance()->createQuestion('l_accountings_report_table_part_cost_info') ?></td>
             <td class="reports_turnover_profit invisible"><?= l('Операц. приб.') ?></td>
@@ -53,11 +52,6 @@
                     <?php endforeach; ?>
                 <?php endif; ?>
             </td>
-            <?php if ($isAdmin): ?>
-                <td>
-                    <?= show_price($services_price, 2, ' ') ?>
-                </td>
-            <?php endif; ?>
             <td>
                 <?php if ($order['turnover'] < 0 && $order['has_return']): ?>
                     &infin;
@@ -65,6 +59,11 @@
                     <?= show_price($order['turnover'], 2, ' ') ?>
                 <?php endif; ?>
             </td>
+            <?php if ($isAdmin): ?>
+                <td>
+                    <?= show_price($services_price, 2, ' ') ?>
+                </td>
+            <?php endif; ?>
             <?php if ($isAdmin): ?>
                 <td>
                     <?= show_price($order['purchase'], 2, ' ') ?>
@@ -89,8 +88,8 @@
         <td></td>
         <td></td>
         <td></td>
-        <td><?= show_price($services_prices, 2, ' ') ?></td>
         <td><?= show_price($amounts['turnover'], 2, ' ') ?></td>
+        <td><?= show_price($services_prices, 2, ' ') ?></td>
         <td>
             &sum;<?= show_price($amounts['purchase'], 2, ' ') ?><br/>&equiv;<?= show_price($amounts['purchase2'], 2,
                 ' ') ?>
