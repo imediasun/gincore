@@ -62,7 +62,7 @@
                             <input type="hidden" class="form-control js-supplier-order_numbers disabled"
                                    value="<?= implode(',', $order['cos']) ?>"
                                    name="so_co[<?= $id ?>]"/>
-                            <textarea class="form-control js-supplier-order_numbers" style="background-color: #eeeeee" rows="1" cols="10"><?= implode(',', $order['cos']) ?></textarea>
+                            <input type='text' class="form-control js-supplier-order_numbers" style="background-color: #eeeeee"  value="<?= implode(',', $order['cos']) ?>" />
                         </td>
                         <td class="col-sm-2">
                             <?php if ($order['count_come'] > 0): ?>
