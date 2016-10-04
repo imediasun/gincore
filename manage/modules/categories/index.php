@@ -218,9 +218,6 @@ class categories extends Controller
             ), array(
                 'id' => intval($post['id'])
             ));
-            if (isset($post['fixed_payment'])) {
-                $this->updatePaymentForSaleGoods($post['id'], $post);
-            }
             if (!empty($post['information']) && trim($post['information']) != $category['information']) {
                 $this->History->save('change-category-info', $mod_id, $category['id'], $category['information']);
             }
@@ -927,29 +924,6 @@ class categories extends Controller
             'state' => true,
             'message' => l('Информация успешно изменена')
         );
-    }
-
-    /**
-     * @param $categoryId
-     * @param $post
-     */
-    private function updatePaymentForSaleGoods($categoryId, $post)
-    {
-        $child = $this->Categories->getChildIds($categoryId);
-        $child[] = $categoryId;
-        $update = array(
-            'percent_from_profit' => isset($post['percent_from_profit']) ? intval($post['percent_from_profit']) : 0,
-            'fixed_payment' => isset($post['fixed_payment']) ? floatval($post['fixed_payment']) : 0
-        );
-        $goodIds = $this->all_configs['db']->query('SELECT goods_id FROM {category_goods} WHERE category_id in (?li)',
-            array($child))->col();
-        if (!empty($goodIds)) {
-            $this->Goods->update($update, array(
-                'id' => $goodIds,
-                'percent_from_profit' => 0,
-                'fixed_payment' => 0
-            ));
-        }
     }
 }
 

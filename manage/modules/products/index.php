@@ -1480,7 +1480,7 @@ class products extends Controller
 
         if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
 
-            $product = $this->all_configs['db']->query('SELECT type, avail, deleted, fixed_payment/100 as fixed_payment, percent_from_profit FROM {goods} WHERE id=?i',
+            $product = $this->all_configs['db']->query('SELECT type, avail, deleted, fixed_payment/100 as fixed_payment, percent_from_profit, category_for_margin FROM {goods} WHERE id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
 
             if ($product) {
@@ -2243,7 +2243,8 @@ class products extends Controller
             'avail' => isset($post['avail']) ? 1 : 0,
             '`type`' => isset($post['type']) ? 1 : 0,
             'percent_from_profit' => $post['percent_from_profit'],
-            'fixed_payment' => $post['fixed_payment'] * 100
+            'fixed_payment' => $post['fixed_payment'] * 100,
+            'category_for_margin' => empty($post['category_for_margin']) ? 0 : intval($post['category_for_margin'])
         );
         $ar = $this->Goods->update($update, array(
             'id' => $product_id
@@ -2533,7 +2534,7 @@ class products extends Controller
         }
         if (isset($update['fixed_payment']) && $product['fixed_payment'] != $update['fixed_payment']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],
-                l('Фиксированная оплата') . ': ' . $product['fixed_payment']/100 . viewCurrency());
+                l('Фиксированная оплата') . ': ' . $product['fixed_payment'] / 100 . viewCurrency());
         }
         if (isset($update['use_minimum_balance']) && $product['use_minimum_balance'] != $update['use_minimum_balance']) {
             $this->History->save('edit-goods', $mod_id, $product['id'],

@@ -32,6 +32,19 @@
             </td>
         </tr>
         <tr>
+            <td>
+                <label><?= l('Категории') ?>: </label>
+            </td>
+            <td>
+                <select class="multiselect form-control" multiple="multiple" name="categories[]">
+                    <?= build_array_tree($categories, array_keys($selected_categories)); ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"><hr /></td>
+        </tr>
+        <tr>
             <td colspan="2">
                 <?= l('Оплата сотруднику за продажу товара/услуги') ?> <?= InfoPopover::getInstance()->createQuestion('l_pay_employee_for_sale') ?>
             </td>
@@ -65,12 +78,15 @@
             </td>
         </tr>
         <tr>
+            <td colspan="2">*<?= l('Если поля не будут заполнены их значения будут браться из основной категории') ?></td>
+        </tr>
+        <tr>
             <td>
-                <label><?= l('Категории') ?>: </label>
+                <label><?= l('Основная категория') ?>: </label>
             </td>
             <td>
-                <select class="multiselect form-control" multiple="multiple" name="categories[]">
-                    <?= build_array_tree($categories, array_keys($selected_categories)); ?>
+                <select class="form-control" name="category_for_margin" style="width: 150px;">
+                    <?= build_array_tree($categories, array($product['category_for_margin'])); ?>
                 </select>
             </td>
         </tr>
