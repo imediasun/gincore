@@ -130,4 +130,22 @@ class MGoods extends AModel
         );
     }
 
+    public function getPayments($id)
+    {
+        $product = $this->getByPk($id);
+        $result = array();
+        if(empty($product)) {
+            return $result;
+        }
+        if(!empty($product['fixed_payment']) || !empty($product['percent_from_profit'])) {
+            $result = array(
+                'fixed_payment' =>$product['fixed_payment'],
+                'percent_from_profit' => $product['percent_from_profit']
+            );
+        } else {
+
+        }
+        return $result;
+    }
+
 }

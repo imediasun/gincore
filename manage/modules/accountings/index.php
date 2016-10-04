@@ -9,6 +9,7 @@ $moduleactive[30] = !$ifauth['is_2'];
 
 /**
  * @property  MUsers                      Users
+ * @property  MGoods                      Goods
  * @property  MOrders                     Orders
  * @property  MClients                    Clients
  * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
@@ -43,7 +44,8 @@ class accountings extends Controller
         'CashboxesTransactions',
         'Clients',
         'Orders',
-        'ContractorsCategoriesLinks'
+        'ContractorsCategoriesLinks',
+        'Goods'
     );
 
     public function __construct(&$all_configs)
@@ -4109,8 +4111,10 @@ class accountings extends Controller
             'detailed' => array()
         );
         foreach ($order['goods'] as $good) {
+            $payments = $this->Goods->getPayments($good['id']);
             if ($with == MGoods::FIXED_PAYMENT) {
-                $value = $good['count'] * $good['fixed_payment'];
+
+                $value = $good['count'] * $payments['fixed_payment'];
                 $profit['value'] += $value;
                 for ($i = $good['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
@@ -4124,7 +4128,7 @@ class accountings extends Controller
                 }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']) * $good['percent_from_profit'] / 100;
+                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']) * $payments['percent_from_profit'] / 100;
                 $profit['value'] += $good['count'] * $value;
 
                 for ($i = $good['count']; $i > 0; $i--) {
@@ -4134,7 +4138,7 @@ class accountings extends Controller
                         'cost_price' => $good['price_purchase'] * $order['course_value'],
                         'selling_price' => $good['price'],
                         'salary' => $value,
-                        'percent' => $good['percent_from_profit']
+                        'percent' => $payments['percent_from_profit']
                     );
                 }
             }
@@ -4154,8 +4158,9 @@ class accountings extends Controller
             'detailed' => array()
         );
         foreach ($order['services'] as $service) {
+            $payments = $this->Goods->getPayments($service['id']);
             if ($with == MGoods::FIXED_PAYMENT) {
-                $value = $service['count'] * $service['fixed_payment'];
+                $value = $service['count'] * $payments['fixed_payment'];
                 $profit['value'] += $value;
                 for ($i = $service['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
@@ -4169,7 +4174,7 @@ class accountings extends Controller
                 }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = $order['profit'] * $service['percent_from_profit'] / 100;
+                $value = $order['profit'] * $payments['percent_from_profit'] / 100;
                 $profit['value'] += $service['count'] * $value;
                 for ($i = $service['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
@@ -4178,7 +4183,7 @@ class accountings extends Controller
                         'cost_price' => $value,
                         'selling_price' => $value,
                         'salary' => $value,
-                        'percent' => $service['percent_from_profit']
+                        'percent' => $payments['percent_from_profit']
                     );
                 }
             }
