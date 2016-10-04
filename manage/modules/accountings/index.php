@@ -3547,10 +3547,11 @@ class accountings extends Controller
         $users = $this->Users->query('
             SELECT id, fio, salary_from_repair, salary_from_sale, use_fixed_payment, use_percent_from_profit 
             FROM {users} 
-            WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0)
+            WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0 OR use_fixed_payment > 0 OR use_percent_from_profit > 0)
         ', array($all))->assoc();
         $saleProfit = array();
         $repairProfit = array();
+        $detailed = array();
         if (!empty($users)) {
             foreach ($users as $user) {
                 foreach ($orders as $order) {
@@ -3561,13 +3562,21 @@ class accountings extends Controller
                         if (!isset($saleProfit[$user['id']])) {
                             $saleProfit[$user['id']] = 0;
                         }
-                        $saleProfit[$user['id']] += $this->calculateSaleProfit($order, $user);
+                        $profit = $this->calculateSaleProfit($order, $user);
+                        $saleProfit[$user['id']] += $profit['value'];
+                        if (!empty($profit['detailed'])) {
+                            $detailed[$user['id']] = $profit['detailed'];
+                        }
                     }
                     if ($order['order_type'] == ORDER_REPAIR) {
                         if (!isset($repairProfit[$user['id']])) {
                             $repairProfit[$user['id']] = 0;
                         }
-                        $repairProfit[$user['id']] += $this->calculateRepairProfit($order, $user);
+                        $profit = $this->calculateRepairProfit($order, $user);
+                        $repairProfit[$user['id']] += $profit['value'];
+                        if (!empty($profit['detailed'])) {
+                            $detailed[$user['id']] = $profit['detailed'];
+                        }
                     }
                 }
             }
@@ -3575,7 +3584,8 @@ class accountings extends Controller
         return $this->view->renderFile('accountings/reports_turnover/salary', array(
             'users' => $users,
             'saleProfit' => $saleProfit,
-            'repairProfit' => $repairProfit
+            'repairProfit' => $repairProfit,
+            'detailed' => $detailed
         ));
     }
 
@@ -4056,7 +4066,10 @@ class accountings extends Controller
                 $profit = $this->calculateSaleProfitWith(MGoods::PERCENT_FROM_PROFIT, $order);
                 break;
             default:
-                $profit = $order['profit'];
+                $profit = array(
+                    'value' => $order['profit'],
+                    'detailed' => array()
+                );
         }
         return $profit;
     }
@@ -4064,7 +4077,7 @@ class accountings extends Controller
     /**
      * @param $order
      * @param $user
-     * @return int
+     * @return array
      */
     private function calculateRepairProfit($order, $user)
     {
@@ -4076,7 +4089,10 @@ class accountings extends Controller
                 $profit = $this->calculateRepairProfitWith(MGoods::PERCENT_FROM_PROFIT, $order);
                 break;
             default:
-                $profit = $order['profit'];
+                $profit = array(
+                    'value' => $order['profit'],
+                    'detailed' => array()
+                );
         }
         return $profit;
     }
@@ -4084,17 +4100,43 @@ class accountings extends Controller
     /**
      * @param $with
      * @param $order
-     * @return float|int
+     * @return array
      */
     private function calculateSaleProfitWith($with, $order)
     {
-        $profit = 0;
+        $profit = array(
+            'value' => 0,
+            'detailed' => array()
+        );
         foreach ($order['goods'] as $good) {
             if ($with == MGoods::FIXED_PAYMENT) {
-                $profit += $good['count'] * $good['fixed_payment'];
+                $value = $good['count'] * $good['fixed_payment'];
+                $profit['value'] += $value;
+                for ($i = $good['count']; $i > 0; $i--) {
+                    $profit['detailed'][] = array(
+                        'order_id' => $order['order_id'],
+                        'product' => $good['title'],
+                        'cost_price' => $good['price_purchase'] * $order['course_value'],
+                        'selling_price' => $good['price'],
+                        'salary' => $value,
+                        'percent' => 0
+                    );
+                }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $profit += $good['count'] * ($good['price'] - $good['price_purchase'] * $order['course_value']) * $good['percent_from_profit'] / 100;
+                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']) * $good['percent_from_profit'] / 100;
+                $profit['value'] += $good['count'] * $value;
+
+                for ($i = $good['count']; $i > 0; $i--) {
+                    $profit['detailed'][] = array(
+                        'order_id' => $order['order_id'],
+                        'product' => $good['title'],
+                        'cost_price' => $good['price_purchase'] * $order['course_value'],
+                        'selling_price' => $good['price'],
+                        'salary' => $value,
+                        'percent' => $good['percent_from_profit']
+                    );
+                }
             }
         }
         return $profit;
@@ -4103,17 +4145,42 @@ class accountings extends Controller
     /**
      * @param $with
      * @param $order
-     * @return float|int
+     * @return array
      */
     private function calculateRepairProfitWith($with, $order)
     {
-        $profit = 0;
+        $profit = array(
+            'value' => 0,
+            'detailed' => array()
+        );
         foreach ($order['services'] as $service) {
             if ($with == MGoods::FIXED_PAYMENT) {
-                $profit += $service['count'] * $service['fixed_payment'];
+                $value = $service['count'] * $service['fixed_payment'];
+                $profit['value'] += $value;
+                for ($i = $service['count']; $i > 0; $i--) {
+                    $profit['detailed'][] = array(
+                        'order_id' => $order['order_id'],
+                        'product' => $service['title'],
+                        'cost_price' => $service['fixed_payment'],
+                        'selling_price' => $service['fixed_payment'],
+                        'salary' => $service['fixed_payment'],
+                        'percent' => 0
+                    );
+                }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $profit += $service['count'] * $order['profit'] * $service['percent_from_profit'] / 100;
+                $value = $order['profit'] * $service['percent_from_profit'] / 100;
+                $profit['value'] += $service['count'] * $value;
+                for ($i = $service['count']; $i > 0; $i--) {
+                    $profit['detailed'][] = array(
+                        'order_id' => $order['order_id'],
+                        'product' => $service['title'],
+                        'cost_price' => $value,
+                        'selling_price' => $value,
+                        'salary' => $value,
+                        'percent' => $service['percent_from_profit']
+                    );
+                }
             }
         }
         return $profit;

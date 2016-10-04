@@ -28,7 +28,7 @@
                         <td>
                             <?php if ($user['use_fixed_payment'] || $user['use_percent_from_profit']): ?>
                                 <?php $sale_salary = round(($saleProfit[$user['id']] / 100),
-                                    2) ?> &nbsp;<?= viewCurrency() ?>
+                                    2) ?>
                             <?php else: ?>
                                 <?php $sale_salary = round(($saleProfit[$user['id']] / 100) * ($user['salary_from_sale'] / 100),
                                     2) ?>
@@ -46,10 +46,11 @@
                         </td>
                     </tr>
                 </table>
+                <?= $this->renderFile('accountings/reports_turnover/_detailed_calculation', array(
+                    'detailedSalary' => $detailed[$user['id']],
+                    'user' => $user
+                )) ?>
             </div>
-            <?= $this->renderFile('accountings/reports_turnover/_detailed_calculation', array(
-                'user' => $user
-            )) ?>
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
