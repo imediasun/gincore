@@ -232,3 +232,6 @@ function delete_user(_this, uid) {
     }
     return false;
 }
+function select_divercified_pay() {
+    $('.js-fixed-pay').prop('disabled', $('.js-devircified-pay:checked').length > 0);
+}
