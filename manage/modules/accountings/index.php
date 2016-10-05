@@ -3560,15 +3560,19 @@ class accountings extends Controller
                     if (!in_array($user['id'], array($order['manager'], $order['acceptor'], $order['engineer']))) {
                         continue;
                     }
-                    if ($order['order_type'] == ORDER_SELL) {
+                    if (!array_key_exists($user['id'], $detailed)) {
+                        $detailed[$user['id']] = array();
+                    }
+                    if (in_array($order['order_type'], array(ORDER_SELL, ORDER_REPAIR))) {
                         if (!isset($saleProfit[$user['id']])) {
                             $saleProfit[$user['id']] = 0;
                         }
                         $profit = $this->calculateSaleProfit($order, $user);
                         $saleProfit[$user['id']] += $profit['value'];
                         if (!empty($profit['detailed'])) {
-                            $detailed[$user['id']] = $profit['detailed'];
+                            $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
                         }
+
                     }
                     if ($order['order_type'] == ORDER_REPAIR) {
                         if (!isset($repairProfit[$user['id']])) {
@@ -3577,7 +3581,7 @@ class accountings extends Controller
                         $profit = $this->calculateRepairProfit($order, $user);
                         $repairProfit[$user['id']] += $profit['value'];
                         if (!empty($profit['detailed'])) {
-                            $detailed[$user['id']] = $profit['detailed'];
+                            $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
                         }
                     }
                 }
@@ -4113,16 +4117,14 @@ class accountings extends Controller
         foreach ($order['goods'] as $good) {
             $payments = $this->Goods->getPayments($good['goods_id']);
             if ($with == MGoods::FIXED_PAYMENT) {
-
-                $value = $good['count'] * $payments['fixed_payment'];
-                $profit['value'] += $value;
+                $profit['value'] += $good['count'] * $payments['fixed_payment'];
                 for ($i = $good['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
                         'cost_price' => $good['price_purchase'] * $order['course_value'],
                         'selling_price' => $good['price'],
-                        'salary' => $value,
+                        'salary' => $payments['fixed_payment'],
                         'percent' => 0
                     );
                 }
