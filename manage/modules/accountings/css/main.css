@@ -222,3 +222,6 @@ table.table-of-order td {
 .compact {
     font-size: 0.7em;
 }
+.border-top > td {
+    border-top: 1px solid black !important;
+}

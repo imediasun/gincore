@@ -70,6 +70,35 @@ class MGoods extends AModel
     }
 
     /**
+     * @param $id
+     * @return array
+     */
+    public function getPayments($id)
+    {
+        $product = $this->getByPk($id);
+        if (empty($product)) {
+            return array();
+        }
+        if (!empty($product['fixed_payment']) || !empty($product['percent_from_profit'])) {
+            return array(
+                'fixed_payment' => $product['fixed_payment'],
+                'percent_from_profit' => $product['percent_from_profit']
+            );
+        }
+
+        if (!empty($product['category_for_margin'])) {
+            $category = $this->Categories->getByPk($product['category_for_margin']);
+        } else {
+            $category = $this->Categories->getMarginCategoryByProductId($id);
+        }
+
+        return empty($category) ? array() : array(
+            'fixed_payment' => $category['fixed_payment'],
+            'percent_from_profit' => $category['percent_from_profit']
+        );
+    }
+
+    /**
      * @return array
      */
     public function columns()
@@ -126,7 +155,8 @@ class MGoods extends AModel
             'wholesale_automargin_type',
             'wholesale_automargin',
             'percent_from_profit',
-            'fixed_payment'
+            'fixed_payment',
+            'category_for_margin'
         );
     }
 

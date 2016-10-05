@@ -48,6 +48,21 @@ class MCategories extends AModel
     }
 
     /**
+     * @param $productId
+     * @return array
+     */
+    public function getMarginCategoryByProductId($productId)
+    {
+        return $this->query('
+        SELECT * 
+        FROM ?t
+        WHERE id in (SELECT category_id FROM {category_goods} WHERE goods_id=?i ORDER by id ASC)
+        AND NOT (percent_from_profit=0 AND fixed_payment=0)
+        LIMIT 1
+        ', array($this->table, $productId))->row();
+    }
+
+    /**
      * @return array
      */
     public function columns()

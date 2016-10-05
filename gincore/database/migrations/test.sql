@@ -347,3 +347,9 @@ ALTER TABLE `restore4_categories` ADD COLUMN percent_from_profit int(10) UNSIGNE
 ALTER TABLE `restore4_categories` ADD COLUMN fixed_payment float UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_users` ADD COLUMN use_percent_from_profit tinyint(1) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_users` ADD COLUMN use_fixed_payment tinyint(1) UNSIGNED DEFAULT 0;
+/*
+2016_10_04_130600_add_default_category_to_godos.php
+ */
+ALTER TABLE `restore4_goods` ADD COLUMN category_for_margin int(10) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_goods` ADD INDEX goods_category_for_margin(category_for_margin);
+

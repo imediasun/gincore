@@ -1,7 +1,7 @@
 <div class="row-fluid">
     <?php if (!empty($users)): ?>
         <?php foreach ($users as $user): ?>
-            <div class="col-sm-4 well well-bordered" style="margin-right: 19px; padding: 10px 0px 10px 10px">
+            <div class="col-sm-4 well well-bordered" style="margin-right: 19px; padding: 10px 10px 10px 10px">
                 <table class="table table-compact table-no-border" style="margin-bottom: 0px">
                     <tr>
                         <td><?= l('Зарплата сотрудника') ?><?= InfoPopover::getInstance()->createQuestion('l_it_users_salary_from_orders_profit') ?></td>
@@ -39,7 +39,7 @@
                             <?php endif; ?>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="border-top">
                         <td style="border-top:1px solid"><?= l('Итого') ?></td>
                         <td style="border-top:1px solid">
                             <?= $repair_salary + $sale_salary ?>&nbsp;<?= viewCurrency() ?>

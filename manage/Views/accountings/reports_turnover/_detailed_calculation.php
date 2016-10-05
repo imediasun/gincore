@@ -1,12 +1,14 @@
 <?php if ($user['use_fixed_payment'] || $user['use_percent_from_profit']): ?>
     <a href="#" onclick="$('.detailed-calculation').toggle(); return false;"
-       class="compact"><?= l('Подробный расчет') ?></a>
+       class="compact"><?= l('Подробный расчет') ?>
+        <i class="fa fa-caret-down" aria-hidden="true"></i>
+    </a>
     <div class="detailed-calculation" style="display:none">
         <div class="compact">
             <?= l('Способ начисление заработной платы:') ?>
             <?= l('Диверсифицированный') ?>
             <?php if ($user['use_fixed_payment']): ?>
-                <?= l('фиксированная оплата') ?>,
+                <?= l('фиксированная оплата') ?>
             <?php endif; ?>
             <?php if ($user['use_percent_from_profit']): ?>
                 <?= l('% от продаж товаров/услуг') ?>
@@ -29,7 +31,7 @@
                 <?php foreach ($detailedSalary as $detailed): ?>
                     <tr>
                         <td>
-                            <?= $detailed['order_id']; ?>
+                            <a href="<?= $this->all_configs['prefix'] ?>orders/create/<?= $detailed['order_id'] ?>"><?= $detailed['order_id']; ?></a>
                         </td>
                         <td>
                             <?= $detailed['product']; ?>
@@ -54,7 +56,7 @@
                 </tbody>
             <?php endif; ?>
             <tfoot>
-            <tr>
+            <tr class="border-top">
                 <td> <?= count($detailedSalary) ?> <?= l('pcs.') ?> </td>
                 <td></td>
                 <td> <?= round($cost_price / 100 / 100, 2) ?> </td>

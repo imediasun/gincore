@@ -305,8 +305,9 @@ if ($act == 'add-alarm') {
 
     $order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : null;
     if (!empty($_POST['users']) && is_array($_POST['users'])) {
+        $id = 0;
+        $text = isset($_POST['text']) ? trim($_POST['text']) : '';
         foreach ($_POST['users'] as $for_user_id) {
-            $text = isset($_POST['text']) ? trim($_POST['text']) : '';
             $date = isset($_POST['date_alarm']) ? trim($_POST['date_alarm']) : '';
 
             if ($data['state'] == true && strtotime($date) < time()) {
@@ -318,11 +319,11 @@ if ($act == 'add-alarm') {
                     'INSERT INTO {alarm_clock} (date_alarm, user_id, for_user_id, text, order_id, closed) VALUES (?, ?i, ?n, ?, ?n, 0)',
                     array($date, $user_id, $for_user_id, $text, $order_id), 'id');
 
-                if ($id) {
-                    if (isset($_POST['text-to-private-comment']) && $order_id > 0 && mb_strlen($text, 'UTF-8') > 0) {
-                        $all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, 1);
-                    }
-                }
+            }
+        }
+        if ($id) {
+            if (isset($_POST['text-to-private-comment']) && $order_id > 0 && mb_strlen($text, 'UTF-8') > 0) {
+                $all_configs['suppliers_orders']->add_client_order_comment($order_id, $text, 1);
             }
         }
     }
@@ -335,10 +336,38 @@ if ($act == 'alarm-clock') {
     $data['state'] = true;
 
     $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
+    $userId = $_SESSION['id'];
 
     require_once __DIR__ . '/Core/View.php';
     $view = new View($all_configs);
-    $users = $all_configs['db']->query('SELECT fio, login, id FROM {users} WHERE avail=1 AND deleted=0')->assoc('id');
+    $users = array();
+    $query = '1=1';
+    if ($order_id) {
+        $first = $all_configs['db']->query('SELECT accepter, manager, engineer FROM {orders} WHERE id=?i',
+            array($order_id))->row();
+        $ids[] = $userId;
+        if (!empty($first['manager']) && $first['manager'] != $userId) {
+            $ids[] = $first['manager'];
+        }
+        if (!empty($first['accepter']) && $first['accepter'] != $userId) {
+            $ids[] = $first['accepter'];
+        }
+        if (!empty($first['engineer']) && $first['engineer'] != $userId) {
+            $ids[] = $first['engineer'];
+        }
+        $users = array_merge(
+            $users,
+            $all_configs['db']->query('SELECT fio, login, id FROM {users} WHERE avail=1 AND deleted=0 AND id in (?li)',
+                array($ids))->assoc('id')
+        );
+        $query = $all_configs['db']->makeQuery('NOT id in (?li)', array($ids));
+    }
+    $users = array_merge(
+        $users,
+        $all_configs['db']->query('SELECT fio, login, id FROM {users} WHERE avail=1 AND deleted=0 AND ?q',
+            array($query))->assoc('id')
+    );
+
     $data['content'] = $view->renderFile('messages/alarm_clock_form', array(
         'order_id' => $order_id,
         'user_id' => $user_id,
@@ -685,8 +714,8 @@ if (isset($_POST['act']) && $_POST['act'] == 'global-ajax') {
         GROUP_CONCAT(ac.text, " <a href=\'' . $all_configs['prefix'] . 'orders/create/", ac.order_id, "\'>", ac.order_id, "</a><span  class=\'from\'>(", if(not u.fio = NULL, u.fio, u.login), ")</span>") as text
         FROM {alarm_clock} ac'
         . ' JOIN {users} u ON u.id=ac.user_id'
-        . ' WHERE (IF(for_user_id>0, for_user_id=?i, true) OR user_id=?i)AND date_alarm>NOW()
-        GROUP BY order_id ORDER BY date_alarm', array($user_id, $user_id))->assoc('order_id');
+        . ' WHERE for_user_id=?i AND date_alarm>NOW()
+        GROUP BY order_id ORDER BY date_alarm', array($user_id))->assoc('order_id');
 
     if ($alarms && $alarms[key($alarms)] != 0) {
         $alarms[0] = $alarms[key($alarms)];
