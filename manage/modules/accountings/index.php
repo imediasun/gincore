@@ -4166,7 +4166,7 @@ class accountings extends Controller
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $service['title'],
-                        'cost_price' => $service['price'],
+                        'cost_price' => 0,
                         'selling_price' => $service['price'],
                         'salary' => $payments['fixed_payment'],
                         'percent' => 0
@@ -4180,7 +4180,7 @@ class accountings extends Controller
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $service['title'],
-                        'cost_price' => $value,
+                        'cost_price' => 0,
                         'selling_price' => $value,
                         'salary' => $value,
                         'percent' => $payments['percent_from_profit']
