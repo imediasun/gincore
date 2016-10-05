@@ -10,26 +10,10 @@
                 <li><a data-toggle="tab" href="#imports"><?= l('Импорт') ?></a></li>
             <?php endif; ?>
         </ul>
-        <div class="pull-right">
-            <form class="pull-left m-r-xs" method="post">
-                <div class="input-group" style="width:250px">
-                    <input class="form-control" name="text" type="text"
-                           value="<?= (isset($_GET['s']) ? htmlspecialchars($_GET['s']) : '') ?>"/>
-                            <span class="input-group-btn">
-                                <input type="submit" name="search" value="<?= l('Поиск') ?>" class="btn"/>
-                            </span>
-                </div>
-            </form>
-            <?php if ($this->all_configs['oRole']->hasPrivilege('create-goods')): ?>
-                <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create"
-                   class="btn btn-success pull-right">
-                    <?= l('Добавить товар') ?>
-                </a>
-            <?php endif; ?>
-        </div>
     </div>
     <div class="tab-content">
         <div id="goods" class="tab-pane active">
+            <?= $filters ?>
             <?php if (empty($goods)): ?>
                 <p class="text-error"><?= l('Нет ни одного продутка') ?></p>
             <?php else: ?>

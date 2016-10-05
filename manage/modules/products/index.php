@@ -37,7 +37,6 @@ class products extends Controller
         global $input_html;
         parent::routing($arrequest);
         if (!isset($arrequest[1]) || $arrequest[1] != 'create') {
-            $input_html['mmenu'] = $this->genmenu(); // список категорий
             return $this->gencontent(); // список товаров
         } elseif (isset($arrequest[1]) && $arrequest[1] == 'create') { // форма изменения товара
             return $this->gencreate();
@@ -621,14 +620,14 @@ class products extends Controller
     /**
      * @return string
      */
-    private function genfilter()
+    private function filters()
     {
-        $this->getGoods();
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
-        return $this->view->renderFile('products/genfilter', array(
+        return $this->view->renderFile('products/filters', array(
             'warehouses' => $warehouses,
             'controller' => $this,
-
+            'categories' => $this->get_categories(),
+            'managers' => $this->get_managers(),
         ));
     }
 
@@ -651,28 +650,6 @@ class products extends Controller
     }
 
     /**
-     * @param $categories_tree
-     * @return string
-     */
-    function categories_tree_menu($categories_tree)
-    {
-        $categories_html = '';
-        foreach ($categories_tree as $k => $v) {
-            $all = array($v['id'] => $v['id']) + (isset($v['child']) ? $this->get_all_childrens($v['child']) : array());
-
-            $categories_html .= '<li><label class="checkbox"><input type="checkbox" ';
-            $categories_html .= $this->click_filters('cats', $all) . '>' . htmlspecialchars($v['title']) . '</label>';
-
-            if (isset($v['child'])) {
-                $categories_html .= '<ul class="nav nav-list">' . $this->categories_tree_menu($v['child']);
-            }
-        }
-        $categories_html .= '</ul></li>';
-
-        return $categories_html;
-    }
-
-    /**
      * @param       $array
      * @param array $return
      * @return array
@@ -688,35 +665,6 @@ class products extends Controller
         }
 
         return $return;
-    }
-
-    /**
-     * @return string
-     */
-    private function genmenu()
-    {
-        $categories = $this->get_categories();
-
-
-        $filters_html = $this->genfilter(); // список фильтров
-        $data = array();
-
-        foreach ($categories as $category) {
-            $data[$category['parent_id']][] = array(
-                'id' => $category['id'],
-                'parent_id' => $category['parent_id'],
-                'title' => $category['title'],
-                'url' => $category['url']
-            );
-        }
-
-        $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
-
-        return $this->view->renderFile('products/genmenu', array(
-            'filter_html' => $filters_html,
-            'categories_tree_menu' => $this->categories_tree_menu($categories_tree)
-        ));
-
     }
 
     /**
@@ -899,6 +847,7 @@ class products extends Controller
             Response::redirect($_SERVER['REQUEST_URI']);
         }
 
+        $this->getGoods();
         $goods = $this->goods;
         $serials = array();
         if (count($goods) > 0) {
@@ -924,7 +873,8 @@ class products extends Controller
             'count_on_page' => $this->count_on_page,
             'managers' => $this->get_managers(),
             'serials' => $serials,
-            'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')
+            'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods'),
+            'filters' => $this->filters()
         ));
 
         return $goods_html;
