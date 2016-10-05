@@ -4111,7 +4111,7 @@ class accountings extends Controller
             'detailed' => array()
         );
         foreach ($order['goods'] as $good) {
-            $payments = $this->Goods->getPayments($good['id']);
+            $payments = $this->Goods->getPayments($good['goods_id']);
             if ($with == MGoods::FIXED_PAYMENT) {
 
                 $value = $good['count'] * $payments['fixed_payment'];
@@ -4158,7 +4158,7 @@ class accountings extends Controller
             'detailed' => array()
         );
         foreach ($order['services'] as $service) {
-            $payments = $this->Goods->getPayments($service['id']);
+            $payments = $this->Goods->getPayments($service['goods_id']);
             if ($with == MGoods::FIXED_PAYMENT) {
                 $value = $service['count'] * $payments['fixed_payment'];
                 $profit['value'] += $value;
@@ -4166,9 +4166,9 @@ class accountings extends Controller
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $service['title'],
-                        'cost_price' => $service['fixed_payment'],
-                        'selling_price' => $service['fixed_payment'],
-                        'salary' => $service['fixed_payment'],
+                        'cost_price' => $service['price'],
+                        'selling_price' => $service['price'],
+                        'salary' => $payments['fixed_payment'],
                         'percent' => 0
                     );
                 }
