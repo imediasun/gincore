@@ -69,7 +69,7 @@
             </td>
             <td>
                 <div class="input-group" style="width:150px">
-                    <input type="text" class="form-control" value="<?= $product['fixed_payment'] ?>"
+                    <input type="text" class="form-control" value="<?= round($product['fixed_payment'], 2) ?>"
                            style="min-width: 50px" name="fixed_payment"/>
                     <div class="input-group-addon" style="cursor: pointer; width:50px">
                         <span class="currency"><?= viewCurrency() ?></span>

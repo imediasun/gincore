@@ -1944,6 +1944,11 @@ class products extends Controller
                     $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
                                 VALUES (?i, ?i)', array($new_cat, $id));
                 }
+                $this->Goods->update(array(
+                   'category_for_margin' => current($post['categories'])
+                ), array(
+                    'id' => $id
+                ));
             }
             $this->History->save('create-goods', $mod_id, $id);
 
@@ -2270,6 +2275,14 @@ class products extends Controller
                                 VALUES (?i, ?i)', array($new_cat, $product_id));
                 }
             }
+            if(!in_array($good['category_for_margin'], $post['categories'])) {
+                $this->Goods->update(array(
+                    'category_for_margin' => current($post['categories'])
+                ), array(
+                    'id' => $product_id
+                ));
+            }
+
         }
         if (!isset($post['deleted']) && $good['deleted']) {
             $this->Goods->restoreProduct(array('id' => $product_id), $mod_id);
