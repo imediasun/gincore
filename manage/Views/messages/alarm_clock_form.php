@@ -30,7 +30,8 @@
                         </label><br>
                         <select class="multiselect" multiple name="users[]">
                             <?php if (!empty($users)): ?>
-                                <?php foreach ($users as $id => $user): ?>
+                                <?php foreach ($users as $user): ?>
+                                    <?php $id = $user['id'] ?>
                                     <option
                                         value="<?= $id ?>"><?= !empty($user['fio']) ? h($user['fio']) : h($user['login']) ?></option>
                                 <?php endforeach; ?>
