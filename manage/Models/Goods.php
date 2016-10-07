@@ -79,7 +79,7 @@ class MGoods extends AModel
         if (empty($product)) {
             return array();
         }
-        if (!empty($product['fixed_payment']) || !empty($product['percent_from_profit'])) {
+        if ((!empty($product['fixed_payment']) && $product['fixed_payment'] > 0) || !empty($product['percent_from_profit'])) {
             return array(
                 'fixed_payment' => $product['fixed_payment'],
                 'percent_from_profit' => $product['percent_from_profit']
