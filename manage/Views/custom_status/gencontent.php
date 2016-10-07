@@ -3,7 +3,7 @@
     <input type="hidden" name="custom-statuses" value=""/>
     <input type="hidden" name="order-type" value="<?= $current ?>"/>
 
-    <table class="table">
+    <table class="table table-borderless">
         <thead>
         <tr>
             <th></th>

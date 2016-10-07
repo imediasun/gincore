@@ -2391,7 +2391,7 @@ a:hover, a:focus {
     padding: 0 !important
 }
 
-.no-borders, tr>td {
+.no-borders {
     border: none !important
 }
 
