@@ -1235,3 +1235,6 @@ table.table-vpaddingless tr td.arrow{
 .alert-before-one-hour {
     background-color: #FFf8f8;
 }
+.btn-timer {
+    white-space: nowrap;
+}
