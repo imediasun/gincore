@@ -2,7 +2,7 @@
 <table class="table table-compact table-of-order">
     <thead>
     <tr>
-        <td></td>
+        <td width="1%"></td>
         <td><?= l('номер заказа') ?></td>
         <td><?= l('Устройство') ?></td>
         <td><?= l('Запчасти') ?></td>
@@ -27,7 +27,7 @@
                     <b class="text-danger"> <?= l('возврат') ?> </b>
                 <?php endif; ?>
                 <?php if ($order['has_more'] > 0): ?>
-                    <b class="text-success"> <?= l('ряд транзакций') ?> </b>
+                    <b class="text-success" style="white-space: nowrap"> <?= l('ряд транзакций') ?> </b>
                 <?php endif; ?>
             </td>
             <td>
