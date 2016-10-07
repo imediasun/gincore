@@ -26,6 +26,9 @@
                 <?php if ($order['has_return']): ?>
                     <b class="text-danger"> <?= l('возврат') ?> </b>
                 <?php endif; ?>
+                <?php if ($order['has_more'] > 0): ?>
+                    <b class="text-success"> <?= l('ряд транзакций') ?> </b>
+                <?php endif; ?>
             </td>
             <td>
                 <a href="<?= $this->all_configs['prefix'] . 'orders/create/' . $order['order_id'] ?>"><?= $order['order_id'] ?></a>

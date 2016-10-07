@@ -3829,6 +3829,15 @@ class accountings extends Controller
 
         $query = $this->getProfitMarginCondition($filters);
 
+        $has_more_query = $this->all_configs['db']->makeQuery('
+          SELECT o.id, count(*) as cnt
+            FROM {orders} as o
+            JOIN {categories} as cg ON cg.id=o.category_id
+            JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
+            WHERE  t.type<>?i AND t.date_transaction NOT BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") 
+              ?query GROUP by o.id',
+            array(8, $day_from, $day_to, $query));
         $orders = $this->all_configs['db']->query('
           SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
@@ -3836,15 +3845,17 @@ class accountings extends Controller
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, 
               SUM(IF(t.transaction_type=2, 1, 0)) as has_to,
               o.manager, o.accepter as acceptor, o.engineer, o.brand_id,
-              SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return
+              SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return,
+              hm.cnt as has_more
             FROM {orders} as o
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
             JOIN (SELECT id, contractors_categories_id, contractors_id FROM {contractors_categories_links}) as l ON l.id=t.contractor_category_link
+            LEFT JOIN (?query) as hm ON hm.id=o.id
             WHERE  t.type<>?i AND t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
               AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") 
               ?query GROUP BY order_id ORDER BY o.id',
-            array(8, $day_from, $day_to, $query))->assoc('order_id');
+            array($has_more_query, 8, $day_from, $day_to, $query))->assoc('order_id');
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         if ($orders) {
