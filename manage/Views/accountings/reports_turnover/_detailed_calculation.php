@@ -38,7 +38,7 @@
                         </td>
                         <td>
                             <?php $cost_price += $detailed['cost_price']; ?>
-                            <?= round($detailed['cost_price'] / 100 / 100, 2); ?>
+                            <?= round($detailed['cost_price'] / 100, 2); ?>
                         </td>
                         <td>
                             <?php $selling_price += $detailed['selling_price']; ?>

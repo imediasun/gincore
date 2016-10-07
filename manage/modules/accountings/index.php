@@ -3563,7 +3563,7 @@ class accountings extends Controller
                     if (!array_key_exists($user['id'], $detailed)) {
                         $detailed[$user['id']] = array();
                     }
-                    if (in_array($order['order_type'], array(ORDER_SELL, ORDER_REPAIR))) {
+                    if ($order['order_type'] == ORDER_SELL) {
                         if (!isset($saleProfit[$user['id']])) {
                             $saleProfit[$user['id']] = 0;
                         }
@@ -4176,14 +4176,14 @@ class accountings extends Controller
                 }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = $order['profit'] * $payments['percent_from_profit'] / 100;
+                $value = $service['price'] * $payments['percent_from_profit'] / 100;
                 $profit['value'] += $service['count'] * $value;
                 for ($i = $service['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $service['title'],
                         'cost_price' => 0,
-                        'selling_price' => $value,
+                        'selling_price' => $service['price'],
                         'salary' => $value,
                         'percent' => $payments['percent_from_profit']
                     );

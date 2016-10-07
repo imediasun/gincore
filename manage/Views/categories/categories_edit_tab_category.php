@@ -78,7 +78,7 @@
                                     <td>
                                         <div class="input-group" style="width:150px">
                                             <input type="text" class="form-control"
-                                                   value="<?= $product['percent_from_profit'] ?>"
+                                                   value="<?= $cur_category['percent_from_profit'] ?>"
                                                    style="min-width: 50px" name="percent_from_profit"/>
                                             <div class="input-group-addon" style="cursor: pointer; width:50px">
                                                 <span class="percent">%</span>
@@ -93,7 +93,7 @@
                                     <td>
                                         <div class="input-group" style="width:150px">
                                             <input type="text" class="form-control"
-                                                   value="<?= $product['fixed_payment'] ?>"
+                                                   value="<?= $cur_category['fixed_payment'] ?>"
                                                    style="min-width: 50px" name="fixed_payment"/>
                                             <div class="input-group-addon" style="cursor: pointer; width:50px">
                                                 <span class="currency"><?= viewCurrency() ?></span>
