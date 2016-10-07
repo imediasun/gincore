@@ -3563,7 +3563,7 @@ class accountings extends Controller
                     if (!array_key_exists($user['id'], $detailed)) {
                         $detailed[$user['id']] = array();
                     }
-                    if (in_array($order['order_type'], array(ORDER_SELL, ORDER_REPAIR))) {
+                    if ($order['order_type'] == ORDER_SELL) {
                         if (!isset($saleProfit[$user['id']])) {
                             $saleProfit[$user['id']] = 0;
                         }

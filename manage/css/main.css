@@ -465,7 +465,9 @@ table.table-compact, table.table-medium {
     font-size: 0.8em;
 }
 
-table.table-compact tr > td {
+table.table-compact tr > td,
+table.table-compact tr > th
+{
     padding: 2px;
     line-height: 12px;
 }

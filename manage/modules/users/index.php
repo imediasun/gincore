@@ -479,7 +479,7 @@ class users extends Controller
         $warehouses = get_service('wh_helper')->get_warehouses();
 
         $firstWarehouse = reset($warehouses);
-        if($user['warehouse'] && array_key_exists($user['warehouse'], $warehouses)) {
+        if ($user['warehouse'] && array_key_exists($user['warehouse'], $warehouses)) {
             $firstWarehouse = $warehouses[$user['warehouse']];
         }
         return $this->view->renderFile('users/create', array(
@@ -920,6 +920,8 @@ class users extends Controller
                         'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on',
                         'show_client_info' => isset($post['show_client_info']) && $post['show_client_info'] == 'on',
                         'show_only_his_orders' => isset($post['show_only_his_orders']) && $post['show_only_his_orders'] == 'on',
+                        'salary_from_repair' => isset($post['salary_from_repair']) ? $post['salary_from_repair'] : 0,
+                        'salary_from_sale' => isset($post['salary_from_sale']) ? $post['salary_from_sale'] : 0,
                         'use_percent_from_profit' => isset($post['use_percent_from_profit']) && $post['use_percent_from_profit'] == 'on',
                         'use_fixed_payment' => isset($post['use_fixed_payment']) && $post['use_fixed_payment'] == 'on',
                     ));
