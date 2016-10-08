@@ -63,18 +63,18 @@
                         </table>
                     </div>
                 </div>
-                <div class="row-fluid">
+                <div class="row-fluid" data-validate="parsley" id="suppliers-order-form-body">
                     <div class="col-sm-12">
                         <table class="table table-borderless">
                             <thead>
 
                             <tr>
                                 <td class="col-sm-5">
-                                    <label><?= l('Склад') ?>
+                                    <label><?= l('Склад') ?><b class="text-danger">*</b>
                                         : <?= InfoPopover::getInstance()->createQuestion('l_suppliers_order_wh_info') ?></label>
                                 </td>
                                 <td class="col-sm-4">
-                                    <label><?= l('Локация') ?>:</label>
+                                    <label><?= l('Локация') ?><b class="text-danger">*</b>:</label>
                                 </td>
                                 <td>
                                 </td>
@@ -85,7 +85,7 @@
                                 <td class="col-sm-5">
                                     <div class="form-group">
                                         <select name="warehouse" onchange="change_warehouse(this)"
-                                                class="select-warehouses-item-move form-control">
+                                                class="select-warehouses-item-move form-control" data-required="true">
                                             <option value=""></option>
                                             <?php if ($warehouses): ?>
                                                 <?php foreach ($warehouses as $warehouse): ?>
@@ -98,7 +98,7 @@
                                 <td class="col-sm-4">
                                     <div class="form-group">
                                         <select
-                                            class="form-control select-location" name="location">
+                                            class="form-control select-location" name="location" data-required="true">
                                         </select>
                                     </div>
                                 </td>

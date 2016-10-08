@@ -182,7 +182,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     // Return the `$element` where errors will be appended
     // Could also be (and given directly from DOM) a valid selector like `'#div'`
-    errorsContainer: function errorsContainer(ParsleyField) {},
+    errorsContainer: function errorsContainer(el) {
+      if ($(el.$element[0]).parent().hasClass('input-group'))
+        return $(el.$element[0]).parent().parent();
+    },
 
     // ul elem that would receive errors' list
     errorsWrapper: '<ul class="parsley-errors-list"></ul>',
