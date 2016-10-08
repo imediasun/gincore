@@ -8,3 +8,6 @@
 .new_request_row{
     position: relative;
 }
+#save_all_fixed {
+    margin-bottom: 20px;
+}

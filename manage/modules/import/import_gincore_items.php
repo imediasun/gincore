@@ -57,6 +57,12 @@ class import_gincore_items extends abstract_import_handler
                             'message' => l('Данные товара не изменились')
                         );
                     }
+                } else {
+                    $results[] = array(
+                        'state' => false,
+                        'id' => $id,
+                        'message' => l('Данного товара нету в базе')
+                    );
                 }
             }
         }

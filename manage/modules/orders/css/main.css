@@ -682,3 +682,6 @@ span.js-return-pay {
 .hide-field-td {
     padding-right: 10px ! important;
 }
+.reserved {
+    color: red;
+}

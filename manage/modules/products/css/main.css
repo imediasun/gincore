@@ -76,3 +76,6 @@ td.edit-price .input-small {
 .js-delete-product {
     cursor: pointer;
 }
+.margin-type {
+    width: 65px;
+}

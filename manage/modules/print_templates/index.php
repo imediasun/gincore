@@ -218,10 +218,8 @@ class print_templates extends translates
      */
     protected function genmenu()
     {
-        $sqls = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE `ro` = 0 ORDER BY `title`")->assoc();
-        return $this->view->renderFile('settings/genmenu', array(
-            'sqls' => $sqls
-        ));
+        return $this->view->renderFile('settings/genmenu', MSettings::getMenuVars($this->all_configs));
+
     }
 
     /**

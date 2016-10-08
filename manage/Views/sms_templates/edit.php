@@ -1,10 +1,11 @@
+
 <h3>
     <?= $config['name'] ?>
     <a href="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add" class="btn btn-primary"><?= l('Добавить шаблон') ?></a>
 </h3>
 <form action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/save" method="post">
-    <fieldset class="main">
-        <?php foreach ($translates as $id => $langs): ?>
+    <?php foreach ($translates as $id => $langs): ?>
+        <div class="well well-lg">
             <div style="position: relative;">
                 <?php $field = 'body' ?>
                 <?php $field_name = l('Значение'); ?>
@@ -14,7 +15,7 @@
                         <legend><?= $translate['var'] ?> (<?= l($types[$translate['type']]) ?>)</legend>
                         <?php if($types[$translate['type']] == 'orders'): ?>
                             <?= l('В шаблоне возможно использование следующих переменных:') ?>
-                            <table class="table-compact">
+                            <table class="table-compact m-b-sm">
                                 <tr> <td> {{order_id}} </td> <td> <?= l('Номер заказа') ?> </td> </tr>
                                 <tr> <td> {{pay}} </td> <td> <?= l('Сумма к оплате') ?> </td> </tr>
                                 <tr> <td> {{order_sum}} </td> <td> <?= l('Сумма заказа') ?> </td> </tr>
@@ -40,9 +41,9 @@
                 <?php endforeach; ?>
             </div>
             <br><br>
-        <?php endforeach; ?>
-        <input type="submit" class="save-btn btn btn-primary" value="<?= l('save') ?>">
-    </fieldset>
+        </div>
+    <?php endforeach; ?>
+    <input type="submit" class="btn btn-primary" value="<?= l('save') ?>">
 </form>
 
 <?php if ($textarea): ?>

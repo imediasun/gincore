@@ -8,6 +8,10 @@
     margin: 10px;
 }*/
 
+.popover {
+    max-width: 25%;
+}
+
 .btns-cashbox {
     width: 150px;
 }
@@ -218,4 +222,10 @@ table.table-of-order td {
 .invisible {
     visibility: hidden;
     display: none;
+}
+.compact {
+    font-size: 0.7em;
+}
+.border-top > td {
+    border-top: 1px solid #ddd !important;
 }

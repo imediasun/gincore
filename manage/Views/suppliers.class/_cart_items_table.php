@@ -3,23 +3,23 @@
         <table class="table supplier-table-items" style="<?= empty($orders) ? 'display:none' : '' ?>">
             <tbody>
             <tr class="js-supplier-row-cloning" style="display: none">
-                <td class="col-sm-3">
+                <td class="col-sm-4">
                     <input type="hidden" class="form-control js-supplier-item-id" name="" value="">
                     <input type="text" readonly class="form-control js-supplier-item-name" value=""/>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <input type="text" class="form-control js-supplier-price"
                            onkeyup="recalculate_amount_supplier();" value="" name=""/>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <input type="text" class="form-control js-supplier-quantity"
                            onkeyup="recalculate_amount_supplier();" value=""/>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <input type="text" class="form-control js-supplier-sum dasabled" readonly
                            onkeyup="recalculate_amount_supplier(this);" value="" name=""/>
                 </td>
-                <td>
+                <td class="col-sm-1">
                     <input type="text" class="form-control js-supplier-order_numbers dasabled" readonly value=""
                            name=""/>
                 </td>
@@ -28,6 +28,7 @@
                         <i class="glyphicon glyphicon-remove"></i>
                     </a>
                 </td>
+                <td class="col-sm-3"></td>
             </tr>
 
             <?php $total = 0 ?>
@@ -36,35 +37,33 @@
                 <?php foreach ($orders as $id => $order): ?>
                     <?php $readonly = ($order['count'] == $order['count_come'])? 'readonly': ''; ?>
                     <tr class="row-item">
-                        <td class="col-sm-3">
+                        <td class="col-sm-4">
                             <input type="hidden" class="form-control js-supplier-item-id" name="item_ids[<?= $id ?>]"
                                    value="<?= $order['goods_id'] ?>">
                             <input type="text" readonly class="form-control js-supplier-item-name"
                                    value="<?= $order['product'] ?>"/>
                             <input type="hidden" readonly name="edited[<?= $id ?>]" value="<?= $id ?>"/>
                         </td>
-                        <td class="col-sm-2">
+                        <td class="col-sm-1">
                             <input type="text" class="form-control js-supplier-price"
                                    onkeyup="recalculate_amount_supplier();" <?= $readonly ?> value="<?= round($order['price'], 2) ?>"
                                    name="amount[<?= $id ?>]"/>
                         </td>
-                        <td class="col-sm-2">
+                        <td class="col-sm-1">
                             <input type="text" class="form-control js-supplier-quantity" name="quantity[<?= $id ?>]"
                                    onkeyup="recalculate_amount_supplier();" <?= $readonly ?> value="<?= $order['count'] ?>"/>
                         </td>
-                        <td class="col-sm-2">
+                        <td class="col-sm-1">
                             <input type="text" class="form-control js-supplier-sum disabled" readonly
                                    onkeyup="recalculate_amount_supplier(this);"
                                    value="<?= $order['price'] * $order['count'] ?>"/>
                             <?php $total += $order['price'] * $order['count'] ?>
                         </td>
-                        <td>
+                        <td class="col-sm-1">
                             <input type="hidden" class="form-control js-supplier-order_numbers disabled"
                                    value="<?= implode(',', $order['cos']) ?>"
                                    name="so_co[<?= $id ?>]"/>
-                            <input type="text" class="form-control js-supplier-order_numbers" style="background-color: #eeeeee"
-                                   value="<?= implode(',', $order['cos']) ?>"
-                                   />
+                            <input type='text' class="form-control js-supplier-order_numbers" style="background-color: #eeeeee"  value="<?= implode(',', $order['cos']) ?>" />
                         </td>
                         <td class="col-sm-2">
                             <?php if ($order['count_come'] > 0): ?>
@@ -91,6 +90,8 @@
                                 </div>
                             <?php endif; ?>
                         </td>
+
+                        <td class="col-sm-2"></td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -105,6 +106,7 @@
                 <td>
                     <input type="text" readonly class="form-control js-supplier-total" value="<?= $total ?>"/>
                 </td>
+                <td></td>
                 <td></td>
                 <td></td>
             </tr>

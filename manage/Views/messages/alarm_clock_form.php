@@ -27,8 +27,16 @@
                     <div class="form-group">
                         <label>
                             <?= l('Ответственный'); ?>
-                        </label>
-                        <?= typeahead($this->all_configs['db'], 'users', false, $user_id, 26, 'input-xlarge') ?>
+                        </label><br>
+                        <select class="multiselect" multiple name="users[]">
+                            <?php if (!empty($users)): ?>
+                                <?php foreach ($users as $user): ?>
+                                    <?php $id = $user['id'] ?>
+                                    <option
+                                        value="<?= $id ?>"><?= !empty($user['fio']) ? h($user['fio']) : h($user['login']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
                     </div>
                     <input style="margin-left:0" type="button" class="btn btn-default" onclick="add_alarm(this)"
                            value="<?= l('Добавить') ?>"/>
@@ -54,3 +62,8 @@
         </div>
     </div>
 </div>
+<script>
+    jQuery(document).ready(function () {
+        $('.multiselect').multiselect(multiselect_options);
+    });
+</script>

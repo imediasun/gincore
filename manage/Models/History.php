@@ -49,19 +49,33 @@ class MHistory extends AModel
     }
 
     /**
-     * @param $mapId
      * @param $objectId
      * @return mixed
      */
-    public function getProductsManagersChanges($mapId, $objectId)
+    public function getProductsManagersChanges($objectId)
     {
+        $modIds = array(
+            'update-goods-title-image',
+            'update-goods-image-prio',
+            'edit-product-avail',
+            'edit-ym_id',
+            'edit-warranties-add',
+            'add-image-goods',
+            'add-market-category',
+            'add-image-goods',
+            'export-order',
+            'create-goods',
+            'add-manager',
+            'delete-goods-image',
+            'edit-goods',
+        );
         return $this->all_configs['db']->query(
-            'SELECT c.date_add, c.work, u.login 
+            'SELECT c.date_add, c.work, u.login, u.fio, c.change 
               FROM ?t as c
-              LEFT JOIN (SELECT id, login FROM {users})u ON u.id=c.user_id
-              WHERE c.map_id=?i AND c.object_id=?i 
+              LEFT JOIN (SELECT id, login, fio FROM {users})u ON u.id=c.user_id
+              WHERE c.work in (?l) AND c.object_id=?i 
               ORDER BY c.date_add DESC',
-            array($this->table, $mapId, $objectId))->assoc();
+            array($this->table, $modIds, $objectId))->assoc();
     }
 
     /**

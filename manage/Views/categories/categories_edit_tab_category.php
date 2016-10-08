@@ -45,7 +45,7 @@
                             <span class="cursor-pointer glyphicon glyphicon-list"
                                   onclick="alert_box(this, false, 'changes:change-category-info')"
                                   data-o_id="<?= $cur_category['id'] ?>" title="<?= l('История изменений') ?>"></span>
-                        <?= l('Важная информация') ?>:
+                            <?= l('Важная информация') ?>:
                         </label>
                         <textarea name="information" class="form-control"
                                   rows="3"><?= $cur_category['information'] ?></textarea>
@@ -59,6 +59,52 @@
                         <label><?= l('Количество голосов') ?>: </label>
                         <input class="form-control" onkeydown="return isNumberKey(event)" type=text"
                                placeholder="<?= l('голоса') ?>" value="<?= $cur_category['votes'] ?>" name="votes"/>
+                    </div>
+                    <div class="form-group">
+                        <div class="span5">
+                            <table class="table table-borderless">
+                                <tbody>
+                                <tr>
+                                    <td colspan="2">
+                                        <label>
+                                            <?= l('Оплата сотруднику за продажу товара/услуги из данной категории') ?> <?= InfoPopover::getInstance()->createQuestion('l_pay_employee_for_sale_from_current_category') ?>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <?= l('% от прибыли') ?>
+                                    </td>
+                                    <td>
+                                        <div class="input-group" style="width:150px">
+                                            <input type="text" class="form-control"
+                                                   value="<?= $cur_category['percent_from_profit'] ?>"
+                                                   style="min-width: 50px" name="percent_from_profit"/>
+                                            <div class="input-group-addon" style="cursor: pointer; width:50px">
+                                                <span class="percent">%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <?= l('фиксированная оплата') ?>
+                                    </td>
+                                    <td>
+                                        <div class="input-group" style="width:150px">
+                                            <input type="text" class="form-control"
+                                                   value="<?= round($cur_category['fixed_payment']/100, 2) ?>"
+                                                   style="min-width: 50px" name="fixed_payment"/>
+                                            <div class="input-group-addon" style="cursor: pointer; width:50px">
+                                                <span class="currency"><?= viewCurrency() ?></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
                     </div>
 
                     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-filters-categories')): ?>

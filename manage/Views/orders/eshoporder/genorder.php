@@ -61,8 +61,9 @@
                                 </span>
                             <?= l('Статус') ?>:
                         </label>
-                        <?= $this->renderFile('orders/eshoporder/_order_status', array(
-                            'active' => intval($order['status'])
+                        <?= $this->renderFile('orders/_order_status', array(
+                            'active' => intval($order['status']),
+                            'statuses' => $status
                         )) ?>
                     </div>
                 </div>

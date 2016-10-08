@@ -51,6 +51,10 @@ var multiselect_options = {
  });
  }*/
 
+function vd($some){
+  console.log($some);
+}
+
 function remove_alarm(_this, id) {
   $(_this).button('loading').html('');
 
@@ -337,6 +341,12 @@ $(document).ready(function () {
       highlighter: function (obj) {
         var item = JSON.parse(obj);
         var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
+        // console.log(item);
+        if(item.original.class) {
+          return '<span class="' + item.original.class + '">' + item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+            return '<strong>' + match + '</strong>'
+          }) + '</span>';
+        }
         return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
           return '<strong>' + match + '</strong>'
         })
@@ -705,6 +715,22 @@ function contractor_create(_this, callback) {
   return false;
 }
 
+function contractor_add_callback(data) {
+  if (data.state) {
+    var $select = $('#contractor-select');
+
+
+    $select.append('<option value="'+data.id+'">'+data.name+'</option>');
+    $select.multiselect('destroy');
+    $select.multiselect({
+      enableFiltering: false,
+    });
+    $select.multiselect('select', [parseInt(data.id)]);
+
+    $('.form_contractor ').closest('.modal-body').find('.bootbox-close-button').trigger('click');
+  }
+}
+
 function quick_create_supplier_callback(data) {
   $('select[name="warehouse-supplier"]').append('<option selected value="' + data.id + '">' + data.name + '</option>');
 }
@@ -786,7 +812,7 @@ $(document).on('mouseleave', '.popover-info', function () {
 $(document).on('mouseenter', '.popover-info', function () {
   clearTimeout(popover_timer);
   var _this = this;
-  var placement = $(this).attr('data-placement') ? $(this).attr('data-placement') : 'left';
+  var placement = $(this).attr('data-placement') ? $(this).attr('data-placement') : 'auto left';
   var trigger = $(this).attr('data-trigger') ? $(this).attr('data-trigger') : 'mouseenter';
 
   if (popover_target !== _this) {
@@ -1354,7 +1380,11 @@ function close_alert_box() {
   $('.bootbox .modal-footer').find('button[data-bb-handler="ok"]').click();
 }
 
-function alert_box(_this, content, ajax_act, data, callback, url, e) {
+function alert_box(_this, content, ajax_act, data, callback, url, e, in_place) {
+  if ( typeof in_place == 'underfined' ) {
+    in_place = false;
+  }
+
   if (e) {
     e.stopPropagation();
   }
@@ -1446,12 +1476,15 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
       type: 'POST',
       data: data,
       success: function (msg) {
-        $('.bootbox.bootbox-alert').remove();
-        $('.modal-backdrop').remove();
+        if ( !in_place) {
+          $('.bootbox.bootbox-alert').remove();
+          $('.modal-backdrop').remove();
+        }
+
 
         if (msg) {
           if (msg['state'] == true && msg['content']) {
-            bootbox.alert(msg['content'], function () {
+            var dialog = bootbox.alert(msg['content'], function () {
               if ($('#modal-dialog').is(':visible')) {
                 var $div = $('<div class="modal-backdrop fade in"></div>');
                 $('body').append($div);
@@ -1463,10 +1496,10 @@ function alert_box(_this, content, ajax_act, data, callback, url, e) {
             });
 
             if (msg['no-cancel-button']) {
-              $('.bootbox-alert .modal-footer').html('');
+              $(dialog).find('.modal-footer').html('');
             }
             if (msg['btns']) {
-              $('.bootbox-alert .modal-footer').prepend(msg['btns']);
+              $(dialog).find('.modal-footer').prepend(msg['btns']);
             }
           } else {
             if(msg['message']) {

@@ -25,7 +25,7 @@ use Assetic\AssetWriter;
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>bootstrap/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-responsive.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap3-editable.css">
-    <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?17">
+    <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?19">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/daterangepicker-bs2.css?1">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-datetimepicker.min.css"/>
     <link rel="stylesheet" href="<?= $assetsDir ?>css/font-awesome.css">
@@ -64,6 +64,7 @@ use Assetic\AssetWriter;
         <script type="text/javascript" src="<?= $assetsDir ?>js/webcam.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-lightbox.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.plugin.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.form.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.countdown.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/moment-with-locales.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-datetimepicker.min.js"></script>

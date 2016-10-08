@@ -417,10 +417,17 @@ function create_warehouse_modal(_this) {
 
 function create_purchase_invoice(act) {
   var buttons = {
-    success: {
+    confirm: {
       label: "Приходовать",
       className: "btn-success js-create-purchase-invoice",
       callback: function () {
+        $('#suppliers-order-form').parsley().reset();
+        if (false === $('#suppliers-order-form-header').parsley().validate() ||
+            false === $('#suppliers-order-form-body').parsley().validate())
+        {
+          return false;
+        }
+
         $.ajax({
           // url: prefix + 'warehouses?act=create-purchase-invoice'
           url: prefix + 'warehouses?act=create-purchase-invoice-and-posting',
@@ -443,7 +450,7 @@ function create_purchase_invoice(act) {
         $(this).button('reset');
       }
     },
-    main: {
+    cancel: {
       label: "Отменить",
       className: "btn-primary",
       callback: function () {

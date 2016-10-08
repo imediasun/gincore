@@ -1,0 +1,23 @@
+.number{
+    position: absolute;
+    left: 0;
+    top: 7px;
+    margin-left: -5px;
+}
+.row{
+    margin-left: -15px !important;
+    position: relative;
+}
+#middle.master-box{
+    padding-top: 130px !important;
+}
+.main-titles{
+    bottom: 100%;
+    left: 50%;
+    width: 800px;
+    margin-left: -400px;
+    position: absolute;
+}
+.text-center {
+    text-align: center;
+}

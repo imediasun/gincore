@@ -8,6 +8,7 @@ $moduleactive[70] = !$ifauth['is_2'];
 
 /**
  * @property  MCategories Categories
+ * @property  MGoods      Goods
  */
 class categories extends Controller
 {
@@ -15,7 +16,8 @@ class categories extends Controller
     public $cat_img;
 
     public $uses = array(
-        'Categories'
+        'Categories',
+        'Goods'
     );
 
     /**
@@ -210,7 +212,9 @@ class categories extends Controller
                 'information' => isset($post['information']) ? trim($post['information']) : '',
                 'avail' => $avail,
                 'rating' => isset($post['rating']) ? trim($post['rating']) : 0,
-                'votes' => isset($post['votes']) ? trim($post['votes']) : 0
+                'votes' => isset($post['votes']) ? trim($post['votes']) : 0,
+                'percent_from_profit' => isset($post['percent_from_profit']) ? intval($post['percent_from_profit']) : 0,
+                'fixed_payment' => isset($post['fixed_payment']) ? floatval($post['fixed_payment']) * 100 : 0
             ), array(
                 'id' => intval($post['id'])
             ));

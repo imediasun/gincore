@@ -15,7 +15,7 @@
                                 <label class="control-label">
                                     <?= l('Код товара') ?> (<?= l('серийный номер') ?>) <b class="text-danger">*</b>:
                                 </label>
-                                <?= typeahead($this->all_configs['db'], 'serials', false, '', 4,
+                                <?= typeahead($this->all_configs['db'], 'not-bind-serials', false, '', 4,
                                     'input-medium clone_clear_val',
                                     '', 'display_serial_product_title_and_price', false, true) ?>
                                 <small class="clone_clear_html product-title"></small>

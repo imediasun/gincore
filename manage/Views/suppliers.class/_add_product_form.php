@@ -3,26 +3,25 @@
         <table class="table table-borderless">
             <thead>
             <tr>
-                <td class="col-sm-3">
+                <td class="col-sm-4">
                     <label><?= l('Запчасть') ?><b class="text-danger">*</b>: </label>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <label><?= l('Цена') ?>, (<?= viewCurrencySuppliers('shortName') ?>)<b
                             class="text-danger">*</b>: </label>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <label><?= l('Количество') ?><b class="text-danger">*</b>: </label>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <label><?= l('Сумма') ?></label>
                 </td>
-                <td>
+                <td class="col-sm-2">
                     <label><?= l('номер ремонта') ?></label>
                     <?= InfoPopover::getInstance()->createQuestion('l_suppliers_order_order_info') ?>
                 </td>
-                <td class="col-sm-1">
-
-                </td>
+                <td class="col-sm-1"></td>
+                <td class="col-sm-2"></td>
             </tr>
             </thead>
             <tbody>
@@ -79,9 +78,11 @@
                             <span class="btn btn-sm btn-primary btn-add-good"
                                   onclick="return add_supplier_item_to_table();"
                                   title="<?= l('Добавить товар') ?>">
-                                <?= l('Добавить товар') ?>
+<!--                                --><?//= l('Добавить товар') ?>
+                                <i class="glyphicon glyphicon-plus"></i>
                             </span>
                 </td>
+                <td class="col-sm-2"></td>
             </tr>
             </tbody>
         </table>

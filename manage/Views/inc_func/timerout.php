@@ -1,4 +1,4 @@
-<a href="#" data-o_id="<?= $order_id ?>" id="btn-timer-<?= $order_id ?>" class="label-menu-corner"
+<a href="#" data-o_id="<?= $order_id ?>" id="btn-timer-<?= $order_id ?>" class="label-menu-corner btn-timer"
    onclick="alert_box(this, false, 'alarm-clock', undefined, undefined, 'messages.php')">
     <i href="javascript:void(0);" class="fa fa-bell cursor-pointer btn-timer"></i>
     <span id="alarm-timer-<?= $order_id ?>" data-o_id="<?= $order_id ?>"
