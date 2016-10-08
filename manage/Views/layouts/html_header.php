@@ -64,6 +64,7 @@ use Assetic\AssetWriter;
         <script type="text/javascript" src="<?= $assetsDir ?>js/webcam.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-lightbox.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.plugin.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.form.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.countdown.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/moment-with-locales.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/bootstrap-datetimepicker.min.js"></script>

@@ -324,26 +324,36 @@ class accountings extends Controller
 
         } elseif (isset($post['contractor_category-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создание категории
+            $ajax = isset($post['ajax']) ? true : false;
             $avail = isset($post['avail']) ? 1 : null;
             $parent_id = (isset($post['parent_id']) && $post['parent_id'] > 0) ? $post['parent_id'] : 0;
+            $error = '';
 
             $title = trim($post['title']);
-            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?',
-                array(
-                    $title
-                ))->el();
             if (empty($title)) {
-                FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
-                Response::redirect($_SERVER['REQUEST_URI']);
+                $error = l('Название статьи не может быть пустым');
+            } else {
+                $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?',
+                    array(
+                        $title
+                    ))->el();
+                if ($exist) {
+                    $error = l('Статья с таким названием уже существует');
+                }
             }
-            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?',
-                array(
-                    $title
-                ))->el();
-            if ($exist) {
-                FlashMessage::set(l('Статья с таким названием уже существует'), FlashMessage::DANGER);
-                Response::redirect($_SERVER['REQUEST_URI']);
+
+            if ($error != '') {
+                if ($ajax){
+                    Response::json([
+                        'hasError' => true,
+                        'error' => $error
+                    ]);
+                } else {
+                    FlashMessage::set($error, FlashMessage::DANGER);
+                    Response::redirect($_SERVER['REQUEST_URI']);
+                }
             }
+
 
             $contractor_category = $this->all_configs['db']->query('INSERT INTO {contractors_categories}
                 (avail, parent_id, name, code_1c, transaction_type, comment, is_system) VALUES (?n, ?i, ?, ?, ?i, ?, 0)',
@@ -362,6 +372,15 @@ class accountings extends Controller
             }
             if (!empty($post['contractors'])) {
                 $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category, $post['contractors']);
+            }
+
+            if ($ajax) {
+                Response::json([
+                    'hasError' => false,
+                    'id' => $contractor_category,
+                    'title' => $title,
+                    'transaction_type' => (int)$post['transaction_type']
+                ]);
             }
 
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -3418,19 +3437,18 @@ class accountings extends Controller
             $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
             $data['content'] .= '<td style="width:150px"><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
             $data['content'] .= $select_contractors_categories_to . '</select>';
-            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
-            $data['content'] .= '</select></td><td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '</select></td><td><a href="#" onclick="return alert_box(this, false, \'create-cat-expense\', [], false, \'accountings/ajax/undefined\', null, true)"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             //* Статья 2
             $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
             $data['content'] .= '<td style="width:150px"><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
             $data['content'] .= $select_contractors_categories_from . '</select></td>';
-            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
-            $data['content'] .= '<td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '<td><a target="_blank" href="#" onclick="return alert_box(this, false, \'create-cat-income\', [], false, \'accountings/ajax/undefined\', null, true)"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+
             //* Контрагент 1 2
             $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
-            $data['content'] .= '<td style="width:150px"><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id" style="width: 100%;">' . $select_contractors . '</select></td>';
-            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
-            $data['content'] .= '<td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td>';
+            $data['content'] .= '<td style="width:150px"><select ' . $dc . ' id="contractor-select" class="form-control input-sm select_contractors" name="contractors_id" style="width: 100%;">' . $select_contractors . '</select></td>';
+            $data['content'] .= '<td><a href="#" onclick="return alert_box(this, false, \'create-contractor-form\', {\'callback\':\'contractor_add_callback\'}, false, \'accountings/ajax/undefined\', null, true)"> <i class="glyphicon glyphicon-plus"></i></a></td>';
+
             $data['content'] .= '</tr>';
         }
         // только обычные транзакции
