@@ -138,7 +138,7 @@ class import_items extends abstract_import_handler
      */
     public function getAvailableItems()
     {
-        $items = $this->all_configs['db']->query('SELECT {goods}.id, {goods}.title FROM {goods}')->assoc();
+        $items = $this->all_configs['db']->query('SELECT {goods}.id, {goods}.title FROM {goods} WHERE `deleted`=0')->assoc();
         return $this->toFlatArray($items);
     }
 
