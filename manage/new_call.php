@@ -11,6 +11,7 @@ require_once 'inc_settings.php';
 $phone = '';
 $code = '';
 $log = '';
+$data = '';
 
 #FreePBX
 $phone = isset($_GET['t']) ? trim($_GET['t']) : $phone;
@@ -63,6 +64,18 @@ if ($phone && $_SERVER['REMOTE_ADDR'] == '185.45.152.42') {
     $call_sercie = get_service('crm/calls');
     $call_sercie->create_call_by_phone($phone, 0);
     exit;
+}
+
+
+//body post
+if (!$phone) {
+    $data = json_decode(file_get_contents('php://input'), true);
+}
+
+//phonet.com.ua
+if ($data && isset($data['event']) && $data['event'] == 'call.dial') {
+    $phone = $data['otherLegs'][0]['num'];
+    $log = 'Phonet, phone: ' . $phone;
 }
 
 
