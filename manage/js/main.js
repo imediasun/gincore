@@ -812,7 +812,7 @@ $(document).on('mouseleave', '.popover-info', function () {
 $(document).on('mouseenter', '.popover-info', function () {
   clearTimeout(popover_timer);
   var _this = this;
-  var placement = $(this).attr('data-placement') ? $(this).attr('data-placement') : 'left';
+  var placement = $(this).attr('data-placement') ? $(this).attr('data-placement') : 'auto left';
   var trigger = $(this).attr('data-trigger') ? $(this).attr('data-trigger') : 'mouseenter';
 
   if (popover_target !== _this) {

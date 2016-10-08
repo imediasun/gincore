@@ -1,4 +1,5 @@
 <?php if ($orders): ?>
+<div class="table-responsive">
     <table class="show-suppliers-orders table">
         <thead>
         <tr>
@@ -64,7 +65,10 @@
                 </td>
                 <td><?= $controller->getClientIcons($order) . get_user_name($order) ?></td>
                 <td><?= $controller->supplier_order_number($order) ?></td>
-                <td><?= htmlspecialchars($order['stitle']) ?></td>
+                <td>
+                    <span class="visible-lg"><?= cut_string($order['stitle'], 30) ?></span>
+                    <span class="hidden-lg"><?= cut_string($order['stitle'], 8) ?></span>
+                </td>
                 <td>
                     <a class="hash_link" title="<?= $order['secret_title'] ?>"
                        href="<?= $this->all_configs['prefix'] ?>products/create/<?= $order['goods_id'] ?>">
@@ -126,6 +130,7 @@
         <?php endforeach; ?>
         </tbody>
     </table>
+</div>
 <?php else: ?>
     <p class="text-danger"><?= l('Нет заказов') ?></p>
 <?php endif; ?>

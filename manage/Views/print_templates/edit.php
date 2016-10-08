@@ -25,7 +25,7 @@
                             </h4>
                         </div>
                         <div id="collapse<?= $accordeon++ ?>" class="panel-collapse collapse">
-                            <div class="panel-body">
+                            <div class="p-md">
                                 <?php if ($translate['for_view'] == 'repair_order'): ?>
                                     <?= $this->renderFile('print_templates/_repair_template_arr'); ?>
                                 <?php endif; ?>
@@ -68,17 +68,17 @@
                                     </div>
                                 </div>
                                 <div class="row-fluid" style="margin-top: 20px">
-                                <span class="form-group" style="display:block">
-                            <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
-                                    <?php if ($textarea || strlen($value) > 50): ?>
-                                        <textarea class="form-control <?= $textarea ? 'tinymce' : '' ?>"
-                                                  style="height: 150px"
-                                                  name="<?= $f_name ?>"><?= $value ?></textarea>
-                                    <?php else: ?>
-                                        <input class="form-control" type="text" name="<?= $f_name ?>"
-                                               value="<?= $value ?>">
-                                    <?php endif; ?>
-                            </span>
+                                    <span class="form-group" style="display:block">
+                                        <?php $f_name = 'data[' . $id . '][' . $lng . '][' . $field . ']'; ?>
+                                        <?php if ($textarea || strlen($value) > 50): ?>
+                                            <textarea class="form-control <?= $textarea ? 'tinymce' : '' ?>"
+                                                      style="height: 150px"
+                                                      name="<?= $f_name ?>"><?= $value ?></textarea>
+                                        <?php else: ?>
+                                            <input class="form-control" type="text" name="<?= $f_name ?>"
+                                                   value="<?= $value ?>">
+                                        <?php endif; ?>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +87,7 @@
             </div>
         <?php endforeach; ?>
     </div>
-    <input type="submit" class="save-btn btn btn-primary" value="<?= l('save') ?>">
+    <input type="submit" class="btn btn-primary" value="<?= l('save') ?>">
 </form>
 
 <?php if ($textarea): ?>

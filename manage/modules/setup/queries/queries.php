@@ -44,46 +44,46 @@ db()->query("
 // настройки
 //db()->query('TRUNCATE TABLE {settings}');
 $settingsArr = array();
-$settingsArr[]=array('content_email', '', lq('Эл. адрес'), 0, '');
-$settingsArr[]=array('site_name', lq('Сервисный центр'), lq('Название сайта'), 0, '');
-$settingsArr[]=array('turbosms-from', '', lq('Смс от кого'), 0, '');
-$settingsArr[]=array('turbosms-login', '', lq('Смс логин'), 0, '');
-$settingsArr[]=array('turbosms-password', '', lq('Смс пароль'), 0, '');
-$settingsArr[]=array('sms-provider', '', lq('Смс провайдер'), 0, lq('Укажите провайдера: turbosms или smsru'), '');
-$settingsArr[]=array('orders_comments_days', '3', lq('Количество дней для уведомления менеджера об отсутствии новых записей в статусе заказа'), 1, '');
-$settingsArr[]=array('warranties_left_days', '1,3,7', lq('Дни, для уведомлений менеджеру до конца 14ти дневного срока гарантийного обслуживания'), 1, '');
-$settingsArr[]=array('unsold_items_days', '10', lq('Количество дней для уведомления менеджера о нарушении оборачиваемости'), 1, '');
-$settingsArr[]=array('cat-non-all-ext', '2, 7, 8, 6, 5', lq('Статьи не используемые в выдачах'), 1, '');
-$settingsArr[]=array('cat-non-current-assets', '34', lq('Статьи используемые для вычисления необоротных активов'), 1, lq('Укажите номер статьи'), '');
-$settingsArr[]=array('order_warranties', '1,3,6,12', lq('Гарантии в заказ на ремонт'), 0, lq('Укажите доступные сроки гарантии через запятую'), '');
-$settingsArr[]=array('default_order_warranty', 0, lq('Гарантии по умолчанию'), 0, lq('Укажите гарандию по умолчанию'), '');
-$settingsArr[]=array('demand-factor', '0.33', lq('Коэффициент спроса'), 0, '');
-$settingsArr[]=array('currency_suppliers_orders', '1', lq('Валюта заказов поставщикам'), 1, '');
-$settingsArr[]=array('currency_orders', '1', lq('Валюта заказов'), 1, '');
-$settingsArr[]=array('complete-master', '0', lq('Пройден мастер настройки'), 1, '');
-$settingsArr[]=array('country', '', lq('Страна'), 1, '');
-$settingsArr[]=array('account_phone', '', lq('Ваш телефон'), 1, '');
-$settingsArr[]=array('account_business', '', lq('Ваш бизнес'), 1, '');
-$settingsArr[]=array('lang', '', lq('Язык системы'), 1, '');
-$settingsArr[]=array('time_zone', 'Europe/Kiev', lq('Временная зона'), 0, lq('Временная зона, например Europe/Kiev'));
-$settingsArr[]=array('need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 1, lq('Отправлять ежедневные логи входа на email'));
-$settingsArr[]=array('email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 1, lq('email на который будут отправлять логи входов в систему'));
+$settingsArr[]=array(1, 'content_email', '', lq('Эл. адрес'), 0, '');
+$settingsArr[]=array(1, 'site_name', lq('Сервисный центр'), lq('Название сайта'), 0, '');
+$settingsArr[]=array(4, 'turbosms-from', '', lq('Смс от кого'), 0, '');
+$settingsArr[]=array(4, 'turbosms-login', '', lq('Смс логин'), 0, '');
+$settingsArr[]=array(4, 'turbosms-password', '', lq('Смс пароль'), 0, '');
+$settingsArr[]=array(1, 'sms-provider', '', lq('Смс провайдер'), 0, lq('Укажите провайдера: turbosms или smsru'), '');
+$settingsArr[]=array(1, 'orders_comments_days', '3', lq('Количество дней для уведомления менеджера об отсутствии новых записей в статусе заказа'), 1, '');
+$settingsArr[]=array(1, 'warranties_left_days', '1,3,7', lq('Дни, для уведомлений менеджеру до конца 14ти дневного срока гарантийного обслуживания'), 1, '');
+$settingsArr[]=array(1, 'unsold_items_days', '10', lq('Количество дней для уведомления менеджера о нарушении оборачиваемости'), 1, '');
+$settingsArr[]=array(1, 'cat-non-all-ext', '2, 7, 8, 6, 5', lq('Статьи не используемые в выдачах'), 1, '');
+$settingsArr[]=array(1, 'cat-non-current-assets', '34', lq('Статьи используемые для вычисления необоротных активов'), 1, lq('Укажите номер статьи'), '');
+$settingsArr[]=array(3, 'order_warranties', '1,3,6,12', lq('Гарантии в заказ на ремонт'), 0, lq('Укажите доступные сроки гарантии через запятую'), '');
+$settingsArr[]=array(3, 'default_order_warranty', 0, lq('Гарантии по умолчанию'), 0, lq('Укажите гарандию по умолчанию'), '');
+$settingsArr[]=array(1, 'demand-factor', '0.33', lq('Коэффициент спроса'), 0, '');
+$settingsArr[]=array(1, 'currency_suppliers_orders', '1', lq('Валюта заказов поставщикам'), 1, '');
+$settingsArr[]=array(1, 'currency_orders', '1', lq('Валюта заказов'), 1, '');
+$settingsArr[]=array(1, 'complete-master', '0', lq('Пройден мастер настройки'), 1, '');
+$settingsArr[]=array(1, 'country', '', lq('Страна'), 1, '');
+$settingsArr[]=array(1, 'account_phone', '', lq('Ваш телефон'), 1, '');
+$settingsArr[]=array(1, 'account_business', '', lq('Ваш бизнес'), 1, '');
+$settingsArr[]=array(1, 'lang', '', lq('Язык системы'), 1, '');
+$settingsArr[]=array(1, 'time_zone', 'Europe/Kiev', lq('Временная зона'), 0, lq('Временная зона, например Europe/Kiev'));
+$settingsArr[]=array(1, 'need_send_login_log', '0', lq('Отправлять ежедневные логи входа на email'), 1, lq('Отправлять ежедневные логи входа на email'));
+$settingsArr[]=array(1, 'email_for_send_login_log', '', lq('email на который будут отправлять логи входов в систему'), 1, lq('email на который будут отправлять логи входов в систему'));
 
-$settingsArr[]=array('ga-profile-id', '', lq('GA id профиля'), 0, lq('дентификатор вашего профиля из Гугл Аналитики'));
-$settingsArr[]=array('ga-service-account-email', '', lq('GA сервисный эл. адрес'), 0, '');
-$settingsArr[]=array('ga-private-key', '', lq('GA закрытый ключ API'), 0, '');
-$settingsArr[]=array('order-first-number', '', lq('Начало нумарации заказов'), 0, lq('Укажите последний номер заказа, который у вас был ранее'));
+$settingsArr[]=array(2, 'ga-profile-id', '', lq('GA id профиля'), 0, lq('дентификатор вашего профиля из Гугл Аналитики'));
+$settingsArr[]=array(2, 'ga-service-account-email', '', lq('GA сервисный эл. адрес'), 0, '');
+$settingsArr[]=array(2, 'ga-private-key', '', lq('GA закрытый ключ API'), 0, '');
+$settingsArr[]=array(1, 'order-first-number', '', lq('Начало нумарации заказов'), 0, lq('Укажите последний номер заказа, который у вас был ранее'));
 
 foreach ($settingsArr as $ar) {
     $value = '';
     if($ar[0] != 'time_zone'){
         $value = "`value` = '".$ar[1]."',";
     }
-    db()->query("INSERT INTO `restore4_settings` (`name`, `value`, `ro`, `title`, `description`) 
-            VALUES ('$ar[0]', '$ar[1]', '$ar[3]', '$ar[2]', '$ar[4]')
-            ON DUPLICATE KEY UPDATE `name` = '$ar[0]', ".$value." "
-                    . "`ro` = '$ar[3]', `title` = '$ar[2]', "
-            . "`description` = '$ar[4]'; ");
+    db()->query("INSERT INTO `restore4_settings` (`section`, `name`, `value`, `ro`, `title`, `description`) 
+            VALUES ('$ar[0]', '$ar[1]', '$ar[2]', '$ar[4]', '$ar[3]', '$ar[5]')
+            ON DUPLICATE KEY UPDATE `name` = '$ar[1]', ".$value." "
+                    . "`section` = '$ar[0]', `ro` = '$ar[4]', `title` = '$ar[3]', "
+            . "`description` = '$ar[5]'; ");
 }
 
 

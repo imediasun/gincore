@@ -8,6 +8,10 @@
     margin: 10px;
 }*/
 
+.popover {
+    max-width: 25%;
+}
+
 .btns-cashbox {
     width: 150px;
 }

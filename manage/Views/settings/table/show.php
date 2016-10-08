@@ -1,8 +1,11 @@
 <h3>
     <?= $conf[$table]['settings']['name'] ?>
-    <?php if ($table === 'restore4_brands'): ?>
+    <?php if($table === 'restore4_brands'): ?>
         <a href="<?= $this->all_configs['prefix'] . 'settings' . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add"
            class="btn btn-primary"><?= l('Добавить') ?></a>
+    <?php elseif($table === 'restore4_crm_referers'): ?>
+            <a href="<?= $this->all_configs['prefix'] . 'settings' . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add"
+               class="btn btn-primary"><?= l('Добавить') ?></a>
     <?php endif; ?>
 </h3>
 <table class="table table-bordered table-hover">
