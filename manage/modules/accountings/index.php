@@ -3902,7 +3902,7 @@ class accountings extends Controller
 
                 $orders[$order_id]['avg'] = 0;
                 if ($orders[$order_id]['purchase'] == 0) {
-                    $orders[$order_id]['avg'] = '&infin;';
+                    $orders[$order_id]['avg'] = '∞';
                 }
                 if ($orders[$order_id]['purchase'] > 0 && $orders[$order_id]['turnover'] > 0) {
                     $orders[$order_id]['avg'] = $orders[$order_id]['profit'] / $orders[$order_id]['purchase'] * 100;
