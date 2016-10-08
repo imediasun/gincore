@@ -243,6 +243,8 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     'value' => date('d/m/Y', $order['date_add']),
                     'name' => l('Дата создания заказа')
                 ),
+                'fio' => array('value' => h($order['fio']), 'name' => l('ФИО или название клиента')),
+                'phone' => array('value' => h($order['phone']), 'name' => l('Телефон клиента')),
                 'client_reg_data_1' => array(
                     'value' => isset($client['reg_data_1']) ? $client['reg_data_1'] : '',
                     'name' => l('Клиент (Регистрационные данные 1)')
