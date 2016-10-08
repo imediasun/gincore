@@ -1,5 +1,4 @@
 <?php if ($orders): ?>
-<div class="table-responsive">
     <table class="show-suppliers-orders table">
         <thead>
         <tr>
@@ -130,7 +129,6 @@
         <?php endforeach; ?>
         </tbody>
     </table>
-</div>
 <?php else: ?>
     <p class="text-danger"><?= l('Нет заказов') ?></p>
 <?php endif; ?>
