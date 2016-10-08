@@ -548,6 +548,9 @@ class users extends Controller
                 'salary_from_sale' => isset($post['salary_from_repair']) ? $post['salary_from_sale'] : 0,
                 'show_client_info' => isset($post['show_client_info']) && $post['show_client_info'] == 'on',
                 'show_only_his_orders' => isset($post['show_only_his_orders']) && $post['show_only_his_orders'] == 'on',
+                'use_percent_from_profit' => isset($post['use_percent_from_profit']) && $post['use_percent_from_profit'] == 'on',
+                'use_fixed_payment' => isset($post['use_fixed_payment']) && $post['use_fixed_payment'] == 'on',
+
             ), array(
                 $this->Users->pk() => $id
             ));
@@ -917,6 +920,8 @@ class users extends Controller
                         'send_over_email' => isset($post['over_email']) && $post['over_email'] == 'on',
                         'show_client_info' => isset($post['show_client_info']) && $post['show_client_info'] == 'on',
                         'show_only_his_orders' => isset($post['show_only_his_orders']) && $post['show_only_his_orders'] == 'on',
+                        'use_percent_from_profit' => isset($post['use_percent_from_profit']) && $post['use_percent_from_profit'] == 'on',
+                        'use_fixed_payment' => isset($post['use_fixed_payment']) && $post['use_fixed_payment'] == 'on',
                     ));
                     $this->History->save('add-user', $mod_id, intval($id));
                     $this->saveUserRelations($id, $post);

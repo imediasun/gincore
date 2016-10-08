@@ -3,15 +3,17 @@
         <thead>
         <tr>
             <td><?= l('Автор') ?></td>
-            <td><?= l('Редактирование') ?></td>
+            <td><?= l('Значения до изменения') ?></td>
             <td><?= l('Дата') ?></td>
         </tr>
         </thead>
         <tbody>
         <?php foreach ($histories as $history): ?>
             <tr>
-                <td><a href="<?= $this->all_configs['prefix'] ?>users"><?= $history['login'] ?></a></td>
-                <td><?= $this->all_configs['configs']['changes'][$history['work']] ?></td>
+                <td>
+                    <a href="<?= $this->all_configs['prefix'] ?>users"><?= $history['fio'] ? $history['fio'] : $history['login'] ?></a>
+                </td>
+                <td><?= $history['change'] ?></td>
                 <td><span title="<?= do_nice_date($history['date_add'],
                         false) ?>"><?= do_nice_date($history['date_add']) ?></span></td>
             </tr>

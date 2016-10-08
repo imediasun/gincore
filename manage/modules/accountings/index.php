@@ -163,132 +163,7 @@ class accountings extends Controller
         }
         // фильтруем заказы клиентов
         if (isset($post['filters'])) {
-
-            $url = array();
-
-            // фильтр по дате
-            if (isset($post['date']) && !empty($post['date'])) {
-                list($df, $dt) = explode('-', $post['date']);
-                $url[] = 'df=' . urlencode(trim($df));
-                $url[] = 'dt=' . urlencode(trim($dt));
-            }
-
-            if (isset($post['cashless']) && is_numeric($post['cashless'])) {
-                $url[] = 'cashless=' . intval($post['cashless']);
-            }
-
-
-            if (isset($post['categories']) && $post['categories'] > 0) {
-                // фильтр по категориям товаров
-                $url[] = 'g_cg=' . intval($post['categories']);
-            }
-
-            if (isset($post['goods']) && $post['goods'] > 0) {
-                // фильтр по товару
-                $url[] = 'by_gid=' . intval($post['goods']);
-            }
-
-            if (isset($post['managers']) && !empty($post['managers'])) {
-                // фильтр по менеджерам
-                $url[] = 'mg=' . implode(',', $post['managers']);
-            }
-
-            if (isset($post['accepters']) && !empty($post['accepters'])) {
-                // фильтр по менеджерам
-                $url[] = 'acp=' . implode(',', $post['accepters']);
-            }
-            if (isset($post['states']) && !empty($post['states'])) {
-                // фильтр по статусам
-                $url[] = 'sts=' . implode(',', $post['states']);
-            }
-
-            if (isset($post['engineers']) && !empty($post['engineers'])) {
-                // фильтр по менеджерам
-                $url[] = 'eng=' . implode(',', $post['engineers']);
-            }
-
-            if (isset($post['suppliers']) && !empty($post['suppliers'])) {
-                // фильтр по поставщикам
-                $url[] = 'sp=' . implode(',', $post['suppliers']);
-            }
-
-            if (isset($post['client-order_id']) && !empty($post['client-order_id'])) {
-                // фильтр по поставщикам
-                if (preg_match('/^[zZ]-/', trim($post['client-order_id'])) === 1) {
-                    $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order_id']));
-                } else {
-                    $orderId = trim($post['client-order_id']);
-                }
-                $url[] = 'co_id=' . intval($orderId);
-            }
-
-            if (isset($post['status']) && !empty($post['status'])) {
-                // фильтр по статусу
-                $url[] = 'st=' . implode(',', $post['status']);
-            }
-
-            if (isset($post['client-order']) && !empty($post['client-order'])) {
-                // фильтр клиенту/заказу
-                $url[] = 'co=' . urlencode(trim($post['client-order']));
-            }
-
-            if (isset($post['categories-last']) && intval($post['categories-last']) > 0) {
-                // фильтр категория
-                $url[] = 'dev=' . intval($post['categories-last']);
-            }
-
-            if (isset($post['g_categories']) && !empty($post['g_categories'])) {
-                // фильтр по категориям товаров
-                $url[] = 'g_cg=' . implode(',', $post['g_categories']);
-            }
-
-            if (isset($post['operators']) && !empty($post['operators'])) {
-                // фильтр по операторам
-                $url[] = 'op=' . implode(',', $post['operators']);
-            }
-
-            if (!isset($post['commission'])) {
-                // фильтр по комиссии
-                $url[] = 'cms=1';
-            }
-
-            if (isset($post['novaposhta'])) {
-                // фильтр по доставке
-                $url[] = 'np=1';
-            }
-
-            if (isset($post['warranties'])) {
-                // фильтр по доставке
-                $url[] = 'wrn=1';
-            }
-
-            if (isset($post['nowarranties'])) {
-                // фильтр по доставке
-                $url[] = 'nowrn=1';
-            }
-
-            if (isset($post['return'])) {
-                // фильтр по доставке
-                $url[] = 'rtrn=1';
-            }
-            if (isset($post['sale'])) {
-                // фильтр по доставке
-                $url[] = 'sale=1';
-            }
-            if (isset($post['repair'])) {
-                // фильтр по доставке
-                $url[] = 'repair=1';
-            }
-            if (isset($post['clients'])) {
-                // фильтр по доставке
-                $url[] = 'by_cid=' . intval($post['clients']);
-            }
-            if(isset($post['brands']) && count($post['brands']) > 0) {
-                $url[] = 'brands=' . implode(',', $post['brands']);
-            }
-
-            $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . implode('&',
-                        $url));
+            $url = $this->orderFilters($post);
             Response::redirect($url);
         }
 
@@ -945,7 +820,7 @@ class accountings extends Controller
                 $out .= '
                     <div class="form-group">
                         <label>' . l('Телефон') . '</label>
-                        <input '. input_phone_mask_attr() .'type="text" name="phone" class="form-control">
+                        <input ' . input_phone_mask_attr() . 'type="text" name="phone" class="form-control">
                     </div>
                     <div class="form-group">
                         <label>' . l('Эл. адрес') . '</label>
@@ -3669,8 +3544,11 @@ class accountings extends Controller
         if (empty($all)) {
             return '';
         }
-        $users = $this->Users->query('SELECT id, fio, salary_from_repair, salary_from_sale FROM {users} WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0)',
-            array($all))->assoc();
+        $users = $this->Users->query('
+            SELECT id, fio, salary_from_repair, salary_from_sale, use_fixed_payment, use_percent_from_profit 
+            FROM {users} 
+            WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0)
+        ', array($all))->assoc();
         $saleProfit = array();
         $repairProfit = array();
         if (!empty($users)) {
@@ -3683,13 +3561,13 @@ class accountings extends Controller
                         if (!isset($saleProfit[$user['id']])) {
                             $saleProfit[$user['id']] = 0;
                         }
-                        $saleProfit[$user['id']] += $order['profit'];
+                        $saleProfit[$user['id']] += $this->calculateSaleProfit($order, $user);
                     }
                     if ($order['order_type'] == ORDER_REPAIR) {
                         if (!isset($repairProfit[$user['id']])) {
                             $repairProfit[$user['id']] = 0;
                         }
-                        $repairProfit[$user['id']] += $order['profit'];
+                        $repairProfit[$user['id']] += $this->calculateRepairProfit($order, $user);
                     }
                 }
             }
@@ -3802,8 +3680,8 @@ class accountings extends Controller
         $mg = array_filter(explode(',', $filters['mg']));
         if (array_key_exists('mg', $filters) && count($mg) > 0) {
             if (count($mg) > 1 || !in_array(-1, $mg)) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
-                array($query, $mg));
+                $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
+                    array($query, $mg));
             }
             if (in_array(-1, $mg)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.manager IS NULL',
@@ -3814,8 +3692,8 @@ class accountings extends Controller
         $acp = array_filter(explode(',', $filters['acp']));
         if (array_key_exists('acp', $filters) && count($acp) > 0) {
             if (count($acp) > 1 || !in_array(-1, $acp)) {
-            $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
-                array($query, $acp));
+                $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IN (?li)',
+                    array($query, $acp));
             }
             if (in_array(-1, $acp)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.accepter IS NULL',
@@ -3909,7 +3787,7 @@ class accountings extends Controller
             $query = $this->all_configs['db']->makeQuery('?query AND o.user_id=?i',
                 array($query, $filters['by_cid']));
         }
-        if(array_key_exists('brands', $filters) &&  count(array_filter(explode(',', $filters['brands']))) > 0) {
+        if (array_key_exists('brands', $filters) && count(array_filter(explode(',', $filters['brands']))) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND o.brand_id in (?li)',
                 array($query, explode(',', $filters['brands'])));
         }
@@ -3923,11 +3801,9 @@ class accountings extends Controller
      */
     public function profit_margin($filters = array())
     {
-        // фильтры
-
         // фильтр по дате
-        $day_from = 1 . date(".m.Y") . ' 00:00:00';
-        $day_to = 31 . date(".m.Y") . ' 23:59:59';
+        $day_from = date("1.m.Y 00:00:00");
+        $day_to = date("31.m.Y 23:59:59");
         if (array_key_exists('df', $filters) && strtotime($filters['df']) > 0) {
             $day_from = $filters['df'] . ' 00:00:00';
         }
@@ -3937,7 +3813,6 @@ class accountings extends Controller
 
         $query = $this->getProfitMarginCondition($filters);
 
-        $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         $orders = $this->all_configs['db']->query('
           SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
@@ -3955,15 +3830,19 @@ class accountings extends Controller
               ?query GROUP BY order_id ORDER BY o.id',
             array(8, $day_from, $day_to, $query))->assoc('order_id');
 
+        $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         if ($orders) {
             $prices = $this->all_configs['db']->query('SELECT i.order_id, SUM(i.price) as price
                 FROM {warehouses_goods_items} as i WHERE i.order_id IN (?li) GROUP BY i.order_id',
                 array(array_keys($orders)))->vars();
 
             $goods = array();
-            $data = $this->all_configs['db']->query(
-                'SELECT title, price, order_id, `type`, goods_id, id FROM {orders_goods} WHERE order_id IN (?li)',
-                array(array_keys($orders)))->assoc();
+            $data = $this->all_configs['db']->query('
+                SELECT og.title, og.price, og.order_id, og.`type`, og.goods_id, og.id, og.count, g.percent_from_profit, g.fixed_payment, g.price_purchase
+                FROM {orders_goods} og 
+                JOIN {goods} g ON og.goods_id=g.id
+                WHERE order_id IN (?li)
+            ', array(array_keys($orders)))->assoc();
 
             if ($data) {
                 foreach ($data as $p) {
@@ -4028,5 +3907,215 @@ class accountings extends Controller
             'orders' => $orders,
         );
 
+    }
+
+    /**
+     * @param array $post
+     * @return array
+     */
+    private function orderFilters(array $post)
+    {
+        $url = array();
+
+        // фильтр по дате
+        if (isset($post['date']) && !empty($post['date'])) {
+            list($df, $dt) = explode('-', $post['date']);
+            $url['df'] = urlencode(trim($df));
+            $url['dt'] = urlencode(trim($dt));
+        }
+
+        if (isset($post['cashless']) && is_numeric($post['cashless'])) {
+            $url['cashless'] = intval($post['cashless']);
+        }
+
+
+        if (isset($post['categories']) && $post['categories'] > 0) {
+            // фильтр по категориям товаров
+            $url['g_cg'] = intval($post['categories']);
+        }
+
+        if (isset($post['goods']) && $post['goods'] > 0) {
+            // фильтр по товару
+            $url['by_gid'] = intval($post['goods']);
+        }
+
+        if (isset($post['managers']) && !empty($post['managers'])) {
+            // фильтр по менеджерам
+            $url['mg'] = implode(',', $post['managers']);
+        }
+
+        if (isset($post['accepters']) && !empty($post['accepters'])) {
+            // фильтр по менеджерам
+            $url['acp'] = implode(',', $post['accepters']);
+        }
+        if (isset($post['states']) && !empty($post['states'])) {
+            // фильтр по статусам
+            $url['sts'] = implode(',', $post['states']);
+        }
+
+        if (isset($post['engineers']) && !empty($post['engineers'])) {
+            // фильтр по менеджерам
+            $url['eng'] = implode(',', $post['engineers']);
+        }
+
+        if (isset($post['suppliers']) && !empty($post['suppliers'])) {
+            // фильтр по поставщикам
+            $url['sp'] = implode(',', $post['suppliers']);
+        }
+
+        if (isset($post['client-order_id']) && !empty($post['client-order_id'])) {
+            // фильтр по поставщикам
+            if (preg_match('/^[zZ]-/', trim($post['client-order_id'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order_id']));
+            } else {
+                $orderId = trim($post['client-order_id']);
+            }
+            $url['co_id'] = intval($orderId);
+        }
+
+        if (isset($post['status']) && !empty($post['status'])) {
+            // фильтр по статусу
+            $url['st'] = implode(',', $post['status']);
+        }
+
+        if (isset($post['client-order']) && !empty($post['client-order'])) {
+            // фильтр клиенту/заказу
+            $url['co'] = trim($post['client-order']);
+        }
+
+        if (isset($post['categories-last']) && intval($post['categories-last']) > 0) {
+            // фильтр категория
+            $url['dev'] = intval($post['categories-last']);
+        }
+
+        if (isset($post['g_categories']) && !empty($post['g_categories'])) {
+            // фильтр по категориям товаров
+            $url['g_cg'] = implode(',', $post['g_categories']);
+        }
+
+        if (isset($post['operators']) && !empty($post['operators'])) {
+            // фильтр по операторам
+            $url['op'] = implode(',', $post['operators']);
+        }
+
+        if (!isset($post['commission'])) {
+            // фильтр по комиссии
+            $url['cms'] = 1;
+        }
+
+        if (isset($post['novaposhta'])) {
+            // фильтр по доставке
+            $url['np'] = 1;
+        }
+
+        if (isset($post['warranties'])) {
+            // фильтр по доставке
+            $url['wrn'] = 1;
+        }
+
+        if (isset($post['nowarranties'])) {
+            // фильтр по доставке
+            $url['nowrn'] = 1;
+        }
+
+        if (isset($post['return'])) {
+            // фильтр по доставке
+            $url['rtrn'] = 1;
+        }
+        if (isset($post['sale'])) {
+            // фильтр по доставке
+            $url['sale'] = 1;
+        }
+        if (isset($post['repair'])) {
+            // фильтр по доставке
+            $url['repair'] = 1;
+        }
+        if (isset($post['clients'])) {
+            // фильтр по доставке
+            $url['by_cid'] = intval($post['clients']);
+        }
+        if (isset($post['brands']) && count($post['brands']) > 0) {
+            $url['brands'] = implode(',', $post['brands']);
+        }
+
+        return $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
+    }
+
+    /**
+     * @param $order
+     * @param $user
+     * @return int
+     */
+    private function calculateSaleProfit($order, $user)
+    {
+        switch (true) {
+            case $user['use_fixed_payment']:
+                $profit = $this->calculateSaleProfitWith(MGoods::FIXED_PAYMENT, $order);
+                break;
+            case $user['use_percent_from_profit']:
+                $profit = $this->calculateSaleProfitWith(MGoods::PERCENT_FROM_PROFIT, $order);
+                break;
+            default:
+                $profit = $order['profit'];
+        }
+        return $profit;
+    }
+
+    /**
+     * @param $order
+     * @param $user
+     * @return int
+     */
+    private function calculateRepairProfit($order, $user)
+    {
+        switch (true) {
+            case $user['use_fixed_payment']:
+                $profit = $this->calculateRepairProfitWith(MGoods::FIXED_PAYMENT, $order);
+                break;
+            case $user['use_percent_from_profit']:
+                $profit = $this->calculateRepairProfitWith(MGoods::PERCENT_FROM_PROFIT, $order);
+                break;
+            default:
+                $profit = $order['profit'];
+        }
+        return $profit;
+    }
+
+    /**
+     * @param $with
+     * @param $order
+     * @return float|int
+     */
+    private function calculateSaleProfitWith($with, $order)
+    {
+        $profit = 0;
+        foreach ($order['goods'] as $good) {
+            if ($with == MGoods::FIXED_PAYMENT) {
+                $profit += $good['count'] * $good['fixed_payment'];
+            }
+            if ($with == MGoods::PERCENT_FROM_PROFIT) {
+                $profit += $good['count'] * ($good['price'] - $good['price_purchase'] * $order['course_value']) * $good['percent_from_profit'] / 100;
+            }
+        }
+        return $profit;
+    }
+
+    /**
+     * @param $with
+     * @param $order
+     * @return float|int
+     */
+    private function calculateRepairProfitWith($with, $order)
+    {
+        $profit = 0;
+        foreach ($order['services'] as $service) {
+            if ($with == MGoods::FIXED_PAYMENT) {
+                $profit += $service['count'] * $service['fixed_payment'];
+            }
+            if ($with == MGoods::PERCENT_FROM_PROFIT) {
+                $profit += $service['count'] * $order['profit'] * $service['percent_from_profit'] / 100;
+            }
+        }
+        return $profit;
     }
 }

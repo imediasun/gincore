@@ -57,7 +57,7 @@
         <tbody id="table_clients_orders">
 
         <?php foreach ($orders as $order): ?>
-            <?= $this->DisplayOrder->asSaleRow($order); ?>
+            <?= $this->DisplayOrder->asSaleRow($order, $status); ?>
         <?php endforeach; ?>
         </tbody>
     </table>

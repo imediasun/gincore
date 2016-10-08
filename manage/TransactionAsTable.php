@@ -64,7 +64,7 @@ class TransactionAsTable implements TransactionAsInterface
      */
     private function total(array $totals)
     {
-        $out = '<tfoot><tr><td colspan="6"></td><td colspan="2">' . l('Итого') . ': ';
+        $out = '<tfoot><tr><td colspan="6"></td><td>' . l('Итого') . ': ';
         $out_inc = $out_exp = $out_trans = '</td><td>';
         $set = false;
         foreach ($totals['total'] as $k => $t) {

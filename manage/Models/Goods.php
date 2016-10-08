@@ -8,6 +8,8 @@ require_once __DIR__ . '/../Core/AModel.php';
  */
 class MGoods extends AModel
 {
+    const PERCENT_FROM_PROFIT = 0;
+    const FIXED_PAYMENT = 1;
     public $table = 'goods';
     public $uses = array(
         'History',
@@ -115,7 +117,16 @@ class MGoods extends AModel
             'serach_clicks',
             'search_weight',
             'deleted',
-            'vendor_code'
+            'vendor_code',
+            'use_minimum_balance',
+            'minimum_balance',
+            'use_automargin',
+            'automargin_type',
+            'automargin',
+            'wholesale_automargin_type',
+            'wholesale_automargin',
+            'percent_from_profit',
+            'fixed_payment'
         );
     }
 

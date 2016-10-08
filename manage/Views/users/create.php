@@ -213,6 +213,30 @@
                         <tr>
                             <td class="col-sm-6">
                                 <div class="form-group">
+                                    <label>
+                                        <?= l('Диверсифицированный способ начисления зарплаты') ?><?= InfoPopover::getInstance()->createQuestion('l_diversified_way_of_payroll') ?>
+                                    </label><br>
+                                </div>
+
+                            </td>
+                            <td class="col-sm-6">
+                                <div class="form-group">
+                                    <label style="margin-right:20px">
+                                        <input type="checkbox"
+                                               name="use_percent_from_profit" <?= isset($form_data['use_percent_from_profit']) && $form_data['use_percent_from_profit'] ? 'checked' : '' ?>/>
+                                        <?= l('% от продажи товара/услуги') ?><?= InfoPopover::getInstance()->createQuestion('l_percent_from_profit') ?>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox"
+                                               name="use_fixed_payment" <?= isset($form_data['use_fixed_payment']) && $form_data['use_fixed_payment'] ? 'checked' : '' ?>/>
+                                        <?= l('фиксированная оплата') ?><?= InfoPopover::getInstance()->createQuestion('l_fixed_payment') ?>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-sm-6">
+                                <div class="form-group">
                                     <label><?= l('Отправлять сотруднику уведомления, если он будет назначен ответственным инженером или менеджером по заказу') ?></label>
                                 </div>
                             </td>

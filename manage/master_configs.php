@@ -285,7 +285,15 @@ class Configs
             'sms_templates',
                 'print_templates',
                 'stocktaking',
-                'import'
+                'import',
+                'custom_status'
+            ),
+            // группы настроек, для объединения в табы (id_section => title)
+            'settings-sections' => array(
+                1 => l('Без группы'),
+                2 => l('Интеграция с Google Analytics'),
+                3 => l('Гарантия в заказах на ремонт'),
+                4 => l('Подключение сервиса отправки SMS'),
             ),
             //'wrapper', 'debug', 'admin_translates'
             'manage-reset-access' => true,
@@ -1085,7 +1093,7 @@ class Configs
             'order-statuses-debts' => array(40, 35),
             //по каким статусам выбирать заказы в менеджер заказов
             'order-statuses-dis-if-spare-part' => array(15, 20, 25),
-            'order-statuses-engineer-workload' => array(0, 2, 5, 10, 27, 45),
+            'order-statuses-engineer-not-workload' => array(15, 20, 25, 35, 40, 30, 50),
             'order-statuses-expect-parts' => array(10, 27),
             // нельзя установить этот статус пока к заказу привязаны запчасти (с серийниками или без - неважно)
 
@@ -1224,7 +1232,8 @@ class Configs
             ),
             'available-sms-providers' => array(
                 'smsru' => l('smsru'),
-                'turbosms' => l('turbosms')
+                'turbosms' => l('turbosms'),
+                'plivo' => l('plivo'),
             )
         );  // object instance
 

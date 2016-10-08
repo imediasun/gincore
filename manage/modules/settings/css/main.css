@@ -1,0 +1,15 @@
+.settings .tab-pane {
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+.settings .panel-body {
+    background-color: white;
+    border: solid 1px #e4e5e7;
+}
+
+.settings .form-group > .form-control,
+.settings .form-group > .input-group {
+    max-width: 300px;
+}

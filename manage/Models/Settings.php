@@ -125,4 +125,47 @@ class MSettings extends AModel
             'ro',
         );
     }
+
+    /**
+     * @param array $all_configs
+     * @return array
+     */
+    public static function getMenuVars(array $all_configs){
+        $settings = [];
+
+        $result = $all_configs['db']->query("SELECT * FROM {settings} WHERE `ro` = 0 ORDER BY `title`")->assoc();
+        $settings_sections = $all_configs['configs']['settings-sections'];
+
+        foreach ($result as $row){
+            $settings[$row['section']][] = $row;
+        }
+        krsort($settings);
+
+        $tpl_vars = [
+            'sqls' => $settings,
+            'sections' => $settings_sections,
+            'current_setting_id' => null,
+            'current_section_id' => null,
+            'current_action' => null,
+        ];
+
+        if (isset($all_configs['arrequest'][1])) {
+            $action = $all_configs['arrequest'][1];
+            switch ($action) {
+                case 'edit':
+                    $current_setting_id = isset($all_configs['arrequest'][2]) ? (int)$all_configs['arrequest'][2] : null;
+                    $tpl_vars['current_setting_id'] = $current_setting_id;
+                    break;
+                case 'section':
+                    $current_section_id = isset($all_configs['arrequest'][2]) ? (int)$all_configs['arrequest'][2] : null;
+                    $tpl_vars['current_section_id'] = $current_section_id;
+                    break;
+                default:
+                    $tpl_vars['current_action'] = $action;
+                    break;
+            }
+
+        }
+        return $tpl_vars;
+    }
 }

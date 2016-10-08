@@ -172,11 +172,19 @@
                 <div class="row-fluid">
                     <div class="form-group col-sm-6">
                         <?= $order['btn'] ?>
-                        <?= $this->renderFile('suppliers.class/_addition_order_buttons', array(
-                            'order' => $order,
-                            'controller' => $controller,
-                            'edit_form' => true
-                        )) ?>
+
+                        <div class="btn-group">
+                            <a class="btn btn-small btn-default dropdown-toggle" data-toggle="dropdown" href="">
+                                <i class="fa fa-print" aria-hidden="true"></i> <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="<?= $this->all_configs['prefix']?>print.php?act=purchase_invoice&object_id=<?= $order['id'] ?>" target="_blank">
+                                        <?= l('Распечатать накладную') ?>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             <?php endif; ?>

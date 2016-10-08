@@ -6,14 +6,15 @@ class DisplayOrder extends Helper
 {
     /**
      * @param $order
+     * @param $statuses
      * @return string
      */
-    public function asSaleRow($order)
+    public function asSaleRow($order, $statuses)
     {
         $status = '<span class="muted">' . l('Сообщите менеджеру') . '</span>';
-        if (array_key_exists($order['status'], $this->all_configs['configs']['order-status'])) {
-            $status_name = $this->all_configs['configs']['order-status'][$order['status']]['name'];
-            $status_color = $this->all_configs['configs']['order-status'][$order['status']]['color'];
+        if (array_key_exists($order['status'], $statuses)) {
+            $status_name = $statuses[$order['status']]['name'];
+            $status_color = $statuses[$order['status']]['color'];
             $status = '<span style="color:#' . $status_color . '">' . $status_name . '</span>';
         }
 
@@ -43,6 +44,7 @@ class DisplayOrder extends Helper
             'accepted' => $accepted,
             'color' => $color,
             'helper' => $this,
+            'statuses' => $statuses
         ));
     }
 
@@ -51,12 +53,12 @@ class DisplayOrder extends Helper
      * @param $columns
      * @return string
      */
-    public function asRepairRow($order, $columns)
+    public function asRepairRow($order, $columns, $statuses)
     {
         $status = '<span class="muted">' . l('Сообщите менеджеру') . '</span>';
-        if (array_key_exists($order['status'], $this->all_configs['configs']['order-status'])) {
-            $status_name = $this->all_configs['configs']['order-status'][$order['status']]['name'];
-            $status_color = $this->all_configs['configs']['order-status'][$order['status']]['color'];
+        if (array_key_exists($order['status'], $statuses)) {
+            $status_name = $statuses[$order['status']]['name'];
+            $status_color = $statuses[$order['status']]['color'];
             $status = '<span style="color:#' . $status_color . '">' . $status_name . '</span>';
         }
 
@@ -85,7 +87,8 @@ class DisplayOrder extends Helper
             'accepted' => $accepted,
             'color' => $color,
             'helper' => $this,
-            'columns' => $columns
+            'columns' => $columns,
+            'statuses' => $statuses
         ));
     }
 

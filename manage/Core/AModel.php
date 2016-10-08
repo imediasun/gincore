@@ -124,7 +124,7 @@ abstract class AModel extends Object
         $values = $this->prepareValues($options);
 
         return $this->query('UPDATE ?t SET ?q WHERE ?q',
-            array($this->table, implode(',', $values), $this->makeConditionsQuery($conditions)))->id();
+            array($this->table, implode(',', $values), $this->makeConditionsQuery($conditions)))->ar();
     }
 
     /**
@@ -277,5 +277,13 @@ abstract class AModel extends Object
             }
         }
         return $values;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return ! (bool) $this->query('SELECT count(*) FROM ?t', array($this->table))->el();
     }
 }

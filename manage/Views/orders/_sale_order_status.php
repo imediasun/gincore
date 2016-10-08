@@ -6,16 +6,18 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownStatus_<?= $orderId ?>">
         <?php foreach ($status as $id => $property): ?>
-            <?php $style = 'style="color:#' . htmlspecialchars($property['color']) . '"'; ?>
-            <li>
-                <?php if ($id == $this->all_configs['configs']['order-status-issued'] && $this->all_configs['oRole']->hasCashierPermission($this->getUserId()) && $showPayForm): ?>
-                    <a href="#" data-order_id="<?= $orderId ?>" data-status_id="<?= $id ?>"
-                       onclick="return pay_client_order(this, '<?= $type ?>', <?= $orderId ?>, null, null, {issued: 1})" <?= $style ?>><?= $property['name'] ?></a>
-                <?php else: ?>
-                    <a href="#" data-order_id="<?= $orderId ?>" data-status_id="<?= $id ?>"
-                       onclick="return change_status(this)" <?= $style ?>><?= $property['name'] ?></a>
-                <?php endif; ?>
-            </li>
+            <?php if ($property['active']): ?>
+                <?php $style = 'style="color:#' . h($property['color']) . '"'; ?>
+                <li>
+                    <?php if ($id == $this->all_configs['configs']['order-status-issued'] && $this->all_configs['oRole']->hasCashierPermission($this->getUserId()) && $showPayForm): ?>
+                        <a href="#" data-order_id="<?= $orderId ?>" data-status_id="<?= $id ?>"
+                           onclick="return pay_client_order(this, '<?= $type ?>', <?= $orderId ?>, null, null, {issued: 1})" <?= $style ?>><?= $property['name'] ?></a>
+                    <?php else: ?>
+                        <a href="#" data-order_id="<?= $orderId ?>" data-status_id="<?= $id ?>"
+                           onclick="return change_status(this)" <?= $style ?>><?= $property['name'] ?></a>
+                    <?php endif; ?>
+                </li>
+            <?php endif; ?>
         <?php endforeach; ?>
     </ul>
 </div>

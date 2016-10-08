@@ -1,10 +1,10 @@
 <h3><?= $config['name'] ?></h3>
 <form data-='' action="<?= $this->all_configs['prefix'] . $url ?>/<?= $this->all_configs['arrequest'][1] ?>/add/save"
       method="post">
-    <fieldset>
+
         <?php foreach ($columns as $column): ?>
             <?php if ($column['Field'] == 'for_view'): ?>
-                <div class="from-control">
+                <div class="form-group">
                     <label><?= l('Для формы') ?></label>
                     <select class="form-control" name="data[for_view]" required
                             onchange="$('.js-arr').hide();$('.js-'+this.options[this.selectedIndex].value).show(); return true;">
@@ -17,7 +17,7 @@
                 </div>
             <?php endif; ?>
             <?php if (!in_array($column['Field'], array('id', 'type', 'for_view'))): ?>
-                <div class="from-control">
+                <div class="form-group">
                     <label>
                         <?php if ($column['Field'] == 'description'): ?>
                             <?= l('Название') ?>
@@ -34,10 +34,7 @@
                 </div>
             <?php endif; ?>
         <?php endforeach; ?>
-    </fieldset>
-    <br><br>
 
-    <fieldset>
         <legend><?= l('Шаблон') ?></legend>
         <div class="js-arr js-repair_order" style="display: none">
             <?= $this->renderFile('print_templates/_repair_template_arr'); ?>
@@ -46,15 +43,16 @@
             <?= $this->renderFile('print_templates/_sale_template_arr'); ?>
         </div>
         <?php foreach ($config['fields'] as $field => $field_name): ?>
-            <div class="from-control">
+            <div class="form-group">
                 <label><?= $field_name ?>, <?= $manage_lang ?></label>
                 <textarea class="form-control tinymce"
                           style="height: 150px"
                           name="translates[<?= $manage_lang ?>][<?= $field ?>]"></textarea>
             </div>
         <?php endforeach; ?>
-    </fieldset>
-    <input type="submit" class="save-btn btn btn-primary" value="<?= l('save') ?>">
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" value="<?= l('save') ?>">
+    </div>
 </form>
 <script type="text/javascript" src="<?= $this->all_configs['prefix']; ?>js/tinymce/tinymce.min.js"></script>
 <script>

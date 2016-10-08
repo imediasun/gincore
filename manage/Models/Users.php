@@ -52,6 +52,21 @@ class MUsers extends AModel
     }
 
     /**
+     * @param $permissions
+     * @return mixed
+     */
+    public function getByPermission($permissions)
+    {
+        $query = $this->makeQuery('AND u.avail=1 AND u.deleted=0', array());
+        return $this->query(
+            '
+            SELECT DISTINCT u.id, if(u.fio is NULL OR u.fio="",  u.login, u.fio) as name 
+            FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
+            WHERE p.link in (?l) AND r.role_id=u.role AND r.permission_id=p.id ?query',
+            array($permissions, $query))->assoc();
+    }
+
+    /**
      * @return array
      */
     public function columns()
@@ -88,6 +103,8 @@ class MUsers extends AModel
             'salary_from_sale',
             'show_client_info',
             'show_only_his_orders',
+            'use_percent_from_profit',
+            'use_fixed_payment'
         );
     }
 }

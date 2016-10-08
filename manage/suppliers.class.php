@@ -787,9 +787,9 @@ class Suppliers extends Object
 
             if ($order['confirm'] == 0 && $order['avail'] == 1 && (($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') && $order['sum_paid'] == 0 && $order['count_come'] == 0) || $this->all_configs['oRole']->hasPrivilege('site-administration'))
             ) {
-                $order['btn'] = '<input type="button" class="btn btn-mini btn-success" onclick="edit_supplier_order(this)" value="' . l('Сохранить') . '" />';
-                $order['btn'] .= ' <input ' . ($order['avail'] == 1 ? '' : 'disabled') . ' type="button" class="btn btn-mini btn-warning" onclick="avail_supplier_order(this, \'' . $order_id . '\', 0)" value="' . l('Отменить') . '" />';
-//                $order['btn'] .= ' <input ' . ($order['unavailable'] == 1 ? 'disabled' : '') . ' type="button" class="btn btn-mini" onclick="end_supplier_order(this, \'' . $order_id . '\')" value="' . l('Запчасть не доступна к заказу') . '" />';
+                $order['btn'] = $this->view->renderFile('suppliers.class/_order_btn', array(
+                    'order' => $order
+                ));
             } else {
                 $order['btn'] = '';
                 $disabled = 'disabled';
@@ -1766,8 +1766,18 @@ class Suppliers extends Object
             $this->ContractorsSuppliersOrders->increase('count_debit', count($debit_items),
                 array('id' => $order['id']));
             // обновление цены закупки в товаре
-            $this->all_configs['db']->query('UPDATE {goods} SET price_purchase=?i WHERE id=?i',
-                array($order['price'], $order['goods_id']));
+            $update = array(
+                'price_purchase' => $order['price']
+            );
+            $product = $this->Goods->getByPk($order['goods_id']);
+            if($product['use_automargin']) {
+                $price = $order['price'] * 100 / getCourse($this->all_configs['settings']['currency_suppliers_orders']);
+                $update['price'] = $price + $this->automargin($price, $product, 'automargin');
+                $update['price_wholesale'] = $price + $this->automargin($price, $product, 'wholesale_automargin');
+            }
+            $this->Goods->update($update, array(
+               'id' => $order['goods_id']
+            ));
         }
 
         // печать
@@ -1786,6 +1796,21 @@ class Suppliers extends Object
         );
     }
 
+    /**
+     * @param $value
+     * @param $product
+     * @param $type
+     * @return mixed
+     */
+    protected function automargin($value, $product, $type)
+    {
+        if ($product[$type.'_type'] == DISCOUNT_TYPE_PERCENT) {
+            $automargin = $value * ($product[$type] / 100);
+        } else {
+            $automargin = $product[$type] * 100;
+        }
+        return $automargin;
+    }
     /**
      * @param      $order
      * @param null $serial

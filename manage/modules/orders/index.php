@@ -13,6 +13,8 @@ $modulemenu[10] = l('orders');
  * @property  MOrdersComments OrdersComments
  * @property  MLockFilters    LockFilters
  * @property  MTemplateVars   TemplateVars
+ * @property  MUsers          Users
+ * @property  MStatus         Status
  */
 class orders extends Controller
 {
@@ -21,7 +23,9 @@ class orders extends Controller
         'OrdersGoods',
         'OrdersComments',
         'LockFilters',
-        'TemplateVars'
+        'TemplateVars',
+        'Users',
+        'Status'
     );
 
     /**
@@ -349,10 +353,7 @@ class orders extends Controller
      */
     function show_filter_manager_as_row()
     {
-        $managers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('edit-clients-orders', 'site-administration'))->assoc();
+        $managers = $this->Users->getByPermission(array('edit-clients-orders', 'site-administration'));
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
             (isset($_GET['managers']) ? $_GET['managers'] : array());
         return $this->view->renderFile('orders/show_filter_manager_as_row', array(
@@ -368,10 +369,7 @@ class orders extends Controller
      */
     function show_filter_manager($compact = false, $showWrapper = true)
     {
-        $managers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('edit-clients-orders', 'site-administration'))->assoc();
+        $managers = $this->Users->getByPermission(array('edit-clients-orders', 'site-administration'));
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
             (isset($_GET['managers']) ? $_GET['managers'] : array());
         return $this->view->renderFile('orders/show_filter_manager', array(
@@ -387,10 +385,7 @@ class orders extends Controller
      */
     function show_filter_manager_small()
     {
-        $managers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('edit-clients-orders', 'site-administration'))->assoc();
+        $managers = $this->Users->getByPermission(array('edit-clients-orders', 'site-administration'));
         $mg_get = isset($_GET['mg']) ? explode(',', $_GET['mg']) :
             (isset($_GET['managers']) ? $_GET['managers'] : array());
         return $this->view->renderFile('orders/show_filter_manager_small', array(
@@ -425,15 +420,9 @@ class orders extends Controller
             JOIN {orders} o ON o.id=um.object_id 
             WHERE um.user_id=?i AND um.type=? AND o.type=?i', array($_SESSION['id'], 'co', ORDER_SELL))->el();
         // индинеры
-        $engineers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
-            array('engineer'))->assoc();
-        $accepters = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('create-clients-orders', 'site-administration'))->assoc();
-        // фильтр по складам (дерево)
+        $engineers = $this->Users->getByPermission(array('engineer'));
+        $accepters = $this->Users->getByPermission(array('create-clients-orders', 'site-administration'));
+        // фильтр по складам (дерево)->get
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
             FROM {orders} as o, {warehouses} as w
             LEFT JOIN {warehouses_groups} as gr ON gr.id=w.group_id
@@ -497,14 +486,8 @@ class orders extends Controller
             WHERE um.user_id=?i AND um.type=? AND o.type in (?li)',
             array($_SESSION['id'], 'co', array(ORDER_REPAIR, ORDER_WRITE_OFF)))->el();
         // индинеры
-        $engineers = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE p.link=? AND r.role_id=u.role AND r.permission_id=p.id',
-            array('engineer'))->assoc();
-        $accepters = $this->all_configs['db']->query(
-            'SELECT DISTINCT u.id, CONCAT(u.fio, " ", u.login) as name FROM {users} as u, {users_permissions} as p, {users_role_permission} as r
-            WHERE (p.link=? OR p.link=?) AND r.role_id=u.role AND r.permission_id=p.id',
-            array('create-clients-orders', 'site-administration'))->assoc();
+        $engineers = $this->Users->getByPermission(array('engineer'));
+        $accepters = $this->Users->getByPermission(array('create-clients-orders', 'site-administration'));
         // фильтр по складам (дерево)
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, gr.name, gr.color, tp.icon, w.group_id
             FROM {orders} as o, {warehouses} as w
@@ -686,7 +669,8 @@ class orders extends Controller
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
                 'urgent' => $this->Orders->getUrgentCount(),
                 'debts' => $this->Orders->getDebts(),
-                'columns' => $columns
+                'columns' => $columns,
+                'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
             'functions' => array(),
         );
@@ -722,7 +706,8 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page,
                 'saleOrdersFilters' => $this->sale_orders_filters(true),
-                'debts' => $this->Orders->getDebts(ORDER_SELL)
+                'debts' => $this->Orders->getDebts(ORDER_SELL),
+                'status' => $this->Status->getAll(ORDER_SELL, 'status_id')
             )),
             'functions' => array(),
         );
@@ -750,7 +735,8 @@ class orders extends Controller
                 'orders' => $orders,
                 'count' => empty($orders) ? 0 : $this->all_configs['manageModel']->get_count_clients_orders($query,
                     'co'),
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
             'menu' => $this->repair_orders_filters(),
             'functions' => array('reset_multiselect()', 'gen_tree()'),
@@ -781,7 +767,7 @@ class orders extends Controller
                     'co'),
                 'count_on_page' => $this->count_on_page,
                 'repairOrdersFilters' => $this->repair_orders_filters(true),
-
+                'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
             'functions' => array(),
         );
@@ -955,8 +941,8 @@ class orders extends Controller
             // заказы клиентов на которых можно проверить изделия
             $data = $this->all_configs['db']->query('SELECT i.goods_id, o.id
                 FROM {warehouses_goods_items} as i, {orders} as o, {category_goods} as cg
-                WHERE o.status NOT IN (?li) AND cg.goods_id=i.goods_id AND cg.category_id=o.category_id',
-                array($this->all_configs['configs']['order-statuses-closed']))->assoc();
+                WHERE o.status NOT IN (?li) AND cg.goods_id=i.goods_id AND cg.category_id=o.category_id AND o.type=?i',
+                array($this->all_configs['configs']['order-statuses-closed'], ORDER_REPAIR))->assoc();
             $serials = array();
             $g = array();
             if ($data) {
@@ -979,7 +965,8 @@ class orders extends Controller
             $orders_html = $this->view->renderFile('orders/orders_show_suppliers_orders_wait', array(
                 'orders' => $orders,
                 'count' => $count,
-                'count_on_page' => $this->count_on_page
+                'count_on_page' => $this->count_on_page,
+                'serials' => $serials
             ));
         }
 
@@ -1747,15 +1734,18 @@ class orders extends Controller
             case 1:
                 $template = 'orders/quicksaleorder/genorder';
                 $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
+                $status = $this->Status->getAll(ORDER_SELL, 'status_id');
                 break;
             case 2:
                 $template = 'orders/eshoporder/genorder';
                 $print_templates = $this->TemplateVars->getUsersPrintTemplates('sale_order');
+                $status = $this->Status->getAll(ORDER_SELL, 'status_id');
                 break;
             default:
                 $template = $modal ? 'orders/genorder/genorder-modal' : 'orders/genorder/genorder';
                 $print_templates = $this->TemplateVars->getUsersPrintTemplates('repair_order');
                 $showUsersFields = $this->checkShowUsersFields($usersFields, $hide);
+                $status = $this->Status->getAll(ORDER_REPAIR, 'status_id');
         }
         return $this->view->renderFile($template, array(
             'order' => $order,
@@ -1788,7 +1778,8 @@ class orders extends Controller
             'price_type' => $price_type,
             'price_type_of_service' => $price_type_of_service,
             'print_templates' => $print_templates,
-            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars(),
+            'status' => $status
         ));
     }
 
@@ -1808,11 +1799,15 @@ class orders extends Controller
             $query = $this->all_configs['db']->makeQuery('u.avail=1 AND u.deleted=0 AND id IN (?li)', array($ids));
             $result = $this->all_configs['db']->query('
                 SELECT u.*, CONCAT(u.fio, " ", u.login) as name,
-                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as workload,
+                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND NOT status in (?l)) as workload,
                 (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as wait_parts
                 FROM {users} as u
                 WHERE  ?query',
-                array($this->all_configs['configs']['order-statuses-engineer-workload'], $this->all_configs['configs']['order-statuses-expect-parts'], $query))->assoc('id');
+                array(
+                    $this->all_configs['configs']['order-statuses-engineer-not-workload'],
+                    $this->all_configs['configs']['order-statuses-expect-parts'],
+                    $query
+                ))->assoc('id');
         }
         return $result;
     }
@@ -2496,7 +2491,7 @@ class orders extends Controller
             'orderStatus' => $this->all_configs['configs']['order-status'],
             'shows' => array_keys($this->all_configs['configs']['show-status-in-manager-config']),
             'default' => $this->all_configs['configs']['show-status-in-manager-config'],
-            'current' => empty($current) ? array() : json_decode($current[0]['value'], true)
+            'current' => empty($current) ? array() : json_decode($current[0]['value'], true),
         ));
         $data['title'] = '<center>' . l('Укажите стандарты обслуживания для вашей компании') . ' '
             . InfoPopover::getInstance()->createQuestion('l_manager_setup_info') . '</center>';
@@ -2861,11 +2856,12 @@ class orders extends Controller
     {
         $data['state'] = true;
         $data['content'] = l('История изменения статусов не найдена');
+        $order = $this->Orders->getByPk($_POST['object_id']);
         $statuses = $this->all_configs['db']->query('SELECT s.status, s.date, u.* FROM {order_status} as s
                 LEFT JOIN {users} as u ON u.id=s.user_id WHERE s.order_id=?i ORDER BY `date` DESC',
             array(isset($_POST['object_id']) ? $_POST['object_id'] : 0))->assoc();
         if ($statuses) {
-            $sts = $this->all_configs['configs']['order-status'];
+            $sts = $this->Status->getAll(!empty($order) ? $order['type'] : ORDER_REPAIR, 'status_id');
             $data['content'] = $this->view->renderFile('orders/order_statuses', array(
                 'statuses' => $statuses,
                 'sts' => $sts
