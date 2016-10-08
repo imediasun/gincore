@@ -8,19 +8,18 @@
         <?php if($section_id== 1): ?>
             <?php foreach($setting as $key=>$val): ?>
                 <li<?php if($val['id']==$current_setting_id): ?> class="active" <?php endif; ?>><a href="<?= $this->all_configs['prefix'] ?>settings/edit/<?= $val['id'] ?>" aria-expanded="true"> <?= $val['title'] ?></a></li>
-                <?php if ($val['name'] == 'sms-provider'): ?>
-                    <li <?= (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sms_templates' ? 'class="active"' : '') ?>>
-                        <a href="<?= $this->all_configs['prefix'] ?>sms_templates/sms_templates">
-                            <?= l('Шаблоны для sms') ?>
-                        </a>
-                    </li>
-                <?php endif; ?>
             <?php endforeach; ?>
         <?php else: ?>
             <li<?php if($section_id==$current_section_id): ?> class="active" <?php endif; ?>><a href="<?= $this->all_configs['prefix'] ?>settings/section/<?= $section_id ?>" aria-expanded="true"> <?= $sections[$section_id] ?></a></li>
         <?php endif; ?>
 
     <?php endforeach; ?>
+
+    <li <?= (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'sms_templates' ? 'class="active"' : '') ?>>
+        <a href="<?= $this->all_configs['prefix'] ?>sms_templates/sms_templates">
+            <?= l('Шаблоны для sms') ?>
+        </a>
+    </li>
 
     <li <?= (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'crm_referers' ? 'class="active"' : '') ?>>
         <a href="<?= $this->all_configs['prefix'] ?>settings/crm_referers" <?= (isset($this->all_configs['arrequest'][1]) && $pps['id'] == $this->all_configs['arrequest'][1] ? ' style="font-weight: bold"' : '') ?> >
