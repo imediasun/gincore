@@ -30,7 +30,8 @@ class HideSomeSettings extends Migration
      */
     public function down()
     {
-        DB::table('settings')->whereIn('name', [
+        /*
+          DB::table('settings')->whereIn('name', [
             'email_for_send_login_log',
             'warranties_left_days',
             'orders_comments_days',
@@ -39,5 +40,6 @@ class HideSomeSettings extends Migration
             'cat-non-current-assets',
             'cat-non-all-ext',
         ])->update(['ro' => 0]);
+         */
     }
 }
