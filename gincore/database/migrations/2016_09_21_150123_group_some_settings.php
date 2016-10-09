@@ -27,6 +27,7 @@ class GroupSomeSettings extends Migration
             'turbosms-password',
             'turbosms-login',
             'turbosms-from',
+            'sms-provider',
         ])->update(['section' => 4]);
     }
 
