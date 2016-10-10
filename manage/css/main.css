@@ -1146,6 +1146,10 @@ div.overflow-ellipsis {
     padding-bottom: 0;
     padding-top: 0;
 }
+
+#suppliers-order-form .submit-form-btn {
+    width: 91px;
+}
 button.multiselect {
     position: relative;
 }

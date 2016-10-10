@@ -87,3 +87,19 @@
         width: 800px;
     }
 </style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input[type=text]').on('keydown', function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                var focusable = $('#debit-so-form').find('input').filter(':visible');
+                var next = focusable.eq(focusable.index(this)+1);
+                if (next.length) {
+                    next.focus();
+                }
+                return false;
+            }
+        });
+    });
+</script>

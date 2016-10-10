@@ -5,7 +5,7 @@
     <?php endforeach; ?>
 </select>
 
-<div class="js-variables js-orders_variables" style="display:none">
+<div class="js-variables js-orders_variables well w-lg m-t-md" style="display:none">
     <?= l('В шаблоне возможно использование следующих переменных:') ?>
     <table class="table-compact">
         <tr>
@@ -42,7 +42,7 @@
         </tr>
     </table>
 </div>
-<div class="js-variables js-engineer_notify_variables" style="display:none">
+<div class="js-variables js-engineer_notify_variables well w-lg m-t-md" style="display:none">
     <?= l('В шаблоне возможно использование следующих переменных:') ?>
     <table class="table-compact">
         <tr>

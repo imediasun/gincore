@@ -14,7 +14,7 @@ class AddReturnIdPermission extends Migration
     {
         if (!DB::table('users_permissions')->select('id')->where('link', '=', 'edit_return_id')->count()) {
             $id = DB::table('users_permissions')->insertGetId(array(
-                'name' => 'Возврат денежных средств клиентам"',
+                'name' => 'Возврат денежных средств клиентам',
                 'link' => 'edit_return_id',
                 'child' => 0,
                 'group_id' => 6

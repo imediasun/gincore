@@ -324,26 +324,36 @@ class accountings extends Controller
 
         } elseif (isset($post['contractor_category-add']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             // создание категории
+            $ajax = isset($post['ajax']) ? true : false;
             $avail = isset($post['avail']) ? 1 : null;
             $parent_id = (isset($post['parent_id']) && $post['parent_id'] > 0) ? $post['parent_id'] : 0;
+            $error = '';
 
             $title = trim($post['title']);
-            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?',
-                array(
-                    $title
-                ))->el();
             if (empty($title)) {
-                FlashMessage::set(l('Название статьи не может быть пустым'), FlashMessage::DANGER);
-                Response::redirect($_SERVER['REQUEST_URI']);
+                $error = l('Название статьи не может быть пустым');
+            } else {
+                $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?',
+                    array(
+                        $title
+                    ))->el();
+                if ($exist) {
+                    $error = l('Статья с таким названием уже существует');
+                }
             }
-            $exist = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_categories} WHERE `name`=?',
-                array(
-                    $title
-                ))->el();
-            if ($exist) {
-                FlashMessage::set(l('Статья с таким названием уже существует'), FlashMessage::DANGER);
-                Response::redirect($_SERVER['REQUEST_URI']);
+
+            if ($error != '') {
+                if ($ajax){
+                    Response::json([
+                        'hasError' => true,
+                        'error' => $error
+                    ]);
+                } else {
+                    FlashMessage::set($error, FlashMessage::DANGER);
+                    Response::redirect($_SERVER['REQUEST_URI']);
+                }
             }
+
 
             $contractor_category = $this->all_configs['db']->query('INSERT INTO {contractors_categories}
                 (avail, parent_id, name, code_1c, transaction_type, comment, is_system) VALUES (?n, ?i, ?, ?, ?i, ?, 0)',
@@ -362,6 +372,15 @@ class accountings extends Controller
             }
             if (!empty($post['contractors'])) {
                 $this->ContractorsCategoriesLinks->addCategoryToContractors($contractor_category, $post['contractors']);
+            }
+
+            if ($ajax) {
+                Response::json([
+                    'hasError' => false,
+                    'id' => $contractor_category,
+                    'title' => $title,
+                    'transaction_type' => (int)$post['transaction_type']
+                ]);
             }
 
         } elseif (isset($post['contractor_category-edit']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
@@ -3418,19 +3437,18 @@ class accountings extends Controller
             $data['content'] .= '<tr class="hide-not-tt-2 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
             $data['content'] .= '<td style="width:150px"><select ' . $dcct . ' id="contractor_category-1" class="multiselect input-sm form-control multiselect-sm" onchange="select_contractor_category(this, 1)" name="contractor_category_id_to">';
             $data['content'] .= $select_contractors_categories_to . '</select>';
-            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_expense';
-            $data['content'] .= '</select></td><td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '</select></td><td><a href="#" onclick="return alert_box(this, false, \'create-cat-expense\', [], false, \'accountings/ajax/undefined\', null, true)"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
             //* Статья 2
             $data['content'] .= '<tr class="hide-not-tt-1 hide-not-tt-3"><td>* ' . l('Статья') . '</td>';
             $data['content'] .= '<td style="width:150px"><select ' . $dccf . ' id="contractor_category-2" class="multiselect  multiselect-sm" onchange="select_contractor_category(this, 2)" name="contractor_category_id_from">';
             $data['content'] .= $select_contractors_categories_from . '</select></td>';
-            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-categories_income';
-            $data['content'] .= '<td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+            $data['content'] .= '<td><a target="_blank" href="#" onclick="return alert_box(this, false, \'create-cat-income\', [], false, \'accountings/ajax/undefined\', null, true)"> <i class="glyphicon glyphicon-plus"></i></a></td></tr>';
+
             //* Контрагент 1 2
             $data['content'] .= '<tr class="hide-not-tt-3"><td>*&nbsp;' . l('Контрагент') . '</td>';
-            $data['content'] .= '<td style="width:150px"><select ' . $dc . ' class="form-control input-sm select_contractors" name="contractors_id" style="width: 100%;">' . $select_contractors . '</select></td>';
-            $url = $this->all_configs["prefix"] . $this->all_configs["arrequest"][0] . '#settings-contractors';
-            $data['content'] .= '<td><a target="_blank" href="' . $url . '"> <i class="glyphicon glyphicon-plus"></i></a></td>';
+            $data['content'] .= '<td style="width:150px"><select ' . $dc . ' id="contractor-select" class="form-control input-sm select_contractors" name="contractors_id" style="width: 100%;">' . $select_contractors . '</select></td>';
+            $data['content'] .= '<td><a href="#" onclick="return alert_box(this, false, \'create-contractor-form\', {\'callback\':\'contractor_add_callback\'}, false, \'accountings/ajax/undefined\', null, true)"> <i class="glyphicon glyphicon-plus"></i></a></td>';
+
             $data['content'] .= '</tr>';
         }
         // только обычные транзакции
@@ -3829,6 +3847,15 @@ class accountings extends Controller
 
         $query = $this->getProfitMarginCondition($filters);
 
+        $has_more_query = $this->all_configs['db']->makeQuery('
+          SELECT o.id, count(*) as cnt
+            FROM {orders} as o
+            JOIN {categories} as cg ON cg.id=o.category_id
+            JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
+            WHERE  t.type<>?i AND t.date_transaction NOT BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
+              AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") 
+              ?query GROUP by o.id',
+            array(8, $day_from, $day_to, $query));
         $orders = $this->all_configs['db']->query('
           SELECT o.id as order_id, o.type as order_type, t.type, o.course_value, t.transaction_type,
               SUM(IF(t.transaction_type=2, t.value_to, 0)) as value_to, t.order_goods_id as og_id, o.category_id,
@@ -3836,15 +3863,17 @@ class accountings extends Controller
               SUM(IF(t.transaction_type=1, 1, 0)) as has_from, 
               SUM(IF(t.transaction_type=2, 1, 0)) as has_to,
               o.manager, o.accepter as acceptor, o.engineer, o.brand_id,
-              SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return
+              SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return,
+              hm.cnt as has_more
             FROM {orders} as o
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
             JOIN (SELECT id, contractors_categories_id, contractors_id FROM {contractors_categories_links}) as l ON l.id=t.contractor_category_link
+            LEFT JOIN (?query) as hm ON hm.id=o.id
             WHERE  t.type<>?i AND t.date_transaction BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
               AND STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s") 
               ?query GROUP BY order_id ORDER BY o.id',
-            array(8, $day_from, $day_to, $query))->assoc('order_id');
+            array($has_more_query, 8, $day_from, $day_to, $query))->assoc('order_id');
 
         $profit = $turnover = $avg = $purchase = $purchase2 = $sell = $buy = 0;
         if ($orders) {
@@ -3891,7 +3920,7 @@ class accountings extends Controller
 
                 $orders[$order_id]['avg'] = 0;
                 if ($orders[$order_id]['purchase'] == 0) {
-                    $orders[$order_id]['avg'] = '&infin;';
+                    $orders[$order_id]['avg'] = '∞';
                 }
                 if ($orders[$order_id]['purchase'] > 0 && $orders[$order_id]['turnover'] > 0) {
                     $orders[$order_id]['avg'] = $orders[$order_id]['profit'] / $orders[$order_id]['purchase'] * 100;
@@ -4122,7 +4151,7 @@ class accountings extends Controller
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
-                        'cost_price' => $good['price_purchase'] * $order['course_value'],
+                        'cost_price' => $good['price_purchase'] * $order['course_value']/100,
                         'selling_price' => $good['price'],
                         'salary' => $payments['fixed_payment'],
                         'percent' => 0
@@ -4130,14 +4159,14 @@ class accountings extends Controller
                 }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']) * $payments['percent_from_profit'] / 100;
+                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']/100) * $payments['percent_from_profit'] / 100;
                 $profit['value'] += $good['count'] * $value;
 
                 for ($i = $good['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
-                        'cost_price' => $good['price_purchase'] * $order['course_value'],
+                        'cost_price' => $good['price_purchase'] * $order['course_value']/100,
                         'selling_price' => $good['price'],
                         'salary' => $value,
                         'percent' => $payments['percent_from_profit']

@@ -144,6 +144,7 @@ class widgets extends Controller
                         'value' => $post['host'],
                         'title' => lq('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
                         'description' => lq('Сайт на котором установлен виджет (будет отправляться в смс клиенту)'),
+                        'ro' => 1
                     ));
                 } else {
                     $this->Settings->update(array('value' => $post['host']),
