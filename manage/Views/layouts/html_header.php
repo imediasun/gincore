@@ -133,6 +133,7 @@ use Assetic\AssetWriter;
         new FileAsset("{$webRoot}/js/admin/homer.js"),
         new FileAsset("{$webRoot}/js/admin/charts.js"),
         new FileAsset("{$webRoot}/js/bootstrap-multiselect.js"),
+        new FileAsset("{$webRoot}/js/jquery.form.js"),
     ));
 
     $css = new AssetCollection(array(
