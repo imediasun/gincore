@@ -38,7 +38,7 @@ $(function () {
     });
 
     $(document).on('submit', 'form.form_contractor_category', function (e) {
-        if ($('#transaction_form')){
+        if (document.getElementById('transaction_form')){
             e.preventDefault();
             var elem = $(this);
             $(this).ajaxSubmit({
