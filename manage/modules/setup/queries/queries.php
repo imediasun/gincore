@@ -76,8 +76,8 @@ $settingsArr[]=array(1, 'order-first-number', '', lq('Начало нумара�
 
 foreach ($settingsArr as $ar) {
     $value = '';
-    if($ar[0] != 'time_zone'){
-        $value = "`value` = '".$ar[1]."',";
+    if($ar[1] != 'time_zone'){
+        $value = "`value` = '".$ar[2]."',";
     }
     db()->query("INSERT INTO `restore4_settings` (`section`, `name`, `value`, `ro`, `title`, `description`) 
             VALUES ('$ar[0]', '$ar[1]', '$ar[2]', '$ar[4]', '$ar[3]', '$ar[5]')
