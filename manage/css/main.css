@@ -1064,7 +1064,7 @@ table.table-borderless tr td
     cursor: pointer;
     vertical-align: top;
     font-size: 14px !important;
-    padding: 0 5px;
+    padding-left: 2px;
 }
 .infopopover_onload{
     content: " ";

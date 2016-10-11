@@ -123,8 +123,8 @@
                                                name="warehouse-order-date" data-required="true"
                                                value="<?= ($order['date_wait'] ? date('Y-m-d',
                                                    strtotime($order['date_wait'])) : '') ?>"/>
-                                    </td class="col-sm-2">
-                                    <td>
+                                    </td>
+                                    <td class="col-sm-2">
                                         <select class="form-control" data-required="true">
                                             <option value="1" <?= ($order['warehouse_type'] == 1 ? 'selected' : '') ?>
                                                     name="warehouse_type"><?= l('Локально') ?> </option>
