@@ -13,8 +13,7 @@
         <?php endif; ?>
 
 
-        <input type="hidden" value="<?= $object_id ?>" name="<?= $table . ($multi ? '[' . $m . ']' : '') ?>"
-               class="typeahead-value-<?= $table . $iterator ?>">
+
         <input <?= ($no_clear_if_null ? ' data-no_clear_if_null="1"' : '') ?> data-required="true"
                                                                               data-placement="right"
                                                                               name="<?= $table ?>-value<?= ($multi ? '[' . $m . ']' : '') ?>" <?= ($disabled ? 'disabled' : '') ?>
@@ -26,6 +25,9 @@
                                                                               autocomplete="off"
                                                                               class="form-control global-typeahead <?= $class ?>"
                                                                               placeholder="<?= $placeholder ?>" <?= $add_attr ?>>
+
+        <input type="hidden" value="<?= $object_id ?>" name="<?= $table . ($multi ? '[' . $m . ']' : '') ?>"
+               class="typeahead-value-<?= $table . $iterator ?>">
 
         <?php if ($show_categories): ?>
     </div>
