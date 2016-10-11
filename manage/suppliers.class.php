@@ -220,7 +220,7 @@ class Suppliers extends Object
             return true;
         }
         foreach ($ids as $key => $id) {
-            if (empty($values[$key]) || 0 == (round($values[$key] * 100)/ 100)) {
+            if (empty($values[$key]) || 0 == (round($values[$key] * 100) / 100)) {
                 return true;
             }
         }
@@ -1688,36 +1688,38 @@ class Suppliers extends Object
         $html = '';
         $msg = $debit_items = $print_items = array();
 
-        foreach ($serials as $k => $serial) {
-            $item_id = null;
-            if (!$auto && count($serials) > $order['count_come']) {
-                break;
+        if ($auto || count($serials) <= $order['count_come']) {
+            if($auto) {
+                $serials = range(1, $order['count_come']);
             }
-            if ($auto) {
-                $item_id = $this->add_item($order, null, $mod_id);
-            } elseif (mb_strlen(trim($serial), 'UTF-8') > 0) {
-                $item_id = $this->add_item($order, trim($serial), $mod_id);
-            } else {
-                $msg[$k] = array(
-                    'state' => false,
-                    'msg' => l('Ведите серийный номер или установите галочку сгенерировать')
-                );
-            }
-            if (!isset($msg[$k])) {
-                if ($item_id > 0) {
-                    if ($print) {
-                        $print_items[$k] = $item_id;
-                    }
-                    $debit_items[$k] = suppliers_order_generate_serial(array(
-                        'item_id' => $item_id,
-                        'serial' => trim($serial)
-                    ));
-                    $msg[$k] = array(
-                        'state' => true,
-                        'msg' => $debit_items[$k]
-                    );
+            foreach ($serials as $k => $serial) {
+                $item_id = null;
+                if ($auto) {
+                    $item_id = $this->add_item($order, null, $mod_id);
+                } elseif (mb_strlen(trim($serial), 'UTF-8') > 0) {
+                    $item_id = $this->add_item($order, trim($serial), $mod_id);
                 } else {
-                    $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
+                    $msg[$k] = array(
+                        'state' => false,
+                        'msg' => l('Ведите серийный номер или установите галочку сгенерировать')
+                    );
+                }
+                if (!isset($msg[$k])) {
+                    if ($item_id > 0) {
+                        if ($print) {
+                            $print_items[$k] = $item_id;
+                        }
+                        $debit_items[$k] = suppliers_order_generate_serial(array(
+                            'item_id' => $item_id,
+                            'serial' => trim($serial)
+                        ));
+                        $msg[$k] = array(
+                            'state' => true,
+                            'msg' => $debit_items[$k]
+                        );
+                    } else {
+                        $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
+                    }
                 }
             }
         }
@@ -1770,13 +1772,13 @@ class Suppliers extends Object
                 'price_purchase' => $order['price']
             );
             $product = $this->Goods->getByPk($order['goods_id']);
-            if($product['use_automargin']) {
+            if ($product['use_automargin']) {
                 $price = $order['price'] * getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100;
                 $update['price'] = $price + $this->automargin($price, $product, 'automargin');
                 $update['price_wholesale'] = $price + $this->automargin($price, $product, 'wholesale_automargin');
             }
             $this->Goods->update($update, array(
-               'id' => $order['goods_id']
+                'id' => $order['goods_id']
             ));
         }
 
@@ -1804,13 +1806,14 @@ class Suppliers extends Object
      */
     protected function automargin($value, $product, $type)
     {
-        if ($product[$type.'_type'] == DISCOUNT_TYPE_PERCENT) {
+        if ($product[$type . '_type'] == DISCOUNT_TYPE_PERCENT) {
             $automargin = $value * ($product[$type] / 100);
         } else {
             $automargin = $product[$type] * 100;
         }
         return $automargin;
     }
+
     /**
      * @param      $order
      * @param null $serial
