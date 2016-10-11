@@ -296,8 +296,7 @@
                 <?php if (empty($isEdit)): ?>
                     <div class="control-group text-right">
                         <div class="controls">
-                            <input class="btn btn-primary" type="submit" name="create-user"
-                                   onclick="return add_user_validation();"
+                            <input class="btn btn-primary" type="submit" name="create-user" id="form-create-user-submit"
                                    value="<?= l('Создать') ?>">
                         </div>
                     </div>

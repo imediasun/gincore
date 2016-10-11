@@ -250,8 +250,10 @@ class users extends Controller
                 $methodName = 'isExistBy'.ucfirst($field);
                 $user = $this->Users->{$methodName}($query);
                 
-                if ($user)
+                if ($user) {
                     $result['exists'] = true;
+                    $result['message'] = l('Пользователь существует с параметром: ').$query;
+                }
                 else
                     $result['exists'] = false;
                 $result['state'] = true;
