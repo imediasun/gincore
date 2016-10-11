@@ -418,7 +418,7 @@ function create_warehouse_modal(_this) {
 function create_purchase_invoice(act) {
   var buttons = {
     confirm: {
-      label: "Приходовать",
+      label: L['debit_btn'],
       className: "btn-success js-create-purchase-invoice",
       callback: function () {
         $('#suppliers-order-form').parsley().reset();
@@ -451,7 +451,7 @@ function create_purchase_invoice(act) {
       }
     },
     cancel: {
-      label: "Отменить",
+      label: L['cancel'],
       className: "btn-primary",
       callback: function () {
         $(this).button('reset');
