@@ -252,7 +252,10 @@ class users extends Controller
                 
                 if ($user) {
                     $result['exists'] = true;
-                    $result['message'] = l('Пользователь существует с параметром: ').$query;
+                    if ($field == 'login')
+                        $result['message'] = l('Логин уже существует');
+                    elseif ($field == 'email')
+                        $result['message'] = l('Email уже существует');
                 }
                 else
                     $result['exists'] = false;

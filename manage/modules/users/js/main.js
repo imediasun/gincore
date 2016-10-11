@@ -85,10 +85,11 @@ function add_user_check_existance(field, query, elem) {
                 if (msg.exists){
                     is_exist = true;
                     elem.style.background = '#F2DEDE';
-                    alert(msg.message);
+                    $(elem).parent().find('.error-msg').html(msg.message).show();
                 } else {
                     is_exist = false;
                     elem.style.background = 'white';
+                    $(elem).parent().find('.error-msg').html('').hide();
                 }
             }
         },

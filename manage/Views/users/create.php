@@ -53,6 +53,7 @@
                                    value="<?= (isset($form_data['login']) ? h($form_data['login']) : '') ?>"
                                    name="login"
                                    placeholder="<?= l('введите логин') ?>">
+                            <div class="error-msg"></div>
                         </div>
                         <div class="form-group">
                             <label><?= l('E-mail') ?> <b class="text-danger">*</b>:</label>
@@ -60,6 +61,7 @@
                                    value="<?= (isset($form_data['email']) ? h($form_data['email']) : '') ?>"
                                    name="email"
                                    placeholder="<?= l('введите e-mail') ?>">
+                            <div class="error-msg"></div>
                         </div>
                         <div class="form-group">
                             <label><?= l('Пароль') ?>
