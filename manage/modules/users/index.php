@@ -235,6 +235,34 @@ class users extends Controller
             }
         }
 
+        if ($act == 'find-user-by-field') {
+            $result = array(
+                'state' => false,
+            );
+            $available_fields = ['login', 'email'];
+            $field = $_GET['field'];
+            $query = $_GET['query'];
+
+            try{
+                if (!in_array($field, $available_fields))
+                    throw new Exception(l('Неверный параметр поиска'));
+
+                $methodName = 'isExistBy'.ucfirst($field);
+                $user = $this->Users->{$methodName}($query);
+                
+                if ($user)
+                    $result['exists'] = true;
+                else
+                    $result['exists'] = false;
+                $result['state'] = true;
+            } catch (Exception $e){
+                $result['message'] = $e->getMessage();
+            }
+
+            Response::json($result);
+        }
+
+
         exit;
     }
 

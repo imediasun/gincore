@@ -36,6 +36,7 @@ function create_avatar_uploader(){
 }
 
 
+
 function add_user_validation() {
     loginInput = document.querySelector('input[name="login"]');
     passwordInput = document.querySelector('input[name="pass"]');
@@ -63,6 +64,36 @@ function add_user_validation() {
         document.documentElement.scrollTop = 0;
         return false;
     }
+
+
+}
+
+function add_user_check_existance(field, query) {
+    var is_exist;
+
+    $.ajax({
+        url: prefix + module + '/ajax/?act=find-user-by-field&field=' + field + '&query=' + query,
+        async: false,
+        cache: false,
+        type: 'GET',
+        success: function(msg) {
+            if (msg.state == false && msg.message) {
+                alert(msg.message);
+            }
+            if(msg.state == true) {
+                if (msg.exists){
+                    is_exist = true;
+                } else {
+                    is_exist = false;
+                }
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+
+    return is_exist;
 }
 
 function click_by_block(_this) {

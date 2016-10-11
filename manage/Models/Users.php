@@ -67,6 +67,23 @@ class MUsers extends AModel
     }
 
     /**
+     * @param $email
+     * @return mixed
+     */
+    public function isExistByEmail($email)
+    {
+        return $this->query('SELECT id FROM {users} WHERE email=?string LIMIT 1', array($email))->bool();
+    }
+
+    /**
+     * @param $login
+     * @return bool
+     */
+    public function isExistByLogin($login){
+        return $this->query('SELECT id FROM {users} WHERE login=?string LIMIT 1', array($login))->bool();
+    }
+
+    /**
      * @return array
      */
     public function columns()
