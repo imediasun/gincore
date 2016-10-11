@@ -451,7 +451,7 @@ function create_purchase_invoice(act) {
       }
     },
     cancel: {
-      label: "Отменить",
+      label: L['cancel'],
       className: "btn-primary",
       callback: function () {
         $(this).button('reset');
