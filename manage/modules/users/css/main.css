@@ -39,3 +39,7 @@
     overflow: auto;
     max-height: 400px;
 }
+
+.upload_avatar_btn {
+    cursor: pointer;
+}
