@@ -40,7 +40,7 @@
         )); ?>
     </td>
     <td class="center <?= isset($columns['components'])?'': 'hide' ?>"><?= $ordered ?></td>
-    <td class="<?= isset($columns['device'])?'': 'hide' ?>" title="<?=  h($order['product']) . h($order['note']) ?>"><?= mb_strimwidth(h($order['product']) . h($order['note']), 0, 50, "...") ?></td>
+    <td class="<?= isset($columns['device']) ? '' : 'hide' ?>" title="<?=  h($order['product']) . h($order['note']) ?>"><?= mb_strimwidth(h($order['product']) . h($order['note']), 0, 30, "...") ?></td>
 
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="center <?= ($order['discount'] > 0 ? 'text-danger' : '') ?> <?= isset($columns['amount'])?'': 'hide' ?>"><?= ($order['sum'] / 100) ?> </td>

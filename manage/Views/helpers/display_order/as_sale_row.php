@@ -58,7 +58,7 @@
         <?= ($order['sum'] / 100) ?>
     </td>
     <td class='center'><?= ($order['sum_paid'] / 100) ?></td>
-    <td><?= h($order['o_fio']) ?></td>
+    <td><?= mb_strimwidth(h($order['o_fio']), 0, 30, "...") ?></td>
     <td>
         <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
             <?= $order['o_phone'] ?>
