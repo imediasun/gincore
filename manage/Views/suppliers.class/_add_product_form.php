@@ -82,7 +82,7 @@
                                 <i class="glyphicon glyphicon-plus"></i>
                             </span>
                 </td>
-                <td class="col-sm-2"></td>
+                <td></td>
             </tr>
             </tbody>
         </table>
