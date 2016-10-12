@@ -79,3 +79,8 @@ td.edit-price .input-small {
 .margin-type {
     width: 65px;
 }
+
+#exports .form-group {
+    margin-right: 0;
+    margin-left: 0;
+}
