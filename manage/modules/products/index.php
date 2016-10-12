@@ -8,9 +8,10 @@ $moduleactive[60] = !$ifauth['is_2'];
 /**
  * Class products
  *
- * @property MGoods      Goods
- * @property MCategories Categories
- * @property  MLockFilters    LockFilters
+ * @property MGoods         Goods
+ * @property MCategoryGoods CategoryGoods
+ * @property MCategories    Categories
+ * @property  MLockFilters  LockFilters
  */
 class products extends Controller
 {
@@ -29,6 +30,7 @@ class products extends Controller
         'Goods',
         'Categories',
         'LockFilters',
+        'CategoryGoods'
     );
 
     /**
@@ -119,6 +121,11 @@ class products extends Controller
 
         $product_id = (array_key_exists(2,
                 $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) ? $this->all_configs['arrequest'][2] : null;
+
+        if (isset($post['filters'])) {
+            $url = $this->setFilters($_POST);
+            Response::redirect($url);
+        }
 
         // создание продукта
         if (isset($post['create-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
@@ -599,7 +606,7 @@ class products extends Controller
      */
     private function getGoods($get = null)
     {
-        if(!is_array($get)) {
+        if (!is_array($get)) {
             $get = $_GET;
         }
         // текущая страничка
@@ -637,9 +644,10 @@ class products extends Controller
     }
 
     /**
+     * @param $get
      * @return string
      */
-    private function filters()
+    private function filters($get)
     {
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
         return $this->view->renderFile('products/filters', array(
@@ -647,6 +655,10 @@ class products extends Controller
             'controller' => $this,
             'categories' => $this->get_categories(),
             'managers' => $this->get_managers(),
+            'current_categories' => isset($get['cats']) ? explode('-', $get['cats']) : array(),
+            'current_warehouses' => isset($get['wh']) ? explode('-', $get['wh']) : array(),
+            'current_avail' => isset($get['avail']) ? explode('-', $get['avail']) : array(),
+            'current_show' => isset($get['show']) ? explode('-', $get['show']) : array(),
         ));
     }
 
@@ -722,17 +734,10 @@ class products extends Controller
             } else {
                 FlashMessage::set(l('У вас не хватает прав для этой операции'), FlashMessage::DANGER);
             }
-            unset($_GET['delete-al;']);
+            unset($_GET['delete-all']);
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
                     $_GET));
         }
-        // поиск товаров
-        if (isset($_POST['search'])) {
-            $_GET['s'] = isset($_POST['text']) ? trim($_POST['text']) : '';
-            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
-                    $_GET));
-        }
-
         // если изменяем нсатройки гарантии
         if (isset($_POST['default-add-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
             $this->all_configs['db']->query('INSERT INTO {settings} (`name`, `value`) VALUES (?, ?) ON DUPLICATE KEY
@@ -757,6 +762,13 @@ class products extends Controller
             }
 
             Response::redirect($_SERVER['REQUEST_URI']);
+        }
+
+        // поиск товаров
+        if (isset($_POST['search'])) {
+            $_GET['s'] = isset($_POST['text']) ? trim($_POST['text']) : '';
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
+                    $_GET));
         }
 
         $this->getGoods($_GET);
@@ -806,7 +818,7 @@ class products extends Controller
             'managers' => $this->get_managers(),
             'serials' => $serials,
             'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods'),
-            'filters' => $this->filters(),
+            'filters' => $this->filters($_GET),
             'columns' => $columns
         ));
 
@@ -860,11 +872,14 @@ class products extends Controller
             }
             Response::json($result);
         }
-        if($act == 'action-form') {
+        if ($act == 'action-form') {
             Response::json($this->actionForm());
         }
-        if($act == 'apply-action') {
-            Response::json($this->applyAction($_GET));
+        if ($act == 'apply-action') {
+            Response::json($this->applyAction($_GET, $_POST));
+        }
+        if ($act == 'add-to-cart') {
+            Response::json($this->addToCart($_POST));
         }
 
         // грузим табу
@@ -1123,7 +1138,7 @@ class products extends Controller
                 }
             }
 
-            $data = h(json_encode($result), ENT_NOQUOTES);
+            $data = htmlspecialchars(json_encode($result), ENT_NOQUOTES);
 
         }
 
@@ -1834,7 +1849,7 @@ class products extends Controller
                                 VALUES (?i, ?i)', array($new_cat, $id));
                 }
                 $this->Goods->update(array(
-                   'category_for_margin' => current($post['categories'])
+                    'category_for_margin' => current($post['categories'])
                 ), array(
                     'id' => $id
                 ));
@@ -2142,30 +2157,26 @@ class products extends Controller
             $this->saveMoreHistory($update, $good, $mod_id);
         }
 
-        $query = '';
-        if (isset($post['categories']) && count($post['categories']) > 0) {
-            $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
-                array($post['categories']));
-        }
-        $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
-            array($product_id, $query));
 
         // добавляем товар в старые/новые категории
         if (isset($post['categories']) && count($post['categories']) > 0) {
+            $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                array($post['categories']));
+            $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+                array($product_id, $query));
             foreach ($post['categories'] as $new_cat) {
                 if ($new_cat != 0) {
                     $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
                                 VALUES (?i, ?i)', array($new_cat, $product_id));
                 }
             }
-            if(!in_array($good['category_for_margin'], $post['categories'])) {
+            if (!in_array($good['category_for_margin'], $post['categories'])) {
                 $this->Goods->update(array(
                     'category_for_margin' => current($post['categories'])
                 ), array(
                     'id' => $product_id
                 ));
             }
-
         }
         if (!isset($post['deleted']) && $good['deleted']) {
             $this->Goods->restoreProduct(array('id' => $product_id), $mod_id);
@@ -2371,10 +2382,10 @@ class products extends Controller
      */
     private function editProductManagers(array $post, $product_id)
     {
-        $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
-            array($product_id));
         // добавляем доступ к товару пользователям
         if (isset($post['users'])) {
+            $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
+                array($product_id));
             foreach ($post['users'] as $user) {
                 if ($user > 0) {
                     $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager}
@@ -2460,19 +2471,75 @@ class products extends Controller
     public function actionForm()
     {
         return array(
-          'state' => true,
-            'content' => $this->view->renderFile('products/action_form'),
+            'state' => true,
+            'content' => $this->view->renderFile('products/action_form', array(
+
+            )),
             'title' => l('Действия')
         );
     }
 
     /**
      * @param $get
+     * @param $post
      * @return array
      */
-    public function applyAction($get)
+    public function applyAction($get, $post)
     {
+        $goods_ids = $this->get_goods_ids($get);
+        if (!empty($goods_ids)) {
+            $update = array();
+            if (isset($post['delete'])) {
+                $this->deleteAll($get, $this->all_configs['configs']['products-manage-page']);
+            }
+            // добавляем товар в старые/новые категории
+            if (isset($post['categories']) && is_array($post['categories'])) {
+                $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                    array($post['categories']));
+                foreach ($goods_ids as $product_id) {
+                    $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+                        array($product_id, $query));
+                    foreach ($post['categories'] as $new_cat) {
+                        if ($new_cat != 0) {
+                            $this->CategoryGoods->insert(array(
+                                'category_id' => $new_cat,
+                                'goods_id' => $product_id
+                            ));
+                        }
+                    }
+                }
+            }
+            if (isset($post['active'])) {
+                $update['active'] = 1;
+            }
+            if (isset($post['is_service'])) {
+                $update['type'] = GOODS_TYPE_SERVICE;
+            }
+            if (isset($post['price_purchase']) && !empty($post['price_purchase'])) {
+                $update['price_purchase'] = $post['price_purchase'];
+            }
+            if (isset($post['price_wholesale']) && !empty($post['price_wholesale'])) {
+                $update['price_wholesale'] = $post['price_wholesale'];
+            }
+            if (isset($post['manager']) && !empty($post['manager'])) {
+                $update['manager'] = $post['manager'];
+            }
+            if (isset($post['use_minimum_balance']) && strcmp($post['use_minimum_balance'], 'on') === 0) {
+                $update['use_minimum_balance'] = 1;
+                $update['minimum_balance'] = intval($post['minimum_balance']);
+            }
+            if (isset($post['use_automargin']) && strcmp($post['use_automargin'], 'on') === 0) {
+                $update['use_automargin'] = 1;
+                $update['automargin_type'] = intval($post['automargin_type']);
+                $update['automargin'] = intval($post['automargin']) * 100;
+                $update['wholesale_automargin_type'] = intval($post['wholesale_automargin_type']);
+                $update['wholesale_automargin'] = intval($post['wholesale_automargin']);
+            }
 
+            $this->Goods->update($update, array(
+                'id' => $goods_ids
+            ));
+        }
         return array(
             'state' => true,
             'reload' => true
@@ -2587,5 +2654,103 @@ class products extends Controller
                 }
             }
         }
+    }
+
+    /**
+     * @param array $post
+     * @return string
+     */
+    public function setFilters(array $post)
+    {
+        $url = array();
+
+        // в наличии
+        if (isset($post['avail']) && is_array($post['avail'])) {
+            $url['avail'] = implode('-', $post['avail']);
+        }
+        // Отобразить
+        if (isset($post['show']) && is_array($post['show'])) {
+            $url['show'] = implode('-', $post['show']);
+        }
+        // По складам
+        if (isset($post['warehouses']) && is_array($post['warehouses'])) {
+            $url['wh'] = implode('-', $post['warehouses']);
+        }
+        // По категориям
+        if (isset($post['categories']) && is_array($post['categories'])) {
+            $url['cats'] = implode('-', $post['categories']);
+        }
+
+        return $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    public function addToCart($post)
+    {
+        if(!$this->Goods->exists($post['id'])) {
+           return array(
+               'state' => false,
+               'message' => l('Товар не найден')
+           );
+        }
+        $cart = Session::getInstance()->get('cart');
+        if(empty($cart)) {
+            $cart[$post['id']] = 0;
+        }
+        $cart[$post['id']] += 1;
+        Session::getInstance()->set('cart', $cart);
+        return array(
+            'state' => true,
+            'quantity' => array_reduce($cart, function($carry, $value) {
+                return $carry + $value;
+            })
+        );
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    public function removeFromCart($post)
+    {
+        $cart = Session::getInstance()->get('cart');
+        if(!empty($cart) && key_exists($post['id'], $cart)) {
+            unset($cart[$post]);
+        }
+        Session::getInstance()->set('cart', $cart);
+        return array(
+            'state' => true,
+            'quantity' => array_reduce($cart, function($carry, $value) {
+                return $carry + $value;
+            })
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getCart()
+    {
+        $cart = Session::getInstance()->get('cart');
+        $goods = array();
+        if(!empty($cart)) {
+            $goods = $this->Goods->query('SELECT * FROM {goods} WHERE id in (?li)', array(array_keys($cart)))->assoc('id');
+        }
+        return $this->view->renderFile('products/cart', array(
+            'cart' => $cart,
+            'goods' => $goods
+        ));
+    }
+
+    public function createSaleOrder($cart)
+    {
+
+    }
+
+    public function createOrderToSupplier($cart) {
+
     }
 }

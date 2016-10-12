@@ -50,7 +50,7 @@
         <td>ожидаемые поставки</td>
     <?php endif; ?>
     <?php if (isset($columns['cart'])): ?>
-        <td><a href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a></td>
+        <td><a href="#" onclick="return add_to_cart(<?= $columns['id'] ?>);"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a></td>
     <?php endif; ?>
     <?php if (isset($columns['mbalance'])): ?>
         <th><?= l('Неснижаемый остаток') ?></th>
