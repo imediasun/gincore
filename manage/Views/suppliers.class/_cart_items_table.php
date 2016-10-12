@@ -11,7 +11,7 @@
                     <input type="text" class="form-control js-supplier-price"
                            onkeyup="recalculate_amount_supplier();" value="" name=""/>
                 </td>
-                <td class="col-sm-1">
+                <td class="col-sm-2">
                     <input type="text" class="form-control js-supplier-quantity"
                            onkeyup="recalculate_amount_supplier();" value=""/>
                 </td>
@@ -28,7 +28,7 @@
                         <i class="glyphicon glyphicon-remove"></i>
                     </a>
                 </td>
-                <td class="col-sm-3"></td>
+                <td class="col-sm-2"></td>
             </tr>
 
             <?php $total = 0 ?>
@@ -49,7 +49,7 @@
                                    onkeyup="recalculate_amount_supplier();" <?= $readonly ?> value="<?= round($order['price'], 2) ?>"
                                    name="amount[<?= $id ?>]"/>
                         </td>
-                        <td class="col-sm-1">
+                        <td class="col-sm-2">
                             <input type="text" class="form-control js-supplier-quantity" name="quantity[<?= $id ?>]"
                                    onkeyup="recalculate_amount_supplier();" <?= $readonly ?> value="<?= $order['count'] ?>"/>
                         </td>
@@ -91,7 +91,7 @@
                             <?php endif; ?>
                         </td>
 
-                        <td class="col-sm-2"></td>
+                        <td class="col-sm-1"></td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
