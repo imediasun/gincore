@@ -243,22 +243,25 @@ class users extends Controller
             $field = $_GET['field'];
             $query = $_GET['query'];
 
-            try{
-                if (!in_array($field, $available_fields))
+            try {
+                if (!in_array($field, $available_fields)) {
                     throw new Exception(l('Неверный параметр поиска'));
+                }
 
                 $methodName = 'isExistBy'.ucfirst($field);
                 $user = $this->Users->{$methodName}($query);
                 
                 if ($user) {
                     $result['exists'] = true;
-                    if ($field == 'login')
+                    if ($field == 'login') {
                         $result['message'] = l('Логин уже существует');
-                    elseif ($field == 'email')
+                    } elseif ($field == 'email') {
                         $result['message'] = l('Email уже существует');
-                }
-                else
+                    }
+                } else {
                     $result['exists'] = false;
+                }
+
                 $result['state'] = true;
             } catch (Exception $e){
                 $result['message'] = $e->getMessage();
