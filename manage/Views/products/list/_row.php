@@ -40,7 +40,8 @@
     <?php if (isset($columns['fbalance'])): ?>
         <td>
             <?= intval($good['qty_store']); ?>
-            <a href="#" onclick="return detail(<?= $good['id']?>, 'balance');"><i class="fa fa-long-arrow-up" aria-hidden="true"></i></a>
+            <a href="#" onclick="return detail(<?= $good['id'] ?>, 'balance');"><i class="fa fa-long-arrow-up"
+                                                                                   aria-hidden="true"></i></a>
         </td>
     <?php endif; ?>
     <?php if (isset($columns['sbalance'])): ?>
@@ -50,19 +51,27 @@
         <td>ожидаемые поставки</td>
     <?php endif; ?>
     <?php if (isset($columns['cart'])): ?>
-        <td><a href="#" onclick="return add_to_cart(<?= $columns['id'] ?>);"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a></td>
+        <td>
+            <?php if ($good['type'] == GOODS_TYPE_ITEM): ?>
+                <a href="#" onclick="return add_to_cart(<?= $good['id'] ?>);">
+                    <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                </a>
+            <?php endif; ?>
+        </td>
     <?php endif; ?>
     <?php if (isset($columns['mbalance'])): ?>
-        <th><?= l('Неснижаемый остаток') ?></th>
+        <td><?= l('Неснижаемый остаток') ?></td>
     <?php endif; ?>
     <?php if (isset($columns['type'])): ?>
-        <th><?= l('Товар/услуга') ?></th>
+        <td>
+            <?= $good['type'] == GOODS_TYPE_ITEM ? l('Т') : l('У') ?>
+        </td>
     <?php endif; ?>
     <?php if (isset($columns['manager'])): ?>
-        <th><?= l('Менеджер') ?></th>
+        <td><?= h($good['manager']) ?></td>
     <?php endif; ?>
     <?php if (isset($columns['date'])): ?>
-        <th><?= l('Дата') ?></th>
+        <td><?= h($good['date_add']) ?></td>
     <?php endif; ?>
     <?php if (isset($columns['del'])): ?>
         <td>

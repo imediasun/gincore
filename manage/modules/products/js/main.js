@@ -501,26 +501,3 @@ function show_action_form(_this, action, filters) {
   });
   return false;
 }
-
-function add_to_cart(id) {
-  $.ajax({
-    url: prefix + 'products/ajax?act=add-to-cart&id=' + id,
-    dataType: "json",
-    type: 'POST',
-    success: function (data) {
-      if (data) {
-        if (data['state'] == true) {
-          $('#cart-quantity').html(data['quantity']);
-        }
-        if (data['state'] == false && data['message']) {
-          alert(data['message']);
-        }
-      }
-    },
-    error: function (xhr, ajaxOptions, thrownError) {
-      alert(xhr.responseText);
-    }
-  });
-  return false;
-
-}

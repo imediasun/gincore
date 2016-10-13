@@ -1,13 +1,10 @@
 <div class="col-sm-12 well">
     <form method="POST">
-        <table class="table table-borderless" style="">
+        <table class="table table-borderless" style="margin-bottom: 0">
             <tbody>
             <tr>
                 <td>
-                    <?= l('Наличие') ?>
-                </td>
-                <td>
-                    <select name="avail[]" class="form-control multiselect" multiple="multiple">
+                    <select name="avail[]" class="form-control multiselect" multiple="multiple" data-placeholder="<?= l('Наличие') ?>">
                         <option value="free" <?= in_array('free', $current_avail)? 'selected': '' ?>>
                             <?= l('Есть в свободном остатке') ?>
                         </option>
@@ -20,10 +17,7 @@
                     </select>
                 </td>
                 <td>
-                    <?= l('Отобразить') ?>
-                </td>
-                <td>
-                    <select name="show[]" class="form-control multiselect" multiple="multiple">
+                    <select name="show[]" class="form-control multiselect" multiple="multiple"  data-placeholder="<?= l('Отобразить') ?>">
                         <option value="my" <?= in_array('my', $current_show)? 'selected': '' ?>>
                             <?= l('Мои товары') ?>
                         </option>
@@ -39,10 +33,7 @@
                     </select>
                 </td>
                 <td>
-                    <?= l('Категории') ?>
-                </td>
-                <td>
-                    <select name="categories[]" class="form-control multiselect" multiple="multiple">
+                    <select name="categories[]" class="form-control multiselect" multiple="multiple"  data-placeholder="<?= l('Категории') ?>">
                         <?php if ($categories): ?>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?= $category['id'] ?>"  <?= in_array($category['id'], $current_categories)? 'selected': '' ?>>
@@ -53,10 +44,7 @@
                     </select>
                 </td>
                 <td>
-                    <?= l('По складам') ?>
-                </td>
-                <td>
-                    <select name="warehouses[]" class="form-control multiselect" multiple="multiple">
+                    <select name="warehouses[]" class="form-control multiselect" multiple="multiple"  data-placeholder="<?= l('По складам') ?>">
                         <?php if ($warehouses): ?>
                             <?php foreach ($warehouses as $wh_id => $wh_title): ?>
                                 <option value="<?= $wh_id ?>" <?= in_array($wh_id, $current_warehouses)? 'selected': '' ?>>

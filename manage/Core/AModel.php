@@ -321,6 +321,6 @@ abstract class AModel extends Object
      */
     public function exists($id)
     {
-        return (bool) $this->query('SELECT count(*) FROM ?t WHERE id=?i', array($this->table, $id))->el();
+        return (bool) $this->query('SELECT count(*) FROM ?t WHERE ?q=?i', array($this->table, $this->pk(), $id))->el();
     }
 }

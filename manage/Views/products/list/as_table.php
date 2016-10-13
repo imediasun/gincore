@@ -90,7 +90,7 @@
             <th><?= l('Ожидаемые поставки') ?></th>
         <?php endif; ?>
         <?php if (isset($columns['cart'])): ?>
-            <th><a href="#" class="btn btn-primary" onclick="return false;"><?= l('Корзина') ?><span id="cart-quantity">0</span> <?= l('шт.') ?></a></th>
+            <th><a href="#" class="btn btn-default" title="<?= l('Корзина') ?>" onclick="return show_cart();"><i class="fa fa-shopping-cart" aria-hidden="true"></i>&nbsp;<span id="cart-quantity"><?= $item_in_cart ?></span> <?= l('шт.') ?></a></th>
         <?php endif; ?>
         <?php if (isset($columns['mbalance'])): ?>
             <th><?= l('Неснижаемый остаток') ?></th>

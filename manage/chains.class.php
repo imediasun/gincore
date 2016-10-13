@@ -3537,7 +3537,7 @@ class Chains extends Object
     {
         $cart = array();
 
-        if (!emptY($post['item_ids'])) {
+        if (!empty($post['item_ids'])) {
             foreach ($post['item_ids'] as $key => $item_id) {
                 if (empty($cart[$item_id])) {
                     $cart[$item_id] = array(

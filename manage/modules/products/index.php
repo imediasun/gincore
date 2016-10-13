@@ -625,8 +625,11 @@ class products extends Controller
         if (count($goods_ids) > 0) {
             $add_fields = array();
             $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url, g.deleted, g.vendor_code,
-                    g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q
-                  FROM {goods} AS g WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
+                    g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q, u.fio as manager, g.type
+                  FROM {goods} AS g 
+                  JOIN {users_goods_manager} as ugm ON ugm.goods_id=g.id
+                  JOIN {users} as u ON ugm.user_id=u.id
+                  WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
 
             // картинки
@@ -819,7 +822,8 @@ class products extends Controller
             'serials' => $serials,
             'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods'),
             'filters' => $this->filters($_GET),
-            'columns' => $columns
+            'columns' => $columns,
+            'item_in_cart' => $this->getItemInCart()
         ));
 
         return $goods_html;
@@ -878,10 +882,6 @@ class products extends Controller
         if ($act == 'apply-action') {
             Response::json($this->applyAction($_GET, $_POST));
         }
-        if ($act == 'add-to-cart') {
-            Response::json($this->addToCart($_POST));
-        }
-
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
@@ -2472,9 +2472,7 @@ class products extends Controller
     {
         return array(
             'state' => true,
-            'content' => $this->view->renderFile('products/action_form', array(
-
-            )),
+            'content' => $this->view->renderFile('products/action_form', array()),
             'title' => l('Действия')
         );
     }
@@ -2685,72 +2683,13 @@ class products extends Controller
     }
 
     /**
-     * @param $post
-     * @return array
+     * @return mixed
      */
-    public function addToCart($post)
-    {
-        if(!$this->Goods->exists($post['id'])) {
-           return array(
-               'state' => false,
-               'message' => l('Товар не найден')
-           );
-        }
-        $cart = Session::getInstance()->get('cart');
-        if(empty($cart)) {
-            $cart[$post['id']] = 0;
-        }
-        $cart[$post['id']] += 1;
-        Session::getInstance()->set('cart', $cart);
-        return array(
-            'state' => true,
-            'quantity' => array_reduce($cart, function($carry, $value) {
-                return $carry + $value;
-            })
-        );
-    }
-
-    /**
-     * @param $post
-     * @return array
-     */
-    public function removeFromCart($post)
+    public function getItemInCart()
     {
         $cart = Session::getInstance()->get('cart');
-        if(!empty($cart) && key_exists($post['id'], $cart)) {
-            unset($cart[$post]);
-        }
-        Session::getInstance()->set('cart', $cart);
-        return array(
-            'state' => true,
-            'quantity' => array_reduce($cart, function($carry, $value) {
-                return $carry + $value;
-            })
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getCart()
-    {
-        $cart = Session::getInstance()->get('cart');
-        $goods = array();
-        if(!empty($cart)) {
-            $goods = $this->Goods->query('SELECT * FROM {goods} WHERE id in (?li)', array(array_keys($cart)))->assoc('id');
-        }
-        return $this->view->renderFile('products/cart', array(
-            'cart' => $cart,
-            'goods' => $goods
-        ));
-    }
-
-    public function createSaleOrder($cart)
-    {
-
-    }
-
-    public function createOrderToSupplier($cart) {
-
+        return empty($cart) ? 0 : array_reduce($cart, function ($carry, $value) {
+            return $carry + $value;
+        });
     }
 }

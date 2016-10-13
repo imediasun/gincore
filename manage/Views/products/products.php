@@ -35,7 +35,8 @@
                     'goods' => $goods,
                     'quick_edit_title' => $quick_edit_title,
                     'isEditable' => $isEditable,
-                    'columns' => $columns
+                    'columns' => $columns,
+                    'item_in_cart' => $item_in_cart
                 )) ?>
                 <?= page_block($count_page, $count_goods, '', null,
                     $this->renderFile('products/_delete_all_button')); ?>

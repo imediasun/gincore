@@ -38,7 +38,6 @@ class orders extends Controller
         parent::__construct($all_configs);
 
         require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
-        require_once($this->all_configs['sitepath'] . 'shop/cart.class.php');
         require_once($this->all_configs['sitepath'] . 'mail.php');
 
         if (!$gen_module) {
