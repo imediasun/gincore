@@ -104,7 +104,7 @@ class import_gincore_items extends abstract_import_handler
                     } else {
                         $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
                     }
-                } else {
+                } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
                 }
             }
@@ -118,9 +118,9 @@ class import_gincore_items extends abstract_import_handler
 
             if (isset($data['balance'])) {
 
-                if (empty($data['balance']))
+                if (empty($data['balance'])) {
                     $by_balance = 0;
-                else {
+                } else {
                     $by_balance = 1;
                     $balance = $data['balance'];
                 }
