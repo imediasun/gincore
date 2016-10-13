@@ -32,7 +32,7 @@ $(document).ready(function () {
 //    $('.animate-panel').animatePanel();
 
     // Function for collapse hpanel
-    $('.showhide').click(function (event) {
+    $('.showhide').live('click', function (event) {
         event.preventDefault();
         var hpanel = $(this).closest('div.hpanel');
         var icon = $(this).find('i:first');

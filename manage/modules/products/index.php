@@ -959,6 +959,8 @@ class products extends Controller
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
+
+
         if ($act == 'create_form') {
             $form = $this->create_product_form(true, isset($_GET['service']) ? true : false);
             Response::json(array(
@@ -1000,6 +1002,11 @@ class products extends Controller
                 }
                 Response::json($result);
             }
+        }
+
+        // загружаем сайдбар
+        if ($act == 'sidebar-load') {
+            Response::json($this->loadSideBar());
         }
 
         // управление заказами поставщика
@@ -1444,6 +1451,77 @@ class products extends Controller
 
         $this->History->save('export-order', $mod_id, $product['id']);
     }
+    
+    public function loadSideBar()
+    {
+        $goods_html = '';
+
+        if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
+
+            $id_product = (int)$this->all_configs['arrequest'][2];
+
+            $product = $this->all_configs['db']->query('SELECT g.*, g.fixed_payment/100 as fixed_payment 
+                FROM {goods} as g WHERE g.id=?i',
+                array($id_product))->row();
+
+            $author = $this->all_configs['db']->query('SELECT login FROM {users} as u, {goods} as g
+                WHERE u.id=g.author AND g.id=?i ',
+                array($id_product))->el();
+
+            $managers = $this->get_managers($id_product);
+            $histories = $this->History->getProductsManagersChanges($id_product);
+            $warehouses_counts = $this->all_configs['db']->query('SELECT w.title, i.wh_id, COUNT(DISTINCT i.id) as qty_wh,
+                      SUM(IF (w.consider_store=1 AND i.order_id IS NULL, 1, 0)) - COUNT(DISTINCT l.id) as qty_store
+                    FROM {warehouses_goods_items} as i
+                    LEFT JOIN {warehouses} as w ON w.id=i.wh_id
+                    LEFT JOIN {orders_suppliers_clients} AS l ON i.supplier_order_id = l.supplier_order_id
+                      AND l.order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL)
+                    WHERE i.goods_id=?i AND w.consider_all=1 GROUP BY i.wh_id',
+                array($id_product))->assoc();
+
+
+
+
+
+
+            $goods_html = $this->view->renderFile('products/sidebar/goods', array_merge (
+                    array (
+                        'product' => $product,
+                        'author' => $author,
+                        'managers' => $managers,
+                        'histories' => $histories,
+                        'warehouses_counts' => $warehouses_counts,
+                    ),
+                    $this->getSupplierOrdersTplVars($id_product)
+                )
+            );
+
+        }
+
+        return array(
+            'hasError' => !empty($this->errors),
+            'errors' => $this->errors,
+            'html' => $goods_html,
+        );
+    }
+
+    protected function getSupplierOrdersTplVars($id_product){
+
+        $goods_suppliers = $this->all_configs['db']->query('SELECT link FROM {goods_suppliers} WHERE goods_id=?i',
+            array($id_product))->assoc();
+        $queries = $this->all_configs['manageModel']->suppliers_orders_query(array('by_gid' => $id_product));
+        $query = $queries['query'];
+        $skip = $queries['skip'];
+        $count_on_page = $queries['count_on_page'];
+        $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
+
+        return array(
+            'goods_suppliers' => $goods_suppliers,
+            'count' => $this->all_configs['db']->query('SELECT count(id) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
+                array($id_product))->el(),
+            'orders' => $orders
+        );
+    }
 
     /**
      * @return array
@@ -1457,6 +1535,7 @@ class products extends Controller
             $product = $this->all_configs['db']->query('SELECT g.* 
                 FROM {goods} as g WHERE g.id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
+            
 
             $goods_html = $this->view->renderFile('products/products_main', array(
                 'product' => $product,

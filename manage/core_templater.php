@@ -89,6 +89,8 @@ $input_html['timer'] = timerout(0);
 
 $view = new View($all_configs);
 
+$input_html['right_sidebar'] = $view->renderFile('right_sidebar/sidebar');
+
 // селектим не закрытые напоминания для юзера
 $alarms = $all_configs['db']->query('SELECT ac.id, ac.text, ac.order_id, if(not u.fio = NULL, u.fio, u.login) as user, CHAR_LENGTH(ac.text) as len FROM {alarm_clock} ac'
     . ' JOIN {users} u ON u.id=ac.user_id'
@@ -100,6 +102,7 @@ $input_html['timer_alerts'] = $view->renderFile('messages/alarms', array(
 ));
 
 $input_html['mainmenu'] = $mainmenu;
+
 if (isset($infoblock)) {
     $input_html['infoblock'] = $infoblock->genblock();
 }

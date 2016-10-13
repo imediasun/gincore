@@ -105,8 +105,51 @@ function add_alarm(_this) {
 }
 
 
+
+var rightSidebar = {
+    init: function () {
+        $('#right-sidebar .js_close_sidebar').live('click', function () {
+            rightSidebar.clean_html();
+            rightSidebar.hide();
+        })
+    },
+    show : function () {
+        $('#right-sidebar').addClass('sidebar-open');
+    },
+    hide : function () {
+        $('#right-sidebar').removeClass('sidebar-open');
+    },
+    html : function (content) {
+        $('#right-sidebar-content').html(content);
+    },
+    clean_html : function (content) {
+        $('#right-sidebar-content').html('');
+    }
+
+};
+
+function sidebar_load_product(id_product) {
+    $.ajax({
+        url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
+        type: 'GET',
+        dataType: 'json',
+        success: function (result) {
+            if (result.hasError) {
+
+            } else {
+                rightSidebar.html(result.html);
+                rightSidebar.show();
+            }
+        }
+    });
+
+    return true;
+}
+
+
 $(document).ready(function () {
 
+    rightSidebar.init();
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();
@@ -975,7 +1018,7 @@ function check_mess(last_time_query) {
         var item;
 
         if (msg) {
-          
+
           if (typeof msg['alarms'] != 'undefined') {
             startcountdown(msg['alarms'] ? msg['alarms'] : null);
           }
@@ -990,7 +1033,7 @@ function check_mess(last_time_query) {
             }
           }
 
-          
+
           if (typeof msg['error'] != 'undefined') {
             alert(msg['message']);
             if (typeof msg['reload'] != 'undefined') {
