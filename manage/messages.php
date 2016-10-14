@@ -385,7 +385,7 @@ function show_alarms($all_configs, $user_id, $old = false)
     $alarms = $all_configs['db']->query('
         SELECT a.*, 
         u.fio, u.phone, u.login, u.email,
-        fu.fio as fu_fio, fu.phone as fu_phone, fu.login as fu_login, fu.email as fu_email
+        fu.fio as fu_fio, fu.phone as fu_phone, fu.login as fu_login, fu.email as fu_email, a.date_alarm as date
         FROM {alarm_clock} as a
         LEFT JOIN {users} as u ON u.id=a.user_id 
         LEFT JOIN {users} as fu ON fu.id=a.for_user_id 
