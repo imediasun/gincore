@@ -93,192 +93,7 @@ class orders extends Controller
         // фильтруем заказы клиентов
         if (isset($post['filter-orders'])) {
 
-            $url = array();
-
-            // фильтр по дате
-            if (isset($post['date']) && !empty($post['date'])) {
-                list($df, $dt) = explode('-', $post['date']);
-                $url['df'] = urlencode(trim($df));
-                $url['dt'] = urlencode(trim($dt));
-            }
-
-            if (isset($post['categories']) && $post['categories'] > 0) {
-                // фильтр по категориям товаров
-                $url['g_cg'] = intval($post['categories']);
-            }
-
-            if (isset($post['other']) && in_array('np', $post['other'])) {
-                // фильтр принято через нп
-                $url['np'] = 1;
-            }
-
-            if (isset($post['other']) && !empty($post['other'])) {
-                $url['other'] = implode(',', $post['other']);
-            }
-
-            if (isset($post['wh-kiev'])) {
-                // фильтр киев
-                $url['whk'] = 1;
-            }
-
-            if (isset($post['wh-abroad'])) {
-                // фильтр заграница
-                $url['wha'] = 1;
-            }
-
-            if (isset($post['noavail'])) {
-                // фильтр не активные
-                $url['avail'] = 0;
-            }
-
-            if (isset($post['rf'])) {
-                // фильтр выдан подменный фонд
-                $url['rf'] = 1;
-            }
-
-            if (isset($post['nm'])) {
-                // не оплаченные
-                $url['nm'] = 1;
-            }
-
-            if (isset($post['ar'])) {
-                // принимались на доработку
-                $url['ar'] = 1;
-            }
-
-            if (isset($post['order_id']) && !empty($post['order_id'])) {
-                // фильтр по id
-                if (preg_match('/^[zZ]-/', trim($post['order_id'])) === 1) {
-                    $orderId = preg_replace('/^[zZ]-/', '', trim($post['order_id']));
-                } else {
-                    $orderId = trim($post['order_id']);
-                }
-                $url['co_id'] = intval($orderId);
-            }
-
-            if (isset($post['categories-last']) && $post['categories-last'] > 0) {
-                // фильтр по категориям (устройство)
-                $url['dev'] = intval($post['categories-last']);
-            }
-
-            if (isset($post['so-status']) && $post['so-status'] > 0) {
-                // фильтр по статусу
-                $url['sst'] = intval($post['so-status']);
-            }
-
-            if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
-                // фильтр по товару
-                $url['by_gid'] = intval($post['goods-goods']);
-            }
-
-            if (isset($post['warehouse']) && !empty($post['warehouse'])) {
-                // фильтр по инженерам
-                $url['wh'] = implode(',', $post['warehouse']);
-            }
-
-            if (isset($post['engineers']) && !empty($post['engineers'])) {
-                // фильтр по инженерам
-                $url['eng'] = implode(',', $post['engineers']);
-            }
-
-            if (isset($post['managers']) && !empty($post['managers'])) {
-                // фильтр по менеджерам
-                $url['mg'] = implode(',', $post['managers']);
-            }
-
-            if (isset($post['accepter']) && !empty($post['accepter'])) {
-                // фильтр по приемщикам
-                $url['acp'] = implode(',', $post['accepter']);
-            }
-
-            if (isset($post['wh_groups']) && !empty($post['wh_groups'])) {
-                // фильтр по поставщикам
-                $url['wg'] = implode(',', $post['wh_groups']);
-            }
-
-            if (isset($post['suppliers']) && !empty($post['suppliers'])) {
-                // фильтр по поставщикам
-                $url['sp'] = implode(',', $post['suppliers']);
-            }
-
-            if (isset($post['status']) && !empty($post['status'])) {
-                // фильтр по статусу
-                $url['st'] = implode(',', $post['status']);
-            }
-            if (isset($post['repair']) && !empty($post['repair'])) {
-                // фильтр по статусу
-                $repair = array();
-                if (in_array('pay', $post['repair'])) {
-                    $repair[] = 0;
-                    array_shift($post['repair']);
-                }
-                if (in_array('wa', $post['repair'])) {
-                    $repair[] = 1;
-                    array_shift($post['repair']);
-                }
-                if (!empty($repair)) {
-                    $url['rep'] = implode(',', $repair);
-                }
-                if (!empty($post['repair'])) {
-                    $url['brands'] = implode(',', $post['repair']);
-                }
-            }
-            if (isset($post['person']) && !empty($post['person'])) {
-                // фильтр по статусу
-                $url['person'] = implode(',', $post['person']);
-            }
-
-            if (isset($post['client']) && !empty($post['client'])) {
-                // фильтр клиенту/заказу
-                $url['cl'] = trim($post['client']);
-            }
-
-            if (isset($post['client-order']) && !empty($post['client-order'])) {
-                // фильтр клиенту/заказу
-                if (preg_match('/^[zZ]-/', trim($post['client-order'])) === 1) {
-                    $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order']));
-                } else {
-                    $orderId = trim($post['client-order']);
-                }
-                $url['co'] = urlencode(intval($orderId));
-            }
-
-            if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
-                // фильтр по заказу частичный
-                $url['pso_id'] = $post['supplier_order_id_part'];
-            }
-
-            if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
-                // фильтр по заказу
-                $url['so_id'] = $post['supplier_order_id'];
-            }
-
-            if (isset($post['my']) && !empty($post['my'])) {
-                // фильтр по
-                $url['my'] = 1;
-            }
-
-            if (isset($post['serial']) && !empty($post['serial'])) {
-                // фильтр серийнику
-                $url['serial'] = trim($post['serial']);
-            }
-            if (isset($post['lock-button'])) {
-                $url['lock-button'] = trim($post['lock-button']);
-            }
-            if (isset($post['sale-order'])) {
-                if (isset($post['cashless']) && !empty($post['cashless'])) {
-                    //только безнал
-                    $url['cashless'] = 1;
-                }
-                if (isset($post['selfdelivery']) && !empty($post['selfdelivery'])) {
-                    // самовывоз
-                    $url['selfdelivery'] = 1;
-                }
-                if (isset($post['courier']) && !empty($post['courier'])) {
-                    // доставка курьером
-                    $url['courier'] = 1;
-                }
-            }
+            $url = $this->filterOrders($post);
 
             switch (true) {
                 case isset($post['sale-order']):
@@ -445,6 +260,7 @@ class orders extends Controller
             }
         }
 
+        $categories = $this->getParentCategories();
         $this->view->load('LockButton');
         return $this->view->renderFile('orders/sale_orders_filters', array(
             'accepters' => $accepters,
@@ -455,8 +271,31 @@ class orders extends Controller
             'count_unworked' => $count_unworked,
             'date' => $date,
             'link' => $link,
-            'wfs' => isset($wfs) ? $wfs : array()
+            'wfs' => isset($wfs) ? $wfs : array(),
+            'categories' => $categories
+
         ));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParentCategories()
+    {
+        $query = $this->all_configs['db']->makeQuery('NOT cg.url in (?l)', array(
+            array(
+                'recycle-bin',
+                'prodazha',
+                'spisanie',
+                'vozvrat-postavschiku',
+            )
+        ));
+        return $this->all_configs['db']->query('
+            SELECT cg.* 
+            FROM {categories} as cg
+            LEFT JOIN (SELECT DISTINCT parent_id FROM {categories}) AS sub ON cg.id = sub.parent_id
+            WHERE cg.deleted=0 AND cg.avail=1 AND NOT (sub.parent_id IS NULL OR sub.parent_id = 0) AND ?query 
+            ', array($query))->assoc();
     }
 
     /**
@@ -510,11 +349,12 @@ class orders extends Controller
                 }
             }
         }
-
+        $categories = $this->getParentCategories();
         $this->view->load('LockButton');
         return $this->view->renderFile('orders/repair_orders_filters', array(
             'accepters' => $accepters,
             'engineers' => $engineers,
+            'categories' => $categories,
             'filter_manager' => $this->show_filter_manager_as_row(),
             'count' => $count,
             'count_marked' => $count_marked,
@@ -3794,5 +3634,203 @@ class orders extends Controller
             }
         }
         return $order;
+    }
+
+    /**
+     * @param array $post
+     * @return array
+     */
+    private function filterOrders(array $post)
+    {
+        $url = array();
+
+        // фильтр по дате
+        if (isset($post['date']) && !empty($post['date'])) {
+            list($df, $dt) = explode('-', $post['date']);
+            $url['df'] = urlencode(trim($df));
+            $url['dt'] = urlencode(trim($dt));
+        }
+
+        if (isset($post['categories']) && $post['categories'] > 0) {
+            // фильтр по категориям товаров
+            $url['g_cg'] = intval($post['categories']);
+        }
+
+        if (isset($post['other']) && in_array('np', $post['other'])) {
+            // фильтр принято через нп
+            $url['np'] = 1;
+        }
+
+        if (isset($post['other']) && !empty($post['other'])) {
+            $url['other'] = implode(',', $post['other']);
+        }
+
+        if (isset($post['wh-kiev'])) {
+            // фильтр киев
+            $url['whk'] = 1;
+        }
+
+        if (isset($post['wh-abroad'])) {
+            // фильтр заграница
+            $url['wha'] = 1;
+        }
+
+        if (isset($post['noavail'])) {
+            // фильтр не активные
+            $url['avail'] = 0;
+        }
+
+        if (isset($post['rf'])) {
+            // фильтр выдан подменный фонд
+            $url['rf'] = 1;
+        }
+
+        if (isset($post['nm'])) {
+            // не оплаченные
+            $url['nm'] = 1;
+        }
+
+        if (isset($post['ar'])) {
+            // принимались на доработку
+            $url['ar'] = 1;
+        }
+
+        if (isset($post['order_id']) && !empty($post['order_id'])) {
+            // фильтр по id
+            if (preg_match('/^[zZ]-/', trim($post['order_id'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($post['order_id']));
+            } else {
+                $orderId = trim($post['order_id']);
+            }
+            $url['co_id'] = intval($orderId);
+        }
+
+        if (isset($post['categories-last']) && $post['categories-last'] > 0) {
+            // фильтр по категориям (устройство)
+            $url['dev'] = intval($post['categories-last']);
+        }
+
+        if (isset($post['so-status']) && $post['so-status'] > 0) {
+            // фильтр по статусу
+            $url['sst'] = intval($post['so-status']);
+        }
+
+        if (isset($post['goods-goods']) && $post['goods-goods'] > 0) {
+            // фильтр по товару
+            $url['by_gid'] = intval($post['goods-goods']);
+        }
+
+        if (isset($post['warehouse']) && !empty($post['warehouse'])) {
+            // фильтр по инженерам
+            $url['wh'] = implode(',', $post['warehouse']);
+        }
+
+        if (isset($post['engineers']) && !empty($post['engineers'])) {
+            // фильтр по инженерам
+            $url['eng'] = implode(',', $post['engineers']);
+        }
+
+        if (isset($post['managers']) && !empty($post['managers'])) {
+            // фильтр по менеджерам
+            $url['mg'] = implode(',', $post['managers']);
+        }
+
+        if (isset($post['accepter']) && !empty($post['accepter'])) {
+            // фильтр по приемщикам
+            $url['acp'] = implode(',', $post['accepter']);
+        }
+
+        if (isset($post['wh_groups']) && !empty($post['wh_groups'])) {
+            // фильтр по поставщикам
+            $url['wg'] = implode(',', $post['wh_groups']);
+        }
+
+        if (isset($post['suppliers']) && !empty($post['suppliers'])) {
+            // фильтр по поставщикам
+            $url['sp'] = implode(',', $post['suppliers']);
+        }
+
+        if (isset($post['status']) && !empty($post['status'])) {
+            // фильтр по статусу
+            $url['st'] = implode(',', $post['status']);
+        }
+        if (isset($post['repair']) && !empty($post['repair'])) {
+            // фильтр по статусу
+            $repair = array();
+            if (in_array('pay', $post['repair'])) {
+                $repair[] = 0;
+                array_shift($post['repair']);
+            }
+            if (in_array('wa', $post['repair'])) {
+                $repair[] = 1;
+                array_shift($post['repair']);
+            }
+            if (!empty($repair)) {
+                $url['rep'] = implode(',', $repair);
+            }
+            if (!empty($post['repair'])) {
+                $url['brands'] = implode(',', $post['repair']);
+            }
+        }
+        if (isset($post['person']) && !empty($post['person'])) {
+            // фильтр по статусу
+            $url['person'] = implode(',', $post['person']);
+        }
+
+        if (isset($post['client']) && !empty($post['client'])) {
+            // фильтр клиенту/заказу
+            $url['cl'] = trim($post['client']);
+        }
+
+        if (isset($post['client-order']) && !empty($post['client-order'])) {
+            // фильтр клиенту/заказу
+            if (preg_match('/^[zZ]-/', trim($post['client-order'])) === 1) {
+                $orderId = preg_replace('/^[zZ]-/', '', trim($post['client-order']));
+            } else {
+                $orderId = trim($post['client-order']);
+            }
+            $url['co'] = urlencode(intval($orderId));
+        }
+
+        if (isset($post['supplier_order_id_part']) && $post['supplier_order_id_part'] > 0) {
+            // фильтр по заказу частичный
+            $url['pso_id'] = $post['supplier_order_id_part'];
+        }
+
+        if (isset($post['supplier_order_id']) && $post['supplier_order_id'] > 0) {
+            // фильтр по заказу
+            $url['so_id'] = $post['supplier_order_id'];
+        }
+
+        if (isset($post['my']) && !empty($post['my'])) {
+            // фильтр по
+            $url['my'] = 1;
+        }
+
+        if (isset($post['serial']) && !empty($post['serial'])) {
+            // фильтр серийнику
+            $url['serial'] = trim($post['serial']);
+        }
+        if (isset($post['lock-button'])) {
+            $url['lock-button'] = trim($post['lock-button']);
+        }
+        if(isset($post['parent-categories']) && count($post['parent-categories']) > 0) {
+            $url['cats'] = implode('-', $post['parent-categories']);
+        }
+        if (isset($post['sale-order'])) {
+            if (isset($post['cashless']) && !empty($post['cashless'])) {
+                //только безнал
+                $url['cashless'] = 1;
+            }
+            if (isset($post['selfdelivery']) && !empty($post['selfdelivery'])) {
+                // самовывоз
+                $url['selfdelivery'] = 1;
+            }
+            if (isset($post['courier']) && !empty($post['courier'])) {
+                // доставка курьером
+                $url['courier'] = 1;
+            }
+        }
+        return $url;
     }
 }
