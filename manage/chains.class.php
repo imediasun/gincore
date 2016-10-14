@@ -3573,7 +3573,9 @@ class Chains extends Object
             case 'print_check':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
-
+            case 'print_invoice':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                break;
             case 'print':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
