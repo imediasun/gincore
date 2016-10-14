@@ -1009,6 +1009,11 @@ class products extends Controller
             Response::json($this->loadSideBar());
         }
 
+        // сохраняем новые данные о продукте
+        if ($act == 'sidebar-product-update') {
+            Response::json($this->updateProductSideBar());
+        }
+
         // управление заказами поставщика
         if ($act == 'so-operations') {
             $this->all_configs['suppliers_orders']->operations(isset($_POST['object_id']) ? $_POST['object_id'] : 0);
@@ -1152,6 +1157,7 @@ class products extends Controller
                 }
             }
             $result = $uploader->handleUpload($dir);
+
             require_once $this->all_configs['sitepath'] . 'shop/watermark.class.php';
 
             if ($result['success'] == true) {
@@ -1452,7 +1458,21 @@ class products extends Controller
         $this->History->save('export-order', $mod_id, $product['id']);
     }
     
-    public function loadSideBar()
+    protected function updateProductSideBar()
+    {
+        $post_data = $_POST;
+        
+        
+        
+
+        Response::json([
+            'hasError' => false,
+            'errors' => [],
+            'data' => $post_data
+        ]);
+    }
+
+    protected function loadSideBar()
     {
         $goods_html = '';
 
@@ -1463,6 +1483,10 @@ class products extends Controller
             $product = $this->all_configs['db']->query('SELECT g.*, g.fixed_payment/100 as fixed_payment 
                 FROM {goods} as g WHERE g.id=?i',
                 array($id_product))->row();
+
+            $selected_categories = $this->all_configs['db']->query('SELECT cg.category_id, cg.category_id
+                        FROM {category_goods} as cg WHERE cg.goods_id=?i',
+                array($id_product))->vars();
 
             $author = $this->all_configs['db']->query('SELECT login FROM {users} as u, {goods} as g
                 WHERE u.id=g.author AND g.id=?i ',
@@ -1479,7 +1503,8 @@ class products extends Controller
                     WHERE i.goods_id=?i AND w.consider_all=1 GROUP BY i.wh_id',
                 array($id_product))->assoc();
 
-
+            $notifications = $this->all_configs['db']->query('SELECT * FROM {users_notices} WHERE user_id=?i AND goods_id=?i',
+                array($this->getUserId(), $id_product))->row();
 
 
 
@@ -1491,6 +1516,9 @@ class products extends Controller
                         'managers' => $managers,
                         'histories' => $histories,
                         'warehouses_counts' => $warehouses_counts,
+                        'notifications' => $notifications,
+                        'categories' => $this->get_categories(),
+                        'selected_categories' => $selected_categories,
                     ),
                     $this->getSupplierOrdersTplVars($id_product)
                 )

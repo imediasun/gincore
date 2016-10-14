@@ -1250,15 +1250,20 @@ table.table-vpaddingless tr td.arrow{
     border-left: 1px solid #e4e5e7;
     position: fixed;
     top: 0;
-    width: 460px !important;
+    width: 600px !important;
     z-index: 1009;
     bottom: 0;
     right: 0;
     display: none;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 #right-sidebar.sidebar-open {
     display: block;
+}
+
+#right-sidebar .hpanel {
+    margin-bottom: 0;
 }
 
 #right-sidebar .sidebar-heading {
@@ -1278,6 +1283,7 @@ table.table-vpaddingless tr td.arrow{
     border: none;
     border-top: 1px solid #e4e5e7;
     border-radius: 0;
+    padding: 10px;
 }
 
 #right-sidebar .panel-collapse {

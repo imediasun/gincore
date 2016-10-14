@@ -6,6 +6,7 @@
         </div>
         <?= l('Основная информация') ?>
     </div>
+    <input type="hidden" name="id_product" value="<?= intval($product['id']) ?>" id="sidebar-id-product">
     <div class="panel-body" style="display: none;">
         <div class="form-group">
             <label><?= l('Название') ?>: </label>
@@ -15,14 +16,7 @@
                            $errors['post'])) ? h($errors['post']['title']) : h($product['title']); ?>"/>
         </div>
         <div class="form-group">
-            <label><?= l('Штрих код') ?> : </label>
-            <input placeholder="<?= l('штрих код') ?>" class="form-control" name="barcode"
-                   value="<?= ((is_array($errors) && array_key_exists('post',
-                           $errors) && array_key_exists('title',
-                           $errors['post'])) ? h($errors['post']['barcode']) : $product['barcode']) ?>"/>
-        </div>
-        <div class="form-group">
-            <label><?= l('Артикул') ?> : </label>
+            <label><?= l('Артикул') ?>: </label>
             <input placeholder="<?= l('Артикул') ?>" class="form-control" name="vendor_code"
                    value="<?= ((is_array($errors) && array_key_exists('post',
                            $errors) && array_key_exists('vendor_code',
@@ -35,6 +29,18 @@
                            $errors) && array_key_exists('prio',
                            $errors['post'])) ? h($errors['post']['prio']) : $product['prio']) ?>"/>
         </div>
+
+        <div>
+            <?= l('Картинка') ?>
+            <div id="product-img-uploader"></div>
+            <div id="goods_images"></div>
+        </div>
+
+        <div class="clearfix">
+
+        </div>
+
+
         <div class="form-group">
             <label><?= l('Розничная цена') ?> (<?= viewCurrency('shortName') ?>): </label>
             <?= number_format($product['price'] / 100, 2, '.', ' ') ?>
@@ -58,3 +64,49 @@
         </div>
     </div>
 </div>
+<link type="text/css" rel="stylesheet" href="/manage/modules/products/css/fileuploader.css">
+<script async src="/manage/modules/products/js/fileuploader.js"></script>
+
+<script type="text/javascript">
+    var id_product = <?= intval($product['id']) ?>;
+    $(document).ready(function () {
+
+        if ($("#product-img-uploader").length) {
+            //var pid = $("#cur_product").val();
+            var pid = arrequest()[2];
+            var uploader = new qq.FileUploader({
+                // Pass the HTML element here
+                uploadButtonText: L.qq_uploadButtonText,
+                dragText: L.qq_dragText,
+                cancelButtonText: L.qq_cancelButtonText,
+                failUploadText: L.qq_failUploadText,
+                element: document.getElementById('product-img-uploader'),
+                maxConnections: 500,
+                allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+                action: prefix + 'products/ajax/',
+                params: {
+                    act: 'upload_picture_for_goods',
+                    product: id_product
+                },
+                onSubmit: function () {
+                    uploader.setParams({
+                        act: 'upload_picture_for_goods',
+                        watermark: jQuery('#product_watermark').is(':checked') ? true : false,
+                        oist: jQuery('#one-image-secret_title').is(':checked') ? true : false,
+                        product: id_product
+                    });
+                },
+                onComplete: function (id, fileName, responseJSON) {
+                    if (responseJSON.success == true) {
+                        //$("#goods_images").html(responseJSON.filename);
+                        document.getElementById('goods_images').innerHTML += '<div class="col-sm-6"><img class="img-polaroid" width="50px" title="" ' +
+                            'src="' + siteprefix + 'shop/goods/' + id_product + '/' + responseJSON.filename + '" /> ' +
+                            '<input class="form-control m-t-xs" placeholder="title" value="" name="images_title[' + responseJSON.img_id + ']" /> ' +
+                            '<input class="form-control m-t-xs" onkeydown="return isNumberKey(event)" placeholder="' + L['priority'] + '" name="image_prio[' + responseJSON.img_id + ']" value="" />' +
+                            ' <input type="checkbox" name="images_del[' + responseJSON.img_id + ']" value="' + responseJSON.filename + '" /> ' + L['delete'] + '</div>';
+                    }
+                }
+            });
+        }
+    })
+</script>

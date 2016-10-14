@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <?= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders) ?>
+        <?= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders, false, false, true) ?>
 
     </div>
 </div>

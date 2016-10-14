@@ -108,9 +108,31 @@ function add_alarm(_this) {
 
 var rightSidebar = {
     init: function () {
+        var _this = this;
         $('#right-sidebar .js_close_sidebar').live('click', function () {
-            rightSidebar.clean_html();
-            rightSidebar.hide();
+            _this.clean_html();
+            _this.hide();
+        });
+    },
+    form_init: function () {
+        $('#sidebar-product-form').on('submit', function (e) {
+            e.preventDefault();
+
+            var id_product = $('#sidebar-id-product')[0].value;
+            var form_data = $(this).serialize();
+            $.ajax({
+                url: prefix + '/products/ajax/'+id_product+'?act=sidebar-product-update',
+                type: 'POST',
+                data: form_data,
+                dataType: 'json',
+                success: function (result) {
+                    if (result.hasError) {
+                        vd(result.errors);
+                    } else {
+
+                    }
+                }
+            });
         })
     },
     show : function () {
@@ -135,10 +157,11 @@ function sidebar_load_product(id_product) {
         dataType: 'json',
         success: function (result) {
             if (result.hasError) {
-
+                rightSidebar.html('Что-то пошло не так.');
             } else {
                 rightSidebar.html(result.html);
                 rightSidebar.show();
+                rightSidebar.form_init();
             }
         }
     });
@@ -147,9 +170,12 @@ function sidebar_load_product(id_product) {
 }
 
 
+
+
 $(document).ready(function () {
 
     rightSidebar.init();
+    sidebar_load_product(11);
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();
