@@ -798,6 +798,13 @@ class manageModel extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND o.delivery_by=?i ',
                 array($query, DELIVERY_BY_COURIER));
         }
+        if(isset($filters['cats'])) {
+            $cats = $this->get_models(explode('-', $filters['cats']));
+            if(!empty($cats)) {
+                $query = $this->all_configs['db']->makeQuery('?query AND o.category_id in (?li)',
+                    array($query, $cats));
+            }
+        }
 
         $userId = $this->getUserId();
         $onlyHisOrders = $this->all_configs['db']->query('SELECT show_only_his_orders FROM {users} WHERE id=?i',
@@ -811,6 +818,43 @@ class manageModel extends Object
             'count_on_page' => $count_on_page,
             'skip' => $skip,
         );
+    }
+
+    /**
+     * @param $parents
+     * @return mixed
+     */
+    public function get_models($parents)
+    {
+        $all = $this->all_configs['db']->query('
+        SELECT id, parent_id 
+        FROM {categories}
+        WHERE avail=1 and deleted=0 AND id in (SELECT distinct(parent_id) FROM {categories} )
+        ', array())->assoc();
+        $parents = array_merge($parents, $this->get_child($all, $parents));
+        return $this->all_configs['db']->query('
+        SELECT id
+        FROM {categories}
+        WHERE avail=1 and deleted=0 AND parent_id in (?li) AND id not in (SELECT distinct(parent_id) FROM {categories} )
+        ', array($parents))->col();
+    }
+
+    /**
+     * @param $array
+     * @param $parents
+     * @return array
+     */
+    private function get_child($array, $parents)
+    {
+        $child = array();
+        foreach ($array as $item) {
+            if(!in_array($item['parent_id'], $parents)) {
+                continue;
+            }
+            $child[] = $item['id'];
+            $child = array_merge($child, $this->get_child($array, array($item['id'])));
+        }
+        return $child;
     }
 
     /**

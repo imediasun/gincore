@@ -560,11 +560,11 @@ class Chains extends Object
                 return null;
             }
         }
-        if(isset($filters['warehouse']) && $filters['warehouse'] > 0) {
+        if (isset($filters['warehouse']) && $filters['warehouse'] > 0) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND o.wh_id=?i',
                 array($filters_query, $filters['warehouse']));
         }
-        if(isset($filters['location']) && $filters['location'] > 0) {
+        if (isset($filters['location']) && $filters['location'] > 0) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND o.location_id=?i',
                 array($filters_query, $filters['location']));
         }
@@ -1239,21 +1239,25 @@ class Chains extends Object
                         FROM {orders} as o
                         WHERE o.id=?i
                     ', array($data['id']))->row();
-                    if(!empty($post['manager']) && !empty($createdOrder)) {
-                        $manager = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['manager']))->row();
-                        if(!empty($manager)) {
+                    if (!empty($post['manager']) && !empty($createdOrder)) {
+                        $manager = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i',
+                            array($post['manager']))->row();
+                        if (!empty($manager)) {
                             $this->noticeManager($manager, $createdOrder);
                         }
                     }
-                    if(!empty($post['engineer']) && !empty($createdOrder)) {
-                        $engineer = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['engineer']))->row();
-                        if(!empty($engineer)) {
+                    if (!empty($post['engineer']) && !empty($createdOrder)) {
+                        $engineer = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i',
+                            array($post['engineer']))->row();
+                        if (!empty($engineer)) {
                             $this->noticeEngineer($engineer, $createdOrder);
                         }
                     }
                 }
             }
-            $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+            if (empty($data['location'])) {
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+            }
 
         } catch (ExceptionWithMsg $e) {
             $data = array(
@@ -3229,7 +3233,7 @@ class Chains extends Object
             'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
             'total_as_sum' => isset($post['total_as_sum']) ? intval($post['total_as_sum']) : 0,
             'home_master_request' => isset($post['home_master_request']) ? intval($post['home_master_request']) : 0,
-            'brand_id' => (isset($post['brand_id']) && isset($post['repair']) && intval($post['repair']) == 1)?intval($post['brand_id']):0
+            'brand_id' => (isset($post['brand_id']) && isset($post['repair']) && intval($post['repair']) == 1) ? intval($post['brand_id']) : 0
         );
         // создаем заказ
         try {
@@ -3563,6 +3567,7 @@ class Chains extends Object
      */
     protected function andPrint($next, $data, $client)
     {
+        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
         switch ($next) {
             case 'print_waybill':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=waybill&object_id=' . $data['id'];
@@ -3573,7 +3578,9 @@ class Chains extends Object
             case 'print_check':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
-
+            case 'print_invoice':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                break;
             case 'print':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
@@ -3582,10 +3589,10 @@ class Chains extends Object
                 break;
             case 'print_and_new_order':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
                 break;
             default:
         }
-        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
         return $data;
     }
 
