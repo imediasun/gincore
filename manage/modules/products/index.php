@@ -1472,6 +1472,7 @@ class products extends Controller
         }
         
         if (empty($errors)) {
+            try {
             $product = $this->Goods->getByPk($id_product);
 
             $update = array(
@@ -1538,20 +1539,15 @@ class products extends Controller
                                 VALUES (?i, ?i)', array($new_cat, $id_product));
                     }
                 }
-                if(!in_array($product['category_for_margin'], $post['categories'])) {
-                    $this->Goods->update(array(
-                        'category_for_margin' => current($post['categories'])
-                    ), array(
-                        'id' => $id_product
-                    ));
-                }
-
             }
 
 
             $this->editProductManagersSideBar($post, $id_product);
             $this->editProductFinacestockSideBar($post, $id_product);
             $this->editProductNoticesSideBar($post, $id_product, $mod_id);  
+            } catch( Exception $e){
+                $errors[] = $e->getMessage();
+            }
         }
        
 

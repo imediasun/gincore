@@ -130,7 +130,7 @@ var rightSidebar = {
             var id_product = $('#sidebar-id-product')[0].value;
             var form_data = $(this).serialize();
             $.ajax({
-                url: prefix + '/products/ajax/'+id_product+'?act=sidebar-product-update',
+                url: prefix + 'products/ajax/'+id_product+'?act=sidebar-product-update',
                 type: 'POST',
                 data: form_data,
                 dataType: 'json',
