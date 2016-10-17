@@ -33,9 +33,10 @@
 
         <div class="form-group">
             <div class="col-sm-12 p-xxs">
-                <div class="btn btn-default form-control" >
+                <a href="<?= $this->allconfigs['prefix'] ?>orders?id_product=<?= $product['id'] ?>#create_supplier_order"
+                   target="_blank" class="btn btn-default form-control" >
                     <?= l('Создать заказ поставщику') ?>
-                </div>
+                </a>
             </div>
         </div>
 

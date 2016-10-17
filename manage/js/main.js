@@ -199,7 +199,7 @@ function change_margin_type(_this, selector) {
 $(document).ready(function () {
 
     rightSidebar.init();
-    sidebar_load_product(11);
+    // sidebar_load_product(11);
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();
