@@ -2,9 +2,9 @@
     <?php if (isset($columns['id'])): ?>
         <td class="small_ids"> <?= $good['id'] ?> </td>
     <?php endif; ?>
-    <?php if (isset($columns['marker'])): ?>
-        <td></td>
-    <?php endif; ?>
+    <td>
+        <input type="checkbox" class="js-selected-item" name="selected[<?= $good['id'] ?>]" data-id="<?= $good['id'] ?>" />
+    </td>
     <?php if (isset($columns['photo'])): ?>
         <td>
             <?php if (array_key_exists('image', $good)): ?>
@@ -40,15 +40,21 @@
     <?php if (isset($columns['fbalance'])): ?>
         <td>
             <?= intval($good['qty_store']); ?>
-            <a href="#" onclick="return detail(<?= $good['id'] ?>, 'balance');"><i class="fa fa-long-arrow-up"
-                                                                                   aria-hidden="true"></i></a>
+            <a href="#" onclick="return detail(<?= $good['id'] ?>, 'balance');">
+                <i class="fa fa-long-arrow-up" aria-hidden="true" style="transform: rotate(45deg); margin-top:-3px"></i>
+            </a>
         </td>
     <?php endif; ?>
     <?php if (isset($columns['sbalance'])): ?>
-        <td>наличие у поставщиков</td>
+        <td><?= $good['have'] ?></td>
     <?php endif; ?>
     <?php if (isset($columns['delivery'])): ?>
-        <td>ожидаемые поставки</td>
+        <td>
+            <?= $good['expect'] ?>
+            <?php if ($good['expect'] > 0): ?>
+                <span style="opacity: 0.5">(<?= h(date('d-m-Y', strtotime($good['min_date_come']))) ?>)</span>
+            <?php endif; ?>
+        </td>
     <?php endif; ?>
     <?php if (isset($columns['cart'])): ?>
         <td>
@@ -60,7 +66,11 @@
         </td>
     <?php endif; ?>
     <?php if (isset($columns['mbalance'])): ?>
-        <td><?= l('Неснижаемый остаток') ?></td>
+        <td>
+            <?php if ($good['use_minimum_balance']): ?>
+                <?= $good['minimum_balance'] ?>
+            <?php endif; ?>
+        </td>
     <?php endif; ?>
     <?php if (isset($columns['type'])): ?>
         <td>

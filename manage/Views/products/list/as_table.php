@@ -1,7 +1,4 @@
-<?= $this->renderFile('products/list/column_filter', array(
-    'columns' => $columns
-)) ?>
-<table class="table table-striped">
+<table class="table table-striped table-hover">
     <thead>
     <tr>
         <?php if (isset($columns['id'])): ?>
@@ -26,9 +23,7 @@
                     <?php endswitch; ?>
             </th>
         <?php endif; ?>
-        <?php if (isset($columns['marker'])): ?>
-            <th></th>
-        <?php endif; ?>
+        <th></th>
         <?php if (isset($columns['photo'])): ?>
             <th><?= l('Фото') ?></th>
         <?php endif; ?>
@@ -105,7 +100,11 @@
             <th><?= l('Дата') ?></th>
         <?php endif; ?>
         <?php if (isset($columns['del'])): ?>
-            <th title="<?= l('Удалить товар') ?>"></th>
+            <th title="<?= l('Удалить товар') ?>">
+                <?= $this->renderFile('products/list/column_filter', array(
+                    'columns' => $columns
+                )) ?>
+            </th>
         <?php endif; ?>
     </tr>
     </thead>

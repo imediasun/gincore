@@ -418,6 +418,9 @@ class products extends Controller
         if (!$this->showDeleted($categories)) {
             $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, 0));
         }
+        if (!empty($get['ids']) && is_array($get['ids'])) {
+            $goods_query = $this->Goods->makeQuery('?query AND g.id in (?li)', array($goods_query, $get['ids']));
+        }
 
         // в наличии
         if (isset($get['avail'])) {
@@ -624,11 +627,13 @@ class products extends Controller
         // достаем описания товаров
         if (count($goods_ids) > 0) {
             $add_fields = array();
-            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url, g.deleted, g.vendor_code,
-                    g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q, u.fio as manager, g.type
+            $this->goods = $this->all_configs['db']->query('SELECT 
+                    g.*, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
                   FROM {goods} AS g 
                   JOIN {users_goods_manager} as ugm ON ugm.goods_id=g.id
                   JOIN {users} as u ON ugm.user_id=u.id
+                  LEFT JOIN (SELECT sum(count_come) as expect, MIN(date_come) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_come > 0 GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
+                  LEFT JOIN (SELECT sum(count_debit) as have, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_debit > 0 GROUP by c.goods_id) csod ON csod.goods_id=g.id
                   WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
 
@@ -653,7 +658,7 @@ class products extends Controller
     private function filters($get)
     {
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
-        return $this->view->renderFile('products/filters', array(
+        return $this->view->renderFile('products/navigation', array(
             'warehouses' => $warehouses,
             'controller' => $this,
             'categories' => $this->get_categories(),
@@ -877,7 +882,7 @@ class products extends Controller
             Response::json($result);
         }
         if ($act == 'action-form') {
-            Response::json($this->actionForm());
+            Response::json($this->actionForm($_GET));
         }
         if ($act == 'apply-action') {
             Response::json($this->applyAction($_GET, $_POST));
@@ -2468,11 +2473,17 @@ class products extends Controller
     /**
      * @return array
      */
-    public function actionForm()
+    public function actionForm($get)
     {
+        $ids = isset($get['ids']) ? explode('-', $get['ids']) : array();
         return array(
             'state' => true,
-            'content' => $this->view->renderFile('products/action_form', array()),
+            'content' => $this->view->renderFile('products/action_form', array(
+                'categories' => $this->get_categories(),
+                'managers' => $this->get_managers(),
+                'selected' => count($ids),
+                'ids' => $ids
+            )),
             'title' => l('Действия')
         );
     }
@@ -2484,7 +2495,7 @@ class products extends Controller
      */
     public function applyAction($get, $post)
     {
-        $goods_ids = $this->get_goods_ids($get);
+        $goods_ids = isset($post['ids']) ? explode('-', $post['ids']) : array();
         if (!empty($goods_ids)) {
             $update = array();
             if (isset($post['delete'])) {

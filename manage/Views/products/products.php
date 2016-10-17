@@ -13,9 +13,7 @@
     </div>
     <div class="tab-content">
         <div id="goods" class="tab-pane active">
-            <?= $this->renderFile('products/navigation', array(
-                'filters' => $filters
-            )) ?>
+            <?= $filters ?>
             <?php if (empty($goods)): ?>
                 <p class="text-error"><?= l('Нет ни одного продутка') ?></p>
             <?php else: ?>

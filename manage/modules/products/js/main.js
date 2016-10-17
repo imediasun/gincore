@@ -450,7 +450,7 @@ function change_margin_type(_this, selector) {
   $('.js-' + selector + '-type').toggle();
 }
 function show_action_form(_this, action, filters) {
-  var buttons = {
+  var ids = [], buttons = {
     success: {
       label: "Применить",
       className: "btn-success",
@@ -461,7 +461,7 @@ function show_action_form(_this, action, filters) {
           type: 'POST',
           data: $('form#action-form').serialize(),
           success: function (data) {
-            if(data.state && data.reload) {
+            if (data.state && data.reload) {
               window.location.reload();
             }
           },
@@ -481,14 +481,18 @@ function show_action_form(_this, action, filters) {
       }
     }
   };
+  $.each($('input.js-selected-item:checkbox:checked'), function(index, value){
+    ids.push($(value).data('id'));
+  });
   $.ajax({
-    url: prefix + 'products/ajax?act='+action+'&filters=' + filters,
+    url: prefix + 'products/ajax?act=' + action + '&ids=' + ids.join('-'),
     dataType: "json",
     type: 'GET',
     success: function (data) {
       if (data) {
         if (data['state'] == true) {
           dialog_box(this, data['title'], data['content'], buttons);
+          $('#action-form .multiselect').multiselect(multiselect_options);
         }
         if (data['state'] == false && data['message']) {
           alert(data['message']);
