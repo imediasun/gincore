@@ -8,7 +8,7 @@
         <?php endif; ?>
     </td>
     <td class="col-sm-3">
-        <a href="<?= $url ?>">
+        <a href="<?= $url ?>" data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
             <?= htmlspecialchars($product['title']) ?>
         </a>
     </td>
