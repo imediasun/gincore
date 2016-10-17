@@ -23,7 +23,7 @@
             type="button"
             data-form_id="<?= $add_btn['form_id'] ?>"
             data-action="<?= $add_btn['action'] ?>"
-            class="typeahead_add_form btn btn-info">
+            class="typeahead_add_form btn btn-default">
             <?= $add_btn['name'] ?>
         </button>
     </div>

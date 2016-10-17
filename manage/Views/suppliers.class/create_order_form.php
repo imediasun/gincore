@@ -1,4 +1,6 @@
 <h3><?= l('Создание нового заказа поставщику') ?></h3>
+<?= l('Сначала выберите и добавьте изделие, укажите цену и количество, затем нажмите Создать') ?>
+<br>
 <br>
 <form method="post" id="suppliers-order-form" style="position: relative">
     <?php if (empty($suppliers)): ?>
@@ -55,8 +57,8 @@
                                         <div class="input-group-btn">
                                             <button type="button" data-form_id="new_supplier_form"
                                                     data-action="accountings/ajax?act=create-contractor-form-no-modal"
-                                                    class="typeahead_add_form btn btn-info"
-                                                    data-id="supplier_creator"><?= l('Добавить') ?></button>
+                                                    class="typeahead_add_form btn btn-default"
+                                                    data-id="supplier_creator"><i class="glyphicon glyphicon-plus"></i></button>
                                         </div>
                                     </div>
                                     <?php if ($is_modal): ?>
