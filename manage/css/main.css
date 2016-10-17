@@ -1276,7 +1276,7 @@ table.table-vpaddingless tr td.arrow{
     border-right: none;
     border-bottom: none;
     background-color: #f7f9fa;
-
+    cursor: pointer;
 }
 
 #right-sidebar .panel-body{
@@ -1292,4 +1292,8 @@ table.table-vpaddingless tr td.arrow{
 
 #right-sidebar .panel-collapse {
     margin-bottom: 0;
+}
+
+.p-l-n {
+    padding-left: 0;
 }

@@ -1649,6 +1649,11 @@ class products extends Controller
                 FROM {goods} as g WHERE g.id=?i',
                 array($id_product))->row();
 
+            // картинки
+            $images = $this->all_configs['db']->query('SELECT id, image FROM {goods_images}
+                    WHERE goods_id=?i AND type=1 ORDER BY prio',
+                array($id_product))->assoc();
+
             $selected_categories = $this->all_configs['db']->query('SELECT cg.category_id, cg.category_id
                         FROM {category_goods} as cg WHERE cg.goods_id=?i',
                 array($id_product))->vars();
@@ -1677,6 +1682,7 @@ class products extends Controller
             $goods_html = $this->view->renderFile('products/sidebar/goods', array_merge (
                     array (
                         'product' => $product,
+                        'images' => $images,
                         'author' => $author,
                         'managers' => $managers,
                         'histories' => $histories,

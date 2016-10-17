@@ -1,8 +1,8 @@
 <!--  Notifications-->
 <div class="hpanel panel-collapse">
-    <div class="panel-heading hbuilt">
+    <div class="panel-heading hbuilt showhide">
         <div class="panel-tools">
-            <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+            <i class="fa fa-chevron-up"></i>
         </div>
         <?= l('Уведомления') ?>
     </div>
@@ -40,7 +40,7 @@
                 <td>
                     <label class="checkbox-inline">
                         <input <?= ($product['use_minimum_balance'] == 1) ? 'checked' : '' ?> type="checkbox"
-                                                                                              name="use_minimum_balance"/>
+                                                                                              name="use_minimum_balance" value="on"/>
                         <?= l('неснижаемый остаток') ?> <?= InfoPopover::getInstance()->createQuestion('l_good_minimum_balance') ?>
                     </label>
                 </td>
@@ -49,44 +49,6 @@
                            value="<?= $product['minimum_balance'] ?>"
                            type="text" class="form-control" onkeydown="return isNumberKey(event)"
                            name="minimum_balance" style="width: 150px;"/>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label class="checkbox-inline">
-                        <input <?= ($product['use_automargin'] == 1) ? 'checked' : '' ?> type="checkbox" name="use_automargin"/>
-                        <?= l('Автонаценка') ?> <?= InfoPopover::getInstance()->createQuestion('l_good_automargin') ?>
-                    </label>
-                </td>
-                <td width="30%">
-                    <div class="input-group" style="width:150px">
-                        <input type="text" class="form-control" value="<?= $product['automargin'] ?>"  style="min-width: 50px" name="automargin"/>
-                        <div class="input-group-addon margin-type" onclick="change_margin_type(this, 'automargin')" style="cursor: pointer">
-                            <input type="hidden" class="form-control" value="<?= $product['automargin_type'] ?>" name="automargin_type"/>
-                            <span class="currency js-automargin-type"  <?= $product['automargin_type']? 'style="display:none"':'' ?>><?= viewCurrency() ?>&nbsp;<i class="fa fa-caret-down" aria-hidden="true"></i></span>
-                            <span class="percent js-automargin-type"  <?= !$product['automargin_type']? 'style="display:none"':'' ?>>%&nbsp;<i class="fa fa-caret-down" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <?= l('Розница') ?>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                    <div class="input-group" style="width:150px">
-                        <input type="text" class="form-control" value="<?= $product['wholesale_automargin'] ?>"  style="min-width: 50px" name="wholesale_automargin"/>
-                        <div class="input-group-addon margin-type" onclick="change_margin_type(this, 'wholesale_automargin')" style="cursor: pointer">
-                            <input type="hidden" class="form-control" value="<?= $product['wholesale_automargin_type'] ?>" name="wholesale_automargin_type"/>
-                            <span class="currency js-wholesale_automargin-type" <?= $product['wholesale_automargin_type']? 'style="display:none"':'' ?>><?= viewCurrency() ?>&nbsp;<i class="fa fa-caret-down" aria-hidden="true"></i></span>
-                            <span class="percent js-wholesale_automargin-type"  <?= !$product['wholesale_automargin_type']? 'style="display:none"':'' ?>>%&nbsp;<i class="fa fa-caret-down" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <?= l('Опт') ?>
                 </td>
             </tr>
             </tbody>

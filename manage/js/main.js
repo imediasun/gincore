@@ -169,6 +169,15 @@ function sidebar_load_product(id_product) {
     return true;
 }
 
+function change_margin_type(_this, selector) {
+    if ($('input[name="' + selector + '_type"]').val() == 1) {
+        $('input[name="' + selector + '_type"]').val(0)
+    } else {
+        $('input[name="' + selector + '_type"]').val(1)
+    }
+    $('.js-' + selector + '-type').toggle();
+}
+
 
 
 

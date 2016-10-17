@@ -1,8 +1,8 @@
 <!--  Warehouses -->
 <div class="hpanel panel-collapse">
-    <div class="panel-heading hbuilt">
+    <div class="panel-heading hbuilt showhide">
         <div class="panel-tools">
-            <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+            <i class="fa fa-chevron-up"></i>
         </div>
         <?= l('Склады') ?>
     </div>

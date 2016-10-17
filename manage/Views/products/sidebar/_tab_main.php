@@ -1,8 +1,8 @@
 <!--     Main info-->
 <div class="hpanel panel-collapse">
-    <div class="panel-heading hbuilt">
+    <div class="panel-heading hbuilt showhide">
         <div class="panel-tools">
-            <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+            <i class="fa fa-chevron-up"></i>
         </div>
         <?= l('Основная информация') ?>
     </div>
@@ -31,40 +31,56 @@
         </div>
 
         <div>
-            <?= l('Картинка') ?>
+            <label><?= l('Картинка') ?></label>
             <div id="product-img-uploader"></div>
-            <div id="goods_images"></div>
+            <div class="m-t-sm" id="goods_images">
+                <?php if($images): ?>
+                    <?php foreach ($images as $image): ?>
+                    <div class="col-sm-2 m-t-sm"><img class="img-polaroid" src=" <?= $this->allconfigs['siteprefix'] ?>/shop/goods/<?= $product['id'] ?>/<?= $image['image'] ?>" width="50px" title=""></div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+
+            </div>
         </div>
 
-        <div class="clearfix">
-
-        </div>
+        <div class="clearfix"></div>
 
 
-        <div class="form-group">
+        <div class="m-t-md">
             <label><?= l('Розничная цена') ?> (<?= viewCurrency('shortName') ?>): </label>
             <?= number_format($product['price'] / 100, 2, '.', ' ') ?>
         </div>
-        <div class="form-group">
+        <div>
             <label><?= l('Закупочная цена последней партии') ?> (<?= viewCurrencySuppliers('shortName') ?>
                 ): </label>
             <?= number_format($product['price_purchase'] / 100, 2, '.', ' ') ?>
         </div>
-        <div class="form-group">
+        <div>
             <label><?= l('Оптовая цена') ?> (<?= viewCurrency('shortName') ?>): </label>
             <?= number_format($product['price_wholesale'] / 100, 2, '.', ' ') ?>
         </div>
-        <div class="form-group">
+        <div>
             <label><?= l('Свободный остаток') ?>:</label>
             <?= intval($product['qty_store']) ?>
         </div>
-        <div class="form-group">
+        <div>
             <label><?= l('Общий остаток') ?>:</label>
             <?= intval($product['qty_wh']) ?>
         </div>
     </div>
 </div>
 <link type="text/css" rel="stylesheet" href="/manage/modules/products/css/fileuploader.css">
+<style>
+    .qq-upload-success {
+        display: none;
+    }
+    .qq-upload-button {
+        margin-bottom: 5px;
+    }
+</style>
+
+
 <script async src="/manage/modules/products/js/fileuploader.js"></script>
 
 <script type="text/javascript">
@@ -99,11 +115,8 @@
                 onComplete: function (id, fileName, responseJSON) {
                     if (responseJSON.success == true) {
                         //$("#goods_images").html(responseJSON.filename);
-                        document.getElementById('goods_images').innerHTML += '<div class="col-sm-6"><img class="img-polaroid" width="50px" title="" ' +
-                            'src="' + siteprefix + 'shop/goods/' + id_product + '/' + responseJSON.filename + '" /> ' +
-                            '<input class="form-control m-t-xs" placeholder="title" value="" name="images_title[' + responseJSON.img_id + ']" /> ' +
-                            '<input class="form-control m-t-xs" onkeydown="return isNumberKey(event)" placeholder="' + L['priority'] + '" name="image_prio[' + responseJSON.img_id + ']" value="" />' +
-                            ' <input type="checkbox" name="images_del[' + responseJSON.img_id + ']" value="' + responseJSON.filename + '" /> ' + L['delete'] + '</div>';
+                        document.getElementById('goods_images').innerHTML += '<div class="col-sm-2 m-t-sm"><img class="img-polaroid" width="50px" title="" ' +
+                            'src="' + siteprefix + 'shop/goods/' + id_product + '/' + responseJSON.filename + '" /> ' + '</div>';
                     }
                 }
             });
