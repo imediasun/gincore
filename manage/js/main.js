@@ -107,13 +107,21 @@ function add_alarm(_this) {
 
 
 var rightSidebar = {
+
     init: function () {
         var _this = this;
         $('#right-sidebar .js_close_sidebar').live('click', function () {
             _this.clean_html();
             _this.hide();
         });
+
+        $('[data-action="sidebar_product"]').live('click',function (e) {
+            e.preventDefault();
+            var elem = $(this);
+            _this.load_product(elem.data('id_product'));
+        })
     },
+
     form_init: function () {
         $('#sidebar-product-form').on('submit', function (e) {
             e.preventDefault();
@@ -138,51 +146,62 @@ var rightSidebar = {
             });
         })
     },
+
     show : function () {
         $('#right-sidebar').addClass('sidebar-open');
     },
+
     hide : function () {
         $('#right-sidebar').removeClass('sidebar-open');
     },
+
     html : function (content) {
         $('#right-sidebar-content').html(content);
     },
+
     clean_html : function (content) {
         $('#right-sidebar-content').html('');
     },
+
+    load_product: function (id_product) {
+        var _this = this;
+        $.ajax({
+            url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
+            type: 'GET',
+            dataType: 'json',
+            success: function (result) {
+                if (result.hasError) {
+                    _this.noty('Что-то пошло не так.');
+                } else {
+                    _this.html(result.html);
+                    _this.show();
+                    _this.form_init();
+                }
+            }
+        });
+        return true;
+    },
+
     noty : function (text, type) {
         if (typeof type === 'undefined') {
             type = 'default';
         }
-       noty({
-            text: text,
-            timeout: 3000,
-            type: type,
-            layout: 'topRight'
-        });
+        if($.noty){
+            noty({
+                text: text,
+                timeout: 3000,
+                type: type,
+                layout: 'topRight'
+            });
+        } else {
+            alert(text);
+        }
+
     }
 
 
 };
 
-function sidebar_load_product(id_product) {
-    $.ajax({
-        url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
-        type: 'GET',
-        dataType: 'json',
-        success: function (result) {
-            if (result.hasError) {
-                rightSidebar.noty('Что-то пошло не так.');
-            } else {
-                rightSidebar.html(result.html);
-                rightSidebar.show();
-                rightSidebar.form_init();
-            }
-        }
-    });
-
-    return true;
-}
 
 function change_margin_type(_this, selector) {
     if ($('input[name="' + selector + '_type"]').val() == 1) {
@@ -199,7 +218,6 @@ function change_margin_type(_this, selector) {
 $(document).ready(function () {
 
     rightSidebar.init();
-    // sidebar_load_product(11);
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();

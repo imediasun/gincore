@@ -42,8 +42,9 @@
         <?php endif; ?>
         <td></td>
         <td>
-            <a class="hash_link"
-               href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock">
+            <a 
+               href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
+               data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
                 <?= h($product['product_title']) ?>
             </a>
         </td>
