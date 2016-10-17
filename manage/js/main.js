@@ -118,6 +118,7 @@ var rightSidebar = {
         $('#sidebar-product-form').on('submit', function (e) {
             e.preventDefault();
 
+
             var id_product = $('#sidebar-id-product')[0].value;
             var form_data = $(this).serialize();
             $.ajax({
@@ -127,9 +128,11 @@ var rightSidebar = {
                 dataType: 'json',
                 success: function (result) {
                     if (result.hasError) {
-                        vd(result.errors);
+                      result.errors.forEach(function (error, index) {
+                          rightSidebar.noty(error, 'warning');
+                      })
                     } else {
-
+                        rightSidebar.noty(result.msg, 'success');
                     }
                 }
             });
@@ -146,7 +149,19 @@ var rightSidebar = {
     },
     clean_html : function (content) {
         $('#right-sidebar-content').html('');
+    },
+    noty : function (text, type) {
+        if (typeof type === 'undefined') {
+            type = 'default';
+        }
+       noty({
+            text: text,
+            timeout: 3000,
+            type: type,
+            layout: 'topRight'
+        });
     }
+
 
 };
 
@@ -157,7 +172,7 @@ function sidebar_load_product(id_product) {
         dataType: 'json',
         success: function (result) {
             if (result.hasError) {
-                rightSidebar.html('Что-то пошло не так.');
+                rightSidebar.noty('Что-то пошло не так.');
             } else {
                 rightSidebar.html(result.html);
                 rightSidebar.show();
