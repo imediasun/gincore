@@ -2,8 +2,9 @@
 
 require_once __DIR__ . '/../import_helper.php';
 require_once __DIR__.'/../../../Core/ExportsToXls.php';
+require_once __DIR__.'/../../../Core/Object.php';
 
-abstract class abstract_import_provider
+abstract class abstract_import_provider extends Object
 {
     public $codepage;
 
@@ -12,6 +13,7 @@ abstract class abstract_import_provider
      */
     public function __construct()
     {
+        $this->applyUses();
     }
 
     /**
