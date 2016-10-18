@@ -14,14 +14,16 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
         5 => 'подкатегория товара 4',
         6 => 'розничная цена',
         7 => 'закупочная цена',
-        8 => 'артикул'
+        8 => 'артикул',
+        9 => 'Услуга'
     );
 
     /**
      * @return array
      */
-    public function get_translated_cols() {
-        $translate = function($value) {
+    public function get_translated_cols()
+    {
+        $translate = function ($value) {
             return lq($value);
         };
         return array_map($translate, $this->get_cols());
@@ -33,7 +35,8 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
      */
     public function getTitle($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[0] : iconv('cp1251', 'utf8', trim($data[0]));
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[0] : iconv('cp1251', 'utf8',
+            trim($data[0]));
     }
 
     /**
@@ -100,7 +103,19 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
      */
     public function getVendorCode($data)
     {
-        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[8] : iconv('cp1251', 'utf8', trim($data[8]));
+        return (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[8] : iconv('cp1251', 'utf8',
+            trim($data[8]));
+    }
+
+    /**
+     * @param $data
+     * @return int
+     */
+    public function getType($data)
+    {
+        $type = (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[9] : iconv('cp1251', 'utf8',
+            trim($data[9]));
+        return strcmp(trim($type), lq('Да')) === 0 ? GOODS_TYPE_SERVICE : GOODS_TYPE_ITEM;
     }
 
     /**

@@ -188,7 +188,7 @@ class import_items extends abstract_import_handler
                     $userId,
                     $this->provider->getPurchase($row),
                     $this->provider->getWholesale($row),
-                    0,
+                    $this->provider->getType($row),
                     $this->provider->getVendorCode($row)
                 ), 'id');
     }
@@ -340,12 +340,15 @@ class import_items extends abstract_import_handler
         $data = db()->query('
             SELECT 
                 g.title as title, c.title as c_title, "" as subcat1, "" as subcat2, "" as subcat3, "" as subcat4, 
-                g.price/100, g.price_purchase/100, g.vendor_code
+                g.price/100, g.price_purchase/100, g.vendor_code, g.type
             FROM {goods} as g 
             JOIN {category_goods} as cg ON cg.goods_id=g.id
             JOIN {categories} as c ON c.id=cg.category_id
             LIMIT 2
         ')->assoc();
+        foreach ($data as &$item) {
+            $item['type'] = $item['type'] === GOODS_TYPE_SERVICE ? lq('Да') : lq('Нет');
+        }
         return $this->provider->example($data);
     }
 }

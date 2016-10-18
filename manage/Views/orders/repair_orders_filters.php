@@ -81,6 +81,20 @@
                 <table class="table table-borderless table-for-filters">
                     <tr>
                         <td class="span5">
+                            <p class="form-control-static"><?= l('Категория') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="parent-categories[]"
+                                        multiple="multiple">
+                                    <?= build_array_tree($categories, explode('-', $_GET['cats'])); ?>
+                                </select>
+                            </span>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="span5">
                             <p class="form-control-static"><?= l('Инженер') ?>:</p>
                         </td>
                         <td class="span6">

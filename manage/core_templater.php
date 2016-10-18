@@ -92,7 +92,7 @@ $view = new View($all_configs);
 $input_html['right_sidebar'] = $view->renderFile('right_sidebar/sidebar');
 
 // селектим не закрытые напоминания для юзера
-$alarms = $all_configs['db']->query('SELECT ac.id, ac.text, ac.order_id, if(not u.fio = NULL, u.fio, u.login) as user, CHAR_LENGTH(ac.text) as len FROM {alarm_clock} ac'
+$alarms = $all_configs['db']->query('SELECT ac.id, ac.text, ac.order_id, if(not u.fio = NULL, u.fio, u.login) as user, CHAR_LENGTH(ac.text) as len, ac.date_alarm as date FROM {alarm_clock} ac'
     . ' JOIN {users} u ON u.id=ac.user_id'
     . ' WHERE for_user_id = ?i AND closed = 0 '
     . ' AND date_alarm < NOW() ORDER by len ASC', array($ifauth['id']), 'assoc');

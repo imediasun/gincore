@@ -15,6 +15,7 @@
                 <td class="center <?= isset($columns['engineer']) ? '' : 'hide' ?>"></td>
                 <td class="center <?= isset($columns['status']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['components']) ? '' : 'hide' ?>"></td>
+                <td class="<?= isset($columns['services']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['device']) ? '' : 'hide' ?>"></td>
                 <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                     <td class="center <?= isset($columns['amount']) ? '' : 'hide' ?>"></td>
@@ -62,6 +63,8 @@
             <td class="center <?= isset($columns['status']) ? '' : 'hide' ?>"><?= l('Статус') ?></td>
             <td class="center <?= isset($columns['components']) ? '' : 'hide' ?>"
                 title="<?= l('Ожидает запчастей') ?>"><i class="fa fa-cogs" aria-hidden="true"></i></td>
+            <td class="center <?= isset($columns['services']) ? '' : 'hide' ?>"
+                title="<?= l('Работы') ?>"><i class="fa fa-cogs" aria-hidden="true"></i></td>
             <td class="<?= isset($columns['device']) ? '' : 'hide' ?>"><?= l('Устройство') ?></td>
             <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
                 <td class="center <?= isset($columns['amount']) ? '' : 'hide' ?>"><?= l('Стоимость') ?></td>
