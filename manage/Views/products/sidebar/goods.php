@@ -2,7 +2,7 @@
     <div class="p-sm">
         <h4><?= l('Редактирование товара ID') ?> : <?= $product['id'] ?>. <?= $product['title'] ?></h4>
     </div>
-    <form action="" method="post" id="sidebar-product-form">
+    <form action="" method="post" id="sidebar-product-form" class="one_hpanel">
         <?php include '_tab_main.php';?>
         <?php include '_tab_additional.php';?>
         <?php include '_tab_managers.php';?>

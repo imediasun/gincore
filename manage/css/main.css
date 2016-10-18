@@ -1302,6 +1302,11 @@ table.table-vpaddingless tr td.arrow{
     margin-bottom: 0;
 }
 
+#right-sidebar .panel-body > .form-group{
+    margin-right: 60px;
+}
+
+
 .p-l-n {
     padding-left: 0;
 }

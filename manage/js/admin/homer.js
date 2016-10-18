@@ -33,22 +33,9 @@ $(document).ready(function () {
 
     // Function for collapse hpanel
     $('.showhide').live('click', function (event) {
-        event.preventDefault();
-        var hpanel = $(this).closest('div.hpanel');
-        var icon = $(this).find('i:first');
-        var body = hpanel.find('div.panel-body');
-        var footer = hpanel.find('div.panel-footer');
-        body.slideToggle(300);
-        footer.slideToggle(200);
-
-        // Toggle icon from up to down
-        icon.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
-        hpanel.toggleClass('').toggleClass('panel-collapse');
-        setTimeout(function () {
-            hpanel.resize();
-            hpanel.find('[id^=map-]').resize();
-        }, 50);
+        collapse_hpanel(event, this);
     });
+
 
     // Function for close hpanel
     $('.closebox').click(function (event) {
@@ -92,6 +79,37 @@ $(document).ready(function () {
     $('.modal').appendTo("body")
 
 });
+
+function collapse_hpanel(event, elem){
+    event.preventDefault();
+
+    var hpanel = $(elem).closest('div.hpanel');
+    var icon = $(elem).find('i:first');
+    var body = hpanel.find('div.panel-body');
+    var footer = hpanel.find('div.panel-footer');
+
+    if (hpanel.hasClass('panel-collapse')){
+        if ($(elem).parent().parent().hasClass('one_hpanel')){
+            var another = $(elem).parent().parent().find('div.hpanel');
+            another.find('div.panel-body').slideUp(300);
+            another.find('div.panel-footer').slideUp(200);
+            another.find('i:first').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            another.addClass('panel-collapse');
+        }
+    }
+
+    body.slideToggle(300);
+    footer.slideToggle(200);
+
+    // Toggle icon from up to down
+    icon.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+    hpanel.toggleClass('').toggleClass('panel-collapse');
+
+    setTimeout(function () {
+        hpanel.resize();
+        hpanel.find('[id^=map-]').resize();
+    }, 50);
+}
 
 $(window).bind("load", function () {
     // Remove splash screen after load
