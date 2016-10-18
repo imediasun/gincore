@@ -1,5 +1,5 @@
 <!--     Main info-->
-<div class="hpanel panel-collapse">
+<div class="hpanel">
     <div class="panel-heading hbuilt showhide">
         <div class="panel-tools">
             <i class="fa fa-chevron-up"></i>
@@ -7,7 +7,7 @@
         <?= l('Основная информация') ?>
     </div>
     <input type="hidden" name="id_product" value="<?= intval($product['id']) ?>" id="sidebar-id-product">
-    <div class="panel-body" style="display: none;">
+    <div class="panel-body">
         <div class="form-group">
             <label><?= l('Название') ?>: </label>
             <input class="form-control" placeholder="<?= l('введите название') ?>" name="title"
@@ -52,13 +52,13 @@
             <?= number_format($product['price'] / 100, 2, '.', ' ') ?>
         </div>
         <div>
+            <label><?= l('Оптовая цена') ?> (<?= viewCurrency('shortName') ?>): </label>
+            <?= number_format($product['price_wholesale'] / 100, 2, '.', ' ') ?>
+        </div>
+        <div>
             <label><?= l('Закупочная цена последней партии') ?> (<?= viewCurrencySuppliers('shortName') ?>
                 ): </label>
             <?= number_format($product['price_purchase'] / 100, 2, '.', ' ') ?>
-        </div>
-        <div>
-            <label><?= l('Оптовая цена') ?> (<?= viewCurrency('shortName') ?>): </label>
-            <?= number_format($product['price_wholesale'] / 100, 2, '.', ' ') ?>
         </div>
         <div>
             <label><?= l('Свободный остаток') ?>:</label>
