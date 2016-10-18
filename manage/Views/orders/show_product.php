@@ -1,6 +1,6 @@
 <tr>
     <td class="col-sm-5">
-        <a href="<?= $url ?>" data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
+        <a href="<?= $url ?>" data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>">
             <?= htmlspecialchars($product['title']) ?>
         </a>
     </td>
