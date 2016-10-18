@@ -3452,6 +3452,7 @@ class orders extends Controller
                 'engineer' => 'Инженер',
                 'status' => 'Статус',
                 'components' => 'Запчасти',
+                'services' => 'Работы',
                 'device' => 'Устройство',
                 'amount' => 'Стоимость',
                 'paid' => 'Оплачено',
