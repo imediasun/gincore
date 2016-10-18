@@ -1251,7 +1251,7 @@ table.table-vpaddingless tr td.arrow{
     position: fixed;
     top: 0;
     width: 600px !important;
-    z-index: 1009;
+    z-index: 1060;
     bottom: 0;
     right: 0;
     display: none;
