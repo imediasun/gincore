@@ -34,7 +34,8 @@
                             'input-medium exclude-form-validate', '', false, false, '', false,
                             l('Введите'),
                             array(
-                                'name' => l('Добавить'),
+                                //'name' => l('Добавить'), //заменил синюю добавить на серый +
+                                'name' => '<i class="glyphicon glyphicon-plus"></i>',
                                 'action' => 'products/ajax/?act=create_form',
                                 'form_id' => 'new_device_form'
                             ), false) ?>
@@ -78,8 +79,7 @@
                             <span class="btn btn-sm btn-primary btn-add-good"
                                   onclick="return add_supplier_item_to_table();"
                                   title="<?= l('Добавить товар') ?>">
-<!--                                --><?//= l('Добавить товар') ?>
-                                <i class="glyphicon glyphicon-plus"></i>
+                                <?= l('Добавить товар') ?>
                             </span>
                 </td>
                 <td class="col-sm-2"></td>

@@ -21,6 +21,12 @@ class import extends Object
                 'exported' => 'импорт из файла с ранее экспортированными из Gincore товарами',
             )
         ),
+        'categories' => array(
+            'name' => 'Категории',
+            'handlers' => array(
+                'gincore' => 'из унифицированного формата',
+            )
+        ),
         'items' => array(
             'name' => 'Товарная номенклатура',
             'handlers' => array(
