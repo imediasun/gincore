@@ -4151,7 +4151,7 @@ class accountings extends Controller
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
-                        'cost_price' => $good['price_purchase'] * $order['course_value']/100,
+                        'cost_price' => $order['purchase'],
                         'selling_price' => $good['price'],
                         'salary' => $payments['fixed_payment'],
                         'percent' => 0
@@ -4159,14 +4159,14 @@ class accountings extends Controller
                 }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']/100) * $payments['percent_from_profit'] / 100;
+                $value = ($good['price'] - $order['purchase']) * $payments['percent_from_profit'] / 100;
                 $profit['value'] += $good['count'] * $value;
 
                 for ($i = $good['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
-                        'cost_price' => $good['price_purchase'] * $order['course_value']/100,
+                        'cost_price' => $order['purchase'],
                         'selling_price' => $good['price'],
                         'salary' => $value,
                         'percent' => $payments['percent_from_profit']
