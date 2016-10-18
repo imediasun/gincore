@@ -638,7 +638,7 @@ class products extends Controller
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
 
             // картинки
-            if ($this->all_configs['configs']['manage-show-plist-img'] && count($this->goods) > 0) {
+            if (count($this->goods) > 0) {
                 $images = $this->all_configs['db']->query('SELECT DISTINCT goods_id, image FROM {goods_images}
                         WHERE goods_id IN (?li) AND type=1 ORDER BY prio',
                     array(array_keys($this->goods)))->assoc();

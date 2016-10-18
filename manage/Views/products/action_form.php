@@ -1,5 +1,5 @@
 <div class="row-fluid">
-    <div class="col-sm-6">
+    <div class="col-sm-6  col-sm-offset-2">
         <form method="POST" id="action-form">
             <fieldset>
                 <table class="table table-borderless">

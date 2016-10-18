@@ -7,11 +7,9 @@
     </td>
     <?php if (isset($columns['photo'])): ?>
         <td>
-            <?php if (array_key_exists('image', $good)): ?>
-                <?php $path_parts = full_pathinfo($good['image']);
-                $image = $path_parts['filename'] . $this->all_configs['configs']['small-image'] . $path_parts['extension']; ?>
-                <img
-                    src="<?= $this->all_configs['siteprefix'] . $this->all_configs['configs']['goods-images-path'] . $good['id'] ?>/<?= $image ?>">
+            <?php if (!empty($good['image'])): ?>
+                <img class="small-preview"
+                    src="<?= $this->all_configs['siteprefix'] . $this->all_configs['configs']['goods-images-path'] . $good['image'] ?>">
             <?php endif; ?>
         </td>
     <?php endif; ?>
