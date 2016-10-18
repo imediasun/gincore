@@ -29,7 +29,8 @@
             <tr>
                 <td>
                     <?php if (!empty($goods)): ?>
-                        <?= typeahead($this->all_configs['db'], 'goods-goods', false, null,
+                        <?= typeahead($this->all_configs['db'], 'goods-goods', false,
+                            ($goods ? $goods : null),
                             (15 + $typeahead), 'input-xlarge exclude-form-validate',
                             'input-medium exclude-form-validate', '', false, false, '', false,
                             l('Введите'),

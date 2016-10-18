@@ -392,7 +392,11 @@ class settings extends Controller
                     }
                     $value = trim($post[$pp[0]]);
                     if (empty($value)) {
-                        throw new Exception (l('Поле не может быть пустым'));
+                        if($this->all_configs['arrequest'][1] == 'crm_referers') {
+                            $value = 0;
+                        } else {
+                            throw new Exception (l('Поле не может быть пустым'));
+                        }
                     }
                     if ($conf[$table]['columns'][$pp[0]][1] != 1) { //не РО в конфиге
                         $sql_cols[] = $pp[0];
@@ -522,7 +526,7 @@ class settings extends Controller
             foreach ($post['name'] as $id => $value) {
                 $statusId = ($id === 'new')? $lastId + 1: $id;
                 $lastId = max($lastId, $id);
-                if(!empty($value) && (!isset($post['delete'][$id]) || $post['delete'][$id] != 'on' || $used($id)))  {
+                if((!isset($post['delete'][$id]) || $post['delete'][$id] != 'on' || $used($id)))  {
                     $status[$statusId] = array(
                         'name' => trim($value),
                         'active' => !(isset($post['close'][$id]) && $post['close'][$id] == 'on')

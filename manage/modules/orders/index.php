@@ -1117,7 +1117,8 @@ class orders extends Controller
                 $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(1,
                     $this->all_configs['arrequest'][2]);
             } else {
-                $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(1);
+                $goods = isset($_GET['id_product']) ? (int)$_GET['id_product'] : 1;
+                $orders_html .= $this->all_configs['suppliers_orders']->create_order_block($goods);
             }
         }
 
@@ -3451,6 +3452,7 @@ class orders extends Controller
                 'engineer' => 'Инженер',
                 'status' => 'Статус',
                 'components' => 'Запчасти',
+                'services' => 'Работы',
                 'device' => 'Устройство',
                 'amount' => 'Стоимость',
                 'paid' => 'Оплачено',

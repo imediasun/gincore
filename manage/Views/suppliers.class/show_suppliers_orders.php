@@ -1,5 +1,100 @@
 <?php if ($orders): ?>
-    <table class="show-suppliers-orders table">
+    <?php if ($short_form): ?>
+        <table class="show-suppliers-orders table">
+            <thead>
+            <tr>
+                <td><?= l('Дата созд.') ?></td>
+                <td><?= l('Принял') ?></td>
+                <td><?= l('Код') ?></td>
+                <td><?= l('Кол-во') ?></td>
+                <td><?= l('Цена') ?></td>
+                <td><?= l('Дата пост.') ?></td>
+
+                <td></td>
+            </tr>
+            </thead>
+            <tbody>
+
+
+            <?php foreach ($orders as $order): ?>
+                <?php
+                $status_txt = 'Новый заказ, ожидание поставки';
+                $class = '';
+                if (strtotime($order['date_wait']) < time() && $order['confirm'] != 1) {
+                    $status_txt = 'Пропущена поставка (дата поставки в прошлом и заказ не был принят)';
+                    $class = ' danger ';
+                }
+
+                if ($order['confirm'] != 1 && ($order['count_debit'] != $order['count_come'] || $order['sum_paid'] == 0) &&
+                    $order['wh_id'] > 0 && $order['count_come'] > 0
+                ) {
+                    $status_txt = 'Принят, но не приходован на склад';
+                    $class = ' info ';
+                }
+
+                if ($order['confirm'] == 1) {
+                    $status_txt = 'Успешно обработан';
+                    $class = ' success ';
+                }
+
+                if ($order['avail'] == 0) {
+                    $status_txt = 'Отменен';
+                    $class = ' red ';
+                }
+                ?>
+
+
+                <tr title="<?= $status_txt ?>" class=" <?= $class ?>" id="supplier-order_id-<?= $order['id'] ?>">
+                    <td>
+                        <span title="<?= do_nice_date($order['date_add'], false) ?>">
+                            <?= do_nice_date($order['date_add']) ?>
+                        </span>
+                    </td>
+                    <td><?= (($order['count_come'] > 0) ? get_user_name($order, 'accept_') : '') ?></td>
+
+                    <td>
+                        <?php if ($order['wh_id'] > 0): ?>
+                            <a class="hash_link"
+                               href="<?= $this->all_configs['prefix'] ?>warehouses?whs=<?= $order['wh_id'] ?>#show_items">
+                                <?= htmlspecialchars($order['wh_title']) ?>
+                            </a>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($order['count_debit'] > 0): ?>
+                            <a href="<?= $this->all_configs['prefix'] ?>warehouses ? so_id =<?= $order['id'] ?>#show_items"><?= $order['count_debit'] ?></a>
+                        <?php else: ?>
+                            <?= $order['count_debit'] ?>
+                        <?php endif; ?>
+
+                        <?php if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')): ?>
+                            <?php if (count($order['items']) > 0): ?>
+                                <?php $url = $this->all_configs['prefix'] . 'print.php?act=label&object_id=' . implode(',',
+                                        array_keys($order['items'])); ?>
+                                <a target="_blank" title="Печать" href="<?= $url ?>"><i class="fa fa-print"></i></a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </td>
+
+                    <td><?= show_price($order['price'], 2, ' ', ',') ?></td>
+                    <td>
+                        <span title="<?= do_nice_date($order['date_wait'],
+                            false) ?>"><?= do_nice_date($order['date_wait']) ?></span>
+                    </td>
+
+                    <td><?= $this->renderFile('suppliers.class/_buttons', array(
+                            'controller' => $controller,
+                            'order' => $order,
+                            'only_debit' => $only_debit,
+                            'only_pay' => $only_pay,
+                        )) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <table class="show-suppliers-orders table">
         <thead>
         <tr>
             <td></td>
@@ -129,6 +224,7 @@
         <?php endforeach; ?>
         </tbody>
     </table>
+    <?php endif; ?>
 <?php else: ?>
     <p class="text-danger"><?= l('Нет заказов') ?></p>
 <?php endif; ?>

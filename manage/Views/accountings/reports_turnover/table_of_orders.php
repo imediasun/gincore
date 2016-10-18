@@ -39,7 +39,8 @@
             <td>
                 <?php if (isset($order['goods'])): ?>
                     <?php foreach ($order['goods'] as $g): ?>
-                        <a href="<?= $this->all_configs['prefix'] . 'products/create/' . $g['goods_id'] ?>"><?= $g['title'] ?></a>
+                        <a href="<?= $this->all_configs['prefix'] . 'products/create/' . $g['goods_id'] ?>"
+                        data-action="sidebar_product" data-id_product="<?= $g['goods_id'] ?>"><?= $g['title'] ?></a>
                         <br/>
                     <?php endforeach; ?>
                 <?php endif; ?>

@@ -863,6 +863,8 @@ class products extends Controller
 
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
+
+
         if ($act == 'create_form') {
             $form = $this->create_product_form(true, isset($_GET['service']) ? true : false);
             Response::json(array(
@@ -909,6 +911,16 @@ class products extends Controller
                 }
                 Response::json($result);
             }
+        }
+
+        // загружаем сайдбар
+        if ($act == 'sidebar-load') {
+            Response::json($this->loadSideBar());
+        }
+
+        // сохраняем новые данные о продукте
+        if ($act == 'sidebar-product-update') {
+            Response::json($this->updateProductSideBar());
         }
 
         // управление заказами поставщика
@@ -1054,6 +1066,7 @@ class products extends Controller
                 }
             }
             $result = $uploader->handleUpload($dir);
+
             require_once $this->all_configs['sitepath'] . 'shop/watermark.class.php';
 
             if ($result['success'] == true) {
@@ -1353,6 +1366,270 @@ class products extends Controller
 
         $this->History->save('export-order', $mod_id, $product['id']);
     }
+    
+    protected function updateProductSideBar()
+    {
+        $id_product = (int)$this->all_configs['arrequest'][2];
+        $mod_id = $this->all_configs['configs']['products-manage-page'];
+        $errors = array();
+        $post = $_POST;
+
+        $url = (isset($post['url']) && !empty($post['url'])) ? trim($post['url']) : trim($post['title']);
+
+        if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
+            $errors[] = l('Заполните название');
+        }
+        
+        if (empty($errors)) {
+            try {
+            $product = $this->Goods->getByPk($id_product);
+
+            $update = array(
+                'title' => trim($post['title']),
+                'secret_title' => trim($post['secret_title']),
+                'url' => transliturl($url),
+                'prio' => intval($post['prio']),
+                'article' => empty($post['article']) ? null : trim($post['article']),
+                'barcode' => trim($post['barcode']),
+                'vendor_code' => trim($post['vendor_code']),
+                'avail' => isset($post['avail']) ? 1 : 0,
+                '`type`' => isset($post['type']) ? 1 : 0,
+                'percent_from_profit' => $post['percent_from_profit'],
+                'fixed_payment' => $post['fixed_payment'] * 100,
+                'category_for_margin' => empty($post['category_for_margin']) ? 0 : intval($post['category_for_margin']),
+
+                'use_minimum_balance' => (int)(strcmp($post['use_minimum_balance'], 'on') === 0),
+                'minimum_balance' => $post['minimum_balance'],
+                'use_automargin' => (int)(strcmp($post['use_automargin'], 'on') === 0),
+                'automargin_type' => $post['automargin_type'],
+                'automargin' => $post['automargin'],
+                'wholesale_automargin_type' => $post['wholesale_automargin_type'],
+                'wholesale_automargin' => $post['wholesale_automargin'],
+                'price' => trim($post['price']) * 100,
+                'price_wholesale' => trim($post['price_wholesale']) * 100
+            );
+
+            // старая цена
+            if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
+                && $this->all_configs['configs']['use-goods-old-price'] == true && isset($post['old_price'])
+            ) {
+                $update['old_price'] = trim($post['old_price']) * 100;
+            }
+
+            // редактируем количество только если отключен 1с и управление складами
+            if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
+                $update['qty_store'] = intval($post['exist']);
+                $update['qty_wh'] = intval($post['qty_wh']);
+                $update['price_purchase'] = trim($post['price_purchase']) * 100;
+                $update['price_wholesale'] = trim($post['price_wholesale']) * 100;
+            }
+
+            $ar = $this->Goods->update($update, array(
+                'id' => $id_product
+            ));
+
+            if (intval($ar) > 0) {
+                $this->saveMoreHistory($update, $product, $mod_id);
+            }
+
+            $query = '';
+            if (isset($post['categories']) && count($post['categories']) > 0) {
+                $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                    array($post['categories']));
+            }
+            $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+                array($id_product, $query));
+
+            // добавляем товар в старые/новые категории
+            if (isset($post['categories']) && count($post['categories']) > 0) {
+                foreach ($post['categories'] as $new_cat) {
+                    if ($new_cat != 0) {
+                        $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
+                                VALUES (?i, ?i)', array($new_cat, $id_product));
+                    }
+                }
+            }
+
+
+            $this->editProductManagersSideBar($post, $id_product);
+            $this->editProductFinacestockSideBar($post, $id_product);
+            $this->editProductNoticesSideBar($post, $id_product, $mod_id);  
+            } catch( Exception $e){
+                $errors[] = $e->getMessage();
+            }
+        }
+       
+
+        Response::json([
+            'hasError' => !empty($errors),
+            'errors' => $errors,
+            'msg' => l('Товар изменен успешно')
+        ]);
+    }
+
+    private function editProductManagersSideBar(array $post, $product_id)
+    {
+        $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
+            array($product_id));
+        // добавляем доступ к товару пользователям
+        if (isset($post['users'])) {
+            foreach ($post['users'] as $user) {
+                if ($user > 0) {
+                    $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager}
+                                    SET user_id=?i, goods_id=?i',
+                        array($user, $product_id));
+                }
+            }
+        }
+    }
+
+    private function editProductFinacestockSideBar(array $post, $product_id)
+    {
+        $this->all_configs['db']->query('DELETE FROM {goods_suppliers} WHERE goods_id=?i', array($product_id));
+        if (isset($post['links'])) {
+            foreach ($post['links'] as $link) {
+                if (mb_strlen(trim($link), 'UTF-8') > 0) {
+                    $this->all_configs['db']->query(
+                        'INSERT INTO {goods_suppliers} (goods_id, link) VALUES (?i, ?)',
+                        array($product_id, trim($link)));
+                }
+            }
+        }
+    }
+
+    private function editProductNoticesSideBar(array $post, $product_id, $mod_id)
+    {
+        $each_sale = 0;
+        if (isset($post['each_sale'])) {
+            $each_sale = 1;
+        }
+        $by_balance = 0;
+        if (isset($post['by_balance'])) {
+            $by_balance = 1;
+        }
+        $balance = 0;
+        if (isset($post['balance']) && $post['balance'] > 0) {
+            $balance = intval($post['balance']);
+        }
+
+        $by_critical_balance = 0;
+        if (isset($post['by_critical_balance'])) {
+            $by_critical_balance = 1;
+        }
+        $critical_balance = 0;
+        if (isset($post['critical_balance']) && $post['critical_balance'] > 0) {
+            $critical_balance = intval($post['critical_balance']);
+        }
+        $seldom_sold = 0;
+        if (isset($post['seldom_sold'])) {
+            $seldom_sold = 1;
+        }
+        $supply_goods = 0;
+        if (isset($post['supply_goods'])) {
+            $supply_goods = 1;
+        }
+        $this->all_configs['db']->query('INSERT INTO {users_notices} (user_id, goods_id, each_sale, by_balance,
+                        balance, by_critical_balance, critical_balance, seldom_sold, supply_goods)
+                      VALUES (?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i) ON duplicate KEY
+                    UPDATE each_sale=VALUES(each_sale), by_balance=VALUES(by_balance), balance=VALUES(balance)',
+            array(
+                $_SESSION['id'],
+                $product_id,
+                $each_sale,
+                $by_balance,
+                $balance,
+                $by_critical_balance,
+                $critical_balance,
+                $seldom_sold,
+                $supply_goods
+            ));
+
+    }
+
+    protected function loadSideBar()
+    {
+        $goods_html = '';
+
+        if (array_key_exists(2, $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) {
+
+            $id_product = (int)$this->all_configs['arrequest'][2];
+
+            $product = $this->all_configs['db']->query('SELECT g.*, g.fixed_payment/100 as fixed_payment 
+                FROM {goods} as g WHERE g.id=?i',
+                array($id_product))->row();
+
+            // картинки
+            $images = $this->all_configs['db']->query('SELECT id, image FROM {goods_images}
+                    WHERE goods_id=?i AND type=1 ORDER BY prio',
+                array($id_product))->assoc();
+
+            $selected_categories = $this->all_configs['db']->query('SELECT cg.category_id, cg.category_id
+                        FROM {category_goods} as cg WHERE cg.goods_id=?i',
+                array($id_product))->vars();
+
+            $author = $this->all_configs['db']->query('SELECT login FROM {users} as u, {goods} as g
+                WHERE u.id=g.author AND g.id=?i ',
+                array($id_product))->el();
+
+            $managers = $this->get_managers($id_product);
+            $histories = $this->History->getProductsManagersChanges($id_product);
+            $warehouses_counts = $this->all_configs['db']->query('SELECT w.title, i.wh_id, COUNT(DISTINCT i.id) as qty_wh,
+                      SUM(IF (w.consider_store=1 AND i.order_id IS NULL, 1, 0)) - COUNT(DISTINCT l.id) as qty_store
+                    FROM {warehouses_goods_items} as i
+                    LEFT JOIN {warehouses} as w ON w.id=i.wh_id
+                    LEFT JOIN {orders_suppliers_clients} AS l ON i.supplier_order_id = l.supplier_order_id
+                      AND l.order_goods_id IN (SELECT id FROM {orders_goods} WHERE item_id IS NULL)
+                    WHERE i.goods_id=?i AND w.consider_all=1 GROUP BY i.wh_id',
+                array($id_product))->assoc();
+
+            $notifications = $this->all_configs['db']->query('SELECT * FROM {users_notices} WHERE user_id=?i AND goods_id=?i',
+                array($this->getUserId(), $id_product))->row();
+
+
+
+
+            $goods_html = $this->view->renderFile('products/sidebar/goods', array_merge (
+                    array (
+                        'product' => $product,
+                        'images' => $images,
+                        'author' => $author,
+                        'managers' => $managers,
+                        'histories' => $histories,
+                        'warehouses_counts' => $warehouses_counts,
+                        'notifications' => $notifications,
+                        'categories' => $this->get_categories(),
+                        'selected_categories' => $selected_categories,
+                    ),
+                    $this->getSupplierOrdersTplVars($id_product)
+                )
+            );
+
+        }
+
+        return array(
+            'hasError' => !empty($this->errors),
+            'errors' => $this->errors,
+            'html' => $goods_html,
+        );
+    }
+
+    protected function getSupplierOrdersTplVars($id_product){
+
+        $goods_suppliers = $this->all_configs['db']->query('SELECT link FROM {goods_suppliers} WHERE goods_id=?i',
+            array($id_product))->assoc();
+        $queries = $this->all_configs['manageModel']->suppliers_orders_query(array('by_gid' => $id_product));
+        $query = $queries['query'];
+        $skip = $queries['skip'];
+        $count_on_page = $queries['count_on_page'];
+        $orders = $this->all_configs['manageModel']->get_suppliers_orders($query, $skip, $count_on_page);
+
+        return array(
+            'goods_suppliers' => $goods_suppliers,
+            'count' => $this->all_configs['db']->query('SELECT count(id) FROM {contractors_suppliers_orders} WHERE goods_id=?i',
+                array($id_product))->el(),
+            'orders' => $orders
+        );
+    }
 
     /**
      * @return array
@@ -1366,6 +1643,7 @@ class products extends Controller
             $product = $this->all_configs['db']->query('SELECT g.* 
                 FROM {goods} as g WHERE g.id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
+            
 
             $goods_html = $this->view->renderFile('products/products_main', array(
                 'product' => $product,

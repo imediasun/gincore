@@ -432,9 +432,9 @@ class manageModel extends Object
                   a.fio as a_fio, a.email as a_email, a.phone as a_phone, a.login as a_login, u.email as h_email,
                   o.fio as o_fio, o.email as o_email, o.phone as o_phone, sc.supplier_order_id, co.supplier,
                   gr.color, tp.icon, o.cashless, o.delivery_by, o.sale_type, hmr.address as hmr_address, hmr.date as hmr_date,
-                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair, o.brand_id
+                  e.fio as e_fio, e.email as e_email, e.phone as e_phone, e.login as e_login, o.serial, o.referer_id, o.date_readiness, o.warranty, o.repair, o.brand_id, og.type as og_type, og.price as og_price
                 FROM {orders} AS o
-                LEFT JOIN {orders_goods} as og ON og.order_id=o.id AND og.type=0
+                LEFT JOIN {orders_goods} as og ON og.order_id=o.id
                 LEFT JOIN {orders_suppliers_clients} as sc ON sc.order_goods_id=og.id AND sc.client_order_id=o.id
                 LEFT JOIN {contractors_suppliers_orders} as co ON co.id=sc.supplier_order_id
                 LEFT JOIN {users} as u ON u.id=o.manager
@@ -456,25 +456,38 @@ class manageModel extends Object
                     if (!array_key_exists($order['order_id'], $orders)) {
                         $orders[$order['order_id']] = $order;
                         $orders[$order['order_id']]['goods'] = array();
+                        $orders[$order['order_id']]['services'] = array();
                         $orders[$order['order_id']]['ordered'] = array();
                         $orders[$order['order_id']]['finish'] = array();
                         $orders[$order['order_id']]['items'] = array();
                     }
-                    if ($order['supplier'] > 0) {
-                        $orders[$order['order_id']]['finish'][] = $order['supplier'];
-                    }
-                    if ($order['supplier_order_id'] > 0) {
-                        $orders[$order['order_id']]['ordered'][] = $order['supplier_order_id'];
-                    }
-                    if ($order['order_goods_id'] > 0) {
-                        $orders[$order['order_id']]['goods'][$order['order_goods_id']] = array();
-                    }
-                    if ($order['goods_id'] > 0) {
-                        if (!array_key_exists($order['goods_id'], $orders[$order['order_id']]['items'])) {
-                            $orders[$order['order_id']]['items'][$order['goods_id']]['title'] = $order['title'];
-                            $orders[$order['order_id']]['items'][$order['goods_id']]['count'] = 0;
+                    if ($order['og_type'] == GOODS_TYPE_SERVICE) {
+                        if (!isset($orders[$order['order_id']]['services'])) {
+                            $orders[$order['order_id']]['services'] = array();
                         }
-                        $orders[$order['order_id']]['items'][$order['goods_id']]['count'] += 1;
+                        if ($order['goods_id'] > 0) {
+                            $orders[$order['order_id']]['services'][] = array(
+                                'title' => $order['title'],
+                                'price' => $order['og_price'] / 100
+                            );
+                        }
+                    } else {
+                        if ($order['supplier'] > 0) {
+                            $orders[$order['order_id']]['finish'][] = $order['supplier'];
+                        }
+                        if ($order['supplier_order_id'] > 0) {
+                            $orders[$order['order_id']]['ordered'][] = $order['supplier_order_id'];
+                        }
+                        if ($order['order_goods_id'] > 0) {
+                            $orders[$order['order_id']]['goods'][$order['order_goods_id']] = array();
+                        }
+                        if ($order['goods_id'] > 0) {
+                            if (!array_key_exists($order['goods_id'], $orders[$order['order_id']]['items'])) {
+                                $orders[$order['order_id']]['items'][$order['goods_id']]['title'] = $order['title'];
+                                $orders[$order['order_id']]['items'][$order['goods_id']]['count'] = 0;
+                            }
+                            $orders[$order['order_id']]['items'][$order['goods_id']]['count'] += 1;
+                        }
                     }
                 }
             }
@@ -798,9 +811,9 @@ class manageModel extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND o.delivery_by=?i ',
                 array($query, DELIVERY_BY_COURIER));
         }
-        if(isset($filters['cats'])) {
+        if (isset($filters['cats'])) {
             $cats = $this->get_models(explode('-', $filters['cats']));
-            if(!empty($cats)) {
+            if (!empty($cats)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.category_id in (?li)',
                     array($query, $cats));
             }
@@ -848,7 +861,7 @@ class manageModel extends Object
     {
         $child = array();
         foreach ($array as $item) {
-            if(!in_array($item['parent_id'], $parents)) {
+            if (!in_array($item['parent_id'], $parents)) {
                 continue;
             }
             $child[] = $item['id'];

@@ -105,8 +105,119 @@ function add_alarm(_this) {
 }
 
 
+
+var rightSidebar = {
+
+    init: function () {
+        var _this = this;
+        $('#right-sidebar .js_close_sidebar').live('click', function () {
+            _this.clean_html();
+            _this.hide();
+        });
+
+        $('[data-action="sidebar_product"]').live('click',function (e) {
+            e.preventDefault();
+            var elem = $(this);
+            _this.load_product(elem.data('id_product'));
+        })
+    },
+
+    form_init: function () {
+        $('#sidebar-product-form').on('submit', function (e) {
+            e.preventDefault();
+
+
+            var id_product = $('#sidebar-id-product')[0].value;
+            var form_data = $(this).serialize();
+            $.ajax({
+                url: prefix + 'products/ajax/'+id_product+'?act=sidebar-product-update',
+                type: 'POST',
+                data: form_data,
+                dataType: 'json',
+                success: function (result) {
+                    if (result.hasError) {
+                      result.errors.forEach(function (error, index) {
+                          rightSidebar.noty(error, 'warning');
+                      })
+                    } else {
+                        rightSidebar.noty(result.msg, 'success');
+                    }
+                }
+            });
+        })
+    },
+
+    show : function () {
+        $('#right-sidebar').addClass('sidebar-open');
+    },
+
+    hide : function () {
+        $('#right-sidebar').removeClass('sidebar-open');
+    },
+
+    html : function (content) {
+        $('#right-sidebar-content').html(content);
+    },
+
+    clean_html : function (content) {
+        $('#right-sidebar-content').html('');
+    },
+
+    load_product: function (id_product) {
+        var _this = this;
+        $.ajax({
+            url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
+            type: 'GET',
+            dataType: 'json',
+            success: function (result) {
+                if (result.hasError) {
+                    _this.noty('Что-то пошло не так.');
+                } else {
+                    _this.html(result.html);
+                    _this.show();
+                    _this.form_init();
+                }
+            }
+        });
+        return true;
+    },
+
+    noty : function (text, type) {
+        if (typeof type === 'undefined') {
+            type = 'default';
+        }
+        if($.noty){
+            noty({
+                text: text,
+                timeout: 3000,
+                type: type,
+                layout: 'topRight'
+            });
+        } else {
+            alert(text);
+        }
+
+    }
+
+
+};
+
+
+function change_margin_type(_this, selector) {
+    if ($('input[name="' + selector + '_type"]').val() == 1) {
+        $('input[name="' + selector + '_type"]').val(0)
+    } else {
+        $('input[name="' + selector + '_type"]').val(1)
+    }
+    $('.js-' + selector + '-type').toggle();
+}
+
+
+
+
 $(document).ready(function () {
 
+    rightSidebar.init();
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();
@@ -975,7 +1086,7 @@ function check_mess(last_time_query) {
         var item;
 
         if (msg) {
-          
+
           if (typeof msg['alarms'] != 'undefined') {
             startcountdown(msg['alarms'] ? msg['alarms'] : null);
           }
@@ -990,7 +1101,7 @@ function check_mess(last_time_query) {
             }
           }
 
-          
+
           if (typeof msg['error'] != 'undefined') {
             alert(msg['message']);
             if (typeof msg['reload'] != 'undefined') {

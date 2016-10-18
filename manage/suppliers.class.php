@@ -404,13 +404,14 @@ class Suppliers extends Object
      * @param bool $only_pay
      * @return string
      */
-    function show_suppliers_orders($orders, $only_debit = false, $only_pay = false)
+    function show_suppliers_orders($orders, $only_debit = false, $only_pay = false, $short_form = false)
     {
         return $this->view->renderFile('suppliers.class/show_suppliers_orders', array(
             'controller' => $this,
             'orders' => $orders,
             'only_debit' => $only_debit,
             'only_pay' => $only_pay,
+            'short_form' => $short_form,
         ));
     }
 
