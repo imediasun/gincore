@@ -286,7 +286,8 @@ class Configs
                 'print_templates',
                 'stocktaking',
                 'import',
-                'custom_status'
+                'custom_status',
+                'cart'
             ),
             // группы настроек, для объединения в табы (id_section => title)
             'settings-sections' => array(

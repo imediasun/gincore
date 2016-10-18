@@ -84,6 +84,34 @@ abstract class AModel extends Object
     }
 
     /**
+     * для упрощения вставка всех элементов записи осуществляется в виде строки
+     *
+     * @param $rows
+     * @return bool|int
+     */
+    public function insertAll($rows)
+    {
+        if (empty($rows)) {
+            return false;
+        }
+        $fields = array();
+        $insert = array();
+        foreach ($rows as $row) {
+            if (empty($fields)) {
+                $fields = array_keys($row);
+            }
+            $values = array();
+            foreach ($fields as $id => $name) {
+                $values[$id] = (string)(isset($row[$name]) ? $row[$name] : '');
+            }
+            if (!empty($values)) {
+                $insert[] = '(' . implode(',', $values) . ')';
+            }
+        }
+        return $this->query("INSERT INTO ?t (?q) VALUES ?q", array(implode(',', $fields), implode(',', $insert)))->id();
+    }
+
+    /**
      * @param $conditions
      * @return string
      */
@@ -284,6 +312,15 @@ abstract class AModel extends Object
      */
     public function isEmpty()
     {
-        return ! (bool) $this->query('SELECT count(*) FROM ?t', array($this->table))->el();
+        return !(bool)$this->query('SELECT count(*) FROM ?t', array($this->table))->el();
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function exists($id)
+    {
+        return (bool) $this->query('SELECT count(*) FROM ?t WHERE ?q=?i', array($this->table, $this->pk(), $id))->el();
     }
 }

@@ -79,3 +79,7 @@ td.edit-price .input-small {
 .margin-type {
     width: 65px;
 }
+.small-preview {
+    width: 30px;
+    height: 30px;
+}

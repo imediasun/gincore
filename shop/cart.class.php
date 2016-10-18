@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class Cart
+ *
+ * похоже ни где не используется?
+ */
 class Cart
 {
     public $db;
