@@ -30,8 +30,9 @@
                 </td>
                 <td><?= $this->all_configs['suppliers_orders']->supplier_order_number($order) ?></td>
                 <td>
-                    <a class="hash_link" title="<?= $order['secret_title'] ?>"
-                       href="<?= $this->all_configs['prefix'] ?>products/create/<?= $order['goods_id'] ?>">
+                    <a title="<?= $order['secret_title'] ?>"
+                       href="<?= $this->all_configs['prefix'] ?>products/create/<?= $order['goods_id'] ?>"
+                       data-action="sidebar_product" data-id_product="<?= $order['goods_id'] ?>">
                         <?= $order['goods_title'] ?>
                     </a>
                 </td>

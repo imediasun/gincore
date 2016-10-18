@@ -15,7 +15,8 @@
     <?php endif; ?>
     <?php if (isset($columns['title'])): ?>
         <td class="js-item-title">
-            <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create/<?= $good['id'] ?>/">
+            <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create/<?= $good['id'] ?>/"
+               data-action="sidebar_product" data-id_product="<?= $good['id'] ?>">
                 <?= h($good['title']) . (isset($add_name) ? $add_name : '') ?>
             </a>
         </td>
