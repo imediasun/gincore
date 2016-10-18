@@ -71,7 +71,6 @@ class DisplayOrder extends Helper
                     count($order['finish']));
             }
         }
-        Log::dump($order['services']);
         $services = '';
         if (count($order['services']) > 0) {
             foreach ($order['services'] as $service) {
