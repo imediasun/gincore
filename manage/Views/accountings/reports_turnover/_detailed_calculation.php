@@ -59,7 +59,7 @@
             <tr class="border-top">
                 <td> <?= count($detailedSalary) ?> <?= l('pcs.') ?> </td>
                 <td></td>
-                <td> <?= round($cost_price / 100 / 100, 2) ?> </td>
+                <td> <?= round($cost_price / 100, 2) ?> </td>
                 <td> <?= round($selling_price / 100, 2) ?> </td>
                 <td> <?= round($salary / 100, 2) ?> </td>
             </tr>
