@@ -8,8 +8,10 @@ $moduleactive[60] = !$ifauth['is_2'];
 /**
  * Class products
  *
- * @property MGoods      Goods
- * @property MCategories Categories
+ * @property MGoods         Goods
+ * @property MCategoryGoods CategoryGoods
+ * @property MCategories    Categories
+ * @property  MLockFilters  LockFilters
  */
 class products extends Controller
 {
@@ -26,7 +28,9 @@ class products extends Controller
     private $errors = array();
     public $uses = array(
         'Goods',
-        'Categories'
+        'Categories',
+        'LockFilters',
+        'CategoryGoods'
     );
 
     /**
@@ -37,7 +41,6 @@ class products extends Controller
         global $input_html;
         parent::routing($arrequest);
         if (!isset($arrequest[1]) || $arrequest[1] != 'create') {
-            $input_html['mmenu'] = $this->genmenu(); // список категорий
             return $this->gencontent(); // список товаров
         } elseif (isset($arrequest[1]) && $arrequest[1] == 'create') { // форма изменения товара
             return $this->gencreate();
@@ -119,6 +122,11 @@ class products extends Controller
         $product_id = (array_key_exists(2,
                 $this->all_configs['arrequest']) && $this->all_configs['arrequest'][2] > 0) ? $this->all_configs['arrequest'][2] : null;
 
+        if (isset($post['filters'])) {
+            $url = $this->setFilters($_POST);
+            Response::redirect($url);
+        }
+
         // создание продукта
         if (isset($post['create-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
             return $this->createProduct($post, $user_id, $mod_id);
@@ -138,6 +146,20 @@ class products extends Controller
             $this->Goods->restoreProduct($post, $mod_id);
         }
 
+        // импорт товаров с яндекс маркета
+        if (isset($post['ym-import_goods']) && $this->all_configs['oRole']->hasPrivilege('parsing')) {
+            $this->importFromYM($post);
+        }
+
+        // быстрое обновление
+        if (isset($post['quick-edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
+            $this->quickEdit($post, $mod_id);
+            Response::redirect(Response::referrer());
+        }
+        if (isset($post['products-table-columns'])) {
+            $this->LockFilters->toggle('products-table-columns', $_POST);
+            Response::redirect(Response::referrer());
+        }
         // редактирование товара
         if ($product_id > 0 && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
 
@@ -284,7 +306,7 @@ class products extends Controller
 
             if ($product) {
                 $goods_html .= '<fieldset><legend>' . l('Редактирование товара') . ' ID: ' . $product['id'] . '. ' .
-                    htmlspecialchars($product['title']) .
+                    h($product['title']) .
                     '</legend>' .
                     $this->show_product_body();
             } else {
@@ -346,7 +368,7 @@ class products extends Controller
 
                 $tree[] = array(
                     'id' => $tmp['id'],
-                    'title' => $space . htmlspecialchars($tmp['title']),
+                    'title' => $space . h($tmp['title']),
                     'class' => $main
                 );
                 if (array_key_exists('child', $tmp)) {
@@ -374,15 +396,16 @@ class products extends Controller
     }
 
     /**
+     * @param $get
      * @return mixed
      */
-    private function get_goods_ids()
+    private function get_goods_ids($get)
     {
         // все категории
         $goods_query = $this->all_configs['db']->makeQuery('WHERE 1=1', array());
 
         // выбранные категории
-        $categories = isset($_GET['cats']) ? array_filter(explode('-', $_GET['cats'])) : array();
+        $categories = isset($get['cats']) ? array_filter(explode('-', $get['cats'])) : array();
         if (count($categories) > 0) {
             // конкретные категории
             $goods_query = $this->all_configs['db']->makeQuery(', {category_goods} AS cg
@@ -395,10 +418,13 @@ class products extends Controller
         if (!$this->showDeleted($categories)) {
             $goods_query = $this->Goods->makeQuery('?query AND g.deleted=?i', array($goods_query, 0));
         }
+        if (!empty($get['ids']) && is_array($get['ids'])) {
+            $goods_query = $this->Goods->makeQuery('?query AND g.id in (?li)', array($goods_query, $get['ids']));
+        }
 
         // в наличии
-        if (isset($_GET['avail'])) {
-            $avail = array_filter(explode('-', $_GET['avail']));
+        if (isset($get['avail'])) {
+            $avail = array_filter(explode('-', $get['avail']));
             if (array_search('free', $avail) !== false) {
                 $ids = $this->all_configs['db']->query('SELECT goods_id FROM {warehouses_goods_items} WHERE order_id IS NULL OR order_id=0 GROUP by goods_id',
                     array())->col();
@@ -419,8 +445,8 @@ class products extends Controller
             }
         }
         // Отобразить
-        if (isset($_GET['show'])) {
-            $show = array_filter(explode('-', $_GET['show']));
+        if (isset($get['show'])) {
+            $show = array_filter(explode('-', $get['show']));
             // мои
             if (array_search('my', $show) !== false) {
                 $goods_query = $this->all_configs['db']->makeQuery(', {users_goods_manager} as m
@@ -448,23 +474,23 @@ class products extends Controller
             }
         }
         // По складам
-        if (isset($_GET['wh']) && count(array_values(array_filter(explode('-', $_GET['wh'])))) > 0) {
+        if (isset($get['wh']) && count(array_values(array_filter(explode('-', $get['wh'])))) > 0) {
             $goods_query = $this->all_configs['db']->makeQuery(', {warehouses_goods_items} as i
                 ?query AND i.goods_id=g.id AND i.wh_id IN (?li)',
-                array($goods_query, array_values(array_filter(explode('-', $_GET['wh'])))));
+                array($goods_query, array_values(array_filter(explode('-', $get['wh'])))));
         }
 
         // поиск
-        if (isset($_GET['s']) && !empty($_GET['s'])) {
-            $s = trim(urldecode($_GET['s']));
+        if (isset($get['s']) && !empty($get['s'])) {
+            $s = trim(urldecode($get['s']));
             $goods_query = $this->all_configs['db']->makeQuery('?query AND (g.title LIKE "%?e%" OR g.barcode LIKE "%?e%" OR g.vendor_code LIKE "%?e%") AND g.deleted=0 ',
                 array($goods_query, $s, $s, $s));
         }
 
         // imt
         $imt = isset($this->all_configs['arrequest'][1]) ? $this->all_configs['arrequest'][1] : null;
-        if (isset($_GET['imt'])) {
-            $imt = $_GET['imt'];
+        if (isset($get['imt'])) {
+            $imt = $get['imt'];
         }
         // ид товаров для 1 странички
         switch ($imt) {
@@ -525,7 +551,7 @@ class products extends Controller
         }
 
         // выбранные фильтры
-        $sfilters = isset($_GET['filters']) ? array_filter(explode('-', $_GET['filters'])) : array();
+        $sfilters = isset($get['filters']) ? array_filter(explode('-', $get['filters'])) : array();
         $filters_query = $goods_query;
         $filters_query = $this->all_configs['db']->makeQuery('?query AND n.id=nv.fname_id AND v.id=nv.fvalue_id
             AND nv.id=f.filter_id AND g.id=f.goods_id AND g.id=f.goods_id', array($filters_query));
@@ -539,8 +565,8 @@ class products extends Controller
 
         // проверяем наличие сортировки
         $sorting = 'ORDER BY id';
-        if (isset($_GET['sort'])) {
-            switch ($_GET['sort']) {
+        if (isset($get['sort'])) {
+            switch ($get['sort']) {
                 case 'rid':
                     $sorting = 'ORDER BY id DESC';
                     break;
@@ -579,15 +605,18 @@ class products extends Controller
     }
 
     /**
-     *
+     * @param null $get
      */
-    private function getGoods()
+    private function getGoods($get = null)
     {
+        if (!is_array($get)) {
+            $get = $_GET;
+        }
         // текущая страничка
-        $current_page = isset($_GET['p']) ? $_GET['p'] - 1 : 0;
+        $current_page = isset($get['p']) ? $get['p'] - 1 : 0;
 
         // все
-        $goods_ids = $this->get_goods_ids();
+        $goods_ids = $this->get_goods_ids($get);
 
         // количество
         $this->count_goods = count($goods_ids);
@@ -598,13 +627,18 @@ class products extends Controller
         // достаем описания товаров
         if (count($goods_ids) > 0) {
             $add_fields = array();
-            $this->goods = $this->all_configs['db']->query('SELECT g.title, g.id, g.avail, g.price, g.price_wholesale, g.date_add, g.url, g.deleted, g.vendor_code,
-                    g.image_set, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q
-                  FROM {goods} AS g WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
+            $this->goods = $this->all_configs['db']->query('SELECT 
+                    g.*, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
+                  FROM {goods} AS g 
+                  JOIN {users_goods_manager} as ugm ON ugm.goods_id=g.id
+                  JOIN {users} as u ON ugm.user_id=u.id
+                  LEFT JOIN (SELECT sum(count_come) as expect, MIN(date_come) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_come > 0 GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
+                  LEFT JOIN (SELECT sum(count_debit) as have, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_debit > 0 GROUP by c.goods_id) csod ON csod.goods_id=g.id
+                  WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
 
             // картинки
-            if ($this->all_configs['configs']['manage-show-plist-img'] && count($this->goods) > 0) {
+            if (count($this->goods) > 0) {
                 $images = $this->all_configs['db']->query('SELECT DISTINCT goods_id, image FROM {goods_images}
                         WHERE goods_id IN (?li) AND type=1 ORDER BY prio',
                     array(array_keys($this->goods)))->assoc();
@@ -615,20 +649,24 @@ class products extends Controller
                 }
             }
         }
-
     }
 
     /**
+     * @param $get
      * @return string
      */
-    private function genfilter()
+    private function filters($get)
     {
-        $this->getGoods();
         $warehouses = $this->all_configs['db']->query('SELECT id, title FROM {warehouses}')->vars();
-        return $this->view->renderFile('products/genfilter', array(
+        return $this->view->renderFile('products/navigation', array(
             'warehouses' => $warehouses,
             'controller' => $this,
-
+            'categories' => $this->get_categories(),
+            'managers' => $this->get_managers(),
+            'current_categories' => isset($get['cats']) ? explode('-', $get['cats']) : array(),
+            'current_warehouses' => isset($get['wh']) ? explode('-', $get['wh']) : array(),
+            'current_avail' => isset($get['avail']) ? explode('-', $get['avail']) : array(),
+            'current_show' => isset($get['show']) ? explode('-', $get['show']) : array(),
         ));
     }
 
@@ -651,28 +689,6 @@ class products extends Controller
     }
 
     /**
-     * @param $categories_tree
-     * @return string
-     */
-    function categories_tree_menu($categories_tree)
-    {
-        $categories_html = '';
-        foreach ($categories_tree as $k => $v) {
-            $all = array($v['id'] => $v['id']) + (isset($v['child']) ? $this->get_all_childrens($v['child']) : array());
-
-            $categories_html .= '<li><label class="checkbox"><input type="checkbox" ';
-            $categories_html .= $this->click_filters('cats', $all) . '>' . htmlspecialchars($v['title']) . '</label>';
-
-            if (isset($v['child'])) {
-                $categories_html .= '<ul class="nav nav-list">' . $this->categories_tree_menu($v['child']);
-            }
-        }
-        $categories_html .= '</ul></li>';
-
-        return $categories_html;
-    }
-
-    /**
      * @param       $array
      * @param array $return
      * @return array
@@ -688,35 +704,6 @@ class products extends Controller
         }
 
         return $return;
-    }
-
-    /**
-     * @return string
-     */
-    private function genmenu()
-    {
-        $categories = $this->get_categories();
-
-
-        $filters_html = $this->genfilter(); // список фильтров
-        $data = array();
-
-        foreach ($categories as $category) {
-            $data[$category['parent_id']][] = array(
-                'id' => $category['id'],
-                'parent_id' => $category['parent_id'],
-                'title' => $category['title'],
-                'url' => $category['url']
-            );
-        }
-
-        $categories_tree = count($data) > 0 ? $this->createTree($data, $data[0]) : array();
-
-        return $this->view->renderFile('products/genmenu', array(
-            'filter_html' => $filters_html,
-            'categories_tree_menu' => $this->categories_tree_menu($categories_tree)
-        ));
-
     }
 
     /**
@@ -746,114 +733,8 @@ class products extends Controller
     public function gencontent()
     {
         $mod_id = $this->all_configs['configs']['products-manage-page'];
-        $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : '';
-
         $warranties = $this->all_configs['configs']['warranties'];
 
-        // импорт товаров с яндекс маркета
-        if (isset($_POST['ym-import_goods']) && $this->all_configs['oRole']->hasPrivilege('parsing')) {
-
-            require_once($this->all_configs['path'] . 'parser/pp.php');
-            require_once($this->all_configs['sitepath'] . 'mail.php');
-
-            if (isset($_POST['categories']) && $_POST['categories'] > 0) {
-
-                $a = new YM_Products_Parser($this->all_configs, false);
-
-                $a->go($_POST['categories']);
-
-                echo '<br /><br ><a href="">' . l('Обновить') . '</a>';
-                exit;
-            }
-        }
-
-        // быстрое обновление
-        if (isset($_POST['quick-edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')) {
-            // обновление активности товара
-            if (isset($_POST['avail']) && is_array($_POST['avail'])) {
-                foreach ($_POST['avail'] as $p_id => $p_avail) {
-                    if ($p_id > 0) {
-                        $ar = $this->all_configs['db']->query('UPDATE {goods} SET avail=?i WHERE id=?i',
-                            array($p_avail, $p_id))->ar();
-
-                        if ($ar) {
-                            $this->History->save('edit-product-avail', $mod_id, $p_id);
-                        }
-                    }
-                }
-            }
-
-            // обновление цен
-            if (isset($_POST['price']) && is_array($_POST['price']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-                foreach ($_POST['price'] as $p_id => $p_price) {
-                    if ($p_id > 0) {
-                        $this->all_configs['db']->query('UPDATE {goods} g
-                                LEFT JOIN {goods_extended} e ON e.goods_id=g.id
-                                SET g.price=?i
-                                WHERE g.id=?i AND (e.hotline_flag IS NULL OR e.hotline_flag=0)',
-                            array($p_price * 100, $p_id))->ar();
-                    }
-                }
-            }
-            // обновление оптовых цен
-            if (isset($_POST['price_wholesale']) && is_array($_POST['price_wholesale']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
-                foreach ($_POST['price_wholesale'] as $p_id => $p_price) {
-                    if ($p_id > 0) {
-                        $this->all_configs['db']->query('UPDATE {goods} g
-                                LEFT JOIN {goods_extended} e ON e.goods_id=g.id
-                                SET g.price_wholesale=?i
-                                WHERE g.id=?i AND (e.hotline_flag IS NULL OR e.hotline_flag=0)',
-                            array($p_price * 100, $p_id))->ar();
-                    }
-                }
-            }
-
-            // обновление остатков
-            if (isset($_POST['qty_store']) && is_array($_POST['qty_store']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')
-                && $this->all_configs['configs']['erp-use'] == false && $this->all_configs['configs']['onec-use'] == false
-            ) {
-
-                foreach ($_POST['qty_store'] as $gid => $qty_store) {
-                    if ($gid > 0) {
-                        $this->all_configs['db']->query('UPDATE {goods} g SET qty_store=?i, qty_wh=?i WHERE id=?i',
-                            array($qty_store, $qty_store, $gid))->ar();
-                    }
-                }
-            }
-
-            // обновление остатков
-            if (isset($_POST['qty_store']) && is_array($_POST['qty_store']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')
-                && $this->all_configs['configs']['erp-use'] == false && $this->all_configs['configs']['onec-use'] == false
-            ) {
-
-                foreach ($_POST['qty_store'] as $gid => $qty_store) {
-                    if ($gid > 0) {
-                        $this->all_configs['db']->query('UPDATE {goods} g SET qty_store=?i, qty_wh=?i WHERE id=?i',
-                            array($qty_store, $qty_store, $gid))->ar();
-                    }
-                }
-            }
-
-            // обновление яндекс маркет ид
-            if (isset($_POST['ym_id']) && is_array($_POST['ym_id']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-
-                foreach ($_POST['ym_id'] as $gid => $value) {
-                    if ($gid > 0) {
-                        if ($value == 0) {
-                            $value = null;
-                        }
-
-                        $ar = $this->all_configs['db']->query('INSERT INTO {goods_extended} (market_yandex_id, goods_id) VALUES (?n, ?i) ON DUPLICATE KEY
-                            UPDATE market_yandex_id=VALUES(market_yandex_id)', array($value, $gid))->ar();
-
-                        if ($ar) {
-                            $this->History->save('edit-ym_id', $mod_id, $gid);
-                        }
-                    }
-                }
-            }
-            Response::redirect($_SERVER['REQUEST_URI']);
-        }
 
         if (isset($_GET['delete-all'])) {
             if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
@@ -861,20 +742,12 @@ class products extends Controller
             } else {
                 FlashMessage::set(l('У вас не хватает прав для этой операции'), FlashMessage::DANGER);
             }
-            unset($_GET['delete-al;']);
+            unset($_GET['delete-all']);
             Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
                     $_GET));
         }
-        // поиск товаров
-        if (isset($_POST['search'])) {
-            $_GET['s'] = isset($_POST['text']) ? trim($_POST['text']) : '';
-            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
-                    $_GET));
-        }
-
         // если изменяем нсатройки гарантии
         if (isset($_POST['default-add-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-
             $this->all_configs['db']->query('INSERT INTO {settings} (`name`, `value`) VALUES (?, ?) ON DUPLICATE KEY
                     UPDATE `value`=VALUES(`value`)',
                 array("warranty", intval($_POST['warranty'])));
@@ -899,6 +772,14 @@ class products extends Controller
             Response::redirect($_SERVER['REQUEST_URI']);
         }
 
+        // поиск товаров
+        if (isset($_POST['search'])) {
+            $_GET['s'] = isset($_POST['text']) ? trim($_POST['text']) : '';
+            Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?' . get_to_string('p',
+                    $_GET));
+        }
+
+        $this->getGoods($_GET);
         $goods = $this->goods;
         $serials = array();
         if (count($goods) > 0) {
@@ -910,11 +791,31 @@ class products extends Controller
 
             if ($data) {
                 foreach ($data as $i) {
-                    $serials[$i['goods_id']] = (isset($serials[$i['goods_id']]) ? $serials[$i['goods_id']] : '') . htmlspecialchars($i['wh_title']) . ' - ' . htmlspecialchars($i['location']) . ' - ' . $i['count'] . '<br />';
+                    $serials[$i['goods_id']] = (isset($serials[$i['goods_id']]) ? $serials[$i['goods_id']] : '') . h($i['wh_title']) . ' - ' . h($i['location']) . ' - ' . $i['count'] . '<br />';
                 }
             }
         }
 
+        $columns = $this->LockFilters->load('products-table-columns');
+        if (empty($columns) || count($columns) == 1) {
+            $columns = array(
+                'id' => 'on',
+                'marker' => 'on',
+                'photo' => 'on',
+                'title' => 'on',
+                'vc' => 'on',
+                'price' => 'on',
+                'rprice' => 'on',
+                'wprice' => 'on',
+                'balance' => 'on',
+                'fbalance' => 'on',
+                'sbalance' => 'on',
+                'delivery' => 'on',
+                'cart' => 'on',
+                'del' => 'on'
+            );
+            $this->LockFilters->toggle('products-table-columns', $columns);
+        }
         include_once __DIR__ . '/exports.php';
         $goods_html = $this->view->renderFile('products/products', array(
             'goods' => $goods,
@@ -924,7 +825,10 @@ class products extends Controller
             'count_on_page' => $this->count_on_page,
             'managers' => $this->get_managers(),
             'serials' => $serials,
-            'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods')
+            'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods'),
+            'filters' => $this->filters($_GET),
+            'columns' => $columns,
+            'item_in_cart' => $this->getItemInCart()
         ));
 
         return $goods_html;
@@ -979,7 +883,12 @@ class products extends Controller
             }
             Response::json($result);
         }
-
+        if ($act == 'action-form') {
+            Response::json($this->actionForm($_GET));
+        }
+        if ($act == 'apply-action') {
+            Response::json($this->applyAction($_GET, $_POST));
+        }
         // грузим табу
         if ($act == 'tab-load') {
             if (isset($_POST['tab']) && !empty($_POST['tab'])) {
@@ -1029,7 +938,7 @@ class products extends Controller
         // экспорт товаров
         if ($act == 'exports-goods' && $this->all_configs['oRole']->hasPrivilege('export-goods')) {
             include_once __DIR__ . '/exports.php';
-            $ids = $this->get_goods_ids();
+            $ids = $this->get_goods_ids($_GET);
             exports_goods($this->all_configs, $ids);
         }
 
@@ -1300,7 +1209,7 @@ class products extends Controller
             $this->History->save('add-market-category', $mod_id, $id);
 
             $result = $id;
-            $data = htmlspecialchars(json_encode($result), ENT_NOQUOTES);
+            $data = h(json_encode($result), ENT_NOQUOTES);
         }
 
         if (isset($_POST['act']) && $_POST['act'] == 'hotline' && $this->all_configs['oRole']->hasPrivilege('parsing')) {
@@ -2223,7 +2132,7 @@ class products extends Controller
                                 VALUES (?i, ?i)', array($new_cat, $id));
                 }
                 $this->Goods->update(array(
-                   'category_for_margin' => current($post['categories'])
+                    'category_for_margin' => current($post['categories'])
                 ), array(
                     'id' => $id
                 ));
@@ -2250,7 +2159,7 @@ class products extends Controller
             // уведомление
             if (isset($post['mail'])) {
                 $content = l('Создан новый товар') . ' <a href="' . $this->all_configs['prefix'] . 'products/create/' . $id . '">';
-                $content .= htmlspecialchars(trim($post['title'])) . '</a>.';
+                $content .= h(trim($post['title'])) . '</a>.';
                 $messages->send_message($content, l('Требуется обработка товарной позиции'),
                     'mess-create-product', 1);
             }
@@ -2298,6 +2207,7 @@ class products extends Controller
     private function sectionForm($data)
     {
         $data['state'] = true;
+        $sections = array();
         $data['content'] = '<form method="post">';
         if (isset($_POST['object_id']) && $_POST['object_id'] == 'del') {
             $sections = null;
@@ -2309,20 +2219,13 @@ class products extends Controller
                 $sections = $this->all_configs['db']->query('SELECT name, id FROM {related_sections}
                         WHERE category_id IN (?li) GROUP BY name', array(array_keys($product_categories)))->assoc();
             }
-
-            $data['content'] .= '<select id="goods_section_name"><option value="">' . l('Выберите') . '</option>';
-            if (is_array($sections)) {
-                foreach ($sections as $section) {
-                    $data['content'] .= '<option value="' . htmlspecialchars($section['name']) . '">' . htmlspecialchars($section['name']) . '</option>';
-                }
-            }
-            $data['content'] .= '</select>';
             $data['btns'] = '<input type="button" value="' . l('Удалить') . '" class="btn btn-danger" onclick="goods_section(this, 1)" />';
         } else {
-            $data['content'] .= '<input type="text" id="goods_section_name" value="" placeholder="' . l('новый раздел') . '" />';
             $data['btns'] = '<input type="button" value="' . l('Создать') . '" class="btn btn-success" onclick="goods_section(this, 0)" />';
         }
-        $data['content'] .= '</form>';
+        $data['content'] = $this->view->renderFile('products/section_form', array(
+            'sections' => $sections
+        ));
         return $data;
     }
 
@@ -2537,30 +2440,26 @@ class products extends Controller
             $this->saveMoreHistory($update, $good, $mod_id);
         }
 
-        $query = '';
-        if (isset($post['categories']) && count($post['categories']) > 0) {
-            $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
-                array($post['categories']));
-        }
-        $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
-            array($product_id, $query));
 
         // добавляем товар в старые/новые категории
         if (isset($post['categories']) && count($post['categories']) > 0) {
+            $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                array($post['categories']));
+            $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+                array($product_id, $query));
             foreach ($post['categories'] as $new_cat) {
                 if ($new_cat != 0) {
                     $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
                                 VALUES (?i, ?i)', array($new_cat, $product_id));
                 }
             }
-            if(!in_array($good['category_for_margin'], $post['categories'])) {
+            if (!in_array($good['category_for_margin'], $post['categories'])) {
                 $this->Goods->update(array(
                     'category_for_margin' => current($post['categories'])
                 ), array(
                     'id' => $product_id
                 ));
             }
-
         }
         if (!isset($post['deleted']) && $good['deleted']) {
             $this->Goods->restoreProduct(array('id' => $product_id), $mod_id);
@@ -2722,7 +2621,7 @@ class products extends Controller
      */
     protected function deleteAll($get, $mod_id)
     {
-        $ids = $this->get_goods_ids();
+        $ids = $this->get_goods_ids($get);
         $used = array();
         if (!empty($ids)) {
             foreach ($ids as $id => $value) {
@@ -2766,10 +2665,10 @@ class products extends Controller
      */
     private function editProductManagers(array $post, $product_id)
     {
-        $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
-            array($product_id));
         // добавляем доступ к товару пользователям
         if (isset($post['users'])) {
+            $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
+                array($product_id));
             foreach ($post['users'] as $user) {
                 if ($user > 0) {
                     $this->all_configs['db']->query('INSERT IGNORE INTO {users_goods_manager}
@@ -2847,5 +2746,239 @@ class products extends Controller
             $this->History->save('edit-goods', $mod_id, $product['id'],
                 l('Неснижаемый остаток') . ': ' . $product['minimum_balance']);
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function actionForm($get)
+    {
+        $ids = isset($get['ids']) ? explode('-', $get['ids']) : array();
+        return array(
+            'state' => true,
+            'content' => $this->view->renderFile('products/action_form', array(
+                'categories' => $this->get_categories(),
+                'managers' => $this->get_managers(),
+                'selected' => count($ids),
+                'ids' => $ids
+            )),
+            'title' => l('Действия')
+        );
+    }
+
+    /**
+     * @param $get
+     * @param $post
+     * @return array
+     */
+    public function applyAction($get, $post)
+    {
+        $goods_ids = isset($post['ids']) ? explode('-', $post['ids']) : array();
+        if (!empty($goods_ids)) {
+            $update = array();
+            if (isset($post['delete'])) {
+                $this->deleteAll($get, $this->all_configs['configs']['products-manage-page']);
+            }
+            // добавляем товар в старые/новые категории
+            if (isset($post['categories']) && is_array($post['categories'])) {
+                $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                    array($post['categories']));
+                foreach ($goods_ids as $product_id) {
+                    $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+                        array($product_id, $query));
+                    foreach ($post['categories'] as $new_cat) {
+                        if ($new_cat != 0) {
+                            $this->CategoryGoods->insert(array(
+                                'category_id' => $new_cat,
+                                'goods_id' => $product_id
+                            ));
+                        }
+                    }
+                }
+            }
+            if (isset($post['active'])) {
+                $update['active'] = 1;
+            }
+            if (isset($post['is_service'])) {
+                $update['type'] = GOODS_TYPE_SERVICE;
+            }
+            if (isset($post['price_purchase']) && !empty($post['price_purchase'])) {
+                $update['price_purchase'] = $post['price_purchase'];
+            }
+            if (isset($post['price_wholesale']) && !empty($post['price_wholesale'])) {
+                $update['price_wholesale'] = $post['price_wholesale'];
+            }
+            if (isset($post['manager']) && !empty($post['manager'])) {
+                $update['manager'] = $post['manager'];
+            }
+            if (isset($post['use_minimum_balance']) && strcmp($post['use_minimum_balance'], 'on') === 0) {
+                $update['use_minimum_balance'] = 1;
+                $update['minimum_balance'] = intval($post['minimum_balance']);
+            }
+            if (isset($post['use_automargin']) && strcmp($post['use_automargin'], 'on') === 0) {
+                $update['use_automargin'] = 1;
+                $update['automargin_type'] = intval($post['automargin_type']);
+                $update['automargin'] = intval($post['automargin']) * 100;
+                $update['wholesale_automargin_type'] = intval($post['wholesale_automargin_type']);
+                $update['wholesale_automargin'] = intval($post['wholesale_automargin']);
+            }
+
+            $this->Goods->update($update, array(
+                'id' => $goods_ids
+            ));
+        }
+        return array(
+            'state' => true,
+            'reload' => true
+        );
+    }
+
+    /**
+     * @param $post
+     */
+    private function importFromYM($post)
+    {
+        require_once($this->all_configs['path'] . 'parser/pp.php');
+        require_once($this->all_configs['sitepath'] . 'mail.php');
+
+        if (isset($post['categories']) && $post['categories'] > 0) {
+
+            $a = new YM_Products_Parser($this->all_configs, false);
+
+            $a->go($post['categories']);
+
+            echo '<br /><br ><a href="">' . l('Обновить') . '</a>';
+            exit;
+        }
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     */
+    private function quickEdit($post, $mod_id)
+    {
+// обновление активности товара
+        if (isset($post['avail']) && is_array($post['avail'])) {
+            foreach ($post['avail'] as $p_id => $p_avail) {
+                if ($p_id > 0) {
+                    $ar = $this->all_configs['db']->query('UPDATE {goods} SET avail=?i WHERE id=?i',
+                        array($p_avail, $p_id))->ar();
+
+                    if ($ar) {
+                        $this->History->save('edit-product-avail', $mod_id, $p_id);
+                    }
+                }
+            }
+        }
+
+        // обновление цен
+        if (isset($post['price']) && is_array($post['price']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
+            foreach ($post['price'] as $p_id => $p_price) {
+                if ($p_id > 0) {
+                    $this->all_configs['db']->query('UPDATE {goods} g
+                                LEFT JOIN {goods_extended} e ON e.goods_id=g.id
+                                SET g.price=?i
+                                WHERE g.id=?i AND (e.hotline_flag IS NULL OR e.hotline_flag=0)',
+                        array($p_price * 100, $p_id))->ar();
+                }
+            }
+        }
+        // обновление оптовых цен
+        if (isset($post['price_wholesale']) && is_array($post['price_wholesale']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')) {
+            foreach ($post['price_wholesale'] as $p_id => $p_price) {
+                if ($p_id > 0) {
+                    $this->all_configs['db']->query('UPDATE {goods} g
+                                LEFT JOIN {goods_extended} e ON e.goods_id=g.id
+                                SET g.price_wholesale=?i
+                                WHERE g.id=?i AND (e.hotline_flag IS NULL OR e.hotline_flag=0)',
+                        array($p_price * 100, $p_id))->ar();
+                }
+            }
+        }
+
+        // обновление остатков
+        if (isset($post['qty_store']) && is_array($post['qty_store']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')
+            && $this->all_configs['configs']['erp-use'] == false && $this->all_configs['configs']['onec-use'] == false
+        ) {
+
+            foreach ($post['qty_store'] as $gid => $qty_store) {
+                if ($gid > 0) {
+                    $this->all_configs['db']->query('UPDATE {goods} g SET qty_store=?i, qty_wh=?i WHERE id=?i',
+                        array($qty_store, $qty_store, $gid))->ar();
+                }
+            }
+        }
+
+        // обновление остатков
+        if (isset($post['qty_store']) && is_array($post['qty_store']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')
+            && $this->all_configs['configs']['erp-use'] == false && $this->all_configs['configs']['onec-use'] == false
+        ) {
+
+            foreach ($post['qty_store'] as $gid => $qty_store) {
+                if ($gid > 0) {
+                    $this->all_configs['db']->query('UPDATE {goods} g SET qty_store=?i, qty_wh=?i WHERE id=?i',
+                        array($qty_store, $qty_store, $gid))->ar();
+                }
+            }
+        }
+
+        // обновление яндекс маркет ид
+        if (isset($post['ym_id']) && is_array($post['ym_id']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+
+            foreach ($post['ym_id'] as $gid => $value) {
+                if ($gid > 0) {
+                    if ($value == 0) {
+                        $value = null;
+                    }
+
+                    $ar = $this->all_configs['db']->query('INSERT INTO {goods_extended} (market_yandex_id, goods_id) VALUES (?n, ?i) ON DUPLICATE KEY
+                            UPDATE market_yandex_id=VALUES(market_yandex_id)', array($value, $gid))->ar();
+
+                    if ($ar) {
+                        $this->History->save('edit-ym_id', $mod_id, $gid);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $post
+     * @return string
+     */
+    public function setFilters(array $post)
+    {
+        $url = array();
+
+        // в наличии
+        if (isset($post['avail']) && is_array($post['avail'])) {
+            $url['avail'] = implode('-', $post['avail']);
+        }
+        // Отобразить
+        if (isset($post['show']) && is_array($post['show'])) {
+            $url['show'] = implode('-', $post['show']);
+        }
+        // По складам
+        if (isset($post['warehouses']) && is_array($post['warehouses'])) {
+            $url['wh'] = implode('-', $post['warehouses']);
+        }
+        // По категориям
+        if (isset($post['categories']) && is_array($post['categories'])) {
+            $url['cats'] = implode('-', $post['categories']);
+        }
+
+        return $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getItemInCart()
+    {
+        $cart = Session::getInstance()->get('cart');
+        return empty($cart) ? 0 : array_reduce($cart, function ($carry, $value) {
+            return $carry + $value;
+        });
     }
 }

@@ -441,3 +441,67 @@ function start_import_goods(_this) {
   });
   return false;
 }
+function change_margin_type(_this, selector) {
+  if ($('input[name="' + selector + '_type"]').val() == 1) {
+    $('input[name="' + selector + '_type"]').val(0)
+  } else {
+    $('input[name="' + selector + '_type"]').val(1)
+  }
+  $('.js-' + selector + '-type').toggle();
+}
+function show_action_form(_this, action, filters) {
+  var ids = [], buttons = {
+    success: {
+      label: "Применить",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'products/ajax?act=apply-action',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#action-form').serialize(),
+          success: function (data) {
+            if (data.state && data.reload) {
+              window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        $(this).button('reset');
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+        $(this).button('reset');
+      }
+    }
+  };
+  $.each($('input.js-selected-item:checkbox:checked'), function(index, value){
+    ids.push($(value).data('id'));
+  });
+  $.ajax({
+    url: prefix + 'products/ajax?act=' + action + '&ids=' + ids.join('-'),
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          dialog_box(this, data['title'], data['content'], buttons);
+          $('#action-form .multiselect').multiselect(multiselect_options);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
