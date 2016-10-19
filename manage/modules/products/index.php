@@ -2768,6 +2768,7 @@ class products extends Controller
     }
 
     /**
+     * @param $get
      * @return array
      */
     public function actionForm($get)

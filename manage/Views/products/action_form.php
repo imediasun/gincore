@@ -158,7 +158,7 @@
                     </tr>
                     <tr>
                         <td colspan="5">
-                            <span>*<?= l('Будет применено к') ?>&nbsp;<span id="count-selected-record"><?= $count ?></span>&nbsp;<?= l('позициям') ?></span>
+                            <span>*<?= l('Будет применено к') ?>&nbsp;<span id="count-selected-record"><?= $selected ?></span>&nbsp;<?= l('позициям') ?></span>
                         </td>
                     </tr>
                     </tbody>
