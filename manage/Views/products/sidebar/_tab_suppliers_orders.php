@@ -4,7 +4,7 @@
         <div class="panel-tools">
             <i class="fa fa-chevron-up"></i>
         </div>
-        <?= l('Заказы поставщикам') ?>
+        <?= l('Заказы поставщику') ?>
     </div>
     <div class="panel-body" style="display: none;">
         <h5><?= l('Склады поставщиков Локально') ?></h5>

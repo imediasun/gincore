@@ -123,9 +123,9 @@ var rightSidebar = {
     },
 
     form_init: function () {
+        var _this = this;
         $('#sidebar-product-form').on('submit', function (e) {
             e.preventDefault();
-
 
             var id_product = $('#sidebar-id-product')[0].value;
             var form_data = $(this).serialize();
@@ -137,10 +137,11 @@ var rightSidebar = {
                 success: function (result) {
                     if (result.hasError) {
                       result.errors.forEach(function (error, index) {
-                          rightSidebar.noty(error, 'warning');
+                          _this.noty(error, 'warning');
                       })
                     } else {
-                        rightSidebar.noty(result.msg, 'success');
+                        _this.hide();
+                        _this.noty(result.msg, 'success');
                     }
                 }
             });
@@ -153,6 +154,7 @@ var rightSidebar = {
 
     hide : function () {
         $('#right-sidebar').removeClass('sidebar-open');
+        this.clean_html();
     },
 
     html : function (content) {
