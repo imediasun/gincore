@@ -2792,6 +2792,12 @@ class products extends Controller
      */
     public function applyAction($get, $post)
     {
+        if(empty($post['ids'])) {
+            return array(
+                'state' => true,
+                'reload' => true
+            );
+        }
         $goods_ids = isset($post['ids']) ? explode('-', $post['ids']) : array();
         if (!empty($goods_ids)) {
             $update = array();
@@ -2821,8 +2827,8 @@ class products extends Controller
             if (isset($post['is_service'])) {
                 $update['type'] = GOODS_TYPE_SERVICE;
             }
-            if (isset($post['price_purchase']) && !empty($post['price_purchase'])) {
-                $update['price_purchase'] = $post['price_purchase'];
+            if (isset($post['price']) && !empty($post['price'])) {
+                $update['price'] = $post['price'];
             }
             if (isset($post['price_wholesale']) && !empty($post['price_wholesale'])) {
                 $update['price_wholesale'] = $post['price_wholesale'];

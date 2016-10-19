@@ -470,14 +470,12 @@ function show_action_form(_this, action, filters) {
           }
         });
 
-        $(this).button('reset');
       }
     },
     main: {
       label: "Отменить",
       className: "btn-primary",
       callback: function () {
-        $(this).button('reset');
       }
     }
   };

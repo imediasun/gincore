@@ -15,10 +15,10 @@
                         </td>
                         <td width="10%"></td>
                         <td width="25%">
-                            <label> <?= l('Цена поставки') ?></label>
+                            <label> <?= l('Розничная цена') ?></label>
                         </td>
                         <td width="20%">
-                            <input type="text" class="form-control" name="price_purchase"/>
+                            <input type="text" class="form-control" name="price"/>
 
                         </td>
                     </tr>

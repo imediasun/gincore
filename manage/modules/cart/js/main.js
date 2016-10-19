@@ -40,7 +40,6 @@ function show_cart() {
           }
         });
 
-        $(this).button('reset');
       }
     },
     purchase: {
@@ -62,7 +61,6 @@ function show_cart() {
           }
         });
 
-        $(this).button('reset');
       }
     },
     clear: {
@@ -84,14 +82,12 @@ function show_cart() {
           }
         });
 
-        $(this).button('reset');
       }
     },
     main: {
       label: L['cancel'],
       className: "btn-primary",
       callback: function () {
-        $(this).button('reset');
       }
     }
   };
