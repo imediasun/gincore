@@ -95,7 +95,8 @@ class import_orders extends abstract_import_handler
                     $this->acceptors_wh[$acceptor_id]['wh_id'],
                     $this->acceptors_wh[$acceptor_id]['location_id'],
                     $typeId,
-                    $summ_paid * 100
+                    $summ_paid * 100,
+                    $this->acceptors_wh[$acceptor_id]['wh_id'],
                 );
                 $this->createNewOrder($order);
             } catch (Exception $e) {
@@ -199,11 +200,11 @@ class import_orders extends abstract_import_handler
                 . "(id,date_add,accepter,status,user_id,fio,"
                 . " phone,courier,category_id,serial,equipment,"
                 . " comment, date_readiness, `sum`, "
-                . " prepay, defect, engineer, manager, title, wh_id, location_id, `repair`, `sum_paid`) "
+                . " prepay, defect, engineer, manager, title, wh_id, location_id, `repair`, `sum_paid`, accept_wh_id) "
                 . " VALUES "
                 . " (?i, ?, ?i, ?i, ?i, ?,"
                 . "  ?, ?, ?i, ?, ?, "
-                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i, ?i, ?i)",
+                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i, ?i, ?i, ?i)",
                 $order
             );
         } catch (Exception $e) {
