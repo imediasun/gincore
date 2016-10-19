@@ -9,7 +9,7 @@
         <td>
             <?php if (!empty($good['image'])): ?>
                 <img class="small-preview" data-preview=""
-                    src="<?= $this->all_configs['prefix'] . $this->all_configs['configs']['goods-images-path'] . $good['image'] ?>">
+                    src="<?= $this->all_configs['prefix'] . $this->all_configs['configs']['goods-images-path'] . "/{$good['id']}/". $good['image'] ?>">
             <?php endif; ?>
         </td>
     <?php endif; ?>
