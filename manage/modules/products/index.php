@@ -1761,27 +1761,12 @@ class products extends Controller
             $author = $this->all_configs['db']->query('SELECT login FROM {users} as u, {goods} as g
                 WHERE u.id=g.author AND g.id=?i ',
                 array($this->all_configs['arrequest'][2]))->el();
-            $goods_html .= '<form style="max-width: 300px" method="post">';
-            $goods_html .= '<div class="form-group"><label>' . l('Автор') . ': </label>';
-            $goods_html .= ' <a href="'
-                . $this->all_configs['prefix'] . 'users">' . $author . '</a></div>';
-            $goods_html .= '<div class="form-group"><label>' . l('manager') . ': </label>';
-            $goods_html .= '<select class="multiselect form-control" ';
-            // проверка на количество менеджеров у товара
-            $goods_html .= $this->all_configs['configs']['manage-product-managers'] == true ? 'multiple="multiple"' : '';
-            $goods_html .= ' name="users[]"><option value="0">' . l('Не выбран') . '</option>';
             $managers = $this->get_managers($this->all_configs['arrequest'][2]);
-
-            if ($managers && count($managers) > 0) {
-                foreach ($managers as $manager) {//del-user
-                    $goods_html .= '<option value="' . $manager['id'] . '"';
-                    $goods_html .= $manager['id'] == $manager['manager'] ? ' selected ' : '';
-                    $goods_html .= '>' . $manager['login'] . '</option>';
-                }
-            }
-            $goods_html .= '</select></div>';
-            $goods_html .= $this->btn_save_product('managers_managers');
-            $goods_html .= '</form>';
+            $goods_html = $this->view->renderFile('products/products_managers_managers', array(
+                'managers' => $managers,
+                'author' => $author,
+                'controller' => $this
+            ));
         }
 
         return array(
@@ -3016,6 +3001,10 @@ class products extends Controller
         });
     }
 
+    /**
+     * @param $get
+     * @return string
+     */
     public function onWarehouse($get)
     {
         $goods = $this->Goods->query('

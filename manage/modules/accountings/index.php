@@ -2377,7 +2377,8 @@ class accountings extends Controller
                     );
                 }, array_keys($states), $states),
                 'userId' => $user_id,
-                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
+                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars(),
+                'wh_groups' => $this->all_configs['db']->query('SELECT id, `name` as title FROM {warehouses_groups}')->assoc()
             ));
 
             // прибыль и оборот
@@ -3825,6 +3826,10 @@ class accountings extends Controller
             $query = $this->all_configs['db']->makeQuery('?query AND o.brand_id in (?li)',
                 array($query, explode(',', $filters['brands'])));
         }
+        if (array_key_exists('whg', $filters) && count(array_filter(explode(',', $filters['whg']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND wh.group_id in (?li)',
+                array($query, array_filter(explode(',', $filters['whg']))));
+        }
         return $query;
     }
 
@@ -3850,6 +3855,7 @@ class accountings extends Controller
         $has_more_query = $this->all_configs['db']->makeQuery('
           SELECT o.id, count(*) as cnt
             FROM {orders} as o
+            JOIN {warehouses} as wh ON wh.id=o.wh_id
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
             WHERE  t.type<>?i AND t.date_transaction NOT BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
@@ -3866,6 +3872,7 @@ class accountings extends Controller
               SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return,
               hm.cnt as has_more
             FROM {orders} as o
+            JOIN {warehouses} as wh ON wh.id=o.wh_id
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
             JOIN (SELECT id, contractors_categories_id, contractors_id FROM {contractors_categories_links}) as l ON l.id=t.contractor_category_link
@@ -4081,6 +4088,9 @@ class accountings extends Controller
         }
         if (isset($post['brands']) && count($post['brands']) > 0) {
             $url['brands'] = implode(',', $post['brands']);
+        }
+        if (isset($post['wh_groups']) && count($post['wh_groups']) > 0) {
+            $url['whg'] = implode(',', $post['wh_groups']);
         }
 
         return $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
