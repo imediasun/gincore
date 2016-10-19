@@ -3,27 +3,12 @@
     <tr>
         <?php if (isset($columns['id'])): ?>
             <th>
-                <?php switch ($_GET['sort']): ?>
-<?php case 'id': ?>
-                        <a href="?sort=rid">
-                            ID<i class="glyphicon glyphicon-chevron-down"></i>
-                        </a>
-                        <?php break; ?>
-                    <?php case 'rid': ?>
-                        <a href="?sort=id">
-                            ID<i class="glyphicon glyphicon-chevron-up"></i>
-                        </a>
-                        <?php break; ?>
-                    <?php default: ?>
-                        <a href="?sort=rid"> ID
-                            <?php if (!isset($_GET['sort'])): ?>
-                                <i class="glyphicon glyphicon-chevron-down"></i>
-                            <?php endif; ?>
-                        </a>
-                    <?php endswitch; ?>
+                ID
             </th>
         <?php endif; ?>
-        <th></th>
+        <th>
+            <input type="checkbox" class="js-select-all" title="<?= l('Выбрать все') ?>"/>
+        </th>
         <?php if (isset($columns['photo'])): ?>
             <th><?= l('Фото') ?></th>
         <?php endif; ?>
@@ -85,7 +70,9 @@
             <th><?= l('Ожидаемые поставки') ?></th>
         <?php endif; ?>
         <?php if (isset($columns['cart'])): ?>
-            <th><a href="#" class="btn btn-default" title="<?= l('Корзина') ?>" onclick="return show_cart();"><i class="fa fa-shopping-cart" aria-hidden="true"></i>&nbsp;<span id="cart-quantity"><?= $item_in_cart ?></span> <?= l('шт.') ?></a></th>
+            <th><a href="#" class="btn btn-default" title="<?= l('Корзина') ?>" onclick="return show_cart();"><i
+                        class="fa fa-shopping-cart" aria-hidden="true"></i>&nbsp;<span
+                        id="cart-quantity"><?= $item_in_cart ?></span> <?= l('шт.') ?></a></th>
         <?php endif; ?>
         <?php if (isset($columns['mbalance'])): ?>
             <th><?= l('Неснижаемый остаток') ?></th>
@@ -119,3 +106,28 @@
     <?php endforeach; ?>
     </tbody>
 </table>
+<script src="/manage/js/jquery-ui-1.9.0.custom.min.js"></script>
+<script>
+    $(function () {
+        $(document).tooltip({
+            items: "[data-preview], [data-warehouse]",
+            content: function (callback) {
+                var element = $(this);
+                if (element.is("[data-preview]")) {
+                    callback("<img class='large-preview' src='" + element.attr('src') + "' />");
+                }
+
+                if (element.is("[data-warehouse]")) {
+                    $.get(prefix + 'products/ajax', {
+                        act: 'on-warehouse',
+                        id: element.attr('data-id')
+                    }, function (data) {
+                        if (data.state) {
+                            callback(data.html);
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>

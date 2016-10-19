@@ -443,6 +443,10 @@ class products extends Controller
                 $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.id in (?li)',
                     array($goods_query, $ids));
             }
+            if (array_search('mb', $avail) !== false) {
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.use_minimum_balance=1 AND g.minimum_balance <= ?i AND g.qt_wh < g.minimum_balance',
+                    array($goods_query, $avail['mb']));
+            }
         }
         // Отобразить
         if (isset($get['show'])) {
@@ -864,6 +868,13 @@ class products extends Controller
         $act = isset($_GET['act']) ? $_GET['act'] : '';
 
 
+        if ($act == 'on-warehouse') {
+            $form = $this->onWarehouse($_GET);
+            Response::json(array(
+                'state' => true,
+                'html' => $form
+            ));
+        }
 
         if ($act == 'create_form') {
             $form = $this->create_product_form(true, isset($_GET['service']) ? true : false);
@@ -1366,7 +1377,10 @@ class products extends Controller
 
         $this->History->save('export-order', $mod_id, $product['id']);
     }
-    
+
+    /**
+     *
+     */
     protected function updateProductSideBar()
     {
         $id_product = (int)$this->all_configs['arrequest'][2];
@@ -1467,6 +1481,10 @@ class products extends Controller
         ]);
     }
 
+    /**
+     * @param array $post
+     * @param       $product_id
+     */
     private function editProductManagersSideBar(array $post, $product_id)
     {
         $this->all_configs['db']->query('DELETE FROM {users_goods_manager} WHERE goods_id=?i',
@@ -1483,6 +1501,10 @@ class products extends Controller
         }
     }
 
+    /**
+     * @param array $post
+     * @param       $product_id
+     */
     private function editProductFinacestockSideBar(array $post, $product_id)
     {
         $this->all_configs['db']->query('DELETE FROM {goods_suppliers} WHERE goods_id=?i', array($product_id));
@@ -1497,6 +1519,11 @@ class products extends Controller
         }
     }
 
+    /**
+     * @param array $post
+     * @param       $product_id
+     * @param       $mod_id
+     */
     private function editProductNoticesSideBar(array $post, $product_id, $mod_id)
     {
         $each_sale = 0;
@@ -1546,6 +1573,9 @@ class products extends Controller
 
     }
 
+    /**
+     * @return array
+     */
     protected function loadSideBar()
     {
         $goods_html = '';
@@ -1613,6 +1643,10 @@ class products extends Controller
         );
     }
 
+    /**
+     * @param $id_product
+     * @return array
+     */
     protected function getSupplierOrdersTplVars($id_product){
 
         $goods_suppliers = $this->all_configs['db']->query('SELECT link FROM {goods_suppliers} WHERE goods_id=?i',
@@ -2980,5 +3014,20 @@ class products extends Controller
         return empty($cart) ? 0 : array_reduce($cart, function ($carry, $value) {
             return $carry + $value;
         });
+    }
+
+    public function onWarehouse($get)
+    {
+        $goods = $this->Goods->query('
+        SELECT SUM(1) as all_on_wh, SUM(IF(wgi.order_id IS NULL, 1, 0)) as free, g.title as title, w.title as wh, wl.location as location
+        FROM {warehouses_goods_items} wgi
+        JOIN {goods} g ON g.id=wgi.goods_id
+        JOIN {warehouses} w ON w.id=wgi.wh_id
+        JOIN {warehouses_locations} wl ON wl.id=wgi.location_id
+        WHERE wgi.goods_id=?i GROUP by wgi.location_id
+        ', array($get['id']))->assoc();
+        return $this->view->renderFile('products/on_warehouse', array(
+           'goods' => $goods
+        ));
     }
 }

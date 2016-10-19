@@ -21,6 +21,9 @@
                     <option value="not" <?= in_array('not', $current_avail) ? 'selected' : '' ?>>
                         <?= l('Нет в наличии') ?>
                     </option>
+                    <option value="mb" <?= in_array('mb', $current_avail) ? 'selected' : '' ?>>
+                        <?= l('Ниже неснижаемого остатка') ?>
+                    </option>
                 </select>
             </div>
         </li>
@@ -91,6 +94,7 @@
             <li class="pull-right">
                 <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create"
                    class="btn btn-success pull-right">
+                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     <?= l('Добавить товар') ?>
                 </a>
             </li>

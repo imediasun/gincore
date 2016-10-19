@@ -90,8 +90,6 @@ function tiny_mce() {
 
 $(document).ready(function () {
 
-  $("#tree").Tree();
-
   $("#remove-search-info").click(function () {
     window.location = $(this).data('url');
   });
@@ -123,7 +121,9 @@ $(document).ready(function () {
     }
     return false;
   });
-
+  $(".js-select-all").change(function () {
+    $('.js-selected-item').prop('checked', this.checked);
+  });
 });
 
 function add_cat(_this, id) {
@@ -481,7 +481,7 @@ function show_action_form(_this, action, filters) {
       }
     }
   };
-  $.each($('input.js-selected-item:checkbox:checked'), function(index, value){
+  $.each($('input.js-selected-item:checkbox:checked'), function (index, value) {
     ids.push($(value).data('id'));
   });
   $.ajax({
