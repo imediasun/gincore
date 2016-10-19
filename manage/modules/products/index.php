@@ -1393,86 +1393,86 @@ class products extends Controller
         if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
             $errors[] = l('Заполните название');
         }
-        
+
         if (empty($errors)) {
             try {
-            $product = $this->Goods->getByPk($id_product);
+                $product = $this->Goods->getByPk($id_product);
 
-            $update = array(
-                'title' => trim($post['title']),
-                'secret_title' => trim($post['secret_title']),
-                'url' => transliturl($url),
-                'prio' => intval($post['prio']),
-                'article' => empty($post['article']) ? null : trim($post['article']),
-                'barcode' => trim($post['barcode']),
-                'vendor_code' => trim($post['vendor_code']),
-                'avail' => isset($post['avail']) ? 1 : 0,
-                '`type`' => isset($post['type']) ? 1 : 0,
-                'percent_from_profit' => $post['percent_from_profit'],
-                'fixed_payment' => $post['fixed_payment'] * 100,
-                'category_for_margin' => empty($post['category_for_margin']) ? 0 : intval($post['category_for_margin']),
+                $update = array(
+                    'title' => trim($post['title']),
+                    'secret_title' => trim($post['secret_title']),
+                    'url' => transliturl($url),
+                    'prio' => intval($post['prio']),
+                    'article' => empty($post['article']) ? null : trim($post['article']),
+                    'barcode' => trim($post['barcode']),
+                    'vendor_code' => trim($post['vendor_code']),
+                    'avail' => isset($post['avail']) ? 1 : 0,
+                    '`type`' => isset($post['type']) ? 1 : 0,
+                    'percent_from_profit' => $post['percent_from_profit'],
+                    'fixed_payment' => $post['fixed_payment'] * 100,
+                    'category_for_margin' => empty($post['category_for_margin']) ? 0 : intval($post['category_for_margin']),
 
-                'use_minimum_balance' => (int)(strcmp($post['use_minimum_balance'], 'on') === 0),
-                'minimum_balance' => $post['minimum_balance'],
-                'use_automargin' => (int)(strcmp($post['use_automargin'], 'on') === 0),
-                'automargin_type' => $post['automargin_type'],
-                'automargin' => $post['automargin'],
-                'wholesale_automargin_type' => $post['wholesale_automargin_type'],
-                'wholesale_automargin' => $post['wholesale_automargin'],
-                'price' => trim($post['price']) * 100,
-                'price_wholesale' => trim($post['price_wholesale']) * 100
-            );
+                    'use_minimum_balance' => (int)(strcmp($post['use_minimum_balance'], 'on') === 0),
+                    'minimum_balance' => $post['minimum_balance'],
+                    'use_automargin' => (int)(strcmp($post['use_automargin'], 'on') === 0),
+                    'automargin_type' => $post['automargin_type'],
+                    'automargin' => $post['automargin'],
+                    'wholesale_automargin_type' => $post['wholesale_automargin_type'],
+                    'wholesale_automargin' => $post['wholesale_automargin'],
+                    'price' => trim($post['price']) * 100,
+                    'price_wholesale' => trim($post['price_wholesale']) * 100
+                );
 
-            // старая цена
-            if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
-                && $this->all_configs['configs']['use-goods-old-price'] == true && isset($post['old_price'])
-            ) {
-                $update['old_price'] = trim($post['old_price']) * 100;
-            }
+                // старая цена
+                if (array_key_exists('use-goods-old-price', $this->all_configs['configs'])
+                    && $this->all_configs['configs']['use-goods-old-price'] == true && isset($post['old_price'])
+                ) {
+                    $update['old_price'] = trim($post['old_price']) * 100;
+                }
 
-            // редактируем количество только если отключен 1с и управление складами
-            if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
-                $update['qty_store'] = intval($post['exist']);
-                $update['qty_wh'] = intval($post['qty_wh']);
-                $update['price_purchase'] = trim($post['price_purchase']) * 100;
-                $update['price_wholesale'] = trim($post['price_wholesale']) * 100;
-            }
+                // редактируем количество только если отключен 1с и управление складами
+                if ($this->all_configs['configs']['onec-use'] == false && $this->all_configs['configs']['erp-use'] == false) {
+                    $update['qty_store'] = intval($post['exist']);
+                    $update['qty_wh'] = intval($post['qty_wh']);
+                    $update['price_purchase'] = trim($post['price_purchase']) * 100;
+                    $update['price_wholesale'] = trim($post['price_wholesale']) * 100;
+                }
 
-            $ar = $this->Goods->update($update, array(
-                'id' => $id_product
-            ));
+                $ar = $this->Goods->update($update, array(
+                    'id' => $id_product
+                ));
 
-            if (intval($ar) > 0) {
-                $this->saveMoreHistory($update, $product, $mod_id);
-            }
+                if (intval($ar) > 0) {
+                    $this->saveMoreHistory($update, $product, $mod_id);
+                }
 
-            $query = '';
-            if (isset($post['categories']) && count($post['categories']) > 0) {
-                $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
-                    array($post['categories']));
-            }
-            $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
-                array($id_product, $query));
+                $query = '';
+                if (isset($post['categories']) && count($post['categories']) > 0) {
+                    $query = $this->all_configs['db']->makeQuery(' AND category_id NOT IN (?li)',
+                        array($post['categories']));
+                }
+                $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
+                    array($id_product, $query));
 
-            // добавляем товар в старые/новые категории
-            if (isset($post['categories']) && count($post['categories']) > 0) {
-                foreach ($post['categories'] as $new_cat) {
-                    if ($new_cat != 0) {
-                        $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
+                // добавляем товар в старые/новые категории
+                if (isset($post['categories']) && count($post['categories']) > 0) {
+                    foreach ($post['categories'] as $new_cat) {
+                        if ($new_cat != 0) {
+                            $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
                                 VALUES (?i, ?i)', array($new_cat, $id_product));
+                        }
                     }
                 }
-            }
 
 
-            $this->editProductManagersSideBar($post, $id_product);
-            $this->editProductFinacestockSideBar($post, $id_product);
-            $this->editProductNoticesSideBar($post, $id_product, $mod_id);  
-            } catch( Exception $e){
+                $this->editProductManagersSideBar($post, $id_product);
+                $this->editProductFinacestockSideBar($post, $id_product);
+                $this->editProductNoticesSideBar($post, $id_product, $mod_id);
+            } catch (Exception $e) {
                 $errors[] = $e->getMessage();
             }
         }
-       
+
 
         Response::json([
             'hasError' => !empty($errors),
@@ -1616,10 +1616,8 @@ class products extends Controller
                 array($this->getUserId(), $id_product))->row();
 
 
-
-
-            $goods_html = $this->view->renderFile('products/sidebar/goods', array_merge (
-                    array (
+            $goods_html = $this->view->renderFile('products/sidebar/goods', array_merge(
+                    array(
                         'product' => $product,
                         'images' => $images,
                         'author' => $author,
@@ -1647,7 +1645,8 @@ class products extends Controller
      * @param $id_product
      * @return array
      */
-    protected function getSupplierOrdersTplVars($id_product){
+    protected function getSupplierOrdersTplVars($id_product)
+    {
 
         $goods_suppliers = $this->all_configs['db']->query('SELECT link FROM {goods_suppliers} WHERE goods_id=?i',
             array($id_product))->assoc();
@@ -1677,7 +1676,7 @@ class products extends Controller
             $product = $this->all_configs['db']->query('SELECT g.* 
                 FROM {goods} as g WHERE g.id=?i',
                 array($this->all_configs['arrequest'][2]))->row();
-            
+
 
             $goods_html = $this->view->renderFile('products/products_main', array(
                 'product' => $product,
@@ -2774,15 +2773,15 @@ class products extends Controller
     public function actionForm($get)
     {
         $ids = isset($get['ids']) ? explode('-', $get['ids']) : array();
+        $selected = count($ids);
         return array(
             'state' => true,
             'content' => $this->view->renderFile('products/action_form', array(
                 'categories' => $this->get_categories(),
                 'managers' => $this->get_managers(),
-                'selected' => count($ids),
                 'ids' => $ids
             )),
-            'title' => l('Действия')
+            'title' => l('Массовое редактирование') . '(' . l('изменяем') . " {$selected} " . l('поз.') . ')'
         );
     }
 
@@ -2793,7 +2792,7 @@ class products extends Controller
      */
     public function applyAction($get, $post)
     {
-        if(empty($post['ids'])) {
+        if (empty($post['ids'])) {
             return array(
                 'state' => true,
                 'reload' => true
@@ -3023,7 +3022,7 @@ class products extends Controller
         WHERE wgi.goods_id=?i GROUP by wgi.location_id
         ', array($get['id']))->assoc();
         return $this->view->renderFile('products/on_warehouse', array(
-           'goods' => $goods
+            'goods' => $goods
         ));
     }
 }

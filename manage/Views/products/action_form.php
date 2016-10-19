@@ -1,67 +1,47 @@
 <div class="row-fluid">
-    <div class="col-sm-6  col-sm-offset-2">
-        <form method="POST" id="action-form">
-            <fieldset>
+    <form method="POST" id="action-form">
+        <fieldset>
+            <div class="col-sm-6" style="border-right: 1px solid">
+
                 <table class="table table-borderless">
                     <tbody>
                     <tr>
-                        <td width="10%">
+                        <td colspan="2">
+                            <div class="input-group">
                             <input type="checkbox" name='active'/>
-                        </td>
-                        <td width="35%">
-                            <label>
-                                <?= l('Активный') ?>
-                            </label>
-                        </td>
-                        <td width="10%"></td>
-                        <td width="25%">
-                            <label> <?= l('Розничная цена') ?></label>
-                        </td>
-                        <td width="20%">
-                            <input type="text" class="form-control" name="price"/>
-
+                            <?= l('Активный') ?>
+                                </div>
                         </td>
                     </tr>
                     <tr>
-                        <td>
+                        <td colspan="2">
                             <input type="checkbox" name='delete'/>
+                            <?= l('Удалить') ?>
                         </td>
-                        <td>
-                            <label>
-                                <?= l('Удалить') ?>
-                            </label>
-                        </td>
-                        <td></td>
-                        <td>
-                            <label>
-                                <?= l('Оптовая цена') ?>
-                            </label>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="price_wholesale"/>
-
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="checkbox" name='is_service'/>
+                            <?= l('Услуга') ?>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" name='is_service'/>
+                            <?= l('Категории') ?>
                         </td>
-                        <td>
-                            <label>
-                                <?= l('Услуга') ?>
-                            </label>
-                        </td>
-                        <td></td>
                         <td>
                             <select class="multiselect form-control" multiple="multiple" name="categories[]"
                                     data-placeholder="<?= l('Категории') ?>">
                                 <?= build_array_tree($categories, array_keys()); ?>
                             </select>
                         </td>
+                    <tr>
+                        <td>
+                            <?= l('Менеджер') ?>
+                        </td>
                         <td>
                             <select class="form-control multiselect " name="manager"
                                     data-placeholder="<?= l('Менеджер') ?>">
-                                <option value="-1"><?= l('Менеджер') ?></option>
                                 <?php if (!empty($managers)): ?>
                                     <?php foreach ($managers as $manager): ?>
                                         <option value="<?= $manager['id'] ?>"><?= h($manager['login']) ?></option>
@@ -70,57 +50,41 @@
                             </select>
                         </td>
                     </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-6">
+
+                <table class="table table-borderless">
+                    <tbody>
                     <tr>
-                        <td>
-                            <input type="checkbox" name="by_balance"/>
+                        <td width="25%">
+                            <?= l('Розничная цена') ?>
                         </td>
-                        <td colspan="3">
-                            <label>
-                                <?= l('Уведомлять меня об остатках') ?>
-                            </label>
-                        </td>
-                        <td>
-                            <input placeholder="<?= l('Количество товара') ?>" class="form-control" name="balance"/>
+                        <td width="20%">
+                            <input type="text" class="form-control" name="price"/>
+
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" name="use_minimum_balance"/>
+                                <?= l('Оптовая цена') ?>
                         </td>
-                        <td colspan="2">
-                            <label>
-                                <?= l('Неснижаемый остаток') ?>
-                            </label>
-                        </td>
-                        <td colspan="2">
-                            <div class="input-group">
-                                <input placeholder="<?= l('количество товаров') ?>"
-                                       value="0" type="text" class="form-control" onkeydown="return isNumberKey(event)"
-                                       name="minimum_balance"/>
-                                <div class="input-group-addon"><?= l('или менее единиц.') ?></div>
-                            </div>
+                        <td>
+                            <input type="text" class="form-control" name="price_wholesale"/>
+
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <input type="checkbox" name="each_sale"/>
-                        </td>
-                        <td colspan="4">
-                            <label>
-                                <?= l('Уведомлять меня о каждой продаже этого товара') ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type='checkbox' name="use_automargin"/>
-                        </td>
-                        <td>
-                            <label>
-                                <?= l('Автонаценка') ?>
-                            </label>
-                        </td>
                         <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <input type='checkbox' name="use_automargin"/>
+                            <?= l('Автонаценка') ?>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>
                             <div class="input-group" style="width:150px">
                                 <input type="text" class="form-control" value="" style="min-width: 50px"
@@ -156,16 +120,57 @@
                             </div>
                         </td>
                     </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="clearfix"></div>
+            <hr />
+            <div class="col-sm-6" style="border-right: 1px solid">
+
+                <table class="table table-borderless">
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-6">
+
+                <table class="table table-borderless">
+                    <tbody>
                     <tr>
-                        <td colspan="5">
-                            <span>*<?= l('Будет применено к') ?>&nbsp;<span id="count-selected-record"><?= $selected ?></span>&nbsp;<?= l('позициям') ?></span>
+                        <td colspan="2">
+                            <input type="checkbox" name="each_sale"/>
+                                <?= l('Уведомлять меня о каждой продаже этого товара') ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="use_minimum_balance"/>
+                                <?= l('Неснижаемый остаток') ?>
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <input placeholder="<?= l('количество товаров') ?>"
+                                       value="0" type="text" class="form-control" onkeydown="return isNumberKey(event)"
+                                       name="minimum_balance"/>
+                                <div class="input-group-addon"><?= l('или менее') ?></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="by_balance"/>
+                                <?= l('Уведомлять меня об остатках') ?>
+                        </td>
+                        <td>
+                            <input placeholder="<?= l('Количество товара') ?>" class="form-control" name="balance"/>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <input type="hidden" name="action" value="1"/>
-                <input type="hidden" name="ids" value="<?= implode('-', $ids) ?>"/>
-            </fieldset>
-        </form>
-    </div>
+            </div>
+            <input type="hidden" name="action" value="1"/>
+            <input type="hidden" name="ids" value="<?= implode('-', $ids) ?>"/>
+        </fieldset>
+    </form>
 </div>
