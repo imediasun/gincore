@@ -87,3 +87,6 @@ td.edit-price .input-small {
     width: 250px;
     height: 250px;
 }
+.table-lh-30 > thead > tr > th {
+    line-height: 30px;
+}

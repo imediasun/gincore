@@ -1,4 +1,4 @@
-<table class="table table-striped table-hover">
+<table class="table table-striped table-hover table-lh-30">
     <thead>
     <tr>
         <?php if (isset($columns['id'])): ?>
@@ -52,22 +52,22 @@
             </th>
         <?php endif; ?>
         <?php if (isset($columns['rprice'])): ?>
-            <th><?= l('Цена закупочная') ?></th>
+            <th><?= crop_title(l('Закупочная цена'),5) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['wprice'])): ?>
-            <th><?= l('Цена оптовая') ?></th>
+            <th><?= crop_title(l('Оптовая цена'), 5) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['balance'])): ?>
-            <th><?= l('Общий остаток') ?></th>
+            <th><?= crop_title(l('Общий остаток'), 3) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['fbalance'])): ?>
-            <th><?= l('Свободный остаток') ?></th>
+            <th><?= crop_title(l('Свободный остаток'), 3) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['sbalance'])): ?>
-            <th><?= l('Наличие у поставщиков') ?></th>
+            <th><?= crop_title(l('Наличие у поставщиков'), 5) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['delivery'])): ?>
-            <th><?= l('Ожидаемые поставки') ?></th>
+            <th><?= crop_title(l('Ожидаемые поставки'), 5) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['cart'])): ?>
             <th><a href="#" class="btn btn-default" title="<?= l('Корзина') ?>" onclick="return show_cart();"><i
@@ -75,10 +75,10 @@
                         id="cart-quantity"><?= $item_in_cart ?></span> <?= l('шт.') ?></a></th>
         <?php endif; ?>
         <?php if (isset($columns['mbalance'])): ?>
-            <th><?= l('Неснижаемый остаток') ?></th>
+            <th><?= crop_title(l('Неснижаемый остаток'), 5) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['type'])): ?>
-            <th><?= l('Товар/услуга') ?></th>
+            <th><span title="<?= l('Товар/Услуга')?>"><?= l('Т/У') ?></span></th>
         <?php endif; ?>
         <?php if (isset($columns['manager'])): ?>
             <th><?= l('Менеджер') ?></th>

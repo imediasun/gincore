@@ -2185,3 +2185,17 @@ function get_orders_for_orders_manager($filters_query = '')
             (time() - 60 * 60 * 24 * 90)
         ))->assoc();
 }
+
+/**
+ * @param $title
+ * @param $length
+ * @return string
+ */
+function crop_title($title, $length) {
+
+    $view = new View();
+    return $view->renderFile("inc_func/crop_title", array(
+        'title' => $title,
+        'length' => $length
+    ));
+}
