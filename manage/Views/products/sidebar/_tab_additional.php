@@ -43,7 +43,7 @@
                 <td colspan="2">
                     <label><?= l('Категории') ?>: </label>
                     <br/>
-                    <select class="multiselect form-control" multiple="multiple" name="categories[]">
+                    <select class="good-multiselect form-control" multiple="multiple" name="categories[]">
                         <?= build_array_tree($categories, array_keys($selected_categories)); ?>
                     </select>
                 </td>

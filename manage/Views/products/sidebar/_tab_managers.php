@@ -13,7 +13,7 @@
         </div>
         <div class="form-group"><label><?= l('manager') ?>: </label>
 
-            <select class="multiselect form-control"
+            <select class="good-multiselect form-control"
                 <?= $this->all_configs['configs']['manage-product-managers'] == true ? ' multiple="multiple"' : '' ?> name="users[]">
                 <option value="0"><?= l('Не выбран') ?></option>
                 <?php if (!empty($managers)) : ?>
@@ -53,7 +53,17 @@
 </div>
 
 <script type="text/javascript">
-    $(function () {
-        reset_multiselect();
+    jQuery(document).ready(function () {
+        var $multiselect = $('.good-multiselect');
+        setTimeout(function () {
+            $multiselect.each(function () {
+                var $this = $(this),
+                    opts = multiselect_options;
+                if (typeof $this.attr('data-numberDisplayed') !== 'undefined') {
+                    opts.numberDisplayed = $this.attr('data-numberDisplayed');
+                }
+                $this.multiselect(opts);
+            });
+        }, 0);
     })
 </script>
