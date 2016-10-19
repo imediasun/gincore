@@ -43,7 +43,7 @@ class products extends Controller
         if (!isset($arrequest[1]) || $arrequest[1] != 'create') {
             return $this->gencontent(); // список товаров
         } elseif (isset($arrequest[1]) && $arrequest[1] == 'create') { // форма изменения товара
-            return $this->gencreate();
+            return $this->gencreate($_POST);
         }
         return '';
     }
@@ -127,10 +127,7 @@ class products extends Controller
             Response::redirect($url);
         }
 
-        // создание продукта
-        if (isset($post['create-product']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
-            return $this->createProduct($post, $user_id, $mod_id);
-        }
+
 
         if (isset($post['delete-product'])) {
             if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
@@ -295,8 +292,11 @@ class products extends Controller
     /**
      * @return string
      */
-    private function gencreate()
+    private function gencreate($post)
     {
+        $mod_id = $this->all_configs['configs']['products-manage-page'];
+        $user_id = $this->getUserId();
+
         // строим форму изменения товара
         $goods_html = '';
 
@@ -314,6 +314,13 @@ class products extends Controller
             }
         } else {
             if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
+
+                // создание продукта
+                if (isset($post['create-product'])) {
+                    $result = $this->createProduct($post, $user_id, $mod_id);
+                    $this->errors = isset($result['error']) ?  $result : [];
+                }
+
                 $goods_html = $this->create_product_form();
             } else {
                 $goods_html .= '<p  class="text-error">' . l('У Вас нет прав для добавления нового товара') . '</p>';
@@ -2123,6 +2130,11 @@ class products extends Controller
         if (mb_strlen(trim($post['title']), 'UTF-8') == 0) {
             return array('error' => l('Заполните название'), 'post' => $post);
         }
+
+        if (MGoods::isExistByTitle($this->all_configs['db'], trim($post['title']))) {
+            return array('error' => l('Товар с таким названием уже существует'), 'post' => $post);
+        }
+        
         $id = $this->all_configs['db']->query('INSERT INTO {goods}
                     (title, secret_title, url, avail, price, price_wholesale, article, author, type, vendor_code) VALUES (?, ?, ?n, ?i, ?i, ?i, ?, ?i, ?i, ?)',
             array(
