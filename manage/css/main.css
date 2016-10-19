@@ -1310,3 +1310,11 @@ table.table-vpaddingless tr td.arrow{
 .p-l-n {
     padding-left: 0;
 }
+
+#right-sidebar .img_delete {
+    cursor: pointer;
+    color: #B94A48;
+    position: absolute;
+    top: -10px;
+    right: 0;
+}

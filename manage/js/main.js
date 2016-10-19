@@ -120,6 +120,8 @@ var rightSidebar = {
             var elem = $(this);
             _this.load_product(elem.data('id_product'));
         })
+
+        _this.image_deleting_init();
     },
 
     form_init: function () {
@@ -146,6 +148,26 @@ var rightSidebar = {
                 }
             });
         })
+    },
+    
+    image_deleting_init: function () {
+        $('#right-sidebar .img_delete').live("click", function (e) {
+            var id_product = $(this).data('id_product');
+            var id_image = $(this).data('id_image');
+            var elem = this;
+            $.ajax({
+                url: prefix + 'products/ajax/'+id_product+'?act=product-image-delete',
+                type: 'POST',
+                data: { id_product: id_product, images_del: [ id_image ]},
+                dataType: 'json',
+                success: function (result) {
+                    if (result.hasError) {
+                    } else {
+                        $(elem).parent().remove();
+                    }
+                }
+            });  
+        })   
     },
 
     show : function () {
