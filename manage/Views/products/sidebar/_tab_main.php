@@ -36,7 +36,7 @@
             <div class="m-t-sm" id="goods_images">
                 <?php if($images): ?>
                     <?php foreach ($images as $image): ?>
-                    <div class="col-sm-2 m-t-sm"><img class="img-polaroid" src="<?= $this->allconfigs['siteprefix'] ?>/shop/goods/<?= $product['id'] ?>/<?= $image['image'] ?>" width="50px" title=""></div>
+                    <div class="col-sm-2 m-t-sm"><img class="img-polaroid" src="<?= $this->allconfigs['prefix'] ?>/shop/goods/<?= $product['id'] ?>/<?= $image['image'] ?>" width="50px" title=""></div>
                     <?php endforeach; ?>
                 <?php endif; ?>
 
