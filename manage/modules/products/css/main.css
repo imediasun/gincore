@@ -90,3 +90,16 @@ td.edit-price .input-small {
 .table-lh-30 > thead > tr > th {
     line-height: 30px;
 }
+.ui-tooltip {
+    max-width: 450px;
+}
+table.table-goods >thead >tr >th {
+    border-bottom: 1px solid #ddd;
+    padding: 0 5px
+}
+table.table-goods >tbody >tr >td {
+    padding: 5px
+}
+table.table-navigation >tbody >tr >td {
+    padding: 0 5px
+}

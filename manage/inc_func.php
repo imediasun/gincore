@@ -2187,15 +2187,14 @@ function get_orders_for_orders_manager($filters_query = '')
 }
 
 /**
- * @param $title
- * @param $length
+ * @param        $title
+ * @param string $delimiter
  * @return string
  */
-function crop_title($title, $length) {
-
+function crop_title($title, $delimiter = ' ') {
     $view = new View();
     return $view->renderFile("inc_func/crop_title", array(
         'title' => $title,
-        'length' => $length
+        'crop' => substr($title, 0, strpos($title, $delimiter))
     ));
 }

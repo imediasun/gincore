@@ -8,7 +8,6 @@
                 <fieldset>
                     <?php foreach (array(
                         'id' => 'ID',
-                        'marker' => 'Маркер',
                         'photo' => 'Фото',
                         'title' => 'Название продукта',
                         'vc' => 'Артикул',

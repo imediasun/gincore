@@ -52,22 +52,22 @@
             </th>
         <?php endif; ?>
         <?php if (isset($columns['rprice'])): ?>
-            <th><?= crop_title(l('Закупочная цена'),5) ?></th>
+            <th><?= crop_title(l('Закупочная цена')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['wprice'])): ?>
-            <th><?= crop_title(l('Оптовая цена'), 5) ?></th>
+            <th><?= crop_title(l('Оптовая цена')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['balance'])): ?>
-            <th><?= crop_title(l('Общий остаток'), 3) ?></th>
+            <th><?= crop_title(l('Общий остаток')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['fbalance'])): ?>
-            <th><?= crop_title(l('Свободный остаток'), 3) ?></th>
+            <th><?= crop_title(l('Свободный остаток')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['sbalance'])): ?>
-            <th><?= crop_title(l('Наличие у поставщиков'), 5) ?></th>
+            <th><?= crop_title(l('Наличие у поставщиков')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['delivery'])): ?>
-            <th><?= crop_title(l('Ожидаемые поставки'), 5) ?></th>
+            <th><?= crop_title(l('Ожидаемые поставки')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['cart'])): ?>
             <th><a href="#" class="btn btn-default" title="<?= l('Корзина') ?>" onclick="return show_cart();"><i
@@ -75,7 +75,7 @@
                         id="cart-quantity"><?= $item_in_cart ?></span> <?= l('шт.') ?></a></th>
         <?php endif; ?>
         <?php if (isset($columns['mbalance'])): ?>
-            <th><?= crop_title(l('Неснижаемый остаток'), 5) ?></th>
+            <th><?= crop_title(l('Неснижаемый остаток')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['type'])): ?>
             <th><span title="<?= l('Товар/Услуга')?>"><?= l('Т/У') ?></span></th>
