@@ -11,8 +11,28 @@
         <?php include '_tab_suppliers_orders.php';?>
         <?php include '_tab_notification.php';?>
         <div class="form-group m-t-md m-l-md">
-            <input type="submit" class="btn btn-primary" value="<?= l('Сохранить') ?>" id="sidebar-product-form-submit">
+            <input type="submit" class="btn" value="<?= l('Сохранить') ?>" id="sidebar-product-form-submit">
 <!--           <input type="button" class="btn btn-default js_close_sidebar" value="<?= l('Отмена') ?>"> -->
         </div>
     </form>
+    
+    
+    <script type="text/javascript">
+
+    $( function() {
+        $('#right-sidebar').tooltip({
+            items: "[data-tooltip]",
+            content: function() {
+                var element = $( this );
+
+                if ( element.is( "[data-tooltip]" ) ) {
+                    return element.data( "tooltip" );
+                }
+
+            }
+        });
+    });
+    </script>
 <?php endif; ?>
+
+
