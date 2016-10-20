@@ -1325,6 +1325,8 @@ table.table-vpaddingless tr td.arrow{
 }
 
 #right-sidebar #sidebar-product-form-submit {
+    background-color: #239aca;
+    border: none;
     position: fixed;
     bottom: 5px;
     width: 100px;
