@@ -133,3 +133,37 @@ function delete_from_cart(_this, id) {
   });
   return false;
 }
+function cart_select_price_type(_this) {
+  var type = $(_this).attr('data-price_type');
+  $('input[name="price_type"]').val(type);
+  $('.btn-title-price_type').html($(_this).attr('data-title'));
+  $('.js-price').hide();
+  if (type == 1) {
+    $('.js-price-sale').show();
+  }
+  if (type == 2) {
+    $('.js-price-wholesale').show();
+  }
+  if (type == 3) {
+    $('.js-price-purchase').show();
+  }
+  recalculate_cart_sum();
+}
+function recalculate_cart_sum() {
+
+  var $body = $('.cart-items > tbody');
+  $body.children('tr').each(function () {
+    var $row = $(this),
+      quantity = parseInt($row.find('.quantity').first().val()),
+      price = parseFloat($row.find('.js-price-sale').first().html()).toFixed(2),
+      type = $('input[name="price_type"]').val();
+    if (type == 2) {
+      price = parseFloat($row.find('.js-price-wholesale').first().html()).toFixed(2);
+    }
+    if (type == 3) {
+      price = parseFloat($row.find('.js-price-purchase').first().html()).toFixed(2);
+    }
+
+    $row.find('.js-sum').first().html(Math.round(quantity * price));
+  });
+}

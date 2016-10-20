@@ -1,10 +1,17 @@
 <div class="row-fluid">
     <form method="POST" id="action-form">
         <fieldset>
-            <div class="col-sm-6" style="border-right: 1px solid">
+            <div class="col-sm-6" style="border-right: 1px solid #ddd">
 
                 <table class="table table-borderless">
                     <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <label>
+                                <?= l('Основные параметры') ?>
+                            </label>
+                        </td>
+                    </tr>
                     <tr>
                         <td colspan="2">
                             <div class="input-group">
@@ -29,12 +36,13 @@
                         <td>
                             <?= l('Категории') ?>
                         </td>
-                        <td>
+                        <td width="50%">
                             <select class="multiselect form-control" multiple="multiple" name="categories[]"
                                     data-placeholder="<?= l('Категории') ?>">
                                 <?= build_array_tree($categories, array_keys()); ?>
                             </select>
                         </td>
+                    </tr>
                     <tr>
                         <td>
                             <?= l('Менеджер') ?>
@@ -58,10 +66,17 @@
                 <table class="table table-borderless">
                     <tbody>
                     <tr>
-                        <td width="25%">
+                        <td colspan="2">
+                            <label>
+                                <?= l('Ценообразование') ?>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <?= l('Розничная цена') ?>
                         </td>
-                        <td width="20%">
+                        <td width="50%">
                             <input type="text" class="form-control" name="price"/>
 
                         </td>
@@ -79,7 +94,7 @@
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="3">
+                        <td colspan="2" style="line-height: 30px">
                             <input type='checkbox' name="use_automargin"/>
                             <?= l('Автонаценка') ?>
                         </td>
@@ -125,11 +140,57 @@
             </div>
             <div class="clearfix"></div>
             <hr />
-            <div class="col-sm-6" style="border-right: 1px solid">
+            <div class="col-sm-6" style="border-right: 1px solid #ddd">
 
                 <table class="table table-borderless">
                     <tbody>
-
+                    <tr>
+                        <td colspan="2">
+                            <label><?= l('Оплата сотруднику за продажу товара/услуги') ?> <?= InfoPopover::getInstance()->createQuestion('l_pay_employee_for_sale') ?> </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?= l('% от прибыли') ?>
+                        </td>
+                        <td width="50%">
+                            <div class="input-group" style="width:150px">
+                                <input type="text" class="form-control"
+                                       style="min-width: 50px" name="percent_from_profit"/>
+                                <div class="input-group-addon" style="cursor: pointer; width:50px">
+                                    <span class="percent">%</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?= l('фиксированная оплата') ?>
+                        </td>
+                        <td>
+                            <div class="input-group" style="width:150px">
+                                <input type="text" class="form-control"
+                                       style="min-width: 50px" name="fixed_payment"/>
+                                <div class="input-group-addon" style="cursor: pointer; width:50px">
+                                    <span class="currency"><?= viewCurrency() ?></span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">*<?= l('Если поля не будут заполнены их значения будут браться из основной категории') ?></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?= l('Основная категория') ?>
+                        </td>
+                        <td>
+                            <select class="form-control" name="category_for_margin" style="width: 150px;">
+                                <option value="-1"> <?= l('Выберите категорию') ?></option>
+                                <?= build_array_tree($categories, array()); ?>
+                            </select>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -137,6 +198,13 @@
 
                 <table class="table table-borderless">
                     <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <label>
+                                <?= l('Уведомления') ?>
+                            </label>
+                        </td>
+                    </tr>
                     <tr>
                         <td colspan="2">
                             <input type="checkbox" name="each_sale"/>
@@ -148,7 +216,7 @@
                             <input type="checkbox" name="use_minimum_balance"/>
                                 <?= l('Неснижаемый остаток') ?>
                         </td>
-                        <td>
+                        <td width="50%">
                             <div class="input-group">
                                 <input placeholder="<?= l('количество товаров') ?>"
                                        value="0" type="text" class="form-control" onkeydown="return isNumberKey(event)"

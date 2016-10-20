@@ -56,9 +56,9 @@
         </td>
     <?php endif; ?>
     <?php if (isset($columns['cart'])): ?>
-        <td style="text-align: center">
+        <td>
             <?php if ($good['type'] == GOODS_TYPE_ITEM): ?>
-                <a href="#" onclick="return add_to_cart(<?= $good['id'] ?>);">
+                <a href="#" class='cart' onclick="return add_to_cart(<?= $good['id'] ?>);">
                     <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                 </a>
             <?php endif; ?>

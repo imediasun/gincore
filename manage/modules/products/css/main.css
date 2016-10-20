@@ -103,3 +103,7 @@ table.table-goods >tbody >tr >td {
 table.table-navigation >tbody >tr >td {
     padding: 0 5px
 }
+a.cart {
+    margin-left: 15px;
+    display:inline-block;
+}

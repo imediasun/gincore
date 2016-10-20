@@ -1690,9 +1690,9 @@ class Suppliers extends Object
         $msg = $debit_items = $print_items = array();
 
         if ($auto || count($serials) <= $order['count_come']) {
-            if($auto) {
-                $serials = range(1, $order['count_come']);
-            }
+//            if($auto) {
+//                $serials = range(1, $order['count_come']);
+//            }
             foreach ($serials as $k => $serial) {
                 $item_id = null;
                 if ($auto) {

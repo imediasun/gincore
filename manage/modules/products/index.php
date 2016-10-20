@@ -2856,6 +2856,15 @@ class products extends Controller
                 $update['wholesale_automargin_type'] = intval($post['wholesale_automargin_type']);
                 $update['wholesale_automargin'] = intval($post['wholesale_automargin']);
             }
+            if (isset($post['percent_from_profit']) && !empty($post['percent_from_profit'])) {
+                $update['percent_from_profit'] = $post['percent_from_profit'];
+            }
+            if (isset($post['fixed_payment']) && !empty($post['fixed_payment'])) {
+                $update['fixed_payment'] = $post['fixed_payment'];
+            }
+            if (isset($post['category_for_margin']) && !empty($post['category_for_margin'])) {
+                $update['category_for_margin'] = $post['category_for_margin'];
+            }
 
             $this->Goods->update($update, array(
                 'id' => $goods_ids

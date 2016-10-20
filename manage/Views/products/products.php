@@ -13,7 +13,9 @@
     </div>
     <div class="tab-content">
         <div id="goods" class="tab-pane active">
-            <?= $filters ?>
+            <div class="row-fluid" style="margin-bottom: 20px">
+                    <?= $filters ?>
+            </div>
             <?php if (empty($goods)): ?>
                 <p class="text-error"><?= l('Нет ни одного продутка') ?></p>
             <?php else: ?>
