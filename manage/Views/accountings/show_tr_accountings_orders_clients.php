@@ -7,7 +7,8 @@
 <?php else: ?>
 <?php $class = $chain['return'] == 0 && $chain['price'] > $chain['paid'] ? '' : 'class="success"'; ?>
 <td <?= $class ?>>
-    <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $chain['goods_id'] ?>">
+    <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $chain['goods_id'] ?>"
+       data-action="sidebar_product" data-id_product="<?= $chain['goods_id'] ?>">
         <?= htmlspecialchars($chain['g_title']) ?>
     </a>
     <?php endif; ?>

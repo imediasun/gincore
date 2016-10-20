@@ -18,7 +18,7 @@
         <?php if (!empty($amounts)): ?>
             <?php foreach ($amounts as $p_id => $amount): ?>
                 <tr>
-                    <td><a href="<?= $href . $p_id ?>"><?= htmlspecialchars($amount['title']) ?></a></td>
+                    <td><a href="<?= $href . $p_id ?>" data-action="sidebar_product" data-id_product="<?= $p_id ?>"><?= htmlspecialchars($amount['title']) ?></a></td>
                     <td><?= (isset($amount['qty_wh']) ? $amount['qty_wh'] : 0) ?></td>
                     <td><?= (isset($amount['qty_store']) ? $amount['qty_store'] : 0) ?></td>
                     <td><?= (isset($amount['qty_wait_wh']) ? $amount['qty_wait_wh'] : 0) ?></td>
