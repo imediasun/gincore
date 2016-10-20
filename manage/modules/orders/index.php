@@ -1114,10 +1114,10 @@ class orders extends Controller
 
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
             if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0) {
-                $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(1,
+                $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(null,
                     $this->all_configs['arrequest'][2]);
             } else {
-                $goods = isset($_GET['id_product']) ? (int)$_GET['id_product'] : 1;
+                $goods = isset($_GET['id_product']) ? (int)$_GET['id_product'] : null;
                 $orders_html .= $this->all_configs['suppliers_orders']->create_order_block($goods);
             }
         }
@@ -2134,14 +2134,14 @@ class orders extends Controller
             $data['state'] = true;
             $counter = isset($_POST['counter']) ? intval($_POST['counter']) : 0;
             $id = isset($_POST['id']) ? $_POST['id'] : null;
-            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(1, $id, false, $counter);
+            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(null, $id, false, $counter);
         }
 
         if ($act == 'supplier-order-form') {
             $data['state'] = true;
             $counter = 0;
             $id = isset($_POST['id']) ? $_POST['id'] : null;
-            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(true, $id, true, $counter, true);
+            $data['html'] = $this->all_configs['suppliers_orders']->create_order_block(null, $id, true, $counter, true);
         }
         // открываем форму привязки запчасти к ремонту array(product_id=29)
         if ($act == 'bind-group-product-to-order') {
