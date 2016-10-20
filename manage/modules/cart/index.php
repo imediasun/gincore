@@ -14,6 +14,10 @@ $moduleactive[260] = !$ifauth['is_2'];
  */
 class cart extends Controller
 {
+    const PRICE_SALE = 1;
+    const PRICE_WHOLESALE = 2;
+    const PRICE_PURCHASE = 3;
+
     public $uses = array(
         'Goods',
         'LockFilters',
@@ -41,17 +45,11 @@ class cart extends Controller
                 }
             }
             if (strcmp($this->all_configs['arrequest'][1], 'purchase') === 0) {
-                $result = $this->createOrderToSupplier($_POST, $mod_id);
-                if ($result['state']) {
-                    FlashMessage::set(l('Заказ поставщику успешно создан'), FlashMessage::SUCCESS);
+                $result = $this->createOrderToSupplier($_POST);
+                if ($result) {
                     Response::json(array(
                         'state' => true,
-                        'redirect' => Url::create(array(
-                            'controller' => 'orders',
-                            'action' => 'edit',
-                            $result['parent_order_id'],
-                            'hash' => '#create_supplier_order'
-                        ))
+                        'redirect' => $this->all_configs['prefix'] . 'orders?from_cart=1#create_supplier_order'
                     ));
                 }
             }
@@ -254,7 +252,16 @@ class cart extends Controller
         );
         foreach ($cart as $id => $quantity) {
             $products['item_ids'][$id] = $id;
-            $products['amount'][$id] = $goods[$id]['price'] / 100;
+            switch ($post['price_type']) {
+                case self::PRICE_WHOLESALE:
+                    $products['amount'][$id] = $goods[$id]['price_wholesale'] / 100;
+                    break;
+                case self::PRICE_PURCHASE:
+                    $products['amount'][$id] = $goods[$id]['price_purchase'] / 100;
+                    break;
+                default:
+                    $products['amount'][$id] = $goods[$id]['price'] / 100;
+            }
             $products['discount'][$id] = 0;
             $products['discount_type'][$id] = 0;
             $products['warranty'][$id] = 0;
@@ -271,36 +278,39 @@ class cart extends Controller
 
     /**
      * @param $post
-     * @param $mod_id
-     * @return array
+     * @return bool
      */
-    public function createOrderToSupplier($post, $mod_id)
+    public function createOrderToSupplier($post)
     {
         $cart = Session::getInstance()->get('cart');
         if (empty($cart)) {
-            return array(
-                'status' => false
-            );
+            return false;
         }
         $goods = $this->Goods->query('SELECT * FROM {goods} WHERE id in (?li)',
             array(array_keys($cart)))->assoc('id');
-        $products = array(
-            'item_ids' => array(),
-            'amount' => array(),
-            'quantity' => array(),
-            'from_client_order' => 1
-        );
+        $products = array();
         foreach ($cart as $id => $quantity) {
-            $products['item_ids'][$id] = $id;
-            $products['amount'][$id] = $goods[$id]['price_purchase'];
-            $products['quantity'][$id] = empty($post['quantity'][$id]) ? $quantity : $post['quantity'][$id];
+            switch ($post['price_type']) {
+                case self::PRICE_WHOLESALE:
+                    $price = $goods[$id]['price_wholesale'];
+                    break;
+                case self::PRICE_PURCHASE:
+                    $price = $goods[$id]['price_purchase'];
+                    break;
+                default:
+                    $price = $goods[$id]['price'];
+            }
+            $products[] = array(
+                'id' => $id,
+                'title' => $goods[$id]['title'],
+                'price' => $price / 100,
+                'quantity' => empty($post['quantity'][$id]) ? $quantity : $post['quantity'][$id]
+            );
         }
 
-        $result = $this->all_configs['suppliers_orders']->create_order($mod_id, $products);
-        if ($result['state']) {
-            Session::getInstance()->clear('cart');
-        }
-        return $result;
+        Session::getInstance()->set('from_cart', $products);
+        Session::getInstance()->clear('cart');
+        return true;
     }
 
     /**

@@ -1111,13 +1111,22 @@ class orders extends Controller
     public function orders_create_supplier_order()
     {
         $orders_html = '';
-
         if ($this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')) {
+            $goods = null;
             if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] > 0) {
-                $orders_html .= $this->all_configs['suppliers_orders']->create_order_block(null,
+                $orders_html .= $this->all_configs['suppliers_orders']->create_order_block($goods,
                     $this->all_configs['arrequest'][2]);
             } else {
-                $goods = isset($_GET['id_product']) ? (int)$_GET['id_product'] : null;
+                switch (true) {
+                    case isset($_GET['id_product']):
+                        $goods = (int)$_GET['id_product'];
+                        break;
+                    case ($_GET['from_cart'] && Session::getInstance()->check('from_cart')):
+                        $goods = Session::getInstance()->get('from_cart');
+                        Session::getInstance()->clear('from_cart');
+                        break;
+
+                }
                 $orders_html .= $this->all_configs['suppliers_orders']->create_order_block($goods);
             }
         }
@@ -3815,7 +3824,7 @@ class orders extends Controller
         if (isset($post['lock-button'])) {
             $url['lock-button'] = trim($post['lock-button']);
         }
-        if(isset($post['parent-categories']) && count($post['parent-categories']) > 0) {
+        if (isset($post['parent-categories']) && count($post['parent-categories']) > 0) {
             $url['cats'] = implode('-', $post['parent-categories']);
         }
         if (isset($post['sale-order'])) {

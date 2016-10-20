@@ -861,7 +861,8 @@ class Suppliers extends Object
             'all' => $all,
             'order' => $order,
             'order_id' => $order_id,
-            'goods' => $goods,
+            'goods' => !is_array($goods) ? $goods : null,
+            'cart' => is_array($goods) ? $goods : null,
             'typeahead' => $typeahead
         )) . $this->append_js();
     }
