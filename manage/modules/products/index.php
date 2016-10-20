@@ -185,7 +185,6 @@ class products extends Controller
             if (intval($ar) > 0) {
                 $this->History->save('update-goods-image-prio', $mod_id, $product_id);
             }
-
             //если нужно удаляeм картинку с базы и с папки
             if (isset($post['images_del'])) {
                 $post = $this->deleteImage($post, $product_id, $mod_id);
@@ -932,6 +931,12 @@ class products extends Controller
         // сохраняем новые данные о продукте
         if ($act == 'sidebar-product-update') {
             Response::json($this->updateProductSideBar());
+        }
+
+        // сохраняем новые данные о продукте
+        if ($act == 'product-image-delete') {
+            $id_product = (int)$_POST['id_product'];
+            Response::json($this->deleteImage($_POST, $id_product, $mod_id ));
         }
 
         // управление заказами поставщика
@@ -2375,7 +2380,11 @@ class products extends Controller
         $secret_title = $this->all_configs['db']->query('SELECT secret_title FROM {goods} WHERE id=?i',
             array($product_id))->el();
 
-        foreach ($post['images_del'] AS $del_id => $image_title) {
+
+        foreach ($post['images_del'] AS $del_id) {
+            $image = $this->all_configs['db']->query('SELECT * FROM {goods_images} WHERE id=?i', array(intval($del_id)))->col();
+            $image_title = $image['image'];
+
             $this->all_configs['db']->query('DELETE FROM {goods_images} WHERE id=?i', array(intval($del_id)));
             unlink($this->all_configs['sitepath'] . $this->all_configs['configs']['goods-images-path'] . $product_id . '/' . $image_title);
 

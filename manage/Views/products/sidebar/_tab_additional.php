@@ -4,7 +4,7 @@
         <div class="panel-tools">
             <i class="fa fa-chevron-up"></i>
         </div>
-        <?= l('Дополнительная информация') ?>
+        <?= l('Доп. информация') ?>
     </div>
     <div class="panel-body" style="display: none;">
         <table class="table table-borderless">
@@ -40,9 +40,10 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td>
                     <label><?= l('Категории') ?>: </label>
-                    <br/>
+                </td>
+                <td>
                     <select class="good-multiselect form-control" multiple="multiple" name="categories[]">
                         <?= build_array_tree($categories, array_keys($selected_categories)); ?>
                     </select>
