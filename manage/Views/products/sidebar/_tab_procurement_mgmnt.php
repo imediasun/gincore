@@ -51,7 +51,7 @@
             <label class="checkbox-inline">
                 <input <?= ($product['use_automargin'] == 1) ? 'checked' : '' ?> type="checkbox" name="use_automargin"/>
                 <?= l('Автонаценка') ?>
-                &nbsp;<i class="fa fa-question-circle" data-tooltip="<?= l('l_good_automargin') ?> " ></i>
+                &nbsp;<i class="fa fa-question-circle" data-toggle="tooltip" title="<?= l('l_good_automargin') ?>" ></i>
             </label>
         </div>
 
