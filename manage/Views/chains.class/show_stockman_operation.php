@@ -14,7 +14,8 @@
         <td><?= h($item['location']) ?></td>
         <td><span title="<?= do_nice_date($item['date_add'], false) ?>"> <?= do_nice_date($item['date_add']) ?></span></td>
         <td>
-            <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $item['goods_id'] ?>"> <?= htmlspecialchars($item['title']) ?></a>
+            <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $item['goods_id'] ?>"
+               data-action="sidebar_product" data-id_product="<?= $item['goods_id'] ?>" > <?= htmlspecialchars($item['title']) ?></a>
             <i class="fa fa-arrows popover-info" data-content="<?= $state ?>"></i>
         </td>
     <?php endif; ?>
