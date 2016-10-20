@@ -54,7 +54,8 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <?= l('Оплата сотруднику за продажу товара/услуги') ?> <?= InfoPopover::getInstance()->createQuestion('l_pay_employee_for_sale') ?>
+                    <?= l('Оплата сотруднику за продажу товара/услуги') ?>
+                    &nbsp;<i class="fa fa-question-circle" data-tooltip="<?= l('l_pay_employee_for_sale') ?> " ></i>
                 </td>
             </tr>
             <tr>

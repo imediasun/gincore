@@ -50,7 +50,8 @@
         <div class="form-group m-t-lg m-l-sm">
             <label class="checkbox-inline">
                 <input <?= ($product['use_automargin'] == 1) ? 'checked' : '' ?> type="checkbox" name="use_automargin"/>
-                <?= l('Автонаценка') ?> <?= InfoPopover::getInstance()->createQuestion('l_good_automargin') ?>
+                <?= l('Автонаценка') ?>
+                &nbsp;<i class="fa fa-question-circle" data-tooltip="<?= l('l_good_automargin') ?> " ></i>
             </label>
         </div>
 

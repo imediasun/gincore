@@ -41,7 +41,8 @@
                     <label class="checkbox-inline">
                         <input <?= ($product['use_minimum_balance'] == 1) ? 'checked' : '' ?> type="checkbox"
                                                                                               name="use_minimum_balance" value="on"/>
-                        <?= l('неснижаемый остаток') ?> <?= InfoPopover::getInstance()->createQuestion('l_good_minimum_balance') ?>
+                        <?= l('неснижаемый остаток') ?>
+                        &nbsp;<i class="fa fa-question-circle" data-tooltip="<?= l('l_good_minimum_balance') ?> " ></i>
                     </label>
                 </td>
                 <td colspan="2">

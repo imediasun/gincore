@@ -15,4 +15,24 @@
 <!--           <input type="button" class="btn btn-default js_close_sidebar" value="<?= l('Отмена') ?>"> -->
         </div>
     </form>
+    
+    
+    <script type="text/javascript">
+
+    $( function() {
+        $('#right-sidebar').tooltip({
+            items: "[data-tooltip]",
+            content: function() {
+                var element = $( this );
+
+                if ( element.is( "[data-tooltip]" ) ) {
+                    return element.data( "tooltip" );
+                }
+
+            }
+        });
+    });
+    </script>
 <?php endif; ?>
+
+
