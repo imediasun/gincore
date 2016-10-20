@@ -449,7 +449,7 @@ function change_margin_type(_this, selector) {
   }
   $('.js-' + selector + '-type').toggle();
 }
-function show_action_form(_this, action, filters) {
+function show_action_form(_this, action) {
   var ids = [], buttons = {
     success: {
       label: "Применить",

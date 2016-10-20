@@ -102,14 +102,16 @@
             'goods' => $goods,
             'is_modal' => $is_modal
         )); ?>
-        <?= $this->renderFile('suppliers.class/_cart_items_table', array()); ?>
+        <?= $this->renderFile('suppliers.class/_new_order_cart_items_table', array(
+            'cart' => $cart
+        )); ?>
 
 
         <?php if ($all): ?>
             <div class="row-fluid">
                 <div class="col-sm-12 form-group">
                     <?php if (empty($order_id)): ?>
-                        <input id='js-create-button' type="button" class="btn submit-form-btn" style='display:none' onclick="create_supplier_order(this)"
+                        <input id='js-create-button' type="button" class="btn submit-form-btn" style='<?= empty($cart)?'display:none':'' ?>' onclick="create_supplier_order(this)"
                                value="<?= l('Создать') ?>"/>
                     <?php else: ?>
                         <input type="submit" class="btn btn-primary submit-from-btn" name="new-order"

@@ -4,7 +4,7 @@
             <td>
                 <div class="input-group">
                     <a class="btn btn-default" href="#" title=""
-                       onclick="return show_action_form(this, 'action-form', '<?= json_encode($_GET) ?>')"
+                       onclick="return show_action_form(this, 'action-form')"
                        title="<?= l('Действия') ?>">
                         <i class="fa fa-sliders" aria-hidden="true"></i>
                     </a>
@@ -107,7 +107,7 @@
                         <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create"
                            class="btn btn-success pull-right">
                             <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                            <?= l('товар') ?>
+                            <?= l('Товар') ?>
                         </a>
                 <?php endif; ?>
 

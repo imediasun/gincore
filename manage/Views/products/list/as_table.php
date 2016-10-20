@@ -35,20 +35,7 @@
         <?php endif; ?>
         <?php if (isset($columns['price'])): ?>
             <th>
-                <?php switch ($_GET['sort']): ?>
-<?php case 'price': ?>
-                        <a href="?sort=rprice">
-                            <?= l('Цена') ?><i class="glyphicon glyphicon-chevron-down"></i>
-                        </a>
-                        <?php break; ?>
-                    <?php case 'rprice': ?>
-                        <a href="?sort=price">
-                            <?= l('Цена') ?><i class="glyphicon glyphicon-chevron-up"></i>
-                        </a>
-                        <?php break; ?>
-                    <?php default: ?>
-                        <a href="?sort=price"><?= l('Цена') ?></a>
-                    <?php endswitch; ?>
+                <?= crop_title(l('Розничная цена')) ?>
             </th>
         <?php endif; ?>
         <?php if (isset($columns['rprice'])): ?>
@@ -78,7 +65,7 @@
             <th><?= crop_title(l('Неснижаемый остаток')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['type'])): ?>
-            <th><span title="<?= l('Товар/Услуга')?>"><?= l('Т/У') ?></span></th>
+            <th><span title="<?= l('Товар/Услуга') ?>"><?= l('Т/У') ?></span></th>
         <?php endif; ?>
         <?php if (isset($columns['manager'])): ?>
             <th><?= l('Менеджер') ?></th>
