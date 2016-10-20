@@ -107,7 +107,7 @@
                         <a href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>/create"
                            class="btn btn-success pull-right">
                             <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                            <?= l('товар') ?>
+                            <?= l('Товар') ?>
                         </a>
                 <?php endif; ?>
 
