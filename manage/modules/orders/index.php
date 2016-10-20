@@ -626,6 +626,11 @@ class orders extends Controller
             if (!empty($_GET['on_request'])) {
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
+            $cart = null;
+            if(!empty($_GET['from_cart']) && Session::getInstance()->check('from_cart')) {
+                $cart = Session::getInstance()->get('from_cart');
+                Session::getInstance()->clear('from_cart');
+            }
 
             $client_id = $order_data ? $order_data['client_id'] : 0;
             if (!$client_id) {
@@ -640,7 +645,7 @@ class orders extends Controller
                 )),
                 'order' => $order_data,
                 'orderForSaleForm' => $this->order_for_sale_form($client_id),
-                'orderEshopForm' => $this->order_for_sale_over_eshop_form($client_id),
+                'orderEshopForm' => $this->order_for_sale_over_eshop_form($client_id, $cart),
                 'hide' => $this->getHideFieldsConfig(),
                 'tag' => $this->getTag($client_id),
                 'tags' => $this->getTags(),
@@ -650,7 +655,8 @@ class orders extends Controller
                 'users_fields' => $this->getUsersFields(),
                 'managers' => $this->all_configs['oRole']->get_users_by_permissions('edit-clients-orders'),
                 'engineers' => $this->getEngineersWithWorkload(),
-                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
+                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars(),
+                'cart' => $cart
             ));
         }
 
@@ -662,9 +668,10 @@ class orders extends Controller
 
     /**
      * @param null $clientId
+     * @param null $cart
      * @return string
      */
-    public function order_for_sale_over_eshop_form($clientId = null)
+    public function order_for_sale_over_eshop_form($clientId = null, $cart = null)
     {
         $order_data = null;
         $client_id = $order_data ? $order_data['client_id'] : 0;
@@ -679,7 +686,8 @@ class orders extends Controller
             'tags' => $this->getTags(),
             'tag' => empty($clientId) ? array() : $this->getTag($clientId),
             'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0,
-            'deliveryByList' => $this->Orders->getDeliveryByList()
+            'deliveryByList' => $this->Orders->getDeliveryByList(),
+            'cart' => $cart
         ));
     }
 

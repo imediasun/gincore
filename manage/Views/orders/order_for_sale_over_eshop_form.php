@@ -81,7 +81,8 @@
                         <?= $this->renderFile('orders/_cart_items_table', array(
                             'prefix' => 'eshop',
                             'orderWarranties' => $orderWarranties,
-                            'defaultWarranty' => $defaultWarranty
+                            'defaultWarranty' => $defaultWarranty,
+                            'cart' => $cart
                         )) ?>
                     </div>
 

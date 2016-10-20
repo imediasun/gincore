@@ -35,17 +35,16 @@ class cart extends Controller
 
         if (isset($post['cart']) && $this->all_configs['oRole']->hasPrivilege('create-goods')) {
             if (strcmp($this->all_configs['arrequest'][1], 'sale') === 0) {
-                $result = $this->createSaleOrder($_POST, $mod_id);
-                if ($result['state']) {
-                    FlashMessage::set(l('Заказ успешно создан'), FlashMessage::SUCCESS);
+                $result = $this->createOrderFromCart($_POST);
+                if ($result) {
                     Response::json(array(
                         'state' => true,
-                        'redirect' => $result['location']
+                        'redirect' =>  $this->all_configs['prefix'] . 'orders?from_cart=1#create_order'
                     ));
                 }
             }
             if (strcmp($this->all_configs['arrequest'][1], 'purchase') === 0) {
-                $result = $this->createOrderToSupplier($_POST);
+                $result = $this->createOrderFromCart($_POST);
                 if ($result) {
                     Response::json(array(
                         'state' => true,
@@ -225,67 +224,27 @@ class cart extends Controller
 
     /**
      * @param $post
-     * @param $mod_id
-     * @return array
-     */
-    public function createSaleOrder($post, $mod_id)
-    {
-        $cart = Session::getInstance()->get('cart');
-        if (empty($cart)) {
-            return array(
-                'status' => false
-            );
-        }
-        $goods = $this->Goods->query('SELECT * FROM {goods} WHERE id in (?li)',
-            array(array_keys($cart)))->assoc('id');
-        $client = $this->Clients->query('SELECT * FROM {clients} WHERE phone=?', array('000000000002'))->row();
-        $products = array(
-            'item_ids' => array(),
-            'amount' => array(),
-            'discount' => array(),
-            'discount_type' => array(),
-            'quantity' => array(),
-            'warranty' => array(),
-            'sum' => array(),
-            'client_id' => empty($client) ? 1 : $client['id'],
-            'clients' => 1
-        );
-        foreach ($cart as $id => $quantity) {
-            $products['item_ids'][$id] = $id;
-            switch ($post['price_type']) {
-                case self::PRICE_WHOLESALE:
-                    $products['amount'][$id] = $goods[$id]['price_wholesale'] / 100;
-                    break;
-                case self::PRICE_PURCHASE:
-                    $products['amount'][$id] = $goods[$id]['price_purchase'] / 100;
-                    break;
-                default:
-                    $products['amount'][$id] = $goods[$id]['price'] / 100;
-            }
-            $products['discount'][$id] = 0;
-            $products['discount_type'][$id] = 0;
-            $products['warranty'][$id] = 0;
-            $products['quantity'][$id] = empty($post['quantity'][$id]) ? $quantity : $post['quantity'][$id];
-            $products['sum'][$id] = $goods[$id]['price'] / 100 * $products['quantity'][$id];
-        }
-
-        $result = $this->all_configs['chains']->eshop_sold_items($products, $mod_id);
-        if ($result['state']) {
-            Session::getInstance()->clear('cart');
-        }
-        return $result;
-    }
-
-    /**
-     * @param $post
      * @return bool
      */
-    public function createOrderToSupplier($post)
+    public function createOrderFromCart($post)
     {
         $cart = Session::getInstance()->get('cart');
         if (empty($cart)) {
             return false;
         }
+        $products = $this->createCartForOrders($post, $cart);
+        Session::getInstance()->set('from_cart', $products);
+        Session::getInstance()->clear('cart');
+        return true;
+    }
+
+    /**
+     * @param $post
+     * @param $cart
+     * @return array
+     */
+    protected function createCartForOrders($post, $cart)
+    {
         $goods = $this->Goods->query('SELECT * FROM {goods} WHERE id in (?li)',
             array(array_keys($cart)))->assoc('id');
         $products = array();
@@ -307,10 +266,7 @@ class cart extends Controller
                 'quantity' => empty($post['quantity'][$id]) ? $quantity : $post['quantity'][$id]
             );
         }
-
-        Session::getInstance()->set('from_cart', $products);
-        Session::getInstance()->clear('cart');
-        return true;
+        return $products;
     }
 
     /**
