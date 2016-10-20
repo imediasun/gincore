@@ -225,6 +225,11 @@ class cart extends Controller
         );
     }
 
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
     public function createSaleOrder($post, $mod_id)
     {
         $cart = Session::getInstance()->get('cart');
@@ -298,6 +303,9 @@ class cart extends Controller
         return $result;
     }
 
+    /**
+     * @return string
+     */
     public function gencontent()
     {
         return '';

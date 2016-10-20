@@ -39,25 +39,29 @@
                     <tbody>
                     <?php foreach ($cart as $id => $quantity): ?>
                         <tr>
-                            <td> <?= h($goods[$id]['title']) ?> </td>
-                            <td>
+                            <td width="50%"> <?= h($goods[$id]['title']) ?> </td>
+                            <td width="15%">
                                 <span class="js-price js-price-sale"><?= round($goods[$id]['price'] / 100, 2) ?></span>
                                 <span class="js-price js-price-purchase"
                                       style="display: none"><?= round($goods[$id]['price_purchase'] / 100, 2) ?></span>
                                 <span class="js-price js-price-wholesale"
                                       style="display:none"><?= round($goods[$id]['price_wholesale'] / 100, 2) ?> </span>
                             </td>
-                            <td><input type="text" class="form-control quantity" onkeyup="recalculate_cart_sum()"
-                                       name='quantity[<?= $id ?>]' value="<?= $quantity ?>"/></td>
-                            <td>
-                            <span class="js-sum">
-                            <?= round($goods[$id]['price'] / 100, 2) * $quantity ?>
-                            </span>
+                            <td width="15%">
+                                <input type="text" class="form-control quantity" onkeyup="recalculate_cart_sum()"
+                                       name='quantity[<?= $id ?>]' value="<?= $quantity ?>"/>
                             </td>
-                            <td><a href="#" class="js-delete-item-from-cart"
-                                   onclick="return delete_from_cart(this, <?= $id ?>);"><i class="fa fa-times"
-                                                                                           aria-hidden="true"></i>
-                                </a></td>
+                            <td width="15%">
+                                <span class="js-sum">
+                                    <?= round($goods[$id]['price'] / 100, 2) * $quantity ?>
+                                </span>
+                            </td>
+                            <td width="5%">
+                                <a href="#" class="js-delete-item-from-cart"
+                                   onclick="return delete_from_cart(this, <?= $id ?>);">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </a>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
