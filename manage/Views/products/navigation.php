@@ -55,14 +55,7 @@
                 <div class="input-group">
                     <select name="categories[]" class="form-control multiselect" multiple="multiple"
                             data-placeholder="<?= l('Категории') ?>">
-                        <?php if ($categories): ?>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?= $category['id'] ?>" <?= in_array($category['id'],
-                                    $current_categories) ? 'selected' : '' ?>>
-                                    <?= h($category['title']) ?>
-                                </option>>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                        <?= build_array_tree($categories, explode('-', $_GET['cats'])); ?>
                     </select>
                 </div>
 

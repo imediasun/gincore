@@ -31,7 +31,7 @@
             </th>
         <?php endif; ?>
         <?php if (isset($columns['vc'])): ?>
-            <th><?= l('Артикул') ?></th>
+            <th><?= crop_title(l('Артикул')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['price'])): ?>
             <th>

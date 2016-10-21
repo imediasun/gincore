@@ -404,7 +404,7 @@ class products extends Controller
         $goods_query = $this->all_configs['db']->makeQuery('WHERE 1=1', array());
 
         // выбранные категории
-        $categories = isset($get['cats']) ? array_filter(explode('-', $get['cats'])) : array();
+        $categories = isset($get['cats']) ? $this->all_configs['manageModel']->get_all_child(array_filter(explode('-', $get['cats']))) : array();
         if (count($categories) > 0) {
             // конкретные категории
             $goods_query = $this->all_configs['db']->makeQuery(', {category_goods} AS cg
@@ -629,16 +629,24 @@ class products extends Controller
 
         // достаем описания товаров
         if (count($goods_ids) > 0) {
+            $query = '';
+            // По складам
+            if (isset($get['wh']) && count(array_values(array_filter(explode('-', $get['wh'])))) > 0) {
+                $query = $this->all_configs['db']->makeQuery('?q AND wgi.wh_id IN (?li)',
+                    array($query, array_values(array_filter(explode('-', $get['wh'])))));
+            }
+
             $add_fields = array();
             $this->goods = $this->all_configs['db']->query('SELECT 
-                    g.*, SUM(g.qty_wh) as qty_wh, SUM(g.qty_store) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
+                    g.*, SUM(1) as qty_wh, SUM(IF(wgi.order_id is NULL, 1, 0)) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
                   FROM {goods} AS g 
                   JOIN {users_goods_manager} as ugm ON ugm.goods_id=g.id
                   JOIN {users} as u ON ugm.user_id=u.id
+                  LEFT JOIN {warehouses_goods_items} as wgi ON wgi.goods_id=g.id
                   LEFT JOIN (SELECT sum(count_come) as expect, MIN(date_come) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_come > 0 GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
                   LEFT JOIN (SELECT sum(count_debit) as have, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_debit > 0 GROUP by c.goods_id) csod ON csod.goods_id=g.id
-                  WHERE g.id IN (?list) GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
-                array(implode(',', $add_fields), array_keys($goods_ids), array_keys($goods_ids)))->assoc('id');
+                  WHERE g.id IN (?list) ?q GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
+                array(implode(',', $add_fields), array_keys($goods_ids), $query, array_keys($goods_ids)))->assoc('id');
 
             // картинки
             if (count($this->goods) > 0) {

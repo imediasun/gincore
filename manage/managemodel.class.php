@@ -839,12 +839,7 @@ class manageModel extends Object
      */
     public function get_models($parents)
     {
-        $all = $this->all_configs['db']->query('
-        SELECT id, parent_id 
-        FROM {categories}
-        WHERE avail=1 and deleted=0 AND id in (SELECT distinct(parent_id) FROM {categories} )
-        ', array())->assoc();
-        $parents = array_merge($parents, $this->get_child($all, $parents));
+        $parents = $this->get_all_child($parents);
         return $this->all_configs['db']->query('
         SELECT id
         FROM {categories}
@@ -852,6 +847,19 @@ class manageModel extends Object
         ', array($parents))->col();
     }
 
+    /**
+     * @param $parents
+     * @return array
+     */
+    public function get_all_child($parents)
+    {
+        $all = $this->all_configs['db']->query('
+        SELECT id, parent_id 
+        FROM {categories}
+        WHERE avail=1 and deleted=0 AND id in (SELECT distinct(parent_id) FROM {categories} )
+        ', array())->assoc();
+        return array_merge($parents, $this->get_child($all, $parents));
+    }
     /**
      * @param $array
      * @param $parents

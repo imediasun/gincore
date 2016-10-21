@@ -416,7 +416,6 @@ function update_context(_this, provider) {
 }
 function start_import_goods(_this) {
   var form_data = new FormData($('#import_form')[0]);
-  $(_this).button('loading');
   $('#upload_messages').empty();
   $.ajax({
     url: prefix + 'import/ajax/?act=import',
@@ -428,12 +427,10 @@ function start_import_goods(_this) {
     processData: false,
     success: function (data) {
       if (data.state) {
-
       }
       if (data.message) {
         $('#upload_messages').html(data.message);
       }
-      $(_this).button('reset');
     },
     error: function (xhr, ajaxOptions, thrownError) {
       alert(xhr.responseText);
