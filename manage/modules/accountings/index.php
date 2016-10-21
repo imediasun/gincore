@@ -3059,7 +3059,10 @@ class accountings extends Controller
         $data['state'] = true;
         try {
             // права
-            if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            if (!$this->all_configs['oRole']->hasPrivilege('accounting')
+                && !$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+                && !$this->all_configs['oRole']->hasPrivilege('accounting-contractors')
+            ) {
                 throw  new ExceptionWithMsg(l('Нет прав'));
             }
 //            // статьи
