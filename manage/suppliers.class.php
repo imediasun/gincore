@@ -76,6 +76,9 @@ class Suppliers extends Object
             if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в заказ. Возможно вы забыли нажать "+"'));
             }
+            if(!empty($supplier) && !$this->isSupplier($supplier)) {
+                throw new ExceptionWithMsg(l('Конкрагент не является поставщиком'));
+            }
             foreach ($post['item_ids'] as $order_id => $product_id) {
                 $product = $this->Goods->getByPk($product_id);
                 if (!$product) {
@@ -261,6 +264,9 @@ class Suppliers extends Object
             // проверка на создание заказа с количеством 0
             if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в заказ. Возможно вы забыли нажать "+"'));
+            }
+            if(!empty($supplier) && !$this->isSupplier($supplier)) {
+                throw new ExceptionWithMsg(l('Конкрагент не является поставщиком'));
             }
 
             $parent_order_id = 0;
@@ -2079,5 +2085,15 @@ class Suppliers extends Object
             'order' => $order,
             'msg' => $msg
         ));
+    }
+
+    /**
+     * @param $supplier
+     * @return bool
+     */
+    private function isSupplier($supplier)
+    {
+        return (bool) $this->all_configs['db']->query('SELECT count(*) FROM {contractors} WHERE type IN (?li) AND id=?i',
+            array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']), $supplier))->el();
     }
 }
