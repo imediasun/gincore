@@ -2798,7 +2798,7 @@ class products extends Controller
                 'managers' => $this->get_managers(),
                 'ids' => $ids
             )),
-            'title' => l('Массовое редактирование') . '(' . l('изменяем') . " {$selected} " . l('поз.') . ')'
+            'title' => l('Массовое редактирование') . ' (' . l('изменяем') . " {$selected} " . l('поз.') . ')'
         );
     }
 
