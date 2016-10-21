@@ -1256,7 +1256,7 @@ table.table-vpaddingless tr td.arrow{
     right: 0;
     display: none;
     overflow-x: visible;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 #right-sidebar.sidebar-open {
@@ -1324,10 +1324,11 @@ table.table-vpaddingless tr td.arrow{
     right: 0;
 }
 
+
 #right-sidebar #sidebar-product-form-submit {
     background-color: #239aca;
     border: none;
-    position: absolute;
+    position: fixed;
     bottom: 5px;
     width: 100px;
     right: 180px;
