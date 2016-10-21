@@ -16,6 +16,9 @@ class Exports
     );
     protected $filename = 'export';
 
+    /**
+     * Exports constructor.
+     */
     function __construct()
     {
         // Set time Limit
@@ -40,6 +43,9 @@ class Exports
         $this->setProperties();
     }
 
+    /**
+     * @param array $properties
+     */
     function setProperties($properties = array())
     {
         // set active sheet
@@ -56,11 +62,17 @@ class Exports
         $this->objPHPExcel->getActiveSheet()->setTitle('Simple');
     }
 
+    /**
+     * @param int $index
+     */
     function setActiveSheet($index = 0)
     {
         $this->objPHPExcel->setActiveSheetIndex($index);
     }
 
+    /**
+     * @param null $data
+     */
     function build($data = null)
     {
         // add data
@@ -86,6 +98,11 @@ class Exports
         $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
     }*/
 
+    /**
+     * @param $cell
+     * @param $c
+     * @param $r
+     */
     private function implode_row($cell, $c, $r)
     {
         if (is_array($cell)) {
@@ -100,6 +117,10 @@ class Exports
         }
     }
 
+    /**
+     * @param $objWriter
+     * @param $type
+     */
     private function download($objWriter, $type)
     {
         while (ob_get_level() > 0) {
@@ -112,7 +133,10 @@ class Exports
         exit;
     }
 
-    private function save($type = 'Excel2007')
+    /**
+     * @param string $type
+     */
+    private function save($type = 'Excel5')
     {
         reset($this->types);
         // type
