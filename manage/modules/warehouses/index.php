@@ -135,7 +135,7 @@ class warehouses extends Controller
                         array($post['title']))->el();
                     if (empty($checkByTitle)) {
                         $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
-                (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n)',
+                (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id, is_system) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n, 0)',
                             array(
                                 $consider_all,
                                 $consider_store,

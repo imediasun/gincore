@@ -638,11 +638,12 @@ class products extends Controller
 
             $add_fields = array();
             $this->goods = $this->all_configs['db']->query('SELECT 
-                    g.*, SUM(1) as qty_wh, SUM(IF(wgi.order_id is NULL, 1, 0)) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
+                    g.*, SUM(if(w.consider_all=1, 1, 0)) as qty_wh, SUM(IF(w.consider_store=1 AND wgi.order_id is NULL, 1, 0)) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
                   FROM {goods} AS g 
                   JOIN {users_goods_manager} as ugm ON ugm.goods_id=g.id
                   JOIN {users} as u ON ugm.user_id=u.id
                   LEFT JOIN {warehouses_goods_items} as wgi ON wgi.goods_id=g.id
+                  LEFT JOIN {warehouses} as w ON w.id=wgi.wh_id
                   LEFT JOIN (SELECT sum(count_come) as expect, MIN(date_come) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_come > 0 GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
                   LEFT JOIN (SELECT sum(count_debit) as have, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_debit > 0 GROUP by c.goods_id) csod ON csod.goods_id=g.id
                   WHERE g.id IN (?list) ?q GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
@@ -3040,12 +3041,12 @@ class products extends Controller
     public function onWarehouse($get)
     {
         $goods = $this->Goods->query('
-        SELECT SUM(1) as all_on_wh, SUM(IF(wgi.order_id IS NULL, 1, 0)) as free, g.title as title, w.title as wh, wl.location as location
+        SELECT SUM(if(w.consider_all=1, 1, 0)) as all_on_wh, SUM(IF(w.consider_store=1 AND wgi.order_id IS NULL, 1, 0)) as free, g.title as title, w.title as wh, wl.location as location
         FROM {warehouses_goods_items} wgi
         JOIN {goods} g ON g.id=wgi.goods_id
         JOIN {warehouses} w ON w.id=wgi.wh_id
         JOIN {warehouses_locations} wl ON wl.id=wgi.location_id
-        WHERE wgi.goods_id=?i GROUP by wgi.location_id
+        WHERE wgi.goods_id=?i AND w.type=1 GROUP by wgi.location_id
         ', array($get['id']))->assoc();
         return $this->view->renderFile('products/on_warehouse', array(
             'goods' => $goods
