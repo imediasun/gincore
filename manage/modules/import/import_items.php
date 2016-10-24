@@ -38,18 +38,38 @@ class import_items extends abstract_import_handler
      */
     public function run($rows)
     {
+        $results = array();
         if (!empty($rows)) {
             foreach ($rows as $row) {
                 $title = $this->provider->getTitle($row);
                 $categoryId = $this->getCategoryId($this->provider->getCategories($row), $this->categoriesTree);
-                if (!empty($categoryId) && $this->isValidTitle($title, $this->availableItems)) {
-                    $this->createNewItem($this->userId, $row, $categoryId, $this->getManagerId());
+                if (empty($categoryId)) {
+                    $results[] = array(
+                        'state' => false,
+                        'id' => null,
+                        'title' => $this->provider->getTitle($row),
+                        'message' => l('У товара отсутствует категория'),
+                    );
+                    continue;   
                 }
+
+                if ($id = $this->isValidTitle($title, $this->availableItems, true)) {
+                    $this->items[$id] = $title;
+                    $results[] = array(
+                        'state' => false,
+                        'id' => $id,
+                        'title' => $this->provider->getTitle($row),
+                        'message' => l('Товар с таким именем уже существует'),
+                    );
+                    continue;
+                }
+
+                $results[] = $this->createNewItem($this->userId, $row, $categoryId, $this->getManagerId());
             }
         }
         return array(
             'state' => true,
-            'message' => $this->gen_result_table($this->items)
+            'message' => $this->gen_result_table($results)
         );
     }
 
@@ -93,9 +113,13 @@ class import_items extends abstract_import_handler
      * @param $items
      * @return bool
      */
-    public function isValidTitle($title, $items)
+    public function isValidTitle($title, $items, $return_id = false)
     {
-        return !isset($items[$title]);
+        if ($return_id) {
+            return isset($items[$title]) ? $items[$title]['id'] : false;
+        } else {
+            return !isset($items[$title]);
+        }
     }
 
     /**
@@ -104,7 +128,9 @@ class import_items extends abstract_import_handler
      */
     public function get_result_row($row)
     {
-        return "<td>" . $row . "</td>";
+        return '<td>' . $row['id'] . '</td>'.
+                '<td>' . $row['title'] . '</td>'.
+                '<td>' . $row['message'] . '</td>';
     }
 
     /**
@@ -215,11 +241,21 @@ class import_items extends abstract_import_handler
                     $this->addToLog($userId, 'add-manager', $modId, $managerId);
                 }
                 $this->sendNotice($this->getContent($this->items));
-                return true;
+                return array(
+                    'state' => true,
+                    'id' => $itemId,
+                    'title' => $this->provider->getTitle($row),
+                    'message' => l('Товар добавлен в базу')
+                );
             }
         }
 
-        return false;
+        return array(
+            'state' => false,
+            'id' => null,
+            'title' => $this->provider->getTitle($row),
+            'message' => l('Ошибка, Вам не хватает прав.')
+        );
     }
 
     /**
