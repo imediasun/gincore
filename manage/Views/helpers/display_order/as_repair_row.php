@@ -69,8 +69,8 @@
         <?= ($order['urgent'] == 1) ? l('Срочно') : l('Не срочно') ?>
     </td>
     <td class="<?= isset($columns['location'])?'': 'hide' ?>">
-        <span class="visible-lg"><?= cut_string($order['wh_title'] . ' ' . $order['location'], 20) ?></span>
-        <span class="hidden-lg"><?= cut_string($order['wh_title'] . ' ' . $order['location'], 10) ?></span>
+        <span class="visible-lg"><?= cut_string($order['wh_title'] . ' ' . $order['location'], 30) ?></span>
+        <span class="hidden-lg"><?= cut_string($order['wh_title'] . ' ' . $order['location'], 15) ?></span>
     </td>
     <td class="<?= isset($columns['sn'])?'': 'hide' ?>">
         <?= h($order['serial']) ?>
