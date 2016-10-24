@@ -33,7 +33,8 @@
                     <a title="<?= $order['secret_title'] ?>"
                        href="<?= $this->all_configs['prefix'] ?>products/create/<?= $order['goods_id'] ?>"
                        data-action="sidebar_product" data-id_product="<?= $order['goods_id'] ?>">
-                        <?= $order['goods_title'] ?>
+                        <span class="visible-lg"><?= cut_string($order['goods_title'], 20) ?></span>
+                        <span class="hidden-lg"><?= cut_string($order['goods_title'], 10) ?></span>
                     </a>
                 </td>
                 <td><?= $order['count'] ?></td>

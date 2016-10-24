@@ -217,15 +217,11 @@ table.show-suppliers-orders td input, table.show-suppliers-orders td a {
 }
 
 table.show-suppliers-orders {
-    font-size: 0.8em;
+    font-size: 0.8em !important;
 }
 
 table.show-suppliers-orders p {
     margin: 0;
-}
-
-table.show-suppliers-orders tr > td {
-    padding: 3px 5px;
 }
 
 .tab-content {
@@ -1110,9 +1106,9 @@ table.table-borderless tr td
     font-weight: bold;
     font-size: 0.8em;
 }
-.table-fs-12 >thead >tr{
-    text-align: center;
-}
+/*.table-fs-12 >thead >tr{*/
+    /*text-align: center;*/
+/*}*/
 .table-fs-12 >tbody >tr{
     font-size: 12px !important;
     max-height: 45px;

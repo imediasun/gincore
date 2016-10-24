@@ -10,8 +10,8 @@
                 <td class="<?= isset($columns['npp']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['notice']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['date']) ? '' : 'hide' ?>"></td>
-                <td class="center <?= isset($columns['accepter']) ? '' : 'hide' ?>"></td>
-                <td class="center <?= isset($columns['manager']) ? '' : 'hide' ?>"></td>
+                <td class="<?= isset($columns['accepter']) ? '' : 'hide' ?>"></td>
+                <td class="<?= isset($columns['manager']) ? '' : 'hide' ?>"></td>
                 <td class="center <?= isset($columns['engineer']) ? '' : 'hide' ?>"></td>
                 <td class="center <?= isset($columns['status']) ? '' : 'hide' ?>"></td>
                 <td class="<?= isset($columns['components']) ? '' : 'hide' ?>"></td>
@@ -55,8 +55,8 @@
                 title="<?= l('Возможность ставить напоминания по заказам себе и другим пользователям') ?>"><i
                     class="fa fa-bell cursor-pointer btn-timer" href="javascript:void(0);"></i></td>
             <td class="<?= isset($columns['date']) ? '' : 'hide' ?>"><?= l('Дата') ?></td>
-            <td class="center <?= isset($columns['accepter']) ? '' : 'hide' ?>"><?= l('Приемщик') ?></td>
-            <td class="center <?= isset($columns['manager']) ? '' : 'hide' ?>"><?= l('manager') ?></td>
+            <td class="<?= isset($columns['accepter']) ? '' : 'hide' ?>"><?= l('Приемщик') ?></td>
+            <td class="<?= isset($columns['manager']) ? '' : 'hide' ?>"><?= l('manager') ?></td>
             <td class="<?= isset($columns['engineer']) ? '' : 'hide' ?>">
                 <?= l('Инженер') ?>
             </td>

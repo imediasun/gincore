@@ -4,8 +4,9 @@
         <table class="table table-fs-12">
             <thead>
             <tr>
-                <td></td>
                 <td><?= l('номер заказа') ?></td>
+                <td title="<?= l('Возможность ставить напоминания по заказам себе и другим пользователям') ?>"><i
+                        class="fa fa-bell cursor-pointer btn-timer" href="javascript:void(0);"></i></td>
                 <td><?= l('Дата') ?></td>
                 <td><?= l('Приемщик') ?></td>
                 <td><?= l('manager') ?></td>
