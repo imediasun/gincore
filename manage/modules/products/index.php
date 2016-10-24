@@ -893,7 +893,7 @@ class products extends Controller
 
         if ($act == 'create_new') {
             $_POST['create-product'] = true;
-            $create = $this->check_post($_POST);
+            $create = $this->createProduct($_POST, $user_id, $mod_id);
             if (!empty($create['error'])) {
                 $result = array('state' => false, 'msg' => $create['error']);
             } else {
