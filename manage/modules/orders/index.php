@@ -627,7 +627,7 @@ class orders extends Controller
                 $order_data = get_service('crm/requests')->get_request_by_id($_GET['on_request']);
             }
             $cart = null;
-            if(!empty($_GET['from_cart']) && Session::getInstance()->check('from_cart')) {
+            if (!empty($_GET['from_cart']) && Session::getInstance()->check('from_cart')) {
                 $cart = Session::getInstance()->get('from_cart');
                 Session::getInstance()->clear('from_cart');
             }
@@ -1417,9 +1417,11 @@ class orders extends Controller
 
     /**
      * @param $product
+     * @param $engineers
+     * @param $engineer
      * @return string
      */
-    public function show_product($product)
+    public function show_product($product, $engineers, $engineer)
     {
         $supplier_order = $this->all_configs['db']->query("SELECT supplier_order_id as id, o.count, o.supplier, "
             . "o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
@@ -1433,7 +1435,9 @@ class orders extends Controller
             'url' => $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'],
             'product' => $product,
             'supplier_order' => $supplier_order,
-            'controller' => $this
+            'controller' => $this,
+            'engineers' => $engineers,
+            'order_engineer' => $engineer
         ));
     }
 
@@ -2282,6 +2286,9 @@ class orders extends Controller
             if (!empty($_POST['name'])) {
                 $data = $this->addUsersField($_POST, $data);
             }
+        }
+        if ($act == 'set-engineer-of-service') {
+            $data = $this->setEngineerOfService($_POST, $mod_id);
         }
 
         Response::json($data);
@@ -3850,5 +3857,40 @@ class orders extends Controller
             }
         }
         return $url;
+    }
+
+    /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    private function setEngineerOfService($post, $mod_id)
+    {
+        try {
+            if (empty($post['engineer_id']) || empty($post['service_id'])) {
+                throw new ExceptionWithMsg(l('Не задан инженер или сервис'));
+            }
+            if (!$this->Users->exists($post['engineer_id'])) {
+                throw new ExceptionWithMsg(l('Инженер не существует'));
+            }
+            if (!$this->OrdersGoods->exists($post['service_id'])) {
+                throw new ExceptionWithMsg(l('Сервис не существует'));
+            }
+            $this->OrdersGoods->update(array(
+                'engineer' => $post['engineer_id']
+            ), array(
+                'id' => $post['service_id']
+            ));
+            $this->History->save('change-engineer-of-service', $mod_id, $post['service_id']);
+            $result = array(
+                'state' => true
+            );
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'state' => false,
+                'message' => $e->getMessage()
+            );
+        }
+        return $result;
     }
 }
