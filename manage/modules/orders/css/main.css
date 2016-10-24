@@ -739,6 +739,6 @@ span.js-return-pay {
 
 @media all and (max-width: 1200px) {
     #show_orders-orders .table thead {
-        font-size: 12px;
+        font-size: 0.8em !important;
     }
 }

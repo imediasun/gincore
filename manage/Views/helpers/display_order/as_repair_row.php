@@ -18,7 +18,10 @@
     </td>
     <td class="<?= isset($columns['notice'])?'': 'hide' ?>"><?= timerout($order['order_id']) ?></td>
     <td class="<?= isset($columns['date'])?'': 'hide' ?>"><span title="<?= do_nice_date($order['date'], false) ?>"><?= do_nice_date($order['date']) ?></span></td>
-    <td class="<?= isset($columns['accepter'])?'': 'hide' ?>" title="<?= get_user_name($order, 'a_') ?>"><?= mb_strimwidth(get_user_name($order, 'a_'), 0, 30, "...") ?></td>
+    <td class="<?= isset($columns['accepter'])?'': 'hide' ?>" title="<?= get_user_name($order, 'a_') ?>">
+        <span class="visible-lg"><?= cut_string(get_user_name($order, 'a_'), 20) ?></span>
+        <span class="hidden-lg"><?= cut_string(get_user_name($order, 'a_'), 10) ?></span>
+    </td>
     <td class="<?= isset($columns['manager'])?'': 'hide' ?>" title="<?= get_user_name($order, 'h_') ?>">
         <?php if ($order['manager'] == 0 && $this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
             <form method="post" action="<?= $this->all_configs['prefix'] ?>orders/create/<?= $order['order_id'] ?>">
@@ -26,7 +29,8 @@
                 <input type="hidden" name="id" value="<?= $order['order_id'] ?>"/>
             </form>
         <?php else: ?>
-            <?= mb_strimwidth(get_user_name($order, 'h_'), 0, 30, "...") ?>
+            <span class="visible-lg"><?= cut_string(get_user_name($order, 'h_'), 20) ?></span>
+            <span class="hidden-lg"><?= cut_string(get_user_name($order, 'h_'), 10) ?></span>
         <?php endif; ?>
     </td>
     <td class="<?= isset($columns['engineer'])?'': 'hide' ?>" title="<?= get_user_name($order, 'e_') ?>"><?= mb_strimwidth(get_user_name($order, 'e_'), 0, 30, "...") ?></td>
@@ -40,7 +44,10 @@
         )); ?>
     </td>
     <td class="center <?= isset($columns['components'])?'': 'hide' ?>"><?= $ordered ?></td>
-    <td class="<?= isset($columns['device']) ? '' : 'hide' ?>" title="<?=  h($order['product']) . h($order['note']) ?>"><?= mb_strimwidth(h($order['product']) . h($order['note']), 0, 30, "...") ?></td>
+    <td class="<?= isset($columns['device']) ? '' : 'hide' ?>" title="<?=  h($order['product']) . h($order['note']) ?>">
+        <span class="visible-lg"><?= cut_string($order['product'] . $order['note'], 20) ?></span>
+        <span class="hidden-lg"><?= cut_string($order['product'] . $order['note'], 10) ?></span>
+    </td>
 
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
         <td class="center <?= ($order['discount'] > 0 ? 'text-danger' : '') ?> <?= isset($columns['amount'])?'': 'hide' ?>"><?= ($order['sum'] / 100) ?> </td>
@@ -48,7 +55,10 @@
     <?php else: ?>
         <td class="center"><?= ($order['sum'] == $order['sum_paid'] && $order['sum'] > 0) ? l('да') : '' ?></td>
     <?php endif; ?>
-    <td class="<?= isset($columns['client'])?'': 'hide' ?>" title="<?= h($order['o_fio']) ?>"> <?= mb_strimwidth(h($order['o_fio']), 0, 30, "...") ?> </td>
+    <td class="<?= isset($columns['client'])?'': 'hide' ?>" title="<?= h($order['o_fio']) ?>">
+        <span class="visible-lg"><?= cut_string($order['o_fio'], 20) ?></span>
+        <span class="hidden-lg"><?= cut_string($order['o_fio'], 10) ?></span>
+    </td>
     <td class="<?= isset($columns['phone'])?'': 'hide' ?>">
         <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
             <?= $order['o_phone'] ?>

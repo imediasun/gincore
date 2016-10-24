@@ -65,8 +65,8 @@
                 <td><?= $controller->getClientIcons($order) . get_user_name($order) ?></td>
                 <td><?= $controller->supplier_order_number($order) ?></td>
                 <td>
-                    <span class="visible-lg"><?= cut_string($order['stitle'], 30) ?></span>
-                    <span class="hidden-lg"><?= cut_string($order['stitle'], 8) ?></span>
+                    <span class="visible-lg"><?= cut_string($order['stitle'], 20) ?></span>
+                    <span class="hidden-lg"><?= cut_string($order['stitle'], 10) ?></span>
                 </td>
                 <td>
                     <a class="hash_link" title="<?= $order['secret_title'] ?>"
@@ -92,7 +92,8 @@
                     <?php if ($order['wh_id'] > 0): ?>
                         <a class="hash_link"
                            href="<?= $this->all_configs['prefix'] ?>warehouses?whs=<?= $order['wh_id'] ?>#show_items">
-                            <?= htmlspecialchars($order['wh_title']) ?>
+                            <span class="visible-lg"><?= cut_string($order['wh_title'], 20) ?></span>
+                            <span class="hidden-lg"><?= cut_string($order['wh_title'], 10) ?></span>
                         </a>
                     <?php endif; ?>
                 </td>
