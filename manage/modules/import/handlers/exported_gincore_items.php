@@ -23,8 +23,26 @@ class exported_gincore_items extends abstract_gincore_import_provider
             'price_purchase' => lq('Цена закупки'),
             'price_wholesale' => lq('Цена оптовая'),
             'price' => lq('Цена розничная'),
+            
+            'percent_from_profit' => lq('% от прибыли'),
+            'fixed_payment' => lq('Фиксированная оплата'),
+            'balance' => lq('Уведомлять меня об остатке'),
+            'minimum_balance' => lq('Неснижаемый остаток'),
+            'automargin' => lq('Автонаценка розница'),
+            'wholesale_automargin' => lq('Автонаценка опт'),
 //            'manager' => l('manager')
         );
+
+        $arr_additional = array(
+            array('label' => lq('% от прибыли'), 'name' => 'percent_from_profit'),
+            array('label' => lq('Фиксированная оплата'), 'name' => 'fixed_payment'),
+            array('label' => lq('Уведомлять меня об остатке'), 'name' => 'notify_by_balance'),
+            array('label' => lq('Неснижаемый остаток'), 'name' => 'minimum_balance'),
+            array('label' => lq('Автонаценка розница'), 'name' => 'automargin'),
+            array('label' => lq('Автонаценка опт'), 'name' => 'wholesale_automargin'),
+        );
+
+        
         $this->categories = db()->query('select id, title from {categories}', array())->assoc('title');
         $this->managers = db()->query('select id, fio, login, email from {users}', array())->assoc('id');
     }

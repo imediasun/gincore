@@ -43,7 +43,7 @@ class import_gincore_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
-            $goods = db()->query('SELECT * FROM {goods}')->assoc('id');
+            $goods = db()->query('SELECT g.*, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id='.$_SESSION['id'] )->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
                 if (!empty($id) && isset($goods[$id])) {
@@ -98,13 +98,13 @@ class import_gincore_items extends abstract_import_handler
         try {
             $query = '';
             foreach ($data as $field => $value) {
-                if ($field != 'category') {
+                if ($field != 'category' && $field != 'balance') {
                     if (empty($query)) {
                         $query = db()->makeQuery('?q=?', array($field, $value));
                     } else {
                         $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
                     }
-                } else {
+                } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
                 }
             }
@@ -115,6 +115,34 @@ class import_gincore_items extends abstract_import_handler
                 ));
                 $this->addToLog($this->userId, 'update-goods', $modId, $id);
             }
+
+            if (isset($data['balance'])) {
+
+                if (empty($data['balance'])) {
+                    $by_balance = 0;
+                } else {
+                    $by_balance = 1;
+                    $balance = $data['balance'];
+                }
+
+                $this->all_configs['db']->query('INSERT INTO {users_notices} (user_id, goods_id, each_sale, by_balance,
+                        balance, by_critical_balance, critical_balance, seldom_sold, supply_goods)
+                      VALUES (?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i) ON duplicate KEY
+                    UPDATE by_balance=VALUES(by_balance), balance=VALUES(balance)',
+                    array(
+                        $_SESSION['id'],
+                        $id,
+                        0,
+                        $by_balance,
+                        $balance,
+                        0,
+                        0,
+                        0,
+                        0
+                    ));
+            }
+
+
             $result['message'] = l('Изменен успешно');
         } catch (Exception $e) {
             $result['state'] = false;
@@ -144,6 +172,7 @@ class import_gincore_items extends abstract_import_handler
                 $data[$field] = $value;
             }
         }
+
         return $data;
     }
 
