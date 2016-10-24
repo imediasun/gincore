@@ -486,7 +486,7 @@ function show_action_form(_this, action) {
     success: function (data) {
       if (data) {
         if (data['state'] == true) {
-          dialog_box(this, data['title'], data['content'], buttons);
+          dialog_box(this, data['title'], data['content'], buttons, null, 'medium-dialog');
           $('#action-form .multiselect').multiselect(multiselect_options);
         }
         if (data['state'] == false && data['message']) {
@@ -499,4 +499,29 @@ function show_action_form(_this, action) {
     }
   });
   return false;
+}
+
+function open_links(id) {
+  $.ajax({
+    url: prefix + 'products/ajax?act=get-supplier-links&id=' + id,
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          $.each(data['links'], function(id, value) {
+            window.open(value, '_blank');
+          });
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+
 }

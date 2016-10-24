@@ -107,3 +107,35 @@ a.cart {
     margin-left: 15px;
     display:inline-block;
 }
+.popup-form input[type="checkbox"], .popup-form input[type="radio"] {
+    line-height: normal;
+    margin: 8px -20px 0;
+
+}
+#action-form .panel-collapse .panel-heading.hbuilt {
+    background-color: #f7f9fa;
+}
+#action-form .panel-heading.hbuilt {
+    border-bottom: medium none;
+    border-left: medium none;
+    border-radius: 0;
+    border-right: medium none;
+    cursor: pointer;
+}
+#action-form .hpanel {
+    border: medium none;
+    box-shadow: none;
+    margin-bottom: 0px;
+}
+#action-form .panel-body {
+    border: medium none;
+    border-radius: 0;
+    padding: 10px;
+}
+.medium-dialog .modal-lg {
+    width: 600px;
+}
+.medium-dialog .modal-body {
+    padding-right: 0;
+    padding-left: 0;
+}

@@ -4,7 +4,7 @@
     </a>
     <ul class="dropdown-menu pull-right" style="max-height: 600px">
         <li>
-            <form method="POST" style="width: 200px">
+            <form method="POST" style="width: 200px" class="popup-form">
                 <fieldset>
                     <?php foreach (array(
                         'id' => 'ID',

@@ -22,7 +22,7 @@ function add_to_cart(id) {
 function show_cart() {
   var buttons = {
     sale: {
-      label: L['sale'],
+      label: '<i class="fa fa-plus-circle" aria-hidden="true"></i> ' + (L['sale'] || 'sale'),
       className: "btn-success",
       callback: function () {
         $.ajax({
@@ -31,7 +31,7 @@ function show_cart() {
           type: 'POST',
           data: $('form#cart-form').serialize(),
           success: function (data) {
-            if(data.state && data.redirect) {
+            if (data.state && data.redirect) {
               window.location.href = data.redirect;
             }
           },
@@ -43,7 +43,7 @@ function show_cart() {
       }
     },
     purchase: {
-      label: L['purchase'],
+      label: '<i class="fa fa-plus-circle" aria-hidden="true"></i> ' + (L['purchase'] || 'purchase'),
       className: "btn-success",
       callback: function () {
         $.ajax({
@@ -52,7 +52,7 @@ function show_cart() {
           type: 'POST',
           data: $('form#cart-form').serialize(),
           success: function (data) {
-            if(data.state && data.redirect) {
+            if (data.state && data.redirect) {
               window.location.href = data.redirect;
             }
           },
@@ -73,7 +73,7 @@ function show_cart() {
           type: 'POST',
           data: {},
           success: function (data) {
-            if(data.state) {
+            if (data.state) {
               $('#cart-quantity').html(data['quantity']);
             }
           },
@@ -113,7 +113,7 @@ function show_cart() {
 }
 function delete_from_cart(_this, id) {
   $.ajax({
-    url: prefix + 'cart/ajax?act=remove-from-cart&id='+id,
+    url: prefix + 'cart/ajax?act=remove-from-cart&id=' + id,
     dataType: "json",
     type: 'GET',
     success: function (data) {

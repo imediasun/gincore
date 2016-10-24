@@ -638,7 +638,7 @@ class products extends Controller
 
             $add_fields = array();
             $this->goods = $this->all_configs['db']->query('SELECT 
-                    g.*, SUM(if(w.consider_all=1, 1, 0)) as qty_wh, SUM(IF(w.consider_store=1 AND wgi.order_id is NULL, 1, 0)) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have
+                    g.*, SUM(if(w.consider_all=1, 1, 0)) as qty_wh, SUM(IF(w.consider_store=1 AND wgi.order_id is NULL, 1, 0)) as qty_store ?q, u.fio as manager, csoc.expect, csoc.min_date_come, csod.have, gs.sl
                   FROM {goods} AS g 
                   JOIN {users_goods_manager} as ugm ON ugm.goods_id=g.id
                   JOIN {users} as u ON ugm.user_id=u.id
@@ -646,6 +646,7 @@ class products extends Controller
                   LEFT JOIN {warehouses} as w ON w.id=wgi.wh_id
                   LEFT JOIN (SELECT sum(count_come) as expect, MIN(date_come) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_come > 0 GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
                   LEFT JOIN (SELECT sum(count_debit) as have, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_debit > 0 GROUP by c.goods_id) csod ON csod.goods_id=g.id
+                  LEFT JOIN (SELECT count(*) as sl, goods_id FROM {goods_suppliers} GROUP by goods_id) as gs ON gs.goods_id=g.id
                   WHERE g.id IN (?list) ?q GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
                 array(implode(',', $add_fields), array_keys($goods_ids), $query, array_keys($goods_ids)))->assoc('id');
 
@@ -881,6 +882,19 @@ class products extends Controller
             Response::json(array(
                 'state' => true,
                 'html' => $form
+            ));
+        }
+        if ($act == 'supplier-links') {
+            $form = $this->supplierLinks($_GET);
+            Response::json(array(
+                'state' => true,
+                'html' => $form
+            ));
+        }
+        if ($act == 'get-supplier-links') {
+            Response::json(array(
+                'state' => true,
+                'links' => $this->getSupplierLinks($_GET)
             ));
         }
 
@@ -3051,5 +3065,30 @@ class products extends Controller
         return $this->view->renderFile('products/on_warehouse', array(
             'goods' => $goods
         ));
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    public function supplierLinks($get)
+    {
+        $links = $this->getSupplierLinks($get);
+        return $this->view->renderFile('products/supplier_links', array(
+            'links' => $links
+        ));
+    }
+
+    /**
+     * @param $get
+     * @return string
+     */
+    public function getSupplierLinks($get)
+    {
+        return  $this->Goods->query('
+        SELECT link
+        FROM {goods_suppliers}
+        WHERE goods_id=?i
+        ', array($get['id']))->col();
     }
 }
