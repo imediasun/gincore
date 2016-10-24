@@ -1662,7 +1662,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e, in_place) {
     return false;
   }
 }
-function dialog_box(_this, title, content, buttons, e) {
+function dialog_box(_this, title, content, buttons, e, wrapper_class) {
   if (e) {
     e.stopPropagation();
   }
@@ -1757,7 +1757,8 @@ function dialog_box(_this, title, content, buttons, e) {
     bootbox.dialog({
       message: content,
       title: title,
-      buttons: buttons
+      buttons: buttons,
+      className: wrapper_class || null
     });
   }
 }

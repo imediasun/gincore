@@ -139,9 +139,8 @@ function exports_goods($all_configs, $ids)
             if ($managers) {
                 foreach ($managers as $manager) {
                     if (isset($goods[$manager['goods_id']])) {
-                        $arr = array($manager['login'], $manager['email'], $manager['fio'], $manager['phone']);
                         $goods[$manager['goods_id']][$isset($goods[$manager['goods_id']],
-                            lq('manager') . ' ')] = implode(', ', $arr);
+                            lq('manager') . ' ')] = empty($manager['fio'])? $manager['login']:$manager['fio'];
                     }
                 }
             }

@@ -38,11 +38,11 @@
                 <?= crop_title(l('Розничная цена')) ?>
             </th>
         <?php endif; ?>
-        <?php if (isset($columns['rprice'])): ?>
-            <th><?= crop_title(l('Закупочная цена')) ?></th>
-        <?php endif; ?>
         <?php if (isset($columns['wprice'])): ?>
             <th><?= crop_title(l('Оптовая цена')) ?></th>
+        <?php endif; ?>
+        <?php if (isset($columns['rprice'])): ?>
+            <th><?= crop_title(l('Закупочная цена')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['balance'])): ?>
             <th><?= crop_title(l('Общий остаток')) ?></th>
@@ -97,7 +97,7 @@
 <script>
     $(function () {
         $(document).tooltip({
-            items: "[data-preview], [data-warehouse]",
+            items: "[data-preview], [data-warehouse], [data-supplier_links]",
             content: function (callback) {
                 var element = $(this);
                 if (element.is("[data-preview]")) {
@@ -107,6 +107,16 @@
                 if (element.is("[data-warehouse]")) {
                     $.get(prefix + 'products/ajax', {
                         act: 'on-warehouse',
+                        id: element.attr('data-id')
+                    }, function (data) {
+                        if (data.state) {
+                            callback(data.html);
+                        }
+                    });
+                }
+                if (element.is("[data-supplier_links]")) {
+                    $.get(prefix + 'products/ajax', {
+                        act: 'supplier-links',
                         id: element.attr('data-id')
                     }, function (data) {
                         if (data.state) {

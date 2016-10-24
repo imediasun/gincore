@@ -27,11 +27,11 @@
     <?php if (isset($columns['price'])): ?>
         <td><?= number_format($good['price'] / 100, 2, '.', '') ?> </td>
     <?php endif; ?>
-    <?php if (isset($columns['rprice'])): ?>
-        <td><?= number_format($good['price_purchase'] / 100, 2, '.', '') ?></td>
-    <?php endif; ?>
     <?php if (isset($columns['wprice'])): ?>
         <td><?= number_format($good['price_wholesale'] / 100, 2, '.', '') ?></td>
+    <?php endif; ?>
+    <?php if (isset($columns['rprice'])): ?>
+        <td><?= number_format($good['price_purchase'] / 100, 2, '.', '') ?></td>
     <?php endif; ?>
     <?php if (isset($columns['balance'])): ?>
         <td><?= intval($good['qty_wh']) ?></td>
@@ -45,7 +45,14 @@
         </td>
     <?php endif; ?>
     <?php if (isset($columns['sbalance'])): ?>
-        <td><?= $good['have'] ?></td>
+        <td>
+            <?php if(!empty($good['sl'])): ?>
+            <?= $good['sl'] ?>
+                <a href="#" onclick="return open_links(<?= $good['id']?>);">
+                    <i class="fa fa-external-link" aria-hidden="true" data-supplier_links="" data-id="<?= $good['id'] ?>"></i>
+                </a>
+            <?php endif; ?>
+        </td>
     <?php endif; ?>
     <?php if (isset($columns['delivery'])): ?>
         <td>
