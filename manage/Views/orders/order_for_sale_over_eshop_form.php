@@ -9,7 +9,7 @@
                     <div class="form-group">
                         <label><?= l('Укажите данные клиента') ?> <b class="text-danger">*</b>: </label>
                         <div class="row-fluid">
-                            <div class="col-sm-4" style="padding-right:0px">
+                            <div class="col-sm-4 p-l-n" style="padding-right:0px">
                                 <?= $client['phone'] ?>
                             </div>
                             <div class="col-sm-2" style="line-height: 34px; ">
