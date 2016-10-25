@@ -631,8 +631,18 @@ class manageModel extends Object
         $eng = array_filter(explode(',', $filters['eng']));
         if (isset($filters['eng']) && count($eng) > 0) {
             if (count($eng) > 1 || !in_array(-1, $eng)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
-                    array($query, array_filter(explode(',', $filters['eng']))));
+                $orderIds = $this->all_configs['db']->query('
+                    SELECT order_id 
+                    FROM {orders_goods}
+                    WHERE engineer in (?li)
+                ', array(array_filter(explode(',', $filters['eng']))))->col();
+                if (empty($orderIds)) {
+                    $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                        array($query, array_filter(explode(',', $filters['eng']))));
+                } else {
+                    $query = $this->all_configs['db']->makeQuery('?query AND (o.engineer IN (?li) OR o.id in (?li))',
+                        array($query, array_filter(explode(',', $filters['eng'])), $orderIds));
+                }
             }
             if (in_array(-1, $eng)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IS NULL',
@@ -860,6 +870,7 @@ class manageModel extends Object
         ', array())->assoc();
         return array_merge($parents, $this->get_child($all, $parents));
     }
+
     /**
      * @param $array
      * @param $parents

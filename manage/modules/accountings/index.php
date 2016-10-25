@@ -343,7 +343,7 @@ class accountings extends Controller
             }
 
             if ($error != '') {
-                if ($ajax){
+                if ($ajax) {
                     Response::json([
                         'hasError' => true,
                         'error' => $error
@@ -3742,8 +3742,19 @@ class accountings extends Controller
         $eng = array_filter(explode(',', $filters['eng']));
         if (array_key_exists('eng', $filters) && count($eng) > 0) {
             if (count($eng) > 1 || !in_array(-1, $eng)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
-                    array($query, $eng));
+                $orderIds = $this->all_configs['db']->query('
+                    SELECT order_id 
+                    FROM {orders_goods} as og
+                    JOIN {users} as u ON u.id=og.engineer
+                    WHERE engineer in (?li) AND (u.use_percent_from_profit=1 OR u.use_fixed_payment = 1)  
+                ', array($eng))->col();
+                if (empty($orderIds)) {
+                    $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                        array($query, $eng));
+                } else {
+                    $query = $this->all_configs['db']->makeQuery('?query AND (o.engineer IN (?li) OR o.id in (?li))',
+                        array($query, $eng, $orderIds));
+                }
             }
             if (in_array(-1, $eng)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IS NULL',
