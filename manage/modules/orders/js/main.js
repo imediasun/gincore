@@ -840,6 +840,7 @@ function bind_group_product(_this, product_id, order_id) {
             className: "btn-primary",
             callback: function () {
               // window.location.reload();
+              $('#order-bind-item-order').closest('.modal').modal('toggle');
               $(_this).button('reset');
             }
           }
