@@ -450,7 +450,7 @@ class products extends Controller
                     array($goods_query, $ids));
             }
             if (array_search('mb', $avail) !== false) {
-                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.use_minimum_balance=1 AND g.minimum_balance <= ?i AND g.qt_wh < g.minimum_balance',
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.use_minimum_balance=1 AND g.minimum_balance <= ?i AND g.qty_wh < g.minimum_balance',
                     array($goods_query, $avail['mb']));
             }
         }

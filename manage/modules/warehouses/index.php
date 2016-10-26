@@ -309,11 +309,24 @@ class warehouses extends Controller
             }
         } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $this->warehouseDelete($_POST);
-        } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $data = $this->createPurchaseInvoice($_POST);
+        } elseif (isset($post['create-purchase-invoice'])) {
+            $data = array(
+                'state' => false,
+                'message' => l('У вас нет прав на работу с приходными накладными')
+            );
+            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+
+                $data = $this->createPurchaseInvoice($_POST);
+            }
             Response::json($data);
-        } elseif (isset($post['create-purchase-invoice-and-posting']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $data = $this->createPurchaseInvoice($_POST);
+        } elseif (isset($post['create-purchase-invoice-and-posting'])) {
+            $data = array(
+                'state' => false,
+                'message' => l('У вас нет прав на работу с приходными накладными')
+            );
+            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+                $data = $this->createPurchaseInvoice($_POST);
+            }
             Response::json($data);
         } elseif (isset($post['edit-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $data = $this->editPurchaseInvoice($_POST);
