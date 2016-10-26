@@ -831,7 +831,7 @@ function bind_group_product(_this, product_id, order_id) {
             label: "Продолжить",
             className: "btn-primary",
             callback: function () {
-              window.location.reload();
+              // window.location.reload();
               $(_this).button('reset');
             }
           },
@@ -839,7 +839,7 @@ function bind_group_product(_this, product_id, order_id) {
             label: "Закрыть",
             className: "btn-primary",
             callback: function () {
-              window.location.reload();
+              // window.location.reload();
               $(_this).button('reset');
             }
           }

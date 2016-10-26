@@ -2177,10 +2177,19 @@ class orders extends Controller
                 $product = $product->getByPk($products[$ids[0]]['goods_id']);
 
                 $warehouses = new MWarehouses();
-                $warehouses_data = $warehouses->getAvailableItemsByGoodsId(['2098']);
+                $warehouses_data = $warehouses->getAvailableItemsByGoodsId(array($product['id']), true);
+                
+                foreach ($warehouses_data as $id_warehouse=>$row) {
+                    $warehouses_data[$id_warehouse]['warehouse'] = $warehouses->getByPk($id_warehouse);
+                    $warehouses_data[$id_warehouse]['warehouse']['locations'] = $warehouses->getLocations($id_warehouse);
 
-                dd($warehouses_data);
+                    foreach ($warehouses_data[$id_warehouse]['items'] as $row_id=>$row_product){
+                        $warehouses_data[$id_warehouse]['items'][$row_id]['item_id'] = $row_product['id'];
+                        $warehouses_data[$id_warehouse]['items'][$row_id]['serial'] = suppliers_order_generate_serial($warehouses_data[$id_warehouse]['items'][$row_id]);
+                    }
+                }
 
+//                dd($warehouses_data);
 
                 $data['title'] = l('Отгрузка товара со склада под заказ клиента №').' '.$order_id .
                     '<br/>'.$product['title'].' '.l('в количестве').' '.count($ids).' '.l('шт.');
@@ -2189,6 +2198,7 @@ class orders extends Controller
                     'order_id' => $order_id,
                     'product' => $product,
                     'products_count' => count($ids),
+                    'warehouses_data' => $warehouses_data,
                 ));
 
 
