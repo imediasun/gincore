@@ -2855,8 +2855,13 @@ class products extends Controller
                 foreach ($goods_ids as $product_id) {
                     $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
                         array($product_id, $query));
+                    $cats = $this->all_configs['db']->query('
+                        SELECT category_id
+                        FROM {category_goods}
+                        WHERE goods_id=?i
+                    ', array($product_id))->col();
                     foreach ($post['categories'] as $new_cat) {
-                        if ($new_cat != 0) {
+                        if ($new_cat != 0 && !in_array($new_cat, $cats)) {
                             $this->CategoryGoods->insert(array(
                                 'category_id' => $new_cat,
                                 'goods_id' => $product_id
