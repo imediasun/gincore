@@ -33,6 +33,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td colspan="2">
+                                    <input type="checkbox" name='is_item'/>
+                                    <?= l('Товар') ?>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>
                                     <?= l('Категории') ?>
                                 </td>

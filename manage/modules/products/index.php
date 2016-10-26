@@ -2876,6 +2876,9 @@ class products extends Controller
             if (isset($post['is_service'])) {
                 $update['type'] = GOODS_TYPE_SERVICE;
             }
+            if (isset($post['is_item'])) {
+                $update['type'] = GOODS_TYPE_ITEM;
+            }
             if (isset($post['price']) && !empty($post['price'])) {
                 $update['price'] = $post['price'] * 100;
             }
