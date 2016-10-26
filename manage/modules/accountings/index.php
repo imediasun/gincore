@@ -3569,7 +3569,7 @@ class accountings extends Controller
             return '';
         }
         $users = $this->Users->query('
-            SELECT id, fio, salary_from_repair, salary_from_sale, use_fixed_payment, use_percent_from_profit 
+            SELECT id, fio, salary_from_repair, salary_from_sale, use_fixed_payment, use_percent_from_profit, login 
             FROM {users} 
             WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0 OR use_fixed_payment > 0 OR use_percent_from_profit > 0)
         ', array($all))->assoc();
@@ -3579,7 +3579,14 @@ class accountings extends Controller
         if (!empty($users)) {
             foreach ($users as $user) {
                 foreach ($orders as $order) {
-                    if (!in_array($user['id'], array($order['manager'], $order['acceptor'], $order['engineer']))) {
+                    $engineers = $this->all_configs['db']->query('
+                    SELECT engineer
+                    FROM {orders_goods}
+                    WHERE order_id=?i AND NOT engineer IS NULL GROUP by engineer
+                    ', array($order['order_id']))->col();
+                    if (!in_array($user['id'],
+                        array_merge(array($order['manager'], $order['acceptor'], $order['engineer']), $engineers))
+                    ) {
                         continue;
                     }
                     if (!array_key_exists($user['id'], $detailed)) {
@@ -3904,7 +3911,7 @@ class accountings extends Controller
 
             $goods = array();
             $data = $this->all_configs['db']->query('
-                SELECT og.title, og.price, og.order_id, og.`type`, og.goods_id, og.id, og.count, g.percent_from_profit, g.fixed_payment, g.price_purchase
+                SELECT og.title, og.price, og.order_id, og.`type`, og.goods_id, og.id, og.count, g.percent_from_profit, g.fixed_payment, g.price_purchase, og.engineer
                 FROM {orders_goods} og 
                 JOIN {goods} g ON og.goods_id=g.id
                 WHERE order_id IN (?li)
@@ -4142,10 +4149,10 @@ class accountings extends Controller
     {
         switch (true) {
             case $user['use_fixed_payment']:
-                $profit = $this->calculateRepairProfitWith(MGoods::FIXED_PAYMENT, $order);
+                $profit = $this->calculateRepairProfitWith(MGoods::FIXED_PAYMENT, $order, $user);
                 break;
             case $user['use_percent_from_profit']:
-                $profit = $this->calculateRepairProfitWith(MGoods::PERCENT_FROM_PROFIT, $order);
+                $profit = $this->calculateRepairProfitWith(MGoods::PERCENT_FROM_PROFIT, $order, $user);
                 break;
             default:
                 $profit = array(
@@ -4204,42 +4211,45 @@ class accountings extends Controller
     /**
      * @param $with
      * @param $order
+     * @param $user
      * @return array
      */
-    private function calculateRepairProfitWith($with, $order)
+    private function calculateRepairProfitWith($with, $order, $user)
     {
         $profit = array(
             'value' => 0,
             'detailed' => array()
         );
         foreach ($order['services'] as $service) {
-            $payments = $this->Goods->getPayments($service['goods_id']);
-            if ($with == MGoods::FIXED_PAYMENT) {
-                $value = $service['count'] * $payments['fixed_payment'];
-                $profit['value'] += $value;
-                for ($i = $service['count']; $i > 0; $i--) {
-                    $profit['detailed'][] = array(
-                        'order_id' => $order['order_id'],
-                        'product' => $service['title'],
-                        'cost_price' => 0,
-                        'selling_price' => $service['price'],
-                        'salary' => $payments['fixed_payment'],
-                        'percent' => 0
-                    );
+            if ((empty($service['engineer']) && $user['id'] == $order['engineer']) || ($user['id'] == $service['engineer'])) {
+                $payments = $this->Goods->getPayments($service['goods_id']);
+                if ($with == MGoods::FIXED_PAYMENT) {
+                    $value = $service['count'] * $payments['fixed_payment'];
+                    $profit['value'] += $value;
+                    for ($i = $service['count']; $i > 0; $i--) {
+                        $profit['detailed'][] = array(
+                            'order_id' => $order['order_id'],
+                            'product' => $service['title'],
+                            'cost_price' => 0,
+                            'selling_price' => $service['price'],
+                            'salary' => $payments['fixed_payment'],
+                            'percent' => 0
+                        );
+                    }
                 }
-            }
-            if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = $service['price'] * $payments['percent_from_profit'] / 100;
-                $profit['value'] += $service['count'] * $value;
-                for ($i = $service['count']; $i > 0; $i--) {
-                    $profit['detailed'][] = array(
-                        'order_id' => $order['order_id'],
-                        'product' => $service['title'],
-                        'cost_price' => 0,
-                        'selling_price' => $service['price'],
-                        'salary' => $value,
-                        'percent' => $payments['percent_from_profit']
-                    );
+                if ($with == MGoods::PERCENT_FROM_PROFIT) {
+                    $value = $service['price'] * $payments['percent_from_profit'] / 100;
+                    $profit['value'] += $service['count'] * $value;
+                    for ($i = $service['count']; $i > 0; $i--) {
+                        $profit['detailed'][] = array(
+                            'order_id' => $order['order_id'],
+                            'product' => $service['title'],
+                            'cost_price' => 0,
+                            'selling_price' => $service['price'],
+                            'salary' => $value,
+                            'percent' => $payments['percent_from_profit']
+                        );
+                    }
                 }
             }
         }

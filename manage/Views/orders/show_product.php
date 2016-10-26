@@ -173,18 +173,17 @@
             </td>
         <?php endif; ?>
     <?php else: ?>
-        <td></td>
-        <td>
+        <td class="col-sm-2"></td>
+        <td class="col-sm-2" style="text-align: center">
             <?php if (!empty($engineers)): ?>
                 <div class="btn-group js-repair-order-column-filter" style="margin-left: 5px">
-                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"
                        id="user_<?= $product['id'] ?>"  title="<?= get_user_name($engineers[$product['engineer']]) ?>">
                         <i class="fa fa-user" aria-hidden="true"
-                           style="color: #<?= empty($product['engineer']) || $product['engineer'] == $order_engineer ? 'ddd' : mt_rand(0,
-                               0xffffff) ?>"></i>
+                           style="color: <?= $color ?>"></i>
                         <i class="fa fa-caret-down"></i>
                     </a>
-                    <ul class="dropdown-menu pull-right" style="max-height: 600px">
+                    <ul class="dropdown-menu pull-right" style="max-height: 600px; width:350px">
                         <?php foreach ($engineers as $engineer): ?>
                             <li style="padding: 0 10px">
                                 <div class="radio">

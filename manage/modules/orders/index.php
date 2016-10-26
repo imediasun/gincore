@@ -28,6 +28,20 @@ class orders extends Controller
         'Status'
     );
 
+    public $engineer_colors = array();
+    public $colors = array(
+        'red',
+        'blue',
+        'green',
+        'yellow',
+        'magenta',
+        'lime',
+        'orange',
+        'pink',
+        'indigo',
+        'teal'
+    );
+
     /**
      * orders constructor.
      * @param      $all_configs
@@ -1430,14 +1444,22 @@ class orders extends Controller
             . "WHERE c.client_order_id = ?i AND c.goods_id = ?i",
             array($product['order_id'], $product['goods_id']), 'row');
 
-
+        if(!empty($product['engineer']) && isset($this->engineer_colors[$product['engineer']])) {
+           $color =  $this->engineer_colors[$product['engineer']];
+        } elseif (empty($product['engineer']) || $product['engineer'] == $engineer) {
+            $color = '#ddd';
+        } else {
+            $color = $this->colors[count($this->engineer_colors)];
+            $this->engineer_colors[$product['engineer']] = $color;
+        }
         return $this->view->renderFile('orders/show_product', array(
             'url' => $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'],
             'product' => $product,
             'supplier_order' => $supplier_order,
             'controller' => $this,
             'engineers' => $engineers,
-            'order_engineer' => $engineer
+            'order_engineer' => $engineer,
+            'color' => $color
         ));
     }
 

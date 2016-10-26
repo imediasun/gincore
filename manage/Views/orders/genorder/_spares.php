@@ -90,7 +90,7 @@
                 <?php endif; ?>
                 <td></td>
                 <td></td>
-                <td> <?= l('Мастер') ?> <?= InfoPopover::getInstance()->createQuestion('l_engineer_of_service'); ?> </td>
+                <td style="text-align: center;"> <?= l('Мастер') ?> <?= InfoPopover::getInstance()->createQuestion('l_engineer_of_service'); ?> </td>
             </tr>
             </thead>
             <tbody id="service-table">
