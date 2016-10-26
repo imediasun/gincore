@@ -112,7 +112,7 @@
                                         <div class="input-group-addon margin-type"
                                              onclick="change_margin_type(this, 'automargin')"
                                              style="cursor: pointer">
-                                            <input type="hidden" class="form-control" value="0" name="automargin_type"/>
+                                            <input type="hidden" class="form-control" value="1" name="automargin_type"/>
                                             <span class="currency js-automargin-type"
                                                   style="display:none"><?= viewCurrency() ?>
                                                 &nbsp;<i
@@ -132,7 +132,7 @@
                                         <div class="input-group-addon margin-type"
                                              onclick="change_margin_type(this, 'wholesale_automargin')"
                                              style="cursor: pointer">
-                                            <input type="hidden" class="form-control" value="0"
+                                            <input type="hidden" class="form-control" value="1"
                                                    name="wholesale_automargin_type"/>
                                             <span class="currency js-wholesale_automargin-type"
                                                   style="display:none"><?= viewCurrency() ?>

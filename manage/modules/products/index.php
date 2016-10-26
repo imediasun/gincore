@@ -2887,9 +2887,9 @@ class products extends Controller
             if (isset($post['use_automargin']) && strcmp($post['use_automargin'], 'on') === 0) {
                 $update['use_automargin'] = 1;
                 $update['automargin_type'] = intval($post['automargin_type']);
-                $update['automargin'] = intval($post['automargin']) * 100;
+                $update['automargin'] = intval($post['automargin']);
                 $update['wholesale_automargin_type'] = intval($post['wholesale_automargin_type']);
-                $update['wholesale_automargin'] = intval($post['wholesale_automargin']) * 100;
+                $update['wholesale_automargin'] = intval($post['wholesale_automargin']);
             }
             if (isset($post['percent_from_profit']) && !empty($post['percent_from_profit'])) {
                 $update['percent_from_profit'] = $post['percent_from_profit'];
