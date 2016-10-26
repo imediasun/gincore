@@ -1929,13 +1929,14 @@ class warehouses extends Controller
                 if ($data['error']) {
                     $item = $this->all_configs['db']->query(
                         'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
-                        array($scan, suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
+                        array($scan, $scan))->row();
                     if (!empty($item)) {
                         $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
                         $data['msg'] .= l('Изделие') . ' ' . $scan;
                         $data['state'] = true;
                     } else {
                         $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено!!!!');
+                        $data['state'] = true;
                     }
                 }
             }
