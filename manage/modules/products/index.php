@@ -651,7 +651,7 @@ class products extends Controller
                   JOIN {users} as u ON ugm.user_id=u.id
                   LEFT JOIN {warehouses_goods_items} as wgi ON wgi.goods_id=g.id
                   LEFT JOIN {warehouses} as w ON w.id=wgi.wh_id
-                  LEFT JOIN (SELECT sum(count_come) as expect, MIN(date_come) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_come > 0 GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
+                  LEFT JOIN (SELECT sum(count) as expect, MIN(date_wait) as min_date_come, c.goods_id FROM {contractors_suppliers_orders} c WHERE date_check is NULL GROUP by c.goods_id) csoc ON csoc.goods_id=g.id
                   LEFT JOIN (SELECT sum(count_debit) as have, c.goods_id FROM {contractors_suppliers_orders} c WHERE count_debit > 0 GROUP by c.goods_id) csod ON csod.goods_id=g.id
                   LEFT JOIN (SELECT count(*) as sl, goods_id FROM {goods_suppliers} GROUP by goods_id) as gs ON gs.goods_id=g.id
                   WHERE g.id IN (?list) ?q GROUP BY g.id ORDER BY FIELD(g.id, ?li)',
