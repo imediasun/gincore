@@ -1,0 +1,8 @@
+.ml-dialog .modal-lg {
+    width: 700px;
+}
+
+.medium-dialog .modal-body {
+    padding-right: 0;
+    padding-left: 0;
+}

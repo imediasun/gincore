@@ -1758,6 +1758,7 @@ function dialog_box(_this, title, content, buttons, e, wrapper_class) {
       message: content,
       title: title,
       buttons: buttons,
+      closeButton: true,
       className: wrapper_class || null
     });
   }

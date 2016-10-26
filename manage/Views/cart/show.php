@@ -6,7 +6,7 @@
                 <thead>
                 <tr>
                     <th> <?= l('Наименование') ?> </th>
-                    <th>
+                    <th style="text-align: center">
                         <input type="hidden" name="price_type" value="1"/>
                         <div class="dropdown dropdown-inline">
                             <button class="as_link" type="button" id="dropdownMenuCashboxes"
@@ -31,7 +31,7 @@
                         </div>
                     </th>
                     <th> <?= l('Количество') ?> </th>
-                    <th> <?= l('Сумма') ?> </th>
+                    <th style="text-align: center"> <?= l('Сумма') ?> </th>
                     <th><i class="fa fa-times-circle" aria-hidden="true"></i></th>
                 </tr>
                 </thead>
@@ -39,8 +39,8 @@
                     <tbody>
                     <?php foreach ($cart as $id => $quantity): ?>
                         <tr>
-                            <td width="50%"> <?= h($goods[$id]['title']) ?> </td>
-                            <td width="15%">
+                            <td width="45%"> <?= h($goods[$id]['title']) ?> </td>
+                            <td width="20%" style="text-align: center;">
                                 <span class="js-price js-price-sale"><?= round($goods[$id]['price'] / 100, 2) ?></span>
                                 <span class="js-price js-price-purchase"
                                       style="display: none"><?= round($goods[$id]['price_purchase'] / 100, 2) ?></span>
@@ -51,7 +51,7 @@
                                 <input type="text" class="form-control quantity" onkeyup="recalculate_cart_sum()"
                                        name='quantity[<?= $id ?>]' value="<?= $quantity ?>"/>
                             </td>
-                            <td width="15%">
+                            <td width="15%" style="text-align: center">
                                 <span class="js-sum">
                                     <?= round($goods[$id]['price'] / 100, 2) * $quantity ?>
                                 </span>

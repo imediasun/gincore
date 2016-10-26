@@ -65,7 +65,7 @@ function show_cart() {
     },
     clear: {
       label: L['clear'],
-      className: "btn-success",
+      className: "btn-default",
       callback: function () {
         $.ajax({
           url: prefix + 'cart/ajax?act=clear-cart',
@@ -84,12 +84,6 @@ function show_cart() {
 
       }
     },
-    main: {
-      label: L['cancel'],
-      className: "btn-primary",
-      callback: function () {
-      }
-    }
   };
   $.ajax({
     url: prefix + 'cart/ajax?act=show-cart',
@@ -98,7 +92,7 @@ function show_cart() {
     success: function (data) {
       if (data) {
         if (data['state'] == true) {
-          dialog_box(this, data['title'], data['content'], buttons);
+          dialog_box(this, data['title'], data['content'], buttons, null, 'ml-dialog');
         }
         if (data['state'] == false && data['message']) {
           alert(data['message']);

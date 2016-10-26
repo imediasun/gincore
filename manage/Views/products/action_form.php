@@ -9,7 +9,7 @@
                     <?= l('Основные параметры') ?>
                 </div>
                 <div class="panel-body" style="display: none;">
-                    <div class="col-sm-6">
+                    <div class="col-sm-10">
                         <table class="table table-borderless">
                             <tbody>
                             <tr>
@@ -72,7 +72,7 @@
                     <?= l('Ценообразование') ?>
                 </div>
                 <div class="panel-body" style="display: none;">
-                    <div class="col-sm-12">
+                    <div class="col-sm-10">
                         <table class="table table-borderless">
                             <tbody>
                             <tr>
@@ -103,9 +103,10 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><?= l('Розничная цена') ?></td>
                                 <td>
                                     <div class="input-group" style="width:150px">
-                                        <input type="text" class="form-control" value="" style="min-width: 50px"
+                                        <input type="text" class="form-control" value="0" style="min-width: 50px"
                                                name="automargin"
                                                placeholder="<?= l('Розница') ?>"/>
                                         <div class="input-group-addon margin-type"
@@ -121,9 +122,12 @@
                                         </div>
                                     </div>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td><?= l('Оптовая цена') ?></td>
                                 <td>
                                     <div class="input-group" style="width:150px">
-                                        <input type="text" class="form-control" value="" style="min-width: 50px"
+                                        <input type="text" class="form-control" value="0" style="min-width: 50px"
                                                name="wholesale_automargin" placeholder="<?= l('Опт') ?>"/>
                                         <div class="input-group-addon margin-type"
                                              onclick="change_margin_type(this, 'wholesale_automargin')"
@@ -153,7 +157,7 @@
                     <?= l('Оплата сотруднику за продажу товара/услуги') ?> <?= InfoPopover::getInstance()->createQuestion('l_pay_employee_for_sale') ?>
                 </div>
                 <div class="panel-body" style="display: none;">
-                    <div class="col-sm-12">
+                    <div class="col-sm-10">
                         <table class="table table-borderless">
                             <tbody>
                             <tr>
@@ -212,7 +216,7 @@
                     <?= l('Уведомления') ?>
                 </div>
                 <div class="panel-body" style="display: none;">
-                    <div class="col-sm-12">
+                    <div class="col-sm-10">
                         <table class="table table-borderless">
                             <tbody>
                             <tr>

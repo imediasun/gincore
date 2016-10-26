@@ -133,7 +133,10 @@ a.cart {
     padding: 10px;
 }
 .medium-dialog .modal-lg {
-    width: 600px;
+    width: 500px;
+}
+.ml-dialog .modal-lg {
+    width: 700px;
 }
 .medium-dialog .modal-body {
     padding-right: 0;
