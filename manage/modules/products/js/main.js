@@ -485,7 +485,7 @@ function show_action_form(_this, action) {
     type: 'GET',
     success: function (data) {
       if (data) {
-        if (data['state'] == true) {
+        if (data['state'] == true && ! $('*').is('.medium-dialog')) {
           dialog_box(this, data['title'], data['content'], buttons, null, 'medium-dialog');
           $('#action-form .multiselect').multiselect(multiselect_options);
         }

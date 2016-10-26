@@ -2872,10 +2872,10 @@ class products extends Controller
                 $update['type'] = GOODS_TYPE_SERVICE;
             }
             if (isset($post['price']) && !empty($post['price'])) {
-                $update['price'] = $post['price'];
+                $update['price'] = $post['price'] * 100;
             }
             if (isset($post['price_wholesale']) && !empty($post['price_wholesale'])) {
-                $update['price_wholesale'] = $post['price_wholesale'];
+                $update['price_wholesale'] = $post['price_wholesale'] * 100;
             }
             if (isset($post['manager']) && !empty($post['manager'])) {
                 $update['manager'] = $post['manager'];
@@ -2889,13 +2889,13 @@ class products extends Controller
                 $update['automargin_type'] = intval($post['automargin_type']);
                 $update['automargin'] = intval($post['automargin']) * 100;
                 $update['wholesale_automargin_type'] = intval($post['wholesale_automargin_type']);
-                $update['wholesale_automargin'] = intval($post['wholesale_automargin']);
+                $update['wholesale_automargin'] = intval($post['wholesale_automargin']) * 100;
             }
             if (isset($post['percent_from_profit']) && !empty($post['percent_from_profit'])) {
                 $update['percent_from_profit'] = $post['percent_from_profit'];
             }
             if (isset($post['fixed_payment']) && !empty($post['fixed_payment'])) {
-                $update['fixed_payment'] = $post['fixed_payment'];
+                $update['fixed_payment'] = $post['fixed_payment'] * 100;
             }
             if (isset($post['category_for_margin']) && !empty($post['category_for_margin'])) {
                 $update['category_for_margin'] = $post['category_for_margin'];
