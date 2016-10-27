@@ -180,7 +180,7 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"
                        id="user_<?= $product['id'] ?>"  title="<?= get_user_name($engineers[$product['engineer']]) ?>">
                         <i class="fa fa-user" aria-hidden="true"
-                           style="color: <?= $color ?>"></i>
+                           style="color: <?= empty($colors[$product['engineer']])? $colors[$order_engineer]: $colors[$product['engineer']] ?>"></i>
                         <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu pull-right" style="max-height: 600px; width:350px">
@@ -190,8 +190,10 @@
                                     <label>
                                         <input type="radio" name="engineer_<?= $product['id'] ?>"
                                                onclick="return set_engineer_of_service(this);"
-                                               value="<?= $engineer['id'] ?>" <?= $engineer['id'] == $product['engineer'] ? 'checked' : '' ?>
-                                               data-service_id="<?= $product['id'] ?>"/>
+                                               value="<?= $engineer['id'] ?>" <?= $engineer['id'] == $product['engineer'] || (empty($product['engineer']) && $engineer['id'] == $order_engineer) ? 'checked' : '' ?>
+                                               data-service_id="<?= $product['id'] ?>"
+                                               data-color="<?= $colors[$engineer['id']] ?>"
+                                        />
 
                                         <?= get_user_name($engineer) ?>
                                         <?php if(!empty($engineer['workload'])): ?>
@@ -210,7 +212,7 @@
 </tr>
 <script>
     function set_engineer_of_service(_this) {
-        var id = $(_this).attr('data-service_id');
+        var id = $(_this).attr('data-service_id'), color;
         $.ajax({
             url: prefix + module + '/ajax/?act=set-engineer-of-service',
             type: 'POST',
@@ -221,7 +223,8 @@
             },
             success: function (msg) {
                 if (msg && msg['state']) {
-                    $('#user_' + id + ' >.fa-user').css('color', '#' + getRandomInt(0, 0xFFFFFF));
+                    color = $(_this).attr('data-color') || '#ddd';
+                    $('#user_' + id + ' >.fa-user').css('color', color);
                 }
             }
         });

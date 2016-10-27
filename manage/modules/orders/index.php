@@ -1430,6 +1430,21 @@ class orders extends Controller
     }
 
     /**
+     * @param $engineers
+     */
+    private function setEngineerColors($engineers)
+    {
+        if (empty($this->engineer_colors)) {
+            $i = 0;
+            foreach ($engineers as $user) {
+                $this->engineer_colors[$user['id']] = ($i < count($this->colors)) ? $this->colors[$i] : sprintf("#%06X\n",
+                    mt_rand(0, 0xFFFFFF));;
+                $i++;
+            }
+        }
+    }
+
+    /**
      * @param $product
      * @param $engineers
      * @param $engineer
@@ -1437,6 +1452,7 @@ class orders extends Controller
      */
     public function show_product($product, $engineers, $engineer)
     {
+        $this->setEngineerColors($engineers);
         $supplier_order = $this->all_configs['db']->query("SELECT supplier_order_id as id, o.count, o.supplier, "
             . "o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
             . "FROM {orders_suppliers_clients} as c "
@@ -1444,14 +1460,6 @@ class orders extends Controller
             . "WHERE c.client_order_id = ?i AND c.goods_id = ?i",
             array($product['order_id'], $product['goods_id']), 'row');
 
-        if(!empty($product['engineer']) && isset($this->engineer_colors[$product['engineer']])) {
-           $color =  $this->engineer_colors[$product['engineer']];
-        } elseif (empty($product['engineer']) || $product['engineer'] == $engineer) {
-            $color = '#ddd';
-        } else {
-            $color = $this->colors[count($this->engineer_colors)];
-            $this->engineer_colors[$product['engineer']] = $color;
-        }
         return $this->view->renderFile('orders/show_product', array(
             'url' => $this->all_configs['prefix'] . 'products/create/' . $product['goods_id'],
             'product' => $product,
@@ -1459,7 +1467,7 @@ class orders extends Controller
             'controller' => $this,
             'engineers' => $engineers,
             'order_engineer' => $engineer,
-            'color' => $color
+            'colors' => $this->engineer_colors
         ));
     }
 
