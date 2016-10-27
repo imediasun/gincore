@@ -827,19 +827,19 @@ function bind_group_product(_this, product_id, order_id) {
       }
       if (msg['state'] == true && msg['html']) {
         buttons = {
-          ok: {
-            label: "Продолжить",
+          confirm: {
+            label: "Применить",
             className: "btn-primary",
             callback: function () {
-              window.location.reload();
               $(_this).button('reset');
+              $('#order-bind-item-order').trigger('submit');
+              return false;
             }
           },
-          main: {
+          cancel: {
             label: "Закрыть",
             className: "btn-primary",
             callback: function () {
-              window.location.reload();
               $(_this).button('reset');
             }
           }

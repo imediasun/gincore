@@ -212,6 +212,70 @@ class Chains extends Object
         return $chain['price'] + $chain['warranties_cost'];
     }
 
+
+    public function bind_serials_to_order($data, $mod_id)
+    {
+        $order_id = $data['order_id'];
+        $product_id = $data['product_id'];
+        $bind_results = array();
+        $warehouse_obj = new MWarehouses();
+
+
+        $order_products = $this->all_configs['db']->query(
+            'SELECT * FROM {orders_goods} WHERE order_id=?i AND goods_id=?i AND item_id IS NULL',
+            array($order_id, $product_id))->assoc();
+
+        $i = 0;
+        foreach ($data['serials'] as $id_warehouse => $serials) {
+            if (!empty($serials['select'])){
+                foreach ($serials['select'] as $item_id){
+                    if (isset($order_products[$i])) {
+                        $bind_results[] = $this->bind_item_serial(array(
+                            'item_id' => $item_id,
+                            'order_product_id' => $order_products[$i]['id'],
+                            'confirm' => 1,
+                        ), $mod_id, false);
+                        $i++;
+                    } 
+                }
+            } elseif (!empty($serials['input'])) {
+                if (isset($order_products[$i])) {
+                    $bind_results[] = $this->bind_item_serial(array(
+                        'serial' => $serials['input'],
+                        'order_product_id' => $order_products[$i]['id'],
+                        'confirm' => 1,
+                    ), $mod_id, false);
+                    $i++;
+                }
+            } elseif (!empty($serials['quantities'])) {
+                $quantities_need = $serials['quantities'];
+                $quantities_exist = $serials['quantities_exist'];
+                $limit = ($quantities_need > $quantities_exist) ? $quantities_exist : $quantities_need;
+                $available_items = $warehouse_obj->getAvailableItemsByGoodsIdWarehouse(array($product_id), $id_warehouse, $limit);
+
+                foreach ($available_items as $avail_item) {
+                    if (isset($order_products[$i])) {
+                        $bind_results[] = $this->bind_item_serial(array(
+                            'item_id' => $avail_item['id'],
+                            'order_product_id' => $order_products[$i]['id'],
+                            'confirm' => 1,
+                        ), $mod_id, false);
+                        $i++;
+                    }
+                }
+
+            }
+        }
+
+        $result = array(
+            'state' => !empty($bind_results),
+            'message' => l('Все серийники успешно привязаны'),
+            'bind_results' => $bind_results
+        );
+
+        return $result;
+    }
+
     /**
      * @param      $data
      * @param      $mod_id

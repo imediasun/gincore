@@ -2197,20 +2197,54 @@ class orders extends Controller
         // открываем форму привязки запчасти к ремонту array(product_id=29)
         if ($act == 'bind-group-product-to-order') {
             $data['state'] = true;
+            $order_id = (int)$_POST['order_id'];
             if ($this->OrdersGoods->isHash($_POST['product_id'])) {
-                $products = $this->all_configs['manageModel']->order_goods($_POST['order_id'], 0);
+
+                $products = $this->all_configs['manageModel']->order_goods($order_id, 0);
                 $ids = $this->OrdersGoods->getProductsIdsByHash($products, $_POST['product_id']);
-                $data['html'] = ' <table class="table">';
-                foreach ($ids as $position => $id) {
-                    $product_id = $products[$id]['goods_id'];
-                    $data_ops = $this->all_configs['chains']->stockman_operations_goods($product_id);
-                    $operations = $this->all_configs['chains']->get_operations(1, null, false, $data_ops['goods']);
-                    $ops = $this->all_configs['chains']->show_stockman_operation($operations[$position], 1,
-                        $data_ops['serials'],
-                        true, true);
-                    $data['html'] .= $ops;
+
+                $product = new MGoods();
+                $product = $product->getByPk($products[$ids[0]]['goods_id']);
+
+                $warehouses = new MWarehouses();
+                $warehouses_data = $warehouses->getAvailableItemsByGoodsId(array($product['id']), true);
+                
+                foreach ($warehouses_data as $id_warehouse=>$row) {
+                    $warehouses_data[$id_warehouse]['warehouse'] = $warehouses->getByPk($id_warehouse);
+                    $warehouses_data[$id_warehouse]['warehouse']['locations'] = $warehouses->getLocations($id_warehouse);
+
+                    foreach ($warehouses_data[$id_warehouse]['items'] as $row_id=>$row_product){
+                        $warehouses_data[$id_warehouse]['items'][$row_id]['item_id'] = $row_product['id'];
+                        $warehouses_data[$id_warehouse]['items'][$row_id]['serial'] = suppliers_order_generate_serial($warehouses_data[$id_warehouse]['items'][$row_id]);
+                    }
                 }
-                $data['html'] .= '</table>';
+
+//                dd($warehouses_data);
+
+                $data['title'] = l('Отгрузка товара со склада под заказ клиента №').' '.$order_id .
+                    '<br/>'.$product['title'].' '.l('в количестве').' '.count($ids).' '.l('шт.');
+
+                $data['html'] = $this->view->renderFile('orders/bind_goods_to_order', array(
+                    'order_id' => $order_id,
+                    'product' => $product,
+                    'products_count' => count($ids),
+                    'warehouses_data' => $warehouses_data,
+                ));
+
+
+
+//                $data['html'] = '<legend>'.l('Отгрузка товара со склада под заказ клиента №').' '.$order_id .
+//                    '<br/>'.$product['title'].' '.l('в количестве').' '.count($ids).' '.l('шт.').'</legend><table class="">';
+//                foreach ($ids as $position => $id) {
+//                    $product_id = $products[$id]['goods_id'];
+//                    $data_ops = $this->all_configs['chains']->stockman_operations_goods($product_id);
+//                    $operations = $this->all_configs['chains']->get_operations(1, null, false, $data_ops['goods']);
+//                    $ops = $this->all_configs['chains']->show_stockman_operation($operations[$position], 1,
+//                        $data_ops['serials'],
+//                        true, true);
+//                    $data['html'] .= $ops;
+//                }
+//                $data['html'] .= '</table>';
             } else {
                 $data['stat'] = false;
                 $data['message'] = l('Группа не найдена');
