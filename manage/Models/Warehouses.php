@@ -101,6 +101,22 @@ class MWarehouses extends AModel
 
     }
 
+    public function getAvailableItemsByGoodsIdWarehouse($itemIds, $id_warehouse, $limit = 0)
+    {
+        if(empty($itemIds) || empty($id_warehouse)) {
+            return array();
+        }
+
+        $result = $this->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price, i.serial, i.location_id, i.order_id
+                    FROM ?t as w, {warehouses_goods_items} as i
+                    LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
+                    WHERE i.goods_id IN (?li) AND i.wh_id=?i AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id'.
+                    ($limit ? ' LIMIT '.$limit : ''),
+            array($this->table, $itemIds, $id_warehouse, 1))->assoc();
+
+        return $result;
+    }
+
     /**
      * @return array
      */

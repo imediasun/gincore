@@ -14,7 +14,10 @@
         <?php foreach ($warehouses_data as $wh_id=>$row): ?>
             <tr>
                 <td><?= $row['warehouse']['title'] ?></td>
-                <td><?= count($row['items']) ?></td>
+                <td>
+                    <?= count($row['items']) ?>
+                    <input type="hidden" value="<?= count($row['items']) ?>" name="serials[<?= $wh_id ?>][quantities_exist]">
+                </td>
                 <td>
                     <div class="input-group">
                         <select class="form-control multiselect" id="bind_item_serial-<?= $product['id'] ?>"
@@ -93,31 +96,25 @@
                 data: _this.$form.serialize(),
 
                 success: function (response) {
-//                    if (msg) {
-//                        if (msg['state'] == false && msg['message']) {
-//                            if (msg['confirm']) {
-//                                if (confirm(msg['message'])) {
-//                                    btn_bind_item_serial_for_group(_this, order_product_id, 1);
-//                                }
-//                            } else {
-//                                alert(msg['message']);
-//                                $(_this).button('reset');
-//                            }
-//                        }
-//                        if (msg['disabled'] && msg['disabled'] == true) {
-//                            $('#bind_item_serial-' + h_id).attr('disabled', true);
-//                            $(_this).attr('disabled', true);
-//                        }
-//                        if (msg['class']) {
-//                            $(_this).parents('tr.operation').attr('class', msg['class']);
-//                        }
-//                        if (msg['item_id']) {
-//                            $('#bind_item_serial-' + h_id).val(msg['item_id'])
-//                        }
-//                        if (msg['state'] == true) {
-//                            $(_this).hide();
-//                        }
-//                    }
+                    var whole_state = true;
+
+                    if (response.bind_results) {
+                        $.each(response.bind_results, function (index, value) {
+                            if (value.state == false) {
+                                _this.notify(value.message);
+                                whole_state = false;
+                            }
+                        });
+                    }
+
+                    if (whole_state) {
+                        _this.notify(response.message);
+                    }
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 4000);
+
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
