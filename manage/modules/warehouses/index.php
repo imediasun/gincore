@@ -1374,6 +1374,11 @@ class warehouses extends Controller
             }
         }
 
+        // массовая привязка серийников к заказу
+        if ($act == 'bind-serials-to-order') {
+            $data = $this->all_configs['chains']->bind_serials_to_order($_POST, $mod_id);
+        }
+
         // привязка серийного номера
         if ($act == 'bind-item-serial') {
             $data = $this->all_configs['chains']->bind_item_serial($_POST, $mod_id);

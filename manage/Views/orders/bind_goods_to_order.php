@@ -1,4 +1,6 @@
 <form action="" method="post" id="order-bind-item-order">
+    <input type="hidden" name="order_id" value="<?= $order_id ?>">
+    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
     <table class="table table-borderless">
         <thead>
             <tr>
@@ -16,18 +18,17 @@
                 <td>
                     <div class="input-group">
                         <select class="form-control multiselect" id="bind_item_serial-<?= $product['id'] ?>"
-                                multiple="multiple">
+                                name=serials[<?= $wh_id ?>][select][] multiple="multiple">
                             <?php foreach ($row['items'] as $item): ?>
-                                <option class="<?= $item['order_id'] > 0 ? 'text-danger' : '' ?>"
-                                        value="<?= $item['id'] ?>">
+                                <option value="<?= $item['id'] ?>">
                                     <?= $item['serial'] ?>
                                     <b class="danger">(<?= $row['warehouse']['locations'][$item['location_id']]['location'] ?>)</b>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                         <input class="form-control" type="text" value="" style="display:none;"
-                               id="bind_item_serial_input-<?= $product['id'] ?>"/>
-                    <span class="input-group-btn" onclick="toogle_siblings(this, true)">
+                               name=serials[<?= $wh_id ?>][input] id="bind_item_serial_input-<?= $product['id'] ?>"/>
+                    <span class="input-group-btn" onclick="toogle_siblings(this, true, true)">
                         <button class="btn" type="button">
                             <i class="fa fa-keyboard-o"></i>
                         </button>
@@ -36,7 +37,7 @@
                 </td>
                 <td>
                     <input maxlength="3" max="<?= count($row['items']) ?>" type="number" class="form-control"
-                           data-item_quantity data-item_id="<?= $product['id'] ?>"  value="0">
+                           name=serials[<?= $wh_id ?>][quantities] data-item_quantity data-item_id="<?= $product['id'] ?>"  value="0">
                 </td>
             </tr>
         <?php endforeach; ?>
@@ -67,6 +68,7 @@
         $items: [],
 
         init: function () {
+            var _this = this;
             this.$itemsNededInput = this.$form.find('input[data-item_quantity_sum]');
             this.$itemsNeded = this.$itemsNededInput.attr('max');
             this.$items = this.$form.find('input[data-item_quantity]');
@@ -74,6 +76,53 @@
             this.initMultiselect();
             this.initCalculation();
 
+            this.$form.on('submit', function (e) {
+                e.preventDefault();
+                _this.submitForm();
+            })
+
+        },
+
+        submitForm: function () {
+            var _this = this;
+//            var data = this.$form.serialize()
+            $.ajax({
+                url: prefix + 'warehouses/ajax/?act=bind-serials-to-order',
+                type: 'POST',
+                dataType: "json",
+                data: _this.$form.serialize(),
+
+                success: function (response) {
+//                    if (msg) {
+//                        if (msg['state'] == false && msg['message']) {
+//                            if (msg['confirm']) {
+//                                if (confirm(msg['message'])) {
+//                                    btn_bind_item_serial_for_group(_this, order_product_id, 1);
+//                                }
+//                            } else {
+//                                alert(msg['message']);
+//                                $(_this).button('reset');
+//                            }
+//                        }
+//                        if (msg['disabled'] && msg['disabled'] == true) {
+//                            $('#bind_item_serial-' + h_id).attr('disabled', true);
+//                            $(_this).attr('disabled', true);
+//                        }
+//                        if (msg['class']) {
+//                            $(_this).parents('tr.operation').attr('class', msg['class']);
+//                        }
+//                        if (msg['item_id']) {
+//                            $('#bind_item_serial-' + h_id).val(msg['item_id'])
+//                        }
+//                        if (msg['state'] == true) {
+//                            $(_this).hide();
+//                        }
+//                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
+                }
+            });
         },
 
         initMultiselect: function () {
@@ -88,7 +137,6 @@
                     // Если достигнуто максимальное значение
                     if(_this.$currentSum == _this.$prevSum) {
                         $(this.$select[0]).multiselect('deselect', $(option).val() );
-                        _this.notify('<?= l('Достигнуто максимальное значение') ?>');
                     }
 
 

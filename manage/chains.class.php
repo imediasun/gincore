@@ -212,6 +212,43 @@ class Chains extends Object
         return $chain['price'] + $chain['warranties_cost'];
     }
 
+
+    public function bind_serials_to_order($data, $mod_id)
+    {
+        $order_id = $data['order_id'];
+        $product_id = $data['product_id'];
+        $bind_results = array();
+
+        foreach ($data['serials'] as $id_warehouse => $serials) {
+            if (!empty($serials['select'])){
+                foreach ($serials['select'] as $item_id){
+                    $bind_results[] = $this->bind_item_serial(array(
+                        'item_id' => $item_id,
+                        'order_product_id' => $product_id,
+                        'confirm' => 1,
+                    ), $mod_id, false);
+                }
+            } elseif (!empty($serials['input'])) {
+                $bind_results[] = $this->bind_item_serial(array(
+                    'serial' => $serials['input'],
+                    'order_product_id' => $product_id,
+                    'confirm' => 1,
+                ), $mod_id, false);
+            } elseif (!empty($serials['quantities'])) {
+
+            }
+        }
+
+        $result = array(
+            'state' => true,
+            'message' => 'sdsd',
+            'data' => $data,
+            'bind_results' => $bind_results
+        );
+
+        return $result;
+    }
+
     /**
      * @param      $data
      * @param      $mod_id
