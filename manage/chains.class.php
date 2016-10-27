@@ -642,7 +642,7 @@ class Chains extends Object
         $goods = array();
         $prod_query = '';
         if ($goods_id) {
-            $prod_query = db()->makeQuery(" AND i.goods_id = ?i:g AND l.goods_id = ?i:g ", array('g' => $goods_id));
+            $prod_query = db()->makeQuery(" AND i.goods_id = ?i:g AND i.goods_id = ?i:g ", array('g' => $goods_id));
         }
         $data = $this->all_configs['db']->query(
             'SELECT i.id as item_id, i.order_id, i.serial, i.goods_id,
@@ -650,9 +650,8 @@ class Chains extends Object
                    i.location_id, i.supplier_order_id
             FROM {warehouses_goods_items} as i, 
                  {warehouses} as w, 
-                 {warehouses_locations} as t, 
-                 {orders_suppliers_clients} as l
-            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id AND l.goods_id=i.goods_id ?q ',
+                 {warehouses_locations} as t
+            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id ?q ',
             array(1, $prod_query))->assoc();
         if ($data) {
             foreach ($data as $i) {
