@@ -423,8 +423,7 @@ function create_purchase_invoice(act) {
       callback: function () {
         $('#suppliers-order-form').parsley().reset();
         if (false === $('#suppliers-order-form-header').parsley().validate() ||
-            false === $('#suppliers-order-form-body').parsley().validate())
-        {
+          false === $('#suppliers-order-form-body').parsley().validate()) {
           return false;
         }
 
@@ -438,7 +437,7 @@ function create_purchase_invoice(act) {
             if (data['state'] == false) {
               alert(data['message']);
             } else {
-              alert_box(this, false, 'form-debit-purchase-invoice', {object_id:data['id']});
+              alert_box(this, false, 'form-debit-purchase-invoice', {object_id: data['id']});
               // window.location.reload();
             }
           },
@@ -570,6 +569,11 @@ function debit_purchase_invoice(_this) {
         if (msg['print_link']) {
           window_open(msg['print_link']);
         }
+        if (msg['print_links']) {
+          $.each(msg['print_links'], function (index, value) {
+            window_open(value);
+          });
+        }
         if (reload == true) {
           if ($('#modal-dialog').is(':visible')) {
             var $div = $('<div class="modal-backdrop fade in"></div>');
@@ -613,7 +617,7 @@ function purchase_invoice_import_form() {
             if (data['state'] == false) {
               alert(data['message']);
             } else {
-              alert_box(this, false, 'form-debit-purchase-invoice', {object_id:data['id']});
+              alert_box(this, false, 'form-debit-purchase-invoice', {object_id: data['id']});
             }
           },
           error: function (xhr, ajaxOptions, thrownError) {

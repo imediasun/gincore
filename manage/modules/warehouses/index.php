@@ -2459,6 +2459,9 @@ class warehouses extends Controller
             );
             foreach ($debitResult as $value) {
                 $result['result'] .= $this->form_debit_invoice_result($value['order_for_result'], $value['msg']);
+                if (!empty($value['print_link'])) {
+                    $result['print_links'][] = $value['print_link'];
+                }
             }
         } catch (ExceptionWithMsg $e) {
             $result = array(
