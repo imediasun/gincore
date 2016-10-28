@@ -13,3 +13,4 @@
 
 
 </div>
+<button class="btn hidden" id="sidebar-product-form-submit"><?= l('Сохранить') ?></button>

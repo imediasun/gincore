@@ -128,13 +128,19 @@ var rightSidebar = {
         _this.load_item(elem.data('id_item'));
     });
 
+    $('#sidebar-product-form-submit').live('click', function (e) {
+      e.preventDefault();
+      $('#sidebar-product-form').trigger('submit');
+    });
+
     _this.image_deleting_init();
   },
 
-    form_init_product: function () {
-        var _this = this;
-        $('#sidebar-product-form').on('submit', function (e) {
-            e.preventDefault();
+  form_init_product: function () {
+    var _this = this;
+
+    $('#sidebar-product-form').on('submit', function (e) {
+      e.preventDefault();
 
       var id_product = $('#sidebar-id-product')[0].value;
       var form_data = $(this).serialize();
@@ -150,6 +156,7 @@ var rightSidebar = {
             })
           } else {
             _this.hide();
+            $('#sidebar-product-form-submit ').addClass('hidden');
             _this.noty(result.msg, 'success');
           }
         }
@@ -183,6 +190,7 @@ var rightSidebar = {
 
   hide: function () {
     $('#right-sidebar').removeClass('sidebar-open');
+    $('#sidebar-product-form-submit ').addClass('hidden');
     this.clean_html();
   },
 
@@ -194,76 +202,78 @@ var rightSidebar = {
     $('#right-sidebar-content').html('');
   },
 
-    load_product: function (id_product) {
-        var _this = this;
-        _this.currentType = 'load_product';
-        _this.currentId = id_product;
+  load_product: function (id_product) {
+    var _this = this;
+    _this.currentType = 'load_product';
+    _this.currentId = id_product;
 
-        $.ajax({
-            url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
-            type: 'GET',
-            dataType: 'json',
-            success: function (result) {
-                if (result.hasError) {
-                    _this.noty('Что-то пошло не так.');
-                } else {
-                    _this.html(result.html);
-                    _this.show();
-                    _this.form_init_product();
-                }
-            }
-        });
-        return true;
-    },
-
-    load_item: function (id_item) {
-        var _this = this;
-        _this.currentType = 'load_item';
-        _this.currentId = id_item;
-
-        $.ajax({
-            url: prefix + '/warehouses/ajax/?act=sidebar-load-item',
-            type: 'POST',
-            data: {serial: id_item},
-            dataType: 'json',
-            success: function (result) {
-                if (result.hasError) {
-                    _this.noty('Что-то пошло не так.');
-                } else {
-                    _this.html(result.html);
-                    _this.show();
-                }
-            }
-        });
-        return true;
-    },
-
-    reload: function () {
-        if (this.currentType == 'load_product') {
-            this.load_product(this.currentId);
-        } else if (this.currentType == 'load_item') {
-            this.load_item(this.currentId);
-        }
-    },
-
-    noty : function (text, type) {
-        if (typeof type === 'undefined') {
-            type = 'default';
-        }
-        if($.noty){
-            noty({
-                text: text,
-                timeout: 3000,
-                type: type,
-                layout: 'topRight'
-            });
+    $.ajax({
+      url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
+      type: 'GET',
+      dataType: 'json',
+      success: function (result) {
+        if (result.hasError) {
+          _this.noty('Что-то пошло не так.');
         } else {
-            alert(text);
+          _this.html(result.html);
+          _this.show();
+          _this.form_init_product();
         }
+      },
+      complete: function () {
+        setTimeout(function () {
+          $('#sidebar-product-form-submit ').removeClass('hidden');
+        }, 500)
+      }
+    });
+    return true;
+  },
 
+  load_item: function (id_item) {
+    var _this = this;
+    _this.currentType = 'load_item';
+    _this.currentId = id_item;
+
+    $.ajax({
+      url: prefix + '/warehouses/ajax/?act=sidebar-load-item',
+      type: 'POST',
+      data: {serial: id_item},
+      dataType: 'json',
+      success: function (result) {
+        if (result.hasError) {
+          _this.noty('Что-то пошло не так.');
+        } else {
+          _this.html(result.html);
+          _this.show();
+        }
+      }
+    });
+    return true;
+  },
+
+  reload: function () {
+      if (this.currentType == 'load_product') {
+          this.load_product(this.currentId);
+      } else if (this.currentType == 'load_item') {
+          this.load_item(this.currentId);
+      }
+  },
+
+  noty : function (text, type) {
+      if (typeof type === 'undefined') {
+          type = 'default';
+      }
+      if($.noty){
+          noty({
+              text: text,
+              timeout: 3000,
+              type: type,
+              layout: 'topRight'
+          });
+      } else {
+          alert(text);
+      }
   }
-
-
 };
 
 

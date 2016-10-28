@@ -2819,7 +2819,7 @@ class Chains extends Object
                             if ($chain_id) {
                                 $href1 = $this->all_configs['prefix'] . 'warehouses?serial=' . $data['serial'] . '#show_items';
                                 $href2 = $this->all_configs['prefix'] . 'logistics?i_id=' . $data['serial'] . '#motions';
-                                $content = l('Изделие') . ' <a href="' . $href1 . '">' . $data['serial'] . '</a> ' . l('попало на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
+                                $content = l('Изделие') . ' <a data-action="sidebar_item" data-id_item="' . $data['serial'] . '" href="' . $href1 . '">' . $data['serial'] . '</a> ' . l('попало на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
                                 $this->notification(l('Создалась цепочка на перемещение изделия'), $content,
                                     'logistics-mess');
                             }
