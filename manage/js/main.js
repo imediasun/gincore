@@ -116,17 +116,17 @@ var rightSidebar = {
       _this.hide();
     });
 
-        $('[data-action="sidebar_product"]').live('click',function (e) {
-            e.preventDefault();
-            var elem = $(this);
-            _this.load_product(elem.data('id_product'));
-        });
+    $('[data-action="sidebar_product"]').live('click',function (e) {
+        e.preventDefault();
+        var elem = $(this);
+        _this.load_product(elem.data('id_product'));
+    });
 
-        $('[data-action="sidebar_item"]').live('click',function (e) {
-            e.preventDefault();
-            var elem = $(this);
-            _this.load_item(elem.data('id_item'));
-        });
+    $('[data-action="sidebar_item"]').live('click',function (e) {
+        e.preventDefault();
+        var elem = $(this);
+        _this.load_item(elem.data('id_item'));
+    });
 
     _this.image_deleting_init();
   },
