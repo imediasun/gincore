@@ -13,7 +13,7 @@ class AddColorToUsers extends Migration
     public function up()
     {
         if (!Schema::hasColumn('users', 'color')) {
-            Schema::table('color', function ($table) {
+            Schema::table('users', function ($table) {
                 $table->string('color');
             });
         }
