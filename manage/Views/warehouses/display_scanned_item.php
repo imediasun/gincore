@@ -5,7 +5,7 @@
         <td><?= $inv['i'] ?></td>
         <?php if (array_key_exists('scanned', $inv)): ?>
             <td>
-                <a href="<?= $this->all_configs['prefix'] ?>warehouses?serial=<?= $inv['scanned'] ?>#show_items">
+                <a data-action="sidebar_item" data-id_item="<?= $inv['scanned'] ?>" href="<?= $this->all_configs['prefix'] ?>warehouses?serial=<?= $inv['scanned'] ?>#show_items">
                     <?= h($inv['scanned']) ?>
                 </a>
             </td>
