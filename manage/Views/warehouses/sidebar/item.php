@@ -101,7 +101,58 @@
         <?= $this->all_configs['chains']->form_sold_items($item['item_id'], $this->errors, true); ?>
         <?= $this->all_configs['chains']->moving_item_form($item['item_id'], null, null, null, true, null, true); ?>
 
+        <h4><?= l('История перемещений') ?></h4>
+
+        <?php $item_history = $controller->getItemHistory($item, $query_for_noadmin); ?>
+
+        <?php if (count($item_history) > 0): ?>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td><?= l('Склад') ?>/<?= l('Локация') ?></td>
+                        <td><?= l('Ответственный') ?></td>
+                        <td><?= l('Дата') ?></td>
+                        <td><?= l('Операция') ?> &nbsp;&nbsp;&nbsp; <span id="show-hide-rows" class="fa fa-caret-right cursor-pointer"></span></td>
+                        <td class="show_hide hidden"><?= l('На основании') ?> (<?= l('номер заказа') ?>)</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($item_history as $history): ?>
+                        <tr>
+                            <td>
+                                <a class="hash_link"
+                                   href="<?= $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] ?>?whs=<?= $history['wh_id'] ?>#show_items">
+                                    <?= h($history['title']) ?>
+                                </a><span>/<?= h($history['location']) ?></span>
+                            </td>
+                            <td><?= get_user_name($history) ?></td>
+                            <td><span title="<?= do_nice_date($history['date_move'],
+                                    false) ?>"><?= do_nice_date($history['date_move']) ?></span></td>
+                            <td><?= h($history['comment']) ?></td>
+                            <td class="show_hide hidden">
+                                <?php $prefix = str_replace('warehouses', '', $this->all_configs['prefix']); ?>
+                                <a href="<?= $prefix ?>orders/create/<?= $history['order_id'] ?>">
+                                    <?= $history['order_id'] ?>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+            </div>
+
+        <?php else: ?>
+            <?= l('История перемещений не найдена'); ?>
+        <?php endif; ?>
+
     </div>
 <?php endif; ?>
+
+<script type="text/javascript">
+    $(function () {
+        $('#show-hide-rows').on('click', function () {
+            $('.show_hide').toggleClass('hidden');
+        })
+    });
+</script>
 
 

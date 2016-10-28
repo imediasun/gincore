@@ -17,7 +17,7 @@
                 </div>
             </div>
 
-            <form method="post" id="sold-item-form" style="padding-bottom: 5px">
+            <form method="post" id="moving-item-form-<?= $rand ?>">
                 <?php if ($item_id > 0): ?>
                     <input type="hidden" name="item_id" value="<?= $item_id ?>"/>
                 <?php endif; ?>
@@ -42,7 +42,7 @@
                     </div>
                     <div class="col-sm-4 p-r-n">
                         <?php if ($show_btn): ?>
-                            <?php $attr = $controller->can_use_item($item_id) ? 'onclick="move_item(this, ' . $rand . ')"' : 'disabled'; ?>
+                            <?php $attr = $controller->can_use_item($item_id) ? 'onclick="move_item(this, ' . $rand . ', true)"' : 'disabled'; ?>
                             <input <?= $attr ?> type="button" value="<?= l('Создать') ?>" class="btn item_btn"/>
                         <?php endif; ?>
                     </div>

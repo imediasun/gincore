@@ -9,7 +9,7 @@
                 <div class="col-sm-4 p-r-n">
                     <form class="form-horizontal" method="post">
                         <?php if ($canUse): ?>
-                            <input type="button" class="btn item_btn" onclick="return_item(this, <?= $item_id ?>)"
+                            <input type="button" class="btn item_btn" onclick="return_item(this, <?= $item_id ?>, null, true)"
                                    value="<?= l('Вернуть') ?>"/>
                         <?php else: ?>
                             <input disabled type="submit" class="btn item_btn" value="<?= l('Вернуть') ?>"/>

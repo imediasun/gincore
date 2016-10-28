@@ -107,6 +107,8 @@ function add_alarm(_this) {
 
 
 var rightSidebar = {
+    currentType: '',
+    currentId: '',
 
     init: function () {
         var _this = this;
@@ -195,6 +197,9 @@ var rightSidebar = {
 
     load_product: function (id_product) {
         var _this = this;
+        _this.currentType = 'load_product';
+        _this.currentId = id_product;
+
         $.ajax({
             url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
             type: 'GET',
@@ -214,6 +219,9 @@ var rightSidebar = {
 
     load_item: function (id_item) {
         var _this = this;
+        _this.currentType = 'load_item';
+        _this.currentId = id_item;
+
         $.ajax({
             url: prefix + '/warehouses/ajax/?act=sidebar-load-item',
             type: 'POST',
@@ -229,6 +237,14 @@ var rightSidebar = {
             }
         });
         return true;
+    },
+
+    reload: function () {
+        if (this.currentType == 'load_product') {
+            this.load_product(this.currentId);
+        } else if (this.currentType == 'load_item') {
+            this.load_item(this.currentId);
+        }
     },
 
     noty : function (text, type) {

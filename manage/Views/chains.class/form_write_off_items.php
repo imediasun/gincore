@@ -7,7 +7,7 @@
             <div class="col-sm-4 p-r-n">
                 <form class="form-horizontal" method="post">
                     <?php if ($can): ?>
-                        <input type="button" class="btn item_btn" onclick="write_off_item(this, <?= $item_id ?>)"
+                        <input type="button" class="btn item_btn" onclick="write_off_item(this, <?= $item_id ?>, true)"
                                value="<?= l('Списать') ?>"/>
                     <?php else: ?>
                         <input disabled type="submit" class="btn item_btn" value="<?= l('Списать') ?>"/>

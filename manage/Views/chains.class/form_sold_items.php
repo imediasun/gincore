@@ -33,7 +33,7 @@
                     </div>
                     <div class="col-sm-4 p-r-n">
                         <?php if ($can): ?>
-                            <input type="button" class="btn item_btn" onclick="sold_item(this, <?= $item_id ?>)"
+                            <input type="button" class="btn item_btn" onclick="sold_item(this, <?= $item_id ?>, true)"
                                    value="<?= l('Продать') ?>"/>
                         <?php else: ?>
                             <input disabled type="submit" class="btn item_btn" value="<?= l('Продать') ?>"/>

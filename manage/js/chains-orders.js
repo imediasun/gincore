@@ -5,7 +5,7 @@ function checked_all_writeoff(_this) {
     $('input.writeoff-items:checkbox').prop('checked', false);
 }
 
-function move_item(_this, rand) {
+function move_item(_this, rand, from_sidebar) {
 
   $(_this).button('loading');
 
@@ -17,7 +17,7 @@ function move_item(_this, rand) {
   });
 
   if (result.item_id) {
-    ajax_move_item(result, _this)
+    ajax_move_item(result, _this, from_sidebar)
   } else {
     if ($("input.check-item:checked").length > 0) {
       $("input.check-item:checked").map(function (key, value) {
@@ -30,7 +30,7 @@ function move_item(_this, rand) {
   }
 }
 
-function ajax_move_item(data, _this) {
+function ajax_move_item(data, _this, from_sidebar) {
   $.ajax({
     url: prefix + module + '/ajax/?act=move-item',
     type: 'POST',
@@ -48,8 +48,14 @@ function ajax_move_item(data, _this) {
           }
         }
         if (msg['state'] == true || msg['reload'] == true) {
-          click_tab_hash();
-          close_alert_box();
+
+          if (from_sidebar) {
+            rightSidebar.reload();
+            close_alert_box();
+          } else {
+            click_tab_hash();
+            close_alert_box();
+          }
         }
       }
       $(_this).button('reset');
@@ -60,7 +66,7 @@ function ajax_move_item(data, _this) {
   });
 }
 
-function return_item(_this, items, conf) {
+function return_item(_this, items, conf, from_sidebar) {
 
   if (conf || confirm('Активировать возврат?')) {
     $(_this).button('loading');
@@ -93,7 +99,11 @@ function return_item(_this, items, conf) {
             }
           }
           if (msg['state'] == true) {
-            click_tab_hash();
+            if (from_sidebar) {
+              rightSidebar.reload();
+            } else {
+              click_tab_hash();
+            }
           }
 
           $(_this).button('reset');
@@ -106,7 +116,7 @@ function return_item(_this, items, conf) {
   }
 }
 
-function sold_item(_this, item) {
+function sold_item(_this, item, from_sidebar) {
 
   if (confirm('Активировать продажу?')) {
     if (false === $('#sold-item-form').parsley().validate())
@@ -140,7 +150,11 @@ function sold_item(_this, item) {
           }
           if (msg['state'] == true) {
             //$('a.click_tab[href="' + window.location.hash + '"]').click();
-            click_tab_hash();
+            if (from_sidebar) {
+              rightSidebar.reload();
+            } else {
+              click_tab_hash();
+            }
           }
 
           $(_this).button('reset');
@@ -153,7 +167,7 @@ function sold_item(_this, item) {
   }
 }
 
-function write_off_item(_this, items) {
+function write_off_item(_this, items, from_sidebar) {
   if (confirm('Активировать списание?')) {
     $(_this).button('loading');
 
@@ -181,7 +195,11 @@ function write_off_item(_this, items) {
           }
           if (msg['state'] == true) {
             //$('a.click_tab[href="' + window.location.hash + '"]').click();
-            click_tab_hash();
+            if (from_sidebar) {
+              rightSidebar.reload();
+            } else {
+              click_tab_hash();
+            }
           }
 
           $(_this).button('reset');
