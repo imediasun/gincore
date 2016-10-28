@@ -10,8 +10,7 @@
         <?php include '_tab_warehouses.php';?>
         <?php include '_tab_suppliers_orders.php';?>
         <?php include '_tab_notification.php';?>
-        <input type="submit" class="btn" value="<?= l('Сохранить') ?>" id="sidebar-product-form-submit">
-<!--           <input type="button" class="btn btn-default js_close_sidebar" value="<?= l('Отмена') ?>"> -->
+        
     </form>
 
     <script type="text/javascript">
