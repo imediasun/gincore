@@ -1440,15 +1440,28 @@ class orders extends Controller
      */
     private function setEngineerColors($engineers, $from_order)
     {
+        $usedColor = $this->all_configs['db']->query('SELECT color FROM {users}')->col();
         if (empty($this->engineer_colors)) {
-            $i = 0;
             foreach ($engineers as $user) {
+                if (empty($user['color'])) {
+                    if (count($usedColor) >= count($this->colors)) {
+                        $color = sprintf("#%06X\n", mt_rand(0, 0xFFFFFF));
+                    } else {
+                        $diff = array_diff($this->colors, $usedColor);
+                        $color = current($diff);
+                        $usedColor[] = $color;
+                    }
+                    $this->Users->update(array(
+                        'color' => $color
+                    ), array('id' => $user['id']));
+                } else {
+                    $color = $user['color'];
+                }
+
                 if ($user['id'] == $from_order) {
                     $this->engineer_colors[$user['id']] = '#ddd';
                 } else {
-                    $this->engineer_colors[$user['id']] = ($i < count($this->colors)) ? $this->colors[$i] : sprintf("#%06X\n",
-                        mt_rand(0, 0xFFFFFF));
-                    $i++;
+                    $this->engineer_colors[$user['id']] = $color;
                 }
             }
         }
