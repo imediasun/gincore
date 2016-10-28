@@ -6,7 +6,7 @@
 <form method="post" action="<?= $link ?>" class="">
     <div class="clearfix theme_bg filters-box p-sm m-b-md">
         <div class="row row-15">
-            <input type="hidden" name="repair-order"/>
+            <input type="hidden" name="<?= $type ? $type : 'repair' ?>-order"/>
             <div class="col-sm-2 b-r">
                 <div class="btn-group-vertical">
                     <a class="btn btn-default <?= (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') ?> text-left"

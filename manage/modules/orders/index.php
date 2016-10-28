@@ -113,6 +113,9 @@ class orders extends Controller
                     $hash = '#show_orders-sold';
                     $this->LockFilters->toggle('sale-orders', $url);
                     break;
+                case isset($post['return-order']):
+                    $hash = '#show_suppliers_orders-return';
+                    break;
                 case isset($post['supplier_order_id']):
                     $this->LockFilters->toggle('supplier-orders', $url);
                     $hash = '#show_suppliers_orders-all';
@@ -312,10 +315,11 @@ class orders extends Controller
     }
 
     /**
-     * @param bool $full_link
+     * @param bool   $full_link
+     * @param string $type
      * @return string
      */
-    function repair_orders_filters($full_link = false)
+    function repair_orders_filters($full_link = false, $type = 'repair')
     {
         if ($full_link) {
             $link = $this->all_configs['prefix'] . 'orders';
@@ -375,7 +379,8 @@ class orders extends Controller
             'date' => $date,
             'link' => $link,
             'wfs' => isset($wfs) ? $wfs : array(),
-            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
+            'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars(),
+            'type' => $type
         ));
     }
 
@@ -591,7 +596,7 @@ class orders extends Controller
                 'count_on_page' => $this->count_on_page,
                 'status' => $this->Status->getAll(ORDER_REPAIR, 'status_id')
             )),
-            'menu' => $this->repair_orders_filters(),
+            'menu' => $this->repair_orders_filters(false, 'return'),
             'functions' => array('reset_multiselect()', 'gen_tree()'),
         );
     }
