@@ -119,12 +119,18 @@ var rightSidebar = {
             e.preventDefault();
             var elem = $(this);
             _this.load_product(elem.data('id_product'));
-        })
+        });
+
+        $('[data-action="sidebar_item"]').live('click',function (e) {
+            e.preventDefault();
+            var elem = $(this);
+            _this.load_item(elem.data('id_item'));
+        });
 
         _this.image_deleting_init();
     },
 
-    form_init: function () {
+    form_init_product: function () {
         var _this = this;
         $('#sidebar-product-form').on('submit', function (e) {
             e.preventDefault();
@@ -199,7 +205,26 @@ var rightSidebar = {
                 } else {
                     _this.html(result.html);
                     _this.show();
-                    _this.form_init();
+                    _this.form_init_product();
+                }
+            }
+        });
+        return true;
+    },
+
+    load_item: function (id_item) {
+        var _this = this;
+        $.ajax({
+            url: prefix + '/warehouses/ajax/?act=sidebar-load-item',
+            type: 'POST',
+            data: {serial: id_item},
+            dataType: 'json',
+            success: function (result) {
+                if (result.hasError) {
+                    _this.noty('Что-то пошло не так.');
+                } else {
+                    _this.html(result.html);
+                    _this.show();
                 }
             }
         });
