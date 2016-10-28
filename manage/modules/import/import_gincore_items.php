@@ -107,6 +107,7 @@ class import_gincore_items extends abstract_import_handler
                 } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
                 }
+
             }
             if (!empty($query)) {
                 db()->query('UPDATE {goods} SET ?q WHERE id=?i', array(
@@ -162,9 +163,13 @@ class import_gincore_items extends abstract_import_handler
         $cols = $this->provider->get_cols();
         foreach ($cols as $field => $title) {
             $value = $this->provider->$field($row);
-            if (strpos($field, 'price') !== false) {
+            if (strpos($field, 'price') !== false || strpos($field, 'fixed_payment') !== false) {
                 $value *= 100;
             }
+            if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
+                $value = (int) strpos($value, lq('Нет')) !== false;
+            }
+
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
                 $value = $this->createCategory($this->provider->getColValue('category', $row));
             }
@@ -173,6 +178,12 @@ class import_gincore_items extends abstract_import_handler
             }
         }
 
+        if($data['automargin_type'] == 0) {
+            $data['automargin'] *= 100;
+        }
+        if($data['wholesale_automargin_type'] == 0) {
+            $data['wholesale_automargin'] *= 100;
+        }
         return $data;
     }
 

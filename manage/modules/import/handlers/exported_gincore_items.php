@@ -23,13 +23,14 @@ class exported_gincore_items extends abstract_gincore_import_provider
             'price_purchase' => lq('Цена закупки'),
             'price_wholesale' => lq('Цена оптовая'),
             'price' => lq('Цена розничная'),
-            
             'percent_from_profit' => lq('% от прибыли'),
             'fixed_payment' => lq('Фиксированная оплата'),
             'balance' => lq('Уведомлять меня об остатке'),
             'minimum_balance' => lq('Неснижаемый остаток'),
             'automargin' => lq('Автонаценка розница'),
+            'automargin_type' => lq('В валюте'),
             'wholesale_automargin' => lq('Автонаценка опт'),
+            'wholesale_automargin_type' => lq('В валюте'),
 //            'manager' => l('manager')
         );
 
