@@ -98,21 +98,10 @@
 
         <?= $this->all_configs['chains']->form_write_off_items($item['item_id'], $this->errors, true); ?>
         <?= $this->all_configs['chains']->return_supplier_order_form($item['item_id'], true); ?>
-
         <?= $this->all_configs['chains']->form_sold_items($item['item_id'], $this->errors, true); ?>
-
         <?= $this->all_configs['chains']->moving_item_form($item['item_id'], null, null, null, true, null, true); ?>
 
-
     </div>
-
-    <form action="" method="post" id="sidebar-item-form" class="one_hpanel">
-
-        <input type="submit" class="btn" value="<?= l('Сохранить') ?>" id="sidebar-item-form-submit">
-<!--           <input type="button" class="btn btn-default js_close_sidebar" value="<?= l('Отмена') ?>"> -->
-    </form>
-
-
 <?php endif; ?>
 
 
