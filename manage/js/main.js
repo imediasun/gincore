@@ -106,6 +106,8 @@ function add_alarm(_this) {
 
 
 var rightSidebar = {
+    currentType: '',
+    currentId: '',
 
   init: function () {
     var _this = this;
@@ -114,19 +116,25 @@ var rightSidebar = {
       _this.hide();
     });
 
-    $('[data-action="sidebar_product"]').live('click', function (e) {
-      e.preventDefault();
-      var elem = $(this);
-      _this.load_product(elem.data('id_product'));
-    })
+    $('[data-action="sidebar_product"]').live('click',function (e) {
+        e.preventDefault();
+        var elem = $(this);
+        _this.load_product(elem.data('id_product'));
+    });
+
+    $('[data-action="sidebar_item"]').live('click',function (e) {
+        e.preventDefault();
+        var elem = $(this);
+        _this.load_item(elem.data('id_item'));
+    });
 
     _this.image_deleting_init();
   },
 
-  form_init: function () {
-    var _this = this;
-    $('#sidebar-product-form').on('submit', function (e) {
-      e.preventDefault();
+    form_init_product: function () {
+        var _this = this;
+        $('#sidebar-product-form').on('submit', function (e) {
+            e.preventDefault();
 
       var id_product = $('#sidebar-id-product')[0].value;
       var form_data = $(this).serialize();
@@ -186,39 +194,72 @@ var rightSidebar = {
     $('#right-sidebar-content').html('');
   },
 
-  load_product: function (id_product) {
-    var _this = this;
-    $.ajax({
-      url: prefix + '/products/ajax/' + id_product + '?act=sidebar-load',
-      type: 'GET',
-      dataType: 'json',
-      success: function (result) {
-        if (result.hasError) {
-          _this.noty('Что-то пошло не так.');
-        } else {
-          _this.html(result.html);
-          _this.show();
-          _this.form_init();
-        }
-      }
-    });
-    return true;
-  },
+    load_product: function (id_product) {
+        var _this = this;
+        _this.currentType = 'load_product';
+        _this.currentId = id_product;
 
-  noty: function (text, type) {
-    if (typeof type === 'undefined') {
-      type = 'default';
-    }
-    if ($.noty) {
-      noty({
-        text: text,
-        timeout: 3000,
-        type: type,
-        layout: 'topRight'
-      });
-    } else {
-      alert(text);
-    }
+        $.ajax({
+            url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
+            type: 'GET',
+            dataType: 'json',
+            success: function (result) {
+                if (result.hasError) {
+                    _this.noty('Что-то пошло не так.');
+                } else {
+                    _this.html(result.html);
+                    _this.show();
+                    _this.form_init_product();
+                }
+            }
+        });
+        return true;
+    },
+
+    load_item: function (id_item) {
+        var _this = this;
+        _this.currentType = 'load_item';
+        _this.currentId = id_item;
+
+        $.ajax({
+            url: prefix + '/warehouses/ajax/?act=sidebar-load-item',
+            type: 'POST',
+            data: {serial: id_item},
+            dataType: 'json',
+            success: function (result) {
+                if (result.hasError) {
+                    _this.noty('Что-то пошло не так.');
+                } else {
+                    _this.html(result.html);
+                    _this.show();
+                }
+            }
+        });
+        return true;
+    },
+
+    reload: function () {
+        if (this.currentType == 'load_product') {
+            this.load_product(this.currentId);
+        } else if (this.currentType == 'load_item') {
+            this.load_item(this.currentId);
+        }
+    },
+
+    noty : function (text, type) {
+        if (typeof type === 'undefined') {
+            type = 'default';
+        }
+        if($.noty){
+            noty({
+                text: text,
+                timeout: 3000,
+                type: type,
+                layout: 'topRight'
+            });
+        } else {
+            alert(text);
+        }
 
   }
 
