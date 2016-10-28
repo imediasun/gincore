@@ -221,7 +221,9 @@ var rightSidebar = {
         }
       },
       complete: function () {
-        $('#sidebar-product-form-submit ').removeClass('hidden');
+        setTimeout(function () {
+          $('#sidebar-product-form-submit ').removeClass('hidden');
+        }, 500)
       }
     });
     return true;
