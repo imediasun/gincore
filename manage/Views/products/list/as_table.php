@@ -1,4 +1,4 @@
-<table class="table table-striped table-hover table-lh-30">
+<table class="table table-striped table-hover table-lh-30" id="table-of-products">
     <thead>
     <tr>
         <?php if (isset($columns['id'])): ?>
@@ -96,6 +96,8 @@
 <script src="/manage/js/jquery-ui-1.9.0.custom.min.js"></script>
 <script>
     $(function () {
+        $('body').on('resize', toggle_menu);
+        toggle_menu();
         $(document).tooltip({
             items: "[data-preview], [data-warehouse], [data-supplier_links]",
             content: function (callback) {
@@ -127,4 +129,16 @@
             }
         });
     });
+    function toggle_menu() {
+        setTimeout(function () {
+            var table = document.getElementById('table-of-products');
+            if (table.offsetWidth > $('#goods').width()) {
+                if (!$('body').hasClass('hide-sidebar')) {
+                    $('body').addClass('hide-sidebar');
+                }
+            } else {
+                $('body').removeClass('hide-sidebar');
+            }
+        }, 200);
+    }
 </script>

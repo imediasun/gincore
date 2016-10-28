@@ -122,24 +122,24 @@
 <?php endif; ?>
 <script>
     function toggle_menu() {
-    }
-    jQuery(document).ready(function () {
-        $('.multiselect').multiselect(multiselect_options);
-        $("#tree").Tree();
-        $('body').on('resize', toggle_menu);
-        $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
-        $($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]).css('white-space', 'nowrap');
         setTimeout(function () {
             var table = document.getElementById('table-of-orders');
-            if (table.offsetWidth > ($('body').width() - 200)) {
+            if (table.offsetWidth > $('#show_orders-orders').width()) {
                 if (!$('body').hasClass('hide-sidebar')) {
                     $('body').addClass('hide-sidebar');
                 }
-
             } else {
                 $('body').removeClass('hide-sidebar');
 
             }
         }, 200);
+    }
+    jQuery(document).ready(function () {
+        $('.multiselect').multiselect(multiselect_options);
+        $("#tree").Tree();
+        $('body').on('resize', toggle_menu);
+        toggle_menu();
+        $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
+        $($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]).css('white-space', 'nowrap');
     });
 </script>
