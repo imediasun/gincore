@@ -183,9 +183,9 @@
                            style="color: <?= empty($colors[$product['engineer']])? $colors[$order_engineer]: $colors[$product['engineer']] ?>"></i>
                         <i class="fa fa-caret-down"></i>
                     </a>
-                    <ul class="dropdown-menu pull-right" style="max-height: 600px; width:350px">
+                    <ul class="dropdown-menu pull-right" style="max-height: 600px;">
                         <?php foreach ($engineers as $engineer): ?>
-                            <li style="padding: 0 10px">
+                            <li style="padding: 0 10px; white-space: nowrap">
                                 <div class="radio">
                                     <label>
                                         <input type="radio" name="engineer_<?= $product['id'] ?>"
