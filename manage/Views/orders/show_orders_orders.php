@@ -3,7 +3,8 @@
     <?= $this->renderFile('orders/repair_order_column_filter', array(
         'columns' => $columns
     )) ?>
-    <table class="table table-striped table-fs-12 table-of-repair-orders" width="100%">
+    <table class="table table-striped table-fs-12 table-of-repair-orders" id='table-of-orders' width="100%"
+           onclick="console.log(this.offsetWidth)">
         <thead>
         <?php if ($debts > 0 || $urgent > 0): ?>
             <tr class="overhead">
@@ -38,7 +39,8 @@
                     <?php $url = $this->all_configs['prefix'] . 'orders' . (isset($_GET['other']) && strpos($_GET['other'],
                             'urgent') !== false ? '' : '?other=urgent'); ?>
                     <?php if ($urgent > 0): ?>
-                        <a href="<?= $url ?>" class="label label-warning urgent" title='<?= l('Срочные ремонты') ?>'><?= $urgent ?></a>
+                        <a href="<?= $url ?>" class="label label-warning urgent"
+                           title='<?= l('Срочные ремонты') ?>'><?= $urgent ?></a>
                     <?php endif; ?>
                 </td>
                 <td class="<?= isset($columns['location']) ? '' : 'hide' ?>"></td>
@@ -120,20 +122,24 @@
 <?php endif; ?>
 <script>
     function toggle_menu() {
-        if ($('body').width() < 1400) {
-            if (!$('body').hasClass('hide-sidebar')) {
-                $('body').addClass('hide-sidebar');
-            }
-        } else {
-            $('body').removeClass('hide-sidebar');
-        }
     }
     jQuery(document).ready(function () {
         $('.multiselect').multiselect(multiselect_options);
         $("#tree").Tree();
         $('body').on('resize', toggle_menu);
-        toggle_menu();
         $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
         $($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]).css('white-space', 'nowrap');
+        setTimeout(function () {
+            var table = document.getElementById('table-of-orders');
+            if (table.offsetWidth > ($('body').width() - 200)) {
+                if (!$('body').hasClass('hide-sidebar')) {
+                    $('body').addClass('hide-sidebar');
+                }
+
+            } else {
+                $('body').removeClass('hide-sidebar');
+
+            }
+        }, 200);
     });
 </script>
