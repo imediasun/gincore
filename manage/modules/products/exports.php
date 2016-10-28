@@ -42,7 +42,9 @@ function product_exports_form($all_configs)
         array('label' => lq('Уведомлять меня об остатке'), 'name' => 'notify_by_balance'),
         array('label' => lq('Неснижаемый остаток'), 'name' => 'minimum_balance'),
         array('label' => lq('Автонаценка розница'), 'name' => 'automargin'),
+        array('label' => lq('В валюте (р)'), 'name' => 'automargin_type'),
         array('label' => lq('Автонаценка опт'), 'name' => 'wholesale_automargin'),
+        array('label' => lq('В валюте (o)'), 'name' => 'wholesale_automargin_type'),
     );
 
     foreach ($arr as $item) {
@@ -54,7 +56,7 @@ function product_exports_form($all_configs)
         $html .= '<input type="hidden" value="0" name="' . $item['name'] . '" id="export_goods_' . $item['name'] . '"/></div>';
     }
 
-    $html .= '<div class="m-b-md"><a  role="button" data-toggle="collapse" href="#collapseAdditinal" aria-expanded="false" aria-controls="collapseAdditinal"><strong>'.lq('Дополнительные поля').'</strong> <i class="glyphicon glyphicon-chevron-down"></i></a></div>';
+    $html .= '<div class="m-b-md"><a  role="button" data-toggle="collapse" href="#collapseAdditinal" aria-expanded="false" aria-controls="collapseAdditinal"><strong>' . lq('Дополнительные поля') . '</strong> <i class="glyphicon glyphicon-chevron-down"></i></a></div>';
 
     $html .= '<div class="collapse" id="collapseAdditinal">';
     foreach ($arr_additional as $item) {
@@ -128,13 +130,16 @@ function exports_goods($all_configs, $ids)
     if (isset($_GET['automargin']) && $_GET['automargin'] == 1) {
         $select[] = 'g.automargin as `' . lq('Автонаценка розница') . '`';
     }
+    if (isset($_GET['automargin_type']) && $_GET['automargin_type'] == 1) {
+        $select[] = 'IF(g.automargin_type=1,"' . lq('Нет') . '","' . lq('Да') . '") as `' . lq('В валюте (р)') . '`';
+    }
 
     if (isset($_GET['wholesale_automargin']) && $_GET['wholesale_automargin'] == 1) {
         $select[] = 'g.wholesale_automargin as `' . lq('Автонаценка опт') . '`';
     }
 
-    if (isset($_GET['wholesale_automargin']) && $_GET['wholesale_automargin'] == 1) {
-        $select[] = 'g.wholesale_automargin as `' . lq('Автонаценка опт') . '`';
+    if (isset($_GET['wholesale_automargin_type']) && $_GET['wholesale_automargin_type'] == 1) {
+        $select[] = 'IF(g.wholesale_automargin_type=1,"' . lq('Нет') . '","' . lq('Да') . '") as `' . lq('В валюте (o)') . '`';
     }
 
     if (isset($_GET['notify_by_balance']) && $_GET['notify_by_balance'] == 1) {
@@ -146,7 +151,7 @@ function exports_goods($all_configs, $ids)
 
         // достаем товары
         if (count($select) > 0) {
-            $goods = $all_configs['db']->query('SELECT ?query FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id='.$_SESSION['id'].' WHERE g.id IN (?li) AND g.avail=?i',
+            $goods = $all_configs['db']->query('SELECT ?query FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'] . ' WHERE g.id IN (?li) AND g.avail=?i',
                 array(implode(', ', $select), array_keys($ids), 1))->assoc('ID');
             // удаляем ид
             if (!isset($_GET['id']) || $_GET['id'] != 1) {
@@ -192,7 +197,7 @@ function exports_goods($all_configs, $ids)
                 foreach ($managers as $manager) {
                     if (isset($goods[$manager['goods_id']])) {
                         $goods[$manager['goods_id']][$isset($goods[$manager['goods_id']],
-                            lq('manager') . ' ')] = empty($manager['fio'])? $manager['login']:$manager['fio'];
+                            lq('manager') . ' ')] = empty($manager['fio']) ? $manager['login'] : $manager['fio'];
                     }
                 }
             }
