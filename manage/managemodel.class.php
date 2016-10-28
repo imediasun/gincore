@@ -861,12 +861,26 @@ class manageModel extends Object
      * @param $parents
      * @return array
      */
-    public function get_all_child($parents)
+    public function get_all_child_with_models($parents)
     {
         $all = $this->all_configs['db']->query('
         SELECT id, parent_id 
         FROM {categories}
         WHERE avail=1 and deleted=0
+        ', array())->assoc();
+        return array_merge($parents, $this->get_child($all, $parents));
+    }
+
+    /**
+     * @param $parents
+     * @return array
+     */
+    public function get_all_child($parents)
+    {
+        $all = $this->all_configs['db']->query('
+        SELECT id, parent_id 
+        FROM {categories}
+        WHERE avail=1 and deleted=0 AND id in (SELECT distinct(parent_id) FROM {categories} )
         ', array())->assoc();
         return array_merge($parents, $this->get_child($all, $parents));
     }

@@ -411,7 +411,7 @@ class products extends Controller
         $goods_query = $this->all_configs['db']->makeQuery('WHERE 1=1', array());
 
         // выбранные категории
-        $categories = isset($get['cats']) ? $this->all_configs['manageModel']->get_all_child(array_filter(explode('-', $get['cats']))) : array();
+        $categories = isset($get['cats']) ? $this->all_configs['manageModel']->get_all_child_with_models(array_filter(explode('-', $get['cats']))) : array();
         if (count($categories) > 0) {
             // конкретные категории
             $goods_query = $this->all_configs['db']->makeQuery(', {category_goods} AS cg
