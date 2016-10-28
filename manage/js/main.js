@@ -218,10 +218,10 @@ var rightSidebar = {
           _this.html(result.html);
           _this.show();
           _this.form_init_product();
-          setTimeout(function () {
-            $('#sidebar-product-form-submit ').removeClass('hidden');
-          }, 1000);
         }
+      },
+      complete: function () {
+        $('#sidebar-product-form-submit ').removeClass('hidden');
       }
     });
     return true;
