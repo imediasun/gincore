@@ -2197,11 +2197,13 @@ function print_label(_this) {
   $.each($('input.js-selected-item:checkbox:checked'), function (index, value) {
     ids.push($(value).data('id'));
   });
-  $checks.each(function () {
-    if(ids.length > 0) {
+  if (ids.length > 0) {
+    $checks.each(function () {
       window_open($(this).val() + ids.join(','));
-    }
-  });
+    });
+  } else {
+    alert('Выберите номенклатуру')
+  }
 
   return false;
 }
