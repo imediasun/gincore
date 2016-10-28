@@ -1431,15 +1431,20 @@ class orders extends Controller
 
     /**
      * @param $engineers
+     * @param $from_order
      */
-    private function setEngineerColors($engineers)
+    private function setEngineerColors($engineers, $from_order)
     {
         if (empty($this->engineer_colors)) {
             $i = 0;
             foreach ($engineers as $user) {
-                $this->engineer_colors[$user['id']] = ($i < count($this->colors)) ? $this->colors[$i] : sprintf("#%06X\n",
-                    mt_rand(0, 0xFFFFFF));;
-                $i++;
+                if ($user['id'] == $from_order) {
+                    $this->engineer_colors[$user['id']] = '#ddd';
+                } else {
+                    $this->engineer_colors[$user['id']] = ($i < count($this->colors)) ? $this->colors[$i] : sprintf("#%06X\n",
+                        mt_rand(0, 0xFFFFFF));
+                    $i++;
+                }
             }
         }
     }
@@ -1452,7 +1457,7 @@ class orders extends Controller
      */
     public function show_product($product, $engineers, $engineer)
     {
-        $this->setEngineerColors($engineers);
+        $this->setEngineerColors($engineers, $engineer);
         $supplier_order = $this->all_configs['db']->query("SELECT supplier_order_id as id, o.count, o.supplier, "
             . "o.confirm, o.avail, o.count_come, o.count_debit, o.wh_id "
             . "FROM {orders_suppliers_clients} as c "
@@ -2208,12 +2213,12 @@ class orders extends Controller
 
                 $warehouses = new MWarehouses();
                 $warehouses_data = $warehouses->getAvailableItemsByGoodsId(array($product['id']), true);
-                
-                foreach ($warehouses_data as $id_warehouse=>$row) {
+
+                foreach ($warehouses_data as $id_warehouse => $row) {
                     $warehouses_data[$id_warehouse]['warehouse'] = $warehouses->getByPk($id_warehouse);
                     $warehouses_data[$id_warehouse]['warehouse']['locations'] = $warehouses->getLocations($id_warehouse);
 
-                    foreach ($warehouses_data[$id_warehouse]['items'] as $row_id=>$row_product){
+                    foreach ($warehouses_data[$id_warehouse]['items'] as $row_id => $row_product) {
                         $warehouses_data[$id_warehouse]['items'][$row_id]['item_id'] = $row_product['id'];
                         $warehouses_data[$id_warehouse]['items'][$row_id]['serial'] = suppliers_order_generate_serial($warehouses_data[$id_warehouse]['items'][$row_id]);
                     }
@@ -2221,8 +2226,8 @@ class orders extends Controller
 
 //                dd($warehouses_data);
 
-                $data['title'] = l('Отгрузка товара со склада под заказ клиента №').' '.$order_id .
-                    '<br/>'.$product['title'].' '.l('в количестве').' '.count($ids).' '.l('шт.');
+                $data['title'] = l('Отгрузка товара со склада под заказ клиента №') . ' ' . $order_id .
+                    '<br/>' . $product['title'] . ' ' . l('в количестве') . ' ' . count($ids) . ' ' . l('шт.');
 
                 $data['html'] = $this->view->renderFile('orders/bind_goods_to_order', array(
                     'order_id' => $order_id,
@@ -2230,7 +2235,6 @@ class orders extends Controller
                     'products_count' => count($ids),
                     'warehouses_data' => $warehouses_data,
                 ));
-
 
 
 //                $data['html'] = '<legend>'.l('Отгрузка товара со склада под заказ клиента №').' '.$order_id .
