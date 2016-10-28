@@ -161,6 +161,10 @@
 
                 _this.$prevSum = _this.$currentSum;
 
+                if (this.value <0){
+                    this.value = 0;
+                }
+
                 if (this.value > parseInt($(this).attr('max'))){
                     this.value = parseInt($(this).attr('max'));
                 }
