@@ -444,8 +444,14 @@ class products extends Controller
                     array($goods_query, $ids));
             }
             if (array_search('all', $avail) !== false) {
-                $ids = $this->all_configs['db']->query('SELECT goods_id FROM {warehouses_goods_items}  GROUP by goods_id',
-                    array())->col();
+                $ids = $this->all_configs['db']->query('
+                SELECT wg. goods_id
+                FROM (SELECT wgi.goods_id, SUM(if(w.consider_all=1, 1, 0)) as qty_wh 
+                    FROM {warehouses_goods_items} as wgi 
+                    LEFT JOIN {warehouses} as w ON w.id=wgi.wh_id
+                    GROUP by wgi.goods_id HAVING qty_wh > 0
+                ) as wg GROUP by wg.goods_id
+                ', array())->col();
                 $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.id in (?li)',
                     array($goods_query, $ids));
             }
