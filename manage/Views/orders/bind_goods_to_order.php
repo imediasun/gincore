@@ -101,14 +101,14 @@
                     if (response.bind_results) {
                         $.each(response.bind_results, function (index, value) {
                             if (value.state == false) {
-                                _this.notify(value.message);
+                                _this.notify(value.message, 'error');
                                 whole_state = false;
                             }
                         });
                     }
 
                     if (whole_state) {
-                        _this.notify(response.message);
+                        _this.notify(response.message, 'success');
                     }
 
                     setTimeout(function () {
