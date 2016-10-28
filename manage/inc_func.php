@@ -1518,7 +1518,7 @@ if (!function_exists('suppliers_order_generate_serial')) {
         }
 
         if ($link && $generate) {
-            return '<a class="' . $class . '" href="' . $all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
+            return '<a data-action="sidebar_item" data-id_item="'.$serial.'" class="' . $class . '" href="' . $all_configs['prefix'] . 'warehouses?serial=' . $serial . '#show_items">' . $serial . '</a>';
         } else {
             return $serial;
         }

@@ -1311,6 +1311,14 @@ table.table-vpaddingless tr td.arrow{
 .p-l-n {
     padding-left: 0;
 }
+.p-r-n {
+    padding-right: 0;
+}
+
+#right-sidebar .item_btn {
+    width: 100px;
+    float: right;
+}
 
 #right-sidebar .img_delete {
     cursor: pointer;

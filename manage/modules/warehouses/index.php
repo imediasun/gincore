@@ -1152,6 +1152,59 @@ class warehouses extends Controller
     }
 
     /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    public function sidebar_load_item($post, $mod_id){
+
+        $error = '';
+
+        try {
+            // запросы для касс для разных привилегий
+            $q = $this->all_configs['chains']->query_warehouses();
+            $query_for_noadmin = $q['query_for_noadmin'];
+
+            $item_id = suppliers_order_generate_serial($post, false);
+
+
+            if ($this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_POST['serial']), 0,
+                    strlen($this->all_configs['configs']['erp-serial-prefix']))
+            ) {
+                $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
+                        ', array($item_id, $query_for_noadmin))->row();
+            } else {
+                $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
+                    ', array($item_id, $query_for_noadmin))->row();
+            }
+
+            $html = $this->view->renderFile('warehouses/sidebar/item', array(
+                        'item' => $item,
+                        'controller' => $this,
+                        'query_for_noadmin' => $query_for_noadmin,
+                    ));
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
+
+
+
+        return array(
+            'html' => $html,
+            'error' => $error,
+            'debug' => $item
+        );
+    }
+
+    /**
      * @param null $warehouse
      * @param int  $i
      * @return string
@@ -1385,6 +1438,11 @@ class warehouses extends Controller
                 $data['state'] = true;
                 $data['functions'] = array('reset_multiselect()');
             }
+        }
+
+        // загрузка изделия в сайдбар
+        if ($act == 'sidebar-load-item') {
+            $data = $this->sidebar_load_item($_POST, $mod_id);
         }
 
         // массовая привязка серийников к заказу

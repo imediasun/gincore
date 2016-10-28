@@ -928,14 +928,15 @@ class Chains extends Object
      * @param null $status
      * @return string
      */
-    public function form_write_off_items($item_id = null, $status = null)
+    public function form_write_off_items($item_id = null, $status = null, $for_sidebar = false )
     {
         $out = '';
 
         if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
             $out = $this->view->renderFile('chains.class/form_write_off_items', array(
                 'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-                'item_id' => $item_id
+                'item_id' => $item_id,
+                'for_sidebar' => $for_sidebar
             ));
         }
 
@@ -947,12 +948,13 @@ class Chains extends Object
      * @param null $status
      * @return string
      */
-    public function form_sold_items($item_id = null, $status = null)
+    public function form_sold_items($item_id = null, $status = null, $for_sidebar = false)
     {
         return $this->view->renderFile('chains.class/form_sold_items', array(
             'db' => $this->all_configs['db'],
             'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-            'item_id' => $item_id
+            'item_id' => $item_id,
+            'for_sidebar' => $for_sidebar
         ));
     }
 
@@ -2638,11 +2640,12 @@ class Chains extends Object
      * @param null $item_id
      * @return string
      */
-    public function return_supplier_order_form($item_id = null)
+    public function return_supplier_order_form($item_id = null, $for_sidebar = false)
     {
         return $this->view->renderFile('chains.class/return_supplier_order_form', array(
             'canUse' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-            'item_id' => $item_id
+            'item_id' => $item_id,
+            'for_sidebar' => $for_sidebar
         ));
     }
 
@@ -2661,7 +2664,8 @@ class Chains extends Object
         $wh_id = null,
         $order = null,
         $show_btn = true,
-        $rand = null
+        $rand = null,
+        $for_sidebar = false
     ) {
         return $this->view->renderFile('chains.class/moving_item_form', array(
             'rand' => $rand ? $rand : rand(1000, 9999),
@@ -2672,6 +2676,7 @@ class Chains extends Object
             'wh_id' => $wh_id,
             'controller' => $this,
             'show_btn' => $show_btn,
+            'for_sidebar' => $for_sidebar
         ));
     }
 
