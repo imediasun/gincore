@@ -1,20 +1,20 @@
-<form action="" method="post" id="order-bind-item-order">
+<form action="" method="post" id="order-bind-items-form">
     <input type="hidden" name="order_id" value="<?= $order_id ?>">
     <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
     <table class="table table-borderless">
         <thead>
             <tr>
                 <td width="20%"><?= l('Склад') ?></td>
-                <td width="10%"><?= l('Кол-во.') ?></td>
-                <td width="66%"><?= l('Серийный №') ?></td>
-                <td width="4%"><?= l('Отгрузить') ?></td>
+                <td width="20%" class="text-center"><?= l('Кол-во.') ?></td>
+                <td width="58%"><?= l('Серийный №') ?></td>
+                <td width="2%"><?= l('Отгрузить') ?></td>
             </tr>
         </thead>
         <tbody>
         <?php foreach ($warehouses_data as $wh_id=>$row): ?>
             <tr>
                 <td><?= $row['warehouse']['title'] ?></td>
-                <td>
+                <td class="text-center">
                     <?= count($row['items']) ?>
                     <input type="hidden" value="<?= count($row['items']) ?>" name="serials[<?= $wh_id ?>][quantities_exist]">
                 </td>
@@ -59,11 +59,20 @@
     </table>
 </form>
 
+<style>
+    .order_bind_items_form .modal-header .modal-title {
+        font-size: 22px !important;
+    }
+    .order_bind_items_form .modal-dialog {
+        width: 700px;
+    }
+</style>
+
 
 <script type="text/javascript">
 
     var orderBindItemForm = {
-        $form: $('#order-bind-item-order'),
+        $form: $('#order-bind-items-form'),
         $itemsNeded: 0,
         $currentSum: 0,
         $prevSum: 0,
@@ -125,7 +134,7 @@
         initMultiselect: function () {
             var _this = this;
             this.$form.find('.multiselect').multiselect({
-                'buttonWidth': '100%',
+                'buttonWidth': '325px',
                 onChange: function(option, checked, select) {
                     var selected_count = $(this.$select[0]).find('option:selected').length;
 
@@ -151,6 +160,10 @@
                 var input_elem = this;
 
                 _this.$prevSum = _this.$currentSum;
+
+                if (this.value <0){
+                    this.value = 0;
+                }
 
                 if (this.value > parseInt($(this).attr('max'))){
                     this.value = parseInt($(this).attr('max'));

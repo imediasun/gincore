@@ -832,7 +832,7 @@ function bind_group_product(_this, product_id, order_id) {
             className: "btn-primary",
             callback: function () {
               $(_this).button('reset');
-              $('#order-bind-item-order').trigger('submit');
+              $('#order-bind-items-form').trigger('submit');
               return false;
             }
           },
@@ -844,7 +844,7 @@ function bind_group_product(_this, product_id, order_id) {
             }
           }
         };
-        dialog_box(_this, msg.title || '', msg.html, buttons);
+        dialog_box(_this, msg.title || '', msg.html, buttons, null, 'order_bind_items_form');
       }
     },
     error: function (xhr, ajaxOptions, thrownError) {
