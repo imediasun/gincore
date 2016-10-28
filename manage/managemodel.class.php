@@ -866,7 +866,7 @@ class manageModel extends Object
         $all = $this->all_configs['db']->query('
         SELECT id, parent_id 
         FROM {categories}
-        WHERE avail=1 and deleted=0 AND id in (SELECT distinct(parent_id) FROM {categories} )
+        WHERE avail=1 and deleted=0
         ', array())->assoc();
         return array_merge($parents, $this->get_child($all, $parents));
     }
