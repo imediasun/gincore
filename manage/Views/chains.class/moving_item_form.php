@@ -35,7 +35,7 @@
                     </div>
                     <div class="col-sm-3 p-l-n p-r-n">
                         <div class="form-group">
-                            <select class="multiselect form-control select-location" name="location">
+                            <select class="form-control select-location" name="location">
                                 <?= $this->all_configs['suppliers_orders']->gen_locations($wh_id) ?>
                             </select>
                         </div>
