@@ -51,7 +51,7 @@ var multiselect_options = {
  });
  }*/
 
-function vd($some){
+function vd($some) {
   console.log($some);
 }
 
@@ -105,143 +105,140 @@ function add_alarm(_this) {
 }
 
 
-
 var rightSidebar = {
 
-    init: function () {
-        var _this = this;
-        $('#right-sidebar .js_close_sidebar').live('click', function () {
-            _this.clean_html();
+  init: function () {
+    var _this = this;
+    $('#right-sidebar .js_close_sidebar').live('click', function () {
+      _this.clean_html();
+      _this.hide();
+    });
+
+    $('[data-action="sidebar_product"]').live('click', function (e) {
+      e.preventDefault();
+      var elem = $(this);
+      _this.load_product(elem.data('id_product'));
+    })
+
+    _this.image_deleting_init();
+  },
+
+  form_init: function () {
+    var _this = this;
+    $('#sidebar-product-form').on('submit', function (e) {
+      e.preventDefault();
+
+      var id_product = $('#sidebar-id-product')[0].value;
+      var form_data = $(this).serialize();
+      $.ajax({
+        url: prefix + 'products/ajax/' + id_product + '?act=sidebar-product-update',
+        type: 'POST',
+        data: form_data,
+        dataType: 'json',
+        success: function (result) {
+          if (result.hasError) {
+            result.errors.forEach(function (error, index) {
+              _this.noty(error, 'warning');
+            })
+          } else {
             _this.hide();
-        });
-
-        $('[data-action="sidebar_product"]').live('click',function (e) {
-            e.preventDefault();
-            var elem = $(this);
-            _this.load_product(elem.data('id_product'));
-        })
-
-        _this.image_deleting_init();
-    },
-
-    form_init: function () {
-        var _this = this;
-        $('#sidebar-product-form').on('submit', function (e) {
-            e.preventDefault();
-
-            var id_product = $('#sidebar-id-product')[0].value;
-            var form_data = $(this).serialize();
-            $.ajax({
-                url: prefix + 'products/ajax/'+id_product+'?act=sidebar-product-update',
-                type: 'POST',
-                data: form_data,
-                dataType: 'json',
-                success: function (result) {
-                    if (result.hasError) {
-                      result.errors.forEach(function (error, index) {
-                          _this.noty(error, 'warning');
-                      })
-                    } else {
-                        _this.hide();
-                        _this.noty(result.msg, 'success');
-                    }
-                }
-            });
-        })
-    },
-    
-    image_deleting_init: function () {
-        $('#right-sidebar .img_delete').live("click", function (e) {
-            var id_product = $(this).data('id_product');
-            var id_image = $(this).data('id_image');
-            var elem = this;
-            $.ajax({
-                url: prefix + 'products/ajax/'+id_product+'?act=product-image-delete',
-                type: 'POST',
-                data: { id_product: id_product, images_del: [ id_image ]},
-                dataType: 'json',
-                success: function (result) {
-                    if (result.hasError) {
-                    } else {
-                        $(elem).parent().remove();
-                    }
-                }
-            });  
-        })   
-    },
-
-    show : function () {
-        $('#right-sidebar').addClass('sidebar-open');
-    },
-
-    hide : function () {
-        $('#right-sidebar').removeClass('sidebar-open');
-        this.clean_html();
-    },
-
-    html : function (content) {
-        $('#right-sidebar-content').html(content);
-    },
-
-    clean_html : function (content) {
-        $('#right-sidebar-content').html('');
-    },
-
-    load_product: function (id_product) {
-        var _this = this;
-        $.ajax({
-            url: prefix + '/products/ajax/'+id_product+'?act=sidebar-load',
-            type: 'GET',
-            dataType: 'json',
-            success: function (result) {
-                if (result.hasError) {
-                    _this.noty('Что-то пошло не так.');
-                } else {
-                    _this.html(result.html);
-                    _this.show();
-                    _this.form_init();
-                }
-            }
-        });
-        return true;
-    },
-
-    noty : function (text, type) {
-        if (typeof type === 'undefined') {
-            type = 'default';
+            _this.noty(result.msg, 'success');
+          }
         }
-        if($.noty){
-            noty({
-                text: text,
-                timeout: 3000,
-                type: type,
-                layout: 'topRight'
-            });
+      });
+    })
+  },
+
+  image_deleting_init: function () {
+    $('#right-sidebar .img_delete').live("click", function (e) {
+      var id_product = $(this).data('id_product');
+      var id_image = $(this).data('id_image');
+      var elem = this;
+      $.ajax({
+        url: prefix + 'products/ajax/' + id_product + '?act=product-image-delete',
+        type: 'POST',
+        data: {id_product: id_product, images_del: [id_image]},
+        dataType: 'json',
+        success: function (result) {
+          if (result.hasError) {
+          } else {
+            $(elem).parent().remove();
+          }
+        }
+      });
+    })
+  },
+
+  show: function () {
+    $('#right-sidebar').addClass('sidebar-open');
+  },
+
+  hide: function () {
+    $('#right-sidebar').removeClass('sidebar-open');
+    this.clean_html();
+  },
+
+  html: function (content) {
+    $('#right-sidebar-content').html(content);
+  },
+
+  clean_html: function (content) {
+    $('#right-sidebar-content').html('');
+  },
+
+  load_product: function (id_product) {
+    var _this = this;
+    $.ajax({
+      url: prefix + '/products/ajax/' + id_product + '?act=sidebar-load',
+      type: 'GET',
+      dataType: 'json',
+      success: function (result) {
+        if (result.hasError) {
+          _this.noty('Что-то пошло не так.');
         } else {
-            alert(text);
+          _this.html(result.html);
+          _this.show();
+          _this.form_init();
         }
+      }
+    });
+    return true;
+  },
 
+  noty: function (text, type) {
+    if (typeof type === 'undefined') {
+      type = 'default';
     }
+    if ($.noty) {
+      noty({
+        text: text,
+        timeout: 3000,
+        type: type,
+        layout: 'topRight'
+      });
+    } else {
+      alert(text);
+    }
+
+  }
 
 
 };
 
 
 function change_margin_type(_this, selector) {
-    if ($('input[name="' + selector + '_type"]').val() == 1) {
-        $('input[name="' + selector + '_type"]').val(0)
-    } else {
-        $('input[name="' + selector + '_type"]').val(1)
-    }
-    $('.js-' + selector + '-type').toggle();
+  if ($('input[name="' + selector + '_type"]').val() == 1) {
+    $('input[name="' + selector + '_type"]').val(0)
+  } else {
+    $('input[name="' + selector + '_type"]').val(1)
+  }
+  $('.js-' + selector + '-type').toggle();
 }
-
-
 
 
 $(document).ready(function () {
 
-    rightSidebar.init();
+  rightSidebar.init();
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();
@@ -318,59 +315,59 @@ $(document).ready(function () {
     //$(this).click();
   });
 
-    var daterangepicker_locale = {
-        ru: {
-            daysOfWeek: [
-                "Вс",
-                "Пн",
-                "Вт",
-                "Ср",
-                "Чт",
-                "Пт",
-                "Сб"
-            ],
-            monthNames: [
-                "Январь",
-                "Февраль",
-                "Март",
-                "Апрель",
-                "Май",
-                "Июнь",
-                "Июль",
-                "Август",
-                "Сентябрь",
-                "Октябрь",
-                "Ноябрь",
-                "Декабрь"
-            ],
-            firstDay: 1
-        },
-        en: {
-            daysOfWeek: [
-                "Su",
-                "Mo",
-                "Tu",
-                "We",
-                "Th",
-                "Fr",
-                "Sa"
-            ],
-            monthNames: [
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December"
-            ]
-        }
-    };
+  var daterangepicker_locale = {
+    ru: {
+      daysOfWeek: [
+        "Вс",
+        "Пн",
+        "Вт",
+        "Ср",
+        "Чт",
+        "Пт",
+        "Сб"
+      ],
+      monthNames: [
+        "Январь",
+        "Февраль",
+        "Март",
+        "Апрель",
+        "Май",
+        "Июнь",
+        "Июль",
+        "Август",
+        "Сентябрь",
+        "Октябрь",
+        "Ноябрь",
+        "Декабрь"
+      ],
+      firstDay: 1
+    },
+    en: {
+      daysOfWeek: [
+        "Su",
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr",
+        "Sa"
+      ],
+      monthNames: [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ]
+    }
+  };
 
   $('input.daterangepicker').live('focusin', '.daterangepicker', function (e) {
     $(this).daterangepicker({
@@ -477,10 +474,10 @@ $(document).ready(function () {
         var item = JSON.parse(obj);
         var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
         // console.log(item);
-        if(item.original.class) {
+        if (item.original.class) {
           return '<span class="' + item.original.class + '">' + item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-            return '<strong>' + match + '</strong>'
-          }) + '</span>';
+              return '<strong>' + match + '</strong>'
+            }) + '</span>';
         }
         return item.name.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
           return '<strong>' + match + '</strong>'
@@ -855,7 +852,7 @@ function contractor_add_callback(data) {
     var $select = $('#contractor-select');
 
 
-    $select.append('<option value="'+data.id+'">'+data.name+'</option>');
+    $select.append('<option value="' + data.id + '">' + data.name + '</option>');
     $select.multiselect('destroy');
     $select.multiselect({
       enableFiltering: false,
@@ -1516,7 +1513,7 @@ function close_alert_box() {
 }
 
 function alert_box(_this, content, ajax_act, data, callback, url, e, in_place) {
-  if ( typeof in_place == 'underfined' ) {
+  if (typeof in_place == 'underfined') {
     in_place = false;
   }
 
@@ -1611,7 +1608,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e, in_place) {
       type: 'POST',
       data: data,
       success: function (msg) {
-        if ( !in_place) {
+        if (!in_place) {
           $('.bootbox.bootbox-alert').remove();
           $('.modal-backdrop').remove();
         }
@@ -1637,7 +1634,7 @@ function alert_box(_this, content, ajax_act, data, callback, url, e, in_place) {
               $(dialog).find('.modal-footer').prepend(msg['btns']);
             }
           } else {
-            if(msg['message']) {
+            if (msg['message']) {
               alert(msg['message']);
             }
           }
@@ -2194,6 +2191,20 @@ function print_now(_this) {
   });
   return false;
 }
+function print_label(_this) {
+  var $checks = $(_this).closest('ul').find(':checked'), ids = [];
+
+  $.each($('input.js-selected-item:checkbox:checked'), function (index, value) {
+    ids.push($(value).data('id'));
+  });
+  $checks.each(function () {
+    if(ids.length > 0) {
+      window_open($(this).val() + ids.join(','));
+    }
+  });
+
+  return false;
+}
 function print_now_from_orders(_this) {
   var $checks = $('ul.print_menu').find(':checked');
   $checks.each(function () {
@@ -2223,32 +2234,32 @@ function hide_flashmessages() {
 }
 
 function toogle_siblings(_this, btn_children, multiselect_capability) {
-    if (typeof multiselect_capability == 'undefined') {
-        multiselect_capability = false;
-    }
+  if (typeof multiselect_capability == 'undefined') {
+    multiselect_capability = false;
+  }
 
-    if (multiselect_capability) {
-        var hiddens = $(_this).siblings('input[type="text"]:hidden, select:hidden + .btn-group:hidden, textarea:hidden');
-        var shows = $(_this).siblings('input[type="text"]:visible, select:hidden + .btn-group:visible, textarea:visible');
-    } else {
-        var hiddens = $(_this).siblings('input[type="text"]:hidden, select:hidden, textarea:hidden');
-        var shows = $(_this).siblings('input[type="text"]:visible, select:visible, textarea:visible');
-    }
+  if (multiselect_capability) {
+    var hiddens = $(_this).siblings('input[type="text"]:hidden, select:hidden + .btn-group:hidden, textarea:hidden');
+    var shows = $(_this).siblings('input[type="text"]:visible, select:hidden + .btn-group:visible, textarea:visible');
+  } else {
+    var hiddens = $(_this).siblings('input[type="text"]:hidden, select:hidden, textarea:hidden');
+    var shows = $(_this).siblings('input[type="text"]:visible, select:visible, textarea:visible');
+  }
 
-    hiddens.show();
-    shows.hide();
-    if (btn_children) {
+  hiddens.show();
+  shows.hide();
+  if (btn_children) {
     var children = $(_this).children().children();
-    } else {
+  } else {
     var children = $(_this).children();
-    }
-    if (children) {
+  }
+  if (children) {
     if (children.attr('class') == 'fa fa-keyboard-o') {
       children.attr('class', 'fa fa-caret-square-o-down');
     } else {
       children.attr('class', 'fa fa-keyboard-o');
     }
-    }
+  }
 }
 
 var window_open_msgs_timeout;
@@ -2636,12 +2647,12 @@ function recalculate_amount_supplier() {
     $('input[name="serials-value"]').attr('data-required', 'true');
   }
   $('.js-supplier-total').val(Math.round(total * 100) / 100);
-  if(count) {
+  if (count) {
     $('.js-create-purchase-invoice').show();
   } else {
     $('.js-create-purchase-invoice').hide();
   }
-  if(count < 2) {
+  if (count < 2) {
     $('.js-form').removeClass('js-scroll-form');
   } else {
     $('.js-form').addClass('js-scroll-form');

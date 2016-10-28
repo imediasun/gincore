@@ -14,7 +14,7 @@
     <div class="tab-content">
         <div id="goods" class="tab-pane active">
             <div class="row-fluid" style="margin-bottom: 20px">
-                    <?= $filters ?>
+                <?= $filters ?>
             </div>
             <?php if (empty($goods)): ?>
                 <p class="text-error"><?= l('Нет ни одного продутка') ?></p>
@@ -41,6 +41,9 @@
                 <?= page_block($count_page, $count_goods, '', null,
                     $this->renderFile('products/_delete_all_button')); ?>
 
+                <div class="pull-right" style="margin-right: 20px">
+                    <?= $this->renderFile('products/print_buttons', array()) ?>
+                </div>
 
                 <?php if ($this->all_configs['configs']['no-warranties'] == false): ?>
         </div>
