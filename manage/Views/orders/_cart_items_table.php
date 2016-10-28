@@ -69,6 +69,7 @@
                     </a>
                 </td>
             </tr>
+            <?php $total = 0; ?>
             <?php if (!empty($cart)): ?>
                 <?php foreach ($cart as $id => $item): ?>
                     <tr class="">
@@ -108,6 +109,7 @@
                         <td>
                             <input type="text" class="form-control js-<?= $prefix ?>-sum dasabled" readonly
                                    onkeyup="recalculate_amount_<?= $prefix ?>(this);" value="<?= $item['price'] * $item['quantity'] ?>" name="sum[<?= $id ?>]"/>
+                            <?php $total += $item['price'] * $item['quantity'] ?>
                         </td>
                         <?php if ($prefix != 'eshop'): ?>
                             <td>
@@ -148,7 +150,7 @@
                     <td></td>
                 <?php endif; ?>
                 <td>
-                    <input type="text" readonly class="form-control js-<?= $prefix ?>-total" value=""/>
+                    <input type="text" readonly class="form-control js-<?= $prefix ?>-total" value="<?= $total ?>"/>
                 </td>
                 <?php if ($prefix != 'eshop'): ?>
                     <td>
