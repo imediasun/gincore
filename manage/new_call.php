@@ -66,6 +66,19 @@ if ($phone && $_SERVER['REMOTE_ADDR'] == '185.45.152.42') {
     exit;
 }
 
+//Uiscom
+if (isset($_GET['event']) && $_GET['event'] == 'incoming_call') {
+    $phone = $_GET['numa'];
+    $log = 'Uiscom, phone: ' . $phone;
+}
+
+//Binotel
+if (isset($_POST['callType']) && $_POST['callType'] == '0'
+        && isset($_POST['requestType']) && $_POST['requestType'] == 'receivedTheCall') {
+    $phone = $_POST['srcNumber'];
+    $log = 'Binotel, phone: ' . $phone;
+}
+
 
 //body post
 if (!$phone) {
