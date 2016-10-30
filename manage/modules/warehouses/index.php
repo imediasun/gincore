@@ -135,7 +135,7 @@ class warehouses extends Controller
                         array($post['title']))->el();
                     if (empty($checkByTitle)) {
                         $warehouse_id = $this->all_configs['db']->query('INSERT INTO {warehouses}
-                (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n)',
+                (consider_all, consider_store, code_1c, title, print_address, print_phone, type, group_id, type_id, is_system) VALUES (?i, ?i, ?, ?, ?, ?, ?i, ?n, ?n, 0)',
                             array(
                                 $consider_all,
                                 $consider_store,
@@ -309,11 +309,24 @@ class warehouses extends Controller
             }
         } elseif (isset($post['warehouse-delete']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $this->warehouseDelete($_POST);
-        } elseif (isset($post['create-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $data = $this->createPurchaseInvoice($_POST);
+        } elseif (isset($post['create-purchase-invoice'])) {
+            $data = array(
+                'state' => false,
+                'message' => l('У вас нет прав на работу с приходными накладными')
+            );
+            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+
+                $data = $this->createPurchaseInvoice($_POST);
+            }
             Response::json($data);
-        } elseif (isset($post['create-purchase-invoice-and-posting']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            $data = $this->createPurchaseInvoice($_POST);
+        } elseif (isset($post['create-purchase-invoice-and-posting'])) {
+            $data = array(
+                'state' => false,
+                'message' => l('У вас нет прав на работу с приходными накладными')
+            );
+            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+                $data = $this->createPurchaseInvoice($_POST);
+            }
             Response::json($data);
         } elseif (isset($post['edit-purchase-invoice']) && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
             $data = $this->editPurchaseInvoice($_POST);
@@ -1139,6 +1152,59 @@ class warehouses extends Controller
     }
 
     /**
+     * @param $post
+     * @param $mod_id
+     * @return array
+     */
+    public function sidebar_load_item($post, $mod_id){
+
+        $error = '';
+
+        try {
+            // запросы для касс для разных привилегий
+            $q = $this->all_configs['chains']->query_warehouses();
+            $query_for_noadmin = $q['query_for_noadmin'];
+
+            $item_id = suppliers_order_generate_serial($post, false);
+
+
+            if ($this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_POST['serial']), 0,
+                    strlen($this->all_configs['configs']['erp-serial-prefix']))
+            ) {
+                $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
+                        ', array($item_id, $query_for_noadmin))->row();
+            } else {
+                $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
+                    ', array($item_id, $query_for_noadmin))->row();
+            }
+
+            $html = $this->view->renderFile('warehouses/sidebar/item', array(
+                        'item' => $item,
+                        'controller' => $this,
+                        'query_for_noadmin' => $query_for_noadmin,
+                    ));
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
+
+
+
+        return array(
+            'html' => $html,
+            'error' => $error,
+            'debug' => $item
+        );
+    }
+
+    /**
      * @param null $warehouse
      * @param int  $i
      * @return string
@@ -1372,6 +1438,16 @@ class warehouses extends Controller
                 $data['state'] = true;
                 $data['functions'] = array('reset_multiselect()');
             }
+        }
+
+        // загрузка изделия в сайдбар
+        if ($act == 'sidebar-load-item') {
+            $data = $this->sidebar_load_item($_POST, $mod_id);
+        }
+
+        // массовая привязка серийников к заказу
+        if ($act == 'bind-serials-to-order') {
+            $data = $this->all_configs['chains']->bind_serials_to_order($_POST, $mod_id);
         }
 
         // привязка серийного номера
@@ -1929,13 +2005,14 @@ class warehouses extends Controller
                 if ($data['error']) {
                     $item = $this->all_configs['db']->query(
                         'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
-                        array($scan, suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
+                        array($scan, $scan))->row();
                     if (!empty($item)) {
                         $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
                         $data['msg'] .= l('Изделие') . ' ' . $scan;
                         $data['state'] = true;
                     } else {
                         $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено!!!!');
+                        $data['state'] = true;
                     }
                 }
             }
@@ -2445,6 +2522,9 @@ class warehouses extends Controller
             );
             foreach ($debitResult as $value) {
                 $result['result'] .= $this->form_debit_invoice_result($value['order_for_result'], $value['msg']);
+                if (!empty($value['print_link'])) {
+                    $result['print_links'][] = $value['print_link'];
+                }
             }
         } catch (ExceptionWithMsg $e) {
             $result = array(

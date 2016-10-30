@@ -76,6 +76,9 @@ class Suppliers extends Object
             if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в заказ. Возможно вы забыли нажать "+"'));
             }
+            if(!empty($supplier) && !$this->isSupplier($supplier)) {
+                throw new ExceptionWithMsg(l('Конкрагент не является поставщиком'));
+            }
             foreach ($post['item_ids'] as $order_id => $product_id) {
                 $product = $this->Goods->getByPk($product_id);
                 if (!$product) {
@@ -220,7 +223,7 @@ class Suppliers extends Object
             return true;
         }
         foreach ($ids as $key => $id) {
-            if (empty($values[$key]) || 0 == (round($values[$key] * 100)/ 100)) {
+            if (empty($values[$key]) || 0 == (round($values[$key] * 100) / 100)) {
                 return true;
             }
         }
@@ -261,6 +264,9 @@ class Suppliers extends Object
             // проверка на создание заказа с количеством 0
             if ($this->isEmpty($post['item_ids'], $post['quantity'])) {
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в заказ. Возможно вы забыли нажать "+"'));
+            }
+            if(!empty($supplier) && !$this->isSupplier($supplier)) {
+                throw new ExceptionWithMsg(l('Конкрагент не является поставщиком'));
             }
 
             $parent_order_id = 0;
@@ -404,13 +410,14 @@ class Suppliers extends Object
      * @param bool $only_pay
      * @return string
      */
-    function show_suppliers_orders($orders, $only_debit = false, $only_pay = false)
+    function show_suppliers_orders($orders, $only_debit = false, $only_pay = false, $short_form = false)
     {
         return $this->view->renderFile('suppliers.class/show_suppliers_orders', array(
             'controller' => $this,
             'orders' => $orders,
             'only_debit' => $only_debit,
             'only_pay' => $only_pay,
+            'short_form' => $short_form,
         ));
     }
 
@@ -860,7 +867,8 @@ class Suppliers extends Object
             'all' => $all,
             'order' => $order,
             'order_id' => $order_id,
-            'goods' => $goods,
+            'goods' => !is_array($goods) ? $goods : null,
+            'cart' => is_array($goods) ? $goods : null,
             'typeahead' => $typeahead
         )) . $this->append_js();
     }
@@ -1688,36 +1696,38 @@ class Suppliers extends Object
         $html = '';
         $msg = $debit_items = $print_items = array();
 
-        foreach ($serials as $k => $serial) {
-            $item_id = null;
-            if (!$auto && count($serials) > $order['count_come']) {
-                break;
-            }
-            if ($auto) {
-                $item_id = $this->add_item($order, null, $mod_id);
-            } elseif (mb_strlen(trim($serial), 'UTF-8') > 0) {
-                $item_id = $this->add_item($order, trim($serial), $mod_id);
-            } else {
-                $msg[$k] = array(
-                    'state' => false,
-                    'msg' => l('Ведите серийный номер или установите галочку сгенерировать')
-                );
-            }
-            if (!isset($msg[$k])) {
-                if ($item_id > 0) {
-                    if ($print) {
-                        $print_items[$k] = $item_id;
-                    }
-                    $debit_items[$k] = suppliers_order_generate_serial(array(
-                        'item_id' => $item_id,
-                        'serial' => trim($serial)
-                    ));
-                    $msg[$k] = array(
-                        'state' => true,
-                        'msg' => $debit_items[$k]
-                    );
+        if ($auto || count($serials) <= $order['count_come']) {
+//            if($auto) {
+//                $serials = range(1, $order['count_come']);
+//            }
+            foreach ($serials as $k => $serial) {
+                $item_id = null;
+                if ($auto) {
+                    $item_id = $this->add_item($order, null, $mod_id);
+                } elseif (mb_strlen(trim($serial), 'UTF-8') > 0) {
+                    $item_id = $this->add_item($order, trim($serial), $mod_id);
                 } else {
-                    $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
+                    $msg[$k] = array(
+                        'state' => false,
+                        'msg' => l('Ведите серийный номер или установите галочку сгенерировать')
+                    );
+                }
+                if (!isset($msg[$k])) {
+                    if ($item_id > 0) {
+                        if ($print) {
+                            $print_items[$k] = $item_id;
+                        }
+                        $debit_items[$k] = suppliers_order_generate_serial(array(
+                            'item_id' => $item_id,
+                            'serial' => trim($serial)
+                        ));
+                        $msg[$k] = array(
+                            'state' => true,
+                            'msg' => $debit_items[$k]
+                        );
+                    } else {
+                        $msg[$k] = array('state' => false, 'msg' => l('Серийник уже используется'));
+                    }
                 }
             }
         }
@@ -1770,13 +1780,13 @@ class Suppliers extends Object
                 'price_purchase' => $order['price']
             );
             $product = $this->Goods->getByPk($order['goods_id']);
-            if($product['use_automargin']) {
+            if ($product['use_automargin']) {
                 $price = $order['price'] * getCourse($this->all_configs['settings']['currency_suppliers_orders']) / 100;
                 $update['price'] = $price + $this->automargin($price, $product, 'automargin');
                 $update['price_wholesale'] = $price + $this->automargin($price, $product, 'wholesale_automargin');
             }
             $this->Goods->update($update, array(
-               'id' => $order['goods_id']
+                'id' => $order['goods_id']
             ));
         }
 
@@ -1804,13 +1814,14 @@ class Suppliers extends Object
      */
     protected function automargin($value, $product, $type)
     {
-        if ($product[$type.'_type'] == DISCOUNT_TYPE_PERCENT) {
+        if ($product[$type . '_type'] == DISCOUNT_TYPE_PERCENT) {
             $automargin = $value * ($product[$type] / 100);
         } else {
             $automargin = $product[$type] * 100;
         }
         return $automargin;
     }
+
     /**
      * @param      $order
      * @param null $serial
@@ -2074,5 +2085,15 @@ class Suppliers extends Object
             'order' => $order,
             'msg' => $msg
         ));
+    }
+
+    /**
+     * @param $supplier
+     * @return bool
+     */
+    private function isSupplier($supplier)
+    {
+        return (bool) $this->all_configs['db']->query('SELECT count(*) FROM {contractors} WHERE type IN (?li) AND id=?i',
+            array(array_values($this->all_configs['configs']['erp-contractors-use-for-suppliers-orders']), $supplier))->el();
     }
 }

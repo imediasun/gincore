@@ -8,7 +8,8 @@
                 <td>
                     <div class="dropdown dropdown-inline">
                         <button class="as_link" type="button" id="dropdownMenuCashboxes"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="background-color: #F7F9FA">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                style="background-color: #F7F9FA">
                             <span class="btn-title-price_type">
                                 <?= $price_type == ORDERS_GOODS_PRICE_TYPE_WHOLESALE ? l('Цена, о') : l('Цена, р') ?>
                             </span>
@@ -65,12 +66,14 @@
                     <td>
                         <div class="dropdown dropdown-inline">
                             <button class="as_link" type="button" id="dropdownMenuCashboxes"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="background-color: #F7F9FA">
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                    style="background-color: #F7F9FA">
                             <span class="btn-title-price_type_of_service">
                                 <?= $price_type_of_service == ORDERS_GOODS_PRICE_TYPE_WHOLESALE ? l('Цена, о') : l('Цена, р') ?>
                             </span>
                                 <span class="caret"></span>
-                                <input type="hidden" name="price_type_of_service" value="<?= $price_type_of_service ?>"/>
+                                <input type="hidden" name="price_type_of_service"
+                                       value="<?= $price_type_of_service ?>"/>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuCashboxes">
                                 <li><a href="#" data-price_type="<?= ORDERS_GOODS_PRICE_TYPE_RETAIL ?>"
@@ -87,12 +90,13 @@
                 <?php endif; ?>
                 <td></td>
                 <td></td>
+                <td style="text-align: center;"> <?= l('Мастер') ?> <?= InfoPopover::getInstance()->createQuestion('l_engineer_of_service'); ?> </td>
             </tr>
             </thead>
             <tbody id="service-table">
             <?php if ($services): ?>
                 <?php foreach ($services as $service): ?>
-                    <?= $controller->show_product($service); ?>
+                    <?= $controller->show_product($service, $engineers, $order['engineer']); ?>
                 <?php endforeach; ?>
             <?php endif; ?>
             </tbody>

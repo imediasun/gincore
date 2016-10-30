@@ -20,7 +20,8 @@
                 <tr id="comment_parse_remove-<?= $comment['id'] ?>">
                     <td><?= htmlspecialchars($parser_configs['markets'][$comment['market_id']]['market-name']) ?></td>
                     <td>
-                        <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $comment['goods_id'] ?>">
+                        <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $comment['goods_id'] ?>"
+                           data-action="sidebar_product" data-id_product="<?= $comment['goods_id'] ?>">
                             <?= htmlspecialchars($comment['title']) ?>
                         </a>
                     </td>

@@ -43,7 +43,7 @@ class import_gincore_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
-            $goods = db()->query('SELECT * FROM {goods}')->assoc('id');
+            $goods = db()->query('SELECT g.*, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id='.$_SESSION['id'] )->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
                 if (!empty($id) && isset($goods[$id])) {
@@ -98,15 +98,16 @@ class import_gincore_items extends abstract_import_handler
         try {
             $query = '';
             foreach ($data as $field => $value) {
-                if ($field != 'category') {
+                if ($field != 'category' && $field != 'balance') {
                     if (empty($query)) {
                         $query = db()->makeQuery('?q=?', array($field, $value));
                     } else {
                         $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
                     }
-                } else {
+                } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
                 }
+
             }
             if (!empty($query)) {
                 db()->query('UPDATE {goods} SET ?q WHERE id=?i', array(
@@ -115,6 +116,34 @@ class import_gincore_items extends abstract_import_handler
                 ));
                 $this->addToLog($this->userId, 'update-goods', $modId, $id);
             }
+
+            if (isset($data['balance'])) {
+
+                if (empty($data['balance'])) {
+                    $by_balance = 0;
+                } else {
+                    $by_balance = 1;
+                    $balance = $data['balance'];
+                }
+
+                $this->all_configs['db']->query('INSERT INTO {users_notices} (user_id, goods_id, each_sale, by_balance,
+                        balance, by_critical_balance, critical_balance, seldom_sold, supply_goods)
+                      VALUES (?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i, ?i) ON duplicate KEY
+                    UPDATE by_balance=VALUES(by_balance), balance=VALUES(balance)',
+                    array(
+                        $_SESSION['id'],
+                        $id,
+                        0,
+                        $by_balance,
+                        $balance,
+                        0,
+                        0,
+                        0,
+                        0
+                    ));
+            }
+
+
             $result['message'] = l('Изменен успешно');
         } catch (Exception $e) {
             $result['state'] = false;
@@ -134,15 +163,26 @@ class import_gincore_items extends abstract_import_handler
         $cols = $this->provider->get_cols();
         foreach ($cols as $field => $title) {
             $value = $this->provider->$field($row);
-            if (strpos($field, 'price') !== false) {
+            if (strpos($field, 'price') !== false || strpos($field, 'fixed_payment') !== false) {
                 $value *= 100;
             }
+            if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
+                $value = (int) strpos($value, lq('Нет')) !== false;
+            }
+
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
                 $value = $this->createCategory($this->provider->getColValue('category', $row));
             }
             if ($value !== false && $good[$field] != $value) {
                 $data[$field] = $value;
             }
+        }
+
+        if($data['automargin_type'] == 0) {
+            $data['automargin'] *= 100;
+        }
+        if($data['wholesale_automargin_type'] == 0) {
+            $data['wholesale_automargin'] *= 100;
         }
         return $data;
     }

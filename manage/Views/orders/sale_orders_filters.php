@@ -77,6 +77,20 @@
                 </div>
             </div>
             <div class="col-sm-3 b-r">
+                <div>
+                    <div class="span5">
+                        <p class="form-control-static"><?= l('Категории') ?>:</p>
+                    </div>
+                    <div class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="parent-categories[]"
+                                        multiple="multiple">
+                                    <?= build_array_tree($categories, explode('-', $_GET['cats'])); ?>
+                                </select>
+                            </span>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
                 <?= $filter_manager ?>
                 <div style="clear:both"></div>
                 <div>

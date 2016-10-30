@@ -45,21 +45,16 @@ class import_posting_items extends abstract_import_handler
             foreach ($rows as $row) {
                 try {
                     $data = $this->getItemData($row);
-                    $result = $this->addItem($invoiceId, $data);
                     if (empty($data['good_id'])) {
-                        $result = array(
-                            'state' => false,
-                            'title' => $data['title'],
-                            'message' => l('Название товара в базе не найдено')
-                        );
-                        $error = 1;
+                        throw new ExceptionWithMsg(l('Название товара в базе не найдено'));
                     }
-                    $results[] = $result;
+                    $results[] = $this->addItem($invoiceId, $data);
                 } catch (ExceptionWithMsg $e) {
+                    $error = 1;
                     $results[] = array(
                         'state' => false,
-                        'id' => $this->provider->title($row),
-                        'message' => l('Ошибка при добавлении товара в накладную')
+                        'title' => $this->provider->title($row),
+                        'message' => $e->getMessage()
                     );
                 }
             }
@@ -73,6 +68,8 @@ class import_posting_items extends abstract_import_handler
                         'state' => PURCHASE_INVOICE_STATE_CAPITALIZED
                     ), array('id' => $invoiceId));
                 } catch (ExceptionWithMsg $e) {
+                    // желательно не удалять
+                    Log::dump($e->getMessage());
                 }
             }
         }
@@ -122,16 +119,25 @@ class import_posting_items extends abstract_import_handler
     /**
      * @param $row
      * @return array
+     * @throws ExceptionWithMsg
      */
     private function getItemData($row)
     {
         $id = $this->provider->get_item_id($row);
         $title = $this->provider->title($row);
+        $price = $this->provider->price($row) * 100;
+        if(empty($price)) {
+            throw new ExceptionWithMsg(l('Цена закупки должна быть больше 0'));
+        }
+        $quantity = $this->provider->quantity($row);
+        if(empty($quantity)) {
+            throw new ExceptionWithMsg(l('Количество должно быть больше 0'));
+        }
         return array(
             'good_id' => $id ? $id : '',
             'not_found' => ($id === false) ? $title : '',
-            'price' => $this->provider->price($row) * 100,
-            'quantity' => $this->provider->quantity($row),
+            'price' => $price,
+            'quantity' => $quantity,
             'title' => $title
         );
 

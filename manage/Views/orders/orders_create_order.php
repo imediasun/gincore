@@ -10,15 +10,15 @@
     });
 </script>
 <ul class="nav nav-tabs default_tabs" role="tablist">
-    <li role="presentation" class="active">
+    <li role="presentation" class="<?= empty($cart)? 'active': '' ?>">
         <a href="#repair" role="tab" data-toggle="tab"><?= l('Заказ на ремонт') ?></a>
     </li>
-    <li role="presentation">
+    <li role="presentation" class="<?= !empty($cart)? 'active': '' ?>">
         <a href="#sale" role="tab" data-toggle="tab"><?= l('Заказ на продажу') ?></a>
     </li>
 </ul>
 <div class="tab-content">
-    <div class="tab-pane active" id="repair">
+    <div class="tab-pane <?= empty($cart)? 'active': '' ?>" id="repair">
         <?php if ($available): ?>
             <div class="container-fluid">
                 <div class="row">
@@ -541,23 +541,26 @@
             </div>
         <?php endif; ?>
     </div>
-    <div class="tab-pane" id="sale">
+    <div class="tab-pane <?= !empty($cart)?'active': '' ?>" id="sale">
         <?php if ($available): ?>
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#quick-sale-pane" aria-controls="messages" role="tab"
+                <li role="presentation" class="<?= empty($cart)?'active': ''?>">
+                    <a href="#quick-sale-pane" aria-controls="messages" role="tab"
                                                           data-toggle="tab"><?= l('Быстрая продажа') ?></a></li>
-                <li role="presentation"><a href="#eshop-sale-pane" aria-controls="settings" role="tab"
-                                           data-toggle="tab"><?= l('Интернет-магазин') ?></a></li>
+                <li role="presentation" class="<?= !empty($cart)?'active': ''?>">
+                    <a href="#eshop-sale-pane" aria-controls="settings" role="tab"
+                                           data-toggle="tab"><?= l('Интернет-магазин') ?></a>
+                </li>
             </ul>
 
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="quick-sale-pane">
+                <div role="tabpanel" class="tab-pane <?= empty($cart)?'active': ''?>" id="quick-sale-pane">
                     <?= $orderForSaleForm ?>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="eshop-sale-pane">
+                <div role="tabpanel" class="tab-pane <?= !empty($cart)?'active': ''?>" id="eshop-sale-pane">
                     <?= $orderEshopForm ?>
 
                 </div>

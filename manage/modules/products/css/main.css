@@ -79,3 +79,70 @@ td.edit-price .input-small {
 .margin-type {
     width: 65px;
 }
+.small-preview {
+    width: 30px;
+    height: 30px;
+}
+.large-preview {
+    width: 250px;
+    height: 250px;
+}
+.table-lh-30 > thead > tr > th {
+    line-height: 30px;
+}
+.ui-tooltip {
+    max-width: 450px;
+}
+table.table-goods >thead >tr >th {
+    border-bottom: 1px solid #ddd;
+    padding: 0 5px
+}
+table.table-goods >tbody >tr >td {
+    padding: 5px
+}
+table.table-navigation >tbody >tr >td {
+    padding: 0 5px
+}
+a.cart {
+    margin-left: 15px;
+    display:inline-block;
+}
+.popup-form input[type="checkbox"], .popup-form input[type="radio"] {
+    line-height: normal;
+    margin: 8px -20px 0;
+
+}
+#action-form .panel-collapse .panel-heading.hbuilt {
+    background-color: #f7f9fa;
+}
+#action-form .panel-heading.hbuilt {
+    border-bottom: medium none;
+    border-left: medium none;
+    border-radius: 0;
+    border-right: medium none;
+    cursor: pointer;
+}
+#action-form .hpanel {
+    border: medium none;
+    box-shadow: none;
+    margin-bottom: 0px;
+}
+#action-form .panel-body {
+    border: medium none;
+    border-radius: 0;
+    padding: 10px;
+}
+.medium-dialog .modal-lg {
+    width: 500px;
+}
+.ml-dialog .modal-lg {
+    width: 700px;
+}
+.medium-dialog .modal-body {
+    padding-right: 0;
+    padding-left: 0;
+}
+#exports .form-group {
+    margin-right: 0;
+    margin-left: 0;
+}

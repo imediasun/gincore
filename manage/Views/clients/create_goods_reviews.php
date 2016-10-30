@@ -23,7 +23,8 @@
                     <div class="control-group">
                         <label class="control-label"><?= l('Товар') ?>: </label>
                         <div class="controls">
-                            <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $review['goods_id'] ?>/#imt-comments">
+                            <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $review['goods_id'] ?>/#imt-comments"
+                               data-action="sidebar_product" data-id_product="<?= $review['goods_id'] ?>">
                                 <?= htmlspecialchars($review['title']) ?>
                             </a>
                         </div>

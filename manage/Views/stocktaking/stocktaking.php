@@ -31,7 +31,7 @@
                     <?php $serial = suppliers_order_generate_serial($product, true, false) ?>
                     <td><?= suppliers_order_generate_serial($product, true, true) ?></td>
                     <td>
-                        <a class="hash_link"
+                        <a data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>"
                            href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock">
                             <?= h($product['product_title']) ?>
                         </a>

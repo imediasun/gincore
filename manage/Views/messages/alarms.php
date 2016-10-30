@@ -1,7 +1,7 @@
 <?php if (!empty($alarms)): ?>
     <div class="alerts col-sm-12">
         <?php foreach ($alarms as $alarm): ?>
-            <?php $color = $alarm['date'] > strtotime('- 1 day') ? 'alert-after-one-day' : ($alarm['date'] < strtotime('- 1 hour') ? 'alert-before-one-hour' : '') ?>
+            <?php $color = strtotime($alarm['date']) < strtotime('- 1 day') ? 'alert-after-one-day' : (strtotime($alarm['date']) < strtotime('- 1 hour') ? 'alert-before-one-hour' : '') ?>
             <div class="alert alert-danger alert-clock <?= $color ?>">
                 <?= $alarm['text'] ?>
                 <?php if ($alarm['order_id']): ?>

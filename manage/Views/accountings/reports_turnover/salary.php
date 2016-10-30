@@ -5,7 +5,7 @@
                 <table class="table table-compact table-no-border" style="margin-bottom: 0px">
                     <tr>
                         <td><?= l('Зарплата сотрудника') ?><?= InfoPopover::getInstance()->createQuestion('l_it_users_salary_from_orders_profit') ?></td>
-                        <td><?= $user['fio'] ?></td>
+                        <td><?= empty($user['fio'])? $user['login']: $user['fio'] ?></td>
                     </tr>
                     <tr>
                         <td><?= l('Ремонты') ?></td>

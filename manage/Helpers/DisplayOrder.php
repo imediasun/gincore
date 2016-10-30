@@ -71,6 +71,12 @@ class DisplayOrder extends Helper
                     count($order['finish']));
             }
         }
+        $services = '';
+        if (count($order['services']) > 0) {
+            foreach ($order['services'] as $service) {
+                $services .= ' <i class="fa fa-plus-circle text-success pull-right" title="' . $service['title'] . '"></i> ';
+            }
+        }
 
         $color = preg_match('/^#[a-f0-9]{6}$/i', trim($order['color'])) ? trim($order['color']) : '#000000';
         $accepted = mb_strlen($order['courier'],
@@ -88,7 +94,8 @@ class DisplayOrder extends Helper
             'color' => $color,
             'helper' => $this,
             'columns' => $columns,
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'services' => $services
         ));
     }
 

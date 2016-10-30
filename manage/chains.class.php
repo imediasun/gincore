@@ -212,6 +212,70 @@ class Chains extends Object
         return $chain['price'] + $chain['warranties_cost'];
     }
 
+
+    public function bind_serials_to_order($data, $mod_id)
+    {
+        $order_id = $data['order_id'];
+        $product_id = $data['product_id'];
+        $bind_results = array();
+        $warehouse_obj = new MWarehouses();
+
+
+        $order_products = $this->all_configs['db']->query(
+            'SELECT * FROM {orders_goods} WHERE order_id=?i AND goods_id=?i AND item_id IS NULL',
+            array($order_id, $product_id))->assoc();
+
+        $i = 0;
+        foreach ($data['serials'] as $id_warehouse => $serials) {
+            if (!empty($serials['select'])){
+                foreach ($serials['select'] as $item_id){
+                    if (isset($order_products[$i])) {
+                        $bind_results[] = $this->bind_item_serial(array(
+                            'item_id' => $item_id,
+                            'order_product_id' => $order_products[$i]['id'],
+                            'confirm' => 1,
+                        ), $mod_id, false);
+                        $i++;
+                    } 
+                }
+            } elseif (!empty($serials['input'])) {
+                if (isset($order_products[$i])) {
+                    $bind_results[] = $this->bind_item_serial(array(
+                        'serial' => $serials['input'],
+                        'order_product_id' => $order_products[$i]['id'],
+                        'confirm' => 1,
+                    ), $mod_id, false);
+                    $i++;
+                }
+            } elseif (!empty($serials['quantities'])) {
+                $quantities_need = $serials['quantities'];
+                $quantities_exist = $serials['quantities_exist'];
+                $limit = ($quantities_need > $quantities_exist) ? $quantities_exist : $quantities_need;
+                $available_items = $warehouse_obj->getAvailableItemsByGoodsIdWarehouse(array($product_id), $id_warehouse, $limit);
+
+                foreach ($available_items as $avail_item) {
+                    if (isset($order_products[$i])) {
+                        $bind_results[] = $this->bind_item_serial(array(
+                            'item_id' => $avail_item['id'],
+                            'order_product_id' => $order_products[$i]['id'],
+                            'confirm' => 1,
+                        ), $mod_id, false);
+                        $i++;
+                    }
+                }
+
+            }
+        }
+
+        $result = array(
+            'state' => !empty($bind_results),
+            'message' => l('Все серийники успешно привязаны'),
+            'bind_results' => $bind_results
+        );
+
+        return $result;
+    }
+
     /**
      * @param      $data
      * @param      $mod_id
@@ -560,11 +624,11 @@ class Chains extends Object
                 return null;
             }
         }
-        if(isset($filters['warehouse']) && $filters['warehouse'] > 0) {
+        if (isset($filters['warehouse']) && $filters['warehouse'] > 0) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND o.wh_id=?i',
                 array($filters_query, $filters['warehouse']));
         }
-        if(isset($filters['location']) && $filters['location'] > 0) {
+        if (isset($filters['location']) && $filters['location'] > 0) {
             $filters_query = $this->all_configs['db']->makeQuery('?query AND o.location_id=?i',
                 array($filters_query, $filters['location']));
         }
@@ -642,7 +706,7 @@ class Chains extends Object
         $goods = array();
         $prod_query = '';
         if ($goods_id) {
-            $prod_query = db()->makeQuery(" AND i.goods_id = ?i:g AND l.goods_id = ?i:g ", array('g' => $goods_id));
+            $prod_query = db()->makeQuery(" AND i.goods_id = ?i:g AND i.goods_id = ?i:g ", array('g' => $goods_id));
         }
         $data = $this->all_configs['db']->query(
             'SELECT i.id as item_id, i.order_id, i.serial, i.goods_id,
@@ -650,9 +714,8 @@ class Chains extends Object
                    i.location_id, i.supplier_order_id
             FROM {warehouses_goods_items} as i, 
                  {warehouses} as w, 
-                 {warehouses_locations} as t, 
-                 {orders_suppliers_clients} as l
-            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id AND l.goods_id=i.goods_id ?q ',
+                 {warehouses_locations} as t
+            WHERE w.id=i.wh_id AND w.consider_store=?i AND t.id=i.location_id ?q ',
             array(1, $prod_query))->assoc();
         if ($data) {
             foreach ($data as $i) {
@@ -865,14 +928,15 @@ class Chains extends Object
      * @param null $status
      * @return string
      */
-    public function form_write_off_items($item_id = null, $status = null)
+    public function form_write_off_items($item_id = null, $status = null, $for_sidebar = false )
     {
         $out = '';
 
         if ($this->all_configs['configs']['erp-use'] == true && $this->all_configs['oRole']->hasPrivilege('write-off-items')) {
             $out = $this->view->renderFile('chains.class/form_write_off_items', array(
                 'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-                'item_id' => $item_id
+                'item_id' => $item_id,
+                'for_sidebar' => $for_sidebar
             ));
         }
 
@@ -884,12 +948,13 @@ class Chains extends Object
      * @param null $status
      * @return string
      */
-    public function form_sold_items($item_id = null, $status = null)
+    public function form_sold_items($item_id = null, $status = null, $for_sidebar = false)
     {
         return $this->view->renderFile('chains.class/form_sold_items', array(
             'db' => $this->all_configs['db'],
             'can' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-            'item_id' => $item_id
+            'item_id' => $item_id,
+            'for_sidebar' => $for_sidebar
         ));
     }
 
@@ -1239,21 +1304,25 @@ class Chains extends Object
                         FROM {orders} as o
                         WHERE o.id=?i
                     ', array($data['id']))->row();
-                    if(!empty($post['manager']) && !empty($createdOrder)) {
-                        $manager = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['manager']))->row();
-                        if(!empty($manager)) {
+                    if (!empty($post['manager']) && !empty($createdOrder)) {
+                        $manager = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i',
+                            array($post['manager']))->row();
+                        if (!empty($manager)) {
                             $this->noticeManager($manager, $createdOrder);
                         }
                     }
-                    if(!empty($post['engineer']) && !empty($createdOrder)) {
-                        $engineer = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i', array($post['engineer']))->row();
-                        if(!empty($engineer)) {
+                    if (!empty($post['engineer']) && !empty($createdOrder)) {
+                        $engineer = $this->all_configs['db']->query('SELECT * FROM {users} WHERE id=?i',
+                            array($post['engineer']))->row();
+                        if (!empty($engineer)) {
                             $this->noticeEngineer($engineer, $createdOrder);
                         }
                     }
                 }
             }
-            $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+            if (empty($data['location'])) {
+                $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
+            }
 
         } catch (ExceptionWithMsg $e) {
             $data = array(
@@ -2571,11 +2640,12 @@ class Chains extends Object
      * @param null $item_id
      * @return string
      */
-    public function return_supplier_order_form($item_id = null)
+    public function return_supplier_order_form($item_id = null, $for_sidebar = false)
     {
         return $this->view->renderFile('chains.class/return_supplier_order_form', array(
             'canUse' => $item_id > 0 ? $this->can_use_item($item_id) : true,
-            'item_id' => $item_id
+            'item_id' => $item_id,
+            'for_sidebar' => $for_sidebar
         ));
     }
 
@@ -2594,7 +2664,8 @@ class Chains extends Object
         $wh_id = null,
         $order = null,
         $show_btn = true,
-        $rand = null
+        $rand = null,
+        $for_sidebar = false
     ) {
         return $this->view->renderFile('chains.class/moving_item_form', array(
             'rand' => $rand ? $rand : rand(1000, 9999),
@@ -2605,6 +2676,7 @@ class Chains extends Object
             'wh_id' => $wh_id,
             'controller' => $this,
             'show_btn' => $show_btn,
+            'for_sidebar' => $for_sidebar
         ));
     }
 
@@ -2747,7 +2819,7 @@ class Chains extends Object
                             if ($chain_id) {
                                 $href1 = $this->all_configs['prefix'] . 'warehouses?serial=' . $data['serial'] . '#show_items';
                                 $href2 = $this->all_configs['prefix'] . 'logistics?i_id=' . $data['serial'] . '#motions';
-                                $content = l('Изделие') . ' <a href="' . $href1 . '">' . $data['serial'] . '</a> ' . l('попало на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
+                                $content = l('Изделие') . ' <a data-action="sidebar_item" data-id_item="' . $data['serial'] . '" href="' . $href1 . '">' . $data['serial'] . '</a> ' . l('попало на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
                                 $this->notification(l('Создалась цепочка на перемещение изделия'), $content,
                                     'logistics-mess');
                             }
@@ -3229,7 +3301,7 @@ class Chains extends Object
             'sale_type' => isset($post['sale_type']) ? intval($post['sale_type']) : 0,
             'total_as_sum' => isset($post['total_as_sum']) ? intval($post['total_as_sum']) : 0,
             'home_master_request' => isset($post['home_master_request']) ? intval($post['home_master_request']) : 0,
-            'brand_id' => (isset($post['brand_id']) && isset($post['repair']) && intval($post['repair']) == 1)?intval($post['brand_id']):0
+            'brand_id' => (isset($post['brand_id']) && isset($post['repair']) && intval($post['repair']) == 1) ? intval($post['brand_id']) : 0
         );
         // создаем заказ
         try {
@@ -3537,7 +3609,7 @@ class Chains extends Object
     {
         $cart = array();
 
-        if (!emptY($post['item_ids'])) {
+        if (!empty($post['item_ids'])) {
             foreach ($post['item_ids'] as $key => $item_id) {
                 if (empty($cart[$item_id])) {
                     $cart[$item_id] = array(
@@ -3563,6 +3635,7 @@ class Chains extends Object
      */
     protected function andPrint($next, $data, $client)
     {
+        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
         switch ($next) {
             case 'print_waybill':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=waybill&object_id=' . $data['id'];
@@ -3573,7 +3646,9 @@ class Chains extends Object
             case 'print_check':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
-
+            case 'print_invoice':
+                $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=invoice&object_id=' . $data['id'];
+                break;
             case 'print':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
                 break;
@@ -3582,10 +3657,10 @@ class Chains extends Object
                 break;
             case 'print_and_new_order':
                 $data['open_window'] = $this->all_configs['prefix'] . 'print.php?act=check&object_id=' . $data['id'];
+                $data['location'] = $this->all_configs['prefix'] . 'orders?c=' . $client['id'] . '#create_order';
                 break;
             default:
         }
-        $data['location'] = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/create/' . $data['id'];
         return $data;
     }
 

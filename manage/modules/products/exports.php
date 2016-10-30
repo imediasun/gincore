@@ -36,6 +36,17 @@ function product_exports_form($all_configs)
         array('label' => lq('manager'), 'name' => 'managers'),
     );
 
+    $arr_additional = array(
+        array('label' => lq('% от прибыли'), 'name' => 'percent_from_profit'),
+        array('label' => lq('Фиксированная оплата'), 'name' => 'fixed_payment'),
+        array('label' => lq('Уведомлять меня об остатке'), 'name' => 'notify_by_balance'),
+        array('label' => lq('Неснижаемый остаток'), 'name' => 'minimum_balance'),
+        array('label' => lq('Автонаценка розница'), 'name' => 'automargin'),
+        array('label' => lq('В валюте (р)'), 'name' => 'automargin_type'),
+        array('label' => lq('Автонаценка опт'), 'name' => 'wholesale_automargin'),
+        array('label' => lq('В валюте (o)'), 'name' => 'wholesale_automargin_type'),
+    );
+
     foreach ($arr as $item) {
         $html .= '<div class="form-group"><label>' . $item['label'] . '</label><br>';
         $onclick = 'onclick="$(\'#export_goods_' . $item['name'] . '\').val(0);$(this).parent().find(\'button\').removeClass(\'hide\');$(this).addClass(\'hide\');"';
@@ -44,6 +55,19 @@ function product_exports_form($all_configs)
         $html .= '<button type="button" ' . $onclick . ' class="btn btn-small btn-danger">' . $item['label'] . '</button>';
         $html .= '<input type="hidden" value="0" name="' . $item['name'] . '" id="export_goods_' . $item['name'] . '"/></div>';
     }
+
+    $html .= '<div class="m-b-md"><a  role="button" data-toggle="collapse" href="#collapseAdditinal" aria-expanded="false" aria-controls="collapseAdditinal"><strong>' . lq('Дополнительные поля') . '</strong> <i class="glyphicon glyphicon-chevron-down"></i></a></div>';
+
+    $html .= '<div class="collapse" id="collapseAdditinal">';
+    foreach ($arr_additional as $item) {
+        $html .= '<div class="form-group"><label>' . $item['label'] . '</label><br>';
+        $onclick = 'onclick="$(\'#export_goods_' . $item['name'] . '\').val(0);$(this).parent().find(\'button\').removeClass(\'hide\');$(this).addClass(\'hide\');"';
+        $html .= '<button type="button" ' . $onclick . ' class="btn btn-small btn-success hide">' . $item['label'] . '</button>';
+        $onclick = 'onclick="$(\'#export_goods_' . $item['name'] . '\').val(1);$(this).parent().find(\'button\').removeClass(\'hide\');$(this).addClass(\'hide\');"';
+        $html .= '<button type="button" ' . $onclick . ' class="btn btn-small btn-danger">' . $item['label'] . '</button>';
+        $html .= '<input type="hidden" value="0" name="' . $item['name'] . '" id="export_goods_' . $item['name'] . '"/></div>';
+    }
+    $html .= '</div>';
 
     $html .= '<div class="form-group">';
     $html .= '<input type="submit" value="' . l('Выгрузить данные') . '" class="btn btn-small btn-primary"></div></form>';
@@ -90,11 +114,44 @@ function exports_goods($all_configs, $ids)
         $select[] = 'g.warranties';
     }
 
+
+    if (isset($_GET['percent_from_profit']) && $_GET['percent_from_profit'] == 1) {
+        $select[] = 'g.percent_from_profit as `' . lq('% от прибыли') . '`';
+    }
+
+    if (isset($_GET['fixed_payment']) && $_GET['fixed_payment'] == 1) {
+        $select[] = 'g.fixed_payment as `' . lq('Фиксированная оплата') . '`';
+    }
+
+    if (isset($_GET['use_minimum_balance']) && $_GET['minimum_balance'] == 1) {
+        $select[] = 'g.minimum_balance as `' . lq('Неснижаемый остаток') . '`';
+    }
+
+    if (isset($_GET['automargin']) && $_GET['automargin'] == 1) {
+        $select[] = 'g.automargin as `' . lq('Автонаценка розница') . '`';
+    }
+    if (isset($_GET['automargin_type']) && $_GET['automargin_type'] == 1) {
+        $select[] = 'IF(g.automargin_type=1,"' . lq('Нет') . '","' . lq('Да') . '") as `' . lq('В валюте (р)') . '`';
+    }
+
+    if (isset($_GET['wholesale_automargin']) && $_GET['wholesale_automargin'] == 1) {
+        $select[] = 'g.wholesale_automargin as `' . lq('Автонаценка опт') . '`';
+    }
+
+    if (isset($_GET['wholesale_automargin_type']) && $_GET['wholesale_automargin_type'] == 1) {
+        $select[] = 'IF(g.wholesale_automargin_type=1,"' . lq('Нет') . '","' . lq('Да') . '") as `' . lq('В валюте (o)') . '`';
+    }
+
+    if (isset($_GET['notify_by_balance']) && $_GET['notify_by_balance'] == 1) {
+        $select[] = 'un.balance as `' . lq('Уведомлять меня об остатке') . '`';
+    }
+
+
     if (is_array($ids) && count($ids) > 0) {
 
         // достаем товары
         if (count($select) > 0) {
-            $goods = $all_configs['db']->query('SELECT ?query FROM {goods} as g WHERE g.id IN (?li) AND g.avail=?i',
+            $goods = $all_configs['db']->query('SELECT ?query FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'] . ' WHERE g.id IN (?li) AND g.avail=?i',
                 array(implode(', ', $select), array_keys($ids), 1))->assoc('ID');
             // удаляем ид
             if (!isset($_GET['id']) || $_GET['id'] != 1) {
@@ -139,9 +196,8 @@ function exports_goods($all_configs, $ids)
             if ($managers) {
                 foreach ($managers as $manager) {
                     if (isset($goods[$manager['goods_id']])) {
-                        $arr = array($manager['login'], $manager['email'], $manager['fio'], $manager['phone']);
                         $goods[$manager['goods_id']][$isset($goods[$manager['goods_id']],
-                            lq('manager') . ' ')] = implode(', ', $arr);
+                            lq('manager') . ' ')] = empty($manager['fio']) ? $manager['login'] : $manager['fio'];
                     }
                 }
             }

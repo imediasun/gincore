@@ -96,6 +96,14 @@
             <?php endif; ?>
             <td style="padding: 0 5px 0 0 ">
                 <select <?= $isAdmin ? '' : 'disabled'; ?> class="multiselect form-control report-filter"
+                                                           name="wh_groups[]"
+                                                           multiple="multiple" data-placeholder="<?= l('Отделение') ?>">
+                    <?= build_array_tree($wh_groups,
+                        ((isset($_GET['whg'])) ? explode(',', $_GET['whg']) : array())); ?>
+                </select>
+            </td>
+            <td style="padding: 0 5px 0 0 ">
+                <select <?= $isAdmin ? '' : 'disabled'; ?> class="multiselect form-control report-filter"
                                                            name="states[]"
                                                            multiple="multiple" data-placeholder="<?= l('Статусы') ?>">
                     <?= build_array_tree($states,

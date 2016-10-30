@@ -515,6 +515,8 @@
                 'orderId' => $order['id'],
                 'price_type' => $price_type,
                 'price_type_of_service' => $price_type_of_service,
+                'engineers' => $engineers,
+                'order' => $order
             )); ?>
         </div>
     </form>

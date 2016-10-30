@@ -6,7 +6,7 @@
 <form method="post" action="<?= $link ?>" class="">
     <div class="clearfix theme_bg filters-box p-sm m-b-md">
         <div class="row row-15">
-            <input type="hidden" name="repair-order"/>
+            <input type="hidden" name="<?= $type ? $type : 'repair' ?>-order"/>
             <div class="col-sm-2 b-r">
                 <div class="btn-group-vertical">
                     <a class="btn btn-default <?= (!isset($_GET['fco']) && !isset($_GET['marked']) && count($_GET) <= 3 ? 'disabled' : '') ?> text-left"
@@ -79,6 +79,20 @@
             </div>
             <div class="col-sm-3 b-r">
                 <table class="table table-borderless table-for-filters">
+                    <tr>
+                        <td class="span5">
+                            <p class="form-control-static"><?= l('Категория') ?>:</p>
+                        </td>
+                        <td class="span6">
+                            <span class="input-group-btn">
+                                <select data-numberDisplayed="0" class="multiselect btn-sm" name="parent-categories[]"
+                                        multiple="multiple">
+                                    <?= build_array_tree($categories, explode('-', $_GET['cats'])); ?>
+                                </select>
+                            </span>
+
+                        </td>
+                    </tr>
                     <tr>
                         <td class="span5">
                             <p class="form-control-static"><?= l('Инженер') ?>:</p>

@@ -24,7 +24,7 @@
                     <?php if (isset($order['goods']) && count($order['goods']) > 0): ?>
                         <?php foreach ($order['goods'] as $product): ?>
                             <?php $href = $this->all_configs['prefix'] . 'products/create/' . $product['goods_id']; ?>
-                            <a href="<?= $href ?>"><?= htmlspecialchars($product['title']) ?></a><br/>
+                            <a href="<?= $href ?>" data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>"><?= htmlspecialchars($product['title']) ?></a><br/>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </td>

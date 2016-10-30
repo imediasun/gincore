@@ -5,7 +5,7 @@
         <td><?= $inv['i'] ?></td>
         <?php if (array_key_exists('scanned', $inv)): ?>
             <td>
-                <a href="<?= $this->all_configs['prefix'] ?>warehouses?serial=<?= $inv['scanned'] ?>#show_items">
+                <a data-action="sidebar_item" data-id_item="<?= $inv['scanned'] ?>" href="<?= $this->all_configs['prefix'] ?>warehouses?serial=<?= $inv['scanned'] ?>#show_items">
                     <?= h($inv['scanned']) ?>
                 </a>
             </td>
@@ -19,7 +19,8 @@
         <?php endif; ?>
         <?php if (array_key_exists('gtitle', $inv)): ?>
             <td>
-                <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $inv['goods_id'] ?>">
+                <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $inv['goods_id'] ?>"
+                   data-action="sidebar_product" data-id_product="<?= $inv['goods_id'] ?>">
                     <?= h($inv['gtitle']) ?>
                 </a>
             </td>

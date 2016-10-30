@@ -1,6 +1,6 @@
 <tr>
     <td class="col-sm-5">
-        <a href="<?= $url ?>">
+        <a href="<?= $url ?>" data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>">
             <?= htmlspecialchars($product['title']) ?>
         </a>
     </td>
@@ -12,7 +12,8 @@
                            type="text" onkeypress="change_input_width(this, this.value.length);"
                            value="<?= ($product['price'] / 100) ?>"/>
                     <div class="input-group-btn" style="display:none">
-                        <button class="btn btn-info" onclick="return change_visible_prices(this, <?= $product['id'] ?>)">
+                        <button class="btn btn-info"
+                                onclick="return change_visible_prices(this, <?= $product['id'] ?>)">
                             <span class="glyphicon glyphicon-ok"></span>&nbsp;
                         </button>
                     </div>
@@ -52,7 +53,7 @@
                         $create_role = $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders');
                         $accept_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
                         $bind_role = $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders');
-                        $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')"; 
+                        $role_alert = "alert('" . l('У Вас недостаточно прав для этой операции') . "')";
                         $avail_create = $avail_accept = $avail_bind = false;
                         $accept_action = $bind_action = $create_action = '';
                         $accept_data = '';
@@ -118,14 +119,14 @@
                             ?>
                             <span title="<?= do_nice_date($date_attach, false) ?>">
                                 <?= do_nice_date($date_attach) ?>
-                            </span> 
+                            </span>
                             <?= l('Отправлен запрос на закупку') ?>
                             <?php if ($product['so_id'] > 0): ?>
                                 <a href="<?= $this->all_configs['prefix'] ?>orders/edit/<?= $product['so_id'] ?>#create_supplier_order">
                                     <small class="muted">№<?= $product['so_id'] ?></small>
                                 </a>
                             <?php endif; ?>
-                             <?= l('от') ?>
+                            <?= l('от') ?>
                             <span title="<?= do_nice_date($product['date_add'], false) ?>">
                                 <?= do_nice_date($product['date_add']) ?>
                             </span>
@@ -172,6 +173,64 @@
             </td>
         <?php endif; ?>
     <?php else: ?>
-        <td colspan="2"></td>
+        <td class="col-sm-2"></td>
+        <td class="col-sm-2" style="text-align: center">
+            <?php if (!empty($engineers)): ?>
+                <div class="btn-group js-repair-order-column-filter" style="margin-left: 5px">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"
+                       id="user_<?= $product['id'] ?>"  title="<?= get_user_name($engineers[$product['engineer']]) ?>">
+                        <i class="fa fa-user" aria-hidden="true"
+                           style="color: <?= empty($colors[$product['engineer']])? $colors[$order_engineer]: $colors[$product['engineer']] ?>"></i>
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right" style="max-height: 600px;">
+                        <?php foreach ($engineers as $engineer): ?>
+                            <li style="padding: 0 10px; white-space: nowrap">
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="engineer_<?= $product['id'] ?>"
+                                               onclick="return set_engineer_of_service(this);"
+                                               value="<?= $engineer['id'] ?>" <?= $engineer['id'] == $product['engineer'] || (empty($product['engineer']) && $engineer['id'] == $order_engineer) ? 'checked' : '' ?>
+                                               data-service_id="<?= $product['id'] ?>"
+                                               data-color="<?= $colors[$engineer['id']] ?>"
+                                        />
+
+                                        <?= get_user_name($engineer) ?>
+                                        <?php if(!empty($engineer['workload'])): ?>
+                                            (<?= sprintf(l('загруженность').":%d&nbsp;". l('ремонт').', '.l('из них ожидают запчастей и на согласовании').':%d', $engineer['workload'], $engineer['wait_parts']) ?>)
+                                        <?php endif; ?>
+                                    </label>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+
+                    </ul>
+                </div>
+            <?php endif; ?>
+        </td>
     <?php endif; ?>
 </tr>
+<script>
+    function set_engineer_of_service(_this) {
+        var id = $(_this).attr('data-service_id'), color;
+        $.ajax({
+            url: prefix + module + '/ajax/?act=set-engineer-of-service',
+            type: 'POST',
+            dataType: "json",
+            data: {
+                engineer_id: $(_this).val(),
+                service_id: id
+            },
+            success: function (msg) {
+                if (msg && msg['state']) {
+                    color = $(_this).attr('data-color') || '#ddd';
+                    $('#user_' + id + ' >.fa-user').css('color', color);
+                }
+            }
+        });
+    }
+    function getRandomInt(min, max)
+    {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+</script>

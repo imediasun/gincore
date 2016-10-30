@@ -9,7 +9,7 @@ class import_helper
      */
     public static function format_date($date)
     {
-        $date = str_replace('/', '-', $date);
+//        $date = str_replace('/', '-', $date);
         return date('Y-m-d H:i:s', strtotime($date));
     }
 

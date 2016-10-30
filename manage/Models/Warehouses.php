@@ -45,6 +45,19 @@ class MWarehouses extends AModel
         return $location['id'];
     }
 
+    public function getLocations($warehouseId)
+    {
+        $location = array();
+        $result = $this->all_configs['db']->query('SELECT * FROM {warehouses_locations}  WHERE wh_id=?i',
+            array($warehouseId))->assoc();
+        if (!empty($result)) {
+            foreach ($result as $row){
+                $location[$row['id']] = $row;
+            }
+        }
+        return $location;
+    }
+
     /**
      * @param $itemIds
      * @return array
@@ -65,16 +78,43 @@ class MWarehouses extends AModel
      * @param $itemIds
      * @return array
      */
-    public function getAvailableItemsByGoodsId($itemIds)
+    public function getAvailableItemsByGoodsId($itemIds, $group_by_warehouse = false)
     {
         if(empty($itemIds)) {
             return array();
         }
-        return $this->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price
+        $result = $this->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price, i.serial, i.location_id, i.order_id
                     FROM ?t as w, {warehouses_goods_items} as i
                     LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
                     WHERE i.goods_id IN (?li) AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id',
             array($this->table, $itemIds, 1))->assoc();
+
+        if(!$group_by_warehouse) {
+            return $result;
+        } else {
+            $grouped_result = array();
+            foreach ($result as $row){
+                $grouped_result[$row['wh_id']]['items'][] = $row;
+            }
+            return $grouped_result;
+        }
+
+    }
+
+    public function getAvailableItemsByGoodsIdWarehouse($itemIds, $id_warehouse, $limit = 0)
+    {
+        if(empty($itemIds) || empty($id_warehouse)) {
+            return array();
+        }
+
+        $result = $this->query('SELECT i.wh_id, i.goods_id, i.id, m.user_id, i.price as price, i.serial, i.location_id, i.order_id
+                    FROM ?t as w, {warehouses_goods_items} as i
+                    LEFT JOIN {users_goods_manager} as m ON m.goods_id=i.goods_id
+                    WHERE i.goods_id IN (?li) AND i.wh_id=?i AND w.id=i.wh_id AND w.consider_all=?i AND i.order_id IS NULL GROUP BY i.id'.
+                    ($limit ? ' LIMIT '.$limit : ''),
+            array($this->table, $itemIds, $id_warehouse, 1))->assoc();
+
+        return $result;
     }
 
     /**

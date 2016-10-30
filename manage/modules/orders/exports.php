@@ -40,6 +40,12 @@ class ExportOrdersToXLS extends ExportsToXls
                     $tooltip[] = $item['title'] . ' - ' . $item['count'] . l('шт.');
                 }
             }
+            $services = array();
+            if (!empty($order['services'])) {
+                foreach ($order['services'] as $service) {
+                    $services[] = $service['title'] . ' - ' . $service['price'] . viewCurrency();
+                }
+            }
             $j = 0;
             if (isset($columns['npp'])) {
                 $sheet->setCellValueByColumnAndRow($j, (int)$id + 1, $order['order_id']);
@@ -75,6 +81,11 @@ class ExportOrdersToXLS extends ExportsToXls
 
             if (isset($columns['components'])) {
                 $sheet->setCellValueByColumnAndRow($j, (int)$id + 1, implode("\n", $tooltip));
+                $j++;
+            }
+
+            if (isset($columns['services'])) {
+                $sheet->setCellValueByColumnAndRow($j, (int)$id + 1, implode("\n", $services));
                 $j++;
             }
 

@@ -42,8 +42,9 @@
         <?php endif; ?>
         <td></td>
         <td>
-            <a class="hash_link"
-               href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock">
+            <a 
+               href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
+               data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
                 <?= h($product['product_title']) ?>
             </a>
         </td>
@@ -68,7 +69,7 @@
                         </td>
                         <td><?= suppliers_order_generate_serial($item, true, true) ?></td>
                         <td>
-                            <a class="hash_link"
+                            <a data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>"
                                href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock">
                                 <?= h($product['product_title']) ?>
                             </a>

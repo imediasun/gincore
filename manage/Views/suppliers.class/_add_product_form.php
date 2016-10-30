@@ -28,20 +28,20 @@
 
             <tr>
                 <td>
-                    <?php if (!empty($goods)): ?>
-                        <?= typeahead($this->all_configs['db'], 'goods-goods', false, null,
-                            (15 + $typeahead), 'input-xlarge exclude-form-validate',
-                            'input-medium exclude-form-validate', '', false, false, '', false,
-                            l('Введите'),
-                            array(
-                                'name' => l('Добавить'),
-                                'action' => 'products/ajax/?act=create_form',
-                                'form_id' => 'new_device_form'
-                            ), false) ?>
-                        <?php if ($is_modal): ?>
-                            <div id="new_device_form"
-                                 class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
-                        <?php endif; ?>
+                    <?= typeahead($this->all_configs['db'], 'goods-goods', false,
+                        $goods,
+                        (15 + $typeahead), 'input-xlarge exclude-form-validate',
+                        'input-medium exclude-form-validate', '', false, false, '', false,
+                        l('Введите'),
+                        array(
+                            //'name' => l('Добавить'), //заменил синюю добавить на серый +
+                            'name' => '<i class="glyphicon glyphicon-plus"></i>',
+                            'action' => 'products/ajax/?act=create_form',
+                            'form_id' => 'new_device_form'
+                        ), false) ?>
+                    <?php if ($is_modal): ?>
+                        <div id="new_device_form"
+                             class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -78,8 +78,7 @@
                             <span class="btn btn-sm btn-primary btn-add-good"
                                   onclick="return add_supplier_item_to_table();"
                                   title="<?= l('Добавить товар') ?>">
-<!--                                --><?//= l('Добавить товар') ?>
-                                <i class="glyphicon glyphicon-plus"></i>
+                                <?= l('Добавить товар') ?>
                             </span>
                 </td>
                 <td class="col-sm-2"></td>

@@ -217,15 +217,11 @@ table.show-suppliers-orders td input, table.show-suppliers-orders td a {
 }
 
 table.show-suppliers-orders {
-    font-size: 0.8em;
+    font-size: 0.8em !important;
 }
 
 table.show-suppliers-orders p {
     margin: 0;
-}
-
-table.show-suppliers-orders tr > td {
-    padding: 3px 5px;
 }
 
 .tab-content {
@@ -1110,9 +1106,9 @@ table.table-borderless tr td
     font-weight: bold;
     font-size: 0.8em;
 }
-.table-fs-12 >thead >tr{
-    text-align: center;
-}
+/*.table-fs-12 >thead >tr{*/
+    /*text-align: center;*/
+/*}*/
 .table-fs-12 >tbody >tr{
     font-size: 12px !important;
     max-height: 45px;
@@ -1243,4 +1239,101 @@ table.table-vpaddingless tr td.arrow{
 }
 .btn-timer {
     white-space: nowrap;
+}
+
+#right-sidebar {
+    background-color: #fff;
+    border-left: 1px solid #e4e5e7;
+    position: fixed;
+    top: 0;
+    width: 460px !important;
+    z-index: 1060;
+    bottom: 0;
+    right: 0;
+    display: none;
+    overflow-x: visible;
+    overflow-y: scroll;
+}
+
+#right-sidebar.sidebar-open {
+    display: block;
+}
+
+#right-sidebar .closebox {
+    margin-right: 20px;
+}
+
+#right-sidebar .hpanel {
+    margin-bottom: 0;
+}
+
+#right-sidebar .sidebar-heading {
+    padding: 10px;
+}
+
+#right-sidebar .panel-heading.hbuilt {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    cursor: pointer;
+}
+
+#right-sidebar .panel-collapse .panel-heading.hbuilt {
+
+    background-color: #f7f9fa;
+
+}
+
+#right-sidebar .panel-body{
+    border: none;
+    border-radius: 0;
+    padding: 10px;
+}
+
+#right-sidebar .panel-collapse .panel-body{
+    border-top: 1px solid #e4e5e7;
+}
+
+#right-sidebar .panel-collapse {
+    margin-bottom: 0;
+}
+
+#right-sidebar .panel-collapse {
+    margin-bottom: 0;
+}
+
+#right-sidebar .panel-body > .form-group{
+    margin-right: 60px;
+}
+
+
+.p-l-n {
+    padding-left: 0;
+}
+.p-r-n {
+    padding-right: 0;
+}
+
+#right-sidebar .item_btn {
+    width: 100px;
+    float: right;
+}
+
+#right-sidebar .img_delete {
+    cursor: pointer;
+    color: #B94A48;
+    position: absolute;
+    top: -10px;
+    right: 0;
+}
+
+#sidebar-product-form-submit {
+    background-color: #239aca;
+    border: none;
+    position: fixed;
+    bottom: 5px;
+    width: 100px;
+    right: 180px;
+    z-index: 1080;
 }

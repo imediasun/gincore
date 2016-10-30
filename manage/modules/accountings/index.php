@@ -343,7 +343,7 @@ class accountings extends Controller
             }
 
             if ($error != '') {
-                if ($ajax){
+                if ($ajax) {
                     Response::json([
                         'hasError' => true,
                         'error' => $error
@@ -2377,7 +2377,8 @@ class accountings extends Controller
                     );
                 }, array_keys($states), $states),
                 'userId' => $user_id,
-                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars()
+                'brands' => $this->all_configs['db']->query('SELECT id, title FROM {brands}')->vars(),
+                'wh_groups' => $this->all_configs['db']->query('SELECT id, `name` as title FROM {warehouses_groups}')->assoc()
             ));
 
             // прибыль и оборот
@@ -3058,7 +3059,10 @@ class accountings extends Controller
         $data['state'] = true;
         try {
             // права
-            if (!$this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            if (!$this->all_configs['oRole']->hasPrivilege('accounting')
+                && !$this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders')
+                && !$this->all_configs['oRole']->hasPrivilege('accounting-contractors')
+            ) {
                 throw  new ExceptionWithMsg(l('Нет прав'));
             }
 //            // статьи
@@ -3565,7 +3569,7 @@ class accountings extends Controller
             return '';
         }
         $users = $this->Users->query('
-            SELECT id, fio, salary_from_repair, salary_from_sale, use_fixed_payment, use_percent_from_profit 
+            SELECT id, fio, salary_from_repair, salary_from_sale, use_fixed_payment, use_percent_from_profit, login 
             FROM {users} 
             WHERE id in (?li) AND (salary_from_repair > 0 OR salary_from_sale > 0 OR use_fixed_payment > 0 OR use_percent_from_profit > 0)
         ', array($all))->assoc();
@@ -3575,7 +3579,14 @@ class accountings extends Controller
         if (!empty($users)) {
             foreach ($users as $user) {
                 foreach ($orders as $order) {
-                    if (!in_array($user['id'], array($order['manager'], $order['acceptor'], $order['engineer']))) {
+                    $engineers = $this->all_configs['db']->query('
+                    SELECT engineer
+                    FROM {orders_goods}
+                    WHERE order_id=?i AND NOT engineer IS NULL GROUP by engineer
+                    ', array($order['order_id']))->col();
+                    if (!in_array($user['id'],
+                        array_merge(array($order['manager'], $order['acceptor'], $order['engineer']), $engineers))
+                    ) {
                         continue;
                     }
                     if (!array_key_exists($user['id'], $detailed)) {
@@ -3738,8 +3749,19 @@ class accountings extends Controller
         $eng = array_filter(explode(',', $filters['eng']));
         if (array_key_exists('eng', $filters) && count($eng) > 0) {
             if (count($eng) > 1 || !in_array(-1, $eng)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
-                    array($query, $eng));
+                $orderIds = $this->all_configs['db']->query('
+                    SELECT order_id 
+                    FROM {orders_goods} as og
+                    JOIN {users} as u ON u.id=og.engineer
+                    WHERE engineer in (?li) AND (u.use_percent_from_profit=1 OR u.use_fixed_payment = 1)  
+                ', array($eng))->col();
+                if (empty($orderIds)) {
+                    $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
+                        array($query, $eng));
+                } else {
+                    $query = $this->all_configs['db']->makeQuery('?query AND (o.engineer IN (?li) OR o.id in (?li))',
+                        array($query, $eng, $orderIds));
+                }
             }
             if (in_array(-1, $eng)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IS NULL',
@@ -3825,6 +3847,10 @@ class accountings extends Controller
             $query = $this->all_configs['db']->makeQuery('?query AND o.brand_id in (?li)',
                 array($query, explode(',', $filters['brands'])));
         }
+        if (array_key_exists('whg', $filters) && count(array_filter(explode(',', $filters['whg']))) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND wha.group_id in (?li)',
+                array($query, array_filter(explode(',', $filters['whg']))));
+        }
         return $query;
     }
 
@@ -3850,6 +3876,7 @@ class accountings extends Controller
         $has_more_query = $this->all_configs['db']->makeQuery('
           SELECT o.id, count(*) as cnt
             FROM {orders} as o
+            LEFT JOIN {warehouses} as wha ON wha.id=o.accept_wh_id
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
             WHERE  t.type<>?i AND t.date_transaction NOT BETWEEN STR_TO_DATE(?, "%d.%m.%Y %H:%i:%s")
@@ -3866,6 +3893,7 @@ class accountings extends Controller
               SUM(IF(l.contractors_categories_id=2, 1, 0)) as has_return,
               hm.cnt as has_more
             FROM {orders} as o
+            LEFT JOIN {warehouses} as wha ON wha.id=o.accept_wh_id
             JOIN {categories} as cg ON cg.id=o.category_id
             JOIN {cashboxes_transactions} as t ON o.id=t.client_order_id
             JOIN (SELECT id, contractors_categories_id, contractors_id FROM {contractors_categories_links}) as l ON l.id=t.contractor_category_link
@@ -3883,7 +3911,7 @@ class accountings extends Controller
 
             $goods = array();
             $data = $this->all_configs['db']->query('
-                SELECT og.title, og.price, og.order_id, og.`type`, og.goods_id, og.id, og.count, g.percent_from_profit, g.fixed_payment, g.price_purchase
+                SELECT og.title, og.price, og.order_id, og.`type`, og.goods_id, og.id, og.count, g.percent_from_profit, g.fixed_payment, g.price_purchase, og.engineer
                 FROM {orders_goods} og 
                 JOIN {goods} g ON og.goods_id=g.id
                 WHERE order_id IN (?li)
@@ -4082,6 +4110,9 @@ class accountings extends Controller
         if (isset($post['brands']) && count($post['brands']) > 0) {
             $url['brands'] = implode(',', $post['brands']);
         }
+        if (isset($post['wh_groups']) && count($post['wh_groups']) > 0) {
+            $url['whg'] = implode(',', $post['wh_groups']);
+        }
 
         return $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
     }
@@ -4118,10 +4149,10 @@ class accountings extends Controller
     {
         switch (true) {
             case $user['use_fixed_payment']:
-                $profit = $this->calculateRepairProfitWith(MGoods::FIXED_PAYMENT, $order);
+                $profit = $this->calculateRepairProfitWith(MGoods::FIXED_PAYMENT, $order, $user);
                 break;
             case $user['use_percent_from_profit']:
-                $profit = $this->calculateRepairProfitWith(MGoods::PERCENT_FROM_PROFIT, $order);
+                $profit = $this->calculateRepairProfitWith(MGoods::PERCENT_FROM_PROFIT, $order, $user);
                 break;
             default:
                 $profit = array(
@@ -4151,7 +4182,7 @@ class accountings extends Controller
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
-                        'cost_price' => $good['price_purchase'] * $order['course_value']/100,
+                        'cost_price' => $order['purchase'],
                         'selling_price' => $good['price'],
                         'salary' => $payments['fixed_payment'],
                         'percent' => 0
@@ -4159,14 +4190,14 @@ class accountings extends Controller
                 }
             }
             if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = ($good['price'] - $good['price_purchase'] * $order['course_value']/100) * $payments['percent_from_profit'] / 100;
+                $value = ($good['price'] - $order['purchase']) * $payments['percent_from_profit'] / 100;
                 $profit['value'] += $good['count'] * $value;
 
                 for ($i = $good['count']; $i > 0; $i--) {
                     $profit['detailed'][] = array(
                         'order_id' => $order['order_id'],
                         'product' => $good['title'],
-                        'cost_price' => $good['price_purchase'] * $order['course_value']/100,
+                        'cost_price' => $order['purchase'],
                         'selling_price' => $good['price'],
                         'salary' => $value,
                         'percent' => $payments['percent_from_profit']
@@ -4180,42 +4211,45 @@ class accountings extends Controller
     /**
      * @param $with
      * @param $order
+     * @param $user
      * @return array
      */
-    private function calculateRepairProfitWith($with, $order)
+    private function calculateRepairProfitWith($with, $order, $user)
     {
         $profit = array(
             'value' => 0,
             'detailed' => array()
         );
         foreach ($order['services'] as $service) {
-            $payments = $this->Goods->getPayments($service['goods_id']);
-            if ($with == MGoods::FIXED_PAYMENT) {
-                $value = $service['count'] * $payments['fixed_payment'];
-                $profit['value'] += $value;
-                for ($i = $service['count']; $i > 0; $i--) {
-                    $profit['detailed'][] = array(
-                        'order_id' => $order['order_id'],
-                        'product' => $service['title'],
-                        'cost_price' => 0,
-                        'selling_price' => $service['price'],
-                        'salary' => $payments['fixed_payment'],
-                        'percent' => 0
-                    );
+            if ((empty($service['engineer']) && $user['id'] == $order['engineer']) || ($user['id'] == $service['engineer'])) {
+                $payments = $this->Goods->getPayments($service['goods_id']);
+                if ($with == MGoods::FIXED_PAYMENT) {
+                    $value = $service['count'] * $payments['fixed_payment'];
+                    $profit['value'] += $value;
+                    for ($i = $service['count']; $i > 0; $i--) {
+                        $profit['detailed'][] = array(
+                            'order_id' => $order['order_id'],
+                            'product' => $service['title'],
+                            'cost_price' => 0,
+                            'selling_price' => $service['price'],
+                            'salary' => $payments['fixed_payment'],
+                            'percent' => 0
+                        );
+                    }
                 }
-            }
-            if ($with == MGoods::PERCENT_FROM_PROFIT) {
-                $value = $service['price'] * $payments['percent_from_profit'] / 100;
-                $profit['value'] += $service['count'] * $value;
-                for ($i = $service['count']; $i > 0; $i--) {
-                    $profit['detailed'][] = array(
-                        'order_id' => $order['order_id'],
-                        'product' => $service['title'],
-                        'cost_price' => 0,
-                        'selling_price' => $service['price'],
-                        'salary' => $value,
-                        'percent' => $payments['percent_from_profit']
-                    );
+                if ($with == MGoods::PERCENT_FROM_PROFIT) {
+                    $value = $service['price'] * $payments['percent_from_profit'] / 100;
+                    $profit['value'] += $service['count'] * $value;
+                    for ($i = $service['count']; $i > 0; $i--) {
+                        $profit['detailed'][] = array(
+                            'order_id' => $order['order_id'],
+                            'product' => $service['title'],
+                            'cost_price' => 0,
+                            'selling_price' => $service['price'],
+                            'salary' => $value,
+                            'percent' => $payments['percent_from_profit']
+                        );
+                    }
                 }
             }
         }

@@ -353,3 +353,12 @@ ALTER TABLE `restore4_users` ADD COLUMN use_fixed_payment tinyint(1) UNSIGNED DE
 ALTER TABLE `restore4_goods` ADD COLUMN category_for_margin int(10) UNSIGNED DEFAULT 0;
 ALTER TABLE `restore4_goods` ADD INDEX goods_category_for_margin(category_for_margin);
 
+/*
+2016_10_24_123311_add_master_to_orders_goods.php
+ */
+ALTER TABLE `restore4_orders_goods` ADD COLUMN enginner int(10) UNSIGNED;
+ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_engineer(engineer);
+/*
+2016_10_28_191422_add_color_to_users.php
+ */
+ALTER TABLE `restore4_users` ADD COLUMN color varchar(10) DEFAULT '';

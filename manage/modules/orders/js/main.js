@@ -593,12 +593,7 @@ function add_new_order(_this, next, from) {
           window_open(msg['open_window']);
         }
         if (msg['location']) {
-          var cur_loc = window.location.pathname + window.location.search + window.location.hash;
-          if (msg['location'] == cur_loc) {
-            window.location.reload(true);
-          } else {
-            window.location.href = msg['location'];
-          }
+          window.location.href = msg['location'];
         }
       }
       $(_this).button('reset');
@@ -832,24 +827,24 @@ function bind_group_product(_this, product_id, order_id) {
       }
       if (msg['state'] == true && msg['html']) {
         buttons = {
-          ok: {
-            label: "Продолжить",
+          confirm: {
+            label: "Применить",
             className: "btn-primary",
             callback: function () {
-              window.location.reload();
               $(_this).button('reset');
+              $('#order-bind-items-form').trigger('submit');
+              return false;
             }
           },
-          main: {
+          cancel: {
             label: "Закрыть",
             className: "btn-primary",
             callback: function () {
-              window.location.reload();
               $(_this).button('reset');
             }
           }
         };
-        dialog_box(_this, msg.title || '', msg.html, buttons);
+        dialog_box(_this, msg.title || '', msg.html, buttons, null, 'order_bind_items_form');
       }
     },
     error: function (xhr, ajaxOptions, thrownError) {
@@ -941,7 +936,7 @@ function add_quick_item_to_table() {
     serial = $('input[name="serials"]').val(),
     rnd = parseInt(Math.random() * 1000);
 
-  if(id.length == 0) {
+  if (id.length == 0) {
     alert(L['serial_not_found'] || '{js_serial_not_found}');
   }
   if (cost == 0) {
@@ -1352,7 +1347,7 @@ function change_personal(_this, item_id, response, id) {
 }
 function show_engineer_comment(_this) {
   var title = $(_this).data('title');
-  if(title.length > 0) {
+  if (title.length > 0) {
     $('textarea[name="engineer_comment"]').html(title);
   }
   $('.js-comment').toggle();

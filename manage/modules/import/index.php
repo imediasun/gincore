@@ -21,6 +21,18 @@ class import extends Object
                 'exported' => 'импорт из файла с ранее экспортированными из Gincore товарами',
             )
         ),
+//        'categories' => array(
+//            'name' => 'Категории',
+//            'handlers' => array(
+//                'gincore' => 'из унифицированного формата category-parent-params',
+//            )
+//        ),
+        'categories_with_subs' => array(
+            'name' => 'Категории',
+            'handlers' => array(
+                'gincore' => 'в формате родитель-...-родитель-категория',
+            )
+        ),
         'items' => array(
             'name' => 'Товарная номенклатура',
             'handlers' => array(

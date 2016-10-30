@@ -1,4 +1,6 @@
 <h3><?= l('Создание нового заказа поставщику') ?></h3>
+<?= l('Сначала выберите и добавьте изделие, укажите цену и количество, затем нажмите Создать') ?>
+<br>
 <br>
 <form method="post" id="suppliers-order-form" style="position: relative">
     <?php if (empty($suppliers)): ?>
@@ -55,8 +57,8 @@
                                         <div class="input-group-btn">
                                             <button type="button" data-form_id="new_supplier_form"
                                                     data-action="accountings/ajax?act=create-contractor-form-no-modal"
-                                                    class="typeahead_add_form btn btn-info"
-                                                    data-id="supplier_creator"><?= l('Добавить') ?></button>
+                                                    class="typeahead_add_form btn btn-default"
+                                                    data-id="supplier_creator"><i class="glyphicon glyphicon-plus"></i></button>
                                         </div>
                                     </div>
                                     <?php if ($is_modal): ?>
@@ -100,14 +102,16 @@
             'goods' => $goods,
             'is_modal' => $is_modal
         )); ?>
-        <?= $this->renderFile('suppliers.class/_cart_items_table', array()); ?>
+        <?= $this->renderFile('suppliers.class/_new_order_cart_items_table', array(
+            'cart' => $cart
+        )); ?>
 
 
         <?php if ($all): ?>
             <div class="row-fluid">
                 <div class="col-sm-12 form-group">
                     <?php if (empty($order_id)): ?>
-                        <input id='js-create-button' type="button" class="btn submit-form-btn" style='display:none' onclick="create_supplier_order(this)"
+                        <input id='js-create-button' type="button" class="btn submit-form-btn" style='<?= empty($cart)?'display:none':'' ?>' onclick="create_supplier_order(this)"
                                value="<?= l('Создать') ?>"/>
                     <?php else: ?>
                         <input type="submit" class="btn btn-primary submit-from-btn" name="new-order"

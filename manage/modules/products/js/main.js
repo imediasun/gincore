@@ -90,8 +90,6 @@ function tiny_mce() {
 
 $(document).ready(function () {
 
-  $("#tree").Tree();
-
   $("#remove-search-info").click(function () {
     window.location = $(this).data('url');
   });
@@ -123,7 +121,9 @@ $(document).ready(function () {
     }
     return false;
   });
-
+  $(".js-select-all").change(function () {
+    $('.js-selected-item').prop('checked', this.checked);
+  });
 });
 
 function add_cat(_this, id) {
@@ -416,7 +416,6 @@ function update_context(_this, provider) {
 }
 function start_import_goods(_this) {
   var form_data = new FormData($('#import_form')[0]);
-  $(_this).button('loading');
   $('#upload_messages').empty();
   $.ajax({
     url: prefix + 'import/ajax/?act=import',
@@ -428,12 +427,10 @@ function start_import_goods(_this) {
     processData: false,
     success: function (data) {
       if (data.state) {
-
       }
       if (data.message) {
         $('#upload_messages').html(data.message);
       }
-      $(_this).button('reset');
     },
     error: function (xhr, ajaxOptions, thrownError) {
       alert(xhr.responseText);
@@ -448,4 +445,83 @@ function change_margin_type(_this, selector) {
     $('input[name="' + selector + '_type"]').val(1)
   }
   $('.js-' + selector + '-type').toggle();
+}
+function show_action_form(_this, action) {
+  var ids = [], buttons = {
+    success: {
+      label: "Применить",
+      className: "btn-success",
+      callback: function () {
+        $.ajax({
+          url: prefix + 'products/ajax?act=apply-action',
+          dataType: "json",
+          type: 'POST',
+          data: $('form#action-form').serialize(),
+          success: function (data) {
+            if (data.state && data.reload) {
+              window.location.reload();
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+      }
+    },
+    main: {
+      label: "Отменить",
+      className: "btn-primary",
+      callback: function () {
+      }
+    }
+  };
+  $.each($('input.js-selected-item:checkbox:checked'), function (index, value) {
+    ids.push($(value).data('id'));
+  });
+  $.ajax({
+    url: prefix + 'products/ajax?act=' + action + '&ids=' + ids.join('-'),
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true && ! $('*').is('.medium-dialog')) {
+          dialog_box(this, data['title'], data['content'], buttons, null, 'medium-dialog');
+          $('#action-form .multiselect').multiselect(multiselect_options);
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+}
+
+function open_links(id) {
+  $.ajax({
+    url: prefix + 'products/ajax?act=get-supplier-links&id=' + id,
+    dataType: "json",
+    type: 'GET',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          $.each(data['links'], function(id, value) {
+            window.open(value, '_blank');
+          });
+        }
+        if (data['state'] == false && data['message']) {
+          alert(data['message']);
+        }
+      }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+  return false;
+
 }

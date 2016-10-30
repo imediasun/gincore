@@ -30,9 +30,11 @@
                 </td>
                 <td><?= $this->all_configs['suppliers_orders']->supplier_order_number($order) ?></td>
                 <td>
-                    <a class="hash_link" title="<?= $order['secret_title'] ?>"
-                       href="<?= $this->all_configs['prefix'] ?>products/create/<?= $order['goods_id'] ?>">
-                        <?= $order['goods_title'] ?>
+                    <a title="<?= $order['secret_title'] ?>"
+                       href="<?= $this->all_configs['prefix'] ?>products/create/<?= $order['goods_id'] ?>"
+                       data-action="sidebar_product" data-id_product="<?= $order['goods_id'] ?>">
+                        <span class="visible-lg"><?= cut_string($order['goods_title'], 20) ?></span>
+                        <span class="hidden-lg"><?= cut_string($order['goods_title'], 10) ?></span>
                     </a>
                 </td>
                 <td><?= $order['count'] ?></td>

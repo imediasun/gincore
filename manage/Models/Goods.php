@@ -98,6 +98,12 @@ class MGoods extends AModel
         );
     }
 
+
+    public static function isExistByTitle(\go\DB\DB $db_instance, $title)
+    {
+        return $db_instance->query('SELECT count(*) FROM {goods} WHERE title=?string',
+            array($title))->el();
+    }
     /**
      * @return array
      */

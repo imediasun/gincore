@@ -20,7 +20,8 @@
                 <input type="hidden" name="id" value="<?= $order['order_id'] ?>"/>
             </form>
         <?php else: ?>
-            <?= get_user_name($order, 'h_') ?>
+            <span class="visible-lg"><?= cut_string(get_user_name($order, 'h_'), 20) ?></span>
+            <span class="hidden-lg"><?= cut_string(get_user_name($order, 'h_'), 10) ?></span>
         <?php endif; ?>
     </td>
     <td style="color:green" class="center"><?= $order['cashless'] ? l('Безнал') : l('Нал') ?></td>
@@ -58,7 +59,10 @@
         <?= ($order['sum'] / 100) ?>
     </td>
     <td class='center'><?= ($order['sum_paid'] / 100) ?></td>
-    <td><?= h($order['o_fio']) ?></td>
+    <td>
+        <span class="visible-lg"><?= cut_string($order['o_fio'], 20) ?></span>
+        <span class="hidden-lg"><?= cut_string($order['o_fio'], 10) ?></span>
+    </td>
     <td>
         <?php if ($this->all_configs['configs']['can_see_client_infos']): ?>
             <?= $order['o_phone'] ?>
