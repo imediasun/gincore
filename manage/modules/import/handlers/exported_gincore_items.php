@@ -27,6 +27,7 @@ class exported_gincore_items extends abstract_gincore_import_provider
             'fixed_payment' => lq('Фиксированная оплата'),
             'balance' => lq('Уведомлять меня об остатке'),
             'minimum_balance' => lq('Неснижаемый остаток'),
+            'use_automargin' => lq('Использовать автонаценку'),
             'automargin' => lq('Автонаценка розница'),
             'automargin_type' => lq('В валюте (р)'),
             'wholesale_automargin' => lq('Автонаценка опт'),

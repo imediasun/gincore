@@ -173,6 +173,10 @@ class import_gincore_items extends abstract_import_handler
             if (strpos($field, 'price') !== false || strpos($field, 'fixed_payment') !== false) {
                 $value *= 100;
             }
+
+            if (strpos($field, 'use_automargin') !== false) {
+                $value = (int) (strpos(strtoupper($value), strtoupper(lq('Да'))) !== false);
+            }
             if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
                 $value = (int) (strpos(strtoupper($value), strtoupper(lq('Нет'))) !== false);
             }

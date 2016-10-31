@@ -41,6 +41,7 @@ function product_exports_form($all_configs)
         array('label' => lq('Фиксированная оплата'), 'name' => 'fixed_payment'),
         array('label' => lq('Уведомлять меня об остатке'), 'name' => 'notify_by_balance'),
         array('label' => lq('Неснижаемый остаток'), 'name' => 'minimum_balance'),
+        array('label' => lq('Использовать автонаценку'), 'name' => 'use_automargin'),
         array('label' => lq('Автонаценка розница'), 'name' => 'automargin'),
         array('label' => lq('В валюте (р)'), 'name' => 'automargin_type'),
         array('label' => lq('Автонаценка опт'), 'name' => 'wholesale_automargin'),
@@ -125,6 +126,9 @@ function exports_goods($all_configs, $ids)
 
     if (isset($_GET['use_minimum_balance']) && $_GET['minimum_balance'] == 1) {
         $select[] = 'g.minimum_balance as `' . lq('Неснижаемый остаток') . '`';
+    }
+    if (isset($_GET['use_automargin']) && $_GET['use_automargin'] == 1) {
+        $select[] = 'IF(g.use_automargin=1,"' . lq('Да') . '","' . lq('Нет') . '") as `' . lq('Использовать автонаценку') . '`';
     }
 
     if (isset($_GET['automargin']) && $_GET['automargin'] == 1) {
