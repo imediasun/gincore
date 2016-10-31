@@ -31,19 +31,9 @@ class exported_gincore_items extends abstract_gincore_import_provider
             'automargin_type' => lq('В валюте (р)'),
             'wholesale_automargin' => lq('Автонаценка опт'),
             'wholesale_automargin_type' => lq('В валюте (о)'),
-//            'manager' => l('manager')
+            'manager' => l('manager')
         );
 
-        $arr_additional = array(
-            array('label' => lq('% от прибыли'), 'name' => 'percent_from_profit'),
-            array('label' => lq('Фиксированная оплата'), 'name' => 'fixed_payment'),
-            array('label' => lq('Уведомлять меня об остатке'), 'name' => 'notify_by_balance'),
-            array('label' => lq('Неснижаемый остаток'), 'name' => 'minimum_balance'),
-            array('label' => lq('Автонаценка розница'), 'name' => 'automargin'),
-            array('label' => lq('Автонаценка опт'), 'name' => 'wholesale_automargin'),
-        );
-
-        
         $this->categories = db()->query('select id, title from {categories}', array())->assoc('title');
         $this->managers = db()->query('select id, fio, login, email from {users}', array())->assoc('id');
     }
