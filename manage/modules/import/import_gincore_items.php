@@ -98,7 +98,7 @@ class import_gincore_items extends abstract_import_handler
         try {
             $query = '';
             foreach ($data as $field => $value) {
-                if ($field != 'category' && $field != 'balance') {
+                if ($field != 'category' && $field != 'balance' && $field != 'manager') {
                     if (empty($query)) {
                         $query = db()->makeQuery('?q=?', array($field, $value));
                     } else {
@@ -115,6 +115,13 @@ class import_gincore_items extends abstract_import_handler
                     $id
                 ));
                 $this->addToLog($this->userId, 'update-goods', $modId, $id);
+            }
+
+            if (isset($data['manager'])) {
+                $this->all_configs['db']->query('UPDATE {users_goods_manager} SET user_id=?i WHERE goods_id=?i', array(
+                    $data['manager'],
+                    $id
+                ));
             }
 
             if (isset($data['balance'])) {

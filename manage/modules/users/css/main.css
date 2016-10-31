@@ -39,3 +39,12 @@
     overflow: auto;
     max-height: 400px;
 }
+
+.error-msg {
+    display: none;
+    color: red;
+}
+
+.upload_avatar_btn {
+    cursor: pointer;
+}

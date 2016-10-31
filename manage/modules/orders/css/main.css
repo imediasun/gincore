@@ -463,6 +463,7 @@ td.td-sc-count {
     border: 1px solid #DDDDDD;
     padding: 5px 10px;
     text-align: center;
+    cursor: pointer;
 }
 
 .red-blink {

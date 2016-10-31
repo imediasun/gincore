@@ -1,4 +1,5 @@
 var avatar_uploader = null;
+var user_exist_by = {'login' : false, 'email' : false};
 function create_avatar_uploader(){
     var $fileuploader = $('#fileuploader');
     if($fileuploader.length){
@@ -36,18 +37,19 @@ function create_avatar_uploader(){
 }
 
 
+
 function add_user_validation() {
     loginInput = document.querySelector('input[name="login"]');
     passwordInput = document.querySelector('input[name="pass"]');
     emailInput = document.querySelector('input[name="email"]');
 
-    if($.trim(loginInput.value) == '') {
+    if($.trim(loginInput.value) == '' || user_exist_by.login) {
         loginInput.style.background = '#F2DEDE';
     } else {
         loginInput.style.background = 'white';
     }
 
-    if($.trim(emailInput.value) == '') {
+    if($.trim(emailInput.value) == '' || user_exist_by.email) {
         emailInput.style.background = '#F2DEDE';
     } else {
         emailInput.style.background = 'white';
@@ -59,10 +61,44 @@ function add_user_validation() {
         passwordInput.style.background = 'white';
     }
 
-    if($.trim(loginInput.value) == '' || $.trim(passwordInput.value) == '' || $.trim(emailInput.value) == '') {
-        document.documentElement.scrollTop = 0;
+    if($.trim(loginInput.value) == '' || $.trim(passwordInput.value) == '' || $.trim(emailInput.value) == ''
+        || user_exist_by.email || user_exist_by.login) {
+        window.scrollTo(0, 0);
         return false;
     }
+
+    return true;
+}
+
+function add_user_check_existance(field, query, elem) {
+    var is_exist;
+    $.ajax({
+        url: prefix + module + '/ajax/?act=find-user-by-field&field=' + field + '&query=' + query,
+        async: false,
+        cache: false,
+        type: 'GET',
+        success: function(msg) {
+            if (msg.state == false && msg.message) {
+                alert(msg.message);
+            }
+            if(msg.state == true) {
+                if (msg.exists){
+                    is_exist = true;
+                    elem.style.background = '#F2DEDE';
+                    $(elem).parent().find('.error-msg').html(msg.message).show();
+                } else {
+                    is_exist = false;
+                    elem.style.background = 'white';
+                    $(elem).parent().find('.error-msg').html('').hide();
+                }
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+        }
+    });
+
+    return is_exist;
 }
 
 function click_by_block(_this) {
@@ -97,6 +133,21 @@ function click_by_block(_this) {
 }
 
 $(function(){
+
+    $('#form-create-user-submit').live('click', function(e){
+        if (!add_user_validation())
+            e.preventDefault();
+    });
+
+    $('#create_tab_user input[name="login"]').live('blur', function(e){
+        user_exist_by.login =  add_user_check_existance('login', this.value, this);
+    });
+
+    $('#create_tab_user input[name="email"]').live('blur', function(e){
+        user_exist_by.email =  add_user_check_existance('email', this.value, this);
+    });
+
+
     $('.datepicker').datepicker();
 
     $('.js-block-by-tariff').on('click', function(){
