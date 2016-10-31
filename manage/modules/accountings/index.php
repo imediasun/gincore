@@ -3724,7 +3724,7 @@ class accountings extends Controller
         // фильтр по менеджерам
         $mg = array_filter(explode(',', $filters['mg']));
         if (array_key_exists('mg', $filters) && count($mg) > 0) {
-            if (count($mg) > 1 || !in_array(-1, $mg)) {
+            if (count($mg) > 1 && !in_array(-1, $mg)) {
                 $query = $this->all_configs['db']->makeQuery('?query AND o.manager IN (?li)',
                     array($query, $mg));
             }
@@ -3753,7 +3753,7 @@ class accountings extends Controller
                     SELECT order_id 
                     FROM {orders_goods} as og
                     JOIN {users} as u ON u.id=og.engineer
-                    WHERE engineer in (?li) AND (u.use_percent_from_profit=1 OR u.use_fixed_payment = 1)  
+                    WHERE engineer in (?li)  
                 ', array($eng))->col();
                 if (empty($orderIds)) {
                     $query = $this->all_configs['db']->makeQuery('?query AND o.engineer IN (?li)',
