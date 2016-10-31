@@ -123,3 +123,12 @@
         <?php endif; ?>
     </div>
 </div>
+
+<script type="text/javascript">
+    var sidebar_open_product = <?= $sidebar_open_product ?>;
+    $(function () {
+        if (sidebar_open_product) {
+            rightSidebar.load_product(parseInt(sidebar_open_product));
+        }
+    });
+</script>
