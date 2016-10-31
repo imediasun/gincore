@@ -11,6 +11,7 @@ class gincore_clients extends abstract_import_provider
         2 => 'phone',
         3 => 'email',
         4 => 'legal_address',
+        5 => 'person'
     );
 
     public function __construct()
@@ -58,6 +59,17 @@ class gincore_clients extends abstract_import_provider
     public function get_email($data)
     {
         return $data[3];
+    }
+
+    /**
+     * @param $data
+     * @return int
+     */
+    public function get_person($data)
+    {
+        $type = (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[5] : iconv('cp1251', 'utf8',
+            trim($data[9]));
+        return strcmp(strtoupper(trim($type)), strtoupper(lq('Да'))) === 0 ? CLIENT_IS_PERSONAL : CLIENT_IS_LEGAL;
     }
 
     /**

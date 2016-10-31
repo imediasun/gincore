@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/abstract_import_handler.php';
+require_once __DIR__ . '/abstract_import_handler.php';
 
 class import_clients extends abstract_import_handler
 {
@@ -42,8 +42,9 @@ class import_clients extends abstract_import_handler
                 $fio = import_helper::remove_whitespace($this->provider->get_fio($row));
                 $email = import_helper::remove_whitespace($this->provider->get_email($row));
                 $address = import_helper::remove_whitespace($this->provider->get_address($row));
-                $contractor_id = import_helper::remove_whitespace($this->provider->get_contractor_id($row));;
-                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num, $contractor_id);
+                $contractor_id = import_helper::remove_whitespace($this->provider->get_contractor_id($row));
+                $person = import_helper::remove_whitespace($this->provider->get_person($row));
+                $results[] = $this->process_client_data($phones, $fio, $email, $address, $num, $contractor_id, $person);
                 $num++;
             }
         }
@@ -54,16 +55,24 @@ class import_clients extends abstract_import_handler
     }
 
     /**
-     * @param $phones
-     * @param $fio
-     * @param $email
-     * @param $address
-     * @param $num
-     * @param $contractor_id
+     * @param     $phones
+     * @param     $fio
+     * @param     $email
+     * @param     $address
+     * @param     $num
+     * @param     $contractor_id
+     * @param int $person
      * @return array
      */
-    private function process_client_data($phones, $fio, $email, $address, $num, $contractor_id)
-    {
+    private function process_client_data(
+        $phones,
+        $fio,
+        $email,
+        $address,
+        $num,
+        $contractor_id,
+        $person = CLIENT_IS_PERSONAL
+    ) {
         $errors = array();
         $error_type = 0;
         if (!$phones) {
@@ -75,7 +84,7 @@ class import_clients extends abstract_import_handler
         if (!$errors) {
             // берем первый телефон как основной
             $phone = $phones[0];
-            $create = $this->create_client($phone, $fio, $email, $address, $contractor_id);
+            $create = $this->create_client($phone, $fio, $email, $address, $contractor_id, $person);
             if (!$create['state']) {
                 $errors[] = $create['message'];
             } else {
@@ -111,10 +120,17 @@ class import_clients extends abstract_import_handler
      * @param        $client_email
      * @param        $client_address
      * @param string $contractor_id
+     * @param int    $person
      * @return array
      */
-    private function create_client($client_phone, $client_fio, $client_email, $client_address, $contractor_id='')
-    {
+    private function create_client(
+        $client_phone,
+        $client_fio,
+        $client_email,
+        $client_address,
+        $contractor_id = '',
+        $person = CLIENT_IS_PERSONAL
+    ) {
         $state_type = 0;
         $phone_part = substr(import_helper::clear_phone($client_phone), -9);
         $find_client = db()->query("SELECT client_id FROM {clients_phones} WHERE phone LIKE '%?e'", array(
@@ -128,7 +144,8 @@ class import_clients extends abstract_import_handler
                 'phone' => $client_phone,
                 'fio' => $client_fio,
                 'legal_address' => $client_address,
-                'contractor_id' => $contractor_id
+                'contractor_id' => $contractor_id,
+                'person' => $person
             ), false);
             if ($data['id'] > 0) {
                 $client_id = $data['id'];
@@ -172,12 +189,12 @@ class import_clients extends abstract_import_handler
     public function example()
     {
         $data = db()->query('
-            SELECT c.fio, cn.title, c.phone, c.email, c.legal_address
+            SELECT c.fio, cn.title, c.phone, c.email, c.legal_address, if(c.person,?,?)
             FROM {clients} as c 
             JOIN {contractors} as cn ON cn.id=c.contractor_id
             ORDER by c.id DESC
             LIMIT 2
-        ')->assoc();
+        ', array(lq('Да'), lq('Нет')))->assoc();
         return $this->provider->example($data);
     }
 }

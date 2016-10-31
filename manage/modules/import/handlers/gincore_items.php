@@ -115,7 +115,7 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
     {
         $type = (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[9] : iconv('cp1251', 'utf8',
             trim($data[9]));
-        return strcmp(trim($type), lq('Да')) === 0 ? GOODS_TYPE_SERVICE : GOODS_TYPE_ITEM;
+        return strcmp(strtoupper(trim($type)), strtoupper(lq('Да'))) === 0 ? GOODS_TYPE_SERVICE : GOODS_TYPE_ITEM;
     }
 
     /**

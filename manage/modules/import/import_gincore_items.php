@@ -167,7 +167,7 @@ class import_gincore_items extends abstract_import_handler
                 $value *= 100;
             }
             if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
-                $value = (int) (strpos($value, lq('Нет')) !== false);
+                $value = (int) (strpos(strtoupper($value), strtoupper(lq('Нет'))) !== false);
             }
 
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
