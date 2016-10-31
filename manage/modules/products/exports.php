@@ -139,7 +139,7 @@ function exports_goods($all_configs, $ids)
     }
 
     if (isset($_GET['wholesale_automargin_type']) && $_GET['wholesale_automargin_type'] == 1) {
-        $select[] = 'IF(g.wholesale_automargin_type=1,"' . lq('Нет') . '","' . lq('Да') . '") as `' . lq('В валюте (o)') . '`';
+        $select[] = 'IF(g.wholesale_automargin_type=1,"' . lq('Нет') . '","' . lq('Да') . '") as `' . lq('В валюте') . '`';
     }
 
     if (isset($_GET['notify_by_balance']) && $_GET['notify_by_balance'] == 1) {

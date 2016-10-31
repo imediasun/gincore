@@ -30,7 +30,7 @@ class exported_gincore_items extends abstract_gincore_import_provider
             'automargin' => lq('Автонаценка розница'),
             'automargin_type' => lq('В валюте (р)'),
             'wholesale_automargin' => lq('Автонаценка опт'),
-            'wholesale_automargin_type' => lq('В валюте (о)'),
+            'wholesale_automargin_type' => lq('В валюте'),
 //            'manager' => l('manager')
         );
 
