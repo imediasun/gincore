@@ -28,22 +28,20 @@
 
             <tr class="row-item">
                 <td class="col-sm-4">
-                    <?php if (!empty($goods)): ?>
-                        <?= typeahead($this->all_configs['db'], 'goods-goods', false,
-                            $goods,
-                            (15 + $typeahead), 'input-xlarge exclude-form-validate',
-                            'input-medium exclude-form-validate', '', false, false, '', false,
-                            l('Введите'),
-                            array(
-                                //'name' => l('Добавить'), //заменил синюю добавить на серый +
-                                'name' => '<i class="glyphicon glyphicon-plus"></i>',
-                                'action' => 'products/ajax/?act=create_form',
-                                'form_id' => 'new_device_form'
-                            ), false) ?>
-                        <?php if ($is_modal): ?>
-                            <div id="new_device_form"
-                                 class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
-                        <?php endif; ?>
+                    <?= typeahead($this->all_configs['db'], 'goods-goods', false,
+                        $goods,
+                        (15 + $typeahead), 'input-xlarge exclude-form-validate',
+                        'input-medium exclude-form-validate', '', false, false, '', false,
+                        l('Введите'),
+                        array(
+                            //'name' => l('Добавить'), //заменил синюю добавить на серый +
+                            'name' => '<i class="glyphicon glyphicon-plus"></i>',
+                            'action' => 'products/ajax/?act=create_form',
+                            'form_id' => 'new_device_form'
+                        ), false) ?>
+                    <?php if ($is_modal): ?>
+                        <div id="new_device_form"
+                             class="typeahead_add_form_box theme_bg new_device_form p-md"></div>
                     <?php endif; ?>
                 </td>
                 <td class="col-sm-1">
