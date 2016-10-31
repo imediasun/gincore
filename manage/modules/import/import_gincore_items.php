@@ -174,21 +174,22 @@ class import_gincore_items extends abstract_import_handler
                 $value *= 100;
             }
             if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
-                $value = (int) strpos($value, lq('Нет')) !== false;
+                $value = (int) (strpos($value, lq('Нет')) !== false);
             }
 
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
                 $value = $this->createCategory($this->provider->getColValue('category', $row));
             }
+
             if ($value !== false && $good[$field] != $value) {
                 $data[$field] = $value;
             }
         }
 
-        if($data['automargin_type'] == 0) {
+        if(isset($data['automargin_type']) && $data['automargin_type'] == 0) {
             $data['automargin'] *= 100;
         }
-        if($data['wholesale_automargin_type'] == 0) {
+        if(isset($data['wholesale_automargin_type']) && $data['wholesale_automargin_type'] == 0) {
             $data['wholesale_automargin'] *= 100;
         }
         return $data;
