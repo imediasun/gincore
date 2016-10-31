@@ -687,7 +687,7 @@ class accountings extends Controller
                     $currencies_html .= "<div class='checkbox'><label><input class='checkbox-cashbox-currency' value='{$currency['currency']}' name='cashbox_currency[]' type='checkbox' /> {$currency['name']}</label></div>";
                 }
             }
-            $btn = "<input type='submit' class='btn btn-success' name='cashbox-add' value='" . l('Создать') . "' />";
+            $hidden = "<input type='hidden' name='cashbox-add' value='" . l('Создать') . "' />";
             $title = '';
         }
 
@@ -708,7 +708,8 @@ class accountings extends Controller
             $readonly = 'readonly';
         }
         $cashbox_form = "
-            <form method='POST' style='max-width:300px'>
+            <form method='POST' id='cashbox-form' style='max-width:300px'>
+            ". $hidden ."
                 <div class='form-group'><label>" . l('Название') . ": </label>
                     <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' {$readonly} />
                 </div>
@@ -716,7 +717,6 @@ class accountings extends Controller
                     <label>" . l('Используемые валюты') . ": " . InfoPopover::getInstance()->createQuestion('l_cashbox_currencies_info') . "</label>
                     {$currencies_html}
                 </div>
-                <div class='form-group'>{$btn}</div>
             </form>
         ";
         if ($wrap_accordion) {
@@ -1113,7 +1113,7 @@ class accountings extends Controller
             $data['state'] = true;
             $data['content'] = $this->form_cashbox($this->cashboxes_courses(), null, 1, false);
             $data['functions'] = array('reset_multiselect()');
-            $data['btns'] = false;
+            $data['btns'] = "<input type='button' class='btn btn-success' onclick='cashbox_submit()' value='" . l('Создать') . "' />";
         }
 
         if ($act == 'create-contractor-form-no-modal') {
