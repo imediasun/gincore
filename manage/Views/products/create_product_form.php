@@ -124,9 +124,9 @@
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6 col-sm-4">
-                            <div class="col-md-offset-3 col-md-6">
+                            <div class="col-md-offset-3 col-md-6 center">
 
-                                <h1 class="center"><i class="glyphicon glyphicon-warning-sign"></i></h1>
+                                <h1 class=""><i class="glyphicon glyphicon-warning-sign"></i></h1>
                                 <p>
                                     <?= l('Здесь Вы можете добавить товарную номенклатуру (название для товара).') ?>
                                     <?= l('Добавление товарных остатков (приходование товара на склад) производится через раздел Склады-Заказы.') ?>
