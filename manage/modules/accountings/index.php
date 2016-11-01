@@ -752,7 +752,11 @@ class accountings extends Controller
             return '<p class="text-error">' . l('Сперва нужно добавить статью.') . '</p>';
         }
 
-        $out = $name = $comment = '';
+        $out = $client_id = $name = $comment = '';
+        if (isset($_POST['client_id'])) {
+            $client_id = $_POST['client_id'];
+            $name = $_POST['fio'];
+        }
         if ($contractor) {
             $name = htmlspecialchars($contractor['name']);
             $comment = htmlspecialchars($contractor['comment']);
@@ -780,6 +784,7 @@ class accountings extends Controller
                         $cats_2) . ']" value="' . $c_id . '">' . $c_name . '</option>';
             }
             $out .= '</select></div>';
+            $client_id ? $out .= '<input type="hidden" name="client_id" value="'.$client_id.'">' : '';
             $out .= '<label>' . l('Укажите статьи расходов для контрагента') . ' <small>(' . l('за что мы платим контрагенту') . ')</small>: </label>';
             $out .= '<div id="add_category_to_' . ($contractor ? $contractor['id'] : 0) . '">';
             $out .= '<select class="multiselect input-small" data-type="categories_1" multiple="multiple" name="contractor_categories_id[]">';
@@ -3102,28 +3107,30 @@ class accountings extends Controller
             }
             $this->History->save('add-contractor', $mod_id, $contractor_id);
 
-            // создаем клиента для контрагента
-            //email проверяется чуть выше
-            $email = isset($_POST['email']) && filter_var($_POST['email'],
-                FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
-            if ($phone || $email) {
-                $exists_client = $access->get_client($email, $phone, true);
-                if ($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i",
-                        array($exists_client['id']), 'el')
-                ) {
-                    // привязываем к существующему если к нему не привязан контрагент
-                    $this->Clients->update(array('contractor_id' => $contractor_id),
-                        array($this->Clients->pk() => $exists_client['id']));
-                } else {
-                    // создаем клиента и привязываем
-                    $result = $access->registration(array(
-                        'email' => $email,
-                        'phone' => $phone[0],
-                        'fio' => $_POST['title']
-                    ));
-                    if ($result['new']) {
+            // создаем клиента для контрагента если нужно
+            if (!isset($_POST['client_id'])) {
+                //email проверяется чуть выше
+                $email = isset($_POST['email']) && filter_var($_POST['email'],
+                    FILTER_VALIDATE_EMAIL) ? $_POST['email'] : '';
+                if ($phone || $email) {
+                    $exists_client = $access->get_client($email, $phone, true);
+                    if ($exists_client && !$this->all_configs['db']->query("SELECT contractor_id FROM {clients} WHERE id = ?i",
+                            array($exists_client['id']), 'el')
+                    ) {
+                        // привязываем к существующему если к нему не привязан контрагент
                         $this->Clients->update(array('contractor_id' => $contractor_id),
-                            array($this->Clients->pk() => $result['id']));
+                            array($this->Clients->pk() => $exists_client['id']));
+                    } else {
+                        // создаем клиента и привязываем
+                        $result = $access->registration(array(
+                            'email' => $email,
+                            'phone' => $phone[0],
+                            'fio' => $_POST['title']
+                        ));
+                        if ($result['new']) {
+                            $this->Clients->update(array('contractor_id' => $contractor_id),
+                                array($this->Clients->pk() => $result['id']));
+                        }
                     }
                 }
             }

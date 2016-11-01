@@ -6,6 +6,12 @@ $(function () {
   });
 });
 
+function add_contractor_from_client_form(_this) {
+  var fio = $('input[name=fio]').val();
+  var client_id = $('input[name=client_id]').val();
+  alert_box(_this, false, 'create-contractor-form', {callback: 'contractor_add_callback', from_client_form: true, client_id: client_id, fio: fio}, null, 'accountings/ajax');
+}
+
 function confirm_parse_comment(id, avail) {
 
   jQuery.ajax({
