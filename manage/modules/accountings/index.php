@@ -709,7 +709,7 @@ class accountings extends Controller
         }
         $cashbox_form = "
             <form method='POST' id='cashbox-form' style='max-width:300px'>
-            ". $hidden ."
+            " . $hidden . "
                 <div class='form-group'><label>" . l('Название') . ": </label>
                     <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' {$readonly} />
                 </div>
@@ -3598,20 +3598,22 @@ class accountings extends Controller
                         }
                         $profit = $this->calculateSaleProfit($order, $user);
                         $saleProfit[$user['id']] += $profit['value'];
-                        if (!empty($profit['detailed'])) {
-                            $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
-                        }
 
                     }
                     if ($order['order_type'] == ORDER_REPAIR) {
                         if (!isset($repairProfit[$user['id']])) {
                             $repairProfit[$user['id']] = 0;
                         }
-                        $profit = $this->calculateRepairProfit($order, $user);
-                        $repairProfit[$user['id']] += $profit['value'];
-                        if (!empty($profit['detailed'])) {
-                            $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
+                        if (in_array($user['id'], array($order['manager'], $order['acceptor']))) {
+                            $profit = $this->calculateSaleProfit($order, $user);
+                            $saleProfit[$user['id']] += $profit['value'];
+                        } else {
+                            $profit = $this->calculateRepairProfit($order, $user);
+                            $repairProfit[$user['id']] += $profit['value'];
                         }
+                    }
+                    if (!empty($profit['detailed'])) {
+                        $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
                     }
                 }
             }
