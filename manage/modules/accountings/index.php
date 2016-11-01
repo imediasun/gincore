@@ -4218,7 +4218,10 @@ class accountings extends Controller
             'detailed' => array()
         );
         foreach ($order['services'] as $service) {
-            if ((empty($service['engineer']) && $user['id'] == $order['engineer']) || ($user['id'] == $service['engineer'])) {
+            if ((empty($service['engineer']) && $user['id'] == $order['engineer'])
+                || ($user['id'] == $service['engineer'])
+                || in_array($user['id'], array($order['manager'], $order['accept']))
+            ) {
                 $payments = $this->Goods->getPayments($service['goods_id']);
                 if ($with == MGoods::FIXED_PAYMENT) {
                     $value = $service['count'] * $payments['fixed_payment'];
