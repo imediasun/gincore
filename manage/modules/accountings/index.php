@@ -3604,13 +3604,8 @@ class accountings extends Controller
                         if (!isset($repairProfit[$user['id']])) {
                             $repairProfit[$user['id']] = 0;
                         }
-                        if (in_array($user['id'], array($order['manager'], $order['acceptor']))) {
-                            $profit = $this->calculateSaleProfit($order, $user);
-                            $saleProfit[$user['id']] += $profit['value'];
-                        } else {
-                            $profit = $this->calculateRepairProfit($order, $user);
-                            $repairProfit[$user['id']] += $profit['value'];
-                        }
+                        $profit = $this->calculateRepairProfit($order, $user);
+                        $repairProfit[$user['id']] += $profit['value'];
                     }
                     if (!empty($profit['detailed'])) {
                         $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
