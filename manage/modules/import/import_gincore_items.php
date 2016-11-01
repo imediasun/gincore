@@ -104,6 +104,10 @@ class import_gincore_items extends abstract_import_handler
                     } else {
                         $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
                     }
+                    
+                    if ($field == 'minimum_balance'){
+                        $query = db()->makeQuery('?q, ?q=?', array($query, 'use_minimum_balance', !empty($value)));
+                    }
                 } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
                 }
@@ -183,6 +187,10 @@ class import_gincore_items extends abstract_import_handler
 
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
                 $value = $this->createCategory($this->provider->getColValue('category', $row));
+            }
+
+            if (strpos($field, 'minimum_balance') !== false && $value === false) {
+                $value = 0;
             }
 
             if ($value !== false && $good[$field] != $value) {

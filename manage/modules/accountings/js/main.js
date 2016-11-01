@@ -6,6 +6,8 @@
 
 $(function () {
 
+
+
     $('table.table-reports tbody td:not(:first-child)')
         .live('mouseleave', function () {
             $('table.table-reports td.is_hover').removeClass('is_hover');
@@ -66,6 +68,10 @@ $(function () {
     });
 
 });
+
+function cashbox_submit() {
+    $('#cashbox-form')[0].submit();
+};
 
 function toggle_report_cashflow(_this, e, p) {
     e.preventDefault();

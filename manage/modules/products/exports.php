@@ -124,7 +124,7 @@ function exports_goods($all_configs, $ids)
         $select[] = 'g.fixed_payment as `' . lq('Фиксированная оплата') . '`';
     }
 
-    if (isset($_GET['use_minimum_balance']) && $_GET['minimum_balance'] == 1) {
+    if (isset($_GET['minimum_balance']) && $_GET['minimum_balance'] == 1) {
         $select[] = 'g.minimum_balance as `' . lq('Неснижаемый остаток') . '`';
     }
     if (isset($_GET['use_automargin']) && $_GET['use_automargin'] == 1) {

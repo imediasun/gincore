@@ -760,6 +760,11 @@ class products extends Controller
     {
         $mod_id = $this->all_configs['configs']['products-manage-page'];
         $warranties = $this->all_configs['configs']['warranties'];
+        $sidebar_open_product = null;
+
+        if (isset($_GET['sidebar_open_product'])) {
+            $sidebar_open_product = (int)$_GET['sidebar_open_product'];
+        }
 
 
         if (isset($_GET['delete-all'])) {
@@ -854,7 +859,8 @@ class products extends Controller
             'isEditable' => isset($_GET['edit']) && $this->all_configs['oRole']->hasPrivilege('edit-goods'),
             'filters' => $this->filters($_GET),
             'columns' => $columns,
-            'item_in_cart' => $this->getItemInCart()
+            'item_in_cart' => $this->getItemInCart(),
+            'sidebar_open_product' => $sidebar_open_product
         ));
 
         return $goods_html;
@@ -2230,7 +2236,7 @@ class products extends Controller
             if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'ajax') {
                 return array('id' => $id, 'state' => true);
             } else {
-                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '/' . $this->all_configs['arrequest'][1] . '/' . $id);
+                Response::redirect($this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '?sidebar_open_product=' . $id);
             }
         }
         return '';
