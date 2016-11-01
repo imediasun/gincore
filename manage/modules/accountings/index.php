@@ -709,7 +709,7 @@ class accountings extends Controller
         }
         $cashbox_form = "
             <form method='POST' id='cashbox-form' style='max-width:300px'>
-            ". $hidden ."
+            " . $hidden . "
                 <div class='form-group'><label>" . l('Название') . ": </label>
                     <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' {$readonly} />
                 </div>
@@ -3598,9 +3598,6 @@ class accountings extends Controller
                         }
                         $profit = $this->calculateSaleProfit($order, $user);
                         $saleProfit[$user['id']] += $profit['value'];
-                        if (!empty($profit['detailed'])) {
-                            $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
-                        }
 
                     }
                     if ($order['order_type'] == ORDER_REPAIR) {
@@ -3609,9 +3606,9 @@ class accountings extends Controller
                         }
                         $profit = $this->calculateRepairProfit($order, $user);
                         $repairProfit[$user['id']] += $profit['value'];
-                        if (!empty($profit['detailed'])) {
-                            $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
-                        }
+                    }
+                    if (!empty($profit['detailed'])) {
+                        $detailed[$user['id']] = array_merge($detailed[$user['id']], $profit['detailed']);
                     }
                 }
             }
@@ -4221,7 +4218,10 @@ class accountings extends Controller
             'detailed' => array()
         );
         foreach ($order['services'] as $service) {
-            if ((empty($service['engineer']) && $user['id'] == $order['engineer']) || ($user['id'] == $service['engineer'])) {
+            if ((empty($service['engineer']) && $user['id'] == $order['engineer'])
+                || ($user['id'] == $service['engineer'])
+                || in_array($user['id'], array($order['manager'], $order['accept']))
+            ) {
                 $payments = $this->Goods->getPayments($service['goods_id']);
                 if ($with == MGoods::FIXED_PAYMENT) {
                     $value = $service['count'] * $payments['fixed_payment'];

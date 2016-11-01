@@ -1,5 +1,4 @@
 <?php if ($this->all_configs['configs']['erp-use'] && $this->all_configs['oRole']->hasPrivilege('return-items-suppliers')): ?>
-
     <?php if ($for_sidebar): ?>
         <div class="well">
             <div class="clearfix">
@@ -34,6 +33,4 @@
             </form>
         </div>
     <?php endif; ?>
-
-
 <?php endif; ?>
