@@ -120,26 +120,36 @@
 <?php else: ?>
     <div class="span9"><p class="text-danger"><?= l('Заказов не найдено') ?></p></div>
 <?php endif; ?>
-<script>
+<script type="text/javascript">
+    var hide_sidebar = false;
+
     function toggle_menu() {
+        if (hide_sidebar) {
+            $('body').addClass('hide-sidebar');
+            return true;
+        }
+
+
         setTimeout(function () {
-            var table = document.getElementById('table-of-orders');
-            if (table.offsetWidth > $('#show_orders-orders').width()) {
-                if (!$('body').hasClass('hide-sidebar')) {
-                    $('body').addClass('hide-sidebar');
-                }
+            var table = $('#table-of-orders');
+            var elem = $('#table-of-orders tr:first td:not(.hide):last');
+            var pill_div = $('#show_orders-orders');
+
+            if (elem.position().left + elem.width() > pill_div.position().left + pill_div.width() ) {
+                $('body').addClass('hide-sidebar');
+                hide_sidebar = true;
             } else {
                 $('body').removeClass('hide-sidebar');
-
             }
-        }, 200);
+        }, 300);
     }
-    jQuery(document).ready(function () {
+    jQuery(document).ready(function ($) {
         $('.multiselect').multiselect(multiselect_options);
         $("#tree").Tree();
-        $('body').on('resize', toggle_menu);
+        $(window).resize(function () { toggle_menu(); });
         toggle_menu();
         $('.js-repair-order-column-filter').appendTo($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]);
         $($('table.table >thead >tr.head > td:not(.hide)').slice(-1)[0]).css('white-space', 'nowrap');
     });
+
 </script>
