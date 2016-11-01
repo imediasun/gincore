@@ -1531,6 +1531,7 @@ class Chains extends Object
                     $status) ? $status['msg'] : l('Заказ не закрыт'));
             }
             $data['location'] = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
+            $data['message'] = l('Возврат успешно оформлен');
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,
@@ -2086,6 +2087,7 @@ class Chains extends Object
                 'type' => 1,
             ), $mod_id);
             $data['location'] = $this->all_configs['prefix'] . 'orders/create/' . $order['id'];
+            $data['message'] = l('Товар успешно списан');
         } catch (ExceptionWithMsg $e) {
             $data = array(
                 'state' => false,

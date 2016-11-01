@@ -84,6 +84,7 @@ function return_item(_this, items, conf, from_sidebar) {
 
       data: '&items=' + items + (conf == 1 ? '&confirm=1' : ''),
       success: function (msg) {
+        console.log(msg);
         if (msg) {
           if (msg['state'] == false) {
             if (msg['confirm']) {
@@ -99,6 +100,9 @@ function return_item(_this, items, conf, from_sidebar) {
             }
           }
           if (msg['state'] == true) {
+            if (msg['message']) {
+              alert(msg['message']);
+            }
             if (from_sidebar) {
               rightSidebar.reload();
             } else {
@@ -185,10 +189,10 @@ function write_off_item(_this, items, from_sidebar) {
       data: '&items=' + items,
       success: function (msg) {
         if (msg) {
+          if (msg['message']) {
+            alert(msg['message']);
+          }
           if (msg['state'] == false) {
-            if (msg['message']) {
-              alert(msg['message']);
-            }
             if (msg['location']) {
               window_open(msg['location']);
             }
@@ -379,7 +383,7 @@ function btn_unbind_item_serial(_this, rand) {
           } else {
             click_tab_hash();
           }
-            close_alert_box();
+          close_alert_box();
         }
       }
       $(_this).removeClass('disabled');
