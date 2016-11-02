@@ -1312,11 +1312,7 @@ function edit_order_dialog(_this, tab) {
   }
 }
 
-function change_personal_to(to) {
-  $('.js-personal').toggle();
-  $('input[name="person"]').val(to);
-  return false;
-}
+
 function change_personal(_this, item_id, response, id) {
   if ($(_this).data('table') == 'clients') {
     get_requests_client_id = item_id;

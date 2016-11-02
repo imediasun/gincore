@@ -474,15 +474,31 @@ class requests extends \service
                 <input type="hidden" name="service" value="crm/requests">
                 <input type="hidden" name="client_id" value="' . $client_id . '">
                 <input type="hidden" name="call_id" value="' . $call_id . '">
-                <div class="row-fluid new_request_row">
-                    <div class="span4">'
-        . typeahead($this->all_configs['db'], 'categories-last', true, $request_data ? $request_data['product_id'] : 0,
-            3, 'input-medium popover-info', '')
-        . '<span class="request_product">'
+                <div class="row-fluid new_request_row m-t-sm">
+                    <div class="span5"><div class="span10"><div class="input-group">'
+        . typeahead(
+            $this->all_configs['db'],
+            'categories-last',
+            false, $request_data ? $request_data['product_id'] : 0,
+            3,
+            'input-medium popover-info',
+            ''
+        )
+        .'
+            <div class="input-group-btn">
+                <button onclick=\'alert_box(this, "", "create_form", {}, null, "categories/ajax")\'
+                    class="btn btn-default">
+                    <i class="fa fa-plus cursor-pointer" aria-hidden="true"></i>
+                </button>
+            </div>
+        '
+        . '</div><span class="request_product">'
         . ($request_data['product_id'] ? ' <a href="' . $this->all_configs['siteprefix'] . gen_full_link(getMapIdByProductId($request_data['product_id'])) . '" target="_blank">' . l('на сайте') . '</a>' : '')
         . '</span>'
-        . '</div>
-                    <div class="span4">
+        . '</div><div class="span2">'
+        . ($request_data['product_id'] ? '<div class="m-t-xs"><a href="' . $this->all_configs['prefix'] . 'products?cats='.$request_data['product_id'].'" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></div>' : '')
+        . '</div></div>
+                    <div class="span3">
                         ' . $this->get_statuses_list($request_data ? $request_data['status'] : null) . '
                     </div>
                     <div class="span4">
@@ -509,11 +525,11 @@ class requests extends \service
             ' . $this->assets() . '
             <h3>' . l('Заявки') . '</h3>
             <div class="row-fluid">
-                <div class="span4">
+                <div class="span5">
                     <b>' . l('Устройство') . '</b>
                 </div>
-                <div class="span4">
-                    <b>' . l('Статус') . '</b>
+                <div class="span3">
+                    <b>' . l('Статус') . '</b> &nbsp;<i class="fa fa-question-circle" data-infopopoveronhover="" data-content="'.l('Статус').'" ></i>
                 </div>
                 <div class="span4">
                     <b>' . l('Комментарий') . '</b>

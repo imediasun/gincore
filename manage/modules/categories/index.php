@@ -241,9 +241,10 @@ class categories extends Controller
      * @param bool   $ajax
      * @return string
      */
-    private function gencreate($name = '', $ajax = false)
+    private function gencreate($name = '', $ajax = false, $is_modal = false)
     {
         return $this->view->renderFile('categories/gencreate', array(
+            'is_modal' => $is_modal,
             'ajax' => $ajax,
             'name' => $name
         ));
@@ -646,8 +647,18 @@ class categories extends Controller
         }
 
         if ($act == 'create_form') {
+            $return = array('state' => true);
+
             $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-            Response::json(array('html' => $this->gencreate($name, true), 'state' => true));
+            $is_modal = (isset($_GET['show']) && $_GET['show'] == 'modal' ) ? true : false;
+            if ($is_modal) {
+                $return['content'] = $this->gencreate($name, true, $is_modal);
+                $return['btns'] = '<input type="button" onclick="category_create_form_submit(this);" class="btn btn-success" value="'.l('Создать').'">';
+            } else {
+                $return['html'] = $this->gencreate($name, true);
+            }
+
+            Response::json($return);
         }
 
         if ($act == 'create_new') {

@@ -1122,6 +1122,9 @@ class Clients extends Object
      */
     private function newCallForm($new_call_id, $client)
     {
+        $cart = null;
+        $orders_model = new MOrders();
+
         $calldata = get_service('crm/calls')->get_call($new_call_id);
         // ставим статус принят
         if (isset($_GET['get_call'])) {
@@ -1136,7 +1139,13 @@ class Clients extends Object
             'calldata' => $calldata,
             'code' => $code,
             'code_exists' => get_service('crm/calls')->code_exists($code),
-            'phones' => $this->phones($client['id'])
+            'phones' => $this->phones($client['id'], false),
+
+            'orderWarranties' => isset($this->all_configs['settings']['order_warranties']) ? explode(',',
+                $this->all_configs['settings']['order_warranties']) : array(),
+            'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0,
+            'deliveryByList' => $orders_model->getDeliveryByList(),
+            'cart' => $cart
         ));
     }
 

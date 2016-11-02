@@ -856,6 +856,41 @@ $(document).ready(function () {
   });
 });
 
+function category_create_form_submit(_this, callback) {
+  var form_data = $('#category-create-form');
+  var hide_modal = true;
+  var data = form_data.serialize();
+
+  $(_this).button('loading');
+
+  $.ajax({
+    url: prefix + 'categories/ajax/?act=create_new',
+    dataType: "json",
+    data: data,
+    type: 'POST',
+    success: function (data) {
+      if (data) {
+        if (data['state'] == true) {
+          if (hide_modal) {
+            $(_this).closest('.modal').modal('hide');
+          }
+          if (typeof callback == 'function') {
+            callback(data, _this);
+          }
+        }
+        if (data['state'] == false && data['msg'])
+          alert(data['msg'])
+      }
+      $(_this).button('reset');
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+  return false;
+}
+
 function contractor_create(_this, callback) {
   var form_data = $('.bootbox form.form_contractor');
   var hide_modal = true;
@@ -1896,6 +1931,12 @@ function send_get_form(_this) {
   $(_this).button('loading');
   window.location.search = $(_this).parents('form').find(':input[value!=""]').serialize();
   $(_this).button('reset');
+}
+
+function change_personal_to(to) {
+  $('.js-personal').toggle();
+  $('input[name="person"]').val(to);
+  return false;
 }
 
 function change_warehouse(_this) {
