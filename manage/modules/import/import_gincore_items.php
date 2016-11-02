@@ -7,7 +7,7 @@ require_once $this->all_configs['sitepath'] . 'mail.php';
  * Class import_gincore_items
  *
  * @property exported_gincore_items $provider
- * @property  MCategories Categories
+ * @property  MCategories           Categories
  */
 class import_gincore_items extends abstract_import_handler
 {
@@ -43,13 +43,13 @@ class import_gincore_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
-            $goods = db()->query('SELECT g.*, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id='.$_SESSION['id'] )->assoc('id');
+            $goods = db()->query('SELECT g.*, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'])->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
                 if (!empty($id) && isset($goods[$id])) {
                     $data = $this->getItemData($goods[$id], $row);
                     if (!empty($data)) {
-                        $results[] = $this->updateItem($id, $data);
+                        $results[] = $this->updateItem($id, $data, $goods[$id]);
                     } else {
                         $results[] = array(
                             'state' => true,
@@ -85,9 +85,10 @@ class import_gincore_items extends abstract_import_handler
     /**
      * @param $id
      * @param $data
+     * @param $good
      * @return array
      */
-    public function updateItem($id, $data)
+    public function updateItem($id, $data, $good)
     {
         $result = array(
             'state' => true,
@@ -104,21 +105,21 @@ class import_gincore_items extends abstract_import_handler
                     } else {
                         $query = db()->makeQuery('?q, ?q=?', array($query, $field, $value));
                     }
-                    
-                    if ($field == 'minimum_balance'){
+
+                    if ($field == 'minimum_balance') {
                         $query = db()->makeQuery('?q, ?q=?', array($query, 'use_minimum_balance', !empty($value)));
                     }
+                    $this->addToLog($this->userId, 'update-goods', $modId, $id, l($field) . ':' . $good[$field]);
+
                 } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
                 }
-
             }
             if (!empty($query)) {
                 db()->query('UPDATE {goods} SET ?q WHERE id=?i', array(
                     $query,
                     $id
                 ));
-                $this->addToLog($this->userId, 'update-goods', $modId, $id);
             }
 
             if (isset($data['manager'])) {
@@ -179,10 +180,10 @@ class import_gincore_items extends abstract_import_handler
             }
 
             if (strpos($field, 'use_automargin') !== false) {
-                $value = (int) (strpos(strtoupper($value), strtoupper(lq('Да'))) !== false);
+                $value = (int)(strpos(strtoupper($value), strtoupper(lq('Да'))) !== false);
             }
             if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
-                $value = (int) (strpos(strtoupper($value), strtoupper(lq('Нет'))) !== false);
+                $value = (int)(strpos(strtoupper($value), strtoupper(lq('Нет'))) !== false);
             }
 
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
@@ -198,10 +199,10 @@ class import_gincore_items extends abstract_import_handler
             }
         }
 
-        if((isset($data['automargin_type']) && $data['automargin_type'] == 0) || (!isset($data['automargin_type']) && $good['automargin_type'] == 0)) {
+        if ((isset($data['automargin_type']) && $data['automargin_type'] == 0) || (!isset($data['automargin_type']) && $good['automargin_type'] == 0)) {
             $data['automargin'] *= 100;
         }
-        if((isset($data['wholesale_automargin_type']) && $data['wholesale_automargin_type'] == 0) || (!isset($data['wholesale_automargin_type']) && $good['wholesale_automargin_type'] == 0)) {
+        if ((isset($data['wholesale_automargin_type']) && $data['wholesale_automargin_type'] == 0) || (!isset($data['wholesale_automargin_type']) && $good['wholesale_automargin_type'] == 0)) {
             $data['wholesale_automargin'] *= 100;
         }
         return $data;
