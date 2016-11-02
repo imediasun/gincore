@@ -109,7 +109,14 @@ class import_gincore_items extends abstract_import_handler
                     if ($field == 'minimum_balance') {
                         $query = db()->makeQuery('?q, ?q=?', array($query, 'use_minimum_balance', !empty($value)));
                     }
-                    $this->addToLog($this->userId, 'update-goods', $modId, $id, l($field) . ':' . $good[$field]);
+                    $old = $good[$field];
+                    if ($field == 'automargin' && $data['automargin_type'] == 0) {
+                        $old = $old / 100;
+                    }
+                    if ($field == 'wholesale_automargin' && $data['wholesale_automargin_type'] == 0) {
+                        $old = $old / 100;
+                    }
+                    $this->addToLog($this->userId, 'update-goods', $modId, $id, l($field) . ':' . $old);
 
                 } elseif ($field == 'category') {
                     $this->setCategory($id, $value);
