@@ -198,10 +198,10 @@ class import_gincore_items extends abstract_import_handler
             }
         }
 
-        if(isset($data['automargin_type']) && $data['automargin_type'] == 0) {
+        if((isset($data['automargin_type']) && $data['automargin_type'] == 0) || (!isset($data['automargin_type']) && $good['automargin_type'] == 0)) {
             $data['automargin'] *= 100;
         }
-        if(isset($data['wholesale_automargin_type']) && $data['wholesale_automargin_type'] == 0) {
+        if((isset($data['wholesale_automargin_type']) && $data['wholesale_automargin_type'] == 0) || (!isset($data['wholesale_automargin_type']) && $good['wholesale_automargin_type'] == 0)) {
             $data['wholesale_automargin'] *= 100;
         }
         return $data;
