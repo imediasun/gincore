@@ -68,6 +68,7 @@ class MHistory extends AModel
             'add-manager',
             'delete-goods-image',
             'edit-goods',
+            'update-goods'
         );
         return $this->all_configs['db']->query(
             'SELECT c.date_add, c.work, u.login, u.fio, c.change 
