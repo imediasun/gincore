@@ -74,7 +74,7 @@ abstract class abstract_import_handler extends Object
     protected function flushLog()
     {
         if (!empty($this->logQuery)) {
-            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id, change) VALUES ?q',
+            $this->all_configs['db']->query('INSERT INTO {changes} (user_id, work, map_id, object_id, `change`) VALUES ?q',
                 array(implode(',', $this->logQuery)));
         }
     }
