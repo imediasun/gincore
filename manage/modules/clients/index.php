@@ -394,7 +394,7 @@ class Clients extends Object
             if (isset($_GET['delete-all'])) {
                 if ($this->all_configs['oRole']->hasPrivilege('edit-users')) {
                     $this->deleteAll($_GET, $this->all_configs['configs']['clients-manage-page']);
-                    unset($_GET['delete-al;']);
+                    unset($_GET['delete-all']);
                 } else {
                     FlashMessage::set(l('У вас не хватает прав для этой операции'), FlashMessage::DANGER);
                 }
@@ -656,15 +656,16 @@ class Clients extends Object
      */
     private function create_client()
     {
+        
         if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] < 1) {
             return
                 '<a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">' . l('Список клиентов') . '</a><br><br>' .
                 $this->create_new_client();
         }
-
+        $id_client = (int)$this->all_configs['arrequest'][2];
         // достаем инфу о клиенте
         $client = $this->all_configs['db']->query('SELECT * FROM {clients} WHERE id=?i',
-            array($this->all_configs['arrequest'][2]))->row();
+            array($id_client))->row();
 
         if (!$client) {
             return '<p  class="text-error">' . l('Нет такого клиента') . '</p>';
@@ -672,6 +673,8 @@ class Clients extends Object
 
         $new_call_id = isset($_GET['new_call']) ? $_GET['new_call'] : 0;
 
+        $client_model = new MClients();
+        $is_system = $client_model->isSystem($id_client);
         return $this->view->renderFile('clients/edit_client', array(
             'ordersList' => $this->getOrdersList($client),
             'newCallForm' => $new_call_id ? $this->newCallForm($new_call_id, $client) : '',
@@ -681,7 +684,8 @@ class Clients extends Object
             'arrequest' => $this->all_configs['arrequest'],
             'phones' => $this->phones($client['id'], false),
             'tags' => $this->getTags(),
-            'client' => $client
+            'client' => $client,
+            'is_system' => $is_system
         ));
     }
 
@@ -1522,7 +1526,7 @@ class Clients extends Object
                 'message' => l('Клиент не найден')
             );
         }
-        if (!$this->Clients->isUsed(intval($post['id']))) {
+        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem(intval($post['id']))) {
             $this->Clients->query('DELETE FROM {clients_phones} WHERE client_id=?i', array($post['id']));
             $this->Clients->delete($post['id']);
             $this->History->save('delete-client', $mod_id, $post['id'], l('Удален') . ' ' . implode(',',
