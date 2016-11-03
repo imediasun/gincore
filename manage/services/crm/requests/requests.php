@@ -639,7 +639,10 @@ class requests extends \service
                 'active_request' => $active_request,
                 'requests' => $requests,
                 'product' => $product,
-                'client' => $client
+                'client' => $client,
+                'client_id' => $client_id,
+                'product_id' => $product_id,
+                
             ));
             $count = count($requests);
         } else {

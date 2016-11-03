@@ -103,50 +103,52 @@
                     <?= get_service('crm/requests')->get_new_request_form_for_call($client['id'], $new_call_id) ?>
                 </div>
                 <div role="tabpanel" class="tab-pane borderless" id="sell-tab">
-                    <fieldset>
-                        <div class="container-fluid items-container">
-                            <div class="row ">
-                                <?= $this->renderFile('orders/eshoporder/_product_to_cart', array(
-                                    'from_shop' => true,
-                                    'order_data' => $order_data,
-
-                                )); ?>
+                    <form method="post" id="eshop-sale-form" parsley-validate="">
+                        <fieldset>
+                            <div class="container-fluid items-container">
+                                <div class="row">
+                                    <?= $this->renderFile('orders/eshoporder/_product_to_cart', array(
+                                        'from_shop' => true,
+                                        'order_data' => $order_data,
+                                    )); ?>
+                                </div>
+                                <?= $this->renderFile('orders/_cart_items_table', array(
+                                    'prefix' => 'eshop',
+                                    'orderWarranties' => $orderWarranties,
+                                    'defaultWarranty' => $defaultWarranty,
+                                    'cart' => $cart
+                                )) ?>
                             </div>
-                            <?= $this->renderFile('orders/_cart_items_table', array(
-                                'prefix' => 'eshop',
-                                'orderWarranties' => $orderWarranties,
-                                'defaultWarranty' => $defaultWarranty,
-                                'cart' => $cart
-                            )) ?>
-                        </div>
 
-                        <div class="form-group">
-                            <label><?= l('Скрытый комментарий к заказу') ?>: </label>
-                            <textarea name="private_comment" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label><?= l('Способ доставки') ?>: </label><br>
-                            <?php foreach ($deliveryByList as $id => $name): ?>
-                                <label class="radio-inline">
-                                    <input type="radio" <?= $id == 1 ? 'checked' : '' ?>
-                                           value="<?= $id ?>" name="delivery_by"
-                                           onclick="toggle_delivery_to(<?= (int)$id != 1 ?>)"/><?= $name ?>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" name="delivery_to" class='form-control' value=""
-                                   placeholder="<?= l('Укажите адрес') ?>" style="display: none;"/>
-                        </div>
-                    </fieldset>
+                            <div class="form-group">
+                                <label><?= l('Скрытый комментарий к заказу') ?>: </label>
+                                <textarea name="private_comment" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label><?= l('Способ доставки') ?>: </label><br>
+                                <?php foreach ($deliveryByList as $id => $name): ?>
+                                    <label class="radio-inline">
+                                        <input type="radio" <?= $id == 1 ? 'checked' : '' ?>
+                                               value="<?= $id ?>" name="delivery_by"
+                                               onclick="toggle_delivery_to(<?= (int)$id != 1 ?>)"/><?= $name ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="delivery_to" class='form-control' value=""
+                                       placeholder="<?= l('Укажите адрес') ?>" style="display: none;"/>
+                            </div>
+                        </fieldset>
+
+                    </form>
                 </div>
             </div>
         </div>
 
         <div class="row-fluid">
-            <div class="span4">
-                <br>
+            <div class="span6">
                 <button class="btn btn-info" id="form-new-call-submit"><?= l('Сохранить данные о звонке') ?></button>
+                <input id="add-client-order" class="btn btn-success submit-from-btn" style="display: none;" type="button" onclick="eshop_sale(this, false, false, true)" value="<?= l('Создать заказ') ?>">
             </div>
         </div>
 
@@ -155,6 +157,22 @@
 
 <script type="text/javascript">
     $(function () {
+
+        $('a[aria-controls="repair-tab"]').on('click', function () {
+            $('#add-client-order').hide();
+        });
+
+        $('a[aria-controls="sell-tab"]').on('click', function () {
+            $('#add-client-order').show();
+        });
+
+        $(".test-toggle").bootstrapSwitch();
+        $('.cashless-toggle').bootstrapSwitch({
+            onText: '<?= l('Безнал'); ?>',
+            offText: '<?= l('Нал'); ?>',
+            labelWidth: 0,
+            size: 'normal'
+        });
 
         $('#form-new-call-submit').on('click', function () {
             $('#form-new-call').submit();

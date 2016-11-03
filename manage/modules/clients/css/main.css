@@ -77,6 +77,8 @@ table.table-for-filters tr > td {
     margin-bottom: 3px;
 }
 
-.borderless {
+.tab-pane.borderless {
+    padding-left: 0;
+    padding-right: 0;
     border: none !important;
 }

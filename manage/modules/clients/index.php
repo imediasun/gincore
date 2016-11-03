@@ -1145,7 +1145,8 @@ class Clients extends Object
                 $this->all_configs['settings']['order_warranties']) : array(),
             'defaultWarranty' => isset($this->all_configs['settings']['default_order_warranty']) ? $this->all_configs['settings']['default_order_warranty'] : 0,
             'deliveryByList' => $orders_model->getDeliveryByList(),
-            'cart' => $cart
+            'cart' => $cart,
+            'order_data' => null,
         ));
     }
 
