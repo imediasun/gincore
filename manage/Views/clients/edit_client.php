@@ -62,7 +62,8 @@
                         'client' => $client,
                         'contractorsList' => $contractorsList,
                         'tagsList' => $tagsList,
-                        'phones' => $phones
+                        'phones' => $phones,
+                        'is_system' => isset($is_system) ? $is_system : false
                     )); ?>
                 <?php endif; ?>
             </div>

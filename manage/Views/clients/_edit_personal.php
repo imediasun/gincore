@@ -26,10 +26,19 @@
             <div class="form-group">
                 <label class="control-label"><?= l('Телефон') ?>: </label>
                 <div class="relative">
-                    <?= $this->renderFile('clients/phones', array(
-                        'phones' => $phones
-                    )); ?>
-                    <i class="cloneAndClear glyphicon glyphicon-plus"></i>
+                    <?php if ($is_system): ?>
+                        <?php foreach ($phones as $phone): ?>
+                            <input class="form-control" type="text"
+                                       value="<?= htmlspecialchars($phone) ?>" readonly/>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <?= $this->renderFile('clients/phones', array(
+                            'phones' => $phones,
+                            'is_system' => isset($is_system) ? $is_system : false
+                        )); ?>
+                        <i class="cloneAndClear glyphicon glyphicon-plus"></i>
+                    <?php endif; ?>
+
                 </div>
             </div>
         <?php endif; ?>

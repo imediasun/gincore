@@ -6,6 +6,8 @@ class MClients extends AModel
 {
     public $table = 'clients';
 
+    protected $system_ids = array(1,2,3);
+
     /**
      * @param $id
      * @return array
@@ -105,6 +107,15 @@ class MClients extends AModel
         $inCalls = $this->query('SELECT count(*) FROM {crm_calls} WHERE client_id=?i',
             array($id))->el();
         return $inCalls || $inOrders;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function isSystem($id)
+    {
+        return in_array($id, $this->system_ids);
     }
 
     /**
