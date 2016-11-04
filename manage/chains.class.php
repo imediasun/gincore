@@ -1637,7 +1637,8 @@ class Chains extends Object
             $data = array(
                 'state' => true,
                 'location' => $this->all_configs['prefix'] . 'orders/create/' . $order['id'],
-                'id' => $order['id']
+                'id' => $order['id'],
+                'msg' => l('Заказ на продажу успешно создан'),
             );
             if (isset($post['next'])) {
                 $data = $this->andPrint($post['next'], $data, $client);

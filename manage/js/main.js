@@ -509,14 +509,21 @@ function eshop_sale(_this, next, from, from_call) {
         if (msg['open_window']) {
           window_open(msg['open_window']);
         }
-        if (msg['location']) {
-          var cur_loc = window.location.pathname + window.location.search + window.location.hash;
-          if (msg['location'] == cur_loc) {
-            window.location.reload(true);
-          } else {
-            window.location.href = msg['location'];
+
+        if (from_call) {
+          alert((msg['msg'] || msg['message']));
+        } else {
+          if (msg['location']) {
+            var cur_loc = window.location.pathname + window.location.search + window.location.hash;
+            if (msg['location'] == cur_loc) {
+              window.location.reload(true);
+            } else {
+              window.location.href = msg['location'];
+            }
           }
         }
+        
+
       }
       $(_this).button('reset');
     }
