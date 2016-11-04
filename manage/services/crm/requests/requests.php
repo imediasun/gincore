@@ -224,7 +224,7 @@ class requests extends \service
                       <span class="add-on">
                         <span class="pull-left cursor-pointer icon-list" onclick="alert_box(this, false, 1, {service:\'crm/requests\',action:\'changes_history\',type:\'crm-request-change-comment\'}, null, \'services/ajax.php\')" data-o_id="' . $id . '" title="' . l('История изменений') . '"></span>
                       </span>
-                        <textarea' . (!$request['active'] ? ' disabled' : '') . ' name="comment[' . $id . ']" style="width: 140px" class="form-control" rows="2">' . htmlspecialchars($request['comment']) . '</textarea>
+                        <textarea' . (!$request['active'] ? ' disabled' : '') . ' name="comment[' . $id . ']" style="width: 140px" class="form-control" rows="1">' . htmlspecialchars($request['comment']) . '</textarea>
                     </div>
                 </td>
                 <td>' . ($request['order_id'] ?
@@ -474,7 +474,7 @@ class requests extends \service
                 <input type="hidden" name="service" value="crm/requests">
                 <input type="hidden" name="client_id" value="' . $client_id . '">
                 <input type="hidden" name="call_id" value="' . $call_id . '">
-                <div class="row-fluid new_request_row m-t-sm">
+                <div class="row-fluid new_request_row m-t-xxs">
                     <div class="span5"><div class="span10"><div class="input-group">'
         . typeahead(
             $this->all_configs['db'],
@@ -502,7 +502,7 @@ class requests extends \service
                         ' . $this->get_statuses_list($request_data ? $request_data['status'] : null) . '
                     </div>
                     <div class="span4">
-                        <textarea class="form-control" name="comment" rows="2" cols="35">' . ($request_data ? htmlspecialchars($request_data['comment']) : '') . '</textarea>
+                        <textarea class="form-control" name="comment" rows="1" cols="35">' . ($request_data ? htmlspecialchars($request_data['comment']) : '') . '</textarea>
                     </div>
                     ' . ($request_data['id'] && !$request_data['order_id'] ? '
                             <a href="' . $this->all_configs['prefix'] . 'orders?on_request=' . $request_data['id'] . '#create_order" class="create_order_on_request btn btn-success btn-small">' . l('Создать заказ') . '</a>

@@ -39,7 +39,11 @@
                 <a href="#new_call" data-toggle="tab"> <?= l('Новый звонок') ?></a>
             </li>
         <?php endif; ?>
+
     </ul>
+
+    <div class="clearfix"></div>
+
 </div>
 <div class="tab-content">
     <?php if ($new_call_id): ?>
@@ -69,7 +73,12 @@
             </div>
         </div>
     </div>
-    <div id="calls" class="tab-pane">
+    <div id="calls" class="tab-pane" style="position: relative">
+        <div style="position: absolute; right: 30px; top: -40px;">
+            <button type="button" class="btn btn-success" data-target="#create_call" data-toggle="modal">
+                <i class="fa fa-phone"></i> &nbsp;<?= l('Создать звонок') ?>
+            </button>
+        </div>
         <?= get_service('crm/calls')->calls_list_table($client['id']) ?>
     </div>
     <div id="requests" class="tab-pane">

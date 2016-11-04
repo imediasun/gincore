@@ -69,6 +69,10 @@ select.tags-list {
     color: grey;
     text-align: center;
 }
+table.table-for-filters {
+    margin-bottom: 0;
+}
+
 table.table-for-filters tr > td {
     padding-bottom: 0;
     padding-top: 0;

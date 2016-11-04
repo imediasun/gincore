@@ -1056,7 +1056,7 @@ class Clients extends Object
             require_once($this->all_configs['sitepath'] . 'shop/model.class.php');
             $access = new access($this->all_configs, false);
             $post = $_GET; // хз, аджакс жквери отправляет почему-то гетом
-            $post['id'] = $_GET['client_id'];
+            $post['id'] = (int)$_GET['client_id'];
             $result = $access->edit($post);
 
             if ($result['state'] == false) {
@@ -1075,6 +1075,15 @@ class Clients extends Object
                     SET code = ?q, referer_id = ?q 
                     WHERE id = ?i
                 ", array($code, $referer_id, $call_id));
+
+                $requests = $this->all_configs['db']->query("
+                    SELECT count(*) FROM {crm_requests} 
+                    WHERE call_id = ?i
+                ",array($call_id))->el();
+
+                if ($requests) {
+                    $data['redirect'] = $this->all_configs['prefix'] . 'clients/create/'.$post['id'].'#requests';
+                }
                 $data['state'] = true;
                 $data['msg'] = l('Изменения сохранены');
             }

@@ -2,6 +2,11 @@
     .filter_block > input {
         max-width: 100% !important;
     }
+
+    .filter_block .multiselect-btn-group,
+    .filter_block .multiselect-btn-group > button{
+        width: 100% !important;
+    }
 </style>
 <form class="filter_block" method="get" action="<?= $this->all_configs['prefix'] ?>clients">
     <input type="hidden" name="tab" value="requests">
