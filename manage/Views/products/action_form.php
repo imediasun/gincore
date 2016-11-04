@@ -204,7 +204,7 @@
                                 </td>
                                 <td>
                                     <select class="form-control" name="category_for_margin" style="width: 150px;">
-                                        <option value="-1"> <?= l('Выберите категорию') ?></option>
+                                        <option value="-1"> <?= l('Укажите категорию') ?></option>
                                         <?= build_array_tree($categories, array()); ?>
                                     </select>
                                 </td>
