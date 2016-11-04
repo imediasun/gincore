@@ -1,6 +1,6 @@
 <tr>
     <td>
-        <a href="<?= $all_configs['prefix'] ?> clients/create/<?= $call['client_id'] ?>?new_call=<?= $call['id'] . ($call['type'] === '0' ? '&get_call' : '') ?>">
+        <a href="<?= $all_configs['prefix'] ?>clients/create/<?= $call['client_id'] ?>?new_call=<?= $call['id'] . ($call['type'] === '0' ? '&get_call' : '') ?>">
             <?= $call['id'] ?>
         </a>
     </td>

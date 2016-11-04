@@ -76,3 +76,9 @@ table.table-for-filters tr > td {
 .js-filters .form-group{
     margin-bottom: 3px;
 }
+
+.tab-pane.borderless {
+    padding-left: 0;
+    padding-right: 0;
+    border: none !important;
+}

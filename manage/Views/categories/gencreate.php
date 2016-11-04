@@ -1,8 +1,8 @@
 <?php if ($this->all_configs['oRole']->hasPrivilege('create-filters-categories')): ?>
-    <?php if ($ajax): ?>
+    <?php if ($ajax && !$is_modal): ?>
         <div class="emulate_form ajax_form" data-callback="select_typeahead_device" data-method="post" data-action="<?= $this->all_configs['prefix'] ?>categories/ajax/?act=create_new">
     <?php else: ?>
-        <form method="post">
+        <form method="post" action="<?= $this->all_configs['prefix'] ?>categories/create" id="category-create-form">
         <fieldset>
     <?php endif; ?>
     <legend><?= l('Добавление новой категории') ?> (<?= l('название устройства') ?>)</legend>
@@ -35,13 +35,18 @@
         <label><?= l('Описание') ?>:</label>
         <textarea placeholder="<?= l('краткое описание') ?>" name="content" class="form-control" rows="3"></textarea>
     </div>
-    <div class="form-group">
-        <input class="btn btn-primary" type="submit" value="<?= l('Создать') ?>" name="create-category"/>
-        <?php if ($ajax): ?>
-            <button type="button" class="btn btn-default hide_typeahead_add_form"><?= l('Отмена') ?></button>
-        <?php endif; ?>
-    </div>
-    <?php if ($ajax): ?>
+    <?php if($is_modal): ?>
+        <input type="hidden" name="create-category" value="<?= l('Создать') ?>"/>
+    <?php else: ?>
+        <div class="form-group">
+            <input class="btn btn-primary" type="submit" value="<?= l('Создать') ?>" name="create-category"/>
+            <?php if ($ajax): ?>
+                <button type="button" class="btn btn-default hide_typeahead_add_form"><?= l('Отмена') ?></button>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($ajax && !$is_modal): ?>
         </div>
     <?php else: ?>
         </fieldset>

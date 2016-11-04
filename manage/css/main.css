@@ -1337,3 +1337,7 @@ table.table-vpaddingless tr td.arrow{
     right: 180px;
     z-index: 1080;
 }
+
+.btn-add-good {
+    white-space: nowrap;
+}
