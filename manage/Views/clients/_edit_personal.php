@@ -29,7 +29,7 @@
                     <?php if ($is_system): ?>
                         <?php foreach ($phones as $phone): ?>
                             <input class="form-control" type="text"
-                                       value="<?= htmlspecialchars($phone) ?>" readonly/>
+                                       value="<?= htmlspecialchars($phone) ?>" name="phone[]" readonly/>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <?= $this->renderFile('clients/phones', array(
