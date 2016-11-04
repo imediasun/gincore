@@ -362,3 +362,9 @@ ALTER TABLE `restore4_orders_goods` ADD INDEX orders_goods_engineer(engineer);
 2016_10_28_191422_add_color_to_users.php
  */
 ALTER TABLE `restore4_users` ADD COLUMN color varchar(10) DEFAULT '';
+
+/*
+2016_11_04_152239_resize_goods_title_column.php
+*/
+ALTER TABLE `restore4_goods` MODIFY COLUMN title CHAR(200);
+ALTER TABLE `restore4_goods` MODIFY COLUMN url CHAR(200);
