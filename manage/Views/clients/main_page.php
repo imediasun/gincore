@@ -50,7 +50,7 @@
     <?php if ($_GET['tab'] == 'calls'): ?>
         <div class="pull-right" style="margin-right: 30px">
             <button type="button" class="btn btn-success" data-target="#create_call" data-toggle="modal">
-               <?= l('Создать звонок') ?>
+                <i class="fa fa-phone"></i> &nbsp;<?= l('Создать звонок') ?>
             </button>
         </div>
     <?php endif; ?>
