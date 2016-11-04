@@ -1,4 +1,8 @@
 function new_call_add_request_callback(data, $form){
+    if (data.cats_link){
+        $form.find('.cats_link').html(data.cats_link);
+    }
+
     if(data.product_site_url){
         $form.find('.request_product').html(data.product_site_url);
     }

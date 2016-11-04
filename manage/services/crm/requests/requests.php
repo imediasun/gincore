@@ -495,7 +495,7 @@ class requests extends \service
         . '</div><span class="request_product">'
         . ($request_data['product_id'] ? ' <a href="' . $this->all_configs['siteprefix'] . gen_full_link(getMapIdByProductId($request_data['product_id'])) . '" target="_blank">' . l('на сайте') . '</a>' : '')
         . '</span>'
-        . '</div><div class="span2">'
+        . '</div><div class="span2 cats_link">'
         . ($request_data['product_id'] ? '<div class="m-t-xs"><a href="' . $this->all_configs['prefix'] . 'products?cats='.$request_data['product_id'].'" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></div>' : '')
         . '</div></div>
                     <div class="span3">
@@ -720,6 +720,7 @@ class requests extends \service
                     }
                     if ($product_id) {
                         $response['product_site_url'] = ' <a href="' . $this->all_configs['siteprefix'] . gen_full_link(getMapIdByProductId($product_id)) . '" target="_blank">' . l('на сайте') . '</a>';
+                        $response['cats_link'] = '<div class="m-t-xs"><a href="' . $this->all_configs['prefix'] . 'products?cats='.$product_id.'" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></div>';
                     }
                     $response['state'] = true;
                 }
