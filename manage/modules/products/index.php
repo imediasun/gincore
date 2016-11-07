@@ -1190,7 +1190,7 @@ class products extends Controller
 
                 $img_id = $this->all_configs['db']->query('INSERT IGNORE INTO {goods_images} (image, goods_id, type) VALUE (?, ?i, ?i)',
                     array($result['filename'], intval($_GET['product']), 1), 'id');
-                $this->History->save('add-image-goods', $mod_id, intval($_GET['product']));
+                $this->History->save('add-image-goods', $mod_id, intval($_GET['product']), l('Добавление фотографии к товару'));
 
                 // копируем картинку всем аналогичным товарам по secret_title
                 if (isset($_GET['oist']) && $_GET['oist'] == 'true' && $this->all_configs['configs']['one-image-secret_title'] == true && mb_strlen(trim($product['secret_title']),
@@ -2485,7 +2485,7 @@ class products extends Controller
                     array(0, $product_id));
             }
         }
-        $this->History->save('delete-goods-image', $mod_id, $product_id);
+        $this->History->save('delete-goods-image', $mod_id, $product_id, l('Удаление фотографии у товара'));
         return $post;
     }
 
