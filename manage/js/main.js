@@ -511,7 +511,15 @@ function eshop_sale(_this, next, from, from_call) {
         }
 
         if (from_call) {
-          alert((msg['msg'] || msg['message']));
+          if (msg['location']) {
+            $('#eshop-sale-form')[0].reset();
+            alert((msg['msg'] || msg['message']));
+            window.open(msg['location']);
+          } else {
+            alert((msg['msg'] || msg['message']));
+          }
+
+
         } else {
           if (msg['location']) {
             var cur_loc = window.location.pathname + window.location.search + window.location.hash;
