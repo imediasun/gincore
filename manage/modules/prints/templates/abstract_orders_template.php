@@ -52,7 +52,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                     }
                     if ($product['type'] == 1) {
                         $services .= h($product['title']) . '<br/>';
-                        $services_cost[] = ($product['price'] / 100) . ' ' . viewCurrency();;
+                        $services_cost[] = ($product['price'] / 100) . ' ' . viewCurrency();
                         $sum_by_services += $product['price'];
                         $qty_services += 1;
                     }
@@ -141,7 +141,7 @@ abstract class AbstractOrdersTemplate extends AbstractTemplate
                 'products_cost' => array('value' => $products_cost, 'name' => l('Установленные запчасти')),
                 'services' => array('value' => $services, 'name' => l('Услуги')),
                 'services_cost' => array(
-                    'value' => implode(' ' . viewCurrency() . '<br />', $services_cost),
+                    'value' => implode('<br />', $services_cost),
                     'name' => l('Стоимость услуг')
                 ),
                 'repair' => array('value' => '', 'name' => l('Вид ремонта')),
