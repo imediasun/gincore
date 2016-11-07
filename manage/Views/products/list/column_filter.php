@@ -23,7 +23,7 @@
                         'type' => 'Товар/услуга',
                         'manager' => 'Менеджер',
                         'date' => 'Дата',
-                        'del' => 'Удалить товар'
+//                        'del' => 'Удалить товар'
                     ) as $item => $name): ?>
                         <div class="checkbox col-sm-12">
                             <label>
