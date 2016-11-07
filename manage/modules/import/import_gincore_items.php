@@ -116,6 +116,11 @@ class import_gincore_items extends abstract_import_handler
                     if ($field == 'wholesale_automargin' && $data['wholesale_automargin_type'] == 0) {
                         $old = $old / 100;
                     }
+
+                    if (strpos($field, 'price') !== false || strpos($field, 'fixed_payment') !== false) {
+                        $old = $old / 100;
+                    }
+             
                     $this->addToLog($this->userId, 'update-goods', $modId, $id, l($field) . ':' . $old);
 
                 } elseif ($field == 'category') {
