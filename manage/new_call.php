@@ -44,11 +44,17 @@ if (isset($_POST['vpbx_api_key']) && isset($_POST['json'])) {
     }
 }
 
-#binotel
-if (isset($_POST['requestType']) && $_POST['requestType'] == 'gettingCallSettings'){
-    $phone = isset($_POST['srcNumber']) ? trim($_POST['srcNumber']) : $phone;
-}
+#binotel - не верный?
+#if (isset($_POST['requestType']) && $_POST['requestType'] == 'gettingCallSettings'){
+#    $phone = isset($_POST['srcNumber']) ? trim($_POST['srcNumber']) : $phone;
+#}
 
+//Binotel
+if (isset($_POST['callType']) && $_POST['callType'] == '0'
+        && isset($_POST['requestType']) && $_POST['requestType'] == 'receivedTheCall') {
+    $phone = $_POST['srcNumber'];
+    $log = 'Binotel, phone: ' . $phone;
+}
 
 
 
@@ -70,13 +76,6 @@ if ($phone && $_SERVER['REMOTE_ADDR'] == '185.45.152.42') {
 if (isset($_GET['event']) && $_GET['event'] == 'incoming_call') {
     $phone = $_GET['numa'];
     $log = 'Uiscom, phone: ' . $phone;
-}
-
-//Binotel
-if (isset($_POST['callType']) && $_POST['callType'] == '0'
-        && isset($_POST['requestType']) && $_POST['requestType'] == 'receivedTheCall') {
-    $phone = $_POST['srcNumber'];
-    $log = 'Binotel, phone: ' . $phone;
 }
 
 
