@@ -78,6 +78,13 @@ if (isset($_GET['event']) && $_GET['event'] == 'incoming_call') {
     $log = 'Uiscom, phone: ' . $phone;
 }
 
+//Binotel
+if (isset($_POST['callType']) && $_POST['callType'] == '0'
+        && isset($_POST['requestType']) && $_POST['requestType'] == 'receivedTheCall') {
+    $phone = $_POST['srcNumber'];
+    $log = 'Binotel, phone: ' . $phone;
+}
+
 
 //body post
 if (!$phone) {

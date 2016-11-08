@@ -22,7 +22,7 @@
             <h4><?= l('Возврат поставщику') ?></h4>
             <form class="form-horizontal" method="post">
                 <?php if ($item_id === 0): ?>
-                    <p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>
+                    <p><?= l('Всего выбрано изделий') ?>: <span class="count-selected-items">0</span></p>
                 <?php endif; ?>
                 <?php if ($canUse): ?>
                     <input type="button" class="btn" onclick="return_item(this,'<?= $item_id ?>')"
