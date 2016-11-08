@@ -716,7 +716,7 @@ class accountings extends Controller
         }
         $cashbox_form = "
             <form method='POST' id='cashbox-form' style='max-width:300px'>
-            " . (!($wrap_accordion) ? "" : $hidden ) . "
+            " . (($wrap_accordion) ? "" : $hidden ) . "
                 <div class='form-group'><label>" . l('Название') . ": </label>
                     <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' {$readonly} />
                 </div>
