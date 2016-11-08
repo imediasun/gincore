@@ -24,7 +24,7 @@ class warranty extends AbstractOrdersTemplate
             $this->editor = true;
 
             // товары и услуги
-            $goods = $this->all_configs['db']->query('SELECT og.title, og.price, g.type
+            $goods = $this->all_configs['db']->query('SELECT og.title, og.price, og.count, g.type
                       FROM {orders_goods} as og, {goods} as g WHERE og.order_id=?i AND og.goods_id=g.id',
                 array($object))->assoc();
 
