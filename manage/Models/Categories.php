@@ -6,6 +6,46 @@ class MCategories extends AModel
     public $table = 'categories';
 
     /**
+     * @param $id
+     * @return array
+     */
+    public function isUsed($id)
+    {
+        try {
+            $used = $this->query('SELECT count(*) FROM ?t WHERE parent_id=?i', array($this->table, $id))->el();
+            if ($used) {
+                throw new ExceptionWithMsg(l('В категории есть вложенные подкатегории. Сначала очистите категорию от подкатегорий, после чего повторите попытку удаления'));
+            }
+            $used = $this->query('SELECT count(*) FROM {orders} WHERE category_id=?i', array($id))->el();
+            if ($used) {
+                throw new ExceptionWithMsg(l('Используется в заказах'));
+            }
+            $used = $this->query('SELECT count(*) FROM {crm_requests} WHERE product_id=?i', array($id))->el();
+            if ($used) {
+                throw new ExceptionWithMsg(l('Используется в запросах на ремонт'));
+            }
+            $used = $this->query('SELECT count(*) FROM {goods} WHERE category_for_margin=?i', array($id))->el();
+            if ($used) {
+                throw new ExceptionWithMsg(l('Используется в свойствах товаров'));
+            }
+            $used = $this->query('SELECT count(*) FROM {category_goods} WHERE category_id=?i', array($id))->el();
+            if ($used) {
+                throw new ExceptionWithMsg(l('В категории есть вложенные товары. Сначала очистите категорию от товаров, после чего повторите попытку удаления'));
+            }
+            $result = array(
+                'used' => false
+            );
+        } catch (ExceptionWithMsg $e) {
+            $result = array(
+                'used' => true,
+                'message' => $e->getMessage()
+            );
+        }
+
+        return $result;
+    }
+
+    /**
      * @return array
      */
     public function getRecycleBin()

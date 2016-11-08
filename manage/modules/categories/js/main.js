@@ -167,28 +167,45 @@ $(document).ready(function () {
 function delete_category($parent) {
 
   var id = $parent.data('id');
-  if (confirm("Вы действительно хотите удалить категорию?")) {
+  if (confirm("Категория будет удалена из системы и восстановить ее будет невозможно. Продолжить?")) {
     $.ajax({
-      url: prefix + module + '/ajax/?act=delete-categories',
-      type: 'POST',
+      url: prefix + module + '/ajax/?act=check-use-categories',
+      type: 'GET',
       dataType: "json",
       data: '&id=' + id,
       success: function (msg) {
-        if (msg) {
-          if (msg['state'] == false && msg['message']) {
-            alert(msg['message']);
-          }
-          if (msg['state'] && msg['state'] == true) {
-            $parent.css('opacity', '0.2');
-            $parent.find('.js-delete-category').hide();
-            $parent.find('.dd-handle').remove();
-            $parent.find('.category-title').append('<span class="deleted">Удалено</span>');
-          }
+        if (!msg.used) {
+          $.ajax({
+            url: prefix + module + '/ajax/?act=delete-categories',
+            type: 'POST',
+            dataType: "json",
+            data: '&id=' + id,
+            success: function (msg) {
+              if (msg) {
+                if (msg['state'] == false && msg['message']) {
+                  alert(msg['message']);
+                }
+                if (msg['state'] && msg['state'] == true) {
+                  $parent.css('opacity', '0.2');
+                  $parent.find('.js-delete-category').hide();
+                  $parent.find('.dd-handle').remove();
+                  $parent.find('.category-title').append('<span class="deleted">Удалено</span>');
+                }
+              }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              alert(xhr.responseText);
+            }
+          });
+        }
+        if(msg.message) {
+          alert(msg.message);
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {
         alert(xhr.responseText);
       }
+
     });
 
   }
