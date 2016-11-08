@@ -25,15 +25,7 @@ class MGoods extends AModel
     {
         $product = $this->getByPk(intval($good['id']));
         if (!empty($product)) {
-            $this->update(array(
-                'deleted' => 1,
-                'avail' => 0
-            ), array('id' => $product['id']));
-            $recycleBin = $this->Categories->getRecycleBin();
-            if (!empty($recycleBin)) {
-                $this->CategoryGoods->moveGoodTo(intval($good['id']), $recycleBin['id']);
-            }
-
+            $this->delete($product['id']);
             $this->History->save('delete-product', $mod_id, $product['id'], l('Удален') . ' ' . $product['title']);
         }
     }
