@@ -95,27 +95,44 @@ $(document).ready(function () {
   });
   $('.js-delete-product').on('click', function () {
     var id = $(this).data('id'), $parent = $(this).parents('tr').first();
-    if (confirm("Вы действительно хотите удалить товар?")) {
+    if (confirm("Товар будет удален из системы и восстановить его будет невозможно. Продолжить?")) {
       $.ajax({
-        url: prefix + module + '/ajax/?act=delete-product',
-        type: 'POST',
+        url: prefix + module + '/ajax/?act=check-use-product',
+        type: 'GET',
         dataType: "json",
         data: '&id=' + id,
         success: function (msg) {
-          if (msg) {
-            if (msg['state'] == false && msg['message']) {
-              alert(msg['message']);
-            }
-            if (msg['state'] && msg['state'] == true) {
-              $parent.css('opacity', '0.2');
-              $parent.find('.js-item-title').append('<span class="deleted">Удалено</span>');
-              $(this).hide();
-            }
+          if (!msg.state) {
+            $.ajax({
+              url: prefix + module + '/ajax/?act=delete-product',
+              type: 'POST',
+              dataType: "json",
+              data: '&id=' + id,
+              success: function (msg) {
+                if (msg) {
+                  if (msg['state'] == false && msg['message']) {
+                    alert(msg['message']);
+                  }
+                  if (msg['state'] && msg['state'] == true) {
+                    $parent.css('opacity', '0.2');
+                    $parent.find('.js-item-title').append('<span class="deleted">Удалено</span>');
+                    $(this).hide();
+                  }
+                }
+              },
+              error: function (xhr, ajaxOptions, thrownError) {
+                alert(xhr.responseText);
+              }
+            });
+          }
+          if(msg.message) {
+            alert(msg.message)
           }
         },
         error: function (xhr, ajaxOptions, thrownError) {
           alert(xhr.responseText);
         }
+
       });
 
     }
@@ -485,7 +502,7 @@ function show_action_form(_this, action) {
     type: 'GET',
     success: function (data) {
       if (data) {
-        if (data['state'] == true && ! $('*').is('.medium-dialog')) {
+        if (data['state'] == true && !$('*').is('.medium-dialog')) {
           dialog_box(this, data['title'], data['content'], buttons, null, 'medium-dialog');
           $('#action-form .multiselect').multiselect(multiselect_options);
         }
@@ -509,7 +526,7 @@ function open_links(id) {
     success: function (data) {
       if (data) {
         if (data['state'] == true) {
-          $.each(data['links'], function(id, value) {
+          $.each(data['links'], function (id, value) {
             window.open(value, '_blank');
           });
         }

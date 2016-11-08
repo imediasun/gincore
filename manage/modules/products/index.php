@@ -903,6 +903,16 @@ class products extends Controller
                 'html' => $form
             ));
         }
+        if($act == 'check-use-product') {
+            $used = $this->isUsedGood(intval($_GET['id']));
+            $data = array(
+                'state' => $used
+            );
+            if($used) {
+                $data['message'] = l('Товар используется в логистических операциях или заказах');
+            }
+            Response::json($data);
+        }
         if ($act == 'supplier-links') {
             $form = $this->supplierLinks($_GET);
             Response::json(array(
