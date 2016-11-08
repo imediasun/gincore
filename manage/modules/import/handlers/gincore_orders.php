@@ -75,7 +75,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_date_add($data)
     {
-        return $data[1];
+        return trim($data[1]);
     }
 
     /**
@@ -84,7 +84,7 @@ class gincore_orders extends abstract_import_provider
      */
     function get_date_end($data)
     {
-        return $data[2];
+        return trim($data[2]);
     }
 
     /**

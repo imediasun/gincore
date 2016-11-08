@@ -102,13 +102,18 @@ abstract class AModel extends Object
             }
             $values = array();
             foreach ($fields as $id => $name) {
+                if (!in_array($name, $this->columns()) && !in_array(preg_replace('/`/', '', $name), $this->columns())) {
+                    unset($fields[$id]);
+                    continue;
+                }
                 $values[$id] = (string)(isset($row[$name]) ? $row[$name] : '');
             }
             if (!empty($values)) {
-                $insert[] = '(' . implode(',', $values) . ')';
+                $insert[] = $this->makeQuery('(?l)', array($values));
             }
         }
-        return $this->query("INSERT INTO ?t (?q) VALUES ?q", array(implode(',', $fields), implode(',', $insert)))->id();
+        return empty($fields) || empty($insert) ? false : $this->query("INSERT INTO ?t (?q) VALUES ?q",
+            array($this->table, implode(',', $fields), implode(',', $insert)))->id();
     }
 
     /**
@@ -321,6 +326,6 @@ abstract class AModel extends Object
      */
     public function exists($id)
     {
-        return (bool) $this->query('SELECT count(*) FROM ?t WHERE ?q=?i', array($this->table, $this->pk(), $id))->el();
+        return (bool)$this->query('SELECT count(*) FROM ?t WHERE ?q=?i', array($this->table, $this->pk(), $id))->el();
     }
 }

@@ -9,8 +9,19 @@ class import_helper
      */
     public static function format_date($date)
     {
-//        $date = str_replace('/', '-', $date);
-        return date('Y-m-d H:i:s', strtotime($date));
+        $exploded = explode(' ', trim($date));
+        if(empty($exploded[0])) {
+            return date('Y-m-d H:i:0');
+        }
+        $exploded = preg_split("/[-\/\.]/", $exploded[0]);
+        $format = 'd.m.y';
+        if(isset($exploded[2]) && strlen($exploded[2] == 4)) {
+            $format = 'd.m.Y';
+        } elseif (strlen($exploded[0]) == 4) {
+            $format = 'Y.m.d';
+        }
+        $date = DateTime::createFromFormat($format, implode('.', $exploded));
+        return $date->format('Y-m-d H:i:0');
     }
 
     /**

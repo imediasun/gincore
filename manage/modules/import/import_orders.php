@@ -2,6 +2,11 @@
 
 require_once __DIR__ . '/abstract_import_handler.php';
 
+/**
+ * Class import_orders
+ *
+ * @property MOrders Orders
+ */
 class import_orders extends abstract_import_handler
 {
     public $acceptors;
@@ -15,6 +20,9 @@ class import_orders extends abstract_import_handler
     protected $not_found_acceptors;
     protected $not_found_engineers;
     protected $not_found_managers;
+    public $uses = array(
+        'Orders'
+    );
 
     /**
      * @param $rows
@@ -38,6 +46,7 @@ class import_orders extends abstract_import_handler
         }
 
         $results = array();
+        $orders = array();
         foreach ($rows as $row) {
             $errors = array();
             $error_type = null;
@@ -72,33 +81,32 @@ class import_orders extends abstract_import_handler
                 $typeId = $this->getTypeOfRepairId($this->provider->get_type_of_repair($row));
 
                 // создаем заказа
-                $order = array(
-                    $id,
-                    $date_add,
-                    $acceptor_id,
-                    $status_id,
-                    $client_id,
-                    $client_fio,
-                    $client_phone,
-                    '',
-                    $device_id,
-                    $serial,
-                    $equipment,
-                    $appearance,
-                    $date_end,
-                    $summ * 100,
-                    0,
-                    $defect,
-                    $engineer_id,
-                    $manager_id,
-                    $device,
-                    $this->acceptors_wh[$acceptor_id]['wh_id'],
-                    $this->acceptors_wh[$acceptor_id]['location_id'],
-                    $typeId,
-                    $summ_paid * 100,
-                    $this->acceptors_wh[$acceptor_id]['wh_id'],
+                $orders[] = array(
+                    'id' => $id,
+                    'date_add' => $date_add,
+                    'accepter' => $acceptor_id,
+                    'status' => $status_id,
+                    'user_id' => $client_id,
+                    'fio' => $client_fio,
+                    'phone' => $client_phone,
+                    'courier' => '',
+                    'category_id' => $device_id,
+                    'serial' => $serial,
+                    'equipment' => $equipment,
+                    'comment' => $appearance,
+                    'date_readiness' => $date_end,
+                    '`sum`' => $summ * 100,
+                    'prepay' => 0,
+                    'defect' => $defect,
+                    'engineer' => $engineer_id,
+                    'manager' => $manager_id,
+                    'title' => $device,
+                    'wh_id' => $this->acceptors_wh[$acceptor_id]['wh_id'],
+                    'location_id' => $this->acceptors_wh[$acceptor_id]['location_id'],
+                    'repair' => $typeId,
+                    'sum_paid' => $summ_paid * 100,
+                    'accept_wh_id' => $this->acceptors_wh[$acceptor_id]['wh_id'],
                 );
-                $this->createNewOrder($order);
             } catch (Exception $e) {
                 $errors[] = $e->getMessage();
             }
@@ -109,6 +117,7 @@ class import_orders extends abstract_import_handler
                 'message' => !$errors ? l('Добавлен') : implode('<br>', $errors)
             );
         }
+        $this->Orders->insertAll($orders);
         return array(
             'state' => true,
             'message' => $this->gen_result_table($results)
@@ -185,30 +194,6 @@ class import_orders extends abstract_import_handler
             );
         } else {
             return array('state' => true);
-        }
-    }
-
-    /**
-     * @param $order
-     * @return Exception
-     * @throws Exception
-     */
-    private function createNewOrder($order)
-    {
-        try {
-            db()->query("INSERT INTO {orders} "
-                . "(id,date_add,accepter,status,user_id,fio,"
-                . " phone,courier,category_id,serial,equipment,"
-                . " comment, date_readiness, `sum`, "
-                . " prepay, defect, engineer, manager, title, wh_id, location_id, `repair`, `sum_paid`, accept_wh_id) "
-                . " VALUES "
-                . " (?i, ?, ?i, ?i, ?i, ?,"
-                . "  ?, ?, ?i, ?, ?, "
-                . "  ?, ?, ?, ?, ?, ?i, ?i, ?, ?i, ?i, ?i, ?i, ?i)",
-                $order
-            );
-        } catch (Exception $e) {
-            throw new Exception(l('Ошибка создания заказа'));
         }
     }
 
