@@ -233,6 +233,10 @@ class accountings extends Controller
                 FlashMessage::set(l('Название кассы не может быть пустым'), FlashMessage::DANGER);
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
+            if (empty($post['cashbox_currency'])) {
+                FlashMessage::set(l('Вы не указали валюту с которой может работать новая касса'), FlashMessage::DANGER);
+                Response::redirect($_SERVER['REQUEST_URI']);
+            }
             $checkByTitle = $this->all_configs['db']->query('SELECT count(*) FROM {cashboxes} WHERE name=?',
                 array($title))->el();
             if (!empty($checkByTitle)) {
@@ -688,8 +692,11 @@ class accountings extends Controller
                 }
             }
             $hidden = "<input type='hidden' name='cashbox-add' value='" . l('Создать') . "' />";
+            $btn = "<input type='submit' class='btn btn-success' name='cashbox-add' value='" . l('Создать') . "' />";
             $title = '';
         }
+
+
 
         if ($i == 1) {
             $in = 'in';
@@ -709,7 +716,7 @@ class accountings extends Controller
         }
         $cashbox_form = "
             <form method='POST' id='cashbox-form' style='max-width:300px'>
-            " . $hidden . "
+            " . (!($wrap_accordion) ? "" : $hidden ) . "
                 <div class='form-group'><label>" . l('Название') . ": </label>
                     <input placeholder='" . l('введите название кассы') . "' class='form-control' name='title' value='{$title}' {$readonly} />
                 </div>
@@ -717,6 +724,7 @@ class accountings extends Controller
                     <label>" . l('Используемые валюты') . ": " . InfoPopover::getInstance()->createQuestion('l_cashbox_currencies_info') . "</label>
                     {$currencies_html}
                 </div>
+                ". (($wrap_accordion) ? "<div class='form-group'>{$btn}</div>" : "" )."
             </form>
         ";
         if ($wrap_accordion) {
@@ -964,8 +972,13 @@ class accountings extends Controller
             $array = $this->Transactions->get_transactions($currencies, false, null, false, array(),
                 true, true);
         }
+
         if ($act == 'reports-turnover') {
             $array = $this->accountings_reports_turnover_array();
+        }
+
+        foreach ($array as &$row){
+            $row = array_map('strip_tags', $row);
         }
 
         include_once $this->all_configs['sitepath'] . 'shop/exports.class.php';
