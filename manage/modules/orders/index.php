@@ -3557,6 +3557,11 @@ class orders extends Controller
         $xls = $export->getXLS(l('Заказы'));
 
         $columns = $this->LockFilters->load('repair-order-table-columns');
+        // Экспорт работ обязательный
+        if (!isset($columns['services'])) {
+            $columns['services'] = 'on';
+        }
+
         if (in_array($currentOrderType, array(ORDER_REPAIR, ORDER_WRITE_OFF, ORDER_RETURN))) {
             $title = array();
 
