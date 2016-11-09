@@ -525,9 +525,15 @@ class warehouses extends Controller
 
         $out .= '</div>';
 
+        if (count($warehouses_selected) == 0) {
+            $functions_arr = array('multiselect(true)');
+        } else {
+            $functions_arr = array('multiselect(false)');
+        }
+
         return array(
             'html' => $out,
-            'functions' => array('multiselect()'),
+            'functions' => $functions_arr,
         );
     }
 

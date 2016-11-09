@@ -104,10 +104,13 @@ $(document).ready(function () {
 
 });
 
-function multiselect() {
+
+function multiselect(multiselect_all_warehouses) {
   init_multiselect();
-  $('#warehouses-filter-select').multiselect(multiselect_options).multiselect('selectAll', false);
-  $('#warehouses-filter-select').multiselect('updateButtonText');
+  if (multiselect_all_warehouses) {
+    $('#warehouses-filter-select').multiselect(multiselect_options).multiselect('selectAll', false);
+    $('#warehouses-filter-select').multiselect('updateButtonText');
+  }
 //    $('.multiselect').multiselect({
 //        buttonContainer: '<span class="dropdown" />',
 //        nonSelectedText: L['choose'],
