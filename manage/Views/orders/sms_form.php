@@ -16,7 +16,7 @@
                         l('Базовый') => l('Ваш заказ') . ' №' . $order['id'] . ' ' . l('готов') . '. ' . l('Стоимость ремонта') . ': ' . ($order['sum'] / 100) . ' ' . viewCurrency()
                     ) : array()
                 )) ?>
-                <textarea id='sms_body' class="form-control show-length" maxlength="69" name="text"
+                <textarea id='sms_body' class="form-control show-length m-t-sm" maxlength="69" name="text"
                           style="text-align:left"></textarea>
             </div>
         </div>

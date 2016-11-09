@@ -1973,33 +1973,38 @@ class orders extends Controller
 
         // отправить смс
         if ($act == 'sms-form') {
-            $data['state'] = true;
-            $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
-            $order = $this->all_configs['db']->query('
-                SELECT o.*, c.fio, w.title, w.print_address, w.print_phone, l.location 
-                FROM {orders} o
-                LEFT JOIN {clients} as c ON c.id=o.user_id
-                LEFT JOIN {warehouses} as w ON w.id=o.wh_id
-                LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id 
-                WHERE o.id=?i',
-                array($order_id))->row();
+            if (!$this->all_configs['configs']['can_see_client_infos']) {
+                $data['state'] = false;
+                $data['message'] = l('У Вас нет доступа к контактным данным клиента. Вы не можете отправить ему смс.');
+            } else {
+                $data['state'] = true;
+                $order_id = isset($_POST['object_id']) ? $_POST['object_id'] : 0;
+                $order = $this->all_configs['db']->query('
+                    SELECT o.*, c.fio, w.title, w.print_address, w.print_phone, l.location 
+                    FROM {orders} o
+                    LEFT JOIN {clients} as c ON c.id=o.user_id
+                    LEFT JOIN {warehouses} as w ON w.id=o.wh_id
+                    LEFT JOIN {warehouses_locations} as l ON l.id=o.location_id 
+                    WHERE o.id=?i',
+                    array($order_id))->row();
 
-            $data['content'] = $this->view->renderFile('orders/sms_form', array(
-                'order' => $order,
-                'order_id' => $order_id,
-                'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
-                    '{{order_id}}' => $order_id,
-                    '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount']) / 100) . ' ' . viewCurrency(),
-                    '{{order_sum}}' => ($order['sum'] / 100) . ' ' . viewCurrency(),
-                    '{{client}}' => $order['fio'],
-                    '{{warehouse}}' => $order['title'],
-                    '{{warehouse_address}}' => $order['print_address'],
-                    '{{warehouse_phone}}' => $order['print_phone'],
-                    '{{location}}' => $order['location']
-                ))
-            ));
-            if ($order) {
-                $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';
+                $data['content'] = $this->view->renderFile('orders/sms_form', array(
+                    'order' => $order,
+                    'order_id' => $order_id,
+                    'templates' => get_service('crm/sms')->get_templates_with_vars('orders', array(
+                        '{{order_id}}' => $order_id,
+                        '{{pay}}' => (($order['sum'] - $order['sum_paid'] - $order['discount']) / 100) . ' ' . viewCurrency(),
+                        '{{order_sum}}' => ($order['sum'] / 100) . ' ' . viewCurrency(),
+                        '{{client}}' => $order['fio'],
+                        '{{warehouse}}' => $order['title'],
+                        '{{warehouse_address}}' => $order['print_address'],
+                        '{{warehouse_phone}}' => $order['print_phone'],
+                        '{{location}}' => $order['location']
+                    ))
+                ));
+                if ($order) {
+                    $data['btns'] = '<input type="button" onclick="send_sms(this)" class="btn" value="' . l('Отправить') . '" />';
+                }
             }
         }
 
