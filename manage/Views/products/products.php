@@ -125,7 +125,7 @@
 </div>
 
 <script type="text/javascript">
-    var sidebar_open_product = <?= $sidebar_open_product ?>;
+    var sidebar_open_product = <?= !empty($sidebar_open_product) ? $sidebar_open_product : 'false' ?>;
     $(function () {
         if (sidebar_open_product) {
             rightSidebar.load_product(parseInt(sidebar_open_product));
