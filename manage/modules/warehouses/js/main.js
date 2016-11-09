@@ -104,9 +104,10 @@ $(document).ready(function () {
 
 });
 
-
 function multiselect() {
   init_multiselect();
+  $('#warehouses-filter-select').multiselect(multiselect_options).multiselect('selectAll', false);
+  $('#warehouses-filter-select').multiselect('updateButtonText');
 //    $('.multiselect').multiselect({
 //        buttonContainer: '<span class="dropdown" />',
 //        nonSelectedText: L['choose'],

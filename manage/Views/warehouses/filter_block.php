@@ -1,11 +1,12 @@
 <div class="row row-15">
-    <form method="post">
+    <form method="post" id="warehouses-filter-block-from">
         <div class="col-sm-4">
             <div class="row row-15">
                 <div class="col-sm-6">
                     <div class="form-group">
                         <label><?= l('Склад') ?>:</label><br>
-                        <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]" multiple="multiple">
+                        <select onchange="change_warehouse(this)" class="multiselect form-control" name="warehouses[]"
+                                id="warehouses-filter-select" multiple="multiple">
                             <?= $warehousesOptions ?>
                         </select>
                     </div>

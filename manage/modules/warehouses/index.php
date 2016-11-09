@@ -499,7 +499,6 @@ class warehouses extends Controller
                 }
                 $show_item_type = 2;
             } else {
-                if (count($warehouses_selected) > 0 || (isset($_GET['so_id']) && $_GET['so_id'] > 0)) {
                     $goods = $this->getItems($_GET, $count_on_page, $skip);
                     if (isset($filters['so_id']) && $filters['so_id'] > 0) {
                         $query = $this->all_configs['db']->makeQuery('?query AND i.supplier_order_id=?i',
@@ -513,15 +512,12 @@ class warehouses extends Controller
                             FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                             WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query',
                             array($query, $query_for_noadmin))->el() / $count_on_page;
-                }
 
                 $show_item_type = 1;
             }
         }
 
-        if (($show_item_type == null || $show_item_type == 1) && (count($warehouses_selected) > 0
-                || (isset($_GET['so_id']) && $_GET['so_id'] > 0)) || $show_item_type == 2
-        ) {
+        if (count($goods)) {
             $out .= $this->show_goods($goods, $query_for_noadmin, $show_item_type, $count_page);
         } else {
             $out .= '<p class="text-error">' . l('Выберите склад') . '</p>';
@@ -569,7 +565,6 @@ class warehouses extends Controller
         if ($count_on_page || $skip) {
             $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(intval($skip), intval($count_on_page)));
         }
-        if (count($warehouses_selected) > 0 || (isset($filters['so_id']) && $filters['so_id'] > 0)) {
             if (isset($filters['so_id']) && $filters['so_id'] > 0) {
                 $query = $this->all_configs['db']->makeQuery('AND i.supplier_order_id=?i',
                     array(intval($filters['so_id'])));
@@ -594,7 +589,6 @@ class warehouses extends Controller
                     FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                     WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query ?query',
                 array($select, $query, $query_for_noadmin, $limit))->assoc();
-        }
 
         return $goods;
     }

@@ -6,7 +6,7 @@ var multiselect_options = {
   includeSelectAllOption: true,
   enableCaseInsensitiveFiltering: true,
   //dropRight: true,
-  selectAllText: L['checkAll'],
+  allSelectedText: L['checkAll'],
   //dataprovider: [{label:1, value: 1}],
   buttonWidth: '150px',
   maxHeight: 200,
