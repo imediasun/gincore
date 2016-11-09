@@ -507,7 +507,6 @@ class orders extends Controller
                 'accepter' => 'on',
                 'manager' => 'on',
                 'status' => 'on',
-                'components' => 'on',
                 'device' => 'on',
                 'amount' => 'on',
                 'paid' => 'on',
@@ -518,6 +517,15 @@ class orders extends Controller
             );
             $this->LockFilters->toggle('repair-order-table-columns', $columns);
         }
+
+        // Спрятать ненужные поля
+        if (isset($columns['components'])) {
+            unset($columns['components']);
+        }
+        if (isset($columns['services'])) {
+            unset($columns['services']);
+        }
+
         return array(
             'html' => $this->view->renderFile('orders/show_orders_orders', array(
                 'count' => $count,
