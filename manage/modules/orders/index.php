@@ -508,6 +508,7 @@ class orders extends Controller
                 'manager' => 'on',
                 'status' => 'on',
                 'device' => 'on',
+                'components' => 'on',
                 'amount' => 'on',
                 'paid' => 'on',
                 'client' => 'on',
@@ -519,9 +520,6 @@ class orders extends Controller
         }
 
         // Спрятать ненужные поля
-        if (isset($columns['components'])) {
-            unset($columns['components']);
-        }
         if (isset($columns['services'])) {
             unset($columns['services']);
         }

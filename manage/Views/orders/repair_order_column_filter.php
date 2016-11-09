@@ -14,7 +14,7 @@
                         'manager' => 'Менеджер',
                         'engineer' => 'Инженер',
                         'status' => 'Статус',
-//                        'components' => 'Запчасти',
+                        'components' => 'Запчасти',
 //                        'services' => 'Работы',
                         'device' => 'Устройство',
                         'amount' => 'Стоимость',
