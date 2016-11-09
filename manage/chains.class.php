@@ -233,7 +233,6 @@ class Chains extends Object
                         $bind_results[] = $this->bind_item_serial(array(
                             'item_id' => $item_id,
                             'order_product_id' => $order_products[$i]['id'],
-                            'confirm' => 1,
                         ), $mod_id, false);
                         $i++;
                     } 
@@ -243,7 +242,6 @@ class Chains extends Object
                     $bind_results[] = $this->bind_item_serial(array(
                         'serial' => $serials['input'],
                         'order_product_id' => $order_products[$i]['id'],
-                        'confirm' => 1,
                     ), $mod_id, false);
                     $i++;
                 }
@@ -258,7 +256,6 @@ class Chains extends Object
                         $bind_results[] = $this->bind_item_serial(array(
                             'item_id' => $avail_item['id'],
                             'order_product_id' => $order_products[$i]['id'],
-                            'confirm' => 1,
                         ), $mod_id, false);
                         $i++;
                     }
@@ -644,14 +641,14 @@ class Chains extends Object
 
         if ($only_count == true) {
             if ($type == 1) {
-                $operations = $this->all_configs['db']->query('SELECT COUNT(DISTINCT g.order_id)
+                $operations = $this->all_configs['db']->query('SELECT COUNT(g.order_id)
                     FROM {orders_suppliers_clients} as l, {orders} as o, {orders_goods} as g
                     LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
                     WHERE o.id=g.order_id AND l.order_goods_id=g.id ?query',
                     array($filters_query))->el();
             }
             if ($type == 4) {
-                $operations = $this->all_configs['db']->query('SELECT COUNT(DISTINCT g.order_id)
+                $operations = $this->all_configs['db']->query('SELECT COUNT(g.order_id)
                     FROM {orders} as o, {orders_goods} as g
                     LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
                     WHERE o.id=g.order_id AND g.unbind_request IS NOT NULL ?query',
@@ -661,7 +658,7 @@ class Chains extends Object
             if ($type == 1) {
                 $operations = $this->all_configs['db']->query('SELECT g.title, g.order_id, g.goods_id, i.serial,
                       o.comment, o.fio, o.phone, g.item_id, g.id, g.last_item_id, l.date_add,
-                      t.location, l.supplier_order_id, g.warehouse_type, wg.name, wg.color, wt.icon, wl.location
+                      w.title as warehouse_title, t.location, l.supplier_order_id, g.warehouse_type, wg.name, wg.color, wt.icon, wl.location
                     FROM {orders_suppliers_clients} as l, {orders} as o
                     LEFT JOIN {orders_goods} as g ON o.id=g.order_id
                     LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
@@ -678,10 +675,10 @@ class Chains extends Object
             if ($type == 4) {
                 $operations = $this->all_configs['db']->query('SELECT g.title, g.order_id, g.goods_id, i.serial,
                       o.comment, o.fio, o.phone, g.item_id, g.id, g.last_item_id, g.unbind_request as date_add,
-                      t.location, g.warehouse_type, wg.name, wg.color, wt.icon
+                      w.title as warehouse_title, t.location, g.warehouse_type, wg.name, wg.color, wt.icon
                     FROM {orders} as o
                     LEFT JOIN {orders_goods} as g ON o.id=g.order_id
-                    LEFT JOIN {warehouses_goods_items} as i ON i.id=g.last_item_id
+                    LEFT JOIN {warehouses_goods_items} as i ON i.id=g.item_id
                     LEFT JOIN {warehouses_locations} as t ON t.id=i.location_id
                     LEFT JOIN {warehouses} as w ON w.id=o.accept_wh_id
                     LEFT JOIN {warehouses_groups} as wg ON wg.id=w.group_id

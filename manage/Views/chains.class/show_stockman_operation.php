@@ -11,7 +11,7 @@
             <i style="color:<?= htmlspecialchars($item['color']) ?>;" class="<?= htmlspecialchars($item['icon']) ?>"></i>
             <?= htmlspecialchars($item['name']) ?>
         </td>
-        <td><?= h($item['location']) ?></td>
+        <td><?= h($item['warehouse_title']) ?>, <?= h($item['location']) ?></td>
         <td><span title="<?= do_nice_date($item['date_add'], false) ?>"> <?= do_nice_date($item['date_add']) ?></span></td>
         <td>
             <a href="<?= $this->all_configs['prefix'] ?>products/create/<?= $item['goods_id'] ?>"
@@ -19,8 +19,8 @@
             <i class="fa fa-arrows popover-info" data-content="<?= $state ?>"></i>
         </td>
     <?php endif; ?>
-    <?php if ($type == 1): ?>
         <td></td>
+    <?php if ($type == 1): ?>
         <td>
             <div class="input-group" style="<?= (!$compact ? 'max-width:200px;' : '') ?>">
                 <?= $controller->select_bind_item_wh($item, $type, $serials); ?>
