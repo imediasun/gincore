@@ -1,7 +1,7 @@
 <tr class="row-item">
     <td class="col-sm-3">
         <a href="<?= $url ?>" data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
-            <?= htmlspecialchars($product['title']) ?>
+            <?= cut_string($product['title'], 60) ?>
         </a>
     </td>
     <?php if ($this->all_configs['oRole']->hasPrivilege('edit-clients-orders')): ?>
