@@ -445,11 +445,11 @@ function start_import_goods(_this) {
     contentType: false,
     processData: false,
     success: function (data) {
-      $(_this).html(btn_txt);
+      $(_this).html(btn_txt).prop("disabled", false);
       if (data.state) {
       }
       if (data.message) {
-        $('#upload_messages').html(data.message).prop("disabled", false);
+        $('#upload_messages').html(data.message);
       }
     },
     error: function (xhr, ajaxOptions, thrownError) {
