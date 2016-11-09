@@ -11,7 +11,7 @@
             <input name='file' type="file"/>
         </div>
         <div class="form-group">
-            <a  class="btn btn-primary"  onclick="return start_import_goods(this);"><?= l('Загрузить файл') ?></a>
+            <a class="btn btn-primary" onclick="start_import_goods(this)"><?= l('Загрузить файл') ?></a>
         </div>
     </fieldset>
 </form>
