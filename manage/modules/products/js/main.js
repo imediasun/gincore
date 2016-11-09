@@ -432,6 +432,8 @@ function update_context(_this, provider) {
   return false;
 }
 function start_import_goods(_this) {
+  var btn_txt = $(_this).html();
+  $(_this).html('loading...');
   var form_data = new FormData($('#import_form')[0]);
   $('#upload_messages').empty();
   $.ajax({
@@ -443,6 +445,7 @@ function start_import_goods(_this) {
     contentType: false,
     processData: false,
     success: function (data) {
+      $(_this).html(btn_txt);
       if (data.state) {
       }
       if (data.message) {
