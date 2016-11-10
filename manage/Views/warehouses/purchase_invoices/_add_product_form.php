@@ -57,7 +57,7 @@
                            class="form-control js-sum"
                            value=""/>
                 </td>
-                <td>
+                <td class="center">
                             <span class="btn btn-sm btn-primary btn-add-good"
                                   onclick="return add_supplier_item_to_table();"
                                   title="<?= l('Добавить товар') ?>">

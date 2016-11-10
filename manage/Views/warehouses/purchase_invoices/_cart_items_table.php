@@ -23,7 +23,7 @@
                            onkeyup="recalculate_amount_supplier(this);" value="" name=""/>
                 </td>
                 <?php if (empty($goods)): ?>
-                    <td class="col-sm-1">
+                    <td class="col-sm-1 center">
                         <a href="#" onclick="return remove_supplier_row(this);">
                             <i class="glyphicon glyphicon-remove"></i>
                         </a>
