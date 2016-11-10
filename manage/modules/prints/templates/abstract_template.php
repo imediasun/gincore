@@ -173,12 +173,13 @@ abstract class AbstractTemplate extends Object
      */
     public function add_edit_form($print_html)
     {
-        if ($print_html && $this->editor && $this->all_configs['oRole']->hasPrivilege('site-administration')) {
+        if ($print_html && $this->editor) {
             $print_html = $this->view->renderFile('prints/add_edit_form', array(
                 'tpl' => $this->get_template($this->act),
                 'variables' => $this->variables,
                 'print_html' => $print_html,
                 'act' => $this->act(),
+                'can_edit' => $this->all_configs['oRole']->hasPrivilege('site-administration'),
             ));
 
         }
