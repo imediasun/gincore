@@ -45,33 +45,27 @@
                                 <div class="form-group">
                                     <label class="control-label"><?= l('Розничная цена') ?> (<?= viewCurrency('shortName') ?>
                                         ): </label>
-                                    <div class="controls">
                                         <input onkeydown="return isNumberKey(event)" placeholder="<?= l('введите цену') ?>"
                                                class="form-control" name="price"
                                                value="<?= ((array_key_exists('post', $errors) && array_key_exists('price',
                                                        $errors['post'])) ? h($errors['post']['price']) : '') ?>"/>
-                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label"><?= l('Оптовая цена') ?> (<?= viewCurrency('shortName') ?>
                                         ): </label>
-                                    <div class="controls">
                                         <input onkeydown="return isNumberKey(event)" placeholder="<?= l('введите цену') ?>"
                                                class="form-control" name="price_wholesale"
                                                value="<?= ((array_key_exists('post',
                                                        $errors) && array_key_exists('price_wholesale',
                                                        $errors['post'])) ? h($errors['post']['price_wholesale']) : '') ?>"/>
-                                    </div>
                                 </div>
                             <?php endif; ?>
                             <div class="form-group">
                                 <label class="control-label"><?= l('Артикул') ?>: </label>
-                                <div class="controls">
                                     <input placeholder="<?= l('Артикул') ?>"
                                            class="form-control" name="vendor_code"
                                            value="<?= ((array_key_exists('post', $errors) && array_key_exists('vendor_code',
                                                    $errors['post'])) ? h($errors['post']['vendor_code']) : '') ?>"/>
-                                </div>
                             </div>
         
                             <div class="form-group">
