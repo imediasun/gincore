@@ -429,7 +429,11 @@
 }
 
 .modal-dialog {
-    margin-top: 80px
+    margin-top: 80px;
+}
+
+.bootbox.modal {
+    overflow-y: auto;
 }
 
 .modal-title {

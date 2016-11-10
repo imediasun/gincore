@@ -3,7 +3,7 @@
         <table class="table table-borderless">
             <thead>
             <tr>
-                <td class="col-sm-3">
+                <td class="col-sm-5">
                     <label><?= l('Запчасть') ?><b class="text-danger">*</b>: </label>
                 </td>
                 <td class="col-sm-2">

@@ -6,7 +6,7 @@
                 <?php if (!empty($goods)): ?>
                     <td></td>
                 <?php endif; ?>
-                <td class="col-sm-3">
+                <td class="col-sm-5">
                     <input type="hidden" class="form-control js-supplier-item-id" name="" value="">
                     <input type="text" readonly class="form-control js-supplier-item-name" value=""/>
                 </td>
