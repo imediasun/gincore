@@ -465,6 +465,7 @@ class requests extends \service
      */
     public function get_new_request_row_form_for_call($client_id, $call_id, $request_data = null)
     {
+        $button_id = $request_data ? $request_data['id'] : rand(1,10000);
         return '
             ' . $this->assets() . '
             <form class="ajax_form" data-callback="new_call_add_request_callback" method="post" data-submit_on_blur="categories-last-value,comment,status_id" data-on_success_set_value_for="request_id" action="' . $this->all_configs['prefix'] . 'services/ajax.php">
@@ -486,8 +487,9 @@ class requests extends \service
         )
         .'
             <div class="input-group-btn">
-                <button onclick=\'alert_box(this, "", "create_form", {}, null, "categories/ajax")\'
-                    class="btn btn-default">
+                <button onclick=\'alert_box(this, "", "create_form", {callback: "category_input_fill"}, null, "categories/ajax")\'
+                    class="btn btn-default" data-o_id="category-add-button-' . $button_id . '"
+                    id="category-add-button-' . $button_id . '">
                     <i class="fa fa-plus cursor-pointer" aria-hidden="true"></i>
                 </button>
             </div>

@@ -1107,7 +1107,13 @@ $(document).ready(function () {
   });
 });
 
-function category_create_form_submit(_this, callback) {
+function category_input_fill(data, _this, o_id) {
+  var input_group = $('#' + o_id).closest('.input-group');
+  input_group.find('input[name=categories-last]').val(data.id);
+  input_group.find('input[name=categories-last-value]').val(data.name).trigger('blur');
+}
+
+function category_create_form_submit(_this, callback, o_id) {
   var form_data = $('#category-create-form');
   var hide_modal = true;
   var data = form_data.serialize();
@@ -1126,8 +1132,12 @@ function category_create_form_submit(_this, callback) {
             $(_this).closest('.modal').modal('hide');
           }
           if (typeof callback == 'function') {
-            callback(data, _this);
+            callback(data, _this, o_id);
           }
+
+          // if (typeof callback == 'string') {
+          //   window[callback](data, _this);
+          // }
         }
         if (data['state'] == false && data['msg'])
           alert(data['msg'])

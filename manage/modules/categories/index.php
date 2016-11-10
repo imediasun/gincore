@@ -648,10 +648,12 @@ class categories extends Controller
             $return = array('state' => true);
 
             $name = isset($_POST['name']) ? trim($_POST['name']) : '';
+            $o_id = isset($_POST['object_id']) ? trim($_POST['object_id']) : '';
+            $callback = isset($_POST['callback']) ? trim($_POST['callback']) : '';
             $is_modal = (isset($_GET['show']) && $_GET['show'] == 'modal' ) ? true : false;
             if ($is_modal) {
                 $return['content'] = $this->gencreate($name, true, $is_modal);
-                $return['btns'] = '<input type="button" onclick="category_create_form_submit(this);" class="btn btn-success" value="'.l('Создать').'">';
+                $return['btns'] = '<input type="button" onclick="category_create_form_submit(this, '.$callback.', \''.$o_id.'\');" class="btn btn-success" value="'.l('Создать').'">';
             } else {
                 $return['html'] = $this->gencreate($name, true);
             }
