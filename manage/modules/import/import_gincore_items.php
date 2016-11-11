@@ -99,7 +99,7 @@ class import_gincore_items extends abstract_import_handler
         try {
             $query = '';
             foreach ($data as $field => $value) {
-                if ($field != 'category' && $field != 'balance' && $field != 'manager') {
+                if (!in_array($field, array('category', 'balance', 'manager', 'price_purchase'))) {
                     if (empty($query)) {
                         $query = db()->makeQuery('?q=?', array($field, $value));
                     } else {
@@ -120,7 +120,7 @@ class import_gincore_items extends abstract_import_handler
                     if (strpos($field, 'price') !== false || strpos($field, 'fixed_payment') !== false) {
                         $old = $old / 100;
                     }
-             
+
                     $this->addToLog($this->userId, 'update-goods', $modId, $id, l($field) . ':' . $old);
 
                 } elseif ($field == 'category') {
