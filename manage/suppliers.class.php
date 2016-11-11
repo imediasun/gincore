@@ -1817,7 +1817,7 @@ class Suppliers extends Object
         if ($product[$type . '_type'] == DISCOUNT_TYPE_PERCENT) {
             $automargin = $value * ($product[$type] / 100);
         } else {
-            $automargin = $product[$type] * 100;
+            $automargin = $product[$type];
         }
         return $automargin;
     }
