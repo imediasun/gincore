@@ -43,7 +43,7 @@ class import_gincore_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
-            $goods = db()->query('SELECT g.*, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'])->assoc('id');
+            $goods = db()->query('SELECT g.id, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'])->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
                 if (!empty($id) && isset($goods[$id])) {
