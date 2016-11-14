@@ -178,6 +178,23 @@ class MOrders extends AModel
     }
 
     /**
+     * @param $client
+     * @return bool|int
+     */
+    public function clientInfoUpdate($client)
+    {
+        if(empty($client)) {
+            return false;
+        }
+        return $this->update(array(
+           'fio' => $client['fio'],
+            'email' => $client['email']
+        ), array(
+            'user_id' => $client['id']
+        ));
+    }
+
+    /**
      * @return array
      */
     public function columns()

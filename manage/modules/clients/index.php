@@ -13,6 +13,7 @@ $moduleactive[20] = !$ifauth['is_2'];
  * @property  MUsersMarked UsersMarked
  * @property  MCategories  Categories
  * @property  MHistory     History
+ * @property  MOrders     Orders
  */
 class Clients extends Object
 {
@@ -28,7 +29,8 @@ class Clients extends Object
         'Users',
         'UsersMarked',
         'Categories',
-        'History'
+        'History',
+        'Orders'
     );
 
     /**
@@ -206,6 +208,8 @@ class Clients extends Object
             if ($result['state'] == false) {
                 $this->error = $result['msg'];
                 return false;
+            } else {
+                $this->ordersClientUpdate($post['id']);
             }
 
         } elseif (isset($post['edit-goods-reviews'])) {
@@ -1582,6 +1586,16 @@ class Clients extends Object
 
         }
         return $data;
+    }
+
+    /**
+     * @param $id
+     * @return bool|int
+     */
+    private function ordersClientUpdate($id)
+    {
+        $client = $this->Clients->getByPk($id);
+        return $this->Orders->clientInfoUpdate($client);
     }
 }
 
