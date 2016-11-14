@@ -89,12 +89,10 @@
     <?php if (isset($columns['date'])): ?>
         <td><?= h(date('d/m/y', strtotime($good['date_add']))) ?></td>
     <?php endif; ?>
-    <?php if (isset($columns['del'])): ?>
-        <td>
-            <?php if (!$good['deleted']): ?>
-                <i class="js-delete-product fa fa-times" aria-hidden="true"
-                   data-id="<?= $good['id'] ?>"></i>
-            <?php endif; ?>
-        </td>
-    <?php endif; ?>
+    <td>
+        <?php if (!$good['deleted']): ?>
+            <i class="js-delete-product fa fa-times" aria-hidden="true"
+               data-id="<?= $good['id'] ?>"></i>
+        <?php endif; ?>
+    </td>
 </tr>
