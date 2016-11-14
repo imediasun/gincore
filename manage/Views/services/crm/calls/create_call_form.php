@@ -15,7 +15,8 @@
                 <input type="hidden" name="action" value="new_call">
                 <div class="modal-body">
                     <?= l('Номер телефона') ?>: <br>
-                    <?= typeahead($all_configs['db'], 'clients', false, 0, 1001, 'input-xlarge', 'input-medium', '',
+                    <?php $object_id = isset($id_client) ? $id_client : 0; ?>
+                    <?= typeahead($all_configs['db'], 'clients', false, $object_id , 1001, 'input-xlarge', 'input-medium', '',
                     false, false, '', true, '', array(), false, input_phone_mask_attr()) ?>
                 </div>
                 <div class="modal-footer">

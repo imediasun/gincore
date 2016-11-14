@@ -738,8 +738,13 @@ function typeahead(
                                   WHERE id = ?i ?q', array(intval($object_id), $tbl_where))->row();
         }
         if ($object) {
-            $object_name = array_key_exists('title', $object) ? htmlspecialchars($object['title']) :
-                (array_key_exists('fio', $object) ? get_user_name($object) : '');
+            if ($iterator == 1001) {
+                        $object_name = array_key_exists('phone', $object) ? htmlspecialchars($object['phone']) : '';
+            } else {
+                $object_name = array_key_exists('title', $object) ? htmlspecialchars($object['title']) :
+                    (array_key_exists('fio', $object) ? get_user_name($object) : '');
+            }
+
         }
     }
     $categories = $db->query('SELECT title, url, id FROM {categories}

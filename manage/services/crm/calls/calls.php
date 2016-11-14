@@ -27,8 +27,14 @@ class calls extends \service
      */
     public function create_call_form()
     {
+        $id_client = 0;
+        if ($this->all_configs['arrequest'][0] == 'clients' && isset($this->all_configs['arrequest'][2])) {
+            $id_client = (int)$this->all_configs['arrequest'][2];
+        }
+
         return $this->view($this->view->renderFile('services/crm/calls/create_call_form', array(
-            'all_configs' => $this->all_configs
+            'all_configs' => $this->all_configs,
+            'id_client' => $id_client
         )));
     }
 
