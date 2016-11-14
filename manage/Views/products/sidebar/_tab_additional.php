@@ -24,7 +24,7 @@
                     <div class="checkbox" style="margin: 0">
                         <label>
                             <input name="deleted" <?= $product['deleted'] == 1 ? 'checked' : '' ?> type="checkbox">
-                            <?= l('Удален в корзину') ?>
+                            <?= l('Удалить') ?>
                         </label>
                     </div>
                 </td>

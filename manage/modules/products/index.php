@@ -1500,6 +1500,17 @@ class products extends Controller
                     'id' => $id_product
                 ));
 
+                if (!isset($post['deleted']) && $product['deleted']) {
+                    $this->Goods->restoreProduct(array('id' => $id_product), $mod_id);
+                }
+
+                if (isset($post['deleted']) && !$product['deleted']) {
+                    $data = $this->deleteProduct(array('id' => $id_product), $mod_id);
+                    if (!$data['state']) {
+                        FlashMessage::set($data['message'], FlashMessage::DANGER);
+                    }
+                }
+
                 if (intval($ar) > 0) {
                     $this->saveMoreHistory($update, $product, $mod_id);
                 }

@@ -1,4 +1,4 @@
-<?php if ($product) : ?>
+<?php if ($product): ?>
     <div class="m-l-sm">
         <h4><?= l('Редактирование товара ID') ?> : <?= $product['id'] ?>. <?= $product['title'] ?></h4>
     </div>
@@ -18,6 +18,10 @@
             $('#right-sidebar [data-toggle="tooltip"]').tooltip();
         });
     </script>
+<?php else: ?>
+    <div class="m-l-sm">
+        <h4><?= l('Данного товара не существует') ?></h4>
+    </div>
 <?php endif; ?>
 
 
