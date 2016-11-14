@@ -927,7 +927,7 @@ class manageModel extends Object
                     LEFT JOIN {warehouses_goods_items} as i ON i.supplier_order_id=o.id '
                     . 'LEFT JOIN {orders_suppliers_clients} AS osc ON osc.supplier_order_id=o.id '
                     . 'LEFT JOIN {orders} AS oo ON osc.client_order_id=oo.id '
-                    . 'LEFT JOIN {warehouses} AS w ON oo.accept_wh_id=w.id '
+                    . 'LEFT JOIN {warehouses} AS w ON i.wh_id=w.id '
                     . 'INNER JOIN {warehouses_groups} AS wg ON wg.id=w.group_id AND w.group_id IN (?li) '
                     . '?query GROUP BY o.id ORDER BY o.date_add DESC LIMIT ?i, ?i',//o.parent_id DESC,
                     array($icon_type, $_SESSION['id'], $wga, $query, $skip, $count_on_page))->vars();
