@@ -1341,6 +1341,10 @@ class Clients extends Object
             $query = $this->all_configs['db']->makeQuery('?query AND m.user_id=?i AND m.type=?',
                 array($query, $_SESSION['id'], trim($filters['marked'])));
         }
+        if (isset($filters['df']) && isset($filters['dt'])) {
+            $query = $this->all_configs['db']->makeQuery('?query AND ?query',
+                array($query, $this->getDateFilter($filters, 'cl.date_add')));
+        }
         if (isset($filters['tags']) && count(array_filter(explode(',', $filters['tags']))) > 0) {
             $query = $this->all_configs['db']->makeQuery('?query AND cl.tag_id IN (?li)',
                 array($query, array_filter(explode(',', $filters['tags']))));
@@ -1387,8 +1391,8 @@ class Clients extends Object
             $ids = $this->all_configs['db']->query('
                 SELECT user_id as cl_id 
                 FROM {orders} 
-                WHERE category_id=?i AND ?query GROUP by cl_id',
-                array($filters['dev'], $this->getDateFilter($filters, 'date_add')))->col();
+                WHERE category_id=?i GROUP by cl_id',
+                array($filters['dev']))->col();
             if (!empty($ids)) {
                 $additionIds = array_merge($additionIds, $ids);
             } else {
