@@ -2183,6 +2183,12 @@ function check_if_order_fail_in_orders_manager($order)
 function get_orders_for_orders_manager($filters_query = '')
 {
     global $all_configs;
+    $orderStatusesManager = array();
+    foreach ($all_configs['configs']['order-status'] as $id => $status) {
+        if($status['use_in_manager']) {
+            $orderStatusesManager[] = $id;
+        }
+    }
     return db()->query(
         'SELECT o.status, o.date_add, o.id, s.date, o.accept_wh_id, o.manager, w.group_id, SUM(IF ((
                     (l.id IS NOT NULL AND g.item_id IS NULL AND so.count_debit>0 AND DATE_ADD(l.date_add, INTERVAL 2 day)<NOW()) ||
@@ -2200,10 +2206,10 @@ function get_orders_for_orders_manager($filters_query = '')
         array(
             $all_configs['configs']['order-status-waits'],
             $filters_query,
-            array(3),
-            $all_configs['configs']['order-statuses-manager'],
+            array(ORDER_SELL),
+            $orderStatusesManager,
             (time() - 60 * 60 * 24 * 90)
-        ))->assoc();
+        ))->assoc('id');
 }
 
 /**

@@ -40,7 +40,7 @@ $i = 1;
                         <div class="col-sm-2">
                             <div class="form-group">
                                 <input class="form-control" type="text" name="status[<?= $id ?>]"
-                                       value="<?= empty($current[$id]) ? (isset($default[$id]) ? $default[$id] : 1) : $current[$id] ?>"
+                                       value="<?= empty($current[$id]) ? (isset($default[$id]) ? $default[$id] : 0) : $current[$id] ?>"
                                        placeholder=""/>
                             </div>
                         </div>
