@@ -72,7 +72,7 @@
             <?php $total = 0; ?>
             <?php if (!empty($cart)): ?>
                 <?php foreach ($cart as $id => $item): ?>
-                    <tr class="">
+                    <tr class="row-item">
                         <td>
                             <input type="hidden" class="form-control js-<?= $prefix ?>-item-id" name="item_ids[<?= $id ?>]"
                                    value="<?= $item['id'] ?>">

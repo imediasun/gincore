@@ -43,7 +43,7 @@ class import_gincore_items extends abstract_import_handler
         }
         $results = array();
         if (!empty($rows)) {
-            $goods = db()->query('SELECT g.*, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'])->assoc('id');
+            $goods = db()->query('SELECT g.id, un.balance FROM {goods} as g LEFT JOIN {users_notices} as un ON un.goods_id=g.id AND user_id=' . $_SESSION['id'])->assoc('id');
             foreach ($rows as $row) {
                 $id = $this->provider->get_id($row);
                 if (!empty($id) && isset($goods[$id])) {
@@ -99,7 +99,7 @@ class import_gincore_items extends abstract_import_handler
         try {
             $query = '';
             foreach ($data as $field => $value) {
-                if ($field != 'category' && $field != 'balance' && $field != 'manager') {
+                if (!in_array($field, array('category', 'balance', 'manager', 'price_purchase'))) {
                     if (empty($query)) {
                         $query = db()->makeQuery('?q=?', array($field, $value));
                     } else {
@@ -120,7 +120,7 @@ class import_gincore_items extends abstract_import_handler
                     if (strpos($field, 'price') !== false || strpos($field, 'fixed_payment') !== false) {
                         $old = $old / 100;
                     }
-             
+
                     $this->addToLog($this->userId, 'update-goods', $modId, $id, l($field) . ':' . $old);
 
                 } elseif ($field == 'category') {

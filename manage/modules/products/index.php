@@ -128,7 +128,6 @@ class products extends Controller
         }
 
 
-
         if (isset($post['delete-product'])) {
             if ($this->all_configs['oRole']->hasPrivilege('create-goods')) {
                 $data = $this->deleteProduct($post, $mod_id);
@@ -317,7 +316,7 @@ class products extends Controller
                 // создание продукта
                 if (isset($post['create-product'])) {
                     $result = $this->createProduct($post, $user_id, $mod_id);
-                    $this->errors = isset($result['error']) ?  $result : [];
+                    $this->errors = isset($result['error']) ? $result : [];
                 }
 
                 $goods_html = $this->create_product_form();
@@ -411,7 +410,8 @@ class products extends Controller
         $goods_query = $this->all_configs['db']->makeQuery('WHERE 1=1', array());
 
         // выбранные категории
-        $categories = isset($get['cats']) ? $this->all_configs['manageModel']->get_all_child_with_models(array_filter(explode('-', $get['cats']))) : array();
+        $categories = isset($get['cats']) ? $this->all_configs['manageModel']->get_all_child_with_models(array_filter(explode('-',
+            $get['cats']))) : array();
         if (count($categories) > 0) {
             // конкретные категории
             $goods_query = $this->all_configs['db']->makeQuery(', {category_goods} AS cg
@@ -903,12 +903,12 @@ class products extends Controller
                 'html' => $form
             ));
         }
-        if($act == 'check-use-product') {
+        if ($act == 'check-use-product') {
             $used = $this->isUsedGood(intval($_GET['id']));
             $data = array(
                 'state' => $used
             );
-            if($used) {
+            if ($used) {
                 $data['message'] = l('Товар используется в логистических операциях или заказах');
             }
             Response::json($data);
@@ -988,7 +988,7 @@ class products extends Controller
         // сохраняем новые данные о продукте
         if ($act == 'product-image-delete') {
             $id_product = (int)$_POST['id_product'];
-            Response::json($this->deleteImage($_POST, $id_product, $mod_id ));
+            Response::json($this->deleteImage($_POST, $id_product, $mod_id));
         }
 
         // управление заказами поставщика
@@ -1200,7 +1200,8 @@ class products extends Controller
 
                 $img_id = $this->all_configs['db']->query('INSERT IGNORE INTO {goods_images} (image, goods_id, type) VALUE (?, ?i, ?i)',
                     array($result['filename'], intval($_GET['product']), 1), 'id');
-                $this->History->save('add-image-goods', $mod_id, intval($_GET['product']), l('Добавление фотографии к товару'));
+                $this->History->save('add-image-goods', $mod_id, intval($_GET['product']),
+                    l('Добавление фотографии к товару'));
 
                 // копируем картинку всем аналогичным товарам по secret_title
                 if (isset($_GET['oist']) && $_GET['oist'] == 'true' && $this->all_configs['configs']['one-image-secret_title'] == true && mb_strlen(trim($product['secret_title']),
@@ -1473,9 +1474,9 @@ class products extends Controller
                     'minimum_balance' => $post['minimum_balance'],
                     'use_automargin' => (int)(strcmp($post['use_automargin'], 'on') === 0),
                     'automargin_type' => $post['automargin_type'],
-                    'automargin' => $post['automargin'],
+                    'automargin' => $post['automargin'] * ($post['automargin_type'] == DISCOUNT_TYPE_PERCENT ? 1 : 100),
                     'wholesale_automargin_type' => $post['wholesale_automargin_type'],
-                    'wholesale_automargin' => $post['wholesale_automargin'],
+                    'wholesale_automargin' => $post['wholesale_automargin'] * ($post['wholesale_automargin_type'] == DISCOUNT_TYPE_PERCENT ? 1 : 100),
                     'price' => trim($post['price']) * 100,
                     'price_wholesale' => trim($post['price_wholesale']) * 100
                 );
@@ -2183,7 +2184,7 @@ class products extends Controller
         if (MGoods::isExistByTitle($this->all_configs['db'], trim($post['title']))) {
             return array('error' => l('Товар с таким названием уже существует'), 'post' => $post);
         }
-        
+
         $id = $this->all_configs['db']->query('INSERT INTO {goods}
                     (title, secret_title, url, avail, price, price_wholesale, article, author, type, vendor_code) VALUES (?, ?, ?n, ?i, ?i, ?i, ?, ?i, ?i, ?)',
             array(
@@ -2439,7 +2440,8 @@ class products extends Controller
 
 
         foreach ($post['images_del'] AS $del_id) {
-            $image = $this->all_configs['db']->query('SELECT * FROM {goods_images} WHERE id=?i', array(intval($del_id)))->col();
+            $image = $this->all_configs['db']->query('SELECT * FROM {goods_images} WHERE id=?i',
+                array(intval($del_id)))->col();
             $image_title = $image['image'];
 
             $this->all_configs['db']->query('DELETE FROM {goods_images} WHERE id=?i', array(intval($del_id)));
@@ -2651,9 +2653,9 @@ class products extends Controller
             'minimum_balance' => $post['minimum_balance'],
             'use_automargin' => (int)(strcmp($post['use_automargin'], 'on') === 0),
             'automargin_type' => $post['automargin_type'],
-            'automargin' => $post['automargin'],
+            'automargin' => $post['automargin'] * ($post['automargin_type'] == DISCOUNT_TYPE_PERCENT ? 1 : 100),
             'wholesale_automargin_type' => $post['wholesale_automargin_type'],
-            'wholesale_automargin' => $post['wholesale_automargin'],
+            'wholesale_automargin' => $post['wholesale_automargin'] * ($post['wholesale_automargin_type'] == DISCOUNT_TYPE_PERCENT ? 1 : 100),
         );
         $ar = $this->Goods->update($update, array(
             'id' => $product_id
@@ -2917,9 +2919,9 @@ class products extends Controller
             if (isset($post['use_automargin']) && strcmp($post['use_automargin'], 'on') === 0) {
                 $update['use_automargin'] = 1;
                 $update['automargin_type'] = intval($post['automargin_type']);
-                $update['automargin'] = intval($post['automargin']);
+                $update['automargin'] = intval($post['automargin']) * ($post['automargin_type'] == DISCOUNT_TYPE_PERCENT ? 1 : 100);
                 $update['wholesale_automargin_type'] = intval($post['wholesale_automargin_type']);
-                $update['wholesale_automargin'] = intval($post['wholesale_automargin']);
+                $update['wholesale_automargin'] = intval($post['wholesale_automargin']) * ($post['wholesale_automargin_type'] == DISCOUNT_TYPE_PERCENT ? 1 : 100);
             }
             if (isset($post['percent_from_profit']) && !empty($post['percent_from_profit'])) {
                 $update['percent_from_profit'] = $post['percent_from_profit'];
@@ -3127,7 +3129,7 @@ class products extends Controller
      */
     public function getSupplierLinks($get)
     {
-        return  $this->Goods->query('
+        return $this->Goods->query('
         SELECT link
         FROM {goods_suppliers}
         WHERE goods_id=?i
