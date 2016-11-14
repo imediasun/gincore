@@ -368,3 +368,8 @@ ALTER TABLE `restore4_users` ADD COLUMN color varchar(10) DEFAULT '';
 */
 ALTER TABLE `restore4_goods` MODIFY COLUMN title CHAR(200);
 ALTER TABLE `restore4_goods` MODIFY COLUMN url CHAR(200);
+
+/*
+2016_11_14_082348_modify_engineer_comment_in_orders.php
+*/
+ALTER TABLE `restore4_orders` MODIFY COLUMN `engineer_comment` TEXT DEFAULT '';
