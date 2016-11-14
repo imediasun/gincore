@@ -14,6 +14,5 @@ if (file_exists(__DIR__ . '/db_config-local.php')) {
     $dbcfg = array_merge($dbcfg, require(__DIR__ . '/db_config-local.php'));
 }
 
-require_once __DIR__ . '/goDB/autoload.php';
-\go\DB\autoloadRegister();
+require_once __DIR__ . '/gincore/bootstrap/autoload.php';
 $db = go\DB\DB::create($dbcfg, 'mysql');
