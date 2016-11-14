@@ -1,6 +1,6 @@
 <div class="row-fluid js-form">
     <div id=""></div>
-    <div class="col-sm-12">
+    <div class="col-sm-12 p-l-n">
         <form id="suppliers-order-form">
             <input type="hidden" name="create-purchase-invoice" />
             <?php if (empty($suppliers)): ?>

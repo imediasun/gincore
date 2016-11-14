@@ -1,5 +1,5 @@
 <div class="row-fluid" data-validate="parsley" id="js-add-product-form">
-    <div class="form-group relative col-sm-12">
+    <div class="form-group relative col-sm-12 p-r-n">
         <table class="table table-borderless">
             <thead>
             <tr>
