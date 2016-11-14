@@ -195,7 +195,7 @@ class import_gincore_items extends abstract_import_handler
                 $value = (int)(strpos(strtoupper($value), strtoupper(lq('Да'))) !== false);
             }
             if (strpos($field, 'automargin_type') !== false || strpos($field, 'wholesale_automargin_type') !== false) {
-                $value = (int)(strpos(strtoupper($value), strtoupper(lq('Нет'))) !== false);
+                $value = (int)(mb_strpos(mb_strtoupper($value), mb_strtoupper(lq('Нет'))) !== false);
             }
 
             if (strpos($field, 'category') !== false && $value === false && !empty($value)) {
@@ -206,7 +206,7 @@ class import_gincore_items extends abstract_import_handler
                 $value = 0;
             }
 
-            if ($value !== false && $good[$field] != $value) {
+            if ($value !== false) {
                 $data[$field] = $value;
             }
         }
