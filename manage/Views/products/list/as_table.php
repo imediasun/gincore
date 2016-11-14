@@ -73,13 +73,11 @@
         <?php if (isset($columns['date'])): ?>
             <th><?= l('Дата') ?></th>
         <?php endif; ?>
-        <?php if (isset($columns['del'])): ?>
-            <th title="<?= l('Удалить товар') ?>">
-                <?= $this->renderFile('products/list/column_filter', array(
-                    'columns' => $columns
-                )) ?>
-            </th>
-        <?php endif; ?>
+        <th title="<?= l('Удалить товар') ?>">
+            <?= $this->renderFile('products/list/column_filter', array(
+                'columns' => $columns
+            )) ?>
+        </th>
     </tr>
     </thead>
     <tbody>
