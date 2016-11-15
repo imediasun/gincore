@@ -373,3 +373,11 @@ ALTER TABLE `restore4_goods` MODIFY COLUMN url CHAR(200);
 2016_11_14_082348_modify_engineer_comment_in_orders.php
 */
 ALTER TABLE `restore4_orders` MODIFY COLUMN `engineer_comment` TEXT DEFAULT '';
+
+/*
+2016_11_15_085549_add_foreign_categorygoods_goods.php
+*/
+DELETE cg FROM `restore4_category_goods` cg LEFT JOIN `restore4_goods` g ON g.id=cg.goods_id WHERE g.id IS NULL;
+SET FOREIGN_KEY_CHECKS=0;
+ALTER TABLE `restore4_category_goods` ADD CONSTRAINT `restore4_category_goods_ibfk_2` FOREIGN KEY (`goods_id`) REFERENCES `restore4_goods` (`id`) ON DELETE CASCADE;
+SET FOREIGN_KEY_CHECKS=1;
