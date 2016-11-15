@@ -1467,8 +1467,6 @@ class products extends Controller
                         'errors' => $errors,
                         'msg' => l('Товар удален успешно')
                     ]);
-
-                    exit;
                 }
 
                 $update = array(
