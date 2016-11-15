@@ -45,6 +45,9 @@ class import_posting_items extends abstract_import_handler
             foreach ($rows as $row) {
                 try {
                     $data = $this->getItemData($row);
+                    if(empty($data)) {
+                        continue;
+                    }
                     if (empty($data['good_id'])) {
                         throw new ExceptionWithMsg(l('Название товара в базе не найдено'));
                     }
@@ -126,6 +129,9 @@ class import_posting_items extends abstract_import_handler
         $id = $this->provider->get_item_id($row);
         $title = $this->provider->title($row);
         $price = $this->provider->price($row) * 100;
+        if(empty($title)) {
+            return array();
+        }
         if(empty($price)) {
             throw new ExceptionWithMsg(l('Цена закупки должна быть больше 0'));
         }
