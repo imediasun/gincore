@@ -141,7 +141,9 @@ class Clients extends Object
             if (isset($post['cq_to']) && $post['cq_to'] > 0) {
                 $url['cqt'] = intval($post['cq_to']);
             }
-
+            if (isset($post['lock-button'])) {
+                $url['lock-button'] = trim($post['lock-button']);
+            }
             $url['tab'] = 'clients';
             $this->LockFilters->toggle('filter-clients', $url);
             Response::redirect(Url::create(array(

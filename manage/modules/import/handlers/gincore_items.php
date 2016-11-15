@@ -46,11 +46,11 @@ class gincore_items extends abstract_import_provider implements ItemsInterface
     public function getCategories($data)
     {
         return array(
-            (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[1] : iconv('cp1251', 'utf8', trim($data[1])),
-            (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[2] : iconv('cp1251', 'utf8', trim($data[2])),
-            (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[3] : iconv('cp1251', 'utf8', trim($data[3])),
-            (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[4] : iconv('cp1251', 'utf8', trim($data[4])),
-            (empty($this->codepage) || $this->codepage == 'utf-8') ? $data[5] : iconv('cp1251', 'utf8', trim($data[5])),
+            (empty($this->codepage) || $this->codepage == 'utf-8') ? trim($data[1]) : iconv('cp1251', 'utf8', trim($data[1])),
+            (empty($this->codepage) || $this->codepage == 'utf-8') ? trim($data[2]) : iconv('cp1251', 'utf8', trim($data[2])),
+            (empty($this->codepage) || $this->codepage == 'utf-8') ? trim($data[3]) : iconv('cp1251', 'utf8', trim($data[3])),
+            (empty($this->codepage) || $this->codepage == 'utf-8') ? trim($data[4]) : iconv('cp1251', 'utf8', trim($data[4])),
+            (empty($this->codepage) || $this->codepage == 'utf-8') ? trim($data[5]) : iconv('cp1251', 'utf8', trim($data[5])),
         );
     }
 
