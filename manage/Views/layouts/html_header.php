@@ -25,7 +25,7 @@ use Assetic\AssetWriter;
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>bootstrap/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-responsive.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap3-editable.css">
-    <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?23">
+    <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?24">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/daterangepicker-bs2.css?1">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-datetimepicker.min.css"/>
     <link rel="stylesheet" href="<?= $assetsDir ?>css/font-awesome.css">
@@ -169,8 +169,8 @@ use Assetic\AssetWriter;
         print_r($e->getMessage());
     }
     ?>
-        <script src="<?= $assetsDir ?>assets/scripts.js?16"></script>
-    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?15"/>
+        <script src="<?= $assetsDir ?>assets/scripts.js?17"></script>
+    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?16"/>
     <?php endif; ?>
 
     <script type="text/javascript">
@@ -184,5 +184,5 @@ use Assetic\AssetWriter;
 
     {-css-module}
 
-    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?45"></script>
+    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?46"></script>
 </head>
