@@ -127,7 +127,7 @@ class import_posting_items extends abstract_import_handler
     private function getItemData($row)
     {
         $id = $this->provider->get_item_id($row);
-        $title = $this->provider->title($row);
+        $title = trim($this->provider->title($row));
         $price = $this->provider->price($row) * 100;
         if(empty($title)) {
             return array();
