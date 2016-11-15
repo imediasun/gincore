@@ -74,7 +74,9 @@ class Infoblock
            .'</div>';
         }
         $html = 
-            '<i title="Перемещение заказа" class="fa fa-arrows cursor-pointer" onclick="alert_box(this, false, \'stock_move-order\', undefined, undefined, \'messages.php\')" id="move-order"></i>'
+            '<button title="'.l('Перемещения').'" type="button" class="btn btn-default" id="move-order">
+                    <i class="fa fa-random"></i>
+            </button>'
            .$info_block;
         return $html;
     }

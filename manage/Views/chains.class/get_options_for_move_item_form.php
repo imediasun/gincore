@@ -1,4 +1,4 @@
-<option value=""></option>
+<option value=""><?= l('Выберите склад') ?></option>
 <?php if (!empty($warehouses)): ?>
     <?php foreach ($warehouses as $warehouse): ?>
         <?php if (($exclude > 0 && $exclude != $warehouse['id']) || $exclude == 0): ?>

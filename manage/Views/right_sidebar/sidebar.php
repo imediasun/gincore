@@ -14,3 +14,4 @@
 
 </div>
 <button class="btn hidden" id="sidebar-product-form-submit"><?= l('Сохранить') ?></button>
+<button class="btn hidden" id="sidebar-moving-form-submit"><?= l('Сохранить') ?></button>

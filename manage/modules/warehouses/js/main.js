@@ -37,8 +37,7 @@ $(document).ready(function () {
     }
   }
 
-  $(this).keydown(function (e) {
-    if (window.location.hash == '#scanner_moves') {
+  $('#scanner-moves').live('keydown', function (e) {
       //$('#scanner-moves-alert').removeClass('in').removeClass('alert-success').removeClass('alert-error');
       //$('#scanner-moves-alert-body').html('');
       var input = $('#scanner-moves');
@@ -98,8 +97,7 @@ $(document).ready(function () {
 
         return false;
       }
-      input.focus();
-    }
+      // input.focus();
   });
 
 });

@@ -2681,6 +2681,37 @@ class Chains extends Object
     }
 
     /**
+     * @param null $item_id
+     * @param null $goods_id
+     * @param null $wh_id
+     * @param null $order
+     * @param bool $show_btn
+     * @param null $rand
+     * @return string
+     */
+    public function moving_item_form_sidebar(
+        $item_id = null,
+        $goods_id = null,
+        $wh_id = null,
+        $order = null,
+        $show_btn = true,
+        $rand = null,
+        $for_sidebar = false
+    ) {
+        return $this->view->renderFile('chains.class/moving_item_form_sidebar', array(
+            'rand' => $rand ? $rand : rand(1000, 9999),
+            'item_id' => $item_id,
+            'goods_id' => $goods_id,
+            'order' => $order,
+            'with_logistic' => (!$this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders') || $goods_id > 0),
+            'wh_id' => $wh_id,
+            'controller' => $this,
+            'show_btn' => $show_btn,
+            'for_sidebar' => $for_sidebar
+        ));
+    }
+
+    /**
      * @param $active
      * @return string
      */

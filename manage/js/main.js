@@ -133,7 +133,21 @@ var rightSidebar = {
       $('#sidebar-product-form').trigger('submit');
     });
 
+    $('#sidebar-moving-form-submit').live('click', function (e) {
+      e.preventDefault();
+      var rand = $('#moving-item-form-rand-value').val();
+      move_order(this, rand, true);
+    });
+
+
+    // Инициализация вызова перемещения
+    $('#move-order').live('click', function (e) {
+      e.preventDefault();
+      _this.load_stock_move();
+    });
+
     _this.image_deleting_init();
+    _this.stock_move_init();
   },
 
   form_init_product: function () {
@@ -191,6 +205,7 @@ var rightSidebar = {
   hide: function () {
     $('#right-sidebar').removeClass('sidebar-open');
     $('#sidebar-product-form-submit ').addClass('hidden');
+    $('#sidebar-moving-form-submit ').addClass('hidden');
     this.clean_html();
   },
 
@@ -251,6 +266,95 @@ var rightSidebar = {
     return true;
   },
 
+  load_stock_move: function () {
+    var _this = this;
+
+    $.ajax({
+      url: prefix + '/messages.php?act=stock_move-order_sidebar',
+      type: 'POST',
+      data: {},
+      dataType: 'json',
+      success: function (result) {
+        if (result.hasError) {
+          _this.noty('Что-то пошло не так.');
+        } else {
+          _this.html(result.html);
+          _this.show();
+          $('#scanner-moves-sidebar').focus();
+        }
+      },
+      complete: function () {
+        setTimeout(function () {
+          $('#sidebar-moving-form-submit ').removeClass('hidden');
+        }, 500)
+      }
+    });
+    return true;
+  },
+
+  stock_move_init: function () {
+    $('#scanner-moves-sidebar').live('keydown', function (e) {
+      var input = $('#scanner-moves-sidebar');
+      var input_old = $('#scanner-moves-old-sidebar');
+
+      // scan the same
+      if (input.val() && input_old.val() && input.val() == input_old.val()) {
+        $('#scanner-moves-alert-sidebar').removeClass('in').removeClass('alert-success').removeClass('alert-error');
+        $('#scanner-moves-alert-body-sidebar').html('');
+        input.val('');
+        input_old.val('');
+        return;
+      }
+
+      if (e.which == 13) {
+        input.prop('disabled', true);
+
+        $.ajax({
+          url: prefix + 'warehouses/ajax/?act=scanner-moves&from_sidebar=1',
+          type: 'POST',
+          dataType: "json",
+          data: {scanned: [input_old.val(), input.val()]},
+          success: function (msg) {
+            if (msg) {
+              $('#scanner-moves-alert-sidebar').show();
+              if (msg['state'] == true) {
+                $('#scanner-moves-alert-sidebar').removeClass('text-error').addClass('text-success');
+                if (msg['value']) {
+                  input_old.val(msg['value']);
+                }
+              } else {
+                $('#scanner-moves-alert-sidebar').removeClass('text-success').addClass('text-error');
+              }
+              if (msg['msg']) {
+                $('#scanner-moves-alert-body-sidebar').html(msg['msg']);
+                $('#scanner-moves-aler-sidebart').addClass('in');
+                if ($('#scanner-moves-alert-timer-sidebar').length > 0) {
+                  clearTimeout(scanner_moves_timer_sidebar);
+                  scanner_moves_timer_sidebar = setTimeout(scanner_moves_alert_timer_sidebar, 1000);
+                }
+              }
+              if (msg['ok']) {
+                input.val('');
+                input_old.val('');
+                setTimeout(function () {
+                  $('#scanner-moves-alert-sidebar').removeClass('in').removeClass('text-success').removeClass('text-error').hide();
+                  $('#scanner-moves-alert-body-sidebar').html('');
+                }, 5000);
+              }
+            }
+            input.val('');
+            input.prop('disabled', false);
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.responseText);
+          }
+        });
+
+        return false;
+      }
+    });
+  },
+
   reload: function () {
       if (this.currentType == 'load_product') {
           this.load_product(this.currentId);
@@ -275,6 +379,28 @@ var rightSidebar = {
       }
   }
 };
+
+var scanner_moves_timer_sidebar;
+function scanner_moves_alert_timer_sidebar() {
+  var block = $('#scanner-moves-alert-timer-sidebar');
+  if (block.length > 0) {
+    var timer = parseInt(block.html());
+
+    if (timer > 0) {
+      block.html(timer - 1);
+      clearTimeout(scanner_moves_timer_sidebar);
+      scanner_moves_timer_sidebar = setTimeout(scanner_moves_alert_timer_sidebar, 1000);
+    } else {
+      $('#scanner-moves-alert-sidebar').hide();
+      $('#scanner-moves-alert-sidebar').removeClass('in').removeClass('text-success').removeClass('text-error');
+      $('#scanner-moves-alert-body-sidebar').html('');
+      $('#scanner-moves-sidebar').val('');
+      $('#scanner-moves-old-sidebar').val('');
+    }
+  }
+}
+
+
 
 
 function change_margin_type(_this, selector) {
@@ -541,6 +667,8 @@ function eshop_sale(_this, next, from, from_call) {
 $(document).ready(function () {
 
   rightSidebar.init();
+
+
 
   $(document).on('click', '.fullscreen', function () {
     $('.close-fullscreen-container').remove();
@@ -2156,11 +2284,11 @@ function display_serial_product(_this, item_id) {
   return false;
 }
 
-function move_order(_this, rand) {
+function move_order(_this, rand, from_sidebar) {
   $(_this).button('loading');
 
   $.ajax({
-    url: prefix + 'messages.php?act=move-order',
+    url: prefix + 'messages.php?act=move-order&from_sidebar=true',
     type: 'POST',
     dataType: "json",
 
@@ -2175,10 +2303,17 @@ function move_order(_this, rand) {
             window.location.href = msg['location'];
           }
         }
+
         if (msg['state'] == true || msg['reload'] == true) {
-          click_tab_hash();
-          close_alert_box();
+          if (from_sidebar) {
+            rightSidebar.noty(msg['message'], 'success');
+            rightSidebar.hide();
+          } else {
+            click_tab_hash();
+            close_alert_box();
+          }
         }
+
       }
       $(_this).button('reset');
     },

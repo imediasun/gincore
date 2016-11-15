@@ -1934,6 +1934,7 @@ class warehouses extends Controller
     private function scannerMoves($data, $mod_id)
     {
         $scan = isset($_POST['scanned'][1]) ? '"' . $_POST['scanned'][1] . '"' : '';
+        $from_sidebar = isset($_GET['from_sidebar']) ? true : false;
         $data['msg'] = l('Сканирование') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено');
         $data['error'] = true;
 
@@ -2114,7 +2115,7 @@ class warehouses extends Controller
                 $data['msg'] .= '<br /> <span class="text-error">' . (isset($response['message']) ? $response['message'] : $msg) . '</span>';
             }
         } else {
-            $alert_timer = l('в течение') . ' <span id="scanner-moves-alert-timer" class="text-error">30</span> ' . l('сек') . '.';
+            $alert_timer = l('в течение') . ' <span id="scanner-moves-alert-timer'. ($from_sidebar ? '-sidebar' : '') .'" class="text-error">30</span> ' . l('сек') . '.';
             if ($order || $item) {
                 if ($order) {
                     $data['value'] = $order_prefix . $order['id'];

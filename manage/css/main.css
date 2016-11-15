@@ -665,7 +665,7 @@ input.row-input {
     position: fixed;
     z-index: 1000;
     right: 0;
-    top: 65px;
+    top: 51px;
     width: 35px;
     height: 35px;
     text-align: center;
@@ -1328,7 +1328,8 @@ table.table-vpaddingless tr td.arrow{
     right: 0;
 }
 
-#sidebar-product-form-submit {
+#sidebar-product-form-submit,
+#sidebar-moving-form-submit{
     background-color: #239aca;
     border: none;
     position: fixed;
@@ -1340,4 +1341,10 @@ table.table-vpaddingless tr td.arrow{
 
 .btn-add-good {
     white-space: nowrap;
+}
+
+#moving-item-sidebar .multiselect-btn-group,
+#moving-item-sidebar button.multiselect,
+#moving-item-sidebar .multiselect-container {
+    width: 100% !important;
 }

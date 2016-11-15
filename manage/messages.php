@@ -478,7 +478,7 @@ if ($act == 'move-order') {
                 // пробуем переместить
                 $response = $all_configs['chains']->move_item_request($_POST);
                 if (is_array($response) && isset($response['state']) && $response['state'] == true) {
-                    //$data['message'] .= "Заказ успешно перемещен\r\n";
+
                 } else {
                     $data['state'] = false;
                     $data['message'] .= ($response && isset($response['message']) ? $response['message'] : 'Заказ не перемещен') . "\r\n";
@@ -493,6 +493,10 @@ if ($act == 'move-order') {
     if (count($serials) == 0 && $order_id == 0) {
         $data['state'] = false;
     }
+    if (isset($_GET['from_sidebar']) && $data['state'] == true) {
+        $data['message'] = "Заказ успешно перемещен";
+    }
+
     $data['message'] = empty($data['message']) ? l('Укажите номер ремонта или серийный номер изделия') : $data['message'];
 
     Response::json($data);
@@ -555,12 +559,26 @@ if ($act == 'get_locations') {
 
 // форма перемещения заказа
 if ($act == 'stock_move-order') {
-
     $order_id = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
     $order = $all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i', array($order_id))->row();
     $order = array('id' => $order ? intval($order['id']) : '', 'status' => $order ? intval($order['status']) : '');
     $rand = rand(1000, 9999);
     $data['content'] = $all_configs['chains']->moving_item_form(0, null, null, $order, false, $rand);
+    $data['btns'] = '<input onclick="move_order(this, ' . $rand . ')" type="button" value="' . l('Сохранить') . '" class="btn" />';
+    $data['state'] = true;
+    $data['functions'] = array('reset_multiselect()');
+
+    Response::json($data);
+}
+
+// форма перемещения заказа для сайдбара
+if ($act == 'stock_move-order_sidebar') {
+    require_once __DIR__ . '/Helpers/InfoPopover.php';
+    $order_id = isset($_POST['object_id']) && $_POST['object_id'] > 0 ? $_POST['object_id'] : 0;
+    $order = $all_configs['db']->query('SELECT * FROM {orders} WHERE id=?i', array($order_id))->row();
+    $order = array('id' => $order ? intval($order['id']) : '', 'status' => $order ? intval($order['status']) : '');
+    $rand = rand(1000, 9999);
+    $data['html'] = $all_configs['chains']->moving_item_form_sidebar(0, null, null, $order, false, $rand);
     $data['btns'] = '<input onclick="move_order(this, ' . $rand . ')" type="button" value="' . l('Сохранить') . '" class="btn" />';
     $data['state'] = true;
     $data['functions'] = array('reset_multiselect()');
