@@ -1456,6 +1456,21 @@ class products extends Controller
             try {
                 $product = $this->Goods->getByPk($id_product);
 
+                if (isset($post['deleted']) && !$product['deleted']) {
+                    $data = $this->deleteProduct(array('id' => $id_product), $mod_id);
+                    if (!$data['state']) {
+                        $errors[] = $data['message'];
+                    }
+
+                    Response::json([
+                        'hasError' => !empty($errors),
+                        'errors' => $errors,
+                        'msg' => l('Товар удален успешно')
+                    ]);
+
+                    exit;
+                }
+
                 $update = array(
                     'title' => trim($post['title']),
                     'secret_title' => trim($post['secret_title']),
@@ -1500,16 +1515,7 @@ class products extends Controller
                     'id' => $id_product
                 ));
 
-                if (!isset($post['deleted']) && $product['deleted']) {
-                    $this->Goods->restoreProduct(array('id' => $id_product), $mod_id);
-                }
 
-                if (isset($post['deleted']) && !$product['deleted']) {
-                    $data = $this->deleteProduct(array('id' => $id_product), $mod_id);
-                    if (!$data['state']) {
-                        FlashMessage::set($data['message'], FlashMessage::DANGER);
-                    }
-                }
 
                 if (intval($ar) > 0) {
                     $this->saveMoreHistory($update, $product, $mod_id);
@@ -1523,10 +1529,13 @@ class products extends Controller
                 $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
                     array($id_product, $query));
 
+                $current_cats = $this->all_configs['db']->query('SELECT category_id FROM {category_goods} WHERE goods_id=?i',
+                    array($id_product))->vars();
+
                 // добавляем товар в старые/новые категории
                 if (isset($post['categories']) && count($post['categories']) > 0) {
                     foreach ($post['categories'] as $new_cat) {
-                        if ($new_cat != 0) {
+                        if ($new_cat != 0 && !in_array($new_cat, $current_cats)) {
                             $this->all_configs['db']->query('INSERT IGNORE INTO {category_goods} (category_id, goods_id)
                                 VALUES (?i, ?i)', array($new_cat, $id_product));
                         }
