@@ -15,7 +15,7 @@ class import_helper
         }
         $exploded = preg_split("/[-\/\.]/", $exploded[0]);
         $format = 'd.m.y';
-        if (isset($exploded[2]) && strlen($exploded[2] == 4)) {
+        if (isset($exploded[2]) && strlen($exploded[2]) == 4) {
             $format = 'd.m.Y';
         } elseif (strlen($exploded[0]) == 4) {
             $format = 'Y.m.d';
