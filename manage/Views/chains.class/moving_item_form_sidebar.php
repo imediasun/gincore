@@ -2,7 +2,8 @@
     <div class="m-l-md m-r-md" id="moving-item-sidebar">
         <h4><i class="fa fa-random"></i> &nbsp;&nbsp;<?= l('Перемещения') ?></h4>
         <span>
-            <?= l('l_sidebar_moving_title') ?>
+            <?= l('Здесь Вы можете перемещать товар или запчасти по территории склада/мастерской.') ?>
+            <?= l('Привязывать детали к заказам на ремонт и т.д.') ?>
         </span>
         <hr style="margin-top: 5px"/>
 
@@ -11,7 +12,7 @@
             <i class="fa fa-question-circle" data-toggle="tooltip" style="font-size: 14px" title='<?= l('l_warehouses_scanner_moves_info') ?>'></i>
         </h4>
         <span>
-            <?= l('l_sidebar_moving_scanner_help') ?>
+            <?= l('Для перемещения товара или заказов по территории склада/мастерской, необходимо просканировать штрих-код на товаре или квитанции, после чего просканировать штрих-код на лотке или полке, куда перемещается товар/заказ') ?>
         </span>
         <?php if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')): ?>
             <input value="" id="scanner-moves-sidebar" type="text" placeholder="<?= l('заказ, изделие или локация') ?>"
@@ -28,7 +29,7 @@
             <i class="fa fa-barcode"></i>  &nbsp;&nbsp;<?= l('Вручную') ?>
         </h4>
         <span>
-            <?= l('l_sidebar_moving_hand_help') ?>
+            <?= l('Чтобы привязать деталь к заказу, укажите вручную серийный номер запчасти и номер заказа. Чтобы переместить товар/заказ - укажите номер товара/детали и номер локации, куда нужно переместить изделие.') ?>
         </span>
 
         <form method="post" id="moving-item-form-<?= $rand ?>">
