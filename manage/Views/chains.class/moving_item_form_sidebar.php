@@ -2,17 +2,16 @@
     <div class="m-l-md m-r-md" id="moving-item-sidebar">
         <h4><i class="fa fa-random"></i> &nbsp;&nbsp;<?= l('Перемещения') ?></h4>
         <span>
-            <?= l('Здесь Вы можете перемещать товар или запчасти по территории склада/мастерской.') ?>
-            <?= l('Привязывать детали к заказам на ремонт и т.д.') ?>
+            <?= l('l_sidebar_moving_title') ?>
         </span>
         <hr style="margin-top: 5px"/>
 
         <h4>
             <img src="<?= $prefix ?>img/barcode-scanner.ico" width="18px" style="opacity: 0.6"> &nbsp;&nbsp;<?= l('С помощью сканера штрих кодов') ?>
-            <?= InfoPopover::getInstance()->createQuestion('l_warehouses_scanner_moves_info') ?>
+            <i class="fa fa-question-circle" data-toggle="tooltip" style="font-size: 14px" title='<?= l('l_warehouses_scanner_moves_info') ?>'></i>
         </h4>
         <span>
-            <?= l('Для перемещения товара или заказов по территории склада/мастерской, необходимо просканировать штрих-код на товаре или квитанции, после чего просканировать штрих-код на лотке или полке, куда перемещается товар/заказ') ?>
+            <?= l('l_sidebar_moving_scanner_help') ?>
         </span>
         <?php if ($this->all_configs['oRole']->hasPrivilege('scanner-moves')): ?>
             <input value="" id="scanner-moves-sidebar" type="text" placeholder="<?= l('заказ, изделие или локация') ?>"
@@ -29,7 +28,7 @@
             <i class="fa fa-barcode"></i>  &nbsp;&nbsp;<?= l('Вручную') ?>
         </h4>
         <span>
-            <?= l('Чтобы привязать деталь к заказу, укажите вручную серийный номер запчасти и номер заказа. Чтобы переместить товар/заказ - укажите номер товара/детали и номер локации, куда нужно переместить изделие.') ?>
+            <?= l('l_sidebar_moving_hand_help') ?>
         </span>
 
         <form method="post" id="moving-item-form-<?= $rand ?>">
@@ -71,7 +70,8 @@
 <?php endif; ?>
 
 <script type="text/javascript">
-    $(function () {
+    $(document).ready(function () {
         reset_multiselect();
-    })
+        $('#right-sidebar [data-toggle="tooltip"]').uitooltip();
+    });
 </script>

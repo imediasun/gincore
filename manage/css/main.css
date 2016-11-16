@@ -1246,13 +1246,17 @@ table.table-vpaddingless tr td.arrow{
     border-left: 1px solid #e4e5e7;
     position: fixed;
     top: 0;
-    width: 460px !important;
+    width: 460px;
     z-index: 1060;
     bottom: 0;
     right: 0;
     display: none;
     overflow-x: visible;
     overflow-y: scroll;
+}
+
+#right-sidebar.narrow {
+    width: 340px;
 }
 
 #right-sidebar.sidebar-open {
