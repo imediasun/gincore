@@ -873,7 +873,7 @@ class access extends Object
      * @param null $user_id
      * @return bool|null
      */
-    private function update_phones($phone, $user_id = null)
+    public function update_phones($phone, $user_id = null)
     {
         $phones = $this->is_phone($phone);
 
