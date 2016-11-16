@@ -77,6 +77,10 @@ if (isset($_GET['event']) && $_GET['event'] == 'incoming_call') {
     $phone = $_GET['numa'];
     $log = 'Uiscom, phone: ' . $phone;
 }
+if (isset($_GET['direction']) && $_GET['direction'] == 'in') {
+    $phone = $_GET['contact_phone_number'];
+    $log = 'Uiscom, phone: ' . $phone;
+}
 
 //Binotel
 if (isset($_POST['callType']) && $_POST['callType'] == '0'
