@@ -8,6 +8,8 @@ require_once __DIR__ . '/../../Models/CategoriesTree.php';
  * Class import_items
  *
  * @property ItemsInterface $provider
+ * @property MGoods Goods
+ * @property MCategories Categories
  */
 class import_items extends abstract_import_handler
 {
@@ -19,6 +21,10 @@ class import_items extends abstract_import_handler
     protected $items = array();
     public $userAsManager = true;
     protected $userId;
+    public $uses = array(
+        'Goods',
+        'Categories'
+    );
 
     /**
      * @inheritdoc
@@ -42,15 +48,15 @@ class import_items extends abstract_import_handler
         if (!empty($rows)) {
             foreach ($rows as $row) {
                 $title = $this->provider->getTitle($row);
-                $categoryId = $this->getCategoryId($this->provider->getCategories($row), $this->categoriesTree);
-                if (empty($categoryId)) {
+                $category = $this->getCategoryId($this->provider->getCategories($row), $this->categoriesTree);
+                if (empty($category['id'])) {
                     $results[] = array(
                         'state' => false,
                         'id' => null,
                         'title' => $this->provider->getTitle($row),
                         'message' => l('У товара отсутствует категория'),
                     );
-                    continue;   
+                    continue;
                 }
 
                 if ($id = $this->isValidTitle($title, $this->availableItems, true)) {
@@ -63,8 +69,16 @@ class import_items extends abstract_import_handler
                     );
                     continue;
                 }
+                if (!empty($category['warning'])) {
+                    $results[] = array(
+                        'state' => false,
+                        'id' => $id,
+                        'title' => $this->provider->getTitle($row),
+                        'message' => $category['warning'],
+                    );
+                }
 
-                $results[] = $this->createNewItem($this->userId, $row, $categoryId, $this->getManagerId());
+                $results[] = $this->createNewItem($this->userId, $row, $category['id'], $this->getManagerId());
             }
         }
         return array(
@@ -76,18 +90,19 @@ class import_items extends abstract_import_handler
     /**
      * @param $itemCategories
      * @param $categories
-     * @return int
+     * @return array
      */
     public function getCategoryId($itemCategories, $categories)
     {
         $getId = function ($branch, $category, $parentId) {
-            if (in_array($category, array_keys($branch))) {
+            if (array_key_exists($category, $branch)) {
                 $categoryId = $branch[$category]['id'];
             } else {
                 $categoryId = $this->createCategory($category, $parentId);
             }
             return $categoryId;
         };
+        $warning = '';
         $categoryId = null;
         $branch = $categories;
         try {
@@ -103,14 +118,19 @@ class import_items extends abstract_import_handler
                 }
             }
         } catch (Exception $e) {
+            Log::dump($e->getMessage());
             // add exception message to log
         }
-        return $categoryId;
+        return array(
+            'id' => $categoryId,
+            'warning' => $warning
+        );
     }
 
     /**
      * @param $title
      * @param $items
+     * @param bool $return_id
      * @return bool
      */
     public function isValidTitle($title, $items, $return_id = false)
@@ -128,9 +148,9 @@ class import_items extends abstract_import_handler
      */
     public function get_result_row($row)
     {
-        return '<td>' . $row['id'] . '</td>'.
-                '<td>' . $row['title'] . '</td>'.
-                '<td>' . $row['message'] . '</td>';
+        return '<td>' . $row['id'] . '</td>' .
+        '<td>' . $row['title'] . '</td>' .
+        '<td>' . $row['message'] . '</td>';
     }
 
     /**
@@ -192,31 +212,26 @@ class import_items extends abstract_import_handler
     }
 
     /**
+     * @param $row
      * @param $userId
      * @return mixed
-     * @internal param $title
-     * @internal param int $price
-     * @internal param int $purchase
-     * @internal param int $wholesale
      */
     public function insertNewItem($row, $userId)
     {
         $title = $this->provider->getTitle($row);
-        return $this->all_configs['db']
-            ->query('INSERT INTO {goods} (title, secret_title, url, avail, price, article, author, price_purchase, price_wholesale, type, vendor_code) VALUES (?, ?, ?n, ?i, ?i, ?, ?i, ?i, ?i, ?i, ?)',
-                array(
-                    $title,
-                    '',
-                    transliturl($title),
-                    1,
-                    $this->provider->getPrice($row),
-                    '',
-                    $userId,
-                    $this->provider->getPurchase($row),
-                    $this->provider->getWholesale($row),
-                    $this->provider->getType($row),
-                    $this->provider->getVendorCode($row)
-                ), 'id');
+        return $this->Goods->insert(array(
+            'title' => $title,
+            'secret_title' => '',
+            'url' => transliturl($title),
+            'avail' => 1,
+            'price' => $this->provider->getPrice($row),
+            'article' => '',
+            'author' => $userId,
+            'price_purchase' => $this->provider->getPurchase($row),
+            'price_wholesale' => $this->provider->getWholesale($row),
+            '`type`' => $this->provider->getType($row),
+            'vendor_code' => $this->provider->getVendorCode($row)
+        ));
     }
 
     /**
@@ -224,7 +239,7 @@ class import_items extends abstract_import_handler
      * @param $row
      * @param $categoryId
      * @param $managerId
-     * @return bool
+     * @return array
      */
     public function createNewItem($userId, $row, $categoryId, $managerId)
     {
@@ -314,25 +329,29 @@ class import_items extends abstract_import_handler
     /**
      * @param $title
      * @param $parentId
-     * @return int|null
+     * @return int
      * @throws Exception
      */
     private function createCategory($title, $parentId)
     {
-        $categoryId = null;
-
-        if ($this->all_configs['oRole']->hasPrivilege('create-filters-categories')) {
-            $categoryId = $this->all_configs['db']->query('INSERT INTO {categories}
-                SET title=?, url=?, content=?, parent_id=?i, avail=?i',
-                array($title, transliturl($title), '', $parentId, 1), 'id');
-
-            if (empty($categoryId)) {
-                throw new Exception('Category not created');
-            }
-            $this->categoriesTree = $this->getCategoriesTree();
-            $modId = $this->all_configs['configs']['categories-manage-page'];
-            $this->addToLog($this->userId, 'create-category', $modId, $categoryId);
+        $url = transliturl($title);
+        if ($this->Categories->query('SELECT count(*) FROM {categories} WHERE url=?', array($url))->el()) {
+            $url = $url . '-' . mt_rand(1, 10);
         }
+        $categoryId = $this->Categories->insert(array(
+            'title' => $title,
+            'url' => $url,
+            'content' => '',
+            'parent_id' => $parentId,
+            'avail' => 1
+        ));
+
+        if (empty($categoryId)) {
+            throw new Exception('Category not created');
+        }
+        $this->categoriesTree = $this->getCategoriesTree();
+        $modId = $this->all_configs['configs']['categories-manage-page'];
+        $this->addToLog($this->userId, 'create-category', $modId, $categoryId);
         return $categoryId;
     }
 
