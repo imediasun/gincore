@@ -104,6 +104,29 @@ function add_alarm(_this) {
   });
 }
 
+function auto_layout_keyboard(str)
+{
+  var replace = new Array(
+    "й","ц","у","к","е","н","г","ш","щ","з","х","ъ",
+    "ф","ы","в","а","п","р","о","л","д","ж","э",
+    "я","ч","с","м","и","т","ь","б","ю"
+  );
+  var search = new Array(
+    "q","w","e","r","t","y","u","i","o","p","\\[","\\]",
+    "a","s","d","f","g","h","j","k","l",";","'",
+    "z","x","c","v","b","n","m",",","\\."
+  );
+
+  for (var i = 0; i < replace.length; i++) {
+    var reg = new RegExp(replace[i], 'mig');
+    str = str.replace(reg, function (a) {
+      return a == a.toLowerCase() ? search[i] : search[i].toUpperCase();
+    })
+  }
+  return str
+}
+
+
 
 var rightSidebar = {
     currentType: '',
@@ -198,25 +221,6 @@ var rightSidebar = {
     })
   },
 
-  show: function () {
-    $('#right-sidebar').addClass('sidebar-open');
-  },
-
-  hide: function () {
-    $('#right-sidebar').removeClass('sidebar-open');
-    $('#sidebar-product-form-submit ').addClass('hidden');
-    $('#sidebar-moving-form-submit ').addClass('hidden');
-    this.clean_html();
-  },
-
-  html: function (content) {
-    $('#right-sidebar-content').html(content);
-  },
-
-  clean_html: function (content) {
-    $('#right-sidebar-content').html('');
-  },
-
   load_product: function (id_product) {
     var _this = this;
     _this.currentType = 'load_product';
@@ -279,8 +283,11 @@ var rightSidebar = {
           _this.noty('Что-то пошло не так.');
         } else {
           _this.html(result.html);
-          _this.show();
+          _this.show(true);
           $('#scanner-moves-sidebar').focus();
+          $("#moving-item-sidebar [data-toggle='tooltip']").uitooltip({
+            placement: 'left'
+          });
         }
       },
       complete: function () {
@@ -308,12 +315,16 @@ var rightSidebar = {
 
       if (e.which == 13) {
         input.prop('disabled', true);
+        var val = auto_layout_keyboard(input.val());
+        var val_old = auto_layout_keyboard(input_old.val());
+        input.val(val);
+        input_old.val(val_old);
 
         $.ajax({
           url: prefix + 'warehouses/ajax/?act=scanner-moves&from_sidebar=1',
           type: 'POST',
           dataType: "json",
-          data: {scanned: [input_old.val(), input.val()]},
+          data: {scanned: [val_old, val]},
           success: function (msg) {
             if (msg) {
               $('#scanner-moves-alert-sidebar').show();
@@ -344,6 +355,7 @@ var rightSidebar = {
             }
             input.val('');
             input.prop('disabled', false);
+            input.focus();
           },
           error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.responseText);
@@ -353,6 +365,30 @@ var rightSidebar = {
         return false;
       }
     });
+  },
+
+  show: function (is_narrow) {
+    $('#right-sidebar').addClass('sidebar-open');
+
+    if (is_narrow) {
+      $('#right-sidebar').addClass('narrow');
+    }
+  },
+
+  hide: function () {
+    $('#right-sidebar').removeClass('sidebar-open');
+    $('#right-sidebar').removeClass('narrow');
+    $('#sidebar-product-form-submit ').addClass('hidden');
+    $('#sidebar-moving-form-submit ').addClass('hidden');
+    this.clean_html();
+  },
+
+  html: function (content) {
+    $('#right-sidebar-content').html(content);
+  },
+
+  clean_html: function (content) {
+    $('#right-sidebar-content').html('');
   },
 
   reload: function () {

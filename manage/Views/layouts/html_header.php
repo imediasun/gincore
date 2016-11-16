@@ -25,7 +25,7 @@ use Assetic\AssetWriter;
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>bootstrap/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-responsive.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap3-editable.css">
-    <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?24">
+    <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/main.css?25">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/daterangepicker-bs2.css?1">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-datetimepicker.min.css"/>
     <link rel="stylesheet" href="<?= $assetsDir ?>css/font-awesome.css">
@@ -45,6 +45,7 @@ use Assetic\AssetWriter;
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-1.10.2.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-migrate-1.2.1.min.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery-ui-1.9.0.custom.min.js"></script>
+        <script type="text/javascript" src="<?= $assetsDir ?>js/bridge.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>bootstrap/js/bootstrap.min.js?1"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/jquery.noty.js"></script>
         <script type="text/javascript" src="<?= $assetsDir ?>js/parsley.js?1"></script>
@@ -93,6 +94,7 @@ use Assetic\AssetWriter;
         new FileAsset("{$webRoot}/js/jquery-1.10.2.min.js"),
         new FileAsset("{$webRoot}/js/jquery-migrate-1.2.1.min.js"),
         new FileAsset("{$webRoot}/js/jquery-ui-1.9.0.custom.min.js"),
+        new FileAsset("{$webRoot}/js/bridge.js"),
         new FileAsset("{$webRoot}/bootstrap/js/bootstrap.min.js"),
         new FileAsset("{$webRoot}/js/jquery.noty.js"),
         new FileAsset("{$webRoot}/js/parsley.js"),
@@ -169,8 +171,8 @@ use Assetic\AssetWriter;
         print_r($e->getMessage());
     }
     ?>
-        <script src="<?= $assetsDir ?>assets/scripts.js?17"></script>
-    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?16"/>
+        <script src="<?= $assetsDir ?>assets/scripts.js?18"></script>
+    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?17"/>
     <?php endif; ?>
 
     <script type="text/javascript">
@@ -184,5 +186,5 @@ use Assetic\AssetWriter;
 
     {-css-module}
 
-    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?46"></script>
+    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?47"></script>
 </head>

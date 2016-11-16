@@ -15,7 +15,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#right-sidebar [data-toggle="tooltip"]').tooltip();
+            $('#right-sidebar [data-toggle="tooltip"]').uitooltip();
         });
     </script>
 <?php else: ?>

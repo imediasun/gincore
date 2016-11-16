@@ -54,12 +54,16 @@ $(document).ready(function () {
 
       if (e.which == 13) {
         input.prop('disabled', true);
+        var val = auto_layout_keyboard(input.val());
+        var val_old = auto_layout_keyboard(input_old.val());
+        input.val(val);
+        input_old.val(val_old);
 
         $.ajax({
           url: prefix + module + '/ajax/?act=scanner-moves',
           type: 'POST',
           dataType: "json",
-          data: {scanned: [input_old.val(), input.val()]},
+          data: {scanned: [val_old, val]},
           success: function (msg) {
             if (msg) {
               if (msg['state'] == true) {
@@ -89,6 +93,7 @@ $(document).ready(function () {
             }
             input.val('');
             input.prop('disabled', false);
+            input.focus();
           },
           error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.responseText);
