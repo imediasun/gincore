@@ -7,7 +7,7 @@ require_once $this->all_configs['sitepath'] . 'mail.php';
  * Class import_categories
  *
  * @property gincore_categories $provider
- * @property  MCategories       Categories
+ * @property  MCategories Categories
  */
 class import_categories_with_subs extends abstract_import_handler
 {
@@ -139,12 +139,27 @@ class import_categories_with_subs extends abstract_import_handler
      */
     public function example()
     {
-        $data = db()->query('
-            SELECT c.title, p.title as parent, c.content, c.information, c.percent_from_profit, c.fixed_payment/100 as fixed_payment
-            FROM {categories} as c
-            JOIN {categories} as p ON p.id=c.parent_id
-            LIMIT 2;
-        ')->assoc();
+        $data = array(
+            array(
+                l('Родитель') . ' 1',
+                l('Подкатегория уровень') . ' 1',
+                l('Подкатегория уровень') . ' 2',
+                l('Подкатегория уровень') . ' 3',
+                l('Добавляемая категория') . ' 1',
+            ),
+            array(
+                l('Родитель') . ' 2',
+                l('Подкатегория уровень') . ' 1',
+                l('Добавляемая категория') . ' 2',
+            ),
+            array(
+                l('Родитель') . ' 2',
+                l('Добавляемая категория') . ' 3',
+            ),
+            array(
+                l('Добавляемая категория') . ' 4',
+            ),
+        );
         return $this->provider->example($data);
     }
 }
