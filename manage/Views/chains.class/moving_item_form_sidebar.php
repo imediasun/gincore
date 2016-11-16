@@ -34,13 +34,17 @@
 
         <form method="post" id="moving-item-form-<?= $rand ?>">
             <input type="hidden" value="<?= $rand ?>" name="rand" id="moving-item-form-rand-value">
-            <div class="form-group" style="width: 95%; position: relative;">
-                <div class="serial_input m-t-sm">
+            <div class="form-group" style="position: relative;">
+
+                <div class="input-group serial_input m-t-sm">
                     <?= typeahead($this->all_configs['db'], 'serials', false, 0, 3, 'input-small clone_clear_val', '',
                         'display_serial_product', true, false, '', false, l('серийный № изделия')) ?>
+                    <span class="input-group-addon" style="cursor: pointer" onclick="$('#clone-serial').trigger('click');" >
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </span>
                 </div>
-                <i class="fa fa-plus cloneAndClear" data-clone_siblings=".serial_input"
-                   style="right: 5px; top: 1px;" title="<?= l('Добавить') ?>"></i>
+               <span class="cloneAndClear" id="clone-serial" style="display: none !important;" data-clone_siblings=".serial_input"></span>
+
             </div>
             <small class="clone_clear_html product-title"></small>
 
@@ -62,6 +66,7 @@
 
                 <div class="form-group">
                     <select class="multiselect form-control select-location" name="location">
+                        <option><?= l('Выберите локацию') ?></option>
                         <?= $this->all_configs['suppliers_orders']->gen_locations($wh_id) ?>
                     </select></div>
             <?php endif; ?>
