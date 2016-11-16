@@ -3008,6 +3008,9 @@ class orders extends Controller
                 );
                 $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_phone', $phone);
                 $order['phone'] = $phone;
+                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+                $access = new access($this->all_configs, false);
+                $access->update_phones($phone, $order['user_id']);
             }
         }
         return $order;

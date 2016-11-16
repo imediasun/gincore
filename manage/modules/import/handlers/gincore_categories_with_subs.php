@@ -41,7 +41,13 @@ class gincore_categories_with_subs extends abstract_gincore_import_provider
      */
     public function get_translated_cols()
     {
-        return array_values($this->get_cols());
+        return array(
+            lq('Родитель'),
+            lq('Подкатегория 1'),
+            lq('Подкатегория 2'),
+            lq('Подкатегория 3'),
+            lq('Категория'),
+        );
     }
 
     /**

@@ -884,9 +884,7 @@ class Clients extends Object
         // подтвреждение комментария
         if ($act == 'confirm_parse_comment') {
             if (!isset($_POST['comment_id']) || $_POST['comment_id'] == 0) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Такого комментария не существует'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Такого комментария не существует'), 'error' => true));
             }
             $comment = $this->all_configs['db']->query('SELECT content, goods_id, date_publish, usefulness_yes, usefulness_no,
                     rating, advantages, disadvantages, fio, date_publish
@@ -894,9 +892,7 @@ class Clients extends Object
             $avail = (isset($_POST['avail']) && $_POST['avail'] == 1) ? 1 : null;
 
             if (!$comment) {
-                header("Content-Type: application/json; charset=UTF-8");
-                echo json_encode(array('message' => l('Такого комментария не существует'), 'error' => true));
-                exit;
+                Response::json(array('message' => l('Такого комментария не существует'), 'error' => true));
             }
 
             $this->all_configs['db']->query('UPDATE {parser_comments_approval} SET approve=?i WHERE id=?i',
@@ -916,12 +912,10 @@ class Clients extends Object
                     $comment['fio']
                 ), 'id');
 
-            header("Content-Type: application/json; charset=UTF-8");
-            echo json_encode(array(
+            Response::json(array(
                 'message' => 'Успешно',
                 'response' => '<a href="' . $this->all_configs['prefix'] . 'clients/goods-reviews/create/' . $id . '">' . l('Редактировать') . '</a>'
             ));
-            exit;
         }
         if ($act == 'get_person_of') {
             try {
