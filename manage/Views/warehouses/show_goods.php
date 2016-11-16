@@ -1,6 +1,5 @@
 <?= $this->all_configs['suppliers_orders']->append_js(); ?>
 <?= $this->all_configs['chains']->append_js(); ?>
-
 <?php if (empty($goods)): ?>
     <p class="text-error"><?= l('Товаров нет') ?></p>
 <?php else: ?>
@@ -9,7 +8,8 @@
             <?= $this->renderFile('warehouses/show_goods/type_eq_1', array(
                 'goods' => $goods,
                 'query_for_noadmin' => $query_for_noadmin,
-                'controller' => $controller
+                'controller' => $controller,
+                'open_item_in_sidebar' => $open_item_in_sidebar
             )); ?>
             <?php break; ?>
         <?php case 2: ?>

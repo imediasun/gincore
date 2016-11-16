@@ -438,6 +438,7 @@ class warehouses extends Controller
 
         $goods = null;
         $show_item_type = null;
+        $open_item_in_sidebar = false;
 
         $query = '';
         // товар ид
@@ -497,7 +498,8 @@ class warehouses extends Controller
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
                     ', array($serial, $query_for_noadmin))->assoc();
                 }
-                $show_item_type = 2;
+                $show_item_type = 1;
+                $open_item_in_sidebar = true;
             } else {
                     $goods = $this->getItems($_GET, $count_on_page, $skip);
                     if (isset($filters['so_id']) && $filters['so_id'] > 0) {
@@ -518,7 +520,7 @@ class warehouses extends Controller
         }
 
         if (count($goods)) {
-            $out .= $this->show_goods($goods, $query_for_noadmin, $show_item_type, $count_page);
+            $out .= $this->show_goods($goods, $query_for_noadmin, $show_item_type, $count_page, $open_item_in_sidebar);
         } else {
             $out .= '<p class="text-error">' . l('Выберите склад') . '</p>';
         }
@@ -1134,20 +1136,22 @@ class warehouses extends Controller
     }
 
     /**
-     * @param      $goods
-     * @param      $query_for_noadmin
+     * @param $goods
+     * @param $query_for_noadmin
      * @param null $type
-     * @param int  $count_page
+     * @param int $count_page
+     * @param bool $open_item_in_sidebar
      * @return string
      */
-    public function show_goods($goods, $query_for_noadmin, $type = null, $count_page = 1)
+    public function show_goods($goods, $query_for_noadmin, $type = null, $count_page = 1, $open_item_in_sidebar = false)
     {
         return $this->view->renderFile('warehouses/show_goods', array(
             'goods' => $goods,
             'type' => $type,
             'count_page' => $count_page,
             'query_for_noadmin' => $query_for_noadmin,
-            'controller' => $this
+            'controller' => $this,
+            $open_item_in_sidebar
         ));
     }
 

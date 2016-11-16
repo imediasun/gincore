@@ -15,6 +15,7 @@
     </thead>
     <tbody>
 
+
     <?php foreach ($goods as $product): ?>
         <tr>
             <td><?= suppliers_order_generate_serial($product, true, true) ?></td>
@@ -100,4 +101,11 @@
     </tr>
     </tbody>
 </table>
-
+<?php if (count($goods) == 1): ?>
+    <script type="text/javascript">
+        var item_id = '<?= suppliers_order_generate_serial($goods[0], true, false) ?>';
+        $( document ).ready(function() {
+            rightSidebar.load_item(item_id);
+        });
+    </script>
+<?php endif; ?>
