@@ -1,4 +1,4 @@
-<select name="group_id" class="form-control">
+<select name="group_id" class="form-control" <?= $readonly ?>>
     <option value=""></option>
     <?php foreach ($groups as $group): ?>
         <option <?= !empty($warehouse) && $group['id'] == $warehouse['group_id'] ? 'selected' : '' ?> value="<?= $group['id'] ?>">

@@ -1,4 +1,4 @@
-<select name="type_id" class="form-control">
+<select name="type_id" class="form-control" <?= $readonly ?>>
     <option value=""></option>
     <?php foreach ($types as $type): ?>
         <option <?= !empty($warehouse) && $type['id'] == $warehouse['type_id'] ? 'selected' : '' ?>

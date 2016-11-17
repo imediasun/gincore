@@ -9,12 +9,13 @@
             <?php endif; ?>
         </a>
     </div>
+    <?php $readonly = !empty($warehouse) && $warehouse['is_system']? 'readonly': '' ?>
     <div id='collapse_warehouse_<?= $i ?>' class='panel-body collapse <?= $i == 1 ? 'in' : '' ?>'>
         <div class='panel-body'>
             <form method='POST'>
                 <div class='form-group'>
                     <label><?= l('Название') ?>: </label>
-                    <input placeholder='<?= l(' введите название') ?>' class='form-control' name='title'
+                    <input placeholder='<?= l(' введите название') ?>' class='form-control' name='title' <?= $readonly ?>
                            value='<?= empty($warehouse) ? '' : h($warehouse['title']) ?>' required/>
                 </div>
                 <div class='form-group'>
@@ -23,7 +24,7 @@
                             <input
                                 data-consider='<?= $i ?>' <?= empty($warehouse) || $warehouse['consider_store'] == 1 ? 'checked' : '' ?>
                                 type='checkbox'
-                                onclick='consider(this, "<?= $i ?>")' class='btn consider_<?= $i ?>'
+                                onclick='consider(this, "<?= $i ?>")' class='btn consider_<?= $i ?>' <?= $readonly ?>
                                 name='consider_store' value='1'/>
                             <?= l('Учитывать в свободном остатке') ?>
                         </label>
@@ -32,7 +33,7 @@
                         <label>
                             <input <?= empty($warehouse) || $warehouse['consider_all'] == 1 ? 'checked' : '' ?>
                                 type='checkbox' class='btn consider_<?= $i ?>'
-                                onclick='consider(this, "<?= $i ?>")' name='consider_all'
+                                onclick='consider(this, "<?= $i ?>")' name='consider_all' <?= $readonly ?>
                                 value='1'/>
                             <?= l('Учитывать в общем остатке') ?>
                         </label>
@@ -45,31 +46,34 @@
                     <label><?= l('Принадлежность к Сервисному центру') ?>: </label>
                     <?= $this->renderFile('warehouses/warehouses_groups', array(
                         'warehouse' => $warehouse,
-                        'groups' => $groups
+                        'groups' => $groups,
+                        'readonly' => $readonly
                     )) ?>
                 </div>
                 <div class='form-group'>
                     <label><?= l('Категория') ?>: </label>
                     <?= $this->renderFile('warehouses/warehouses_types', array(
                         'warehouse' => $warehouse,
-                        'types' => $types
+                        'types' => $types,
+                        'readonly' => $readonly
                     )) ?>
                 </div>
                 <div class='form-group'>
                     <label>
                         <?= l('Адрес для квитанции') ?>: </label>
-                    <input class='form-control' name='print_address'
+                    <input class='form-control' name='print_address' <?= $readonly ?>
                            value='<?= !empty($warehouse) ? h($warehouse['print_address']) : '' ?>'/>
                 </div>
                 <div class='form-group'>
                     <label> <?= l('Телефон для квитанции') ?>: </label>
-                    <input class='form-control' name='print_phone'
+                    <input class='form-control' name='print_phone' <?= $readonly ?>
                            value='<?= !empty($warehouse) ? h($warehouse['print_phone']) : '' ?>'/>
                 </div>
                 <div class='form-group'>
                     <label><?= l('Локации') ?>: </label>
                     <?= $this->renderFile('warehouses/warehouses_locations', array(
-                        'locations' => empty($warehouse['locations']) ? array() : $warehouse['locations']
+                        'locations' => empty($warehouse['locations']) ? array() : $warehouse['locations'],
+                        'readonly' => $readonly
                     )) ?>
                 </div>
                 <div class='form-group'>
@@ -79,6 +83,17 @@
                         <?php else: ?>
                             <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
                             <input type='submit' class='btn' name='warehouse-edit'
+                                <?php if (!$warehouse['can_deleted'] || $warehouse['is_system'] || in_array($warehouse['title'],
+                                        array(
+                                            lq('Брак'),
+                                            lq('Клиент'),
+                                            lq('Логистика'),
+                                            lq('Недостача'),
+                                        ))
+                                ): ?>
+
+                                    onclick="alert('<?= l('Склад не подлежит изменению, так как является системным или задействован в складских и логистических операциях') ?>'); return false"
+                                <?php endif; ?>
                                    value='<?= l('Редактировать') ?>'/>
                             <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
                                 <?php if (!$warehouse['can_deleted'] || $warehouse['is_system'] || in_array($warehouse['title'],

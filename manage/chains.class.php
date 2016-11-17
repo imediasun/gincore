@@ -2942,7 +2942,7 @@ class Chains extends Object
         }
 
         $data = $this->all_configs['db']->query('SELECT w.id, w.title, w.print_address, w.print_phone, w.code_1c, w.consider_all, w.type,
-              w.consider_store, a.sum_qty, a.all_amount, l.location, l.id as location_id, w.type_id, w.group_id
+              w.consider_store, a.sum_qty, a.all_amount, l.location, l.id as location_id, w.type_id, w.group_id, w.is_system
             FROM {warehouses} as w
             LEFT JOIN {warehouses_locations} as l ON l.wh_id=w.id
             LEFT JOIN (SELECT wh_id, SUM(qty) as sum_qty, SUM(amount) as all_amount
