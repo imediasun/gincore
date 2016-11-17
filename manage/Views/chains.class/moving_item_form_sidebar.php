@@ -64,7 +64,7 @@
                         <?= $controller->get_options_for_move_item_form($with_logistic, $wh_id); ?>
                     </select></div>
 
-                <div class="form-group">
+                <div class="form-group m-b-xl">
                     <select class="multiselect form-control select-location" name="location">
                         <option><?= l('Выберите локацию') ?></option>
                         <?= $this->all_configs['suppliers_orders']->gen_locations($wh_id) ?>
