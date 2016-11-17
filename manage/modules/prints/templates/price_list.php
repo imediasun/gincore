@@ -20,8 +20,8 @@ class price_list extends AbstractTemplate
                     'value' => ($good['price'] / 100) . '&nbsp;' . viewCurrency(),
                     'name' => l('Цена')
                 ),
-                'article' => array('value' => h($good['article']), 'name' => l('Артикул')),
-                'barcode' => array('value' => h($good['barcode']), 'name' => l('Штрих код')),
+                'article' => array('value' => h($good['vendor_code']), 'name' => l('Артикул')),
+                'barcode' => array('value' => $this->view->renderFile('prints/_bar_code', array('id' => $good['id'])), 'name' => l('Штрих код')),
                 'company' => array(
                     'value' => h($this->all_configs['settings']['site_name']),
                     'name' => l('Название компании')
