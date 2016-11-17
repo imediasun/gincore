@@ -4008,16 +4008,23 @@ class orders extends Controller
         require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
         $access = new access($this->all_configs, false);
         $access->update_phones($phone, $order['user_id']);
-        $phone = $this->all_configs['db']->query('SELECT phone FROM {clients} WHERE id=?',
-            array($order['user_id']))->el();
+        $client = $this->all_configs['db']->query('SELECT phone, fio FROM {clients} WHERE id=?',
+            array($order['user_id']))->row();
         $orders = $this->Orders->query('SELECT id FROM {orders} WHERE user_id=?i', array($order['user_id']))->col();
         if (!empty($orders)) {
             foreach ($orders as $id) {
                 $this->Orders->update(array(
-                    'phone' => $phone
+                    'phone' => $client['phone'],
+                    'fio' => $client['fio']
                 ), array(
                     'id' => $id
                 ));
+                $this->History->save(
+                    'update-order-fio',
+                    $mod_id,
+                    $id,
+                    ($client['fio'])
+                );
                 $this->History->save(
                     'update-order-phone',
                     $mod_id,
