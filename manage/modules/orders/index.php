@@ -3008,9 +3008,7 @@ class orders extends Controller
                 );
                 $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_phone', $phone);
                 $order['phone'] = $phone;
-                require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
-                $access = new access($this->all_configs, false);
-                $access->update_phones($phone, $order['user_id']);
+                $order = $this->updateClientPhoneAndOrders($order, $mod_id, $phone);
             }
         }
         return $order;
@@ -3997,5 +3995,38 @@ class orders extends Controller
             );
         }
         return $result;
+    }
+
+    /**
+     * @param $order
+     * @param $mod_id
+     * @param $phone
+     * @return mixed
+     */
+    protected function updateClientPhoneAndOrders($order, $mod_id, $phone)
+    {
+        require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
+        $access = new access($this->all_configs, false);
+        $access->update_phones($phone, $order['user_id']);
+        $phone = $this->all_configs['db']->query('SELECT phone FROM {clients} WHERE id=?',
+            array($order['user_id']))->el();
+        $orders = $this->Orders->query('SELECT id FROM {orders} WHERE user_id=?i', array($order['user_id']))->col();
+        if (!empty($orders)) {
+            foreach ($orders as $id) {
+                $this->Orders->update(array(
+                    'phone' => $phone
+                ), array(
+                    'id' => $id
+                ));
+                $this->History->save(
+                    'update-order-phone',
+                    $mod_id,
+                    $id,
+                    $phone
+                );
+                $this->OrdersComments->addPublic($id, $this->getUserId(), 'client_phone', $phone);
+            }
+        }
+        return $order;
     }
 }
