@@ -162,7 +162,7 @@ class Suppliers extends Object
                     $this->exportSupplierOrder($order_id, 3);
 
                     // обновляем дату поставки товара
-                    $this->all_configs['manageModel']->update_product_wait($product);
+                    $this->all_configs['manageModel']->update_product_wait($product['id']);
                     $this->History->save('edit-warehouse-order', $mod_id, $order_id);
 
                     // связь между заказами
