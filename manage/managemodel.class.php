@@ -823,10 +823,11 @@ class manageModel extends Object
         }
         if (isset($filters['cats'])) {
             $cats = $this->get_models(explode('-', $filters['cats']));
-            if (!empty($cats)) {
-                $query = $this->all_configs['db']->makeQuery('?query AND o.category_id in (?li)',
-                    array($query, $cats));
+            if (empty($cats)) {
+                $cats = explode('-', $filters['cats']);
             }
+            $query = $this->all_configs['db']->makeQuery('?query AND o.category_id in (?li)',
+                array($query, $cats));
         }
 
         $userId = $this->getUserId();
@@ -849,12 +850,12 @@ class manageModel extends Object
      */
     public function get_models($parents)
     {
-        $parents = $this->get_all_child($parents);
+        $child = $this->get_all_child($parents);
         return $this->all_configs['db']->query('
         SELECT id
         FROM {categories}
-        WHERE avail=1 and deleted=0 AND parent_id in (?li) AND id not in (SELECT distinct(parent_id) FROM {categories} )
-        ', array($parents))->col();
+        WHERE avail=1 AND parent_id in (?li)
+        ', array($child))->col();
     }
 
     /**
@@ -866,7 +867,7 @@ class manageModel extends Object
         $all = $this->all_configs['db']->query('
         SELECT id, parent_id 
         FROM {categories}
-        WHERE avail=1 and deleted=0
+        WHERE avail=1 
         ', array())->assoc();
         return array_merge($parents, $this->get_child($all, $parents));
     }
@@ -880,7 +881,7 @@ class manageModel extends Object
         $all = $this->all_configs['db']->query('
         SELECT id, parent_id 
         FROM {categories}
-        WHERE avail=1 and deleted=0 AND id in (SELECT distinct(parent_id) FROM {categories} )
+        WHERE avail=1 AND id in (SELECT distinct(parent_id) FROM {categories} )
         ', array())->assoc();
         return array_merge($parents, $this->get_child($all, $parents));
     }
