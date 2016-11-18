@@ -324,7 +324,7 @@ class warehouses extends Controller
                 'state' => false,
                 'message' => l('У вас нет прав на работу с приходными накладными')
             );
-            if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
+            if ($this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders')) {
                 $data = $this->createPurchaseInvoice($_POST);
             }
             Response::json($data);
