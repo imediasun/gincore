@@ -120,7 +120,7 @@ class sms extends \service
         if ($this->already_sent($type, $object_id)) {
             return array('state' => false, 'msg' => l('Данное сообщение уже отправлено'));
         }
-        $sender_id = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : '';
+        $sender_id = isset($all_configs['settings']['turbosms-from']) ? trim($all_configs['settings']['turbosms-from']) : null;
         $send = send_sms($phone, $body, $sender_id);
         $this->log($phone, $body, $sender_id, $type, $object_id, $send['state'], $send['msg']);
         return $send;
