@@ -703,7 +703,7 @@ class products extends Controller
     {
         return $this->all_configs['db']->query("
             SELECT * FROM {categories} 
-            WHERE deleted=0 AND NOT url in (?l)
+            WHERE NOT url in (?l)
         ", array(
             array(
                 'recycle-bin',

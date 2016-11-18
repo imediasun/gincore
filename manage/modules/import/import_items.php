@@ -342,7 +342,7 @@ class import_items extends abstract_import_handler
             'title' => $title,
             'url' => $url,
             'content' => '',
-            'parent_id' => $parentId,
+            'parent_id' => (int)$parentId,
             'avail' => 1
         ));
 

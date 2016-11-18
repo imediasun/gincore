@@ -1008,12 +1008,11 @@ function build_array_tree($objects, $selected = array(), $type = 1)
     $new = array();
 
     foreach ($objects as $a) {
-
         if (!array_key_exists('parent_id', $a)) {
             return display_array_tree($objects, $selected, $type, 0, '');
         }
 
-        $new[$a['parent_id']][$a['id']] = $a;
+        $new[(int)$a['parent_id']][$a['id']] = $a;
     }
 
     $tree = count($new) > 0 ? createTree($new, $new[0]) : array();
