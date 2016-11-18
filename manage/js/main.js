@@ -2002,6 +2002,14 @@ function init_multiselect($form, onInitCallback, onChangeCallback) {
         opts.onInitialized = onInitCallback;
       }
 
+      if (typeof $this.attr('data-nonSelectedText') !== 'undefined') {
+        opts.nonSelectedText = $this.attr('data-nonSelectedText');
+      }
+
+      if (typeof $this.attr('data-buttonWidth') !== 'undefined') {
+        opts.buttonWidth = $this.attr('data-buttonWidth');
+      }
+
       $this.multiselect(opts);
     });
   }, 0);
