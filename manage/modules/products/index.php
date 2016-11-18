@@ -3095,6 +3095,9 @@ class products extends Controller
         if (isset($post['categories']) && is_array($post['categories'])) {
             $url['cats'] = implode('-', $post['categories']);
         }
+        if (!empty($post['text'])) {
+            $url['s'] = trim($post['text']);
+        }
 
         return $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
     }
