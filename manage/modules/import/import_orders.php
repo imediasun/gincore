@@ -118,6 +118,7 @@ class import_orders extends abstract_import_handler
             );
         }
         $this->Orders->insertAll($orders);
+        $this->createTransaction($orders);
         return array(
             'state' => true,
             'message' => $this->gen_result_table($results)
@@ -380,5 +381,42 @@ class import_orders extends abstract_import_handler
             LIMIT 2;
         ')->assoc();
         return $this->provider->example($data);
+    }
+
+    /**
+     * @param $orders
+     * @return bool
+     */
+    private function createTransaction($orders)
+    {
+        if (empty($orders)) {
+            return false;
+        }
+        $mod_id = $this->all_configs['configs']['accountings-manage-page'];
+        try {
+            $cashboxId = $this->all_configs['db']->query('SELECT id FROM {cashboxes} WHERE cashbox_type=1 ORDER by id asc)')->el();
+            foreach ($orders as $order) {
+                $transaction = array(
+                    'transaction_type' => 2,
+                    'client_order_id' => $order['id'],
+                    'b_id' => 0,
+                    'transaction_extra' => '',
+                    'cashbox_currencies_to' => $this->all_configs['settings']['currency_orders'],
+                    'discount_type' => 1,
+                    'cashbox_to' => $cashboxId,
+                    'amount_without_discount' => $order['sum_paid'],
+                    'discount' => 0,
+                    'amount_to' => $order['sum_paid'],
+                    'cashbox_from' => $cashboxId,
+                    'amount_from' => 0,
+                    'cashbox_currencies_from' =>  $this->all_configs['settings']['currency_orders']
+                );
+                $this->all_configs['chains']->create_transaction($transaction, $mod_id);
+            }
+
+        } catch (Exception $e) {
+            return false;
+        }
+        return true;
     }
 }
