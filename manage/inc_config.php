@@ -35,7 +35,15 @@ if ($debug) {
     error_reporting(0);
 }
 
-include $all_configs['sitepath'] . 'db_config.php';
+$dbcfg = include $all_configs['sitepath'] . 'db_config.php';
+
+if (file_exists(__DIR__ . '/../db_config-local.php')) {
+    $dbcfg = array_merge($dbcfg, require(__DIR__ . '/../db_config-local.php'));
+}
+
+require_once __DIR__ . '/../gincore/bootstrap/autoload.php';
+$db = go\DB\DB::create($dbcfg, 'mysql');
+
 $all_configs['db'] = $db;
 $all_configs['dbcfg'] = $dbcfg;
 
