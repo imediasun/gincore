@@ -157,7 +157,7 @@ if ($data->act == 'runManualUpdateFiles') {
 
 
     if ($data->migrate == '1') {
-        require __DIR__ . '/../gincore/bootstrap/autoload.php';
+        //require __DIR__ . '/../gincore/bootstrap/autoload.php';
         $app = require_once __DIR__ . '/../gincore/bootstrap/app.php';
         $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
