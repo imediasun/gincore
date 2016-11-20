@@ -18,7 +18,7 @@ $all_configs['prefix'] = str_replace(rtrim($_SERVER['DOCUMENT_ROOT'], '/'), '', 
 $all_configs['siteprefix'] = str_replace('manage/', '', $all_configs['prefix']);
 $all_configs['sitepath'] = str_replace('manage/', '', $all_configs['path']);
 
-define('DEBUG', true);
+define('DEBUG', false);
 
 if (file_exists(__DIR__ . '/inc_config-local.php')) {
     require(__DIR__ . '/inc_config-local.php');
@@ -35,7 +35,15 @@ if ($debug) {
     error_reporting(0);
 }
 
-include $all_configs['sitepath'] . 'db_config.php';
+$dbcfg = include $all_configs['sitepath'] . 'db_config.php';
+
+if (file_exists(__DIR__ . '/../db_config-local.php')) {
+    $dbcfg = array_merge($dbcfg, require(__DIR__ . '/../db_config-local.php'));
+}
+
+require_once __DIR__ . '/../gincore/bootstrap/autoload.php';
+$db = go\DB\DB::create($dbcfg, 'mysql');
+
 $all_configs['db'] = $db;
 $all_configs['dbcfg'] = $dbcfg;
 
