@@ -2539,7 +2539,7 @@ $(function () {
       $form = $this.hasClass('ajax_form') ? $this : $this.closest('.ajax_form');
     $form.find(':submit').attr('disabled', true);
     if ($form.hasClass('emulate_form')) {
-      var data = $form.parent().serialize();
+      var data = $form.closest('form').serialize();
     } else {
       var data = $form.serialize();
     }
