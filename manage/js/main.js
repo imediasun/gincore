@@ -1386,7 +1386,7 @@ function new_quick_create_supplier_callback(data, _this) {
 // call as callback in categories/index.php:gencreate and products/index.php:create_product_form
 function select_typeahead_device(data, $form) {
   if (data.state && data.id) {
-    var id = $form.parent().parent().attr('data-id'),
+    var id = $form.closest('.new_device_form ').attr('data-id'),
       $f = $('[data-id="source-' + id.replace('form-', '') + '"]').closest('.input-group');
     $f.find(':hidden').val(data.id);
     var $input = $f.find('input.form-control');
@@ -2539,7 +2539,7 @@ $(function () {
       $form = $this.hasClass('ajax_form') ? $this : $this.closest('.ajax_form');
     $form.find(':submit').attr('disabled', true);
     if ($form.hasClass('emulate_form')) {
-      var data = $form.parent().serialize();
+      var data = $form.closest('form').serialize();
     } else {
       var data = $form.serialize();
     }
