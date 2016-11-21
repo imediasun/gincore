@@ -54,7 +54,7 @@
                         'form_id' => 'order_new_device_form'
                     )); ?>
             </div>
-            <div id="order_new_device_form" class="typeahead_add_form_box theme_bg order_new_device_form"></div>
+            <div id="order_new_device_form" class="typeahead_add_form_box theme_bg order_new_device_form new_device_form"></div>
         <?php endif; ?>
         <hr/>
         <h4><?= l('Работы') ?></h4>
