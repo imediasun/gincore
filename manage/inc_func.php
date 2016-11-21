@@ -2184,7 +2184,7 @@ function get_orders_for_orders_manager($filters_query = '')
     global $all_configs;
     $orderStatusesManager = array();
     foreach ($all_configs['configs']['order-status'] as $id => $status) {
-        if($status['use_in_manager']) {
+        if($status['use_in_manager'] && !in_array($id, $all_configs['configs']['order-not-show-in-manager'])) {
             $orderStatusesManager[] = $id;
         }
     }
@@ -2208,7 +2208,7 @@ function get_orders_for_orders_manager($filters_query = '')
             array(ORDER_SELL),
             $orderStatusesManager,
             (time() - 60 * 60 * 24 * 90)
-        ))->assoc('id');
+        ))->iassoc('id');
 }
 
 /**

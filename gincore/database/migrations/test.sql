@@ -381,3 +381,7 @@ DELETE cg FROM `restore4_category_goods` cg LEFT JOIN `restore4_goods` g ON g.id
 SET FOREIGN_KEY_CHECKS=0;
 ALTER TABLE `restore4_category_goods` ADD CONSTRAINT `restore4_category_goods_ibfk_2` FOREIGN KEY (`goods_id`) REFERENCES `restore4_goods` (`id`) ON DELETE CASCADE;
 SET FOREIGN_KEY_CHECKS=1;
+/*
+2016_11_21_111543_add_title_index_to_categories.php
+ */
+ALTER TABLE `restore4_categories` ADD INDEX categories_title_index(title);
