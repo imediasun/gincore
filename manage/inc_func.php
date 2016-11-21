@@ -2208,7 +2208,7 @@ function get_orders_for_orders_manager($filters_query = '')
             array(ORDER_SELL),
             $orderStatusesManager,
             (time() - 60 * 60 * 24 * 90)
-        ))->assoc('id');
+        ))->iassoc('id');
 }
 
 /**
