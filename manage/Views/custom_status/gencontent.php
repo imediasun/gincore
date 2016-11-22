@@ -40,7 +40,7 @@
                 <td class="text-center">
                     <center>
                         <input class="checkbox" type="checkbox"
-                               name="use_in_manager[<?= $status['id'] ?>]" <?= $status['use_in_manager'] != 0 ? 'checked' : '' ?>  <?= $status['system'] ? 'disabled' : '' ?>/>
+                               name="use_in_manager[<?= $status['id'] ?>]" <?= $status['use_in_manager'] != 0 && !in_array($status['status_id'], $this->all_configs['configs']['order-not-show-in-manager'])? 'checked' : '' ?>  <?= $status['system'] ? 'disabled' : '' ?>/>
                     </center>
                 </td>
                 <td class="text-center">

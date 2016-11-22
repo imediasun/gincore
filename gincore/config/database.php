@@ -6,10 +6,6 @@ if (file_exists(__DIR__ . '/../../db_config-local.php')) {
     $dbcfg = array_merge($dbcfg, require(__DIR__ . '/../../db_config-local.php'));
 }
 
-require_once __DIR__ . '/../bootstrap/autoload.php';
-$db = go\DB\DB::create($dbcfg, 'mysql');
-
-
 return [
 
     /*
