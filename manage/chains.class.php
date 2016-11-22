@@ -1663,16 +1663,31 @@ class Chains extends Object
     }
 
     /**
+     * @return mixed
+     */
+    private function getClientIdForQuickSale()
+    {
+        if(!empty($this->all_configs['settings']['client_id-for-quick-sale'])) {
+            return $this->all_configs['settings']['client_id-for-quick-sale'];
+        }
+        if(!empty($this->all_configs['settings']['client_id-for-write-off'])) {
+            return $this->all_configs['settings']['client_id-for-write-off'];
+        }
+        $client_id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000002" LIMIT 1')->el();
+        if (empty($client_id)) {
+            $client_id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
+        }
+        return $client_id;
+    }
+
+    /**
      * @param $post
      * @param $mod_id
      * @return array
      */
     public function quick_sold_items($post, $mod_id)
     {
-        $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000002" LIMIT 1')->el();
-        if (empty($post['client_id'])) {
-            $post['client_id'] = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();
-        }
+        $post['client_id'] = $this->getClientIdForQuickSale();
         $post['clients'] = $post['client_id'];
         $post['manager'] = $this->getUserId();
         $post['sale_type'] = SALE_TYPE_QUICK;
