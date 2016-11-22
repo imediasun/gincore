@@ -1,0 +1,23 @@
+web:
+ build: .
+ links:
+  - db:mysql
+ ports:
+  - 8080:80
+ volumes:
+  - ~/www/gincore:/var/www/html
+db:
+ image: mysql:latest
+ command: mysqld --sql_mode=""
+ environment:
+  MYSQL_USERNAME: root
+  MYSQL_ROOT_PASSWORD: koroed
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin
+  links:
+    - db:mysql
+  ports:
+    - 8181:80
+  environment:
+    MYSQL_USERNAME: root
+    MYSQL_ROOT_PASSWORD: koroed
