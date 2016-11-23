@@ -2010,6 +2010,10 @@ function init_multiselect($form, onInitCallback, onChangeCallback) {
         opts.buttonWidth = $this.attr('data-buttonWidth');
       }
 
+      if (typeof $this.attr('data-buttonClass') !== 'undefined') {
+        opts.buttonClass = $this.attr('data-buttonClass');
+      }
+
       $this.multiselect(opts);
     });
   }, 0);
