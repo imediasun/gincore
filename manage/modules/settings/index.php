@@ -30,7 +30,7 @@ class settings extends Controller
     {
         global $input_html;
         $input_html['mmenu'] = $this->genmenu();
-        return parent::render(); 
+        return parent::render();
     }
 
     /**
@@ -39,7 +39,7 @@ class settings extends Controller
     protected function genmenu()
     {
         return $this->view->renderFile('settings/genmenu', MSettings::getMenuVars($this->all_configs));
-        
+
     }
 
     /**
@@ -69,7 +69,7 @@ class settings extends Controller
                     $pp = $this->all_configs['db']->query("SELECT * FROM {settings} WHERE id = ?i AND `ro` = 0",
                         array($setting_id), 'row');
 
-                    if ( $pp['section']!= 1)
+                    if ($pp['section'] != 1)
                         Response::redirect($this->all_configs['prefix'] . 'settings/section/' . $pp['section']);
 
                     $tpl_vars = array(
@@ -78,14 +78,20 @@ class settings extends Controller
                             $this->all_configs['settings']['order_warranties']) : array(),
                     );
 
-                    if(strcmp($pp['name'], 'time_zone') === 0){
+                    if (strcmp($pp['name'], 'time_zone') === 0) {
                         $list = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
                         $continents_zones = array();
-                        foreach($list as $zone){
-                            list($continent, ) = explode('/', $zone);
+                        foreach ($list as $zone) {
+                            list($continent,) = explode('/', $zone);
                             $continents_zones[$continent][] = $zone;
                         }
                         $tpl_vars['timeZones'] = $continents_zones;
+                    }
+                    if (strcmp($pp['name'], 'client_id-for-quick-sale') === 0
+                        || strcmp($pp['name'], 'client_id-for-write-off') === 0
+                        || strcmp($pp['name'], 'client_id-for-supply') === 0
+                    ) {
+                        $tpl_vars['clients'] = $this->all_configs['db']->query('SELECT id, fio FROM {clients}')->vars();
                     }
 
                     break;
@@ -117,7 +123,7 @@ class settings extends Controller
                     break;
 
             }
-            
+
             $tpl_vars['action'] = $action;
             $out = $this->view->renderFile($tpl_name, $tpl_vars);
 
@@ -375,7 +381,7 @@ class settings extends Controller
             } catch (Exception $e) {
                 FlashMessage::set($e->getMessage(), FlashMessage::DANGER);
             }
-            
+
             Response::redirect($this->all_configs['prefix'] . 'settings/' . $this->all_configs['arrequest'][1]);
         }
 
@@ -387,12 +393,12 @@ class settings extends Controller
             try {
                 foreach ($sql as $pp) {
                     $pp = array_values($pp);
-                    if($pp[0] == 'id') {
+                    if ($pp[0] == 'id') {
                         continue;
                     }
                     $value = trim($post[$pp[0]]);
                     if (empty($value)) {
-                        if($this->all_configs['arrequest'][1] == 'crm_referers') {
+                        if ($this->all_configs['arrequest'][1] == 'crm_referers') {
                             $value = 0;
                         } else {
                             throw new Exception (l('Поле не может быть пустым'));
@@ -429,19 +435,19 @@ class settings extends Controller
         if (isset($this->all_configs['arrequest'][1]) && is_numeric($this->all_configs['arrequest'][1])) {
             $value = isset($post['value']) ? $post['value'] : '';
             if (isset($this->all_configs['arrequest'][2]) && $this->all_configs['arrequest'][2] == 'update') {
-                
+
                 // save time_zone settings
-                if(isset($post['time_zone'])){
-                    if(in_array($post['time_zone'], DateTimeZone::listIdentifiers(DateTimeZone::ALL))){
+                if (isset($post['time_zone'])) {
+                    if (in_array($post['time_zone'], DateTimeZone::listIdentifiers(DateTimeZone::ALL))) {
                         $value = $post['time_zone'];
-                    }else{
+                    } else {
                         FlashMessage::set(l('Указана несуществующая временная зона'), FlashMessage::DANGER);
-                        Response::redirect($this->all_configs['prefix'].'settings/'.$this->all_configs['arrequest'][1]);
+                        Response::redirect($this->all_configs['prefix'] . 'settings/' . $this->all_configs['arrequest'][1]);
                     }
                 }
-                if(isset($post['crm-requests-statuses'])){
+                if (isset($post['crm-requests-statuses'])) {
                     $newStatuses = $this->getNewRequestsStatus($_POST);
-                    if(!empty($newStatuses)) {
+                    if (!empty($newStatuses)) {
                         $value = json_encode($newStatuses);
                     } else {
                         $value = db()->query('SELECT `value` FROM {settings} WHERE `name`="crm-requests-statuses"')->el();
@@ -455,36 +461,34 @@ class settings extends Controller
         }
 
 
-
         if (isset($this->all_configs['arrequest'][1]) && $this->all_configs['arrequest'][1] == 'update') {
 
 //            dd($this->all_configs['arrequest'][2]);
 
             $value = isset($post['value']) ? $post['value'] : '';
 
-                // save time_zone settings
-                if(isset($post['time_zone'])){
-                    if(in_array($post['time_zone'], DateTimeZone::listIdentifiers(DateTimeZone::ALL))){
-                        $value = $post['time_zone'];
-                    }else{
-                        FlashMessage::set(l('Указана несуществующая временная зона'), FlashMessage::DANGER);
-                        Response::redirect($this->all_configs['prefix'].'settings/edit/'.$this->all_configs['arrequest'][2]);
-                    }
+            // save time_zone settings
+            if (isset($post['time_zone'])) {
+                if (in_array($post['time_zone'], DateTimeZone::listIdentifiers(DateTimeZone::ALL))) {
+                    $value = $post['time_zone'];
+                } else {
+                    FlashMessage::set(l('Указана несуществующая временная зона'), FlashMessage::DANGER);
+                    Response::redirect($this->all_configs['prefix'] . 'settings/edit/' . $this->all_configs['arrequest'][2]);
                 }
-                if(isset($post['crm-requests-statuses'])){
-                    $newStatuses = $this->getNewRequestsStatus($_POST);
-                    if(!empty($newStatuses)) {
-                        $value = json_encode($newStatuses);
-                    } else {
-                        $value = db()->query('SELECT `value` FROM {settings} WHERE `name`="crm-requests-statuses"')->el();
-                    }
+            }
+            if (isset($post['crm-requests-statuses'])) {
+                $newStatuses = $this->getNewRequestsStatus($_POST);
+                if (!empty($newStatuses)) {
+                    $value = json_encode($newStatuses);
+                } else {
+                    $value = db()->query('SELECT `value` FROM {settings} WHERE `name`="crm-requests-statuses"')->el();
                 }
-                $this->all_configs['db']->query("UPDATE {settings} SET value=?
+            }
+            $this->all_configs['db']->query("UPDATE {settings} SET value=?
                              WHERE id=?i AND ro=0 LIMIT 1", array($value, $this->all_configs['arrequest'][2]), 'ar');
 
-                Response::redirect($this->all_configs['prefix'] . 'settings/edit/' . $this->all_configs['arrequest'][2]);
+            Response::redirect($this->all_configs['prefix'] . 'settings/edit/' . $this->all_configs['arrequest'][2]);
         }
-
 
 
         return $out;
@@ -517,16 +521,16 @@ class settings extends Controller
      */
     private function getNewRequestsStatus($post)
     {
-        $used = function($status) {
-            return (bool) db()->query('SELECT count(*) FROM {crm_requests} WHERE status=?i', array($status))->el();
+        $used = function ($status) {
+            return (bool)db()->query('SELECT count(*) FROM {crm_requests} WHERE status=?i', array($status))->el();
         };
         $status = array();
-        if(!empty($post)) {
+        if (!empty($post)) {
             $lastId = 0;
             foreach ($post['name'] as $id => $value) {
-                $statusId = ($id === 'new')? $lastId + 1: $id;
+                $statusId = ($id === 'new') ? $lastId + 1 : $id;
                 $lastId = max($lastId, $id);
-                if((!isset($post['delete'][$id]) || $post['delete'][$id] != 'on' || $used($id)))  {
+                if ((!isset($post['delete'][$id]) || $post['delete'][$id] != 'on' || $used($id))) {
                     $status[$statusId] = array(
                         'name' => trim($value),
                         'active' => !(isset($post['close'][$id]) && $post['close'][$id] == 'on')

@@ -16,7 +16,11 @@ class AddForeignCategorygoodsGoods extends Migration
     
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        \Illuminate\Support\Facades\DB::statement('ALTER TABLE `restore4_category_goods` ADD CONSTRAINT `restore4_category_goods_ibfk_2` FOREIGN KEY (`goods_id`) REFERENCES `restore4_goods` (`id`) ON DELETE CASCADE;');
+        try {
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE `restore4_category_goods` ADD CONSTRAINT `restore4_category_goods_ibfk_2` FOREIGN KEY (`goods_id`) REFERENCES `restore4_goods` (`id`) ON DELETE CASCADE;');
+        } catch (Exception $e) {
+
+        }
 
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
