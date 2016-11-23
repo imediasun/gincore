@@ -1171,7 +1171,6 @@ class warehouses extends Controller
 
             $item_id = suppliers_order_generate_serial($post, false);
 
-
             if ($this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_POST['serial']), 0,
                     strlen($this->all_configs['configs']['erp-serial-prefix']))
             ) {
@@ -1181,6 +1180,14 @@ class warehouses extends Controller
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
                         ', array($item_id, $query_for_noadmin))->row();
+                if(empty($item)) {
+                    $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
+                        ', array($_POST['serial'], $query_for_noadmin))->row();
+                }
             } else {
                 $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
                         i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
@@ -1976,6 +1983,11 @@ class warehouses extends Controller
                         $item = $this->all_configs['db']->query(
                             'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE id=?i',
                             array(suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
+                        if ($data['error']) {
+                            $item = $this->all_configs['db']->query(
+                                'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
+                                array($scanned, $scanned))->row();
+                        }
                         if ($item) {
                             $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
                             $data['msg'] .= l('Изделие') . ' ' . suppliers_order_generate_serial($item);
@@ -2005,19 +2017,6 @@ class warehouses extends Controller
                             $data['state'] = true;
                             $data['error'] = false;
                         }
-                    }
-                }
-                if ($data['error']) {
-                    $item = $this->all_configs['db']->query(
-                        'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
-                        array($scan, $scan))->row();
-                    if (!empty($item)) {
-                        $data['msg'] = $order ? l('Заказ') . ' №' . $order['id'] . '<br />' : '';
-                        $data['msg'] .= l('Изделие') . ' ' . $scan;
-                        $data['state'] = true;
-                    } else {
-                        $data['msg'] = l('Изделие') . ' ' . htmlspecialchars($scan) . ' ' . l('не найдено!!!!');
-                        $data['state'] = true;
                     }
                 }
             }
