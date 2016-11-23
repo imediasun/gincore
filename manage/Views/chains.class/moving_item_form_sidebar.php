@@ -8,7 +8,7 @@
         <hr style="margin-top: 5px"/>
 
         <h4>
-            <img src="<?= $prefix ?>img/barcode-scanner.ico" width="18px" style="opacity: 0.6"> &nbsp;&nbsp;<?= l('С помощью сканера штрих кодов') ?>
+            <img src="<?= $prefix ?>img/barcode-scanner.png" width="18px" style="opacity: 0.6"> &nbsp;&nbsp;<?= l('С помощью сканера штрих кодов') ?>
             <i class="fa fa-question-circle" data-toggle="tooltip" style="font-size: 14px" title='<?= l('l_warehouses_scanner_moves_info') ?>'></i>
         </h4>
         <span>
