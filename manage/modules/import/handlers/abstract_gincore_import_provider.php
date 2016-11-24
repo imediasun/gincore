@@ -40,7 +40,14 @@ abstract class abstract_gincore_import_provider extends abstract_import_provider
     public function getColValue($name, $row)
     {
         $col = $this->getColPosition($this->cols[$name]);
-        return $col !== false && isset($row[$col])  && !empty($row[$col])? $row[$col] : false;
+        $result = ($col !== false && isset($row[$col])  && !empty($row[$col]))? $row[$col] : false;
+        /**
+         * в некоторых случаях при форматировании экселя в скрипт приходит сумма в виде 1,000.00. Убираем запятую
+         */
+        if($name == 'price' && $result) {
+            $result = str_replace(',', '', $result);
+        }
+        return $result;
     }
 
     /**

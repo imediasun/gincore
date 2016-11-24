@@ -95,32 +95,31 @@ class logistics
 
         $whfrom = isset($_GET['whfrom']) ? $_GET['whfrom'] : array();
         $whto = isset($_GET['whto']) ? $_GET['whto'] : array();
+        $o_id = isset($_GET['o_id']) ? h($_GET['o_id']) : '';
+        $i_id = isset($_GET['i_id']) ? h($_GET['i_id']) : '';
+        $date = isset($_GET['date']) ? h($_GET['date']) : '';
+        $number = isset($_GET['number']) ? h($_GET['number']) : '';
+
         $warehouses_select = $warehouses_select_to = '';
         foreach ($warehouses as $wh) {
-            $warehouses_select .= '<option value="' . $wh['id'] . '"' . (in_array($wh['id'],
-                    $whfrom) ? ' selected' : '') . '>' . $wh['title'] . '</option>';
-            $warehouses_select_to .= '<option value="' . $wh['id'] . '"' . (in_array($wh['id'],
-                    $whto) ? ' selected' : '') . '>' . $wh['title'] . '</option>';
+            $warehouses_select .= '<option value="' . $wh['id'] . '"' . (in_array($wh['id'], $whfrom) ? ' selected' : '') . '>' . $wh['title'] . '</option>';
+            $warehouses_select_to .= '<option value="' . $wh['id'] . '"' . (in_array($wh['id'], $whto) ? ' selected' : '') . '>' . $wh['title'] . '</option>';
         }
-        $out = '
-            <form>
-                <input type="text" placeholder="' . l('Дата') . '" name="date" class="daterangepicker form-control" value="' . (isset($_GET['date']) ? htmlspecialchars($_GET['date']) : '') . '" />
-                <input name="o_id" value="' . (isset($_GET['o_id']) ? htmlspecialchars($_GET['o_id']) : '') . '" type="text" class="form-control" placeholder="' . l('номер заказа') . '">
-                <input name="i_id" value="' . (isset($_GET['i_id']) ? htmlspecialchars($_GET['i_id']) : '') . '" type="text" class="form-control" placeholder="' . l('номер изделия') . '">
-                <label>' . l('Откуда') . ': <br>
-                <select class="multiselect form-control" name="whfrom[]" multiple="multiple">' . $warehouses_select . '</select></label>
-                <label>' . l('Куда') . ': <br>
-                <select class="multiselect form-control" name="whto[]" multiple="multiple">' . $warehouses_select_to . '</select></label>
-                <div class="checkbox">
-                    <label>
-                        <input' . (isset($_GET['serials_in_orders']) ? ' checked' : '') . ' value="1" type="checkbox" name="serials_in_orders"> 
-                            ' . l('разгрупировать') . '
-                    </label>
-                </div>
-                <input type="button" onclick="send_get_form(this)" value="' . l('Фильтровать') . '" class="btn btn-primary" />
-            </form>
-        ';
-        return $out;
+
+        $html = $this->view->renderFile('logistics/filters_block',
+                array(
+                    'warehouses' => $warehouses,
+                    'wh_from' => $whfrom,
+                    'wh_to' => $whto,
+                    'o_id' => $o_id,
+                    'i_id' => $i_id,
+                    'date' => $date,
+                    'number' => $number,
+                )
+
+        );
+
+        return $html;
     }
 
     /**
@@ -200,8 +199,6 @@ class logistics
      */
     function logistics_motions()
     {
-        $out = '';
-
         $warehouses = get_service('wh_helper')->get_warehouses();
         $chains = $this->db->query("SELECT * FROM {chains} ORDER BY avail DESC")->assoc('id');
 
@@ -231,90 +228,20 @@ class logistics
              LEFT JOIN {warehouses_stock_moves} as from_m ON from_m.id = ch.from_move_id
              " . ($filter_query['where'] ? " WHERE " . $filter_query['where'] : ''))->el();
 
-        $rows = '';
-        if ($chains_moves) {
+        $html = $this->view->renderFile('logistics/logistics_motions',
+            array(
+                'filters_block' => $this->filters_block(),
+                'warehouses' => $warehouses,
+                'chains' => $chains,
+                'chains_moves' => $chains_moves,
+                'chains_moves_count_all' => $chains_moves_count_all,
+                'count_page' => ceil($chains_moves_count_all / $this->count_on_page),
+            )
 
-            $i = 1;
-            foreach ($chains_moves as $move) {
-                switch ($move['item_type']) {
-                    case 1: // order
-                        $link = '<a href="' . $this->all_configs['prefix'] . 'orders/create/' . $move['item_id'] . '">Заказ №' . $move['item_id'] . '</a>';
-                        break;
-                    case 2: // изделие (серийник)
-                        $move['serial'] = '';
-                        $link = suppliers_order_generate_serial($move, true, true);
-                        // значит что изделие (запчасть) двигается в заказе
-                        if ($move['from_order_id']) {
-                            $link .= ' 
-                                <span style="color:#666">
-                                    (в заказе 
-                                     <a style="color:#666" href="' . $this->all_configs['prefix'] . 'orders/create/' . $move['from_order_id'] . '">' .
-                                '№' . $move['from_order_id'] .
-                                '</a>)
-                                </span>';
-                        }
-                        break;
-                }
-                $row_class = '';
-                switch ($move['state']) {
-                    case -1: // не закрыта
-                        $row_class = 'error';
-                        break;
-                    case 0: // закрыта
-                        $row_class = 'info';
-                        break;
-                    case 1: // открыта
-                        break;
-                }
-                $rows .= '
-                    <tr class="' . $row_class . '">
-                        <td>' . ($i++) . '</td>
-                        <td class="well">
-                            ' . $link . '
-                        </td>
-                        <td' . ($move['from_move_id'] ? ' class="success"' : '') . '>
-                            ' . $warehouses[$chains[$move['chain_id']]['from_wh_id']]['title'] . ' (' . $warehouses[$chains[$move['chain_id']]['from_wh_id']]['locations'][$chains[$move['chain_id']]['from_wh_location_id']]['name'] . ')' . '
-                            <span title="' . $move['from_date_move'] . '">' . do_nice_date($move['from_date_move']) . '</span>
-                        </td>
-                        <td class="chain-body-arrow"></td>
-                        <td' . ($move['logistics_move_id'] ? ' class="success"' : '') . '>
-                            ' . $warehouses[$chains[$move['chain_id']]['logistic_wh_id']]['title'] . ($chains[$move['chain_id']]['logistic_wh_location_id'] ? ' (' . $warehouses[$chains[$move['chain_id']]['logistic_wh_id']]['locations'][$move['logistic_wh_location_id']]['name'] . ')' : '') . '
-                            <span title="' . $move['log_date_move'] . '">' . do_nice_date($move['log_date_move']) . '</span>
-                        </td>
-                        <td class="chain-body-arrow"></td>
-                        <td' . ($move['to_move_id'] ? ' class="success"' : '') . '>
-                            ' . $warehouses[$chains[$move['chain_id']]['to_wh_id']]['title'] . ' (' . $warehouses[$chains[$move['chain_id']]['to_wh_id']]['locations'][$chains[$move['chain_id']]['to_wh_location_id']]['name'] . ')
-                            <span title="' . $move['to_date_move'] . '">' . do_nice_date($move['to_date_move']) . '</span>
-                        </td>
-                    </tr>
-                    <tr><td colspan="7"></td></tr>
-                ';
-            }
-            $count_page = ceil($chains_moves_count_all / $this->count_on_page);
-            $pages = page_block($count_page, $chains_moves_count_all, '#motions');
-        } else {
-            $rows = l('Нет цепочек');
-            $pages = '';
-        }
-
-        $out = '
-            <div class="row-fluid">
-                <div class="span2">
-                    ' . $this->filters_block() . '
-                </div>
-                <div class="span10">
-                    <table class="table chains table-compact">
-                        <tbody>
-                            ' . $rows . '
-                        </tbody>
-                    </table>
-                    ' . $pages . '
-                </div>
-            </div>
-        ';
+        );
 
         return array(
-            'html' => $out,
+            'html' => $html,
             'functions' => array('reset_multiselect()'),
         );
     }

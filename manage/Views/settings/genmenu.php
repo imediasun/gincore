@@ -41,5 +41,10 @@
             <?= l('Пользовательские статусы заказов') ?>
         </a>
     </li>
+    <li>
+        <a href="<?= $this->all_configs['prefix'] ?>warehouses?#settings-warehouses_groups" >
+            <?= l('Сервисные центры') ?>
+        </a>
+    </li>
 
 </ul>

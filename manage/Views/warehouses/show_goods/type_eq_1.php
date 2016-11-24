@@ -23,7 +23,7 @@
             <td>
                 <a 
                    href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
-                   data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
+                   data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>">
                     <?= h($product['product_title']) ?>
                 </a>
             </td>

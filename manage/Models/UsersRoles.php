@@ -4,6 +4,8 @@ require_once __DIR__ . '/../Core/AModel.php';
 class MUsersRoles extends AModel
 {
     public $table = 'users_roles';
+
+    const ROLE_COURIER = 8;
     
     /**
      * @return mixed
