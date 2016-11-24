@@ -111,6 +111,12 @@ class Mailer extends PHPMailer
                 $this->From = $this->all_configs['config']['from-system'];
                 break;
 
+            case('courier-logistics'):
+                $this->Subject = l('Запрос на перемещение');
+                $this->Body = $body;
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
             case('send-new-comment'):
                 $this->Subject = l('Новый отзыв о работе сотрудников');
                 $this->Body = l('Закза N') . $data['order_id'] . "<br><br>";

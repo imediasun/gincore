@@ -1,16 +1,15 @@
-<div class='panel panel-default'>
-    <div class='panel-heading'>
-        <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses'
-           href='#collapse_warehouse_<?= $i ?>'>
-            <?php if (empty($warehouse)): ?>
-                <?= l('Создать склад'); ?>
-            <?php else: ?>
-                <?= l('Редактировать склад') . ' ' . $warehouse['title'] ?>
-            <?php endif; ?>
-        </a>
+<div class='hpanel <?= $i == 1 ? '' : 'panel-collapse' ?>'>
+    <div class='panel-heading hbuilt showhide cursor-pointer'>
+        <div class="panel-tools">
+            <a class=""><i class="fa fa-chevron-up"></i></a>
+        </div>
+        <?php if (empty($warehouse)): ?>
+            <?= l('Создать склад'); ?>
+        <?php else: ?>
+            <?= l('Редактировать склад') . ' ' . $warehouse['title'] ?>
+        <?php endif; ?>
     </div>
-    <div id='collapse_warehouse_<?= $i ?>' class='panel-body collapse <?= $i == 1 ? 'in' : '' ?>'>
-        <div class='panel-body'>
+    <div class='panel-body' <?= $i == 1 ? '' : 'style="display: none;"' ?>>
             <form method='POST'>
                 <div class='form-group'>
                     <label><?= l('Название') ?>: </label>
@@ -79,7 +78,7 @@
                         <?php else: ?>
                             <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
                             <input type='submit' class='btn' name='warehouse-edit'
-                                   value='<?= l('Редактировать') ?>'/>
+                                   value='<?= l('Сохранить') ?>'/>
                             <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
                                 <?php if (!$warehouse['can_deleted'] || $warehouse['is_system'] || in_array($warehouse['title'],
                                         array(
@@ -97,6 +96,5 @@
                     <?php endif; ?>
                 </div>
             </form>
-        </div>
     </div>
 </div>

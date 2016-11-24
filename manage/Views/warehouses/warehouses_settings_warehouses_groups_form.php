@@ -28,12 +28,17 @@
                            value='<?= empty($group) ? '' : h($group['address']) ?>'/>
                 </div>
                 <div class='form-group'>
+                    <label><?= l('Телефон') ?>: </label>
+                    <input<?= input_phone_mask_attr() ?> placeholder='<?= l('введите телефон') ?>' class='form-control' name='phone'
+                           value='<?= empty($group) ? '' : h($group['phone']) ?>'/>
+                </div>
+                <div class='form-group'>
                     <label></label>
                     <?php if (empty($group)): ?>
                         <input type='submit' class='btn' name='warehouse-group-add' value='<?= l('Создать') ?>'/>
                     <?php else: ?>
                         <input type='hidden' name='warehouse-group-id' value='<?= $group['id'] ?>'/>
-                        <input type='submit' class='btn' name='warehouse-group-edit' value='<?= l('Редактировать') ?>'/>
+                        <input type='submit' class='btn' name='warehouse-group-edit' value='<?= l('Сохранить') ?>'/>
                     <?php endif; ?>
                 </div>
             </form>

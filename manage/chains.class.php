@@ -1354,6 +1354,19 @@ class Chains extends Object
      * @param $user
      * @param $order
      */
+    public function noticeCourier($user, $body)
+    {
+        require_once $this->all_configs['sitepath'] . 'mail.php';
+        $mailer = new Mailer($this->all_configs);
+        $mailer->group('courier-logistics', $user['email'],
+            array(), $body);
+        $mailer->go();
+    }
+
+    /**
+     * @param $user
+     * @param $order
+     */
     public function noticeEngineer($user, $order)
     {
         if ($user['send_over_sms']) {
@@ -2733,6 +2746,7 @@ class Chains extends Object
      */
     function move_item($item_id, $order_id, $wh_id, $location_id, $mod_id)
     {
+        require_once __DIR__ . '/Models/UsersRoles.php';
         $data = array('state' => true);
 
         try {
@@ -2853,6 +2867,15 @@ class Chains extends Object
                                 $content = l('Изделие') . ' <a data-action="sidebar_item" data-id_item="' . $data['serial'] . '" href="' . $href1 . '">' . $data['serial'] . '</a> ' . l('попало на склад и создалась') . ' <a href="' . $href2 . '">' . l('цепочка') . '</a> ' . l('(запрос) на перемещение');
                                 $this->notification(l('Создалась цепочка на перемещение изделия'), $content,
                                     'logistics-mess');
+
+                                $couriers = $this->all_configs['db']->query('SELECT * FROM {users} WHERE role=?i',
+                                    array(MUsersRoles::ROLE_COURIER))->assoc();
+                                if (!empty($couriers)) {
+                                    foreach ($couriers as $courier) {
+                                        $this->noticeCourier($courier, $content);
+                                    }
+                                }
+//
                             }
                         }
 
