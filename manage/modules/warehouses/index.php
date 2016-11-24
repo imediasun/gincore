@@ -9,8 +9,9 @@ $modulemenu[40] = l('Склады');
 $moduleactive[40] = !$ifauth['is_2'];
 
 /**
- * @property  MLockFilters     LockFilters
+ * @property  MLockFilters LockFilters
  * @property MPurchaseInvoices PurchaseInvoices
+ * @property MWarehouses Warehouses
  */
 class warehouses extends Controller
 {
@@ -21,7 +22,8 @@ class warehouses extends Controller
 
     public $uses = array(
         'LockFilters',
-        'PurchaseInvoices'
+        'PurchaseInvoices',
+        'Warehouses'
     );
 
     /**
@@ -209,25 +211,30 @@ class warehouses extends Controller
                 Response::redirect($_SERVER['REQUEST_URI']);
             }
             //заблокировал обновления типа (4 - Клиент), при сохраниении сбрасывался в "1". 16.06.16
-            $this->all_configs['db']->query('UPDATE {warehouses} '
-                . 'SET consider_all=?i, consider_store=?i, code_1c=?, title=?, '
-                . 'print_address = ?, print_phone = ?, '
-                //. 'type=?i, '
-                . 'group_id=?n, '
-                . 'type_id=?n '
-                . 'WHERE id=?i',
-                array(
-                    $consider_all,
-                    $consider_store,
-                    trim($post['code_1c']),
-                    trim($post['title']),
-                    trim($post['print_address']),
-                    trim($post['print_phone']),
-                    //$post['type'],
-                    $group_id,
-                    $type_id,
-                    $post['warehouse-id']
-                ));
+            $update = array(
+                'code_1c' => trim($post['code_1c']),
+                'print_address' => trim($post['print_address']),
+                'print_phone' => trim($post['print_phone']),
+            );
+            $warehouse = $this->Warehouses->getByPk($post['warehouse-id']);
+            if (!in_array($warehouse['title'], array(
+                lq('Брак'),
+                lq('Клиент'),
+                lq('Логистика'),
+                lq('Недостача'),
+            ))
+            ) {
+                $update = $update + array(
+                        'consider_all' => $consider_all,
+                        'consider_store' => $consider_store,
+                        'title' => trim($post['title']),
+                        'group_id' => $group_id,
+                        'type_id' => $type_id
+                    );
+            }
+            $this->Warehouses->update($update, array(
+                'id' => $post['warehouse-id']
+            ));
             $query = '';
             if (isset($_POST['location-id']) && is_array($_POST['location-id'])) {
                 foreach ($_POST['location-id'] as $location_id => $location) {
@@ -501,19 +508,19 @@ class warehouses extends Controller
                 $show_item_type = 1;
                 $open_item_in_sidebar = true;
             } else {
-                    $goods = $this->getItems($_GET, $count_on_page, $skip);
-                    if (isset($filters['so_id']) && $filters['so_id'] > 0) {
-                        $query = $this->all_configs['db']->makeQuery('?query AND i.supplier_order_id=?i',
-                            array($query, intval($filters['so_id'])));
-                    } elseif (count($warehouses_selected) > 0) {
-                        $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
-                            array($query, array_values($warehouses_selected)));
-                    }
+                $goods = $this->getItems($_GET, $count_on_page, $skip);
+                if (isset($filters['so_id']) && $filters['so_id'] > 0) {
+                    $query = $this->all_configs['db']->makeQuery('?query AND i.supplier_order_id=?i',
+                        array($query, intval($filters['so_id'])));
+                } elseif (count($warehouses_selected) > 0) {
+                    $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
+                        array($query, array_values($warehouses_selected)));
+                }
 
-                    $count_page = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id)
+                $count_page = $this->all_configs['db']->query('SELECT COUNT(DISTINCT i.id)
                             FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                             WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query',
-                            array($query, $query_for_noadmin))->el() / $count_on_page;
+                        array($query, $query_for_noadmin))->el() / $count_on_page;
 
                 $show_item_type = 1;
             }
@@ -541,9 +548,9 @@ class warehouses extends Controller
 
     /**
      * @param array $filters
-     * @param null  $count_on_page
-     * @param null  $skip
-     * @param bool  $select_name
+     * @param null $count_on_page
+     * @param null $skip
+     * @param bool $select_name
      * @return null
      */
     private function getItems($filters = array(), $count_on_page = null, $skip = null, $select_name = false)
@@ -573,30 +580,30 @@ class warehouses extends Controller
         if ($count_on_page || $skip) {
             $limit = $this->all_configs['db']->makeQuery('LIMIT ?i, ?i', array(intval($skip), intval($count_on_page)));
         }
-            if (isset($filters['so_id']) && $filters['so_id'] > 0) {
-                $query = $this->all_configs['db']->makeQuery('AND i.supplier_order_id=?i',
-                    array(intval($filters['so_id'])));
-            } elseif (count($warehouses_selected) > 0) {
-                $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
-                    array($query, array_values($warehouses_selected)));
-            }
+        if (isset($filters['so_id']) && $filters['so_id'] > 0) {
+            $query = $this->all_configs['db']->makeQuery('AND i.supplier_order_id=?i',
+                array(intval($filters['so_id'])));
+        } elseif (count($warehouses_selected) > 0) {
+            $query = $this->all_configs['db']->makeQuery('?query AND w.id IN (?li)',
+                array($query, array_values($warehouses_selected)));
+        }
 
-            if ($select_name) {
-                $select = $this->all_configs['db']->makeQuery('i.id as `№ изделия`, i.serial as `Серийный номер`,
+        if ($select_name) {
+            $select = $this->all_configs['db']->makeQuery('i.id as `№ изделия`, i.serial as `Серийный номер`,
                     g.title as `Наименование`, g.vendor_code as `Артикул`, i.date_add as `' . l('Дата') . '`, w.title as `Склад`, w.id as `№ склада`,
                     l.location as `Локация`, l.id as `№ локации`, i.order_id as `Заказ клиента`,
                     i.supplier_order_id as `Заказ поставщику`, i.price/100 as `Цена`,
                     u.title as `Поставщик`, i.supplier_id as `№ поставщика`', array());
-            } else {
-                $select = $this->all_configs['db']->makeQuery('w.id, w.title, w.code_1c, w.consider_all,
+        } else {
+            $select = $this->all_configs['db']->makeQuery('w.id, w.title, w.code_1c, w.consider_all,
                     w.consider_store, g.title as product_title, i.id as item_id, i.date_add, i.goods_id, g.vendor_code,
                     i.order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id,
                     u.title as contractor_title, i.supplier_order_id, l.location, i.location_id', array());
-            }
-            $goods = $this->all_configs['db']->query('SELECT ?query
+        }
+        $goods = $this->all_configs['db']->query('SELECT ?query
                     FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                     WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id ?query ?query ?query',
-                array($select, $query, $query_for_noadmin, $limit))->assoc();
+            array($select, $query, $query_for_noadmin, $limit))->assoc();
 
         return $goods;
     }
@@ -1160,7 +1167,8 @@ class warehouses extends Controller
      * @param $mod_id
      * @return array
      */
-    public function sidebar_load_item($post, $mod_id){
+    public function sidebar_load_item($post, $mod_id)
+    {
 
         $error = '';
 
@@ -1180,7 +1188,7 @@ class warehouses extends Controller
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
                         ', array($item_id, $query_for_noadmin))->row();
-                if(empty($item)) {
+                if (empty($item)) {
                     $item = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
                         i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
                         i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
@@ -1198,14 +1206,13 @@ class warehouses extends Controller
             }
 
             $html = $this->view->renderFile('warehouses/sidebar/item', array(
-                        'item' => $item,
-                        'controller' => $this,
-                        'query_for_noadmin' => $query_for_noadmin,
-                    ));
+                'item' => $item,
+                'controller' => $this,
+                'query_for_noadmin' => $query_for_noadmin,
+            ));
         } catch (Exception $e) {
             $error = $e->getMessage();
         }
-
 
 
         return array(
@@ -1217,7 +1224,7 @@ class warehouses extends Controller
 
     /**
      * @param null $warehouse
-     * @param int  $i
+     * @param int $i
      * @return string
      */
     public function form_warehouse($warehouse = null, $i = 1)
@@ -1520,7 +1527,7 @@ class warehouses extends Controller
 
     /**
      * @param      $price
-     * @param int  $zero
+     * @param int $zero
      * @param null $course
      * @return string
      */
@@ -2118,7 +2125,7 @@ class warehouses extends Controller
                 $data['msg'] .= '<br /> <span class="text-error">' . (isset($response['message']) ? $response['message'] : $msg) . '</span>';
             }
         } else {
-            $alert_timer = l('в течение') . ' <span id="scanner-moves-alert-timer'. ($from_sidebar ? '-sidebar' : '') .'" class="text-error">30</span> ' . l('сек') . '.';
+            $alert_timer = l('в течение') . ' <span id="scanner-moves-alert-timer' . ($from_sidebar ? '-sidebar' : '') . '" class="text-error">30</span> ' . l('сек') . '.';
             if ($order || $item) {
                 if ($order) {
                     $data['value'] = $order_prefix . $order['id'];

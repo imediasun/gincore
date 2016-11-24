@@ -14,7 +14,7 @@
                                         lq('Клиент'),
                                         lq('Логистика'),
                                         lq('Недостача'),
-                                    )) ? 'readonly' : '' ?>
+                                    )) ? 'readonly  disabled' : '' ?>
     <div id='collapse_warehouse_<?= $i ?>' class='panel-body collapse <?= $i == 1 ? 'in' : '' ?>'>
         <div class='panel-body'>
             <form method='POST'>
