@@ -1,5 +1,4 @@
 <div class="panel-group" id="accordion-logistics">
-
     <div class="hpanel panel-collapse">
         <div class="panel-heading hbuilt showhide cursor-pointer">
             <div class="panel-tools">
@@ -93,8 +92,6 @@
         </div>
     </div>
 
-
-
     <?php if($chains): ?>
         <div class="m-t-lg m-b-sm">
         <div class="chains_new m-t-sm">
@@ -146,6 +143,7 @@
                     </span>
             </div>
         </div>
+        <div class="clearfix"></div>
     <?php endif; ?>
 
 </div>

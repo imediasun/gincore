@@ -23,14 +23,14 @@
                         <div class="chain_product">
                             <?php if ($move['item_type'] == 1): ?>
                                 <!-- Заказ -->
-                                <a href="<?= $this->all_configs['prefix'] . 'orders/create/' . $move['item_id'] ?>" >Заказ №<?= $move['item_id'] ?></a>
+                                <a href="<?= $this->all_configs['prefix'] . 'orders/create/' . $move['item_id'] ?>" ><?= l('Заказ') ?> №<?= $move['item_id'] ?></a>
                             <?php elseif ($move['item_type'] == 2): ?>
                                 <!-- изделие (серийник) -->
                                 <?php $move['serial'] = ''; ?>
                                 <?= suppliers_order_generate_serial($move, true, true) ?>
                                 <?php if ($move['from_order_id']): ?>
                                     <span style="color:#666">
-                                            (в заказе
+                                            (<?= l('в заказе') ?>
                                              <a style="color:#666" href=" <?= $this->all_configs['prefix'] . 'orders/create/' . $move['from_order_id'] ?>">
                                                 № <?= $move['from_order_id'] ?>
                                              </a>)
@@ -66,6 +66,7 @@
                 </span>
             </div>
         </div>
+        <div class="clearfix"></div>
     <?php endif; ?>
 </div>
 
