@@ -31,6 +31,7 @@
                                 data-consider='<?= $i ?>' <?= empty($warehouse) || $warehouse['consider_store'] == 1 ? 'checked' : '' ?>
                                 type='checkbox'
                                 onclick='consider(this, "<?= $i ?>")' class='btn consider_<?= $i ?>'
+                                <?= $readonly ?>
                                 name='consider_store' value='1'/>
                             <?= l('Учитывать в свободном остатке') ?>
                         </label>
@@ -40,6 +41,7 @@
                             <input <?= empty($warehouse) || $warehouse['consider_all'] == 1 ? 'checked' : '' ?>
                                 type='checkbox' class='btn consider_<?= $i ?>'
                                 onclick='consider(this, "<?= $i ?>")' name='consider_all'
+                                <?= $readonly ?>
                                 value='1'/>
                             <?= l('Учитывать в общем остатке') ?>
                         </label>
