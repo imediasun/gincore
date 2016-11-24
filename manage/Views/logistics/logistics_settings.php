@@ -93,57 +93,59 @@
         </div>
     </div>
 
-</div>
 
-<?php if($chains): ?>
-    <div class="m-t-lg m-b-sm">
-    <div class="chains_new m-t-sm">
-        <div class="chain_item">
-            <div class="chain_number">№</div>
-            <div class="chain_logistics"><?= l('Отправная точка') ?></div>
-            <div class="chain_logistics"><?= l('Логистика') ?></div>
-            <div class="chain_logistics"><?= l('Точка назначения') ?></div>
-            <div class="chain_status"><?= l('Удалить') ?></div>
-        </div>
-    </div>
-    <?php $i=1; ?>
-    <?php foreach ($chains as $chain): ?>
+
+    <?php if($chains): ?>
+        <div class="m-t-lg m-b-sm">
         <div class="chains_new m-t-sm">
-            <div class="chain_item <?= (!$chain['avail'] ? 'danger' : '') ?>">
-                <div class="chain_number"><?= $i++ ?></div>
-
-                <div class="chain_logistics with_bordered with_arrrow first">
-                    <?= $warehouses[$chain['from_wh_id']]['title'] ?>
-                    (<?= $warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'] ?>)
-                </div>
-                <div class="chain_logistics with_bordered with_arrrow">
-                    <?= $warehouses[$chain['logistic_wh_id']]['title'] ?>
-                    <?php if ($chain['logistic_wh_location_id']): ?>
-                        (<?= $warehouses[$chain['logistic_wh_id']]['locations'][$chain['logistic_wh_location_id']]['name'] ?>)
-                    <?php endif; ?>
-                </div>
-                <div class="chain_logistics with_bordered last">
-                    <?= $warehouses[$chain['to_wh_id']]['title'] ?>
-                    (<?= $warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'] ?>)
-                </div>
-                <div class="chain_status">
-                    <?php if ($chain['avail']): ?>
-                        <i class="glyphicon glyphicon-remove cursor-pointer"
-                           title="<?= l('Удалить цепочку') ?>"
-                           onclick="remove_chain(this, <?= $chain['id'] ?>)"></i>
-                    <?php endif; ?>
-                </div>
+            <div class="chain_item">
+                <div class="chain_number">№</div>
+                <div class="chain_logistics"><?= l('Отправная точка') ?></div>
+                <div class="chain_logistics"><?= l('Логистика') ?></div>
+                <div class="chain_logistics"><?= l('Точка назначения') ?></div>
+                <div class="chain_status"><?= l('Удалить') ?></div>
             </div>
         </div>
-    <?php endforeach; ?>
+        <?php $i=1; ?>
+        <?php foreach ($chains as $chain): ?>
+            <div class="chains_new m-t-sm">
+                <div class="chain_item <?= (!$chain['avail'] ? 'danger' : '') ?>">
+                    <div class="chain_number"><?= $i++ ?></div>
+
+                    <div class="chain_logistics with_bordered with_arrrow first">
+                        <?= $warehouses[$chain['from_wh_id']]['title'] ?>
+                        (<?= $warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'] ?>)
+                    </div>
+                    <div class="chain_logistics with_bordered with_arrrow">
+                        <?= $warehouses[$chain['logistic_wh_id']]['title'] ?>
+                        <?php if ($chain['logistic_wh_location_id']): ?>
+                            (<?= $warehouses[$chain['logistic_wh_id']]['locations'][$chain['logistic_wh_location_id']]['name'] ?>)
+                        <?php endif; ?>
+                    </div>
+                    <div class="chain_logistics with_bordered last">
+                        <?= $warehouses[$chain['to_wh_id']]['title'] ?>
+                        (<?= $warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'] ?>)
+                    </div>
+                    <div class="chain_status">
+                        <?php if ($chain['avail']): ?>
+                            <i class="glyphicon glyphicon-remove cursor-pointer"
+                               title="<?= l('Удалить цепочку') ?>"
+                               onclick="remove_chain(this, <?= $chain['id'] ?>)"></i>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+    </div>
+    <?php else: ?>
+        <div class="col-md-12 center">
+            <div style="padding-top: 5%; padding-bottom: 5%;">
+                    <span style="border-bottom: 1px grey dashed;">
+                        <?= l('Нет цепочек') ?>
+                    </span>
+            </div>
+        </div>
+    <?php endif; ?>
 
 </div>
-<?php else: ?>
-    <div class="col-md-12 center">
-        <div style="padding-top: 5%; padding-bottom: 5%;">
-                <span style="border-bottom: 1px grey dashed;">
-                    <?= l('Нет цепочек') ?>
-                </span>
-        </div>
-    </div>
-<?php endif; ?>
