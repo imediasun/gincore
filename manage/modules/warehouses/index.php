@@ -274,8 +274,8 @@ class warehouses extends Controller
             if (isset($post['name']) && mb_strlen(trim($post['name']), 'UTF-8') > 0) {
                 $color = preg_match('/^#[a-f0-9]{6}$/i', trim($post['color'])) ? trim($post['color']) : '#000000';
                 $this->all_configs['db']->query(
-                    'INSERT IGNORE INTO {warehouses_groups} (name, color, user_id, address) VALUES (?, ?, ?i, ?)',
-                    array(trim($post['name']), $color, $user_id, trim($post['address'])));
+                    'INSERT IGNORE INTO {warehouses_groups} (name, color, user_id, address, phone) VALUES (?, ?, ?i, ?, ?)',
+                    array(trim($post['name']), $color, $user_id, trim($post['address']), trim($post['phone'])));
                 $link = '<a href="' . $this->all_configs['prefix'] . 'warehouses#settings-warehouses" class="btn btn-primary js-go-to" data-goto_id="#add_warehouses">' . l('Перейти') . '</a>';
                 FlashMessage::set(l('Вы добавили отделение') . ' ' . $post['name'] . '. ' . l('Теперь необходимо добавить склады и локации для данного отделения.') . $link,
                     FlashMessage::SUCCESS);
@@ -293,11 +293,12 @@ class warehouses extends Controller
             ) {
                 try {
                     $color = preg_match('/^#[a-f0-9]{6}$/i', trim($post['color'])) ? trim($post['color']) : '#000000';
-                    $this->all_configs['db']->query('UPDATE {warehouses_groups} SET name=?, color=?, address=? WHERE id=?i',
+                    $this->all_configs['db']->query('UPDATE {warehouses_groups} SET name=?, color=?, address=?, phone=? WHERE id=?i',
                         array(
                             trim($post['name']),
                             $color,
                             trim($post['address']),
+                            trim($post['phone']),
                             intval($post['warehouse-group-id'])
                         ));
                 } catch (Exception $e) {
@@ -760,18 +761,22 @@ class warehouses extends Controller
         $admin_out = '';
 
         if ($this->all_configs['oRole']->hasPrivilege('site-administration')) {
-            // склады
-            $admin_out .= "<div class='panel-group row-fluid' id='accordion_warehouses'><div class='col-sm-6'>";
             // форма для создания склада
-            $admin_out .= $this->form_warehouse();
+            $create_form = $this->form_warehouse();
+            $edit_forms = '';
             if ($this->warehouses && count($this->warehouses) > 0) {
                 $i = 1;
                 foreach ($this->warehouses as $warehouse) {
                     $i++;
-                    $admin_out .= $this->form_warehouse($warehouse, $i);
+                    $edit_forms .= $this->form_warehouse($warehouse, $i);
                 }
             }
-            $admin_out .= '</div></div><!--#accordion_warehouses-->';
+
+            $admin_out = $this->view->renderFile('warehouses/warehouses_settings_warehouses', array(
+                'warehouses' => $this->warehouses,
+                'create_form' => $create_form,
+                'edit_forms' => $edit_forms,
+            ));
         }
 
         return array(
