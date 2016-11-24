@@ -95,7 +95,8 @@
 
 </div>
 
-<div class="m-t-lg m-b-sm">
+<?php if($chains): ?>
+    <div class="m-t-lg m-b-sm">
     <div class="chains_new m-t-sm">
         <div class="chain_item">
             <div class="chain_number">№</div>
@@ -137,3 +138,12 @@
     <?php endforeach; ?>
 
 </div>
+<?php else: ?>
+    <div class="col-md-12 center">
+        <div style="padding-top: 5%; padding-bottom: 5%;">
+                <span style="border-bottom: 1px grey dashed;">
+                    <?= l('Нет цепочек') ?>
+                </span>
+        </div>
+    </div>
+<?php endif; ?>
