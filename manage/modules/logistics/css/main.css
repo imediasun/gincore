@@ -67,11 +67,17 @@ a.btn.btn-mini {
 .chains_new .chain_item .chain_logistics {
     float: left;
     width: 25%;
+    height: 20px;
     /*border: 1px solid lightgrey;*/
     /*background-color: #fafafa;*/
     /*color: black;*/
     text-align: center;
     position: relative;
+}
+.chains_new .chain_item .chain_logistics > .text_container {
+    width: 100%;
+    height: 20px;
+    overflow: hidden;
 }
 
 .chains_new .chain_item .chain_logistics.with_bordered {

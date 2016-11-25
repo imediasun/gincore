@@ -110,18 +110,27 @@
                     <div class="chain_number"><?= $i++ ?></div>
 
                     <div class="chain_logistics with_bordered with_arrrow first">
-                        <?= $warehouses[$chain['from_wh_id']]['title'] ?>
-                        (<?= $warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'] ?>)
+                        <div class="text_container">
+                            <?= cut_string($warehouses[$chain['from_wh_id']]['title'] .
+                            ' (' . $warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'] . ')') ?>
+                        </div>
                     </div>
                     <div class="chain_logistics with_bordered with_arrrow">
-                        <?= $warehouses[$chain['logistic_wh_id']]['title'] ?>
-                        <?php if ($chain['logistic_wh_location_id']): ?>
-                            (<?= $warehouses[$chain['logistic_wh_id']]['locations'][$chain['logistic_wh_location_id']]['name'] ?>)
-                        <?php endif; ?>
+                        <div class="text_container">
+                            <?= cut_string($warehouses[$chain['logistic_wh_id']]['title'] .
+                                (
+                                    $chain['logistic_wh_location_id'] ?
+                                    ' (' . $warehouses[$chain['from_wh_id']]['locations'][$chain['from_wh_location_id']]['name'] . ')' : ''
+                                )
+                                ) ?>
+
+                        </div>
                     </div>
                     <div class="chain_logistics with_bordered last">
-                        <?= $warehouses[$chain['to_wh_id']]['title'] ?>
-                        (<?= $warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'] ?>)
+                        <div class="text_container">
+                            <?= cut_string($warehouses[$chain['to_wh_id']]['title'] .
+                                ' (' . $warehouses[$chain['to_wh_id']]['locations'][$chain['to_wh_location_id']]['name'] . ')') ?>
+                        </div>
                     </div>
                     <div class="chain_status">
                         <?php if ($chain['avail']): ?>
@@ -132,6 +141,7 @@
                     </div>
                 </div>
             </div>
+            <div class="clearfix"></div>
         <?php endforeach; ?>
 
     </div>

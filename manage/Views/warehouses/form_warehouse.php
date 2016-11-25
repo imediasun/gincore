@@ -1,21 +1,28 @@
-<div class='hpanel <?= $i == 1 ? '' : 'panel-collapse' ?>'>
-    <div class='panel-heading hbuilt showhide cursor-pointer'>
+<div class='panel panel-default'>
+    <div class='panel-heading'>
         <div class="panel-tools">
-            <a class=""><i class="fa fa-chevron-up"></i></a>
+            <a  class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses'
+                href='#collapse_warehouse_<?= $i ?>'>
+                <i class="fa fa-chevron-down"></i>
+            </a>
         </div>
-        <?php if (empty($warehouse)): ?>
-            <?= l('Создать склад'); ?>
-        <?php else: ?>
-            <?= l('Редактировать склад') . ' ' . $warehouse['title'] ?>
-        <?php endif; ?>
+        <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses'
+           href='#collapse_warehouse_<?= $i ?>'>
+            <?php if (empty($warehouse)): ?>
+                <?= l('Создать склад'); ?>
+            <?php else: ?>
+                <?= l('Редактировать склад') . ' ' . $warehouse['title'] ?>
+            <?php endif; ?>
+        </a>
     </div>
     <?php $readonly = !empty($warehouse) && in_array($warehouse['title'], array(
-                                        lq('Брак'),
-                                        lq('Клиент'),
-                                        lq('Логистика'),
-                                        lq('Недостача'),
-                                    )) ? 'readonly  disabled' : '' ?>
-    <div class='panel-body' <?= $i == 1 ? '' : 'style="display: none;"' ?>>
+        lq('Брак'),
+        lq('Клиент'),
+        lq('Логистика'),
+        lq('Недостача'),
+    )) ? 'readonly  disabled' : '' ?>
+    <div id='collapse_warehouse_<?= $i ?>' class='panel-body collapse <?= $i == 1 ? 'in' : '' ?>'>
+        <div class='panel-body'>
             <form method='POST'>
                 <div class='form-group'>
                     <label><?= l('Название') ?>: </label>
@@ -88,7 +95,7 @@
                             <input type='submit' class='btn' name='warehouse-add' value='<?= l('Создать') ?>'/>
                         <?php else: ?>
                             <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
-                            <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Сохранить') ?>'/>
+                            <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Редактировать') ?>'/>
                             <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
                                 <?php if (!$warehouse['can_deleted'] || $warehouse['is_system'] || in_array($warehouse['title'],
                                         array(
@@ -105,5 +112,6 @@
                     <?php endif; ?>
                 </div>
             </form>
+        </div>
     </div>
 </div>
