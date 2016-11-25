@@ -385,3 +385,8 @@ SET FOREIGN_KEY_CHECKS=1;
 2016_11_21_111543_add_title_index_to_categories.php
  */
 ALTER TABLE `restore4_categories` ADD INDEX categories_title_index(title);
+
+/*
+2016_11_24_125945_add_phone_field_to_warehouse_groups.php
+*/
+ALTER TABLE `restore4_warehouses_groups` ADD COLUMN phone varchar(255) DEFAULT NULL;

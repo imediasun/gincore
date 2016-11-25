@@ -12,9 +12,18 @@ class AddTitleIndexToCategories extends Migration
      */
     public function up()
     {
-        Schema::table('categories', function ($table) {
-            $table->index('title');
-        });
+        $keyExists = DB::select(
+        DB::raw(
+            'SHOW KEYS
+            FROM restore4_categories
+            WHERE Key_name=\'categories_title_index\''
+            )
+        );
+        if (!$keyExists) {
+            Schema::table('categories', function ($table) {
+                $table->index('title');
+            });
+        }
     }
 
     /**
