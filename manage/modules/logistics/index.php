@@ -130,8 +130,8 @@ class logistics
         $filters_query = array('select' => '', 'from' => '', 'where' => array(), 'limit' => '');
 
         $date = isset($_GET['date']) ? explode('-', $_GET['date']) : '';
-        $order_id = isset($_GET['o_id']) ? $_GET['o_id'] : '';
-        $item_id = isset($_GET['i_id']) ? $_GET['i_id'] : '';
+        $order_id = (isset($_GET['number']) && is_numeric($_GET['number'])) ? $_GET['number'] : '';
+        $item_id = (isset($_GET['number']) && !is_numeric($_GET['number'])) ? $_GET['number'] : '';
         $whfrom = isset($_GET['whfrom']) ? $_GET['whfrom'] : array();
         $whto = isset($_GET['whto']) ? $_GET['whto'] : array();
         $serials_in_order = isset($_GET['serials_in_orders']) ? 1 : 0;
