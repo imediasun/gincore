@@ -1549,7 +1549,7 @@ class Clients extends Object
                 'message' => l('Клиент не найден')
             );
         }
-        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem(intval($post['id'])) || in_array($client['phone'],
+        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem(intval($post['id'])) && !in_array($client['phone'],
                 array(
                     '000000000000',
                     '000000000001',
