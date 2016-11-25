@@ -87,7 +87,7 @@
                             <?= $stocktaking['history'] ? $stocktaking['saved_at'] : $stocktaking['created_at'] ?>
                         </td>
                         <td>
-                            <?= "{$stocktaking['warehouse']}(" . implode(',', $stocktaking['locations']) . ")" ?>
+                            <?= "{$stocktaking['warehouse']}(" . implode(', ', $stocktaking['locations']) . ")" ?>
                         </td>
                         <td>
                             <a class="btn btn-default" href="?stocktaking=<?= $stocktaking['id'] ?>"
