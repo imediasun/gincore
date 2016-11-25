@@ -406,7 +406,7 @@ class stocktaking extends Controller
                     FROM {warehouses_goods_items} as i
                     JOIN {warehouses} as w ON i.wh_id=w.id 
                     JOIN {warehouses_locations} as l ON l.id=i.location_id 
-                    WHERE ((serial =? OR (?query AND serial IS NULL))) AND ?query',
+                    WHERE ((serial =? OR (?query AND (serial IS NULL OR serial="")))) AND ?query',
             array($serial, $query, $whereWhAndLocation))->el();
     }
 

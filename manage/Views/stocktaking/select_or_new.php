@@ -56,20 +56,20 @@
             <table class="table  table-striped stocktaking-filters">
                 <thead>
                 <tr>
-                    <td>
+                    <td width="5%">
                         ID
                     </td>
-                    <td>
+                    <td width="5%">
                         <?= l('Статус') ?>
                         <?= $stocktaking['history'] ? l('Сохраненная') : l('Текущая') ?>
                     </td>
-                    <td>
+                    <td width="5%">
                         <?= l('Создана') ?>
                     </td>
                     <td>
                         <?= l('Склад') ?>
                     </td>
-                    <td>
+                    <td width="5%">
 
                     </td>
                 </tr>
