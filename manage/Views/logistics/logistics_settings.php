@@ -4,7 +4,7 @@
             <div class="panel-tools">
                 <a class=""><i class="fa fa-chevron-up"></i></a>
             </div>
-            <?= l('Добавить логистическую цепочку') ?>
+            <?= l('Добавить логистическую цепочку') ?> <?= InfoPopover::getInstance()->createQuestion('l_add_logistics_chain') ?>
         </div>
         <div class="panel-body" style="display: none;">
             <form class="container-fluid">
@@ -12,15 +12,15 @@
                     <table class="table table-borderless table-vpaddingless">
                         <tr>
                             <td style="width: 30%">
-                                <p><?= l('Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка') ?></p>
+                                <p><?= l('Укажите отправную точку (локацию), при перемещении на которую будет автоматически формироватся логистическая цепочка') ?>:</p>
                             </td>
                             <td></td>
                             <td style="width: 30%">
-                                <p><?= l('Укажите склад логистики') ?></p>
+                                <p><?= l('Склад - логистика. При перемещении товара/заказа на любую локацию из данного склада, система будет понимать, что товар/заказ находится в процессе доставки') ?>:</p>
                             </td>
                             <td></td>
                             <td style="width: 30%">
-                                <p><?= l('Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка') ?></p>
+                                <p><?= l('Укажите точку назначения (локацию), при перемещении на которую будет закрываться логистическая цепочка, а заказ на доставку будет считаться выполнен') ?>:</p>
                             </td>
                         </tr>
                         <tr>
@@ -38,10 +38,10 @@
                             <td>
                                 <select data-multi="1" onchange="change_warehouse(this)"
                                         class="form-control select-warehouses-item-move"
-                                        name="wh_id_destination[1]">
+                                        name="wh_id_destination[1]" readonly="">
                                     <option value=""><?= l('Склад') ?></option>
                                     <?php foreach ($warehouses as $wh): ?>
-                                        <option value="<?= $wh['id'] ?>"><?= $wh['title'] ?></option>
+                                        <option value="<?= $wh['id'] ?>" <?php if($wh['id'] == 4): ?> selected <?php endif; ?>><?= $wh['title'] ?></option>
                                     <?php endforeach; ?>
 
                                 </select>
