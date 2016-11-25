@@ -30,6 +30,24 @@ class MGoods extends AModel
         }
     }
 
+
+    /**
+     * @param $good
+     * @param $mod_id
+     */
+    public function moveToRecycle($good, $mod_id)
+    {
+        $product = $this->getByPk(intval($good['id']));
+        if (!empty($product)) {
+            $recycleBin = $this->Categories->getRecycleBin();
+            if (!empty($recycleBin)) {
+                $this->CategoryGoods->moveGoodTo(intval($good['id']), $recycleBin['id']);
+            }
+
+            $this->History->save('edit-goods', $mod_id, $product['id'], l('Положен в корзину') . ' ' . $product['title']);
+        }
+    }
+
     /**
      * @param $good
      * @param $mod_id

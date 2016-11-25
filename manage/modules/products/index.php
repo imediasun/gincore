@@ -1527,6 +1527,11 @@ class products extends Controller
                 $this->all_configs['db']->query('DELETE FROM {category_goods} WHERE goods_id=?i ?query',
                     array($id_product, $query));
 
+
+                if (!isset($post['categories']) && $update['avail'] == 0) {
+                  $this->Goods->moveToRecycle(array('id' => $id_product), $mod_id);
+                }
+
                 $current_cats = $this->all_configs['db']->query('SELECT category_id FROM {category_goods} WHERE goods_id=?i',
                     array($id_product))->vars();
 
