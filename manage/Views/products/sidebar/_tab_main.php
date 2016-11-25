@@ -34,12 +34,15 @@
             <label><?= l('Картинка') ?></label>
             <div id="product-img-uploader"></div>
             <div class="m-t-sm" id="goods_images">
-                <?php if($images): ?>
+                <?php if ($images): ?>
                     <?php foreach ($images as $image): ?>
-                    <div class="col-sm-2 m-t-sm">
-                        <div class="img_delete" data-id_product="<?= $product['id'] ?>" data-id_image="<?= $image['id'] ?>"><i class="fa fa-times"></i></div>
-                        <img class="img-polaroid" data-preview src="<?= $this->all_configs['siteprefix'] ?>shop/goods/<?= $product['id'] ?>/<?= $image['image'] ?>" width="50px" title="">
-                    </div>
+                        <div class="col-sm-2 m-t-sm">
+                            <div class="img_delete" data-id_product="<?= $product['id'] ?>"
+                                 data-id_image="<?= $image['id'] ?>"><i class="fa fa-times"></i></div>
+                            <img class="img-polaroid" data-preview
+                                 src="<?= $this->all_configs['siteprefix'] ?>shop/goods/<?= $product['id'] ?>/<?= $image['image'] ?>"
+                                 width="50px" title="">
+                        </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
 
@@ -58,11 +61,13 @@
             <label><?= l('Оптовая цена') ?> (<?= viewCurrency('shortName') ?>): </label>
             <?= number_format($product['price_wholesale'] / 100, 2, '.', ' ') ?>
         </div>
-        <div>
-            <label><?= l('Закупочная цена последней партии') ?> (<?= viewCurrencySuppliers('shortName') ?>
-                ): </label>
-            <?= number_format($product['price_purchase'] / 100, 2, '.', ' ') ?>
-        </div>
+        <?php if ($this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
+            <div>
+                <label><?= l('Закупочная цена последней партии') ?> (<?= viewCurrencySuppliers('shortName') ?>
+                    ): </label>
+                <?= number_format($product['price_purchase'] / 100, 2, '.', ' ') ?>
+            </div>
+        <?php endif; ?>
         <div>
             <label><?= l('Свободный остаток') ?>:</label>
             <?= intval($product['qty_store']) ?>
@@ -78,6 +83,7 @@
     .qq-upload-success {
         display: none;
     }
+
     .qq-upload-button {
         margin-bottom: 5px;
     }

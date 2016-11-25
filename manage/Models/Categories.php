@@ -32,6 +32,16 @@ class MCategories extends AModel
             if ($used) {
                 throw new ExceptionWithMsg(l('В категории есть вложенные товары. Сначала очистите категорию от товаров, после чего повторите попытку удаления'));
             }
+            $category = $this->query('SELECT * FROM {categories} WHERE id=?i', array($id))->row();
+            if (in_array($category['url'], array(
+                'spisanie',
+                'prodazha',
+                'vozvrat-postavschiku',
+                'recycle-bin',
+            ))) {
+                throw new ExceptionWithMsg(l('Cистемные категории не подлежат удалению'));
+            }
+
             $result = array(
                 'used' => false
             );
