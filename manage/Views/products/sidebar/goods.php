@@ -13,6 +13,8 @@
         
     </form>
 
+    <div class="clearfix m-b-xl"></div>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#right-sidebar [data-toggle="tooltip"]').uitooltip();
