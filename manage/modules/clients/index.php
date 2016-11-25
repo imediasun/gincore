@@ -13,7 +13,7 @@ $moduleactive[20] = !$ifauth['is_2'];
  * @property  MUsersMarked UsersMarked
  * @property  MCategories  Categories
  * @property  MHistory     History
- * @property  MOrders     Orders
+ * @property  MOrders      Orders
  */
 class Clients extends Object
 {
@@ -662,7 +662,7 @@ class Clients extends Object
      */
     private function create_client()
     {
-        
+
         if (!isset($this->all_configs['arrequest'][2]) || $this->all_configs['arrequest'][2] < 1) {
             return
                 '<a class="btn btn-default" href="' . $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . '">' . l('Список клиентов') . '</a><br><br>' .
@@ -1079,10 +1079,10 @@ class Clients extends Object
                 $requests = $this->all_configs['db']->query("
                     SELECT count(*) FROM {crm_requests} 
                     WHERE call_id = ?i
-                ",array($call_id))->el();
+                ", array($call_id))->el();
 
                 if ($requests) {
-                    $data['redirect'] = $this->all_configs['prefix'] . 'clients/create/'.$post['id'].'#requests';
+                    $data['redirect'] = $this->all_configs['prefix'] . 'clients/create/' . $post['id'] . '#requests';
                 }
                 $data['state'] = true;
                 $data['msg'] = l('Изменения сохранены');
@@ -1549,7 +1549,13 @@ class Clients extends Object
                 'message' => l('Клиент не найден')
             );
         }
-        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem(intval($post['id']))) {
+        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem(intval($post['id'])) || in_array($client['phone'],
+                array(
+                    '000000000000',
+                    '000000000001',
+                    '000000000002'
+                ))
+        ) {
             $this->Clients->query('DELETE FROM {clients_phones} WHERE client_id=?i', array($post['id']));
             $this->Clients->delete($post['id']);
             $this->History->save('delete-client', $mod_id, $post['id'], l('Удален') . ' ' . implode(',',
