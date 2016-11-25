@@ -1995,7 +1995,7 @@ class warehouses extends Controller
                         $item = $this->all_configs['db']->query(
                             'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE id=?i',
                             array(suppliers_order_generate_serial(array('serial' => $matches[1]), false)))->row();
-                        if ($data['error']) {
+                        if (empty($item)) {
                             $item = $this->all_configs['db']->query(
                                 'SELECT id as item_id, serial, order_id, goods_id, supplier_order_id FROM {warehouses_goods_items} WHERE serial=?q OR id=?i',
                                 array($scanned, $scanned))->row();
