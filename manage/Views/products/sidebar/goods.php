@@ -10,10 +10,10 @@
         <?php endif; ?>
         <?php include '_tab_managers.php'; ?>
         <?php include '_tab_warehouses.php'; ?>
-        <?php include '_tab_suppliers_orders.php'; ?>
         <?php if ($this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
-            <?php include '_tab_notification.php'; ?>
+            <?php include '_tab_suppliers_orders.php'; ?>
         <?php endif; ?>
+        <?php include '_tab_notification.php'; ?>
 
     </form>
 

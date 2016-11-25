@@ -41,7 +41,7 @@
         <?php if (isset($columns['wprice'])): ?>
             <th><?= crop_title(l('Оптовая цена')) ?></th>
         <?php endif; ?>
-        <?php if (isset($columns['rprice'])): ?>
+        <?php if (isset($columns['rprice']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
             <th><?= crop_title(l('Закупочная цена')) ?></th>
         <?php endif; ?>
         <?php if (isset($columns['balance'])): ?>

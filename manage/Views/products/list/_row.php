@@ -30,7 +30,7 @@
     <?php if (isset($columns['wprice'])): ?>
         <td><?= number_format($good['price_wholesale'] / 100, 2, '.', '') ?></td>
     <?php endif; ?>
-    <?php if (isset($columns['rprice'])): ?>
+    <?php if (isset($columns['rprice']) && $this->all_configs['oRole']->hasPrivilege('external-marketing')): ?>
         <td><?= number_format($good['price_purchase'] / 100, 2, '.', '') ?></td>
     <?php endif; ?>
     <?php if (isset($columns['balance'])): ?>
