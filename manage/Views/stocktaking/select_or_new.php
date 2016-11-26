@@ -56,20 +56,20 @@
             <table class="table  table-striped stocktaking-filters">
                 <thead>
                 <tr>
-                    <td>
+                    <td width="5%">
                         ID
                     </td>
-                    <td>
+                    <td width="5%">
                         <?= l('Статус') ?>
                         <?= $stocktaking['history'] ? l('Сохраненная') : l('Текущая') ?>
                     </td>
-                    <td>
+                    <td width="5%">
                         <?= l('Создана') ?>
                     </td>
                     <td>
                         <?= l('Склад') ?>
                     </td>
-                    <td>
+                    <td width="5%">
 
                     </td>
                 </tr>
@@ -87,7 +87,7 @@
                             <?= $stocktaking['history'] ? $stocktaking['saved_at'] : $stocktaking['created_at'] ?>
                         </td>
                         <td>
-                            <?= "{$stocktaking['warehouse']}(" . implode(',', $stocktaking['locations']) . ")" ?>
+                            <?= "{$stocktaking['warehouse']}(" . implode(', ', $stocktaking['locations']) . ")" ?>
                         </td>
                         <td>
                             <a class="btn btn-default" href="?stocktaking=<?= $stocktaking['id'] ?>"

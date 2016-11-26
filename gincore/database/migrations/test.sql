@@ -385,3 +385,14 @@ SET FOREIGN_KEY_CHECKS=1;
 2016_11_21_111543_add_title_index_to_categories.php
  */
 ALTER TABLE `restore4_categories` ADD INDEX categories_title_index(title);
+
+/*
+2016_11_24_125945_add_phone_field_to_warehouse_groups.php
+*/
+ALTER TABLE `restore4_warehouses_groups` ADD COLUMN phone varchar(255) DEFAULT NULL;
+/*
+2016_11_26_112521_add_is_system_to_clients.php
+ */
+ALTER TABLE `restore4_clients` ADD COLUMN is_system tinyint(1) UNSIGNED DEFAULT 0;
+ALTER TABLE `restore4_clients` ADD INDEX clients_is_system_index(is_system);
+UPDATE `restore4_clients` SET is_system=1 WHERE phone like '0000000%';

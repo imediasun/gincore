@@ -1,5 +1,11 @@
 <div class='panel panel-default'>
     <div class='panel-heading'>
+        <div class="panel-tools">
+            <a  class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses'
+                href='#collapse_warehouse_<?= $i ?>'>
+                <i class="fa fa-chevron-down"></i>
+            </a>
+        </div>
         <a class='accordion-toggle' data-toggle='collapse' data-parent='#accordion_warehouses'
            href='#collapse_warehouse_<?= $i ?>'>
             <?php if (empty($warehouse)): ?>
@@ -10,11 +16,11 @@
         </a>
     </div>
     <?php $readonly = !empty($warehouse) && in_array($warehouse['title'], array(
-                                        lq('Брак'),
-                                        lq('Клиент'),
-                                        lq('Логистика'),
-                                        lq('Недостача'),
-                                    )) ? 'readonly  disabled' : '' ?>
+        lq('Брак'),
+        lq('Клиент'),
+        lq('Логистика'),
+        lq('Недостача'),
+    )) ? 'readonly  disabled' : '' ?>
     <div id='collapse_warehouse_<?= $i ?>' class='panel-body collapse <?= $i == 1 ? 'in' : '' ?>'>
         <div class='panel-body'>
             <form method='POST'>

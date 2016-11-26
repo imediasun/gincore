@@ -37,6 +37,6 @@
         </a>
 
         <?= $this->all_configs['suppliers_orders']->show_suppliers_orders($orders, false, false, true) ?>
-
+        <div class="clearfix m-b-xl"></div>
     </div>
 </div>

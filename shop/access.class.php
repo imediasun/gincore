@@ -640,6 +640,9 @@ class access extends Object
             if (empty($client)) {
                 throw new ExceptionWithMsg(l('Клиент не найден.'));
             }
+            if($client['is_system']) {
+                throw new ExceptionWithMsg(l('Системного клиента нельзя редактировать.'));
+            }
             if ($email === false) {
                 throw new ExceptionWithMsg(l('Электронная почта указана неверно.'));
             }

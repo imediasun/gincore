@@ -817,7 +817,7 @@ class accountings extends Controller
             $out .= '<input placeholder="' . l('введите ФИО контрагента') . '" class="input-contractor form-control" name="title" value="' . $name . '" />';
             $out .= '</div><div class="form-group"><label>' . l('Комментарий') . ': </label>';
             $out .= '<textarea class="form-control" name="comment" placeholder="' . l('введите комментарий к контрагенту') . '">' . $comment . '</textarea>';
-            $out .= '';
+            $out .= '</div>';
             if ($contractor) {
                 if ($contractor['comment'] == 'system') {
                     // системного низя менять
@@ -848,7 +848,7 @@ class accountings extends Controller
                         '</a>' :
                         '<span class="text-danger">' . l('Не привязан') . '</span>')
                     . "
-                    </div></div>
+                    </div>
                 ";
             } else {
                 $out .= '

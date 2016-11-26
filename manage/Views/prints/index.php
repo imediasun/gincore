@@ -20,7 +20,7 @@
             position: absolute;
             right: 20px;
             width: 300px;
-            top: 20px;
+            top: 25%;
         }
 
         .printer_preview p {

@@ -229,10 +229,6 @@ class debug{
                 $this->all_configs['db']->query('TRUNCATE TABLE {crm_expenses}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {crm_requests}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {cron_history}');
-                $this->all_configs['db']->query('TRUNCATE TABLE {forms}');
-                $this->all_configs['db']->query('TRUNCATE TABLE {forms_data}');
-                $this->all_configs['db']->query('TRUNCATE TABLE {forms_fields}');
-                $this->all_configs['db']->query('TRUNCATE TABLE {forms_fields_strings}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {merchant_logger}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {forms_strings}');
                 $this->all_configs['db']->query('TRUNCATE TABLE {forms_users}');

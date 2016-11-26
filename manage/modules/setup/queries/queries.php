@@ -73,9 +73,6 @@ $settingsArr[]=array(2, 'ga-profile-id', '', lq('GA id профиля'), 0, lq('
 $settingsArr[]=array(2, 'ga-service-account-email', '', lq('GA сервисный эл. адрес'), 0, '');
 $settingsArr[]=array(2, 'ga-private-key', '', lq('GA закрытый ключ API'), 0, '');
 $settingsArr[]=array(1, 'order-first-number', '', lq('Начало нумарации заказов'), 0, lq('Укажите последний номер заказа, который у вас был ранее'));
-$settingsArr[]=array(1, 'client_id-for-supply', '', lq('Клиент используемый для поставок'), 0, lq('Клиент используемый для поставок'));
-$settingsArr[]=array(1, 'client_id-for-write-off', '', lq('Клиент используемый для списаний'), 0, lq('Клиент используемый для списаний'));
-$settingsArr[]=array(1, 'client_id-for-quick-sale', '', lq('Клиент используемый для быстрых продаж'), 0, lq('Клиент используемый для быстрых продаж'));
 
 foreach ($settingsArr as $ar) {
     $value = '';
@@ -92,8 +89,10 @@ foreach ($settingsArr as $ar) {
 
 db()->query("UPDATE {goods} SET date_add = NOW()");
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person) "
-   ."VALUES('000000000000','-','".lq('Списание товара')."',NOW(),1)");
+    "INSERT IGNORE INTO {clients} "
+    . "(id, phone,pass,fio,date_add,person, is_system) "
+    . " VALUES (1, '000000000000','-','".lq('Списание товара')."',NOW(),1, 1)");
+
 // права доступа
 db()->query('TRUNCATE TABLE {users_permissions_groups}');
 db()->query("
@@ -180,31 +179,35 @@ db()->query("
 
  // создаем системных контрагентов
 // покупатель
-$pid = db()->query('INSERT IGNORE INTO {contractors}
-                    (title, type, comment) VALUES (?, ?i, ?)',
-                array(lq('Клиент'), 3, 'system'), 'id');
+$pid = db()->query('INSERT INTO {contractors}
+                    (id, title, type, comment) VALUES (?i, ?, ?i, ?)',
+                array(1, lq('Клиент'), 3, 'system'), 'id');
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
-    ."VALUES('000000000002','-','".lq('Клиент')."',NOW(),1, ?i)", array($pid));
+    "INSERT IGNORE INTO {clients}(id, phone,pass,fio,date_add,person, contractor_id, is_system) "
+    ."VALUES(2, '000000000002','-','".lq('Клиент')."',NOW(),1, ?i, 1)", array($pid));
+
 // покупатель списания
-db()->query('INSERT IGNORE INTO {contractors}
-                    (title, type, comment) VALUES (?, ?i, ?)',
-                array(lq('Покупатель списания'), 3, 'system'));
+db()->query('INSERT INTO {contractors}
+                    (id, title, type, comment) VALUES (?i, ?, ?i, ?)',
+                array(2, lq('Покупатель списания'), 3, 'system'));
+
 // ввод денежных остатков
-$id = db()->query('INSERT IGNORE INTO {contractors}
-                            (title, type, comment) VALUES (?, ?i, ?)',
-                        array(lq('Ввод денежных остатков'), 1, 'system'), 'id');
+$id = db()->query('INSERT INTO {contractors}
+                    (id, title, type, comment) VALUES (?i, ?, ?i, ?)',
+                array(3, lq('Ввод денежных остатков'), 1, 'system'), 'id');
 db()->query('INSERT IGNORE INTO {contractors_categories_links}
                     (contractors_categories_id, contractors_id) VALUES (?i, ?i)',
-                    array(32, $id));
+                    array(32, $id)); //32 это че?
+
 // поставщик
 $pid = db()->query('INSERT IGNORE INTO {contractors}
-                            (title, type, comment) VALUES (?, ?i, ?)',
-                        array(lq('Поставщик'), 2, ''), 'id');
+                    (id, title, type, comment) VALUES (?i, ?, ?i, ?)',
+                array(4, lq('Поставщик'), 2, ''), 'id');
 
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
-    ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i)", array($pid));
+    "INSERT IGNORE INTO {clients} "
+    . "(id, phone,pass,fio,date_add,person, contractor_id, is_system) "
+    . "VALUES (3, '000000000001','-','".lq('Поставщик')."',NOW(),1, ?i, 1)", array($pid));
 
 $s_values = array();
 foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
