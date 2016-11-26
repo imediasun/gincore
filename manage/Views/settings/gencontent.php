@@ -12,7 +12,6 @@
                     <?php endif; ?>
                 </h3>
 
-
                 <?php if (isset($pp['description'])): ?>
                     <h5 class="text-info"><?= htmlspecialchars($pp['description']) ?></h5>
                 <?php endif; ?>
@@ -60,20 +59,6 @@
                                         <option data-continent="<?= $cont ?>" <?= ($pp['value'] == $zone ? 'selected' : '') ?>
                                                 value="<?= $zone ?>"><?= $zone ?></option>
                                     <?php endforeach; ?>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <?php break; ?>
-                    <?php case 'client_id-for-quick-sale': ?>
-                    <?php case 'client_id-for-write-off': ?>
-                    <?php case 'client_id-for-supply': ?>
-                        <div class="form-group">
-                            <label><?= l('Клиент') ?>:</label>
-                            <select class="form-control" name="value">
-                                <option value="-1"><?= l('Выберите клиента') ?></option>
-                                <?php foreach ($clients as $id => $title): ?>
-                                    <option <?= ($pp['value'] == $id ? 'selected' : '') ?>
-                                        value="<?= $id ?>"><?= h($title) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

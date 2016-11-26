@@ -6,8 +6,6 @@ class MClients extends AModel
 {
     public $table = 'clients';
 
-    protected $system_ids = array(1,2,3);
-
     /**
      * @param $id
      * @return array
@@ -41,7 +39,7 @@ class MClients extends AModel
         }
         return $clientCode;
     }
-    
+
     /**
      * @param $post
      * @return array
@@ -58,7 +56,7 @@ class MClients extends AModel
         }
         $clientId = isset($post['client_id']) ? intval($post['client_id']) :
             (isset($post['clients']) ? intval($post['clients']) : 0);
-        
+
         if (isset($post['clients']) && $clientId != 0) {
             return $this->getByPk($clientId);
         }
@@ -110,12 +108,16 @@ class MClients extends AModel
     }
 
     /**
-     * @param $id
+     * @param $client
      * @return bool
      */
-    public function isSystem($id)
+    public function isSystem($client)
     {
-        return in_array($id, $this->system_ids);
+        return $client['is_systemm'] || in_array($client['phone'], array(
+            '000000000000',
+            '000000000001',
+            '000000000002'
+        ));
     }
 
     /**
@@ -173,7 +175,8 @@ class MClients extends AModel
             'client_code',
             'note',
             'reg_data_1',
-            'reg_data_2'
+            'reg_data_2',
+            'is_system'
         );
     }
 

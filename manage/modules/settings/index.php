@@ -87,12 +87,6 @@ class settings extends Controller
                         }
                         $tpl_vars['timeZones'] = $continents_zones;
                     }
-                    if (strcmp($pp['name'], 'client_id-for-quick-sale') === 0
-                        || strcmp($pp['name'], 'client_id-for-write-off') === 0
-                        || strcmp($pp['name'], 'client_id-for-supply') === 0
-                    ) {
-                        $tpl_vars['clients'] = $this->all_configs['db']->query('SELECT id, fio FROM {clients}')->vars();
-                    }
 
                     break;
                 case 'section':

@@ -3000,15 +3000,20 @@ class orders extends Controller
             $phone = $phone ? current($phone) : '';
 
             if ($order['phone'] != $phone) {
-                $this->History->save(
-                    'update-order-phone',
-                    $mod_id,
-                    $this->all_configs['arrequest'][2],
-                    $phone
-                );
-                $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_phone', $phone);
-                $order['phone'] = $phone;
-                $order = $this->updateClientPhoneAndOrders($order, $mod_id, $phone);
+                try {
+                    $old = $order['phone'];
+                    $order['phone'] = $phone;
+                    $order = $this->updateClientPhoneAndOrders($order, $mod_id, $phone);
+                    $this->History->save(
+                        'update-order-phone',
+                        $mod_id,
+                        $this->all_configs['arrequest'][2],
+                        $phone
+                    );
+                    $this->OrdersComments->addPublic($order['id'], $this->getUserId(), 'client_phone', $phone);
+                } catch (ExceptionWithMsg $e) {
+                    $order['phone'] = $old;
+                }
             }
         }
         return $order;
@@ -4002,14 +4007,18 @@ class orders extends Controller
      * @param $mod_id
      * @param $phone
      * @return mixed
+     * @throws ExceptionWithMsg
      */
     protected function updateClientPhoneAndOrders($order, $mod_id, $phone)
     {
+        $client = $this->all_configs['db']->query('SELECT phone, fio, is_system FROM {clients} WHERE id=?',
+            array($order['user_id']))->row();
+        if (empty($client) || $client['is_system']) {
+            throw new ExceptionWithMsg(l('is system'));
+        }
         require_once($this->all_configs['sitepath'] . 'shop/access.class.php');
         $access = new access($this->all_configs, false);
         $access->update_phones($phone, $order['user_id']);
-        $client = $this->all_configs['db']->query('SELECT phone, fio FROM {clients} WHERE id=?',
-            array($order['user_id']))->row();
         $orders = $this->Orders->query('SELECT id FROM {orders} WHERE user_id=?i', array($order['user_id']))->col();
         if (!empty($orders)) {
             foreach ($orders as $id) {

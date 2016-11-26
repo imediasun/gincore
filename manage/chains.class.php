@@ -1680,12 +1680,6 @@ class Chains extends Object
      */
     private function getClientIdForQuickSale()
     {
-        if(!empty($this->all_configs['settings']['client_id-for-quick-sale'])) {
-            return $this->all_configs['settings']['client_id-for-quick-sale'];
-        }
-        if(!empty($this->all_configs['settings']['client_id-for-write-off'])) {
-            return $this->all_configs['settings']['client_id-for-write-off'];
-        }
         $client_id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000002" LIMIT 1')->el();
         if (empty($client_id)) {
             $client_id = $this->all_configs['db']->query('SELECT id FROM {clients} WHERE phone="000000000000" LIMIT 1')->el();

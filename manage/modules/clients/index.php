@@ -1549,13 +1549,7 @@ class Clients extends Object
                 'message' => l('Клиент не найден')
             );
         }
-        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem(intval($post['id'])) && !in_array($client['phone'],
-                array(
-                    '000000000000',
-                    '000000000001',
-                    '000000000002'
-                ))
-        ) {
+        if (!$this->Clients->isUsed(intval($post['id'])) && !$this->Clients->isSystem($client) ) {
             $this->Clients->query('DELETE FROM {clients_phones} WHERE client_id=?i', array($post['id']));
             $this->Clients->delete($post['id']);
             $this->History->save('delete-client', $mod_id, $post['id'], l('Удален') . ' ' . implode(',',

@@ -73,9 +73,6 @@ $settingsArr[]=array(2, 'ga-profile-id', '', lq('GA id профиля'), 0, lq('
 $settingsArr[]=array(2, 'ga-service-account-email', '', lq('GA сервисный эл. адрес'), 0, '');
 $settingsArr[]=array(2, 'ga-private-key', '', lq('GA закрытый ключ API'), 0, '');
 $settingsArr[]=array(1, 'order-first-number', '', lq('Начало нумарации заказов'), 0, lq('Укажите последний номер заказа, который у вас был ранее'));
-$settingsArr[]=array(1, 'client_id-for-supply', '', lq('Клиент используемый для поставок'), 0, lq('Клиент используемый для поставок'));
-$settingsArr[]=array(1, 'client_id-for-write-off', '', lq('Клиент используемый для списаний'), 0, lq('Клиент используемый для списаний'));
-$settingsArr[]=array(1, 'client_id-for-quick-sale', '', lq('Клиент используемый для быстрых продаж'), 0, lq('Клиент используемый для быстрых продаж'));
 
 foreach ($settingsArr as $ar) {
     $value = '';
@@ -92,8 +89,8 @@ foreach ($settingsArr as $ar) {
 
 db()->query("UPDATE {goods} SET date_add = NOW()");
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person) "
-   ."VALUES('000000000000','-','".lq('Списание товара')."',NOW(),1)");
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, is_system) "
+   ."VALUES('000000000000','-','".lq('Списание товара')."',NOW(),1, 1)");
 // права доступа
 db()->query('TRUNCATE TABLE {users_permissions_groups}');
 db()->query("
@@ -184,8 +181,8 @@ $pid = db()->query('INSERT IGNORE INTO {contractors}
                     (title, type, comment) VALUES (?, ?i, ?)',
                 array(lq('Клиент'), 3, 'system'), 'id');
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
-    ."VALUES('000000000002','-','".lq('Клиент')."',NOW(),1, ?i)", array($pid));
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id, is_system) "
+    ."VALUES('000000000002','-','".lq('Клиент')."',NOW(),1, ?i, 1)", array($pid));
 // покупатель списания
 db()->query('INSERT IGNORE INTO {contractors}
                     (title, type, comment) VALUES (?, ?i, ?)',
@@ -203,8 +200,8 @@ $pid = db()->query('INSERT IGNORE INTO {contractors}
                         array(lq('Поставщик'), 2, ''), 'id');
 
 db()->query(
-    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id) "
-    ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i)", array($pid));
+    "INSERT IGNORE INTO {clients}(phone,pass,fio,date_add,person, contractor_id, is_system) "
+    ."VALUES('000000000001','-','".lq('Поставщик')."',NOW(),1, ?i, 1)", array($pid));
 
 $s_values = array();
 foreach($this->all_configs['configs']['erp-contractors-type-categories'][2][1] as $sid){
