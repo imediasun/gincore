@@ -969,7 +969,7 @@ class manageModel extends Object
                         $icon_type,
                         $_SESSION['id'],
                         array_keys($orders_ids)
-                    ))->assoc();
+                    ))->iassoc();
 
 
                 foreach ($data as $o) {
