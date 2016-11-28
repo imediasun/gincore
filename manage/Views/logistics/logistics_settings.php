@@ -38,10 +38,10 @@
                             <td>
                                 <select data-multi="1" onchange="change_warehouse(this)"
                                         class="form-control select-warehouses-item-move"
-                                        name="wh_id_destination[1]" readonly="">
+                                        name="wh_id_destination[1]" readonly="readonly">
                                     <option value=""><?= l('Склад') ?></option>
                                     <?php foreach ($warehouses as $wh): ?>
-                                        <option value="<?= $wh['id'] ?>" <?php if($wh['id'] == 4): ?> selected <?php endif; ?>><?= $wh['title'] ?></option>
+                                        <option value="<?= $wh['id'] ?>" <?php if($wh['id'] == $logistics_wh_id): ?> selected <?php endif; ?>><?= $wh['title'] ?></option>
                                     <?php endforeach; ?>
 
                                 </select>
