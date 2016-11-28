@@ -92,7 +92,7 @@ class import extends Object
      */
     function can_show_module()
     {
-        return ($this->all_configs['oRole']->hasPrivilege('edit-users'));
+        return ($this->all_configs['oRole']->hasPrivilege('edit-users') || $this->all_configs['oRole']->hasPrivilege('debit-suppliers-orders'));
     }
 
     /**
