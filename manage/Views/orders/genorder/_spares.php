@@ -112,7 +112,7 @@
                     'form_id' => 'order_new_work_form'
                 )) ?>
         </div>
-        <div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form"></div>
+        <div id="order_new_work_form" class="typeahead_add_form_box theme_bg order_new_work_form new_device_form"></div>
         <hr/>
         <div class="checkbox text-left">
             <span style="display: inline-block"><?= l('Итого') ?>:</span>

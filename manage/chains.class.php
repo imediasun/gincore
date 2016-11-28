@@ -338,7 +338,7 @@ class Chains extends Object
                 LEFT JOIN {orders_suppliers_clients} as l ON i.supplier_order_id=l.supplier_order_id AND l.order_goods_id IN
                 (SELECT id FROM {orders_goods} WHERE item_id IS NULL) AND l.client_order_id<>?i
                 WHERE w.consider_store=?i AND i.wh_id=w.id AND i.order_id IS NULL AND i.supplier_order_id=?i
-                GROUP BY i.goods_id', array($order_product['id'], 1, $item['supplier_order_id']))->row();
+                GROUP BY i.goods_id', array($order_product['order_id'], 1, $item['supplier_order_id']))->row();
 
             if ($count_free && $count_free['qty'] < 1) {
                 throw new ExceptionWithMsg(l('Изделие зарезервировано под другие заказы на ремонт: ') . $count_free['orders']);
@@ -1613,7 +1613,7 @@ class Chains extends Object
                 throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину. Нажмите "+" или "Добавить"'));
             }
             if (empty($post['amount']) || ($post['price'] == 0)) {
-                throw new ExceptionWithMsg(l('Вы не добавили изделие в корзину. Нажмите "+" или "Добавить"'));
+                throw new ExceptionWithMsg(l('Сумма продажи не может быть равна 0'));
             }
             $client = $this->Clients->getClient($post);
             $order = $this->createOrder($post, $mod_id, $client['id'], $this->getUserId());

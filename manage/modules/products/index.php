@@ -941,7 +941,11 @@ class products extends Controller
             if (!empty($create['error'])) {
                 $result = array('state' => false, 'msg' => $create['error']);
             } else {
-                $result = array('state' => true, 'id' => $create['id'], 'name' => $_POST['title']);
+                $result = array(
+                    'state' => true,
+                    'id' => $create['id'],
+                    'name' => $_POST['title'],
+                );
             }
             Response::json($result);
         }
