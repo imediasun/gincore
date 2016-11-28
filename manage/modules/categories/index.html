@@ -1,15 +1,32 @@
 <div id="middle">
     <div class="row-fluid">
-        {-html-mmenu}
-        {-html-mcontent}
+        <div class="col-md-12">
+            {-html-mmenu}
+        </div>
+        <div class="col-md-6">
+            {-html-mcontent}
+        </div>
+        <div class="col-md-6">
+
+        </div>
     </div>
 </div>
 
 <link type="text/css" rel="stylesheet" href="{-txt-prefix}css/iphone-style-checkboxes.css">
 
+<link rel="stylesheet" type="text/css" href="{-txt-prefix}css/jstree/style.min.css" />
+
+<script type="text/javascript" src="{-txt-prefix}js/jstree.min.js"></script>
 <script type="text/javascript" src="{-txt-prefix}tiny_mce/tiny_mce.js"></script>
 <script type="text/javascript" src="{-txt-prefix}tiny_mce/plugins/tinybrowser/tb_tinymce.js.php"></script>
 <script type="text/javascript" src="{-txt-prefix}js/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript" src="{-txt-prefix}js/iphone-style-checkboxes.js"></script>
 
 <script type="text/javascript" src="{-txt-prefix}js/jquery.nestable.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('#categories-jstree').jstree();
+        $('#categories-jstree').show();
+    });
+</script>
