@@ -1718,13 +1718,17 @@ class orders extends Controller
 
             $query = $this->all_configs['db']->makeQuery('u.avail=1 AND u.deleted=0 AND id IN (?li)', array($ids));
             $result = $this->all_configs['db']->query('
-                SELECT u.*, CONCAT(u.fio, " ", u.login) as name,
-                (SELECT count(*) FROM {orders} as o LEFT JOIN {orders_goods} as og ON og.order_id=o.id WHERE (o.engineer=u.id OR og.engineer=u.id) AND NOT o.status in (?l)) as workload,
-                (SELECT count(*) FROM {orders} as o LEFT JOIN {orders_goods} as og ON og.order_id=o.id WHERE (o.engineer=u.id OR og.engineer=u.id) AND o.status in (?l)) as wait_parts
+                SELECT u.id, u.deleted, u.avail, u.fio, u.login, CONCAT(u.fio, " ", u.login) as name,
+                (SELECT count(*) FROM {orders} as o WHERE o.engineer=u.id AND NOT o.status in (?l)) as workload_by_order,
+                (SELECT 1 FROM {orders} as o LEFT JOIN {orders_goods} as og ON og.order_id=o.id WHERE og.engineer=u.id AND NOT o.status in (?l) GROUP by o.id) as workload_by_service,
+                (SELECT count(*) FROM {orders} as o WHERE o.engineer=u.id AND o.status in (?l))  as wait_parts_o,
+                (SELECT 1 FROM {orders} as o LEFT JOIN {orders_goods} as og ON og.order_id=o.id WHERE og.engineer=u.id AND o.status in (?l) GROUP by o.id)  as wait_parts_s
                 FROM {users} as u
                 WHERE  ?query',
                 array(
                     $this->all_configs['configs']['order-statuses-engineer-not-workload'],
+                    $this->all_configs['configs']['order-statuses-engineer-not-workload'],
+                    $this->all_configs['configs']['order-statuses-expect-parts'],
                     $this->all_configs['configs']['order-statuses-expect-parts'],
                     $query
                 ))->assoc('id');

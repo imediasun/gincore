@@ -196,8 +196,8 @@
                                         />
 
                                         <?= get_user_name($engineer) ?>
-                                        <?php if(!empty($engineer['workload'])): ?>
-                                            (<?= sprintf(l('загруженность').":%d&nbsp;". l('ремонт').', '.l('из них ожидают запчастей и на согласовании').':%d', $engineer['workload'], $engineer['wait_parts']) ?>)
+                                        <?php if(!empty($engineer['workload_by_service']) || !empty($engineer['workload_by_order'])): ?>
+                                            (<?= sprintf(l('загруженность')." %d&nbsp;". l('ремонт').', '.l('из них ожидают запчастей и на согласовании').': %d', (int)$engineer['workload_by_service'] + $engineer['workload_by_order'], $engineer['wait_parts_o'] + (int)$engineer['wait_parts_s']) ?>)
                                         <?php endif; ?>
                                     </label>
                                 </div>
