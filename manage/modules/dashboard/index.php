@@ -394,6 +394,15 @@ class dashboard extends Object
             . "WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY engineer "
             . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']),
             'assoc');
+        $goodsEngineers = $this->db->query("SELECT og.engineer, IF(u.fio!='',u.fio,u.login) as fio, "
+            . "count(o.id) as orders "
+            . "FROM {orders} as o "
+            . "LEFT JOIN {orders_goods} as og ON og.order_id=o.id "
+            . "LEFT JOIN {users} as u ON u.id = og.engineer "
+            . "WHERE ?q AND og.engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY og.engineer "
+            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']))->assoc();
+
+        $orders = array_merge($orders, $goodsEngineers);
         $all_orders = 0;
         foreach ($orders as $ord) {
             $all_orders += $ord['orders'];
