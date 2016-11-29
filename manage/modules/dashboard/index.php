@@ -367,7 +367,7 @@ class dashboard extends Object
         );
         $query_filter = $this->utils->makeFilters('date_add');
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
-            . "WHERE ?q AND status IN(?l)", array($query_filter, array_keys($statuses)), 'el');
+            . "WHERE ?q AND status IN(?l) AND NOT user_id=?", array($query_filter, array_keys($statuses), $this->all_configs['configs']['erp-write-off-user']), 'el');
         foreach ($statuses as $status => $name) {
             $orders = $this->db->query("SELECT count(*) "
                 . "FROM {orders} WHERE ?q AND status = ?i", array($query_filter, $status), 'el');
