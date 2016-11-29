@@ -21,9 +21,9 @@
             <td><?= suppliers_order_generate_serial($product, true, true) ?></td>
             <td><?= h($product['vendor_code']) ?></td>
             <td>
-                <a 
-                   href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
-                   data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>">
+                <a
+                    href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
+                    data-action="sidebar_product" data-id_product="<?= $product['goods_id'] ?>">
                     <?= h($product['product_title']) ?>
                 </a>
             </td>
@@ -57,14 +57,16 @@
                     <?= $product['supplier_order_id'] ?>
                 </a>
             </td>
-            <td><?= $controller->show_price($product['price']) ?></td>
+            <?php if ($this->all_configs['oRole']->hasPrivilege('logistics') || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+                <td><?= $controller->show_price($product['price']) ?></td>
+            <?php endif; ?>
             <td><?= h($product['contractor_title']) ?></td>
         </tr>
     <?php endforeach; ?>
 
     <tr>
         <td colspan="6"></td>
-        <td colspan="3"  style="text-align: right; padding-right: 0">
+        <td colspan="3" style="text-align: right; padding-right: 0">
             <?php $addition = ''; ?>
             <?php if (isset($_GET['whs'])): ?>
                 <?php $addition .= '&whs=' . $_GET['whs'] ?>
@@ -81,7 +83,8 @@
                 'addition' => $addition
             )) ?>
             <?php $url = $this->all_configs['prefix'] . (isset($this->all_configs['arrequest'][0]) ? $this->all_configs['arrequest'][0] . '/' : '') . 'ajax'; ?>
-            <form target="_blank" method="get" action="<?= $url ?>" class="form-horizontal" style="display: inline-block">
+            <form target="_blank" method="get" action="<?= $url ?>" class="form-horizontal"
+                  style="display: inline-block">
                 <input name="act" value="exports-items" type="hidden"/>
                 <?php if (isset($_GET['whs'])): ?>
                     <input name="whs" value="<?= $_GET['whs'] ?>" type="hidden"/>
@@ -104,7 +107,7 @@
 <?php if (count($goods) == 1): ?>
     <script type="text/javascript">
         var item_id = '<?= suppliers_order_generate_serial($goods[0], true, false) ?>';
-        $( document ).ready(function() {
+        $(document).ready(function () {
             rightSidebar.load_item(item_id);
         });
     </script>
