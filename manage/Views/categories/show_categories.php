@@ -154,5 +154,9 @@
             delete_category($(this), prefix + module);
         });
 
+
+        $(window).on('unload', function() {
+            $(window).scrollTop(0);
+        });
     });
 </script>
