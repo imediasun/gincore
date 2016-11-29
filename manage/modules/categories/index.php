@@ -50,11 +50,9 @@ class categories extends Controller
     public function check_get($get)
     {
         global $input_html;
-        if (!array_key_exists(1, $this->all_configs['arrequest'])) {// выбрана ли категория
-            return $this->show_categories();
-        }
-        $input_html['mmenu'] = '<div class="span3">' . $this->genmenu() . '</div>';
-        return '<div class="span9">' . $this->gencontent() . '</div>';
+
+        return $this->show_categories();
+
     }
 
     /**
@@ -253,8 +251,18 @@ class categories extends Controller
      */
     private function show_categories()
     {
+        $content_html = '';
+        $cat_id = -1;
+        if (array_key_exists(1, $this->all_configs['arrequest'])) {// выбрана ли категория
+            $content_html = $this->gencontent();
+            $cat_id = (int)$this->all_configs['arrequest'][2];
+        }
+        
+        
         return $this->view->renderFile('categories/show_categories', array(
-            'categories' => $this->get_categories()
+            'categories' => $this->get_categories(),
+            'content_html' => $content_html,
+            'cat_id' => $cat_id,
         ));
     }
 
@@ -535,9 +543,9 @@ class categories extends Controller
                 foreach ($show_goods as $good) {
                     $category_html .= '<tr>
                         <td>' . $good['id'] . '</td>
-                        <td><a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . '<i class="icon-pencil"></i></a>
+                        <td><a data-action="sidebar_product" data-id_product="'.$good['id'].'" href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/">' . htmlspecialchars($good['title']) . '<i class="icon-pencil"></i></a>
                             <span style="float:right">
-                                <a href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
+                                <a data-action="sidebar_product" data-id_product="'.$good['id'].'" href="' . $this->all_configs['prefix'] . 'products/create/' . $good['id'] . '/"><i class="glyphicon glyphicon-eye-open"></i></a>
                             </span></td>
                         <td>' . $good['avail'] . '</td><td>' . show_price($good['price'], 2, ' ') . '</td>' .
                         '<td><span title="' . do_nice_date($good['date_add'],

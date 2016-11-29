@@ -1910,11 +1910,11 @@ function click_tab(_this, e, hashs) {
     }
   }).done(function (msg) {
     if (msg) {
-      if (typeof(msg) == 'string') {
-        window.location.hash = '';
-        window.location.reload();
-        return;
-      }
+      // if (typeof(msg) == 'string') {
+      //   window.location.hash = '';
+      //   window.location.reload();
+      //   return;
+      // }
       if (msg['message']) {
         alert(msg['message']);
       }
