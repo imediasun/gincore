@@ -172,7 +172,7 @@ use Assetic\AssetWriter;
     }
     ?>
         <script src="<?= $assetsDir ?>assets/scripts.js?21"></script>
-    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?21"/>
+    <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?22"/>
     <?php endif; ?>
 
     <script type="text/javascript">
