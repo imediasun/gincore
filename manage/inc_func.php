@@ -1023,6 +1023,9 @@ function build_array_tree($objects, $selected = array(), $type = 1)
 function display_array_tree($array, $selected = array(), $type = 1, $index = 0, $tree = '')
 {
     global $all_configs;
+    require_once __DIR__ . '/Models/Categories.php';
+    $Categories = new MCategories($all_configs);
+    $recycledBin = $Categories->getRecycleBin();
 
     $space = "";
     if ($type == 1) {
@@ -1035,6 +1038,9 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
     }
     if ($type == 3) {
         $tree .= '<ul class="nav nav-list ' . ($index ? 'm-l-22 border-left' : '') . '">';
+    }
+    if ($type == 4) {
+        $tree .= '<ul class="">';
     }
 
     if (gettype($array) == "array") {
@@ -1056,11 +1062,6 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= ' value="' . $tmp['id'] . '">' . $space . $arrow . htmlspecialchars($tmp['title']) . '</option>';
             }
             if ($type == 2) {
-                if (empty($recycledBin)) {
-                    require_once __DIR__ . '/Models/Categories.php';
-                    $Categories = new MCategories($all_configs);
-                    $recycledBin = $Categories->getRecycleBin();
-                }
                 $tree .= '<li class=" ' . (is_array($selected) && in_array($tmp['id'], $selected) ? 'active' : '');
                 $tree .= ' dd-item ui-state-default" data-id="' . $tmp['id'] . '">';
                 $tree .= '<div class="dd-handle"><i class="icon-move glyphicon glyphicon-move"></i></div>';
@@ -1079,10 +1080,16 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
                 $tree .= '<a class="object_id" data-o_id="' . $tmp['id'] . '" href="' . '">';
                 $tree .= $tmp['id'] . '. ' . htmlspecialchars($tmp['title']) . '</a>';
             }
+            if ($type == 4) {
+
+                $tree .= '<li '. (is_array($selected) && in_array($tmp['id'], $selected) ? 'class="jstree-open"' : '') .' id="'.$tmp['id'].'">';
+                $tree .= htmlspecialchars($tmp['title']);
+
+            }
             if (array_key_exists('child', $tmp)) {
                 $tree = display_array_tree($tmp['child'], $selected, $type, $index, $tree);
             } else {
-                if ($type == 2 || $type == 3) {
+                if ($type == 2 || $type == 3 || $type == 4) {
                     $tree .= '</li>';
                 }
             }
@@ -1093,6 +1100,9 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
         $tree .= '</ol>';
     }
     if ($type == 3) {
+        $tree .= '</ul>';
+    }
+    if ($type == 4) {
         $tree .= '</ul>';
     }
 
