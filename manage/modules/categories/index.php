@@ -435,7 +435,8 @@ class categories extends Controller
         return array(
             'html' => $this->view->renderFile('categories/categories_edit_tab_category', array(
                 'cur_category' => $this->get_cur_category(),
-                'cat_img' => $this->cat_img
+                'cat_img' => $this->cat_img,
+                'recycleBin' => $this->Categories->getRecycleBin()
             )),
             'functions' => array(),
         );
@@ -768,6 +769,13 @@ class categories extends Controller
             $position = isset($_POST['position']) ? intval($_POST['position']) + 1 : 1;
             $parent_id = isset($_POST['parent_id']) ? intval($_POST['parent_id']) : 0;
 
+            $recycle = $this->Categories->getRecycleBin();
+            if ((int)$_POST['cur_id'] == $recycle['id'] && $parent_id != 0) {
+                $data['state'] = false;
+                $data['message'] = l('Запрещенно изменять родительскую категорию');
+                return $data;
+            }
+
             // обновляем парент ид
             $this->Categories->update(array(
                 'parent_id' => $parent_id,
@@ -791,6 +799,7 @@ class categories extends Controller
                 }
             }
 
+            $data['message'] = l('Изменено успешно');
             $data['state'] = true;
         }
         return $data;

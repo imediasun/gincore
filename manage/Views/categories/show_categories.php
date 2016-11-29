@@ -62,7 +62,7 @@
                 "animation" : 0
             },
             plugins : [
-                "contextmenu",
+//                "contextmenu",
                 "dnd",
                 "search",
                 'types'
@@ -96,7 +96,6 @@
                 }
             }
         }).bind("move_node.jstree", function (e, data) {
-
             var cur_id = data.node.id;
             var parent_id = data.parent;
             var position = data.position;
@@ -110,8 +109,10 @@
                     if (msg) {
                         if (msg['state'] == false && msg['message']) {
                             alert(msg['message']);
+
                         }
                         if (msg['state'] && msg['state'] == true) {
+                            rightSidebar.noty(msg['message'] ,'success');
                             return true;
                         }
                     }
@@ -120,6 +121,8 @@
                     alert(xhr.responseText);
                 }
             });
+
+
         });
         $('#categories-jstree').show();
 
@@ -147,7 +150,9 @@
             location.href = prefix + module + '/create/' + data.node.id;
         });
 
-
+        $('#jstree-delete-category').live('click', function () {
+            delete_category($(this), prefix + module);
+        });
 
     });
 </script>

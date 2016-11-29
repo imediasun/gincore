@@ -164,7 +164,7 @@ $(document).ready(function () {
   });
 });
 
-function delete_category($parent) {
+function delete_category($parent, href_page) {
 
   var id = $parent.data('id');
   if (confirm("Категория будет удалена из системы и восстановить ее будет невозможно. Продолжить?")) {
@@ -186,6 +186,10 @@ function delete_category($parent) {
                   alert(msg['message']);
                 }
                 if (msg['state'] && msg['state'] == true) {
+                  if (href_page) {
+                    location.href = href_page;
+                  }
+
                   $parent.css('opacity', '0.2');
                   $parent.find('.js-delete-category').hide();
                   $parent.find('.dd-handle').remove();
