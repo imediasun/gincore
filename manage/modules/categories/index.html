@@ -1,14 +1,7 @@
 <div id="middle">
     <div class="row-fluid">
-        <div class="col-md-12">
-            {-html-mmenu}
-        </div>
-        <div class="col-md-6">
-            {-html-mcontent}
-        </div>
-        <div class="col-md-6">
-
-        </div>
+        {-html-mmenu}
+        {-html-mcontent}
     </div>
 </div>
 
@@ -26,7 +19,19 @@
 
 <script type="text/javascript">
     $(function () {
-        $('#categories-jstree').jstree();
+        $('#categories-jstree').jstree({
+            "plugins" : [
+                "contextmenu",
+                "dnd",
+                "search",
+                "sort",
+                "state"
+            ]
+        }).bind("select_node.jstree", function(e, data){
+            // байндинг на выделение нода
+            // укажем ему открытие документа на основе якорей
+            vd(data.node.id);
+        });
         $('#categories-jstree').show();
     });
 </script>

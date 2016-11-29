@@ -1082,7 +1082,7 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
             }
             if ($type == 4) {
 
-                $tree .= '<li>';
+                $tree .= '<li id="'.$tmp['id'].'">';
                 $tree .= htmlspecialchars($tmp['title']);
                 $tree .= '';
                 $tree .= '';
