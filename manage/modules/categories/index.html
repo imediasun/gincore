@@ -17,21 +17,3 @@
 
 <script type="text/javascript" src="{-txt-prefix}js/jquery.nestable.js"></script>
 
-<script type="text/javascript">
-    $(function () {
-        $('#categories-jstree').jstree({
-            "plugins" : [
-                "contextmenu",
-                "dnd",
-                "search",
-                "sort",
-                "state"
-            ]
-        }).bind("select_node.jstree", function(e, data){
-            // байндинг на выделение нода
-            // укажем ему открытие документа на основе якорей
-            vd(data.node.id);
-        });
-        $('#categories-jstree').show();
-    });
-</script>

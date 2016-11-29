@@ -1082,11 +1082,8 @@ function display_array_tree($array, $selected = array(), $type = 1, $index = 0, 
             }
             if ($type == 4) {
 
-                $tree .= '<li id="'.$tmp['id'].'">';
+                $tree .= '<li '. (is_array($selected) && in_array($tmp['id'], $selected) ? 'class="jstree-open"' : '') .' id="'.$tmp['id'].'">';
                 $tree .= htmlspecialchars($tmp['title']);
-                $tree .= '';
-                $tree .= '';
-                $tree .= '';
 
             }
             if (array_key_exists('child', $tmp)) {
