@@ -171,7 +171,7 @@ use Assetic\AssetWriter;
         print_r($e->getMessage());
     }
     ?>
-        <script src="<?= $assetsDir ?>assets/scripts.js?21"></script>
+        <script src="<?= $assetsDir ?>assets/scripts.js?22"></script>
     <link rel="stylesheet" type="text/css" href="<?= $assetsDir ?>assets/styles.css?23"/>
     <?php endif; ?>
 
@@ -186,5 +186,5 @@ use Assetic\AssetWriter;
 
     {-css-module}
 
-    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?51"></script>
+    <script type="text/javascript" src="<?= $assetsDir ?>js/main.js?52"></script>
 </head>
