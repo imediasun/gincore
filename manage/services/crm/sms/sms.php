@@ -2,8 +2,12 @@
 
 namespace services\crm;
 
+use Illuminate\Redis\RedisServiceProvider;
+
 require_once __DIR__ . '/../../../Core/View.php';
 require_once __DIR__ . '/../../../Core/Log.php';
+require_once __DIR__ . '/../../../Core/Response.php';
+require_once __DIR__ . '/../../../Core/FlashMessage.php';
 
 class sms extends \service
 {
@@ -185,7 +189,8 @@ class sms extends \service
                 if ($response['state']) {
                     $send = $this->send_sms($phone, $body, $type, $object_id);
                     if ($send['state']) {
-                        $response['msg'] = l('Отправлено успешно');
+                        \FlashMessage::set(l('Отправлено успешно'), \FlashMessage::SUCCESS);
+                        $response['redirect'] = \Response::referrer();
                     } else {
                         $response['state'] = false;
                         $response['msg'] = $send['msg'];
