@@ -3996,7 +3996,8 @@ class orders extends Controller
             if (empty($post['engineer_id']) || empty($post['service_id'])) {
                 throw new ExceptionWithMsg(l('Не задан инженер или сервис'));
             }
-            if (!$this->Users->exists($post['engineer_id'])) {
+            $user = $this->Users->getByPk($post['engineer_id']);
+            if (empty($user)) {
                 throw new ExceptionWithMsg(l('Инженер не существует'));
             }
             if (!$this->OrdersGoods->exists($post['service_id'])) {
@@ -4011,6 +4012,8 @@ class orders extends Controller
             $result = array(
                 'state' => true
             );
+            $order = $this->Orders->query('SELECT * FROM {orders} WHERE id in (SELECT og.order_id FROM {orders_goods} as og WHERE og.id =?i) LIMIT 1', array($post['service_id']))->row();
+            $this->all_configs['chains']->noticeEngineer($user, $order);
         } catch (ExceptionWithMsg $e) {
             $result = array(
                 'state' => false,
