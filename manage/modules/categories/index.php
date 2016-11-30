@@ -848,7 +848,8 @@ class categories extends Controller
             $this->Categories->delete($post['id']);
             $this->History->save('delete-category', $mod_id, intval($post['id']));
             $data = array(
-                'state' => true
+                'state' => true,
+                'message' => l('Категория успешно удалена')
             );
         } catch (ExceptionWithMsg $e) {
             $data = array(

@@ -116,9 +116,8 @@
                                 <input class="btn btn-primary " type="submit" value="<?= l('Сохранить') ?>"
                                        name="edit-category"/>
                                 <?php if($cur_category['id'] != $recycleBin['id']): ?>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
                                     <button class="btn btn-danger" name="edit-category" id="jstree-delete-category" data-id="<?= $cur_category['id'] ?>" >
-                                       <i class="glyphicon glyphicon-trash"></i>
+                                       <i class="fa fa-trash-o"></i>
                                     </button>
                                 <?php endif; ?>
                             </div>
