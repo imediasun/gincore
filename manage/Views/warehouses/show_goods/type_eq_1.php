@@ -9,7 +9,9 @@
         <td><?= l('Локация') ?></td>
         <td><?= l('Заказ') ?><br> <?= l('клиента') ?></td>
         <td><?= l('Заказ') ?> <br> <?= mb_convert_case(l('Поставщику'), MB_CASE_LOWER) ?></td>
-        <td><?= l('Цена') ?><br><?= l('закупки') ?></td>
+        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics') || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+            <td><?= l('Цена') ?><br><?= l('закупки') ?></td>
+        <?php endif; ?>
         <td><?= l('Поставщик') ?></td>
     </tr>
     </thead>
