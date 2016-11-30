@@ -60,7 +60,7 @@
             $(window).scrollTop(0);
         });
 
-        
+
         $('#categories-jstree').jstree({
             core : {
                 "check_callback" : true,
@@ -158,7 +158,7 @@
 
         $('#jstree-delete-category').live('click', function (e) {
             e.preventDefault();
-            delete_category($(this), true);
+            delete_category($(this), prefix + module);
         });
 
 
