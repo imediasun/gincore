@@ -367,10 +367,10 @@ class dashboard extends Object
         );
         $query_filter = $this->utils->makeFilters('date_add');
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
-            . "WHERE ?q AND status IN(?l) AND NOT user_id=?", array($query_filter, array_keys($statuses), $this->all_configs['configs']['erp-write-off-user']), 'el');
+            . "WHERE ?q AND status IN(?l) AND NOT user_id in (?li)", array($query_filter, array_keys($statuses), array($this->all_configs['configs']['erp-write-off-user'], $this->all_configs['configs']['erp-return-user'])), 'el');
         foreach ($statuses as $status => $name) {
             $orders = $this->db->query("SELECT count(*) "
-                . "FROM {orders} WHERE ?q AND status = ?i AND NOT user_id=?", array($query_filter, $status, $this->all_configs['configs']['erp-write-off-user']), 'el');
+                . "FROM {orders} WHERE ?q AND status = ?i AND NOT user_id in (?li)", array($query_filter, $status, array($this->all_configs['configs']['erp-write-off-user'], $this->all_configs['configs']['erp-return-user'])), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
             $stats .= $this->view->renderFile('dashboard/get_workshops_stats', array(
                 'name' => $name,
