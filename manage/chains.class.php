@@ -6,16 +6,16 @@ require_once __DIR__ . '/Core/Exceptions.php';
 require_once __DIR__ . '/Core/Log.php';
 
 /**
- * @property MHistory                     History
- * @property MOrders                      Orders
- * @property MSettings                    Settings
- * @property MWarehouses                  Warehouses
- * @property MClients                     Clients
- * @property MOrdersGoods                 OrdersGoods
- * @property MCashboxesTransactions       CashboxesTransactions
- * @property MContractorsSuppliersOrders  ContractorsSuppliersOrders
- * @property MOrdersSuppliersClients      OrdersSuppliersClients
- * @property MHomeMasterRequests          HomeMasterRequests
+ * @property MHistory History
+ * @property MOrders Orders
+ * @property MSettings Settings
+ * @property MWarehouses Warehouses
+ * @property MClients Clients
+ * @property MOrdersGoods OrdersGoods
+ * @property MCashboxesTransactions CashboxesTransactions
+ * @property MContractorsSuppliersOrders ContractorsSuppliersOrders
+ * @property MOrdersSuppliersClients OrdersSuppliersClients
+ * @property MHomeMasterRequests HomeMasterRequests
  * @property  MContractorsCategoriesLinks ContractorsCategoriesLinks
  */
 class Chains extends Object
@@ -227,15 +227,15 @@ class Chains extends Object
 
         $i = 0;
         foreach ($data['serials'] as $id_warehouse => $serials) {
-            if (!empty($serials['select'])){
-                foreach ($serials['select'] as $item_id){
+            if (!empty($serials['select'])) {
+                foreach ($serials['select'] as $item_id) {
                     if (isset($order_products[$i])) {
                         $bind_results[] = $this->bind_item_serial(array(
                             'item_id' => $item_id,
                             'order_product_id' => $order_products[$i]['id'],
                         ), $mod_id, false);
                         $i++;
-                    } 
+                    }
                 }
             } elseif (!empty($serials['input'])) {
                 if (isset($order_products[$i])) {
@@ -291,19 +291,22 @@ class Chains extends Object
 
         // поиск по серийнику
         if (!$item_id && isset($data['serial']) && $data['serial'] != 'undefined') {
+            $item = $this->all_configs['db']->query('SELECT i.*, o.user_id, o.date_check FROM {warehouses_goods_items} as i
+            LEFT JOIN {contractors_suppliers_orders} as o ON o.id=i.supplier_order_id WHERE i.serial=?',
+                array($data['serial']))->row();
             $serial = suppliers_order_generate_serial(array('serial' => $data['serial']), false);
-            if (gettype($serial) === 'integer') {
+            if (empty($item) && gettype($serial) === 'integer') {
                 // поиск по id
-                $query = $this->all_configs['db']->makeQuery('i.id=?i', array($serial));
-            } else {
-                // поиск по серийнику
-                $query = $this->all_configs['db']->makeQuery('i.serial=?', array($serial));
+                $item = $this->all_configs['db']->query('SELECT i.*, o.user_id, o.date_check FROM {warehouses_goods_items} as i
+                    LEFT JOIN {contractors_suppliers_orders} as o ON o.id=i.supplier_order_id WHERE i.id=?i',
+                    array($serial))->row();
             }
         }
-
-        $item = $this->all_configs['db']->query('SELECT i.*, o.user_id, o.date_check FROM {warehouses_goods_items} as i
-            LEFT JOIN {contractors_suppliers_orders} as o ON o.id=i.supplier_order_id WHERE ?query',
-            array($query))->row();
+        if($item_id) {
+            $item = $this->all_configs['db']->query('SELECT i.*, o.user_id, o.date_check FROM {warehouses_goods_items} as i
+                    LEFT JOIN {contractors_suppliers_orders} as o ON o.id=i.supplier_order_id WHERE i.id=?i',
+                array($item_id))->row();
+        }
 
         try {
             // проверяем ид изделия
@@ -740,7 +743,7 @@ class Chains extends Object
     }
 
     /**
-     * @param int    $type
+     * @param int $type
      * @param string $hash
      * @return array
      */
@@ -897,7 +900,8 @@ class Chains extends Object
         $goods_id = null,
         $h_id = null,
         $only_logistic = false
-    ) {
+    )
+    {
         $q = $this->query_warehouses($goods_id);
 
         if ($chain) {
@@ -925,7 +929,7 @@ class Chains extends Object
      * @param null $status
      * @return string
      */
-    public function form_write_off_items($item_id = null, $status = null, $for_sidebar = false )
+    public function form_write_off_items($item_id = null, $status = null, $for_sidebar = false)
     {
         $out = '';
 
@@ -2421,7 +2425,8 @@ class Chains extends Object
         $contractor_category_link,
         $supplier_order_id,
         $post
-    ) {
+    )
+    {
         $item_id = $order && array_key_exists('item_id', $order) ? $order['item_id'] : null;
         $goods_id = $order && array_key_exists('goods_id', $order) ? $order['goods_id'] : null;
         $order_goods_id = $order && array_key_exists('order_goods_id', $order) ? $order['order_goods_id'] : null;
@@ -2688,7 +2693,8 @@ class Chains extends Object
         $show_btn = true,
         $rand = null,
         $for_sidebar = false
-    ) {
+    )
+    {
         return $this->view->renderFile('chains.class/moving_item_form', array(
             'rand' => $rand ? $rand : rand(1000, 9999),
             'item_id' => $item_id,
@@ -2719,7 +2725,8 @@ class Chains extends Object
         $show_btn = true,
         $rand = null,
         $for_sidebar = false
-    ) {
+    )
+    {
         return $this->view->renderFile('chains.class/moving_item_form_sidebar', array(
             'rand' => $rand ? $rand : rand(1000, 9999),
             'item_id' => $item_id,
@@ -3419,7 +3426,8 @@ class Chains extends Object
         $send,
         $part_quality_comment,
         $crm_request
-    ) {
+    )
+    {
 // скрытый камент
         $private_comment = $part_quality_comment . (isset($post['private_comment']) ? trim($post['private_comment']) : '');
         if ($private_comment) {
