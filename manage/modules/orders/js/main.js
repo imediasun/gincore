@@ -647,9 +647,15 @@ function change_crm_request($this) {
     product_name = $this.data('product_name'),
     client_id = $this.data('client_id'),
     referer_id = $this.data('referer_id'),
-    code = $this.data('code');
+    code = $this.data('code'),
+      client_phone = $this.data('client_phone'),
+      client_fio = $this.data('client_fio')
+      ;
   if (product_id && client_id) {
     $('input[name="clients"]').val(client_id);
+    $('input[name="client_id"]').val(client_id);
+    $('input[name="client_fio"]').val(client_fio);
+    $('input[name="client_phone"]').val(client_phone);
     $('input[name="categories-last"]').val(product_id);
     $('input[name="categories-last-value"]').val(product_name);
     $('#crm_order_code').attr('disabled', true).val(code);

@@ -215,7 +215,7 @@ class dashboard extends Object
      * @param string $template
      * @return string
      */
-    private function get_repair_chart($post, $template='repair_chart')
+    private function get_repair_chart($post, $template = 'repair_chart')
     {
         $models = $this->db->query('SELECT cat.id, cat.title FROM {categories} AS cat'
             . ' LEFT JOIN ( SELECT DISTINCT parent_id FROM {categories} ) AS sub ON cat.id = sub.parent_id'
@@ -367,10 +367,10 @@ class dashboard extends Object
         );
         $query_filter = $this->utils->makeFilters('date_add');
         $all_orders = $this->db->query("SELECT count(*) FROM {orders} "
-            . "WHERE ?q AND status IN(?l) AND NOT user_id=?", array($query_filter, array_keys($statuses), $this->all_configs['configs']['erp-write-off-user']), 'el');
+            . "WHERE ?q AND status IN(?l) AND NOT user_id in (?li)", array($query_filter, array_keys($statuses), array($this->all_configs['configs']['erp-write-off-user'], $this->all_configs['configs']['erp-return-user'])), 'el');
         foreach ($statuses as $status => $name) {
             $orders = $this->db->query("SELECT count(*) "
-                . "FROM {orders} WHERE ?q AND status = ?i AND NOT user_id=?", array($query_filter, $status, $this->all_configs['configs']['erp-write-off-user']), 'el');
+                . "FROM {orders} WHERE ?q AND status = ?i AND NOT user_id in (?li)", array($query_filter, $status, array($this->all_configs['configs']['erp-write-off-user'], $this->all_configs['configs']['erp-return-user'])), 'el');
             $p = $all_orders > 0 ? $this->percent_format($orders / $all_orders * 100) : 0;
             $stats .= $this->view->renderFile('dashboard/get_workshops_stats', array(
                 'name' => $name,
@@ -387,28 +387,29 @@ class dashboard extends Object
     private function get_engineer_stats()
     {
         $query_filter = $this->utils->makeFilters('o.date_add');
-        $orders = $this->db->query("SELECT engineer, IF(u.fio!='',u.fio,u.login) as fio, "
-            . "count(o.id) as orders "
+        $engineers = $this->db->query("(SELECT engineer, IF(u.fio!='',u.fio,u.login) as fio, o.id as order_id "
             . "FROM {orders} as o "
             . "LEFT JOIN {users} as u ON u.id = o.engineer "
-            . "WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY engineer "
-            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']))->assoc('engineer');
-        $goodsEngineers = $this->db->query("SELECT og.engineer, IF(u.fio!='',u.fio,u.login) as fio, "
-            . "count(o.id) as orders "
+            . "WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0)
+            UNION
+            (SELECT og.engineer, IF(u.fio!='',u.fio,u.login) as fio, o.id as order_id "
             . "FROM {orders} as o "
             . "LEFT JOIN {orders_goods} as og ON og.order_id=o.id "
             . "LEFT JOIN {users} as u ON u.id = og.engineer "
-            . "WHERE ?q AND og.engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY og.engineer "
-            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']))->assoc('engineer');
+            . "WHERE ?q AND og.engineer > 0 AND status = ?i AND sum_paid > 0)",
+            array($query_filter, $this->all_configs['configs']['order-status-issued'], $query_filter, $this->all_configs['configs']['order-status-issued']))->assoc();
 
-        if(empty($orders)) {
-            $orders = $goodsEngineers;
-        } else if(!empty($goodsEngineers)){
-            foreach ($goodsEngineers as $id => $engineer) {
-                if(isset($orders[$id])) {
-                    $orders[$id]['orders'] += $engineer['orders'];
-                } else {
+        $orders = array();
+        if (!empty($engineers)) {
+            foreach ($engineers as $engineer) {
+                $id = $engineer['engineer'];
+                if (!isset($orders[$id])) {
                     $orders[$id] = $engineer;
+                    $orders[$id]['orders'] = 0;
+                }
+                if (!in_array($engineer['order_id'], $orders[$id]['in_orders'])) {
+                    $orders[$id]['in_orders'][] = $engineer['order_id'];
+                    $orders[$id]['orders'] += 1;
                 }
             }
         }
@@ -533,7 +534,7 @@ class dashboard extends Object
         }
         if ($act == 'items-select') {
             $query = '';
-            if(isset($_GET['parent'])) {
+            if (isset($_GET['parent'])) {
                 $parent = explode(',', $_GET['parent']);
                 $query = $this->db->makeQuery('AND cg.category_id in (?li)', array($parent));
             }
@@ -564,7 +565,7 @@ class dashboard extends Object
                 . ' WHERE cat.avail=1 AND (sub.parent_id IS NULL OR sub.parent_id = 0)',
                 array())->assoc('id');
             $query = '';
-            if(isset($_GET['parent'])) {
+            if (isset($_GET['parent'])) {
                 $selectedCategories = explode(',', $_GET['parent']);
                 $categoriesTree = new MCategoriesTree();
                 $children = $categoriesTree->getChildren($selectedCategories, $models);
