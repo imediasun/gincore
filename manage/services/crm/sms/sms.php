@@ -137,6 +137,9 @@ class sms extends \service
      */
     private function log($phone, $body, $sender_id, $type, $object_id, $status, $message)
     {
+        if($sender_id === null) {
+            $sender_id = 0;
+        }
         $this->all_configs['db']
             ->query("INSERT INTO {sms_log}(type,sender_id,object_id,phone,body,date,success,message) "
                 . "VALUES (?i,?i,?i,?,?,NOW(),?i,?)",
