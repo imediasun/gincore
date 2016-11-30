@@ -486,7 +486,13 @@ class warehouses extends Controller
             if (isset($_GET['serial'])) { // по серийнику
                 $serial = suppliers_order_generate_serial($_GET, false);
 
-                if ($this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_GET['serial']), 0,
+                $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
+                    ', array($_GET['serial'], $query_for_noadmin))->assoc();
+                if (empty($goods) && $this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_GET['serial']), 0,
                         strlen($this->all_configs['configs']['erp-serial-prefix']))
                 ) {
                     $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
@@ -495,13 +501,6 @@ class warehouses extends Controller
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
                         ', array($serial, $query_for_noadmin))->assoc();
-                } else {
-                    $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
-                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
-                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
-                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
-                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
-                    ', array($serial, $query_for_noadmin))->assoc();
                 }
                 $show_item_type = 1;
                 $open_item_in_sidebar = true;
