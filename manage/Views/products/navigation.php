@@ -47,6 +47,9 @@
                         <option value="items" <?= in_array('items', $current_show) ? 'selected' : '' ?>>
                             <?= l('Товары') ?>
                         </option>
+                        <option value="na" <?= in_array('na', $current_show) ? 'selected' : '' ?>>
+                            <?= l('Не активные') ?>
+                        </option>
                     </select>
                 </div>
 
