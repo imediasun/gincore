@@ -302,6 +302,11 @@ class Chains extends Object
                     array($serial))->row();
             }
         }
+        if($item_id) {
+            $item = $this->all_configs['db']->query('SELECT i.*, o.user_id, o.date_check FROM {warehouses_goods_items} as i
+                    LEFT JOIN {contractors_suppliers_orders} as o ON o.id=i.supplier_order_id WHERE i.id=?i',
+                array($item_id))->row();
+        }
 
         try {
             // проверяем ид изделия
