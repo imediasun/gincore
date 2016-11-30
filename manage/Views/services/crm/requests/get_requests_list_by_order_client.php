@@ -28,6 +28,7 @@
                         <label>
                             <input type="radio" <?= (($active_request == $req['id'] || ($i ==0 && $client_id && $product_id) ) ? 'checked' : '') ?>
                                    name="crm_request"
+                                   data-client_phone="<?= $req['client']['phone'] ?>"
                                    data-client_fio="<?= $req['client']['fio'] ?>"
                                    data-client_id="<?= $req['client_id'] ?>"
                                    data-product_id="<?= $req['product_id'] ?>"

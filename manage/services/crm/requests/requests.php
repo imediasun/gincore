@@ -629,7 +629,7 @@ class requests extends \service
             foreach ($requests as &$req) {
                 $req['client'] = $this->all_configs['db']->query(
                     'SELECT GROUP_CONCAT(COALESCE(c.fio, ""), ", ", COALESCE(c.email, ""),
-                                  ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as data, c.fio
+                                  ", ", COALESCE(c.phone, ""), ", ", COALESCE(p.phone, "") separator ", " ) as data, c.fio, c.phone
                                 FROM {clients} as c
                                 LEFT JOIN {clients_phones} as p ON p.client_id=c.id AND p.phone<>c.phone
                                 WHERE c.id = ?i', array($req['client_id']), 'row');
