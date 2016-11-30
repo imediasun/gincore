@@ -10,7 +10,7 @@
                     <label><?= l('Цена') ?>, (<?= viewCurrencySuppliers('shortName') ?>)<b
                             class="text-danger">*</b>:</label>
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <label><?= l('Количество') ?><b class="text-danger">*</b>:</label>
                 </td>
                 <td class="col-sm-1">
@@ -21,7 +21,7 @@
                     <?= InfoPopover::getInstance()->createQuestion('l_suppliers_order_order_info') ?>
                 </td>
                 <td class="col-sm-1"></td>
-                <td class="col-sm-1"></td>
+                <td class="col-sm-2"></td>
             </tr>
             </thead>
             <tbody>
@@ -52,7 +52,7 @@
                            value=""/>
 
                 </td>
-                <td class="col-sm-2">
+                <td class="col-sm-1">
                     <input type="text" data-required="true" onkeydown="return isNumberKey(event)"
                            name="warehouse-order-count" class="form-control exclude-form-validate"
                            id="supplier_product_quantity"
@@ -81,7 +81,7 @@
                                 <i class="glyphicon glyphicon-plus"></i>
                             </span>
                 </td>
-                <td class="col-sm-1"></td>
+                <td class="col-sm-2"></td>
             </tr>
             </tbody>
         </table>
