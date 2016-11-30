@@ -32,8 +32,8 @@
             <td><b><?= l('Наименование') ?></b></td>
             <td>
                 <a
-                   href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
-                   data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
+                    href="<?= $this->all_configs['prefix'] ?>products/create/<?= $product['goods_id'] ?>#financestock-stock"
+                    data-action="sidebar_product" data-id_product="<?= $product['id'] ?>">
                     <?= h($product['product_title']) ?>
                 </a>
             </td>
@@ -64,10 +64,12 @@
                     false) ?>"><?= do_nice_date($product['date_add']) ?></span>
             </td>
         </tr>
-        <tr>
-            <td><b><?= l('Цена закупки') ?></b></td>
-            <td><?= $controller->show_price($product['price']) ?></td>
-        </tr>
+        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics') || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('accounting')): ?>
+            <tr>
+                <td><b><?= l('Цена закупки') ?></b></td>
+                <td><?= $controller->show_price($product['price']) ?></td>
+            </tr>
+        <?php endif; ?>
         <tr>
             <td><b><?= l('Склад') ?></b></td>
             <td>

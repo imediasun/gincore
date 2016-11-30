@@ -100,12 +100,6 @@ class logistics
         $date = isset($_GET['date']) ? h($_GET['date']) : '';
         $number = isset($_GET['number']) ? h($_GET['number']) : '';
 
-        $warehouses_select = $warehouses_select_to = '';
-        foreach ($warehouses as $wh) {
-            $warehouses_select .= '<option value="' . $wh['id'] . '"' . (in_array($wh['id'], $whfrom) ? ' selected' : '') . '>' . $wh['title'] . '</option>';
-            $warehouses_select_to .= '<option value="' . $wh['id'] . '"' . (in_array($wh['id'], $whto) ? ' selected' : '') . '>' . $wh['title'] . '</option>';
-        }
-
         $html = $this->view->renderFile('logistics/filters_block',
                 array(
                     'warehouses' => $warehouses,
@@ -255,10 +249,14 @@ class logistics
         $out = '';
         if ($this->all_configs["oRole"]->hasPrivilege("site-administration")) {
             // вывод существующих
+
+            $logistics_wh_id = $this->all_configs['db']->query("SELECT id FROM {warehouses} WHERE is_system=1 AND type=3")->el();
+
             $chains = $this->db->query("SELECT * FROM {chains} ORDER BY avail DESC", array())->assoc();
             $out = $this->view->renderFile('logistics/logistics_settings', array(
                 'chains' => $chains,
-                'warehouses' => get_service('wh_helper')->get_warehouses()
+                'warehouses' => get_service('wh_helper')->get_warehouses(),
+                'logistics_wh_id' => $logistics_wh_id,
             ));
         }
 

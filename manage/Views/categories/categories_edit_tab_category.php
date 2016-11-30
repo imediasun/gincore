@@ -7,6 +7,9 @@
                     <img src="<?= $this->all_configs['siteprefix'] . $this->cat_img . $cur_category['thumbs'] ?>"/>
                 <?php endif; ?>
                 <?= l('Редактирование категории') ?> ID: <?= $cur_category['id'] ?>. <?= $cur_category['title'] ?>
+                <?php if($cur_category['id'] == $recycleBin['id']): ?>
+                    <?= InfoPopover::getInstance()->createAlertBox('l_recycled_bin_info', 'js-recycle-bin')?>
+                <?php endif; ?>
             </legend>
             <?php if (isset($_GET['error']) && $_GET['error'] == 'url'): ?>
                 <p class="text-error"><?= l('Категория с таким названием уже существует') ?></p>
@@ -112,8 +115,14 @@
                             <div class="controls">
                                 <input class="btn btn-primary " type="submit" value="<?= l('Сохранить') ?>"
                                        name="edit-category"/>
+                                <?php if($cur_category['id'] != $recycleBin['id']): ?>
+                                    <button class="btn btn-danger" name="edit-category" id="jstree-delete-category" data-id="<?= $cur_category['id'] ?>" >
+                                       <i class="fa fa-trash-o"></i>
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         </div>
+
                     <?php else: ?>
                         <script>$(":input:not(:disabled)").prop("disabled", true)</script>
                     <?php endif; ?>

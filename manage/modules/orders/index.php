@@ -8,13 +8,13 @@ $modulename[10] = 'orders';
 $modulemenu[10] = l('orders');
 
 /**
- * @property  MOrders         Orders
- * @property  MOrdersGoods    OrdersGoods
+ * @property  MOrders Orders
+ * @property  MOrdersGoods OrdersGoods
  * @property  MOrdersComments OrdersComments
- * @property  MLockFilters    LockFilters
- * @property  MTemplateVars   TemplateVars
- * @property  MUsers          Users
- * @property  MStatus         Status
+ * @property  MLockFilters LockFilters
+ * @property  MTemplateVars TemplateVars
+ * @property  MUsers Users
+ * @property  MStatus Status
  */
 class orders extends Controller
 {
@@ -315,7 +315,7 @@ class orders extends Controller
     }
 
     /**
-     * @param bool   $full_link
+     * @param bool $full_link
      * @param string $type
      * @return string
      */
@@ -1526,7 +1526,7 @@ class orders extends Controller
 
     /**
      * @param      $product
-     * @param int  $quantity
+     * @param int $quantity
      * @param bool $hash
      * @param bool $group
      * @param bool $hide
@@ -1718,9 +1718,9 @@ class orders extends Controller
 
             $query = $this->all_configs['db']->makeQuery('u.avail=1 AND u.deleted=0 AND id IN (?li)', array($ids));
             $result = $this->all_configs['db']->query('
-                SELECT u.*, CONCAT(u.fio, " ", u.login) as name,
-                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND NOT status in (?l)) as workload,
-                (SELECT count(*) FROM {orders} WHERE engineer=u.id AND status in (?l)) as wait_parts
+                SELECT u.id, u.deleted, u.avail, u.fio, u.login, CONCAT(u.fio, " ", u.login) as name,
+                (SELECT count(*) FROM {orders} as o WHERE o.engineer=u.id AND NOT o.status in (?l)) as workload_by_order,
+                (SELECT count(*) FROM {orders} as o WHERE o.engineer=u.id AND o.status in (?l))  as wait_parts_o
                 FROM {users} as u
                 WHERE  ?query',
                 array(
@@ -1728,6 +1728,24 @@ class orders extends Controller
                     $this->all_configs['configs']['order-statuses-expect-parts'],
                     $query
                 ))->assoc('id');
+            if (!empty($result)) {
+                foreach ($result as &$user) {
+                    $workload_by_service = $this->all_configs['db']->query('
+                        SELECT 1 FROM {orders} as o LEFT JOIN {orders_goods} as og ON og.order_id=o.id WHERE og.engineer=?i AND NOT o.status in (?l) GROUP by o.id
+                    ', array(
+                        $user['id'],
+                        $this->all_configs['configs']['order-statuses-engineer-not-workload'],
+                    ))->assoc();
+                    $user['workload_by_service'] = count($workload_by_service);
+                    $wait_parts_s = $this->all_configs['db']->query('
+                        SELECT 1 FROM {orders} as o LEFT JOIN {orders_goods} as og ON og.order_id=o.id WHERE og.engineer=?i AND o.status in (?l) GROUP by o.id
+                    ', array(
+                        $user['id'],
+                        $this->all_configs['configs']['order-statuses-expect-parts'],
+                    ))->assoc();
+                    $user['wait_parts_s'] = count($wait_parts_s);
+                }
+            }
         }
         return $result;
     }
@@ -1763,7 +1781,7 @@ class orders extends Controller
     /**
      * @param        $data
      * @param string $rootNodeName
-     * @param null   $xml
+     * @param null $xml
      * @return mixed
      */
     public static function toXml($data, $rootNodeName = 'data', $xml = null)
@@ -3577,27 +3595,27 @@ class orders extends Controller
             $title = array();
 
             foreach (array(
-                'npp' => 'N',
-                'date' => 'Дата',
-                'accepter' => 'Приемщик',
-                'manager' => 'Менеджер',
-                'engineer' => 'Инженер',
-                'status' => 'Статус',
-                'components' => 'Запчасти',
-                'services' => 'Работы',
-                'device' => 'Устройство',
-                'amount' => 'Стоимость',
-                'paid' => 'Оплачено',
-                'client' => 'Клиент',
-                'phone' => 'Контактный телефон',
-                'terms' => 'Сроки',
-                'location' => 'Склад',
-                'sn' => 'Серийный номер',
-                'repair' => 'Тип ремонта',
-                'date_end' => 'Дата готовности',
-                'warranty' => 'Гарантия',
-                'adv_channel' => 'Рекламный канал'
-            ) as $item => $name) {
+                         'npp' => 'N',
+                         'date' => 'Дата',
+                         'accepter' => 'Приемщик',
+                         'manager' => 'Менеджер',
+                         'engineer' => 'Инженер',
+                         'status' => 'Статус',
+                         'components' => 'Запчасти',
+                         'services' => 'Работы',
+                         'device' => 'Устройство',
+                         'amount' => 'Стоимость',
+                         'paid' => 'Оплачено',
+                         'client' => 'Клиент',
+                         'phone' => 'Контактный телефон',
+                         'terms' => 'Сроки',
+                         'location' => 'Склад',
+                         'sn' => 'Серийный номер',
+                         'repair' => 'Тип ремонта',
+                         'date_end' => 'Дата готовности',
+                         'warranty' => 'Гарантия',
+                         'adv_channel' => 'Рекламный канал'
+                     ) as $item => $name) {
                 if (isset($columns[$item])) {
                     $title[] = lq($name);
                 }
@@ -3978,7 +3996,8 @@ class orders extends Controller
             if (empty($post['engineer_id']) || empty($post['service_id'])) {
                 throw new ExceptionWithMsg(l('Не задан инженер или сервис'));
             }
-            if (!$this->Users->exists($post['engineer_id'])) {
+            $user = $this->Users->getByPk($post['engineer_id']);
+            if (empty($user)) {
                 throw new ExceptionWithMsg(l('Инженер не существует'));
             }
             if (!$this->OrdersGoods->exists($post['service_id'])) {
@@ -3993,6 +4012,8 @@ class orders extends Controller
             $result = array(
                 'state' => true
             );
+            $order = $this->Orders->query('SELECT * FROM {orders} WHERE id in (SELECT og.order_id FROM {orders_goods} as og WHERE og.id =?i) LIMIT 1', array($post['service_id']))->row();
+            $this->all_configs['chains']->noticeEngineer($user, $order);
         } catch (ExceptionWithMsg $e) {
             $result = array(
                 'state' => false,

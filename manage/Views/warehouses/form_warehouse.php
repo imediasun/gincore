@@ -95,7 +95,7 @@
                             <input type='submit' class='btn' name='warehouse-add' value='<?= l('Создать') ?>'/>
                         <?php else: ?>
                             <input type='hidden' name='warehouse-id' value='<?= $warehouse['id'] ?>'/>
-                            <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Редактировать') ?>'/>
+                            <input type='submit' class='btn' name='warehouse-edit' value='<?= l('Сохранить') ?>'/>
                             <input style='margin-left: 10px' type='submit' class='btn' name='warehouse-delete'
                                 <?php if (!$warehouse['can_deleted'] || $warehouse['is_system'] || in_array($warehouse['title'],
                                         array(

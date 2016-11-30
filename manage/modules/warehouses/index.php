@@ -235,35 +235,32 @@ class warehouses extends Controller
             $this->Warehouses->update($update, array(
                 'id' => $post['warehouse-id']
             ));
-            $query = '';
-            if (isset($_POST['location-id']) && is_array($_POST['location-id'])) {
-                foreach ($_POST['location-id'] as $location_id => $location) {
-                    if ($location_id > 0 && mb_strlen(trim($location), 'UTF-8') > 0) {
-                        $this->all_configs['db']->query('UPDATE {warehouses_locations} SET location=? WHERE id=?i',
-                            array(trim($location), intval($location_id)));
-                        $query = $this->all_configs['db']->makeQuery('?query AND id<>?i', array($query, $location_id));
-                    }
-                }
-            }
             if (isset($_POST['location']) && is_array($_POST['location'])) {
                 foreach ($_POST['location'] as $location) {
                     if (empty($location)) {
                         continue;
                     }
-                    $location_id = $this->all_configs['db']->query(
+                    $this->all_configs['db']->query(
                         'INSERT IGNORE INTO {warehouses_locations} (wh_id, location) VALUES (?i, ?)',
                         array($post['warehouse-id'], trim($location)), 'id');
 
                     get_service('wh_helper')->clear_cache();
-                    if ($location_id > 0) {
-                        $query = $this->all_configs['db']->makeQuery('?query AND id<>?i', array($query, $location_id));
-                    }
                 }
             }
-            try {
-                $this->all_configs['db']->query(
-                    'DELETE FROM {warehouses_locations} WHERE wh_id=?i ?query', array($post['warehouse-id'], $query));
-            } catch (Exception $e) {
+            if (!empty($_POST['location-id']) && is_array($_POST['location-id'])) {
+                foreach ($_POST['location-id'] as $location_id => $location) {
+                    if ($location_id > 0) {
+                        if (mb_strlen(trim($location), 'UTF-8') > 0) {
+                            $this->all_configs['db']->query('UPDATE {warehouses_locations} SET location=? WHERE id=?i',
+                                array(trim($location), intval($location_id)));
+                        } else {
+                            if ($this->catDeleteLocation($post['warehouse-id'], $location_id)) {
+                                $this->all_configs['db']->query(
+                                    'DELETE FROM {warehouses_locations} WHERE wh_id=?i AND id=?i', array($post['warehouse-id'], $location_id));
+                            }
+                        }
+                    }
+                }
             }
             $this->all_configs['db']->query('INSERT INTO {changes} SET user_id=?i, work=?, map_id=?i, object_id=?i',
                 array($user_id, 'edit-warehouse', $mod_id, $post['warehouse-id']));
@@ -489,7 +486,13 @@ class warehouses extends Controller
             if (isset($_GET['serial'])) { // по серийнику
                 $serial = suppliers_order_generate_serial($_GET, false);
 
-                if ($this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_GET['serial']), 0,
+                $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
+                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
+                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
+                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
+                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
+                    ', array($_GET['serial'], $query_for_noadmin))->assoc();
+                if (empty($goods) && $this->all_configs['configs']['erp-serial-prefix'] == substr(trim($_GET['serial']), 0,
                         strlen($this->all_configs['configs']['erp-serial-prefix']))
                 ) {
                     $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
@@ -498,13 +501,6 @@ class warehouses extends Controller
                         FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
                         WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.id=?i ?query
                         ', array($serial, $query_for_noadmin))->assoc();
-                } else {
-                    $goods = $this->all_configs['db']->query('SELECT w.id, w.title, w.code_1c, w.consider_all, w.consider_store, g.title as product_title,
-                        i.goods_id, i.order_id, i.supplier_order_id, i.serial, i.date_sold, i.price, i.supplier_id as user_id, u.title as contractor_title,
-                        i.id as item_id, i.date_add, i.serial_old, l.location, i.location_id, g.vendor_code
-                        FROM {warehouses} as w, {warehouses_goods_items} as i, {goods} as g, {contractors} as u, {warehouses_locations} as l
-                        WHERE i.wh_id=w.id AND g.id=i.goods_id AND u.id=i.supplier_id AND l.id=i.location_id AND i.serial=? ?query
-                    ', array($serial, $query_for_noadmin))->assoc();
                 }
                 $show_item_type = 1;
                 $open_item_in_sidebar = true;
@@ -2694,5 +2690,35 @@ class warehouses extends Controller
 
         $url = $this->all_configs['prefix'] . $this->all_configs['arrequest'][0] . (empty($url) ? '' : '?' . http_build_query($url));
         Response::redirect($url);
+    }
+
+    /**
+     * @param $warehouseId
+     * @param $locationId
+     * @return bool
+     */
+    private function catDeleteLocation($warehouseId, $locationId)
+    {
+        $count = $this->Warehouses->query('SELECT count(*) FROM {warehouses_locations} WHERE wh_id=?i', array($warehouseId))->el();
+        if ($count <= 1) {
+            FlashMessage::set(l('Нельзя удалить последнюю локацию'), FlashMessage::DANGER);
+            return false;
+        }
+        $used = $this->all_configs['db']->query('SELECT count(*) FROM {contractors_suppliers_orders} WHERE location_id=?i', array($locationId))->el();
+        if ($used) {
+            FlashMessage::set(l('Локация задействована в заказах поставщику'), FlashMessage::DANGER);
+            return false;
+        }
+        $used = $this->all_configs['db']->query('SELECT count(*) FROM {warehouses_goods_items} WHERE location_id=?i', array($locationId))->el();
+        if ($used) {
+            FlashMessage::set(l('Локация задействована в складских операциях'), FlashMessage::DANGER);
+            return false;
+        }
+        $used = $this->all_configs['db']->query('SELECT count(*) FROM {orders} WHERE location_id=?i', array($locationId))->el();
+        if ($used) {
+            FlashMessage::set(l('Локация задействована в заказах на ремонт'), FlashMessage::DANGER);
+            return false;
+        }
+        return true;
     }
 }

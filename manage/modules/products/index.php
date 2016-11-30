@@ -8,10 +8,10 @@ $moduleactive[60] = !$ifauth['is_2'];
 /**
  * Class products
  *
- * @property MGoods         Goods
+ * @property MGoods Goods
  * @property MCategoryGoods CategoryGoods
- * @property MCategories    Categories
- * @property  MLockFilters  LockFilters
+ * @property MCategories Categories
+ * @property  MLockFilters LockFilters
  */
 class products extends Controller
 {
@@ -352,7 +352,7 @@ class products extends Controller
 
     /**
      * @param       $array
-     * @param int   $index
+     * @param int $index
      * @param array $tree
      * @return array
      */
@@ -482,6 +482,13 @@ class products extends Controller
             if (array_search('services', $show) !== false) {
                 $goods_query = $this->all_configs['db']->makeQuery('?query
                     AND (g.type=1)', array($goods_query));
+            }
+            if (array_search('na', $show) !== false) {
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.avail=0',
+                    array($goods_query));
+            } else {
+                $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.avail=1',
+                    array($goods_query));
             }
             // Товары
             if (array_search('items', $show) !== false) {
@@ -941,7 +948,11 @@ class products extends Controller
             if (!empty($create['error'])) {
                 $result = array('state' => false, 'msg' => $create['error']);
             } else {
-                $result = array('state' => true, 'id' => $create['id'], 'name' => $_POST['title']);
+                $result = array(
+                    'state' => true,
+                    'id' => $create['id'],
+                    'name' => $_POST['title'],
+                );
             }
             Response::json($result);
         }
@@ -1514,7 +1525,6 @@ class products extends Controller
                 ));
 
 
-
                 if (intval($ar) > 0) {
                     $this->saveMoreHistory($update, $product, $mod_id);
                 }
@@ -1529,7 +1539,7 @@ class products extends Controller
 
 
                 if (!isset($post['categories']) && $update['avail'] == 0) {
-                  $this->Goods->moveToRecycle(array('id' => $id_product), $mod_id);
+                    $this->Goods->moveToRecycle(array('id' => $id_product), $mod_id);
                 }
 
                 $current_cats = $this->all_configs['db']->query('SELECT category_id FROM {category_goods} WHERE goods_id=?i',
@@ -2741,13 +2751,34 @@ class products extends Controller
             }
         }
         if (!empty($used)) {
-            FlashMessage::set(l('Список ID товаров, которые не могут быть удалены, так как используются в логистических операциях или заказах:') . implode(',',
-                    $used), FlashMessage::WARNING);
+            $this->moveToRecycleBin($used);
         } else {
             FlashMessage::set(l('Выбранные товары успешно удалены') . implode(',',
                     $used), FlashMessage::SUCCESS);
         }
         return true;
+    }
+
+    /**
+     * @param $ids
+     */
+    protected function moveToRecycleBin($ids)
+    {
+        $recycleBin = $this->Categories->getRecycleBin();
+        $this->CategoryGoods->deleteAll(array(
+            'goods_id' => $ids
+        ));
+        $this->Goods->update(array(
+            'avail' => 0
+        ), array(
+            'id' => $ids
+        ));
+        foreach ($ids as $id) {
+            $this->CategoryGoods->insert(array(
+                'goods_id' => $id,
+                'category_id' => $recycleBin['id']
+            ));
+        }
     }
 
     /**

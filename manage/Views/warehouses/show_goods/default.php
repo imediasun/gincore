@@ -7,7 +7,7 @@
         <td><?= l('Дата') ?></td>
         <td><?= l('Склад') ?></td>
         <td><?= l('Заказ') ?></td>
-        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics')): ?>
+        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics') || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('accounting')): ?>
             <td><?= l('Цена') ?></td>
         <?php endif; ?>
         <td><?= l('Кол-во') ?></td>
@@ -78,7 +78,7 @@
                                 false) ?>"><?= do_nice_date($item['date_add']) ?></span></td>
                         <td><?= h($item['wtitle']) ?></td>
                         <td><?= $item['order_id'] ?></td>
-                        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics')): ?>
+                        <?php if ($this->all_configs['oRole']->hasPrivilege('logistics') || $this->all_configs['oRole']->hasPrivilege('edit-suppliers-orders') || $this->all_configs['oRole']->hasPrivilege('accounting')): ?>
                             <td><?= show_price($item['price']) ?></td>
                         <?php endif; ?>
                         <td><?= (int)$can ?></td>

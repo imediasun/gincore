@@ -164,28 +164,34 @@ $(document).ready(function () {
   });
 });
 
-function delete_category($parent) {
-
+function delete_category($parent, href) {
   var id = $parent.data('id');
   if (confirm("Категория будет удалена из системы и восстановить ее будет невозможно. Продолжить?")) {
     $.ajax({
       url: prefix + module + '/ajax/?act=check-use-categories',
       type: 'GET',
       dataType: "json",
-      data: '&id=' + id,
+      data: 'id=' + id,
       success: function (msg) {
         if (!msg.used) {
           $.ajax({
             url: prefix + module + '/ajax/?act=delete-categories',
             type: 'POST',
             dataType: "json",
-            data: '&id=' + id,
+            data: 'id=' + id,
             success: function (msg) {
               if (msg) {
                 if (msg['state'] == false && msg['message']) {
                   alert(msg['message']);
                 }
                 if (msg['state'] && msg['state'] == true) {
+                  if (typeof href != 'undefined') {
+                    rightSidebar.noty(msg['message'], 'success');
+                    setTimeout(function () {
+                      location.href = href;
+                    }, 1500);
+                  }
+
                   $parent.css('opacity', '0.2');
                   $parent.find('.js-delete-category').hide();
                   $parent.find('.dd-handle').remove();
