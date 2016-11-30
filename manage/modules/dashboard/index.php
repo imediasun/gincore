@@ -392,17 +392,26 @@ class dashboard extends Object
             . "FROM {orders} as o "
             . "LEFT JOIN {users} as u ON u.id = o.engineer "
             . "WHERE ?q AND engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY engineer "
-            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']),
-            'assoc');
+            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']))->assoc('engineer');
         $goodsEngineers = $this->db->query("SELECT og.engineer, IF(u.fio!='',u.fio,u.login) as fio, "
             . "count(o.id) as orders "
             . "FROM {orders} as o "
             . "LEFT JOIN {orders_goods} as og ON og.order_id=o.id "
             . "LEFT JOIN {users} as u ON u.id = og.engineer "
             . "WHERE ?q AND og.engineer > 0 AND status = ?i AND sum_paid > 0 GROUP BY og.engineer "
-            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']))->assoc();
+            . "ORDER BY orders DESC", array($query_filter, $this->all_configs['configs']['order-status-issued']))->assoc('engineer');
 
-        $orders = array_merge($orders, $goodsEngineers);
+        if(empty($orders)) {
+            $orders = $goodsEngineers;
+        } else if(!empty($goodsEngineers)){
+            foreach ($goodsEngineers as $id => $engineer) {
+                if(isset($orders[$id])) {
+                    $orders[$id]['orders'] += $engineer['orders'];
+                } else {
+                    $orders[$id] = $engineer;
+                }
+            }
+        }
         $all_orders = 0;
         foreach ($orders as $ord) {
             $all_orders += $ord['orders'];
