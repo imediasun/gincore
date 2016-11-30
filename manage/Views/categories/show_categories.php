@@ -55,6 +55,12 @@
 
 <script type="text/javascript">
     $(function () {
+
+        $(window).on('unload', function() {
+            $(window).scrollTop(0);
+        });
+
+
         $('#categories-jstree').jstree({
             core : {
                 "check_callback" : true,
@@ -142,7 +148,7 @@
             }, 250);
         });
 
-        if (jstree_selected_node) {
+        if (typeof jstree_selected_node != 'undefined') {
             $('#categories-jstree').jstree(true).select_node(jstree_selected_node);
         }
 
@@ -150,13 +156,12 @@
             location.href = prefix + module + '/create/' + data.node.id;
         });
 
-        $('#jstree-delete-category').live('click', function () {
+        $('#jstree-delete-category').live('click', function (e) {
+            e.preventDefault();
             delete_category($(this), prefix + module);
         });
 
 
-        $(window).on('unload', function() {
-            $(window).scrollTop(0);
-        });
+
     });
 </script>
