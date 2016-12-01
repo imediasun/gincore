@@ -207,7 +207,7 @@ class logistic extends \service
                 if (!empty($user['email'])) {
                     $mailer->group('logistic-notification', $user['email'],
                         array(
-                            'type' => $item_type == LOGISTIC_TYPE_IS_ORDER ? l('заказа') : l('товар'),
+                            'type' => $item_type == LOGISTIC_TYPE_IS_ORDER ? l('заказ') : l('товар'),
                             'cargo' => $item_type == LOGISTIC_TYPE_IS_ORDER ? '№ ' . $item_id : $item,
                             'from' => $chainInfo['from_wh'] . '(' . $chainInfo['from_location'] . ')',
                             'to' => $chainInfo['to_wh'] . '(' . $chainInfo['to_location'] . ')',
