@@ -198,9 +198,9 @@ class logistic extends \service
               wlt.location as to_location 
             FROM {chains} as c
             LEFT JOIN {warehouses} as wf ON wf.id=c.from_wh_id
-            LEFT JOIN {warehouses_locations} as wlf ON wlf.id=c.from_wh_locatioin_id
+            LEFT JOIN {warehouses_locations} as wlf ON wlf.id=c.from_wh_location_id
             LEFT JOIN {warehouses} as wt ON wt.id=c.to_wh_id
-            LEFT JOIN {warehouses_locations} as wlt ON wlt.id=c.to_wh_locatioin_id
+            LEFT JOIN {warehouses_locations} as wlt ON wlt.id=c.to_wh_location_id
             WHERE c.id=?i
             ', array($chain['id']))->row();
             foreach ($users as $user) {
