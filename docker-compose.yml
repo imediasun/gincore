@@ -6,6 +6,17 @@ web:
   - 8080:80
  volumes:
   - ~/www/gincore:/var/www/html
+#  - ~/www/vendor:/var/www/html/vendor
+#web5:
+# build: .
+# dockerfile: Dockerfile-php5
+# links:
+#  - db:mysql
+# ports:
+#  - 9090:80
+# volumes:
+#  - ~/www/gincore2:/var/www/html
+#  - ~/www/vendor:/var/www/html/vendor
 db:
  image: mysql:latest
  command: mysqld --sql_mode=""
