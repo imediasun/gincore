@@ -1087,10 +1087,10 @@ class manageModel extends Object
             if ($move_type == 2) {
                 // может быть сразу $order_id и $item_id
                 if ($order_id) {
-                    get_service('logistic')->item_move($order_id, 1, $move_id, $wh_id, $location_id);
+                    get_service('logistic')->item_move($order_id, LOGISTIC_TYPE_IS_ORDER, $move_id, $wh_id, $location_id);
                 }
                 if ($item_id) {
-                    get_service('logistic')->item_move($item_id, 2, $move_id, $wh_id, $location_id);
+                    get_service('logistic')->item_move($item_id, LOGISTIC_TYPE_IS_ITEM, $move_id, $wh_id, $location_id);
                 }
             }
         }

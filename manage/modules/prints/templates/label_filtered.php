@@ -17,7 +17,7 @@ class label_filtered extends AbstractTemplate
         }
 
         if (isset($_GET['pid']) && $_GET['pid'] > 0) {
-            $query = $this->all_configs['db']->makeQuery('AND g.id=?i', array($_GET['pid']));
+            $query = $this->all_configs['db']->makeQuery('?query AND g.id=?i', array($query, $_GET['pid']));
         }
         $products = $this->all_configs['db']->query(
             'SELECT g.barcode, g.title, wgi.serial, wgi.id as item_id,

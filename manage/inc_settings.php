@@ -56,6 +56,9 @@ define('SYSTEM_CASHBOX_MAIN_ID', 1);
 define('SYSTEM_CASHBOX_TRANSIT_ID', 2);
 define('SYSTEM_CASHBOX_TERMINAL_ID', 3);
 
+define('LOGISTIC_TYPE_IS_ORDER', 1);
+define('LOGISTIC_TYPE_IS_ITEM', 2);
+
 include_once 'suppliers.class.php';
 include_once 'managemodel.class.php';
 include_once 'chains.class.php';

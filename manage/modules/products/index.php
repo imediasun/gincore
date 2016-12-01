@@ -495,8 +495,11 @@ class products extends Controller
                 $goods_query = $this->all_configs['db']->makeQuery('?query
                     AND (g.type IS NULL OR g.type=0)', array($goods_query));
             }
+        } else {
+            $goods_query = $this->all_configs['db']->makeQuery(' ?query AND g.avail=1',
+                array($goods_query));
         }
-        // По складам
+        //По складам
         if (isset($get['wh']) && count(array_values(array_filter(explode('-', $get['wh'])))) > 0) {
             $goods_query = $this->all_configs['db']->makeQuery(', {warehouses_goods_items} as i
                 ?query AND i.goods_id=g.id AND i.wh_id IN (?li)',
