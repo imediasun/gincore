@@ -29,7 +29,7 @@ class Mailer extends PHPMailer
     /**
      * @param        $subject
      * @param        $email
-     * @param array  $data
+     * @param array $data
      * @param string $body
      */
     function group($subject, $email, $data = array(), $body = 'Новое письмо')
@@ -163,6 +163,15 @@ class Mailer extends PHPMailer
                 $this->From = $this->all_configs['config']['from-system'];
                 break;
 
+            case('logistic-notification'):
+                $this->Subject = l('Заказ на доставку');
+                $this->Body = l('Заказ на доставку') . ':<br>';
+                $this->Body .= l('Груз:') . ' ' . $data['type'] . ' ' . $data['cargo'] . '<br>';
+                $this->Body .= l('Отправная точка:') . ' ' . $data['from'] . '<br>';
+                $this->Body .= l('Точка назначения:') . ' ' . $data['to'];
+                $this->From = $this->all_configs['config']['from-system'];
+                break;
+
             default:
                 $this->Subject = $subject;
                 $this->Body = $body;
@@ -200,11 +209,11 @@ class Mailer extends PHPMailer
      * @param        $content
      * @param        $title
      * @param        $user_destination
-     * @param int    $auto
+     * @param int $auto
      * @param string $query
-     * @param int    $type
-     * @param int    $prio
-     * @param int    $transporter
+     * @param int $type
+     * @param int $prio
+     * @param int $transporter
      */
     function send_message(
         $content,
@@ -215,7 +224,8 @@ class Mailer extends PHPMailer
         $type = 0,
         $prio = 1,
         $transporter = 1
-    ) {
+    )
+    {
         if ($transporter == 1) {
 
             $current_user = (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null);

@@ -55,7 +55,7 @@
 
         <form method="post" id="moving-item-form-<?= $rand ?>">
             <?php if ($item_id === 0 && $order === null): ?>
-                <p>Всего выбрано изделий: <span class="count-selected-items">0</span></p>
+                <p><?= l('Всего выбрано изделий') ?>: <span class="count-selected-items">0</span></p>
             <?php endif; ?>
             <?php if ($item_id > 0): ?>
                 <input type="hidden" name="item_id" value="<?= $item_id ?>"/>
@@ -82,11 +82,11 @@
                 </div>
             <?php endif; ?>
             <?php if ($item_id === null): ?>
-                <div class="form-group"><label>Количество:</label>
-                    <input class="form-control" type="text" maxlength="2" placeholder="Количество" name="count"
+                <div class="form-group"><label><?= l('Количество') ?>:</label>
+                    <input class="form-control" type="text" maxlength="2" placeholder="<?= l('Количество') ?>" name="count"
                            onkeydown="return isNumberKey(event)" value="1"/>
                 </div>
-                <div class="form-group"><label>Склад откуда:</label>
+                <div class="form-group"><label><?= l('Склад откуда') ?>:</label>
                     <select class="select-warehouses-item-move form-control" name="wh_id">
                         <?= $controller->get_options_for_move_item_form($with_logistic); ?>
                     </select></div>
@@ -135,7 +135,7 @@
                                 <?php else: ?>
                                     <input onchange="item_move_logistic(this)" type="checkbox" name="logistic" value="1"/>
                                 <?php endif; ?>
-                                С участием логистики
+                                <?= l('С участием логистики') ?>
                             </label></div>
                     <?php endif; ?>
                 </div>
