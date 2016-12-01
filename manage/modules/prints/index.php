@@ -104,7 +104,8 @@ class prints extends Controller
                     'invoicing',
                     'waybill',
                     'sale_warranty',
-                    'price_list'
+                    'price_list',
+                    'purchase_invoice'
                 )) && isset($_POST['html'])
             ) {
                 $var_id = $this->all_configs['db']->query("SELECT id FROM {?q} WHERE var = 'print_template_" . $save_act . "'",
