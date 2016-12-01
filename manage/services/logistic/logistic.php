@@ -24,6 +24,7 @@ class logistic extends \service{
                 $this->all_configs['db']->query("INSERT INTO {chains_moves}"
                                                 . "(item_id,item_type,chain_id,from_move_id) VALUES"
                                                 . "(?i, ?i, ?i, ?i)", array($item_id, $item_type, $chain['id'], $move_id));
+                /** @todo send mail to couriers */
             }
         }
     }
