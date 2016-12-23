@@ -412,9 +412,69 @@
                                             <?php $this->HideField->start($field['name']); ?>
                                             <div
                                                 class="form-group <?= !isset($hide[$field['name']]) ? 'hide-field' : '' ?>">
-                                                <label class="control-label"><?= $field['title'] ?>: </label>
-                                                <textarea class="form-control"
-                                                          name="users_fields[<?= $field['name'] ?>]"></textarea>
+                                                <label class="control-label"><?= $field['title'];
+                                                    //lopushansky edit
+                                                    if($field['mandat']>0){
+                                                        ?>
+                                                    <b class="text-danger">*</b>
+                                                       <?
+                                                    }
+
+                                                    //lopushansky edit
+                                                    ?>: </label>
+                                                <?
+                                                if($field['type']==0) {
+                                                    ?>
+                                                    <textarea class="form-control"
+                                                              name="users_fields[<?= $field['name'] ?>]"></textarea>
+                                                    <?
+                                                }
+                                                if($field['type']==1) {
+                                                    ?>
+                                                    <select class="form-control"
+                                                              name="users_fields[<?= $field['name'] ?>]">
+                                                    <?php
+                                                    $pieces = explode(",", $field['options']);
+
+                                                    foreach ($pieces as $value){
+                                                        ?>
+                                                        <option><?=$value;?></option>
+
+
+                                                        <?
+                                                    }
+                                                    ?>
+
+                                                    </select>
+                                                    <?
+                                                }
+                                                ?>
+
+
+                                                <?//lopushansky edit
+                                                if($field['type']==0) {
+                                                    if ($field['mandat'] == 0) {
+                                                        ?>
+                                                        <div class="checkbox new_field_check"><label> <input
+                                                                    onclick="new_field_mandat(<?= $field['id'] ?>,1);"
+                                                                    type="checkbox" value="0" name="mandat"/> Сделать
+                                                                поле обязательным </label></div>
+
+
+                                                        <?
+                                                    } else if ($field['mandat'] > 0) {
+                                                        ?>
+                                                        <div class="checkbox new_field_check"><label> <input
+                                                                    onclick="new_field_mandat(<?= $field['id'] ?>,0);"
+                                                                    type="checkbox" value="1" checked name="mandat"/>
+                                                                Сделать поле обязательным </label></div>
+                                                        <?
+                                                    }
+                                                }
+                                                //lopushansky edit
+                                                ?>
+                                                
+
                                             </div>
                                             <?php $this->HideField->end(); ?>
                                         <?php endforeach; ?>
@@ -462,6 +522,31 @@
 
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="hide-field-td">
+                                            <div class="form-group js-new_field_height" style="height: 50px"></div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group col-sm-12 js-new_users_fields hide-field"
+                                                 style="padding-left:0; display:none">
+                                                <label class="control-label"><?= l('Добавить поле c выпадающим списком') ?>: </label>
+                                                <div class="input-group">
+                                                    <input class="form-control_2" name="users_select_field_name"
+                                                           placeholder="<?= l('Введите название поля') ?>"
+                                                           aria-describedby="js-add_new_user_fields"/>
+                                                    <input class="form-control_2" name="users_field_options"
+                                                           placeholder="<?= l('Укажите список через запятую') ?>"
+                                                           aria-describedby="js-add_new_user_fields"/>
+                                                    <span class="input-group-addon"
+                                                          id='js-add_new_user_fields_select'
+                                                          onclick="return create_new_users_select_field(this);"
+                                                          style="cursor:pointer">+</span>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+
                                     <tr>
                                         <td class="hide-field-td" style="padding-right: 10px !important;">
                                             <div class="form-group" style="margin-top: 0px;">

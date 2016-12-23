@@ -1,6 +1,6 @@
 <?php if ($this->all_configs['oRole']->hasPrivilege('show-categories-filters')): ?>
 
-    <form method="post" enctype="multipart/form-data">
+    <form id="form" method="post" enctype="multipart/form-data">
         <fieldset>
             <legend>
                 <?php if (!empty($cur_category['thumbs'])): ?>
@@ -22,7 +22,7 @@
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input name="avail" <?= ($cur_category['avail'] == 1) ? 'checked' : '' ?> type="checkbox">
+                        <input id="avail" name="avail" <?= ($cur_category['avail'] == 1) ? 'checked' : '' ?> type="checkbox">
                         <?= l('Активность') ?>
                     </label>
                 </div>
@@ -125,9 +125,27 @@
 
                     <?php else: ?>
                         <script>$(":input:not(:disabled)").prop("disabled", true)</script>
+
+
+
+
+
+
                     <?php endif; ?>
         </fieldset>
     </form>
+     <script>
+        $( "#form" ).submit(function( event ) {
+
+          if(!$('#avail').prop('checked')){
+            alert('Товар перемещен в корзину')
+
+          }
+
+
+        });
+      </script>
+
 <?php else: ?>
     <p class="text-error"><?= l('У Вас нет прав для просмотра категорий') ?></p>
 <?php endif; ?>

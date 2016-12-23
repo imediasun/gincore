@@ -77,7 +77,6 @@ try {
 //echo $ifauth['login'];
 
     $a0 = isset($all_configs['arrequest'][0]) ? $all_configs['arrequest'][0] : '';
-
     $db = $all_configs['db'];
 
     if (!$ifauth && !in_array($a0, array('login_form', 'forgot_password', 'forgot_password_form'))) {
@@ -95,6 +94,7 @@ try {
     if (isset($all_configs['arrequest'][0])) {
 
         if ($all_configs['arrequest'][0] == 'login_form') {
+            print('login_form');
             if ($ifauth) {
                 if (isset($_COOKIE['login_redirect']) && strpos($_COOKIE['login_redirect'], 'login_form') === false) {
                     header("Location: " . $_COOKIE['login_redirect']);

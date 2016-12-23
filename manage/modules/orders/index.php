@@ -2402,6 +2402,46 @@ class orders extends Controller
                 $data = $this->addUsersField($_POST, $data);
             }
         }
+        
+        
+        
+        //lopushansky edit
+
+
+        if ($act == 'add-users-select-field') {
+            $data = array(
+                'state' => false,
+                'msg' => l('Проблемы при добавлении пользовательского поля в заказ')
+            );
+            if (!empty($_POST['name'])) {
+                $data = $this->addUsersField($_POST, $data);
+            }
+        }
+
+
+
+
+        if ($act == 'check_box_mandat') {
+           $id= $_POST['id'];
+            print('запрос'.$_POST['id'].' mandat'.$_POST['mandat']);
+            if($_POST['mandat']==0){
+                db()->query("UPDATE {users_fields} SET mandat='0' WHERE id= $id ");
+
+            }
+            if($_POST['mandat']==1){
+                db()->query("UPDATE {users_fields} SET mandat='1' WHERE id= $id ");
+
+            }
+            $data = array(
+                'state' => false,
+                'msg' => '123'
+            );
+          
+        }
+        //lopushansky edit
+        
+        
+        
         if ($act == 'set-engineer-of-service') {
             $data = $this->setEngineerOfService($_POST, $mod_id);
         }
@@ -3376,7 +3416,12 @@ class orders extends Controller
      */
     private function addUsersField($post, $data)
     {
+       print_r($post);
         $title = trim($post['name']);
+        //lopushansky edit
+        $options = trim($post['options']);
+        $type = $post['type'];
+        //lopushansky edit
         if (empty($title)) {
             return array(
                 'state' => false,
@@ -3384,9 +3429,18 @@ class orders extends Controller
             );
         }
         $name = transliturl($title);
+
         if (db()->query('SELECT count(*) FROM {users_fields} WHERE name=?', array($name))->el() == 0) {
-            $ar = db()->query('INSERT INTO {users_fields} (name, title) VALUES (?, ?)',
-                array($name, $title))->ar();
+            if($options){
+                $ar = db()->query('INSERT INTO {users_fields} (name, title, type, options) VALUES (?, ?, ?, ?)',
+                    array($name, $title, $type, $options))->ar();
+            }
+            else{
+                $ar = db()->query('INSERT INTO {users_fields} (name, title, type) VALUES (?, ?, ?)',
+                    array($name, $title, $type))->ar();
+
+            }
+
             if ($ar) {
                 $config = $this->all_configs['db']->query("SELECT value FROM {settings} WHERE name = 'order-fields-hide'")->el();
                 if (!empty($config)) {

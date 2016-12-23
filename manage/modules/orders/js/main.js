@@ -257,13 +257,104 @@ $(function () {
     .each(resizeInput);
 });
 
+//lopushansky edit
+
+function new_field_mandat(id,mandat){
+  alert(id);
+
+
+  $.ajax({
+    url: prefix + module + '/ajax/?act=check_box_mandat',
+    dataType: "json",
+    data: {id: id,mandat:mandat},
+    type: 'POST',
+    success: function (data) {
+      $.each(data, function(index, value) {
+        alert(index +':'+ value);
+      });
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.responseText);
+    }
+  });
+
+
+}
+
+
+function alertObject(obj) {
+  var str = "";
+  for (k in obj) {
+    str += k + ": " + obj[k] + "\r\n";
+  }
+  alert(str);
+}
+
+function create_new_users_select_field(_this) {
+  var name = $('input[name="users_select_field_name"]').val();
+  var options = $('input[name="users_field_options"]').val();
+  alert(options +''+ name);
+  if (name) {
+    $.ajax({
+      url: prefix + module + '/ajax/?act=add-users-select-field',
+      dataType: "json",
+      data: {name: name, type:1, options:options},
+      type: 'POST',
+      success: function (msg) {
+        if (msg['state']) {
+          var $div = $('.js-new_field').clone(),
+              $toggle = $('#toggle-for-new-field').clone();
+
+          $div.removeClass('js-new_field');
+          $div.children('label').html(msg['title']);
+          $div.children('textarea').attr('name', 'users_fields[' + msg.name + ']');
+
+
+
+          $('div.new_fields').append($div);
+          $('div.new_fields').append('<div class="checkbox"> <label> <input type="checkbox" value="1" name="mandatory"/> Сделать поле обязательным </label> </div>');
+          $div.show();
+          $('input[name="users_field_name"]').val('')
+          $toggle.attr('id', '');
+          $toggle.find('input').attr('name', 'config[' + msg.name + ']').addClass('test-toggle');
+          $toggle.show();
+          $toggle.insertBefore('#toggle-for-new-field');
+          $(".test-toggle").bootstrapSwitch();
+        } else {
+          alert(msg['msg']);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.responseText);
+      }
+    });
+  } else {
+    $('input[name="users_filed_name"]').css('border-color', 'red');
+  }
+  return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//lopushansky edit
+
 function create_new_users_fields(_this) {
+
   var name = $('input[name="users_field_name"]').val();
   if (name) {
     $.ajax({
       url: prefix + module + '/ajax/?act=add-users-field',
       dataType: "json",
-      data: {name: name},
+      data: {name: name, type: 0},
       type: 'POST',
       success: function (msg) {
         if (msg['state']) {
@@ -273,7 +364,11 @@ function create_new_users_fields(_this) {
           $div.removeClass('js-new_field');
           $div.children('label').html(msg['title']);
           $div.children('textarea').attr('name', 'users_fields[' + msg.name + ']');
+
+
+
           $('div.new_fields').append($div);
+          $('div.new_fields').append('<div class="checkbox"> <label> <input type="checkbox" value="1" name="mandatory"/> Сделать поле обязательным </label> </div>');
           $div.show();
           $('input[name="users_field_name"]').val('')
           $toggle.attr('id', '');
