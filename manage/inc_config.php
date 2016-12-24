@@ -13,6 +13,7 @@ $html_template = 'html_template.html';
 $pre_title = 'Manage';
 $all_configs = array();
 $all_configs['path'] = str_replace('//', '/', dirname(__FILE__) . '/');
+
 $all_configs['prefix'] = str_replace(rtrim($_SERVER['DOCUMENT_ROOT'], '/'), '', $all_configs['path']);
 
 $all_configs['siteprefix'] = str_replace('manage/', '', $all_configs['prefix']);

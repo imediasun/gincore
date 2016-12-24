@@ -32,7 +32,7 @@ try {
         }
 
     }
-
+ 
     if (empty($all_configs['configs']['settings-system-lang-select-enabled'])) {
         // генерим переключалку языков админки
         $active_lang_name = '';

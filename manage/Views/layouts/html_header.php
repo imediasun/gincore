@@ -1,9 +1,11 @@
 <?php
-$autoload = $webRoot . '/../gincore/vendor/autoload.php';
+
+$autoload = '/../gincore/vendor/autoload.php';
 
 if (file_exists($autoload)) {
     require_once $autoload;
 } else {
+    
     $error = true;
 }
 
@@ -21,7 +23,8 @@ use Assetic\AssetWriter;
     <title>{-txt-page_title}</title>
     <script type="text/javascript">var manage_lang = '{-html-manage_lang}';</script>
 
-    <?php if (DEBUG || isset($error)): ?>
+    <?php
+        if (DEBUG || isset($error)): ?>
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>bootstrap/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap-responsive.min.css">
     <link type="text/css" rel="stylesheet" href="<?= $assetsDir ?>css/bootstrap3-editable.css">

@@ -10,11 +10,11 @@ class Configs
     public function set_configs()
     {
         $this->configs = array(
-            'host' => 'gincore.net',
-            'canonical-host' => 'https://gincore.net',
+            'host' => '',
+            'canonical-host' => '',
             'from-system' => 'gincore@ginсore.net',
             'shop-name' => 'Gincore',
-            'api_url' => 'https://gincore.net/manage/modules/gincore/api.php',
+            'api_url' => 'https:/gincore.imedia.in.ua/manage/modules/gincore/api.php',
 
             /*
              * блок конфига для саас

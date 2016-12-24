@@ -1,0 +1,6 @@
+composer.phar
+composer.lock
+vendor
+tests/Real/params.php
+/.idea/
+phpunit.xml

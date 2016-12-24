@@ -25,6 +25,7 @@
  * @return array
  */
 function replace_pattern($matches) {
+
     GLOBAL $input, $input_js, $input_css, $input_html;
 
     if ($matches[1]=='txt'){ // && !isset($input[$matches[2]])
@@ -58,6 +59,7 @@ function replace_pattern($matches) {
             return '';
         }
     }
+
 }
 
 ################################################################################
@@ -69,11 +71,14 @@ if ($html_header == 'html_header.html') {
         'assetsDir' => $all_configs['prefix'],
         'webRoot' => __DIR__
     ));
+
 } else {
     $html = file_get_contents($html_header);
 }
 //    file_get_contents($html_header);
 $html .= file_get_contents($html_template);
+
+
 
 
 #определение заменяемых переменных
@@ -83,6 +88,7 @@ if(!isset($all_configs['arrequest'][0])){
 $input['siteprefix'] = $all_configs['siteprefix'];
 $input['prefix'] = $all_configs['prefix']; //{-txt-prefix}
 $input['page_title'] = $pre_title;
+
 $input['module'] = isset($all_configs['arrequest'][0]) ? $all_configs['arrequest'][0] : '';
 
 $input_html['timer'] = timerout(0);
@@ -102,6 +108,7 @@ $input_html['timer_alerts'] = $view->renderFile('messages/alarms', array(
 ));
 
 $input_html['mainmenu'] = $mainmenu;
+//
 
 if (isset($infoblock)) {
     $input_html['infoblock'] = $infoblock->genblock();
